@@ -19,11 +19,10 @@ const (
 
 func main() {
 	remove := flag.Bool("remove", false, "Remove application's docker containers")
-	// serverType := flag.Int("type", master, "Server type: 0(master) or 1(probe)")
-	// host := flag.String("host", "", "Master host name")
 	user := flag.String("user", "", "DB username")
 	pass := flag.String("pass", "", "DB password")
 	datadir := flag.String("datadir", "", "Data directory")
+	// TODO: request needed client data
 	flag.Parse()
 
 	if *remove {
