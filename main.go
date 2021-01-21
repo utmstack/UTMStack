@@ -36,7 +36,7 @@ func main() {
 }
 
 func uninstall() {
-	checkCmd("docker", "stack", "rm", "utmstack")
+	check(runCmd("docker", "stack", "rm", "utmstack"))
 }
 
 func install(user, pass string, datadir string) {
@@ -65,7 +65,7 @@ func install(user, pass string, datadir string) {
 	defer f.Close()
 	tmpl.Execute(f, args)
 	// deploy
-	checkCmd("docker", "stack", "deploy", "--compose-file", tmplName, "utmstack")
+	check(runCmd("docker", "stack", "deploy", "--compose-file", tmplName, "utmstack"))
 
 	// wait for elastic to be ready
 	for {

@@ -21,18 +21,10 @@ func runCmd(command string, arg ...string) error {
 	return runEnvCmd([]string{}, command, arg...)
 }
 
-func checkCmd(command string, arg ...string) {
-	if err := runCmd(command, arg...); err != nil {
-		log.Fatal(err)
-	}
-}
-
 func checkOutput(command string, arg ...string) string {
 	log.Println("Executing command:", command, "with args:", arg)
 	out, err := exec.Command(command, arg...).Output()
-	if err != nil {
-		log.Fatal(err)
-	}
+	check(err)
 	return strings.TrimSpace(string(out))
 }
 
