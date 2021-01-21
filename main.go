@@ -53,13 +53,15 @@ func install(user, pass string, datadir string) {
 
 	// setup docker
 	if runCmd("docker", "version") != nil {
+		aptGet("update")
+		aptGet("install", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common")
+
 		env := []string{"DEBIAN_FRONTEND=noninteractive"}
-		runEnvCmd(env, "apt-get", "--yes", "update")
-		runEnvCmd(env, "apt-get", "--yes", "install", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common")
 		runEnvCmd(env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -")
 		runEnvCmd(env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`)
-		runEnvCmd(env, "apt-get", "--yes", "update")
-		runEnvCmd(env, "apt-get", "--yes", "install", "docker-ce", "docker-ce-cli", "containerd.io")
+
+		aptGet("update")
+		aptGet("install", "docker-ce", "docker-ce-cli", "containerd.io")
 	}
 	runCmd("docker", "swarm", "init")
 
