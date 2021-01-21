@@ -59,7 +59,7 @@ func install(user, pass string, datadir string) {
 	runCmd("docker", "swarm", "init")
 
 	// generate composer file
-	tmplName = "utmstack.yml"
+	tmplName := "utmstack.yml"
 	tmpl := template.Must(template.New(tmplName).Parse(master_template))
 	f, err := os.Create(tmplName)
 	check(err)
