@@ -1,3 +1,5 @@
+# Installer for GNU/Linux
+
 ![Go](https://github.com/UTMStack/installer/workflows/Go/badge.svg)
 [![Quality Gate Status](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=alert_status)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Bugs](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=bugs)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
@@ -10,5 +12,3 @@
 [![Security Rating](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=security_rating)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Technical Debt](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=sqale_index)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Vulnerabilities](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=vulnerabilities)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
-
-# The next UTMStack installer for Linux
