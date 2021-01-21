@@ -59,13 +59,14 @@ func install(user, pass string, datadir string) {
 	runCmd("docker", "swarm", "init")
 
 	// generate composer file
-	tmpl := template.Must(template.New("utmstack.yml").Parse(master_template))
-	f, err := os.Create("utmstack.yml")
+	tmplName = "utmstack.yml"
+	tmpl := template.Must(template.New(tmplName).Parse(master_template))
+	f, err := os.Create(tmplName)
 	check(err)
 	defer f.Close()
 	tmpl.Execute(f, args)
 	// deploy
-	checkCmd("docker", "stack", "deploy", "--compose-file", "utmstack.yml", "utmstack")
+	checkCmd("docker", "stack", "deploy", "--compose-file", tmplName, "utmstack")
 
 	// wait for elastic to be ready
 	for {
