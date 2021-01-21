@@ -37,7 +37,7 @@ func main() {
 }
 
 func uninstall() {
-	check_cmd("docker", "stack", "rm", "utmstack")
+	checkCmd("docker", "stack", "rm", "utmstack")
 }
 
 func install(user, pass string, datadir string) {
@@ -53,10 +53,10 @@ func install(user, pass string, datadir string) {
 	args.EsMem = (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2
 
 	// setup docker
-	if run_cmd("docker", "version") != nil {
+	if runCmd("docker", "version") != nil {
 		// TODO: install docker
 	}
-	run_cmd("docker", "swarm", "init")
+	runCmd("docker", "swarm", "init")
 
 	// generate composer file
 	tmpl := template.Must(template.New("utmstack.yml").Parse(master_template))
@@ -65,7 +65,7 @@ func install(user, pass string, datadir string) {
 	defer f.Close()
 	tmpl.Execute(f, args)
 	// deploy
-	check_cmd("docker", "stack", "deploy", "--compose-file", "utmstack.yml", "utmstack")
+	checkCmd("docker", "stack", "deploy", "--compose-file", "utmstack.yml", "utmstack")
 
 	// wait for elastic to be ready
 	for {
