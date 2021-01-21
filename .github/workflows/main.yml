@@ -1,0 +1,31 @@
+name: Sonarqube
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update Packages
+        run: sudo apt update
+      
+      - name: Install Packages
+        run: sudo apt install -y wget unzip
+      
+      - name: Download Agent
+        run: wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.5.0.2216-linux.zip
+      
+      - name: Unzip Agent
+        run: unzip sonar-scanner-cli-4.5.0.2216-linux.zip      
+        
+      - name: Analyze
+        run: sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner -Dsonar.projectKey=utmstack_installer -Dsonar.sources=. -Dsonar.host.url=https://atlasinside-qube.eastus.cloudapp.azure.com -Dsonar.login=d491f7dff027a9efc4ba37d5e9c27499da33d1ce
