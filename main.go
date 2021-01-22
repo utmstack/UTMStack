@@ -48,7 +48,7 @@ func install(user, pass string, datadir string) {
 	var err error
 	args.ServerName, err = os.Hostname()
 	check(err)
-	args.Secret = uniuri.New()
+	args.Secret = uniuri.NewLen(10)
 	args.EsMem = (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2
 
 	// setup docker
