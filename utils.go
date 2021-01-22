@@ -28,11 +28,6 @@ func checkOutput(command string, arg ...string) string {
 	return strings.TrimSpace(string(out))
 }
 
-func aptGet(command string, arg ...string) error {
-	env := []string{"DEBIAN_FRONTEND=noninteractive"}
-	return runEnvCmd(env, "apt-get", append([]string{"--yes"}, arg...)...)
-}
-
 func check(e error) {
 	if e != nil {
 		log.Fatal(e)
