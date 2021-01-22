@@ -12,6 +12,19 @@ import (
 	"github.com/pbnjay/memory"
 )
 
+type TemplateArgs struct {
+	ServerName    string
+	User          string
+	Pass          string
+	DataDir       string
+	// master specific:
+	FQDN          string
+	CustomerName  string
+	CustomerEmail string
+	Secret        string
+	EsMem         uint64
+}
+
 const (
 	master = 0
 	probe  = 1
