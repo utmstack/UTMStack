@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"text/template"
 
 	"github.com/dchest/uniuri"
@@ -15,13 +16,15 @@ type TemplateArgs struct {
 	ServerName string
 	User       string
 	Pass       string
-	DataDir    string
 	// master specific:
 	FQDN          string
 	CustomerName  string
 	CustomerEmail string
 	Secret        string
 	EsMem         uint64
+	EsData        string
+	EsBackups     string
+	NginxCert     string
 }
 
 const (
@@ -57,16 +60,18 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	args := TemplateArgs{
 		User:          user,
 		Pass:          pass,
-		DataDir:       datadir,
 		FQDN:          fqdn,
 		CustomerName:  customerName,
 		CustomerEmail: customerEmail,
+		Secret:        uniuri.NewLen(10),
+		EsMem:         (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2,
+		EsData:        filepath.Join("elasticsearch", "data"),
+		EsBackups:     filepath.Join("elasticsearch", "backups"),
+		NginxCert:     filepath.Join("nginx", "cert"),
 	}
 	var err error
 	args.ServerName, err = os.Hostname()
 	check(err)
-	args.Secret = uniuri.NewLen(10)
-	args.EsMem = (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2
 
 	// setup docker
 	if runCmd("docker", "version") != nil {
