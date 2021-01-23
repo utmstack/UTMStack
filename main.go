@@ -12,10 +12,10 @@ import (
 )
 
 type TemplateArgs struct {
-	ServerName    string
-	User          string
-	Pass          string
-	DataDir       string
+	ServerName string
+	User       string
+	Pass       string
+	DataDir    string
 	// master specific:
 	FQDN          string
 	CustomerName  string
@@ -55,11 +55,11 @@ func uninstall() {
 
 func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	args := TemplateArgs{
-		User:    user,
-		Pass:    pass,
-		DataDir: datadir,
-		FQDN: fqdn,
-		CustomerName: customerName,
+		User:          user,
+		Pass:          pass,
+		DataDir:       datadir,
+		FQDN:          fqdn,
+		CustomerName:  customerName,
 		CustomerEmail: customerEmail,
 	}
 	var err error
