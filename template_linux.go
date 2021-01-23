@@ -16,8 +16,8 @@ services:
   elasticsearch:
     image: "utmstack.azurecr.io/opendistro:1.11.0"
     volumes:
-      - {{.DataDir}}\elasticsearch\data:/usr/share/elasticsearch/data
-      - {{.DataDir}}\elasticsearch\backups:/usr/share/elasticsearch/backups
+      - {{.DataDir}}/elasticsearch/data:/usr/share/elasticsearch/data
+      - {{.DataDir}}/elasticsearch/backups:/usr/share/elasticsearch/backups
     environment:
       - node.name=elasticsearch
       - discovery.seed_hosts=elasticsearch
@@ -102,5 +102,5 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - {{.DataDir}}\nginx\cert:/etc/nginx/cert`
+      - {{.DataDir}}/nginx/cert:/etc/nginx/cert`
 )
