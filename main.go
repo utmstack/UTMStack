@@ -8,7 +8,6 @@ import (
 	"text/template"
 
 	"github.com/dchest/uniuri"
-	"github.com/levigross/grequests"
 	"github.com/pbnjay/memory"
 )
 
@@ -85,17 +84,6 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	// deploy
 	check(runCmd("docker", "stack", "deploy", "--compose-file", tmplName, "utmstack"))
 
-	// wait for elastic to be ready
-	for {
-		_, err := grequests.Get("http://localhost:9200/_cluster/healt", &grequests.RequestOptions{
-			Params: map[string]string{
-				"wait_for_status": "yellow",
-				"timeout":         "50s",
-			},
-		})
-		if err == nil {
-			break
-		}
-	}
-	// TODO: configure elastic
+	// configure elastic
+	initializeElastic(args.Secret)
 }
