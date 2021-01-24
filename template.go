@@ -9,6 +9,7 @@ volumes:
     external: false
   wazuh_logs:
     external: false
+
 services:
   elasticsearch:
     image: "utmstack.azurecr.io/opendistro:1.11.0"
@@ -21,6 +22,7 @@ services:
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms{{.EsMem}}g -Xmx{{.EsMem}}g"
       - path.repo=/usr/share/elasticsearch/backups
+
   openvas:
     image: "utmstack.azurecr.io/openvas:11"
     ports:
@@ -31,6 +33,7 @@ services:
       - PASSWORD={{.Pass}}
       - DB_PASSWORD={{.Pass}}
       - HTTPS=0
+
 # Configure pipeline from mutate
   logstash:
     image: "utmstack.azurecr.io/logstash:7.9.3"
@@ -40,6 +43,7 @@ services:
       - 5044:5044
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
+
   kibana:
     depends_on:
       - elasticsearch
@@ -47,6 +51,7 @@ services:
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
   rsyslog:
     image: "utmstack.azurecr.io/rsyslog:8.36.0"
     volumes:
@@ -54,6 +59,7 @@ services:
     ports:
       - 514:514
       - 514:514/udp
+
   wazuh:
     image: "utmstack.azurecr.io/wazuh:3.11.1"
     volumes:
@@ -61,8 +67,19 @@ services:
     ports:
       - 1514:1514
       - 1514:1514/udp
+
   scanner:
     image: "utmstack.azurecr.io/scanner:1.0.0"
+
+# Add configs to image in /etc/nginx/conf
+  nginx:
+    image: "utmstack.azurecr.io/nginx:1.19.5"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - {{.NginxCert}}:/etc/nginx/cert
+
   panel:
     depends_on:
       - openvas
@@ -92,12 +109,4 @@ services:
       - CATALINA_BASE=/opt/tomcat/
       - CATALINA_HOME=/opt/tomcat/
       - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
-# Add configs to image in /etc/nginx/conf
-  nginx:
-    image: "utmstack.azurecr.io/nginx:1.19.5"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - {{.NginxCert}}:/etc/nginx/cert`
-)
+`)
