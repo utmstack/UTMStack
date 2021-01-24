@@ -66,6 +66,7 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	defer f.Close()
 	f.WriteString(composerTemplate)
 	env := []string{
+		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
 		"DB_USER=" + user,
 		"DB_PASS=" + pass,
