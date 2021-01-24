@@ -65,9 +65,9 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 		CustomerEmail: customerEmail,
 		Secret:        uniuri.NewLen(10),
 		EsMem:         (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2,
-		EsData:        filepath.Join("elasticsearch", "data"),
-		EsBackups:     filepath.Join("elasticsearch", "backups"),
-		NginxCert:     filepath.Join("nginx", "cert"),
+		EsData:        filepath.Join(datadir, "elasticsearch", "data"),
+		EsBackups:     filepath.Join(datadir, "elasticsearch", "backups"),
+		NginxCert:     filepath.Join(datadir, "nginx", "cert"),
 	}
 	var err error
 	args.ServerName, err = os.Hostname()
