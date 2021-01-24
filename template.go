@@ -161,4 +161,14 @@ services:
       - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.openvas"]
+
+  utmstack_suric:
+    depends_on:
+      - logan
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_USER
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.suric"]
 `)
