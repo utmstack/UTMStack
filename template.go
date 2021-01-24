@@ -206,4 +206,12 @@ services:
       - CLIENT_SECRET
       - CLIENT_MAIL
     command: ["python3", "-m", "utmstack.probe_api"]
+
+  utmstack_logan:
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_USER
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.logan"]
 `)
