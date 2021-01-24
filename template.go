@@ -111,4 +111,14 @@ services:
       - CATALINA_BASE=/opt/tomcat/
       - CATALINA_HOME=/opt/tomcat/
       - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+
+  utmstack.aws:
+    depends_on:
+      - logan
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_USER
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.aws"]
 `)
