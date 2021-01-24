@@ -73,6 +73,11 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	args.ServerName, err = os.Hostname()
 	check(err)
 
+	// create data folders
+	os.MkdirAll(args.EsData, os.ModePerm)
+	os.MkdirAll(args.EsBackups, os.ModePerm)
+	os.MkdirAll(args.NginxCert, os.ModePerm)
+
 	// setup docker
 	if runCmd("docker", "version") != nil {
 		installDocker()
