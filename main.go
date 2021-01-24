@@ -2,30 +2,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"math"
 	"os"
 	"path/filepath"
-	"text/template"
 
 	"github.com/dchest/uniuri"
 	"github.com/pbnjay/memory"
 )
-
-type TemplateArgs struct {
-	ServerName string
-	User       string
-	Pass       string
-	// master specific:
-	FQDN          string
-	CustomerName  string
-	CustomerEmail string
-	Secret        string
-	EsMem         uint64
-	EsData        string
-	EsBackups     string
-	NginxCert     string
-}
 
 const (
 	master = 0
@@ -57,26 +42,17 @@ func uninstall() {
 }
 
 func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
-	args := TemplateArgs{
-		User:          user,
-		Pass:          pass,
-		FQDN:          fqdn,
-		CustomerName:  customerName,
-		CustomerEmail: customerEmail,
-		Secret:        uniuri.NewLen(10),
-		EsMem:         (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2,
-		EsData:        filepath.Join(datadir, "elasticsearch", "data"),
-		EsBackups:     filepath.Join(datadir, "elasticsearch", "backups"),
-		NginxCert:     filepath.Join(datadir, "nginx", "cert"),
-	}
-	var err error
-	args.ServerName, err = os.Hostname()
+	serverName, err := os.Hostname()
 	check(err)
+	secret := uniuri.NewLen(10)
+	esData := filepath.Join(datadir, "elasticsearch", "data")
+	esBackups := filepath.Join(datadir, "elasticsearch", "backups")
+	nginxCert := filepath.Join(datadir, "nginx", "cert")
 
 	// create data folders
-	os.MkdirAll(args.EsData, os.ModePerm)
-	os.MkdirAll(args.EsBackups, os.ModePerm)
-	os.MkdirAll(args.NginxCert, os.ModePerm)
+	os.MkdirAll(esData, os.ModePerm)
+	os.MkdirAll(esBackups, os.ModePerm)
+	os.MkdirAll(nginxCert, os.ModePerm)
 
 	// setup docker
 	if runCmd("docker", "version") != nil {
@@ -84,16 +60,26 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	}
 	runCmd("docker", "swarm", "init")
 
-	// generate composer file
-	tmplName := "utmstack.yml"
-	tmpl := template.Must(template.New(tmplName).Parse(master_template))
-	f, err := os.Create(tmplName)
+	// generate composer file and deploy
+	f, err := os.Create(composerFile)
 	check(err)
 	defer f.Close()
-	tmpl.Execute(f, args)
-	// deploy
-	check(runCmd("docker", "stack", "deploy", "--compose-file", tmplName, "utmstack"))
+	f.WriteString(composerTemplate)
+	env := []string{
+		"SERVER_NAME=" + serverName,
+		"DB_USER=" + user,
+		"DB_PASS=" + pass,
+		"CLIENT_DOMAIN=" + fqdn,
+		"CLIENT_NAME=" + customerName,
+		"CLIENT_MAIL=" + customerEmail,
+		"CLIENT_SECRET=" + secret,
+		fmt.Sprint("ES_MEM=", (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2),
+		"ES_DATA=" + esData,
+		"ES_BACKUPS=" + esBackups,
+		"NGINX_CERT=" + nginxCert,
+	}
+	check(runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName))
 
 	// configure elastic
-	initializeElastic(args.Secret)
+	initializeElastic(secret)
 }

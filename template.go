@@ -1,7 +1,9 @@
 package main
 
 const (
-	master_template = `version: "3.8"
+	stackName = "utmstack"
+	composerFile = "utmstack.yml"
+	composerTemplate = `version: "3.8"
 volumes:
   logstash_pipeline:
     external: false
@@ -14,13 +16,13 @@ services:
   elasticsearch:
     image: "utmstack.azurecr.io/opendistro:1.11.0"
     volumes:
-      - {{.EsData}}:/usr/share/elasticsearch/data
-      - {{.EsBackups}}:/usr/share/elasticsearch/backups
+      - ${ES_DATA}:/usr/share/elasticsearch/data
+      - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
     environment:
       - node.name=elasticsearch
       - discovery.seed_hosts=elasticsearch
       - cluster.initial_master_nodes=elasticsearch
-      - "ES_JAVA_OPTS=-Xms{{.EsMem}}g -Xmx{{.EsMem}}g"
+      - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch/backups
 
   openvas:
@@ -29,9 +31,9 @@ services:
       - "5432:5432"
       - "9390:9390"
     environment:
-      - USERNAME={{.User}}
-      - PASSWORD={{.Pass}}
-      - DB_PASSWORD={{.Pass}}
+      - USERNAME=${DB_USER}
+      - PASSWORD=${DB_PASS}
+      - DB_PASSWORD=${DB_PASS}
       - HTTPS=0
 
 # Configure pipeline from mutate
@@ -78,7 +80,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - {{.NginxCert}}:/etc/nginx/cert
+      - ${NGINX_CERT}:/etc/nginx/cert
 
   panel:
     depends_on:
@@ -86,24 +88,24 @@ services:
       - elasticsearch
     image: "utmstack.azurecr.io/panel:7.0.0"
     environment:
-      - TOMCAT_ADMIN_USER={{.User}}
-      - TOMCAT_ADMIN_PASSWORD={{.Pass}}
+      - TOMCAT_ADMIN_USER=${DB_USER}
+      - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
       - POSTGRESQL_USER=gvm
-      - POSTGRESQL_PASSWORD={{.Pass}}
+      - POSTGRESQL_PASSWORD=${DB_PASS}
       - POSTGRESQL_HOST=openvas
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
-      - ELASTICSEARCH_SECRET={{.Secret}}
+      - ELASTICSEARCH_SECRET=${CLIENT_SECRET}
       - OPENVAS_HOST=openvas
       - OPENVAS_PORT=9390
-      - OPENVAS_USER={{.User}}
-      - OPENVAS_PASSWORD={{.Pass}}
+      - OPENVAS_USER=${DB_USER}
+      - OPENVAS_PASSWORD=${DB_PASS}
       - OPENVAS_PG_PORT=5432
       - OPENVAS_PG_DATABASE=gvmd
       - OPENVAS_PG_USER=gvm
-      - OPENVAS_PG_PASSWORD={{.Pass}}
+      - OPENVAS_PG_PASSWORD=${DB_PASS}
       - JRE_HOME=/opt/tomcat/bin/jre
       - JAVA_HOME=/opt/tomcat/bin/jre
       - CATALINA_BASE=/opt/tomcat/
