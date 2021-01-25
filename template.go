@@ -136,6 +136,8 @@ services:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - logstash_pipeline:/usr/share/logstash/pipeline
     environment:
       - SERVER_NAME
       - DB_USER
@@ -176,6 +178,8 @@ services:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - rsyslog_logs:/var/logs
     environment:
       - SERVER_NAME
       - DB_USER
