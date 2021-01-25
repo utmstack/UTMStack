@@ -179,7 +179,7 @@ services:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
-      - rsyslog_logs:/var/logs
+      - rsyslog_logs:/logs
     environment:
       - SERVER_NAME
       - DB_USER
