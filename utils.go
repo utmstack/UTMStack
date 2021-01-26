@@ -42,7 +42,7 @@ func initializeElastic(secret string) {
 	for {
 		_, err := grequests.Get(baseURL + "_cluster/healt", &grequests.RequestOptions{
 			Params: map[string]string{
-				"wait_for_status": "yellow",
+				"wait_for_status": "green",
 				"timeout":         "50s",
 			},
 		})
