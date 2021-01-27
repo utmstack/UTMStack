@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/dchest/uniuri"
 	"github.com/pbnjay/memory"
@@ -50,19 +51,18 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	nginxCert := filepath.Join(datadir, "nginx", "cert")
 
 	// create data folders
-	os.MkdirAll(esData, os.ModePerm)
-	os.MkdirAll(esBackups, os.ModePerm)
-	os.MkdirAll(nginxCert, os.ModePerm)
+	os.MkdirAll(esData, 0777)
+	os.MkdirAll(esBackups, 0777)
+	os.MkdirAll(nginxCert, 0777)
 
-	// set data folders permissions
-	runCmd("chmod", "777", esData)
-	runCmd("chmod", "777", esBackups)
-	runCmd("chmod", "777", nginxCert)
-
-	// set map_max_count size to 262144
-	runCmd("sysctl", "-w", "vm.max_map_count=262144")
-	//TODO Fix this command to do this config permanent
-	runCmd("echo", "vm.max_map_count=262144", ">>", "/etc/sysctl.conf")
+	if runtime.GOOS == "linux" {
+		// set map_max_count size to 262144
+		runCmd("sysctl", "-w", "vm.max_map_count=262144")
+		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		check(err)
+		defer f.Close()
+		f.WriteString("vm.max_map_count=262144")
+	}
 
 	// setup docker
 	if runCmd("docker", "version") != nil {
