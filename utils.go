@@ -39,7 +39,7 @@ func check(e error) {
 
 func initializeElastic(secret string) {
 	// wait for elastic to be ready
-	baseURL := "http://localhost:9200/"
+	baseURL := "http://127.0.0.1:9200/"
 	for {
 		fmt.Println("Waiting for Open Distro")
 		_, err := grequests.Get(baseURL + "_cluster/healt", &grequests.RequestOptions{
