@@ -1,8 +1,8 @@
 package main
 
 const (
-	stackName = "utmstack"
-	composerFile = "utmstack.yml"
+	stackName        = "utmstack"
+	composerFile     = "utmstack.yml"
 	composerTemplate = `version: "3.8"
 volumes:
   logstash_pipeline:
@@ -24,6 +24,8 @@ services:
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch/backups
+    ports:
+      - "localhost:9200:9200"
 
   openvas:
     image: "utmstack.azurecr.io/openvas:11"
@@ -208,4 +210,5 @@ services:
       - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.logan"]
-`)
+`
+)
