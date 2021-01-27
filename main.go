@@ -70,25 +70,21 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	}
 	runCmd("docker", "swarm", "init")
 
-	const(
-		repo = "utmstack.azurecr.io/"
-	)
-
 	containersImages := [10]string{
-		repo + "opendistro:1.11.0",
-		repo + "openvas:11",
-		repo + "logstash:7.9.3",
-		repo + "opendistro-kibana:1.11.0",
-		repo + "rsyslog:8.36.0",
-		repo + "wazuh:3.11.1",
-		repo + "scanner:1.0.0",
-		repo + "nginx:1.19.5",
-		repo + "panel:7.0.0",
-		repo + "datasources:7.0.0",
+		"opendistro:1.11.0",
+		"openvas:11",
+		 "logstash:7.9.3",
+		"opendistro-kibana:1.11.0",
+		"rsyslog:8.36.0",
+		"wazuh:3.11.1",
+		"scanner:1.0.0",
+		"nginx:1.19.5",
+		"panel:7.0.0",
+		"datasources:7.0.0",
 	}
 
-	for _, s := range containersImages {
-		check(runCmd("docker", "pull", s))
+	for _, image := range containersImages {
+		check(runCmd("docker", "pull", "utmstack.azurecr.io/" + image))
 	}
 
 	// generate composer file and deploy
