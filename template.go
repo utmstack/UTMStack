@@ -204,6 +204,9 @@ services:
     command: ["python3", "-m", "utmstack.probe_api"]
 
   utmstack_logan:
+    depends_on:
+      - openvas
+      - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
