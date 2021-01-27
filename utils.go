@@ -104,41 +104,19 @@ func initializeElastic(secret string) {
 	})
 	check(err)
 
-	// create template for DC index
-	_, err = grequests.Put(baseURL + "_template/dc_index", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"index_patterns": []string{"dc-*"},
-			"settings": map[string]interface{}{
-				"number_of_shards": 1,
-				"number_of_replicas": 0,
+	// create templates
+	for _, e := range []string{"dc", "utmstack", "utm"} {
+		_, err = grequests.Put(baseURL + "_template/" + e + "_index", &grequests.RequestOptions{
+			JSON: map[string]interface{}{
+				"index_patterns": []string{e + "-*"},
+				"settings": map[string]interface{}{
+					"number_of_shards": 1,
+					"number_of_replicas": 0,
+				},
 			},
-		},
-	})
-	check(err)
-
-	// create utmstack_index template
-	_, err = grequests.Put(baseURL + "_template/utmstack_index", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"index_patterns": []string{"utmstack-*"},
-			"settings": map[string]interface{}{
-				"number_of_shards": 1,
-				"number_of_replicas": 0,
-			},
-		},
-	})
-	check(err)
-
-	// crate template for geolocation index
-	_, err = grequests.Put(baseURL + "_template/utm_index", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"index_patterns": []string{"utm-*"},
-			"settings": map[string]interface{}{
-				"number_of_shards": 1,
-				"number_of_replicas": 0,
-			},
-		},
-	})
-	check(err)
+		})
+		check(err)
+	}
 
 	// enable snapshots
 	_, err = grequests.Put(baseURL + "_snapshot/main_index", &grequests.RequestOptions{
