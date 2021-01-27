@@ -59,7 +59,8 @@ func initializeElastic(secret string) {
 	}
 
 	// configure elastic
-	initialIndex := "index-" + secret + "-000001"
+	indexPrefix := "index-" + secret
+	initialIndex := indexPrefix + "-000001"
 	// create alias
 	_, err := grequests.Post(baseURL + "_aliases", &grequests.RequestOptions{
 		JSON: map[string][]interface{}{
@@ -67,7 +68,7 @@ func initializeElastic(secret string) {
 				map[string]interface{}{
 					"add": map[string]string{
 						"index": initialIndex,
-						"alias": "index-" + secret,
+						"alias": indexPrefix,
 					},
 				},
 			},
@@ -82,7 +83,7 @@ func initializeElastic(secret string) {
 			"settings": map[string]interface{}{
 				"index.mapping.total_fields.limit": 10000,
 				"opendistro.index_state_management.policy_id": "main_index_policy",
-				"opendistro.index_state_management.rollover_alias": "index-" + secret,
+				"opendistro.index_state_management.rollover_alias": indexPrefix,
 				"number_of_shards": 3,
 				"number_of_replicas": 0,
 			},
