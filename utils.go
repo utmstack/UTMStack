@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/levigross/grequests"
 )
@@ -41,17 +42,21 @@ func initializeElastic(secret string) {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
 	for {
-		fmt.Println("Waiting for Open Distro")
+		fmt.Println("Waiting for the search engine")
+		time.Sleep(50 * time.Second)
+
 		_, err := grequests.Get(baseURL + "_cluster/healt", &grequests.RequestOptions{
 			Params: map[string]string{
 				"wait_for_status": "green",
 				"timeout":         "50s",
 			},
 		})
-		fmt.Println("Open Distro is taking more than expected to run, retrying...")
+
 		if err == nil {
 			break
 		}
+
+		fmt.Println("The search engine is taking more than expected to run, retrying...")
 	}
 
 	// configure elastic

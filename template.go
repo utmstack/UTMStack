@@ -25,7 +25,7 @@ services:
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch/backups
     ports:
-      - "127.0.0.1:9200:9200"
+      - "9200:9200"
 
   openvas:
     image: "utmstack.azurecr.io/openvas:11"

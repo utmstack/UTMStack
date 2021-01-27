@@ -54,6 +54,16 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	os.MkdirAll(esBackups, os.ModePerm)
 	os.MkdirAll(nginxCert, os.ModePerm)
 
+	// set data folders permissions
+	runCmd("chmod", "777", esData)
+	runCmd("chmod", "777", esBackups)
+	runCmd("chmod", "777", nginxCert)
+
+	// set map_max_count size to 262144
+	runCmd("sysctl", "-w", "vm.max_map_count=262144")
+	//TODO Fix this command to do this config permanent
+	runCmd("echo", "vm.max_map_count=262144", ">>", "/etc/sysctl.conf")
+
 	// setup docker
 	if runCmd("docker", "version") != nil {
 		installDocker()
