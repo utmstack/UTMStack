@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -40,12 +41,14 @@ func initializeElastic(secret string) {
 	// wait for elastic to be ready
 	baseURL := "http://localhost:9200/"
 	for {
+		fmt.Println("Waiting for Open Distro")
 		_, err := grequests.Get(baseURL + "_cluster/healt", &grequests.RequestOptions{
 			Params: map[string]string{
 				"wait_for_status": "green",
 				"timeout":         "50s",
 			},
 		})
+		fmt.Println("Open Distro is taking more than expected to run, retrying...")
 		if err == nil {
 			break
 		}
