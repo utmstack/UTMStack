@@ -1,4 +1,4 @@
-// +build macos
+// +build darwin
 
 package main
 

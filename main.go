@@ -7,7 +7,6 @@ import (
 	"math"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/dchest/uniuri"
 	"github.com/pbnjay/memory"
@@ -53,10 +52,10 @@ func main() {
 
 func uninstall() {
 	check(runCmd("docker", "stack", "rm", "utmstack"))
-	
+
 	// remove images
 	for _, image := range containersImages {
-		check(runCmd("docker", "rmi", "utmstack.azurecr.io/" + image))
+		check(runCmd("docker", "rmi", "utmstack.azurecr.io/"+image))
 	}
 }
 
@@ -73,15 +72,6 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	os.MkdirAll(esBackups, 0777)
 	os.MkdirAll(nginxCert, 0777)
 
-	if runtime.GOOS == "linux" {
-		// set map_max_count size to 262144
-		runCmd("sysctl", "-w", "vm.max_map_count=262144")
-		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
-		check(err)
-		defer f.Close()
-		f.WriteString("vm.max_map_count=262144")
-	}
-
 	// setup docker
 	if runCmd("docker", "version") != nil {
 		installDocker()
@@ -90,7 +80,7 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 
 	// pull images from registry
 	for _, image := range containersImages {
-		check(runCmd("docker", "pull", "utmstack.azurecr.io/" + image))
+		check(runCmd("docker", "pull", "utmstack.azurecr.io/"+image))
 	}
 
 	// generate composer file and deploy
@@ -107,7 +97,7 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 		"CLIENT_NAME=" + customerName,
 		"CLIENT_MAIL=" + customerEmail,
 		"CLIENT_SECRET=" + secret,
-		fmt.Sprint("ES_MEM=", (memory.TotalMemory()/uint64(math.Pow(1024, 3)) - 4) / 2),
+		fmt.Sprint("ES_MEM=", (memory.TotalMemory()/uint64(math.Pow(1024, 3))-4)/2),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
 		"NGINX_CERT=" + nginxCert,
