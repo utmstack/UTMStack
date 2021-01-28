@@ -26,8 +26,6 @@ services:
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch/backups
-    ports:
-      - "9200:9200"
   
   postgres:
     image: "utmstack.azurecr.io/postgres:13"
@@ -36,6 +34,8 @@ services:
       - PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   openvas:
     image: "utmstack.azurecr.io/openvas:11"
@@ -57,14 +57,6 @@ services:
       - 5044:5044
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
-
-  kibana:
-    depends_on:
-      - elasticsearch
-    image: "utmstack.azurecr.io/opendistro-kibana:1.11.0"
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
 
   rsyslog:
     image: "utmstack.azurecr.io/rsyslog:8.36.0"
@@ -92,7 +84,9 @@ services:
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
     ports:
+      - "80:80"
       - "443:443"
+      - "9200:9200"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
 
@@ -127,7 +121,7 @@ services:
       - CATALINA_HOME=/opt/tomcat/
       - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
 
-  datasource_aws:
+  datasources_aws:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -137,7 +131,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.aws"]
 
-  datasource_azure:
+  datasources_azure:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -147,7 +141,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.azure"]
 
-  datasource_mutate:
+  datasources_mutate:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -159,7 +153,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.mutate"]
 
-  datasource_office365:
+  datasources_office365:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -169,7 +163,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.office365"]
 
-  datasource_openvas:
+  datasources_openvas:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -179,7 +173,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.openvas"]
 
-  datasource_transporter:
+  datasources_transporter:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -192,7 +186,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.transporter"]
 
-  datasource_webroot:
+  datasources_webroot:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -202,7 +196,7 @@ services:
       - DB_PASS
     command: ["python3", "-m", "utmstack.webroot"]
 
-  datasource_probe_api:
+  datasources_probe_api:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
@@ -215,17 +209,22 @@ services:
       - CLIENT_DOMAIN
       - CLIENT_SECRET
       - CLIENT_MAIL
+    ports:
+      - "23949:23949"
     command: ["python3", "-m", "utmstack.probe_api"]
 
-  datasource_logan:
+  datasources_logan:
     depends_on:
       - openvas
+      - postgres
       - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
       - DB_USER
       - DB_PASS
+    ports:
+      - "50051:50051"
     command: ["python3", "-m", "utmstack.logan"]
 `
 )
