@@ -83,6 +83,9 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 		check(runCmd("docker", "pull", "utmstack.azurecr.io/"+image))
 	}
 
+	// create external volumes
+		runCmd("docker", "volume", "create", "postgres_data")
+
 	// generate composer file and deploy
 	f, err := os.Create(composerFile)
 	check(err)
