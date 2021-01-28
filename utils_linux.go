@@ -1,5 +1,4 @@
 // +build linux
-
 package main
 
 func installDocker() {
