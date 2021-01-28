@@ -84,7 +84,6 @@ services:
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
     ports:
-      - "80:80"
       - "443:443"
       - "9200:9200"
     volumes:
