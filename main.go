@@ -17,9 +17,10 @@ const (
 	probe  = 1
 )
 
-var containersImages [10]string = [10]string{
+var containersImages [11]string = [11]string{
 	"opendistro:1.11.0",
 	"openvas:11",
+	"postgres:13",
 	"logstash:7.9.3",
 	"opendistro-kibana:1.11.0",
 	"rsyslog:8.36.0",
@@ -57,6 +58,9 @@ func uninstall() {
 	for _, image := range containersImages {
 		check(runCmd("docker", "rmi", "utmstack.azurecr.io/"+image))
 	}
+
+	// logout from registry
+	runCmd("docker", "logout", "utmstack.azurecr.io")
 }
 
 func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
@@ -77,6 +81,9 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 		installDocker()
 	}
 	runCmd("docker", "swarm", "init")
+
+	// login to registry
+	runCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
 
 	// pull images from registry
 	for _, image := range containersImages {
