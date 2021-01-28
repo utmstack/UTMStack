@@ -73,7 +73,7 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	containersImages := [10]string{
 		"opendistro:1.11.0",
 		"openvas:11",
-		 "logstash:7.9.3",
+		"logstash:7.9.3",
 		"opendistro-kibana:1.11.0",
 		"rsyslog:8.36.0",
 		"wazuh:3.11.1",
