@@ -18,6 +18,19 @@ const (
 	probe  = 1
 )
 
+var containersImages [10]string = [10]string{
+	"opendistro:1.11.0",
+	"openvas:11",
+	"logstash:7.9.3",
+	"opendistro-kibana:1.11.0",
+	"rsyslog:8.36.0",
+	"wazuh:3.11.1",
+	"scanner:1.0.0",
+	"nginx:1.19.5",
+	"panel:7.0.0",
+	"datasources:7.0.0",
+}
+
 func main() {
 	remove := flag.Bool("remove", false, "Remove application's docker containers")
 	user := flag.String("db-user", "", "User name that will be used for database connections")
@@ -40,6 +53,11 @@ func main() {
 
 func uninstall() {
 	check(runCmd("docker", "stack", "rm", "utmstack"))
+	
+	// remove images
+	for _, image := range containersImages {
+		check(runCmd("docker", "rmi", "utmstack.azurecr.io/" + image))
+	}
 }
 
 func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
@@ -70,19 +88,7 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	}
 	runCmd("docker", "swarm", "init")
 
-	containersImages := [10]string{
-		"opendistro:1.11.0",
-		"openvas:11",
-		"logstash:7.9.3",
-		"opendistro-kibana:1.11.0",
-		"rsyslog:8.36.0",
-		"wazuh:3.11.1",
-		"scanner:1.0.0",
-		"nginx:1.19.5",
-		"panel:7.0.0",
-		"datasources:7.0.0",
-	}
-
+	// pull images from registry
 	for _, image := range containersImages {
 		check(runCmd("docker", "pull", "utmstack.azurecr.io/" + image))
 	}
