@@ -12,7 +12,7 @@ volumes:
   wazuh_logs:
     external: false
   postgres_data:
-    external: true
+    external: false
 
 services:
   elasticsearch:
