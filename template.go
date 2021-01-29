@@ -110,10 +110,6 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
-      - CLIENT_NAME
-      - CLIENT_DOMAIN
-      - CLIENT_SECRET
-      - CLIENT_MAIL
     ports:
       - "23949:23949"
     command: ["python3", "-m", "utmstack.probe_api"]
