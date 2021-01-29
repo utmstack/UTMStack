@@ -333,6 +333,23 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
 		dbPassword)
+	srv, err := sql.Open("postgres", psqlconn)
+	check(err)
+	
+	// Close connection when finish
+	defer srv.Close()
+
+	// Check connection status
+	err = srv.Ping()
+	check(err)
+
+	// Crating utmstack
+	_, err = srv.Exec("CREATE DATABASE utmstack")
+	check(err)
+
+	// Connecting to utmstack
+	psqlconn = fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack",
+		dbPassword)
 	db, err := sql.Open("postgres", psqlconn)
 	check(err)
 	
@@ -341,10 +358,6 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 
 	// Check connection status
 	err = db.Ping()
-	check(err)
-
-	// Crating utmstack
-	_, err = db.Exec("CREATE DATABASE utmstack")
 	check(err)
 
 	// Creating utm_client
