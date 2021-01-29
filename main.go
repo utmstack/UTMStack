@@ -114,4 +114,7 @@ func install(pass, datadir, fqdn, customerName, customerEmail string) {
 
 	// configure elastic
 	initializeElastic(secret)
+
+	// Initialize PostgreSQL Database
+	initializePostgres(pass, customerName, fqdn, secret, customerEmail)
 }

@@ -96,9 +96,9 @@ services:
     environment:
       - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
-      - POSTGRESQL_USER=gvm
+      - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=openvas
+      - POSTGRESQL_HOST=postgres
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch

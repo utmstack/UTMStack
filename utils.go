@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -8,6 +10,8 @@ import (
 	"time"
 
 	"github.com/levigross/grequests"
+
+	_ "github.com/lib/pq"
 )
 
 func runEnvCmd(env []string, command string, arg ...string) error {
@@ -198,5 +202,50 @@ func initializeElastic(secret string) {
 	_, err = grequests.Put(baseURL + initialIndex, &grequests.RequestOptions{
 		JSON: map[string]interface{}{},
 	})
+	check(err)
+}
+
+func initializePostgres(dbPassword string, clientName string, clientDomain string, 
+	clientPrefix string, clientMail string) {
+	// Connecting to PostgreSQL
+	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
+		dbPassword)
+	db, err := sql.Open("postgres", psqlconn)
+	check(err)
+	
+	// Close connection when finish
+	defer db.Close()
+
+	// Check connection status
+	err = db.Ping()
+	check(err)
+
+	// Crating utmstack
+	_, err = db.Exec("CREATE DATABASE utmstack")
+	check(err)
+
+	// Creating utm_client
+	_, err = db.Exec(`CREATE TABLE public.utm_client (		
+	id serial NOT NULL,
+	client_name varchar(100) NULL,
+	client_domain varchar(100) NULL,
+	client_prefix varchar(10) NULL,
+	client_mail varchar(100) NULL,
+	client_user varchar(50) NULL,
+	client_pass varchar(50) NULL,
+	client_licence_creation timestamp(0) NULL,
+	client_licence_expire timestamp(0) NULL,
+	client_licence_id varchar(100) NULL,
+	client_licence_verified bool NOT NULL,
+	CONSTRAINT utm_client_pkey PRIMARY KEY (id)
+	);`)
+	check(err)
+
+	// Insert client data
+	_, err = db.Exec(`INSERT INTO public.utm_client (
+	client_name, client_domain, client_prefix, 
+	client_mail, client_user, client_pass, client_licence_verified
+	) VALUES ($1, $2, $3, $4, 'admin', $5, false);`, 
+	clientName, clientDomain, clientPrefix, clientMail, dbPassword)
 	check(err)
 }
