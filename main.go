@@ -1,13 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"path/filepath"
 
+	"github.com/akamensky/argparse"
 	"github.com/dchest/uniuri"
 	"github.com/pbnjay/memory"
 )
@@ -31,21 +30,32 @@ var containersImages [10]string = [10]string{
 }
 
 func main() {
-	remove := flag.Bool("remove", false, "Remove application's docker containers")
-	pass := flag.String("db-pass", "", "Password for the database user. Please use a secure password")
-	fqdn := flag.String("fqdn", "", "Full qualified domain name, example: utmmaster.utmstack.com")
-	customerName := flag.String("customer-name", "", "Your name, example: John Doe")
-	customerEmail := flag.String("customer-email", "", "A valid email address to send important notifications about the system health. Example: john@doe.com")
-	datadir := flag.String("datadir", "", "Data directory")
-	flag.Parse()
+	parser := argparse.NewParser("", "UTMStack installer")
+	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
 
-	if *remove {
+	masterCmd := parser.NewCommand("master", "Install master server")
+	masterDataDir := masterCmd.String("", "datadir", &argparse.Options{Required: true, Help: "Data directory"})
+	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Password to access the database. Please use a secure password"})
+	fqdn := masterCmd.String("", "fqdn", &argparse.Options{Required: true, Help: "Full qualified domain name, example: utmmaster.utmstack.com"})
+	customerName := masterCmd.String("", "customer-name", &argparse.Options{Required: true, Help: "Your name, example: John Doe"})
+	customerEmail := masterCmd.String("", "customer-email", &argparse.Options{Required: true, Help: "A valid email address to send important notifications about the system health. Example: john@doe.com"})
+
+	probeCmd := parser.NewCommand("probe", "Install probe")
+	probeDataDir := probeCmd.String("", "datadir", &argparse.Options{Required: true, Help: "Data directory"})
+	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Password to access the database"})
+	host := probeCmd.String("", "host", &argparse.Options{Required: true, Help: "Master server address"})
+
+	if err := parser.Parse(os.Args); err != nil {
+		fmt.Print(parser.Usage(err))
+		return
+	}
+
+	if removeCmd.Happened() {
 		uninstall()
-	} else {
-		if *pass == "" || *datadir == "" || *fqdn == "" || *customerName == "" || *customerEmail == "" {
-			log.Fatal("ERROR: Missing arguments")
-		}
-		install(*pass, *datadir, *fqdn, *customerName, *customerEmail)
+	} else if masterCmd.Happened() {
+		installMaster(*masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail)
+	} else if probeCmd.Happened() {
+		installProbe(*probeDataDir, *probePass, *host)
 	}
 }
 
@@ -61,10 +71,11 @@ func uninstall() {
 	runCmd("docker", "logout", "utmstack.azurecr.io")
 }
 
-func install(pass, datadir, fqdn, customerName, customerEmail string) {
-	serverName, err := os.Hostname()
-	check(err)
-	secret := uniuri.NewLen(10)
+func installProbe(datadir, pass, host string) {
+	// TODO
+}
+
+func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 	esData := filepath.Join(datadir, "elasticsearch", "data")
 	esBackups := filepath.Join(datadir, "elasticsearch", "backups")
 	nginxCert := filepath.Join(datadir, "nginx", "cert")
@@ -94,8 +105,11 @@ func install(pass, datadir, fqdn, customerName, customerEmail string) {
 	f, err := os.Create(composerFile)
 	check(err)
 	defer f.Close()
-	// TODO #5 Crear una plantilla para el probe y hacer un selector para escoger cual de las plantillas se van a usar para generar el composer.yml (y los parametros que hay que pasarle tambien son distintos, en el caso del master no hay que pasarle la IP del master, pero en el caso del probe si
-	f.WriteString(composerTemplate)
+
+	f.WriteString(masterTemplate)
+	serverName, err := os.Hostname()
+	check(err)
+	secret := uniuri.NewLen(10)
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,

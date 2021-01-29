@@ -3,7 +3,8 @@ package main
 const (
 	stackName        = "utmstack"
 	composerFile     = "utmstack.yml"
-	composerTemplate = `version: "3.8"
+	// TODO: add probe template
+	masterTemplate = `version: "3.8"
 volumes:
   rsyslog_logs:
     external: false
