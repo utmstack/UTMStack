@@ -41,12 +41,11 @@ services:
       - "8888:5432"
       - "9390:9390"
     environment:
-      - USERNAME=${DB_USER}
+      - USERNAME=admin
       - PASSWORD=${DB_PASS}
       - DB_PASSWORD=${DB_PASS}
       - HTTPS=0
 
-# Configure pipeline from mutate
   logstash:
     image: "utmstack.azurecr.io/logstash:7.9.3"
     volumes:
@@ -78,7 +77,6 @@ services:
   scanner:
     image: "utmstack.azurecr.io/scanner:1.0.0"
 
-# Add configs to image in /etc/nginx/conf
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
     ports:
@@ -93,11 +91,11 @@ services:
       - openvas
     image: "utmstack.azurecr.io/panel:7.0.0"
     environment:
-      - TOMCAT_ADMIN_USER=${DB_USER}
+      - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
-      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_USER=gvm
       - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_HOST=openvas
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch
@@ -105,7 +103,7 @@ services:
       - ELASTICSEARCH_SECRET=${CLIENT_SECRET}
       - OPENVAS_HOST=openvas
       - OPENVAS_PORT=9390
-      - OPENVAS_USER=${DB_USER}
+      - OPENVAS_USER=admin
       - OPENVAS_PASSWORD=${DB_PASS}
       - OPENVAS_PG_PORT=5432
       - OPENVAS_PG_DATABASE=gvmd
@@ -123,7 +121,6 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.aws"]
 
@@ -133,7 +130,6 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.azure"]
 
@@ -145,7 +141,6 @@ services:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.mutate"]
 
@@ -155,7 +150,6 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.office365"]
 
@@ -166,9 +160,7 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_HOST = openvas
       - DB_NAME = tasks
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.openvas"]
 
@@ -181,7 +173,6 @@ services:
       - wazuh_logs:/var/ossec/logs
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.transporter"]
 
@@ -191,7 +182,6 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.webroot"]
 
@@ -201,7 +191,6 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
       - SERVER_TYPE
       - CLIENT_NAME
@@ -219,7 +208,6 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
-      - DB_USER
       - DB_PASS
     ports:
       - "50051:50051"
