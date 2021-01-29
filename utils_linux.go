@@ -16,7 +16,7 @@ func installDocker() {
 	aptGet("install", "docker-ce", "docker-ce-cli", "containerd.io")
 
 	// set map_max_count size to 262144
-	runCmd("sysctl", "-w", "vm.max_map_count=262144")
+	check(runCmd("sysctl", "-w", "vm.max_map_count=262144"))
 	f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	check(err)
 	defer f.Close()
