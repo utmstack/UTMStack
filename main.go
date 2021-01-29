@@ -94,6 +94,7 @@ func install(pass, datadir, fqdn, customerName, customerEmail string) {
 	f, err := os.Create(composerFile)
 	check(err)
 	defer f.Close()
+	// TODO #5 Crear una plantilla para el probe y hacer un selector para escoger cual de las plantillas se van a usar para generar el composer.yml (y los parametros que hay que pasarle tambien son distintos, en el caso del master no hay que pasarle la IP del master, pero en el caso del probe si
 	f.WriteString(composerTemplate)
 	env := []string{
 		"SERVER_TYPE=aio",
