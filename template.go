@@ -168,6 +168,8 @@ services:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
+      - DB_HOST = openvas
+      - DB_NAME = tasks
       - DB_USER
       - DB_PASS
     command: ["python3", "-m", "utmstack.openvas"]
