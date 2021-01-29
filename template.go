@@ -142,7 +142,7 @@ services:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
-      - logstash_pipeline:/usr/share/logstash/pipeline
+      - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     environment:
       - SERVER_NAME
       - DB_USER
