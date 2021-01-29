@@ -32,7 +32,6 @@ var containersImages [10]string = [10]string{
 
 func main() {
 	remove := flag.Bool("remove", false, "Remove application's docker containers")
-	user := flag.String("db-user", "", "User name that will be used for database connections")
 	pass := flag.String("db-pass", "", "Password for the database user. Please use a secure password")
 	fqdn := flag.String("fqdn", "", "Full qualified domain name, example: utmmaster.utmstack.com")
 	customerName := flag.String("customer-name", "", "Your name, example: John Doe")
@@ -43,10 +42,10 @@ func main() {
 	if *remove {
 		uninstall()
 	} else {
-		if *user == "" || *pass == "" || *datadir == "" || *fqdn == "" || *customerName == "" || *customerEmail == "" {
+		if *pass == "" || *datadir == "" || *fqdn == "" || *customerName == "" || *customerEmail == "" {
 			log.Fatal("ERROR: Missing arguments")
 		}
-		install(*user, *pass, *datadir, *fqdn, *customerName, *customerEmail)
+		install(*pass, *datadir, *fqdn, *customerName, *customerEmail)
 	}
 }
 
@@ -62,7 +61,7 @@ func uninstall() {
 	runCmd("docker", "logout", "utmstack.azurecr.io")
 }
 
-func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
+func install(pass, datadir, fqdn, customerName, customerEmail string) {
 	serverName, err := os.Hostname()
 	check(err)
 	secret := uniuri.NewLen(10)
@@ -99,7 +98,6 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
-		"DB_USER=" + user,
 		"DB_PASS=" + pass,
 		"CLIENT_DOMAIN=" + fqdn,
 		"CLIENT_NAME=" + customerName,
