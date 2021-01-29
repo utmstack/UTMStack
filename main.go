@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/akamensky/argparse"
 	"github.com/dchest/uniuri"
@@ -61,7 +62,10 @@ func main() {
 
 func uninstall() {
 	check(runCmd("docker", "stack", "rm", "utmstack"))
-
+	
+	// sleep while docker is removing the containers
+	time.Sleep(20 * time.Second)
+	
 	// remove images
 	for _, image := range containersImages {
 		check(runCmd("docker", "rmi", "utmstack.azurecr.io/"+image))
@@ -117,6 +121,9 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 	}
 
 	initDocker(masterTemplate, env)
+
+	// Generate nginx auto-signed cert and key
+	generateCerts(nginxCert)
 
 	// configure elastic
 	initializeElastic(secret)

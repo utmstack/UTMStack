@@ -130,8 +130,8 @@ services:
   postgres:
     image: "utmstack.azurecr.io/postgres:13"
     environment:
-      - POSTGRES_PASSWORD: ${DB_PASS}
-      - PGDATA: /var/lib/postgresql/data/pgdata
+      - "POSTGRES_PASSWORD=${DB_PASS}"
+      - "PGDATA=/var/lib/postgresql/data/pgdata"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
