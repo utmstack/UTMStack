@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/akamensky/argparse"
@@ -31,6 +30,7 @@ var containersImages [10]string = [10]string{
 }
 
 func main() {
+	mkdirs(0777, "prueba", "duraaa")
 	parser := argparse.NewParser("", "UTMStack installer")
 	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
 
@@ -76,9 +76,7 @@ func uninstall() {
 }
 
 func installProbe(datadir, pass, host string) {
-	logstashPipeline := filepath.Join(datadir, "logstash", "pipeline")
-	// create data folders
-	os.MkdirAll(logstashPipeline, 0777)
+	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 
 	serverName, err := os.Hostname()
 	check(err)
@@ -94,16 +92,10 @@ func installProbe(datadir, pass, host string) {
 }
 
 func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
-	esData := filepath.Join(datadir, "elasticsearch", "data")
-	esBackups := filepath.Join(datadir, "elasticsearch", "backups")
-	nginxCert := filepath.Join(datadir, "nginx", "cert")
-	logstashPipeline := filepath.Join(datadir, "logstash", "pipeline")
-
-	// create data folders
-	os.MkdirAll(esData, 0777)
-	os.MkdirAll(esBackups, 0777)
-	os.MkdirAll(nginxCert, 0777)
-	os.MkdirAll(logstashPipeline, 0777)
+	esData := mkdirs(0777, datadir, "elasticsearch", "data")
+	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
+	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
+	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 
 	serverName, err := os.Hostname()
 	check(err)

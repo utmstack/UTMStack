@@ -36,6 +36,16 @@ func checkOutput(command string, arg ...string) string {
 	return strings.TrimSpace(string(out))
 }
 
+func mkdirs(mode os.FileMode, arg ...string) string {
+	path := ""
+	for _, folder := range arg {
+		path = filepath.Join(path, folder)
+		os.MkdirAll(path, mode)
+		os.Chmod(path, mode)
+	}
+	return path
+}
+
 func check(e error) {
 	if e != nil {
 		log.Fatal(e)
