@@ -69,11 +69,13 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 	esData := filepath.Join(datadir, "elasticsearch", "data")
 	esBackups := filepath.Join(datadir, "elasticsearch", "backups")
 	nginxCert := filepath.Join(datadir, "nginx", "cert")
+	logstashPipeline := filepath.Join(datadir, "logstash", "pipeline")
 
 	// create data folders
 	os.MkdirAll(esData, 0777)
 	os.MkdirAll(esBackups, 0777)
 	os.MkdirAll(nginxCert, 0777)
+	os.MkdirAll(logstashPipeline, 0777)
 
 	// setup docker
 	if runCmd("docker", "version") != nil {
@@ -107,6 +109,7 @@ func install(user, pass, datadir, fqdn, customerName, customerEmail string) {
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
 		"NGINX_CERT=" + nginxCert,
+		"LOGSTASH_PIPELINE=" + logstashPipeline,
 	}
 	check(runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName))
 

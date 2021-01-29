@@ -5,8 +5,6 @@ const (
 	composerFile     = "utmstack.yml"
 	composerTemplate = `version: "3.8"
 volumes:
-  logstash_pipeline:
-    external: false
   rsyslog_logs:
     external: false
   wazuh_logs:
@@ -52,7 +50,7 @@ services:
   logstash:
     image: "utmstack.azurecr.io/logstash:7.9.3"
     volumes:
-      - logstash_pipeline:/usr/share/logstash/pipeline
+      - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     ports:
       - 5044:5044
     environment:
@@ -93,7 +91,6 @@ services:
     depends_on:
       - postgres
       - openvas
-      - elasticsearch
     image: "utmstack.azurecr.io/panel:7.0.0"
     environment:
       - TOMCAT_ADMIN_USER=${DB_USER}
@@ -165,6 +162,7 @@ services:
   datasources_openvas:
     depends_on:
       - logan
+      - openvas
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
@@ -216,7 +214,6 @@ services:
 
   datasources_logan:
     depends_on:
-      - openvas
       - postgres
       - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
