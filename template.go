@@ -76,6 +76,9 @@ services:
 
   scanner:
     image: "utmstack.azurecr.io/scanner:1.0.0"
+    ports:
+      - "5000:5000"
+      - "8000:8000"
 
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
