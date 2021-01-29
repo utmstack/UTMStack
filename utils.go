@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -53,6 +54,15 @@ func check(e error) {
 }
 
 func initDocker(composerTemplate string, env []string) {
+	if runtime.GOOS == "linux" {
+		// set map_max_count size to 262144
+		check(runCmd("sysctl", "-w", "vm.max_map_count=262144"))
+		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		check(err)
+		defer f.Close()
+		f.WriteString("vm.max_map_count=262144")
+	}
+
 	if runCmd("docker", "version") != nil {
 		installDocker()
 	}
