@@ -120,6 +120,9 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 	}
 
 	initDocker(masterTemplate, env)
+	
+	// Generate nginx auto-signed cert and key 
+	generateCerts(nginxCert)
 
 	// configure elastic
 	initializeElastic(secret)
