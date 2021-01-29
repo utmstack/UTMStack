@@ -41,6 +41,29 @@ func check(e error) {
 	}
 }
 
+func initDocker(composerTemplate string, env []string) {
+	if runCmd("docker", "version") != nil {
+		installDocker()
+	}
+	runCmd("docker", "swarm", "init")
+
+	// login to registry
+	runCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
+
+	// pull images from registry
+	for _, image := range containersImages {
+		check(runCmd("docker", "pull", "utmstack.azurecr.io/"+image))
+	}
+
+	// generate composer file and deploy
+	f, err := os.Create(composerFile)
+	check(err)
+	defer f.Close()
+	f.WriteString(composerTemplate)
+
+	check(runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName))
+}
+
 func initializeElastic(secret string) {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"

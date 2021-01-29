@@ -3,8 +3,7 @@ package main
 const (
 	stackName        = "utmstack"
 	composerFile     = "utmstack.yml"
-	// TODO: add probe template
-	masterTemplate = `version: "3.8"
+	baseTemplate = `version: "3.8"
 volumes:
   rsyslog_logs:
     external: false
@@ -14,28 +13,6 @@ volumes:
     external: false
 
 services:
-  elasticsearch:
-    image: "utmstack.azurecr.io/opendistro:1.11.0"
-    volumes:
-      - ${ES_DATA}:/usr/share/elasticsearch/data
-      - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
-    environment:
-      - node.name=elasticsearch
-      - discovery.seed_hosts=elasticsearch
-      - cluster.initial_master_nodes=elasticsearch
-      - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
-      - path.repo=/usr/share/elasticsearch/backups
-  
-  postgres:
-    image: "utmstack.azurecr.io/postgres:13"
-    environment:
-      - POSTGRES_PASSWORD: ${DB_PASS}
-      - PGDATA: /var/lib/postgresql/data/pgdata
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
   openvas:
     image: "utmstack.azurecr.io/openvas:11"
     ports:
@@ -81,6 +58,89 @@ services:
       - "5000:5000"
       - "8000:8000"
 
+  datasources_mutate:
+    depends_on:
+      - postgres
+      - elasticsearch
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
+    environment:
+      - SERVER_NAME
+      - SERVER_TYPE
+      - DB_HOST
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.mutate"]
+
+  datasources_openvas:
+    depends_on:
+      - postgres
+      - elasticsearch
+      - openvas
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - DB_NAME = tasks
+      - SERVER_NAME
+      - SERVER_TYPE
+      - DB_HOST
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.openvas"]
+
+  datasources_transporter:
+    depends_on:
+      - postgres
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - rsyslog_logs:/logs
+      - wazuh_logs:/var/ossec/logs
+    environment:
+      - SERVER_NAME
+      - SERVER_TYPE
+      - DB_HOST
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.transporter"]
+
+  datasources_probe_api:
+    depends_on:
+      - postgres
+      - elasticsearch
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - SERVER_TYPE
+      - DB_HOST
+      - DB_PASS
+      - CLIENT_NAME
+      - CLIENT_DOMAIN
+      - CLIENT_SECRET
+      - CLIENT_MAIL
+    ports:
+      - "23949:23949"
+    command: ["python3", "-m", "utmstack.probe_api"]
+`
+	masterTemplate = baseTemplate + `
+  elasticsearch:
+    image: "utmstack.azurecr.io/opendistro:1.11.0"
+    volumes:
+      - ${ES_DATA}:/usr/share/elasticsearch/data
+      - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
+    environment:
+      - node.name=elasticsearch
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch
+      - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
+      - path.repo=/usr/share/elasticsearch/backups
+
+  postgres:
+    image: "utmstack.azurecr.io/postgres:13"
+    environment:
+      - POSTGRES_PASSWORD: ${DB_PASS}
+      - PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
     ports:
@@ -88,6 +148,54 @@ services:
       - "9200:9200"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
+
+  datasources_aws:
+    depends_on:
+      - logan
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.aws"]
+
+  datasources_azure:
+    depends_on:
+      - logan
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.azure"]
+
+  datasources_office365:
+    depends_on:
+      - logan
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.office365"]
+
+  datasources_webroot:
+    depends_on:
+      - logan
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_PASS
+    command: ["python3", "-m", "utmstack.webroot"]
+
+  datasources_logan:
+    depends_on:
+      - postgres
+      - elasticsearch
+    image: "utmstack.azurecr.io/datasources:7.0.0"
+    environment:
+      - SERVER_NAME
+      - DB_PASS
+    ports:
+      - "50051:50051"
+    command: ["python3", "-m", "utmstack.logan"]
 
   panel:
     depends_on:
@@ -118,103 +226,5 @@ services:
       - CATALINA_BASE=/opt/tomcat/
       - CATALINA_HOME=/opt/tomcat/
       - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
-
-  datasources_aws:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.aws"]
-
-  datasources_azure:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.azure"]
-
-  datasources_mutate:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    volumes:
-      - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.mutate"]
-
-  datasources_office365:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.office365"]
-
-  datasources_openvas:
-    depends_on:
-      - logan
-      - openvas
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_NAME = tasks
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.openvas"]
-
-  datasources_transporter:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    volumes:
-      - rsyslog_logs:/logs
-      - wazuh_logs:/var/ossec/logs
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.transporter"]
-
-  datasources_webroot:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.webroot"]
-
-  datasources_probe_api:
-    depends_on:
-      - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-      - SERVER_TYPE
-      - CLIENT_NAME
-      - CLIENT_DOMAIN
-      - CLIENT_SECRET
-      - CLIENT_MAIL
-    ports:
-      - "23949:23949"
-    command: ["python3", "-m", "utmstack.probe_api"]
-
-  datasources_logan:
-    depends_on:
-      - postgres
-      - elasticsearch
-    image: "utmstack.azurecr.io/datasources:7.0.0"
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    ports:
-      - "50051:50051"
-    command: ["python3", "-m", "utmstack.logan"]
 `
 )

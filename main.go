@@ -72,7 +72,21 @@ func uninstall() {
 }
 
 func installProbe(datadir, pass, host string) {
-	// TODO
+	logstashPipeline := filepath.Join(datadir, "logstash", "pipeline")
+	// create data folders
+	os.MkdirAll(logstashPipeline, 0777)
+
+	serverName, err := os.Hostname()
+	check(err)
+	env := []string{
+		"SERVER_TYPE=probe",
+		"SERVER_NAME=" + serverName,
+		"DB_HOST=" + host,
+		"DB_PASS=" + pass,
+		"LOGSTASH_PIPELINE=" + logstashPipeline,
+	}
+
+	initDocker(baseTemplate, env)
 }
 
 func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
@@ -87,26 +101,6 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 	os.MkdirAll(nginxCert, 0777)
 	os.MkdirAll(logstashPipeline, 0777)
 
-	// setup docker
-	if runCmd("docker", "version") != nil {
-		installDocker()
-	}
-	runCmd("docker", "swarm", "init")
-
-	// login to registry
-	runCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
-
-	// pull images from registry
-	for _, image := range containersImages {
-		check(runCmd("docker", "pull", "utmstack.azurecr.io/"+image))
-	}
-
-	// generate composer file and deploy
-	f, err := os.Create(composerFile)
-	check(err)
-	defer f.Close()
-
-	f.WriteString(masterTemplate)
 	serverName, err := os.Hostname()
 	check(err)
 	secret := uniuri.NewLen(10)
@@ -124,7 +118,8 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 		"NGINX_CERT=" + nginxCert,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 	}
-	check(runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName))
+
+	initDocker(masterTemplate, env)
 
 	// configure elastic
 	initializeElastic(secret)
