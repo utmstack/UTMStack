@@ -30,7 +30,6 @@ var containersImages [10]string = [10]string{
 }
 
 func main() {
-	mkdirs(0777, "prueba", "duraaa")
 	parser := argparse.NewParser("", "UTMStack installer")
 	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
 
@@ -64,7 +63,7 @@ func uninstall() {
 	check(runCmd("docker", "stack", "rm", "utmstack"))
 	
 	// sleep while docker is removing the containers
-	time.Sleep(20 * time.Second)
+	time.Sleep(50 * time.Second)
 	
 	// remove images
 	for _, image := range containersImages {
