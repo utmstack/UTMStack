@@ -117,6 +117,8 @@ services:
 	masterTemplate = baseTemplate + `
   elasticsearch:
     image: "utmstack.azurecr.io/opendistro:1.11.0"
+    ports:
+      - "9200:9200"
     volumes:
       - ${ES_DATA}:/usr/share/elasticsearch/data
       - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
@@ -141,7 +143,6 @@ services:
     image: "utmstack.azurecr.io/nginx:1.19.5"
     ports:
       - "443:443"
-      - "9200:9200"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
 
