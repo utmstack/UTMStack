@@ -125,7 +125,7 @@ services:
       - discovery.seed_hosts=elasticsearch
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
-      - path.repo=/usr/share/elasticsearch/backups
+      - path.repo=/usr/share/elasticsearch
 
   postgres:
     image: "utmstack.azurecr.io/postgres:13"
