@@ -85,7 +85,7 @@ func initDocker(composerTemplate string, env []string) {
 	check(runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName))
 }
 
-func generateCerts(nginxCert string){
+func generateCerts(nginxCert string) {
 	cert := `-----BEGIN CERTIFICATE-----
 MIIFJjCCBA6gAwIBAgISA7ylpw0Ob1YkGwHhx3lwj3gwMA0GCSqGSIb3DQEBCwUA
 MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD
@@ -183,7 +183,6 @@ nzvOGfUJga8KRGJAAenaKpxCw4S9RASrDoilCtlWDM4dBneB4daj4NoT0WNkSmCY
 	keyFile.WriteString(key)
 }
 
-
 func initializeElastic(secret string) {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
@@ -191,7 +190,7 @@ func initializeElastic(secret string) {
 	for {
 		time.Sleep(50 * time.Second)
 
-		_, err := grequests.Get(baseURL + "_cluster/healt", &grequests.RequestOptions{
+		_, err := grequests.Get(baseURL+"_cluster/healt", &grequests.RequestOptions{
 			Params: map[string]string{
 				"wait_for_status": "green",
 				"timeout":         "50s",
@@ -209,7 +208,7 @@ func initializeElastic(secret string) {
 	indexPrefix := "index-" + secret
 	initialIndex := indexPrefix + "-000001"
 	// create alias
-	_, err := grequests.Post(baseURL + "_aliases", &grequests.RequestOptions{
+	_, err := grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
 		JSON: map[string][]interface{}{
 			"actions": []interface{}{
 				map[string]interface{}{
@@ -224,28 +223,28 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create main index template
-	_, err = grequests.Put(baseURL + "_template/main_index", &grequests.RequestOptions{
+	_, err = grequests.Put(baseURL+"_template/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"index_patterns": []string{"index-*"},
 			"settings": map[string]interface{}{
-				"index.mapping.total_fields.limit": 10000,
-				"opendistro.index_state_management.policy_id": "main_index_policy",
+				"index.mapping.total_fields.limit":                 10000,
+				"opendistro.index_state_management.policy_id":      "main_index_policy",
 				"opendistro.index_state_management.rollover_alias": indexPrefix,
-				"number_of_shards": 3,
-				"number_of_replicas": 0,
+				"number_of_shards":                                 3,
+				"number_of_replicas":                               0,
 			},
 		},
 	})
 	check(err)
 
 	// create template for generic index
-	_, err = grequests.Put(baseURL + "_template/generic_index", &grequests.RequestOptions{
+	_, err = grequests.Put(baseURL+"_template/generic_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"index_patterns": []string{"generic-*"},
 			"settings": map[string]interface{}{
 				"index.mapping.total_fields.limit": 10000,
-				"number_of_shards": 1,
-				"number_of_replicas": 0,
+				"number_of_shards":                 1,
+				"number_of_replicas":               0,
 			},
 		},
 	})
@@ -253,11 +252,11 @@ func initializeElastic(secret string) {
 
 	// create templates
 	for _, e := range []string{"dc", "utmstack", "utm"} {
-		_, err = grequests.Put(baseURL + "_template/" + e + "_index", &grequests.RequestOptions{
+		_, err = grequests.Put(baseURL+"_template/"+e+"_index", &grequests.RequestOptions{
 			JSON: map[string]interface{}{
 				"index_patterns": []string{e + "-*"},
 				"settings": map[string]interface{}{
-					"number_of_shards": 1,
+					"number_of_shards":   1,
 					"number_of_replicas": 0,
 				},
 			},
@@ -266,7 +265,7 @@ func initializeElastic(secret string) {
 	}
 
 	// enable snapshots
-	_, err = grequests.Put(baseURL + "_snapshot/main_index", &grequests.RequestOptions{
+	_, err = grequests.Put(baseURL+"_snapshot/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
@@ -276,7 +275,7 @@ func initializeElastic(secret string) {
 	})
 	check(err)
 
-	_, err = grequests.Put(baseURL + "_snapshot/utm_geoip", &grequests.RequestOptions{
+	_, err = grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
@@ -286,11 +285,21 @@ func initializeElastic(secret string) {
 	})
 	check(err)
 
+	// restore geoip snapshot
+	_, err = grequests.Post(baseURL+"_snapshot/utm_geoip/utm-geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"indices":              "utm-*",
+			"ignore_unavailable":   true,
+			"include_global_state": false,
+		},
+	})
+	check(err)
+
 	// create ISM policy
-	_, err = grequests.Put(baseURL + "_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
+	_, err = grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"policy": map[string]interface{}{
-				"description": "Main Index Lifecycle",
+				"description":   "Main Index Lifecycle",
 				"default_state": "ingest",
 				"states": []interface{}{
 					map[string]interface{}{
@@ -299,7 +308,7 @@ func initializeElastic(secret string) {
 							map[string]interface{}{
 								"rollover": map[string]interface{}{
 									"min_doc_count": 30000000,
-									"min_size": "15gb",
+									"min_size":      "15gb",
 								},
 							},
 						},
@@ -315,7 +324,7 @@ func initializeElastic(secret string) {
 							map[string]interface{}{
 								"snapshot": map[string]string{
 									"repository": "main_index",
-									"snapshot": "incremental",
+									"snapshot":   "incremental",
 								},
 							},
 						},
@@ -339,7 +348,7 @@ func initializeElastic(secret string) {
 							map[string]interface{}{
 								"snapshot": map[string]interface{}{
 									"repository": "main_index",
-									"snapshot": "incremental",
+									"snapshot":   "incremental",
 								},
 							},
 						},
@@ -352,20 +361,20 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create initial index
-	_, err = grequests.Put(baseURL + initialIndex, &grequests.RequestOptions{
+	_, err = grequests.Put(baseURL+initialIndex, &grequests.RequestOptions{
 		JSON: map[string]interface{}{},
 	})
 	check(err)
 }
 
-func initializePostgres(dbPassword string, clientName string, clientDomain string, 
+func initializePostgres(dbPassword string, clientName string, clientDomain string,
 	clientPrefix string, clientMail string) {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
 		dbPassword)
 	srv, err := sql.Open("postgres", psqlconn)
 	check(err)
-	
+
 	// Close connection when finish
 	defer srv.Close()
 
@@ -382,7 +391,7 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 		dbPassword)
 	db, err := sql.Open("postgres", psqlconn)
 	check(err)
-	
+
 	// Close connection when finish
 	defer db.Close()
 
@@ -411,7 +420,7 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	_, err = db.Exec(`INSERT INTO public.utm_client (
 	client_name, client_domain, client_prefix, 
 	client_mail, client_user, client_pass, client_licence_verified
-	) VALUES ($1, $2, $3, $4, 'admin', $5, false);`, 
-	clientName, clientDomain, clientPrefix, clientMail, dbPassword)
+	) VALUES ($1, $2, $3, $4, 'admin', $5, false);`,
+		clientName, clientDomain, clientPrefix, clientMail, dbPassword)
 	check(err)
 }
