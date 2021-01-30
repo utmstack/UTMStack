@@ -187,8 +187,8 @@ nzvOGfUJga8KRGJAAenaKpxCw4S9RASrDoilCtlWDM4dBneB4daj4NoT0WNkSmCY
 func initializeElastic(secret string) {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
+	log.Println("Waiting for the search engine")
 	for {
-		log.Println("Waiting for the search engine")
 		time.Sleep(50 * time.Second)
 
 		_, err := grequests.Get(baseURL + "_cluster/healt", &grequests.RequestOptions{
@@ -202,7 +202,7 @@ func initializeElastic(secret string) {
 			break
 		}
 
-		log.Println("The search engine is taking more than expected to run, retrying...")
+		log.Println("Search engine is taking a long time to get ready, please wait.")
 	}
 
 	// configure elastic
