@@ -56,6 +56,7 @@ func check(e error) {
 func initDocker(composerTemplate string, env []string) {
 	if runtime.GOOS == "linux" {
 		// set map_max_count size to 262144
+		log.Println("Setting map_max_count to 262144")
 		check(runCmd("sysctl", "-w", "vm.max_map_count=262144"))
 		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		check(err)
@@ -77,6 +78,7 @@ func initDocker(composerTemplate string, env []string) {
 	}
 
 	// generate composer file and deploy
+	log.Println("Generating composer file")
 	f, err := os.Create(composerFile)
 	check(err)
 	defer f.Close()
@@ -172,11 +174,14 @@ nzvOGfUJga8KRGJAAenaKpxCw4S9RASrDoilCtlWDM4dBneB4daj4NoT0WNkSmCY
 /kRDA9tgjNCiPbGaoIwTiw==
 -----END PRIVATE KEY-----
 `
+
+	log.Println("Generating utm.crt")
 	crtFile, err := os.Create(filepath.Join(nginxCert, "utm.crt"))
 	check(err)
 	defer crtFile.Close()
 	crtFile.WriteString(cert)
 
+	log.Println("Generating utm.key")
 	keyFile, err := os.Create(filepath.Join(nginxCert, "utm.key"))
 	check(err)
 	defer keyFile.Close()
@@ -208,6 +213,7 @@ func initializeElastic(secret string) {
 	indexPrefix := "index-" + secret
 	initialIndex := indexPrefix + "-000001"
 	// create alias
+	log.Println("Configuring alias")
 	_, err := grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
 		JSON: map[string][]interface{}{
 			"actions": []interface{}{
@@ -223,6 +229,7 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create main index template
+	log.Println("Configuring main index template")
 	_, err = grequests.Put(baseURL+"_template/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"index_patterns": []string{"index-*"},
@@ -238,6 +245,7 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create template for generic index
+	log.Println("Configuring generic index template")
 	_, err = grequests.Put(baseURL+"_template/generic_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"index_patterns": []string{"generic-*"},
@@ -251,6 +259,7 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create templates
+	log.Println("Configuring dc index template")
 	for _, e := range []string{"dc", "utmstack", "utm"} {
 		_, err = grequests.Put(baseURL+"_template/"+e+"_index", &grequests.RequestOptions{
 			JSON: map[string]interface{}{
@@ -265,6 +274,7 @@ func initializeElastic(secret string) {
 	}
 
 	// enable snapshots
+	log.Println("Configuring main index snapshot repository")
 	_, err = grequests.Put(baseURL+"_snapshot/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
@@ -275,6 +285,7 @@ func initializeElastic(secret string) {
 	})
 	check(err)
 
+	log.Println("Configuring geoip snapshot repository")
 	_, err = grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
@@ -286,6 +297,7 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// restore geoip snapshot
+	log.Println("Restoring geoip index")
 	_, err = grequests.Post(baseURL+"_snapshot/utm_geoip/utm-geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"indices":              "utm-*",
@@ -296,6 +308,7 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create ISM policy
+	log.Println("Configuring main index ISM policy")
 	_, err = grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"policy": map[string]interface{}{
@@ -361,6 +374,7 @@ func initializeElastic(secret string) {
 	check(err)
 
 	// create initial index
+	log.Println("Initializing the first main index")
 	_, err = grequests.Put(baseURL+initialIndex, &grequests.RequestOptions{
 		JSON: map[string]interface{}{},
 	})
@@ -383,6 +397,7 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	check(err)
 
 	// Crating utmstack
+	log.Println("Configuring database in PostgreSQL")
 	_, err = srv.Exec("CREATE DATABASE utmstack")
 	check(err)
 
@@ -400,6 +415,7 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	check(err)
 
 	// Creating utm_client
+	log.Println("Creating table utm_client")
 	_, err = db.Exec(`CREATE TABLE public.utm_client (		
 	id serial NOT NULL,
 	client_name varchar(100) NULL,
@@ -417,6 +433,7 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	check(err)
 
 	// Insert client data
+	log.Println("Inserting data into utm_client")
 	_, err = db.Exec(`INSERT INTO public.utm_client (
 	client_name, client_domain, client_prefix, 
 	client_mail, client_user, client_pass, client_licence_verified
