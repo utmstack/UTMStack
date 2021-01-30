@@ -98,7 +98,7 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 
 	serverName, err := os.Hostname()
 	check(err)
-	secret := uniuri.NewLen(10)
+	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
