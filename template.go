@@ -185,6 +185,7 @@ services:
     depends_on:
       - postgres
       - elasticsearch
+      - panel
     image: "utmstack.azurecr.io/datasources:7.0.0"
     environment:
       - SERVER_NAME
@@ -197,6 +198,7 @@ services:
     depends_on:
       - postgres
       - openvas
+      - elasticsearch
     image: "utmstack.azurecr.io/panel:7.0.0"
     environment:
       - TOMCAT_ADMIN_USER=admin
