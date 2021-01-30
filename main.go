@@ -63,7 +63,7 @@ func uninstall() {
 	check(runCmd("docker", "stack", "rm", "utmstack"))
 	
 	// sleep while docker is removing the containers
-	time.Sleep(50 * time.Second)
+	time.Sleep(120 * time.Second)
 	
 	// remove images
 	for _, image := range containersImages {
