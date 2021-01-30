@@ -270,7 +270,17 @@ func initializeElastic(secret string) {
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
-				"location": "main_index",
+				"location": "backups",
+			},
+		},
+	})
+	check(err)
+
+	_, err = grequests.Put(baseURL + "_snapshot/utm_geoip", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"type": "fs",
+			"settings": map[string]interface{}{
+				"location": "utm-geoip",
 			},
 		},
 	})
