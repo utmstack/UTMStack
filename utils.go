@@ -212,15 +212,66 @@ func initializeElastic(secret string) {
 	// configure elastic
 	indexPrefix := "index-" + secret
 	initialIndex := indexPrefix + "-000001"
-	// create alias
-	log.Println("Configuring alias")
-	_, err := grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
-		JSON: map[string][]interface{}{
-			"actions": []interface{}{
-				map[string]interface{}{
-					"add": map[string]string{
-						"index": initialIndex,
-						"alias": indexPrefix,
+
+	// create ISM policy
+	log.Println("Configuring main index ISM policy")
+	_, err := grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"policy": map[string]interface{}{
+				"description":   "Main Index Lifecycle",
+				"default_state": "ingest",
+				"states": []interface{}{
+					map[string]interface{}{
+						"name": "ingest",
+						"actions": []interface{}{
+							map[string]interface{}{
+								"rollover": map[string]interface{}{
+									"min_doc_count": 30000000,
+									"min_size":      "15gb",
+								},
+							},
+						},
+						"transitions": []interface{}{
+							map[string]string{
+								"state_name": "search",
+							},
+						},
+					},
+					map[string]interface{}{
+						"name": "search",
+						"actions": []interface{}{
+							map[string]interface{}{
+								"snapshot": map[string]string{
+									"repository": "main_index",
+									"snapshot":   "incremental",
+								},
+							},
+						},
+						"transitions": []interface{}{
+							map[string]interface{}{
+								"state_name": "read",
+								"conditions": map[string]string{
+									"min_index_age": "30d",
+								},
+							},
+						},
+					},
+					map[string]interface{}{
+						"name": "read",
+						"actions": []interface{}{
+							map[string]interface{}{
+								"force_merge": map[string]interface{}{
+									"max_num_segments": 1,
+								},
+							},
+							map[string]interface{}{
+								"snapshot": map[string]interface{}{
+									"repository": "main_index",
+									"snapshot":   "incremental",
+								},
+							},
+						},
+						"transitions": []interface{}{},
 					},
 				},
 			},
@@ -307,76 +358,26 @@ func initializeElastic(secret string) {
 	})
 	check(err)
 
-	// create ISM policy
-	log.Println("Configuring main index ISM policy")
-	_, err = grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"policy": map[string]interface{}{
-				"description":   "Main Index Lifecycle",
-				"default_state": "ingest",
-				"states": []interface{}{
-					map[string]interface{}{
-						"name": "ingest",
-						"actions": []interface{}{
-							map[string]interface{}{
-								"rollover": map[string]interface{}{
-									"min_doc_count": 30000000,
-									"min_size":      "15gb",
-								},
-							},
-						},
-						"transitions": []interface{}{
-							map[string]string{
-								"state_name": "search",
-							},
-						},
-					},
-					map[string]interface{}{
-						"name": "search",
-						"actions": []interface{}{
-							map[string]interface{}{
-								"snapshot": map[string]string{
-									"repository": "main_index",
-									"snapshot":   "incremental",
-								},
-							},
-						},
-						"transitions": []interface{}{
-							map[string]interface{}{
-								"state_name": "read",
-								"conditions": map[string]string{
-									"min_index_age": "30d",
-								},
-							},
-						},
-					},
-					map[string]interface{}{
-						"name": "read",
-						"actions": []interface{}{
-							map[string]interface{}{
-								"force_merge": map[string]interface{}{
-									"max_num_segments": 1,
-								},
-							},
-							map[string]interface{}{
-								"snapshot": map[string]interface{}{
-									"repository": "main_index",
-									"snapshot":   "incremental",
-								},
-							},
-						},
-						"transitions": []interface{}{},
-					},
-				},
-			},
-		},
-	})
-	check(err)
-
 	// create initial index
 	log.Println("Initializing the first main index")
 	_, err = grequests.Put(baseURL+initialIndex, &grequests.RequestOptions{
 		JSON: map[string]interface{}{},
+	})
+	check(err)
+
+	// create alias
+	log.Println("Configuring alias")
+	_, err = grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
+		JSON: map[string][]interface{}{
+			"actions": {
+				map[string]interface{}{
+					"add": map[string]string{
+						"index": initialIndex,
+						"alias": indexPrefix,
+					},
+				},
+			},
+		},
 	})
 	check(err)
 }
