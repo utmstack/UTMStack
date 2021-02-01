@@ -232,7 +232,7 @@ func initializeElastic(secret string) {
 	log.Println("Configuring main index template")
 	_, err = grequests.Put(baseURL+"_template/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
-			"index_patterns": []string{"index-*"},
+			"index_patterns": indexPrefix + "-*",
 			"settings": map[string]interface{}{
 				"index.mapping.total_fields.limit":                 10000,
 				"opendistro.index_state_management.policy_id":      "main_index_policy",
@@ -258,7 +258,7 @@ func initializeElastic(secret string) {
 	})
 	check(err)
 
-	// create templates
+	// create template for dc, utmstack and utm
 	log.Println("Configuring dc index template")
 	for _, e := range []string{"dc", "utmstack", "utm"} {
 		_, err = grequests.Put(baseURL+"_template/"+e+"_index", &grequests.RequestOptions{
