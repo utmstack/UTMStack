@@ -123,6 +123,8 @@ services:
 	masterTemplate = baseTemplate + `
   elasticsearch:
     image: "utmstack.azurecr.io/opendistro:1.11.0"
+    ports:
+      - "9200:9200"
     volumes:
       - ${ES_DATA}:/usr/share/elasticsearch/data
       - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
@@ -131,7 +133,7 @@ services:
       - discovery.seed_hosts=elasticsearch
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
-      - path.repo=/usr/share/elasticsearch/backups
+      - path.repo=/usr/share/elasticsearch
 
   postgres:
     image: "utmstack.azurecr.io/postgres:13"
@@ -147,7 +149,6 @@ services:
     image: "utmstack.azurecr.io/nginx:1.19.5"
     ports:
       - "443:443"
-      - "9200:9200"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
 
