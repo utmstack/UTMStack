@@ -76,6 +76,7 @@ func uninstall() {
 
 func installProbe(datadir, pass, host string) {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
+	logsDir := mkdirs(0777, datadir, "logs")
 
 	serverName, err := os.Hostname()
 	check(err)
@@ -85,6 +86,7 @@ func installProbe(datadir, pass, host string) {
 		"DB_HOST=" + host,
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
+		"UTMSTACK_LOGSDIR=" + logsDir,
 	}
 
 	initDocker(baseTemplate, env)
@@ -95,6 +97,7 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
+	logsDir := mkdirs(0777, datadir, "logs")
 
 	serverName, err := os.Hostname()
 	check(err)
@@ -109,6 +112,7 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) {
 		"ES_BACKUPS=" + esBackups,
 		"NGINX_CERT=" + nginxCert,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
+		"UTMSTACK_LOGSDIR=" + logsDir,
 	}
 
 	initDocker(masterTemplate, env)

@@ -64,6 +64,7 @@ services:
       - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     environment:
       - SERVER_NAME
@@ -78,6 +79,8 @@ services:
       - elasticsearch
       - openvas
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - DB_NAME = tasks
       - SERVER_NAME
@@ -91,6 +94,7 @@ services:
       - postgres
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
       - rsyslog_logs:/logs
       - wazuh_logs:/var/ossec/logs
     environment:
@@ -105,6 +109,8 @@ services:
       - postgres
       - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
       - SERVER_TYPE
@@ -149,6 +155,8 @@ services:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -158,6 +166,8 @@ services:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -167,6 +177,8 @@ services:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -176,6 +188,8 @@ services:
     depends_on:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -187,6 +201,8 @@ services:
       - elasticsearch
       - panel
     image: "utmstack.azurecr.io/datasources:7.0.0"
+    volumes:
+      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
       - DB_PASS
