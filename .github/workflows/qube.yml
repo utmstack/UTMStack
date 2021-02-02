@@ -28,4 +28,4 @@ jobs:
         run: unzip sonar-scanner-cli-4.5.0.2216-linux.zip      
         
       - name: Analyze
-        run: sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner -Dsonar.projectKey=utmstack_installer -Dsonar.projectName=UTMStack/installer -Dsonar.sources=. -Dsonar.tests=. -Dsonar.host.url=https://atlasinside-qube.eastus.cloudapp.azure.com -Dsonar.login=${{secrets.SONARQUBE_KEY}}
+        run: sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner -Dsonar.projectKey=utmstack_installer -Dsonar.projectName=UTMStack/installer -Dsonar.sources=. -Dsonar.host.url=https://atlasinside-qube.eastus.cloudapp.azure.com -Dsonar.login=${{secrets.SONARQUBE_KEY}}
