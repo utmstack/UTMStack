@@ -161,8 +161,18 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		if datadir == "" || dbPass == "" || host == "" {
 			alert(pages, "You must provide all requested data.")
 		} else {
-			// TODO: installProbe()
-			showResults(pages, app, "Program installed successfully.")
+			pages.AddPage(
+				"installing-dialog",
+				tview.NewModal().SetText("Installing..."),
+				false,
+				true,
+			)
+			pages.HidePage(probePageIndex)
+			go func(pages *tview.Pages, app *tview.Application) {
+				installProbe(datadir, dbPass, host)
+				showResults(pages, app, "Program installed successfully.")
+				app.Draw()
+			}(pages, app)
 		}
 	}).AddButton("Quit", func() {
 		app.Stop()
