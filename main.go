@@ -45,12 +45,11 @@ func main() {
 	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Password to access the database"})
 	host := probeCmd.String("", "host", &argparse.Options{Required: true, Help: "Master server address"})
 
-	if err := parser.Parse(os.Args); err != nil {
+	if len(os.Args) == 1 {
+		tui()
+	} else if err := parser.Parse(os.Args); err != nil {
 		fmt.Print(parser.Usage(err))
-		return
-	}
-
-	if removeCmd.Happened() {
+	} else if removeCmd.Happened() {
 		uninstall()
 	} else if masterCmd.Happened() {
 		installMaster(*masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail)
