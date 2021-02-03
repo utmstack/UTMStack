@@ -96,7 +96,7 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 					true,
 				)
 				pages.HidePage(uninstallPageIndex)
-				go func(pages *tview.Pages, app *tview.Application, ) {
+				go func(pages *tview.Pages, app *tview.Application) {
 					uninstall()
 					showResults(pages, app, "Program removed successfully.")
 					app.Draw()
@@ -126,8 +126,18 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		if datadir == "" || dbPass == "" || fqdn == "" || customerName == "" || customerEmail == "" {
 			alert(pages, "You must provide all requested data.")
 		} else {
-			// TODO: installMaster()
-			showResults(pages, app, "Program installed successfully.")
+			pages.AddPage(
+				"installing-dialog",
+				tview.NewModal().SetText("Installing..."),
+				false,
+				true,
+			)
+			pages.HidePage(masterPageIndex)
+			go func(pages *tview.Pages, app *tview.Application) {
+				installMaster(datadir, dbPass, fqdn, customerName, customerEmail)
+				showResults(pages, app, "Program installed successfully.")
+				app.Draw()
+			}(pages, app)
 		}
 	}).AddButton("Quit", func() {
 		app.Stop()
