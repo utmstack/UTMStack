@@ -177,6 +177,6 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 	}).AddButton("Quit", func() {
 		app.Stop()
 	})
-	form.SetBorder(true).SetTitle("Install Master").SetTitleAlign(tview.AlignCenter)
-	return center(46, 15, form)
+	form.SetBorder(true).SetTitle("Install Probe").SetTitleAlign(tview.AlignCenter)
+	return center(46, 11, form)
 }
