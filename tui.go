@@ -80,7 +80,7 @@ func actionPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		AddItem("Quit", "", 'q', func() {
 			app.Stop()
 		})
-	list.SetBorder(true).SetTitle("UTMStack - Select operation").SetTitleAlign(tview.AlignCenter).SetBorderPadding(1, 0, 1, 0)
+	list.SetBorder(true).SetTitle("UTMStack - Select Operation").SetTitleAlign(tview.AlignCenter).SetBorderPadding(1, 0, 1, 0)
 	return center(33, 12, list)
 }
 
@@ -112,8 +112,8 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		AddInputField("Data directory", "", 25, nil, nil).
 		AddInputField("DB password", "", 25, nil, nil).
 		AddInputField("FQDN", "", 25, nil, nil).
-		AddInputField("Customer Name", "", 25, nil, nil).
-		AddInputField("Customer email", "", 25, nil, nil)
+		AddInputField("Customer name", "", 25, nil, nil).
+		AddInputField("Customer E-mail", "", 25, nil, nil)
 	form.AddButton("Back", func() {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
