@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/rivo/tview"
-	"time"
 )
 
 const (
@@ -17,7 +16,10 @@ func tui() {
 	pages := tview.NewPages()
 
 	pages.AddPage(actionPageIndex, actionPage(pages, app), true, true)
-	
+	pages.AddPage(masterPageIndex, masterPage(pages, app), true, false)
+	pages.AddPage(probePageIndex, probePage(pages, app), true, false)
+	pages.AddPage(uninstallPageIndex, uninstallPage(pages, app), false, false)
+
 	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
@@ -67,21 +69,9 @@ func showResults(pages *tview.Pages, app *tview.Application, message string) *tv
 func actionPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 	list := tview.NewList().
 		AddItem("Install Master", "", 'a', func() {
-			pages.AddPage(
-				masterPageIndex,
-				masterPage(pages, app),
-				true,
-				false,
-			)
 			pages.SwitchToPage(masterPageIndex)
 		}).
 		AddItem("Install Probe", "", 'b', func() {
-			pages.AddPage(
-				probePageIndex,
-				probePage(pages, app),
-				true,
-				false,
-			)
 			pages.SwitchToPage(probePageIndex)
 		}).
 		AddItem("Uninstall UTMStack", "", 'c', func() {
@@ -90,12 +80,6 @@ func actionPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		AddItem("Quit", "", 'q', func() {
 			app.Stop()
 		})
-	pages.AddPage(
-				uninstallPageIndex,
-				uninstallPage(pages, app),
-				false,
-				false,
-			)
 	list.SetBorder(true).SetTitle("UTMStack - Select operation").SetTitleAlign(tview.AlignCenter).SetBorderPadding(1, 0, 1, 0)
 	return center(33, 12, list)
 }
@@ -105,12 +89,21 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		AddButtons([]string{"Uninstall", "Cancel"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			if buttonIndex == 0 {
-				// TODO: uninstall()
-				showResults(pages, app, "Program removed successfully.")
+				pages.AddPage(
+					"uninstalling-dialog",
+					tview.NewModal().SetText("Uninstalling..."),
+					false,
+					true,
+				)
+				pages.HidePage(uninstallPageIndex)
+				go func(pages *tview.Pages, app *tview.Application, ) {
+					uninstall()
+					showResults(pages, app, "Program removed successfully.")
+					app.Draw()
+				}(pages, app)
 			} else {
 				pages.SwitchToPage(actionPageIndex)
 			}
-			pages.HidePage(uninstallPageIndex).RemovePage(uninstallPageIndex)
 		})
 }
 
