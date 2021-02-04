@@ -97,7 +97,7 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				)
 				pages.HidePage(uninstallPageIndex)
 				go func(pages *tview.Pages, app *tview.Application) {
-					err := uninstall()
+					err := uninstall("ui")
 					var msg string
 					if err != nil {
 						msg = "ERROR: " + err.Error()
@@ -140,7 +140,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			)
 			pages.HidePage(masterPageIndex)
 			go func(pages *tview.Pages, app *tview.Application) {
-				err := installMaster(datadir, dbPass, fqdn, customerName, customerEmail)
+				err := installMaster("ui", datadir, dbPass, fqdn, customerName, customerEmail)
 				var msg string
 				if err != nil {
 					msg = "ERROR: " + err.Error()
@@ -181,7 +181,7 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			)
 			pages.HidePage(probePageIndex)
 			go func(pages *tview.Pages, app *tview.Application) {
-				err := installProbe(datadir, dbPass, host)
+				err := installProbe("ui", datadir, dbPass, host)
 				var msg string
 				if err != nil {
 					msg = "ERROR: " + err.Error()

@@ -46,10 +46,10 @@ func main() {
 	} else if err := parser.Parse(os.Args); err != nil {
 		fmt.Print(parser.Usage(err))
 	} else if removeCmd.Happened() {
-		check(uninstall())
+		check(uninstall("cli"))
 	} else if masterCmd.Happened() {
-		check(installMaster(*masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail))
+		check(installMaster("cli", *masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail))
 	} else if probeCmd.Happened() {
-		check(installProbe(*probeDataDir, *probePass, *host))
+		check(installProbe("cli", *probeDataDir, *probePass, *host))
 	}
 }

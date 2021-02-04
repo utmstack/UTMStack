@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -19,17 +20,18 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func runEnvCmd(env []string, command string, arg ...string) error {
+func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
 	cmd.Env = append(os.Environ(), env...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
+	if mode == "cli" {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 	return cmd.Run()
 }
 
-func runCmd(command string, arg ...string) error {
-	return runEnvCmd([]string{}, command, arg...)
+func runCmd(mode, command string, arg ...string) error {
+	return runEnvCmd(mode, []string{}, command, arg...)
 }
 
 func checkOutput(command string, arg ...string) (string, error) {
@@ -53,9 +55,10 @@ func check(e error) {
 	}
 }
 
-func uninstall() error {
-	if err := runCmd("docker", "stack", "rm", "utmstack"); err != nil {
-		return err
+func uninstall(mode string) error {
+	err := runCmd(mode, "docker", "stack", "rm", "utmstack")
+	if err != nil {
+		return errors.New(`Failed to remove "utmstack" docker stack`)
 	}
 
 	// sleep while docker is removing the containers
@@ -63,17 +66,20 @@ func uninstall() error {
 
 	// remove images
 	for _, image := range containersImages {
-		if err := runCmd("docker", "rmi", "utmstack.azurecr.io/"+image); err != nil {
-			return err
+		image = "utmstack.azurecr.io/" + image
+		err := runCmd(mode, "docker", "rmi", image)
+		if err != nil {
+			return errors.New("Failed to remove docker image: " + image)
 		}
 	}
 
 	// logout from registry
 	runCmd("docker", "logout", "utmstack.azurecr.io")
+
 	return nil
 }
 
-func installProbe(datadir, pass, host string) error {
+func installProbe(mode, datadir, pass, host string) error {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	logsDir := mkdirs(0777, datadir, "logs")
 
@@ -90,10 +96,10 @@ func installProbe(datadir, pass, host string) error {
 		"UTMSTACK_LOGSDIR=" + logsDir,
 	}
 
-	return initDocker(baseTemplate, env)
+	return initDocker(mode, baseTemplate, env)
 }
 
-func installMaster(datadir, pass, fqdn, customerName, customerEmail string) error {
+func installMaster(mode, datadir, pass, fqdn, customerName, customerEmail string) error {
 	esData := mkdirs(0777, datadir, "elasticsearch", "data")
 	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
@@ -118,7 +124,7 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) erro
 		"UTMSTACK_LOGSDIR=" + logsDir,
 	}
 
-	if err:= initDocker(masterTemplate, env); err != nil {
+	if err:= initDocker(mode, masterTemplate, env); err != nil {
 		return err
 	}
 
@@ -140,11 +146,11 @@ func installMaster(datadir, pass, fqdn, customerName, customerEmail string) erro
 	return nil
 }
 
-func initDocker(composerTemplate string, env []string) error {
+func initDocker(mode, composerTemplate string, env []string) error {
 	if runtime.GOOS == "linux" {
 		// set map_max_count size to 262144
-		if err := runCmd("sysctl", "-w", "vm.max_map_count=262144"); err != nil {
-			return err
+		if err := runCmd(mode, "sysctl", "-w", "vm.max_map_count=262144"); err != nil {
+			return errors.New("Failed to set vm.map_max_count")
 		}
 		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		if err != nil {
@@ -154,18 +160,19 @@ func initDocker(composerTemplate string, env []string) error {
 		f.WriteString("vm.max_map_count=262144")
 	}
 
-	if runCmd("docker", "version") != nil {
-		installDocker()
+	if runCmd(mode, "docker", "version") != nil {
+		installDocker(mode)
 	}
-	runCmd("docker", "swarm", "init")
+	runCmd(mode, "docker", "swarm", "init")
 
 	// login to registry
-	runCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
+	runCmd(mode, "docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
 
 	// pull images from registry
 	for _, image := range containersImages {
-		if err := runCmd("docker", "pull", "utmstack.azurecr.io/"+image); err != nil {
-			return err
+		image = "utmstack.azurecr.io/" + image
+		if err := runCmd(mode, "docker", "pull", image); err != nil {
+			return errors.New("Failed to pull docker image: " + image)
 		}
 	}
 
@@ -177,8 +184,8 @@ func initDocker(composerTemplate string, env []string) error {
 	defer f.Close()
 	f.WriteString(composerTemplate)
 
-	if err := runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName); err != nil {
-		return err
+	if err := runEnvCmd(mode, env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName); err != nil {
+		return errors.New("Failed to deploy stack")
 	}
 
 	return nil
