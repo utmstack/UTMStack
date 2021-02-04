@@ -2,6 +2,6 @@
 
 package utils
 
-func installDocker() {
+func installDocker(mode string) {
 	// Under planing
 }
