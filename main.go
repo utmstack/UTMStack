@@ -7,11 +7,6 @@ import (
 	"github.com/akamensky/argparse"
 )
 
-const (
-	master = 0
-	probe  = 1
-)
-
 var containersImages [10]string = [10]string{
 	"opendistro:1.11.0",
 	"openvas:11",
