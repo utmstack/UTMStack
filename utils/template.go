@@ -1,4 +1,4 @@
-package main
+package utils
 
 const (
 	stackName        = "utmstack"

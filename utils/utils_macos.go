@@ -1,6 +1,6 @@
 // +build darwin
 
-package main
+package utils
 
 func installDocker() {
 	// Under planing

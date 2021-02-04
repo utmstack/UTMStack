@@ -1,9 +1,11 @@
-package main
+package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,29 +14,43 @@ import (
 	"time"
 
 	"github.com/levigross/grequests"
+	"github.com/dchest/uniuri"
+	"github.com/pbnjay/memory"
 
 	_ "github.com/lib/pq"
 )
 
-func runEnvCmd(env []string, command string, arg ...string) error {
+
+var containersImages [10]string = [10]string{
+	"opendistro:1.11.0",
+	"openvas:11",
+	"postgres:13",
+	"logstash:7.9.3",
+	"rsyslog:8.36.0",
+	"wazuh:3.11.1",
+	"scanner:1.0.0",
+	"nginx:1.19.5",
+	"panel:7.0.0",
+	"datasources:7.0.0",
+}
+
+func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
 	cmd.Env = append(os.Environ(), env...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	log.Println("Executing command:", command, "with args:", arg)
+	if mode == "cli" {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 	return cmd.Run()
 }
 
-func runCmd(command string, arg ...string) error {
-	return runEnvCmd([]string{}, command, arg...)
+func runCmd(mode, command string, arg ...string) error {
+	return runEnvCmd(mode, []string{}, command, arg...)
 }
 
-func checkOutput(command string, arg ...string) string {
-	log.Println("Executing command:", command, "with args:", arg)
+func checkOutput(command string, arg ...string) (string, error) {
 	out, err := exec.Command(command, arg...).Output()
-	check(err)
-	return strings.TrimSpace(string(out))
+	return strings.TrimSpace(string(out)), err
 }
 
 func mkdirs(mode os.FileMode, arg ...string) string {
@@ -47,47 +63,149 @@ func mkdirs(mode os.FileMode, arg ...string) string {
 	return path
 }
 
-func check(e error) {
+func Check(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}
 }
 
-func initDocker(composerTemplate string, env []string) {
+func Uninstall(mode string) error {
+	err := runCmd(mode, "docker", "stack", "rm", "utmstack")
+	if err != nil {
+		return errors.New(`Failed to remove "utmstack" docker stack`)
+	}
+
+	// sleep while docker is removing the containers
+	time.Sleep(120 * time.Second)
+
+	// remove images
+	for _, image := range containersImages {
+		image = "utmstack.azurecr.io/" + image
+		err := runCmd(mode, "docker", "rmi", image)
+		if err != nil {
+			return errors.New("Failed to remove docker image: " + image)
+		}
+	}
+
+	// logout from registry
+	runCmd("docker", "logout", "utmstack.azurecr.io")
+
+	return nil
+}
+
+func InstallProbe(mode, datadir, pass, host string) error {
+	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
+	logsDir := mkdirs(0777, datadir, "logs")
+
+	serverName, err := os.Hostname()
+	if err != nil {
+		return err
+	}
+	env := []string{
+		"SERVER_TYPE=probe",
+		"SERVER_NAME=" + serverName,
+		"DB_HOST=" + host,
+		"DB_PASS=" + pass,
+		"LOGSTASH_PIPELINE=" + logstashPipeline,
+		"UTMSTACK_LOGSDIR=" + logsDir,
+	}
+
+	return initDocker(mode, baseTemplate, env)
+}
+
+func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string) error {
+	esData := mkdirs(0777, datadir, "elasticsearch", "data")
+	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
+	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
+	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
+	logsDir := mkdirs(0777, datadir, "logs")
+
+	serverName, err := os.Hostname()
+	if err != nil {
+		return err
+	}
+	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
+	env := []string{
+		"SERVER_TYPE=aio",
+		"SERVER_NAME=" + serverName,
+		"DB_PASS=" + pass,
+		"CLIENT_SECRET=" + secret,
+		fmt.Sprint("ES_MEM=", (memory.TotalMemory()/uint64(math.Pow(1024, 3))-4)/2),
+		"ES_DATA=" + esData,
+		"ES_BACKUPS=" + esBackups,
+		"NGINX_CERT=" + nginxCert,
+		"LOGSTASH_PIPELINE=" + logstashPipeline,
+		"UTMSTACK_LOGSDIR=" + logsDir,
+	}
+
+	if err:= initDocker(mode, masterTemplate, env); err != nil {
+		return err
+	}
+
+	// Generate nginx auto-signed cert and key
+	if err:= generateCerts(nginxCert); err != nil {
+		return err
+	}
+
+	// configure elastic
+	if err:= initializeElastic(secret); err != nil {
+		return err
+	}
+
+	// Initialize PostgreSQL Database
+	if err:= initializePostgres(pass, customerName, fqdn, secret, customerEmail); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initDocker(mode, composerTemplate string, env []string) error {
 	if runtime.GOOS == "linux" {
 		// set map_max_count size to 262144
-		log.Println("Setting map_max_count to 262144")
-		check(runCmd("sysctl", "-w", "vm.max_map_count=262144"))
+		if err := runCmd(mode, "sysctl", "-w", "vm.max_map_count=262144"); err != nil {
+			return errors.New("Failed to set vm.map_max_count")
+		}
 		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
-		check(err)
+		if err != nil {
+			return err
+		}
 		defer f.Close()
 		f.WriteString("vm.max_map_count=262144")
 	}
 
-	if runCmd("docker", "version") != nil {
-		installDocker()
+	if runCmd(mode, "docker", "version") != nil {
+		installDocker(mode)
 	}
-	runCmd("docker", "swarm", "init")
+	runCmd(mode, "docker", "swarm", "init")
 
 	// login to registry
-	runCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
+	runCmd(mode, "docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
 
 	// pull images from registry
 	for _, image := range containersImages {
-		check(runCmd("docker", "pull", "utmstack.azurecr.io/"+image))
+		image = "utmstack.azurecr.io/" + image
+		if err := runCmd(mode, "docker", "pull", image); err != nil {
+			return errors.New("Failed to pull docker image: " + image)
+		}
 	}
 
 	// generate composer file and deploy
-	log.Println("Generating composer file")
 	f, err := os.Create(composerFile)
-	check(err)
+	if err != nil {
+		return err
+	}
 	defer f.Close()
 	f.WriteString(composerTemplate)
 
-	check(runEnvCmd(env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName))
+	if err := runEnvCmd(mode, env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName); err != nil {
+		return errors.New("Failed to deploy stack")
+	}
+
+	return nil
 }
 
-func generateCerts(nginxCert string) {
+func generateCerts(nginxCert string) error {
 	cert := `-----BEGIN CERTIFICATE-----
 MIIFJjCCBA6gAwIBAgISA7ylpw0Ob1YkGwHhx3lwj3gwMA0GCSqGSIb3DQEBCwUA
 MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD
@@ -175,23 +293,26 @@ nzvOGfUJga8KRGJAAenaKpxCw4S9RASrDoilCtlWDM4dBneB4daj4NoT0WNkSmCY
 -----END PRIVATE KEY-----
 `
 
-	log.Println("Generating utm.crt")
 	crtFile, err := os.Create(filepath.Join(nginxCert, "utm.crt"))
-	check(err)
+	if err != nil {
+		return err
+	}
 	defer crtFile.Close()
 	crtFile.WriteString(cert)
 
-	log.Println("Generating utm.key")
 	keyFile, err := os.Create(filepath.Join(nginxCert, "utm.key"))
-	check(err)
+	if err != nil {
+		return err
+	}
 	defer keyFile.Close()
 	keyFile.WriteString(key)
+
+	return nil
 }
 
-func initializeElastic(secret string) {
+func initializeElastic(secret string) error {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
-	log.Println("Waiting for the search engine")
 	for {
 		time.Sleep(50 * time.Second)
 
@@ -205,8 +326,6 @@ func initializeElastic(secret string) {
 		if err == nil {
 			break
 		}
-
-		log.Println("Search engine is taking a long time to get ready, please wait.")
 	}
 
 	// configure elastic
@@ -214,7 +333,6 @@ func initializeElastic(secret string) {
 	initialIndex := indexPrefix + "-000001"
 
 	// create ISM policy
-	log.Println("Configuring main index ISM policy")
 	_, err := grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"policy": map[string]interface{}{
@@ -277,10 +395,11 @@ func initializeElastic(secret string) {
 			},
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// create main index template
-	log.Println("Configuring main index template")
 	_, err = grequests.Put(baseURL+"_template/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"index_patterns": indexPrefix + "-*",
@@ -293,10 +412,11 @@ func initializeElastic(secret string) {
 			},
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// create template for generic index
-	log.Println("Configuring generic index template")
 	_, err = grequests.Put(baseURL+"_template/generic_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"index_patterns": []string{"generic-*"},
@@ -307,10 +427,11 @@ func initializeElastic(secret string) {
 			},
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// create template for dc, utmstack and utm
-	log.Println("Configuring dc index template")
 	for _, e := range []string{"dc", "utmstack", "utm"} {
 		_, err = grequests.Put(baseURL+"_template/"+e+"_index", &grequests.RequestOptions{
 			JSON: map[string]interface{}{
@@ -321,11 +442,12 @@ func initializeElastic(secret string) {
 				},
 			},
 		})
-		check(err)
+		if err != nil {
+			return err
+		}
 	}
 
 	// enable snapshots
-	log.Println("Configuring main index snapshot repository")
 	_, err = grequests.Put(baseURL+"_snapshot/main_index", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
@@ -334,9 +456,10 @@ func initializeElastic(secret string) {
 			},
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
-	log.Println("Configuring geoip snapshot repository")
 	_, err = grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
@@ -345,10 +468,11 @@ func initializeElastic(secret string) {
 			},
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// restore geoip snapshot
-	log.Println("Restoring geoip index")
 	_, err = grequests.Post(baseURL+"_snapshot/utm_geoip/utm-geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"indices":              "utm-*",
@@ -356,17 +480,19 @@ func initializeElastic(secret string) {
 			"include_global_state": false,
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// create initial index
-	log.Println("Initializing the first main index")
 	_, err = grequests.Put(baseURL+initialIndex, &grequests.RequestOptions{
 		JSON: map[string]interface{}{},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// create alias
-	log.Println("Configuring alias")
 	_, err = grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
 		JSON: map[string][]interface{}{
 			"actions": {
@@ -379,44 +505,56 @@ func initializeElastic(secret string) {
 			},
 		},
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func initializePostgres(dbPassword string, clientName string, clientDomain string,
-	clientPrefix string, clientMail string) {
+	clientPrefix string, clientMail string) error {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
 		dbPassword)
 	srv, err := sql.Open("postgres", psqlconn)
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// Close connection when finish
 	defer srv.Close()
 
 	// Check connection status
 	err = srv.Ping()
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// Crating utmstack
-	log.Println("Configuring database in PostgreSQL")
 	_, err = srv.Exec("CREATE DATABASE utmstack")
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// Connecting to utmstack
 	psqlconn = fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack",
 		dbPassword)
 	db, err := sql.Open("postgres", psqlconn)
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// Close connection when finish
 	defer db.Close()
 
 	// Check connection status
 	err = db.Ping()
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// Creating utm_client
-	log.Println("Creating table utm_client")
 	_, err = db.Exec(`CREATE TABLE public.utm_client (		
 	id serial NOT NULL,
 	client_name varchar(100) NULL,
@@ -431,14 +569,19 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	client_licence_verified bool NOT NULL,
 	CONSTRAINT utm_client_pkey PRIMARY KEY (id)
 	);`)
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	// Insert client data
-	log.Println("Inserting data into utm_client")
 	_, err = db.Exec(`INSERT INTO public.utm_client (
 	client_name, client_domain, client_prefix, 
 	client_mail, client_user, client_pass, client_licence_verified
 	) VALUES ($1, $2, $3, $4, 'admin', $5, false);`,
 		clientName, clientDomain, clientPrefix, clientMail, dbPassword)
-	check(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
