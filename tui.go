@@ -97,8 +97,14 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				)
 				pages.HidePage(uninstallPageIndex)
 				go func(pages *tview.Pages, app *tview.Application) {
-					uninstall()
-					showResults(pages, app, "Program removed successfully.")
+					err := uninstall()
+					var msg string
+					if err != nil {
+						msg = "ERROR: " + err.Error()
+					} else {
+						msg = "Program removed successfully."
+					}
+					showResults(pages, app, msg)
 					app.Draw()
 				}(pages, app)
 			} else {
@@ -134,8 +140,14 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			)
 			pages.HidePage(masterPageIndex)
 			go func(pages *tview.Pages, app *tview.Application) {
-				installMaster(datadir, dbPass, fqdn, customerName, customerEmail)
-				showResults(pages, app, "Program installed successfully.")
+				err := installMaster(datadir, dbPass, fqdn, customerName, customerEmail)
+				var msg string
+				if err != nil {
+					msg = "ERROR: " + err.Error()
+				} else {
+					msg = "Program installed successfully."
+				}
+				showResults(pages, app, msg)
 				app.Draw()
 			}(pages, app)
 		}
@@ -169,8 +181,14 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			)
 			pages.HidePage(probePageIndex)
 			go func(pages *tview.Pages, app *tview.Application) {
-				installProbe(datadir, dbPass, host)
-				showResults(pages, app, "Program installed successfully.")
+				err := installProbe(datadir, dbPass, host)
+				var msg string
+				if err != nil {
+					msg = "ERROR: " + err.Error()
+				} else {
+					msg = "Program installed successfully."
+				}
+				showResults(pages, app, msg)
 				app.Draw()
 			}(pages, app)
 		}
