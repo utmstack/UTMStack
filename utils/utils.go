@@ -331,110 +331,9 @@ func initializeElastic(secret string) error {
 	// configure elastic
 	indexPrefix := "index-" + secret
 	initialIndex := indexPrefix + "-000001"
-	// create alias
-	_, err := grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
-		JSON: map[string][]interface{}{
-			"actions": []interface{}{
-				map[string]interface{}{
-					"add": map[string]string{
-						"index": initialIndex,
-						"alias": indexPrefix,
-					},
-				},
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	// create main index template
-	_, err = grequests.Put(baseURL+"_template/main_index", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"index_patterns": []string{"index-*"},
-			"settings": map[string]interface{}{
-				"index.mapping.total_fields.limit":                 10000,
-				"opendistro.index_state_management.policy_id":      "main_index_policy",
-				"opendistro.index_state_management.rollover_alias": indexPrefix,
-				"number_of_shards":                                 3,
-				"number_of_replicas":                               0,
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	// create template for generic index
-	_, err = grequests.Put(baseURL+"_template/generic_index", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"index_patterns": []string{"generic-*"},
-			"settings": map[string]interface{}{
-				"index.mapping.total_fields.limit": 10000,
-				"number_of_shards":                 1,
-				"number_of_replicas":               0,
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	// create templates
-	for _, e := range []string{"dc", "utmstack", "utm"} {
-		_, err = grequests.Put(baseURL+"_template/"+e+"_index", &grequests.RequestOptions{
-			JSON: map[string]interface{}{
-				"index_patterns": []string{e + "-*"},
-				"settings": map[string]interface{}{
-					"number_of_shards":   1,
-					"number_of_replicas": 0,
-				},
-			},
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	// enable snapshots
-	_, err = grequests.Put(baseURL+"_snapshot/main_index", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"type": "fs",
-			"settings": map[string]interface{}{
-				"location": "backups",
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	_, err = grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"type": "fs",
-			"settings": map[string]interface{}{
-				"location": "utm-geoip",
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	// restore geoip snapshot
-	_, err = grequests.Post(baseURL+"_snapshot/utm_geoip/utm-geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"indices":              "utm-*",
-			"ignore_unavailable":   true,
-			"include_global_state": false,
-		},
-	})
-	if err != nil {
-		return err
-	}
 
 	// create ISM policy
-	_, err = grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
+	_, err := grequests.Put(baseURL+"_opendistro/_ism/policies/main_index_policy", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"policy": map[string]interface{}{
 				"description":   "Main Index Lifecycle",
@@ -500,9 +399,111 @@ func initializeElastic(secret string) error {
 		return err
 	}
 
+	// create main index template
+	_, err = grequests.Put(baseURL+"_template/main_index", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"index_patterns": indexPrefix + "-*",
+			"settings": map[string]interface{}{
+				"index.mapping.total_fields.limit":                 10000,
+				"opendistro.index_state_management.policy_id":      "main_index_policy",
+				"opendistro.index_state_management.rollover_alias": indexPrefix,
+				"number_of_shards":                                 3,
+				"number_of_replicas":                               0,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	// create template for generic index
+	_, err = grequests.Put(baseURL+"_template/generic_index", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"index_patterns": []string{"generic-*"},
+			"settings": map[string]interface{}{
+				"index.mapping.total_fields.limit": 10000,
+				"number_of_shards":                 1,
+				"number_of_replicas":               0,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	// create template for dc, utmstack and utm
+	for _, e := range []string{"dc", "utmstack", "utm"} {
+		_, err = grequests.Put(baseURL+"_template/"+e+"_index", &grequests.RequestOptions{
+			JSON: map[string]interface{}{
+				"index_patterns": []string{e + "-*"},
+				"settings": map[string]interface{}{
+					"number_of_shards":   1,
+					"number_of_replicas": 0,
+				},
+			},
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	// enable snapshots
+	_, err = grequests.Put(baseURL+"_snapshot/main_index", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"type": "fs",
+			"settings": map[string]interface{}{
+				"location": "backups",
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"type": "fs",
+			"settings": map[string]interface{}{
+				"location": "utm-geoip",
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	// restore geoip snapshot
+	_, err = grequests.Post(baseURL+"_snapshot/utm_geoip/utm-geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"indices":              "utm-*",
+			"ignore_unavailable":   true,
+			"include_global_state": false,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
 	// create initial index
 	_, err = grequests.Put(baseURL+initialIndex, &grequests.RequestOptions{
 		JSON: map[string]interface{}{},
+	})
+	if err != nil {
+		return err
+	}
+
+	// create alias
+	_, err = grequests.Post(baseURL+"_aliases", &grequests.RequestOptions{
+		JSON: map[string][]interface{}{
+			"actions": {
+				map[string]interface{}{
+					"add": map[string]string{
+						"index": initialIndex,
+						"alias": indexPrefix,
+					},
+				},
+			},
+		},
 	})
 	if err != nil {
 		return err
