@@ -46,10 +46,10 @@ func main() {
 	} else if err := parser.Parse(os.Args); err != nil {
 		fmt.Print(parser.Usage(err))
 	} else if removeCmd.Happened() {
-		uninstall()
+		check(uninstall())
 	} else if masterCmd.Happened() {
-		installMaster(*masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail)
+		check(installMaster(*masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail))
 	} else if probeCmd.Happened() {
-		installProbe(*probeDataDir, *probePass, *host)
+		check(installProbe(*probeDataDir, *probePass, *host))
 	}
 }
