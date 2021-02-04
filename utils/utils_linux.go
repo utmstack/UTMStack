@@ -1,6 +1,6 @@
 // +build linux
 
-package main
+package utils
 
 func installDocker(mode string) {
 	aptGet(mode, "update")

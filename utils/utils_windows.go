@@ -1,6 +1,6 @@
 // +build windows
 
-package main
+package utils
 
 func installDocker(mode string) {
 	pshell(mode, "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force")

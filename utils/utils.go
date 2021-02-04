@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"database/sql"
@@ -19,6 +19,20 @@ import (
 
 	_ "github.com/lib/pq"
 )
+
+
+var containersImages [10]string = [10]string{
+	"opendistro:1.11.0",
+	"openvas:11",
+	"postgres:13",
+	"logstash:7.9.3",
+	"rsyslog:8.36.0",
+	"wazuh:3.11.1",
+	"scanner:1.0.0",
+	"nginx:1.19.5",
+	"panel:7.0.0",
+	"datasources:7.0.0",
+}
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
@@ -49,13 +63,13 @@ func mkdirs(mode os.FileMode, arg ...string) string {
 	return path
 }
 
-func check(e error) {
+func Check(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}
 }
 
-func uninstall(mode string) error {
+func Uninstall(mode string) error {
 	err := runCmd(mode, "docker", "stack", "rm", "utmstack")
 	if err != nil {
 		return errors.New(`Failed to remove "utmstack" docker stack`)
@@ -79,7 +93,7 @@ func uninstall(mode string) error {
 	return nil
 }
 
-func installProbe(mode, datadir, pass, host string) error {
+func InstallProbe(mode, datadir, pass, host string) error {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	logsDir := mkdirs(0777, datadir, "logs")
 
@@ -99,7 +113,7 @@ func installProbe(mode, datadir, pass, host string) error {
 	return initDocker(mode, baseTemplate, env)
 }
 
-func installMaster(mode, datadir, pass, fqdn, customerName, customerEmail string) error {
+func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string) error {
 	esData := mkdirs(0777, datadir, "elasticsearch", "data")
 	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")

@@ -4,21 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/UTMStack/installer/utils"
+
 	"github.com/akamensky/argparse"
 )
-
-var containersImages [10]string = [10]string{
-	"opendistro:1.11.0",
-	"openvas:11",
-	"postgres:13",
-	"logstash:7.9.3",
-	"rsyslog:8.36.0",
-	"wazuh:3.11.1",
-	"scanner:1.0.0",
-	"nginx:1.19.5",
-	"panel:7.0.0",
-	"datasources:7.0.0",
-}
 
 func main() {
 	parser := argparse.NewParser("", "UTMStack installer")
@@ -41,10 +30,10 @@ func main() {
 	} else if err := parser.Parse(os.Args); err != nil {
 		fmt.Print(parser.Usage(err))
 	} else if removeCmd.Happened() {
-		check(uninstall("cli"))
+		utils.Check(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
-		check(installMaster("cli", *masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail))
+		utils.Check(utils.InstallMaster("cli", *masterDataDir, *masterPass, *fqdn, *customerName, *customerEmail))
 	} else if probeCmd.Happened() {
-		check(installProbe("cli", *probeDataDir, *probePass, *host))
+		utils.Check(utils.InstallProbe("cli", *probeDataDir, *probePass, *host))
 	}
 }
