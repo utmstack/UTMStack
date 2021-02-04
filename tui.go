@@ -94,7 +94,7 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			if buttonIndex == 0 {
 				pages.AddPage(
 					"uninstalling-dialog",
-					tview.NewModal().SetText("Uninstalling..."),
+					tview.NewModal().SetText("Uninstalling... This may take several minutes. Please wait."),
 					false,
 					true,
 				)
@@ -137,7 +137,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		} else {
 			pages.AddPage(
 				"installing-dialog",
-				tview.NewModal().SetText("Installing..."),
+				tview.NewModal().SetText("Installing... This may take several minutes. Please wait."),
 				false,
 				true,
 			)
@@ -178,7 +178,7 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		} else {
 			pages.AddPage(
 				"installing-dialog",
-				tview.NewModal().SetText("Installing..."),
+				tview.NewModal().SetText("Installing... This may take several minutes. Please wait."),
 				false,
 				true,
 			)
