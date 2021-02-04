@@ -11,6 +11,7 @@ const (
 	masterPageIndex = "1"
 	probePageIndex = "2"
 	uninstallPageIndex = "3"
+	errTag = "ERROR: "
 )
 
 func tui() {
@@ -98,17 +99,17 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 					true,
 				)
 				pages.HidePage(uninstallPageIndex)
-				go func(pages *tview.Pages, app *tview.Application) {
+				go func() {
 					err := utils.Uninstall("ui")
 					var msg string
 					if err != nil {
-						msg = "ERROR: " + err.Error()
+						msg = errTag + err.Error()
 					} else {
 						msg = "Program removed successfully."
 					}
 					showResults(pages, app, msg)
 					app.Draw()
-				}(pages, app)
+				}()
 			} else {
 				pages.SwitchToPage(actionPageIndex)
 			}
@@ -141,17 +142,17 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				true,
 			)
 			pages.HidePage(masterPageIndex)
-			go func(pages *tview.Pages, app *tview.Application) {
+			go func() {
 				err := utils.InstallMaster("ui", datadir, dbPass, fqdn, customerName, customerEmail)
 				var msg string
 				if err != nil {
-					msg = "ERROR: " + err.Error()
+					msg = errTag + err.Error()
 				} else {
 					msg = "Program installed successfully."
 				}
 				showResults(pages, app, msg)
 				app.Draw()
-			}(pages, app)
+			}()
 		}
 	}).AddButton("Quit", func() {
 		app.Stop()
@@ -182,17 +183,17 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				true,
 			)
 			pages.HidePage(probePageIndex)
-			go func(pages *tview.Pages, app *tview.Application) {
+			go func() {
 				err := utils.InstallProbe("ui", datadir, dbPass, host)
 				var msg string
 				if err != nil {
-					msg = "ERROR: " + err.Error()
+					msg = errTag + err.Error()
 				} else {
 					msg = "Program installed successfully."
 				}
 				showResults(pages, app, msg)
 				app.Draw()
-			}(pages, app)
+			}()
 		}
 	}).AddButton("Quit", func() {
 		app.Stop()
