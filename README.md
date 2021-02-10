@@ -11,3 +11,12 @@
 [![Code Smells](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=code_smells)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Duplicated Lines (%)](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=duplicated_lines_density)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Technical Debt](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=sqale_index)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
+
+## Instalation steps
+
+### Using Terminal User Interface
+
+- Download the installer from https://github.com/UTMStack/installer/releases/download/v7.0.0-alpha/installer
+- Set execution permissions with `chmod +x installer`
+- Run the intaller with ./installer
+- Select your installation option [Master|Probe|Uninstall]
