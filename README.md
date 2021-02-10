@@ -16,7 +16,8 @@
 
 ### Using Terminal User Interface
 
-- Download the installer from https://github.com/UTMStack/installer/releases/download/v7.0.0-alpha/installer
-- Set execution permissions with `chmod +x installer`
-- Run the intaller with ./installer
-- Select your installation option [Master|Probe|Uninstall]
+- Find a compatible installer release for your OS in https://github.com/UTMStack/installer/releases then download it
+
+#### On Linux
+- Set execution permissions with `#chmod +x installer`
+- Execute it with `#./installer`
