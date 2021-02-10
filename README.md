@@ -19,5 +19,5 @@
 - Find a compatible installer release for your OS in https://github.com/UTMStack/installer/releases then download it
 
 #### On Linux
-- Set execution permissions with `#chmod +x installer`
-- Execute it with `#./installer`
+- Set execution permissions with `# chmod +x installer`
+- Execute it with `# ./installer`
