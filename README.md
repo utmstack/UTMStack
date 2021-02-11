@@ -1,4 +1,4 @@
-# Installer for GNU/Linux
+# UTMStack Installer
 
 ![Go](https://github.com/UTMStack/installer/workflows/Go/badge.svg)
 [![Quality Gate Status](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=alert_status)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
@@ -11,3 +11,11 @@
 [![Code Smells](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=code_smells)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Duplicated Lines (%)](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=duplicated_lines_density)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Technical Debt](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=sqale_index)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
+
+## Instalation steps
+
+### Using Terminal User Interface
+
+- Find a compatible release for your distribution in https://github.com/UTMStack/installer/releases and download it
+- Set execution permissions with `# chmod +x installer`
+- Execute it with `# ./installer`
