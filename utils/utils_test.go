@@ -23,7 +23,3 @@ func TestCheckOutput(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 }
-
-func TestCheck(t *testing.T) {
-	check(runCmd("cli", "echo", "arg1"))
-}
