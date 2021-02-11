@@ -59,9 +59,6 @@ services:
       - "8000:8000"
 
   datasources_mutate:
-    depends_on:
-      - postgres
-      - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
@@ -74,10 +71,6 @@ services:
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_openvas:
-    depends_on:
-      - postgres
-      - elasticsearch
-      - openvas
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
@@ -90,8 +83,6 @@ services:
     command: ["python3", "-m", "utmstack.openvas"]
 
   datasources_transporter:
-    depends_on:
-      - postgres
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
@@ -105,9 +96,6 @@ services:
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
-    depends_on:
-      - postgres
-      - elasticsearch
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
@@ -198,8 +186,6 @@ services:
 
   datasources_logan:
     depends_on:
-      - postgres
-      - elasticsearch
       - panel
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
