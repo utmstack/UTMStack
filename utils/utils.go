@@ -174,9 +174,8 @@ func initDocker(mode, composerTemplate string, env []string) error {
 		f.WriteString("vm.max_map_count=262144")
 	}
 
-	if runCmd(mode, "docker", "version") != nil {
-		installDocker(mode)
-	}
+	installDocker(mode)
+
 	runCmd(mode, "docker", "swarm", "init")
 
 	// login to registry
