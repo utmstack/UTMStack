@@ -197,8 +197,13 @@ func initDocker(mode, composerTemplate string, env []string) error {
 	defer f.Close()
 	f.WriteString(composerTemplate)
 
-	if err := runEnvCmd(mode, env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName); err != nil {
-		return errors.New("Failed to deploy stack")
+	for i := 1; i<=3; i++ {
+		err := runEnvCmd(mode, env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName)
+		if err == nil{
+			break
+		} else if i == 3 {
+			return errors.New("Failed to deploy stack")
+		}
 	}
 
 	return nil
