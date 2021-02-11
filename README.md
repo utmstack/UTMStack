@@ -16,6 +16,6 @@
 
 ### Using Terminal User Interface
 
-- Find a compatible release for your distribution in https://github.com/UTMStack/installer/releases and download it
+- Download the latest version from https://github.com/UTMStack/installer/releases
 - Set execution permissions with `# chmod +x installer`
 - Execute it with `# ./installer`
