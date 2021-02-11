@@ -75,7 +75,7 @@ services:
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
-      - DB_NAME = tasks
+      - DB_NAME = gvmd
       - SERVER_NAME
       - SERVER_TYPE
       - DB_HOST
