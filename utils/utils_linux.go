@@ -2,6 +2,8 @@
 
 package utils
 
+import "time"
+
 func installDocker(mode string) {
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
 	runEnvCmd(mode, env, "apt","update")
@@ -12,4 +14,6 @@ func installDocker(mode string) {
 
 	runEnvCmd(mode, env,"apt","update")
 	runEnvCmd(mode, env,"apt","install", "-y", "docker-ce", "docker-ce-cli", "containerd.io")
+
+	time.Sleep(120 * time.Second)
 }
