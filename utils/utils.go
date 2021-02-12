@@ -166,6 +166,12 @@ func initDocker(mode, composerTemplate string, env []string) error {
 		if err := runCmd(mode, "sysctl", "-w", "vm.max_map_count=262144"); err != nil {
 			return errors.New("Failed to set vm.map_max_count")
 		}
+		if err := runCmd(mode, "sysctl", "-w", "net.ipv6.conf.all.disable_ipv6=1"); err != nil {
+			return errors.New("Failed to disable IPv6")
+		}
+		if err := runCmd(mode, "sysctl", "-w", "net.ipv6.conf.default.disable_ipv6=1"); err != nil {
+			return errors.New("Failed to disable IPv6")
+		}
 		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		if err != nil {
 			return err
