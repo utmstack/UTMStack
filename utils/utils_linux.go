@@ -15,5 +15,5 @@ func installDocker(mode string) {
 	runEnvCmd(mode, env,"apt","update")
 	runEnvCmd(mode, env,"apt","install", "-y", "docker-ce", "docker-ce-cli", "containerd.io")
 
-	time.Sleep(120 * time.Second)
+	time.Sleep(20 * time.Second)
 }
