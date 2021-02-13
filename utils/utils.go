@@ -178,7 +178,7 @@ func initDocker(mode, composerTemplate string, env []string) error {
 			if err := runCmd(mode, "sysctl", "-w", config); err != nil {
 				return errors.New("Failed to set sysctl config")
 			}
-			f.WriteString(config)
+			f.WriteString(config+"\n")
 		}
 	}
 
