@@ -4,13 +4,14 @@ const (
 	stackName        = "utmstack"
 	composerFile     = "utmstack.yml"
 	baseTemplate = `version: "3.8"
+
 volumes:
   rsyslog_logs:
     external: false
   postgres_data:
     external: false
   wazuh_logs:
-	external: false
+    external: false
 
 services:
   openvas:
