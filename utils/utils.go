@@ -162,22 +162,24 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 
 func initDocker(mode, composerTemplate string, env []string) error {
 	if runtime.GOOS == "linux" {
-		// set map_max_count size to 262144
-		if err := runCmd(mode, "sysctl", "-w", "vm.max_map_count=262144"); err != nil {
-			return errors.New("Failed to set vm.map_max_count")
-		}
-		if err := runCmd(mode, "sysctl", "-w", "net.ipv6.conf.all.disable_ipv6=1"); err != nil {
-			return errors.New("Failed to disable IPv6")
-		}
-		if err := runCmd(mode, "sysctl", "-w", "net.ipv6.conf.default.disable_ipv6=1"); err != nil {
-			return errors.New("Failed to disable IPv6")
+		// set map_max_count size to 262144 and disable IPv6
+		sysctl := []string{
+			"vm.max_map_count=262144",
+			"net.ipv6.conf.all.disable_ipv6=1",
+			"net.ipv6.conf.default.disable_ipv6=1",
 		}
 		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-		f.WriteString("vm.max_map_count=262144")
+
+		for _, config := range sysctl{
+			if err := runCmd(mode, "sysctl", "-w", config); err != nil {
+				return errors.New("Failed to set sysctl config")
+			}
+			f.WriteString(config)
+		}
 	}
 
 	installDocker(mode)
