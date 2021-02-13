@@ -21,7 +21,7 @@ import (
 )
 
 
-var containersImages [10]string = [10]string{
+var containersImages = [9]string{
 	"opendistro:1.11.0",
 	"openvas:11",
 	"postgres:13",
