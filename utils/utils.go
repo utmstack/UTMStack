@@ -27,7 +27,6 @@ var containersImages [10]string = [10]string{
 	"postgres:13",
 	"logstash:7.9.3",
 	"rsyslog:8.36.0",
-	"wazuh:3.11.1",
 	"scanner:1.0.0",
 	"nginx:1.19.5",
 	"panel:7.0.0",

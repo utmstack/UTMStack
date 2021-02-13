@@ -7,10 +7,10 @@ const (
 volumes:
   rsyslog_logs:
     external: false
-  wazuh_logs:
-    external: false
   postgres_data:
     external: false
+  wazuh_logs:
+	external: false
 
 services:
   openvas:
@@ -40,17 +40,6 @@ services:
     ports:
       - 514:514
       - 514:514/udp
-
-  wazuh:
-    image: "utmstack.azurecr.io/wazuh:3.11.1"
-    volumes:
-      - wazuh_logs:/var/ossec/logs
-    ports:
-      - 1514:1514
-      - 1514:1514/udp
-      - 1515:1515
-      - 1516:1516
-      - 55000:55000
 
   scanner:
     image: "utmstack.azurecr.io/scanner:1.0.0"
@@ -98,6 +87,7 @@ services:
   datasources_probe_api:
     image: "utmstack.azurecr.io/datasources:7.0.0"
     volumes:
+      - wazuh_logs:/var/ossec/logs
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
       - SERVER_NAME
@@ -105,8 +95,13 @@ services:
       - DB_HOST
       - DB_PASS
     ports:
-      - "23949:23949"
-    command: ["python3", "-m", "utmstack.probe_api"]
+      - 23949:23949
+      - 1514:1514
+      - 1514:1514/udp
+      - 1515:1515
+      - 1516:1516
+      - 55000:55000
+    command: ["/pw.sh"]
 `
 	masterTemplate = baseTemplate + `
   elasticsearch:
