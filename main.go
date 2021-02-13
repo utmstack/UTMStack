@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/UTMStack/installer/utils"
-
 	"github.com/akamensky/argparse"
 )
 
