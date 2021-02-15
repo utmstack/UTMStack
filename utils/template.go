@@ -95,6 +95,7 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
+      - SCANNER_IP
     ports:
       - 23949:23949
       - 1514:1514

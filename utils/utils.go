@@ -133,6 +133,8 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 
 	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
 
+	mainIP := getMainIP()
+
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
@@ -144,6 +146,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"NGINX_CERT=" + nginxCert,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_LOGSDIR=" + logsDir,
+		"SCANNER_IP="+mainIP,
 	}
 
 	if err := initDocker(mode, masterTemplate, env); err != nil {
