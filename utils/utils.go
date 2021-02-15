@@ -6,20 +6,19 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
-	"github.com/levigross/grequests"
 	"github.com/dchest/uniuri"
+	"github.com/levigross/grequests"
 	"github.com/pbnjay/memory"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
-
 
 var containersImages = [9]string{
 	"opendistro:1.11.0",
@@ -62,12 +61,14 @@ func mkdirs(mode os.FileMode, arg ...string) string {
 	return path
 }
 
+// Check Check if error is not nil or exit with error code
 func Check(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}
 }
 
+// Uninstall Uninstall UTMStack
 func Uninstall(mode string) error {
 	err := runCmd(mode, "docker", "stack", "rm", "utmstack")
 	if err != nil {
@@ -92,6 +93,7 @@ func Uninstall(mode string) error {
 	return nil
 }
 
+// InstallProbe Install UTMStack probe
 func InstallProbe(mode, datadir, pass, host string) error {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	logsDir := mkdirs(0777, datadir, "logs")
@@ -100,6 +102,9 @@ func InstallProbe(mode, datadir, pass, host string) error {
 	if err != nil {
 		return err
 	}
+
+	mainIP := getMainIP()
+
 	env := []string{
 		"SERVER_TYPE=probe",
 		"SERVER_NAME=" + serverName,
@@ -107,11 +112,13 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_LOGSDIR=" + logsDir,
+		"SCANNER_IP="+mainIP,
 	}
 
 	return initDocker(mode, baseTemplate, env)
 }
 
+// InstallMaster Install UTMStack Master
 func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string) error {
 	esData := mkdirs(0777, datadir, "elasticsearch", "data")
 	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
@@ -123,7 +130,9 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	if err != nil {
 		return err
 	}
+
 	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
+
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
@@ -137,50 +146,42 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"UTMSTACK_LOGSDIR=" + logsDir,
 	}
 
-	if err:= initDocker(mode, masterTemplate, env); err != nil {
+	if err := initDocker(mode, masterTemplate, env); err != nil {
 		return err
 	}
 
 	// Generate nginx auto-signed cert and key
-	if err:= generateCerts(nginxCert); err != nil {
+	if err := generateCerts(nginxCert); err != nil {
 		return err
 	}
 
 	// configure elastic
-	if err:= initializeElastic(secret); err != nil {
+	if err := initializeElastic(secret); err != nil {
 		return err
 	}
 
 	// Initialize PostgreSQL Database
-	if err:= initializePostgres(pass, customerName, fqdn, secret, customerEmail); err != nil {
+	if err := initializePostgres(pass, customerName, fqdn, secret, customerEmail); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func initDocker(mode, composerTemplate string, env []string) error {
-	if runtime.GOOS == "linux" {
-		// set map_max_count size to 262144 and disable IPv6
-		sysctl := []string{
-			"vm.max_map_count=262144",
-			"net.ipv6.conf.all.disable_ipv6=1",
-			"net.ipv6.conf.default.disable_ipv6=1",
-		}
-		f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
+func getMainIP() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
 
-		for _, config := range sysctl{
-			if err := runCmd(mode, "sysctl", "-w", config); err != nil {
-				return errors.New("Failed to set sysctl config")
-			}
-			f.WriteString(config+"\n")
-		}
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer conn.Close()
 
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return string(localAddr.IP)
+}
+
+func initDocker(mode, composerTemplate string, env []string) error {
 	installDocker(mode)
 
 	runCmd(mode, "docker", "swarm", "init")
@@ -204,9 +205,9 @@ func initDocker(mode, composerTemplate string, env []string) error {
 	defer f.Close()
 	f.WriteString(composerTemplate)
 
-	for i := 1; i<=3; i++ {
+	for i := 1; i <= 3; i++ {
 		err := runEnvCmd(mode, env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName)
-		if err == nil{
+		if err == nil {
 			break
 		} else if i == 3 {
 			return errors.New("Failed to deploy stack")
