@@ -5,6 +5,7 @@ package utils
 import (
 	"time"
 	"os"
+	"errors"
 )
 
 func installDocker(mode string) error{
