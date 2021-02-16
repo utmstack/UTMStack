@@ -38,4 +38,6 @@ func installDocker(mode string) error{
 	runEnvCmd(mode, env,"apt","install", "-y", "docker-ce", "docker-ce-cli", "containerd.io")
 
 	time.Sleep(20 * time.Second)
+
+	return nil
 }
