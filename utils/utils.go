@@ -185,7 +185,9 @@ func getMainIP() string {
 }
 
 func initDocker(mode, composerTemplate string, env []string) error {
-	installDocker(mode)
+	if err := installDocker(mode); err != nil {
+		return err
+	}
 
 	runCmd(mode, "docker", "swarm", "init")
 

@@ -7,9 +7,9 @@ import (
 	"os"
 )
 
-func installDocker(mode string) {
+func installDocker(mode string) error{
 	// set map_max_count size to 262144 and disable IPv6
-	sysctl := []string{
+	sysctl := []string {
 		"vm.max_map_count=262144",
 		"net.ipv6.conf.all.disable_ipv6=1",
 		"net.ipv6.conf.default.disable_ipv6=1",
