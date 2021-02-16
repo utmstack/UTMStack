@@ -2,7 +2,10 @@
 
 package utils
 
-import "time"
+import (
+	"time"
+	"os"
+)
 
 func installDocker(mode string) {
 	// set map_max_count size to 262144 and disable IPv6
