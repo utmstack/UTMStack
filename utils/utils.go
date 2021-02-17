@@ -181,7 +181,7 @@ func getMainIP() string {
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
-	return string(localAddr.IP)
+	return fmt.Sprintf("%s", localAddr.IP)
 }
 
 func initDocker(mode, composerTemplate string, env []string) error {
