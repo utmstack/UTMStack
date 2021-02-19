@@ -26,10 +26,10 @@ var containersImages = [9]string{
 	"postgres:13",
 	"logstash:7.9.3",
 	"rsyslog:8.36.0",
-	"scanner:1.0.0",
+	"scanner:1.0.0-alpha.1",
 	"nginx:1.19.5",
 	"panel:7.0.0",
-	"datasources:7.0.0",
+	"datasources:7.0.0-beta.1",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {

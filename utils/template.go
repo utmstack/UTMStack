@@ -49,7 +49,7 @@ services:
       - "8000:8000"
 
   datasources_mutate:
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
@@ -61,7 +61,7 @@ services:
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_openvas:
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
@@ -73,7 +73,7 @@ services:
     command: ["python3", "-m", "utmstack.openvas"]
 
   datasources_transporter:
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
       - rsyslog_logs:/logs
@@ -86,7 +86,7 @@ services:
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - wazuh_logs:/var/ossec/logs
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
@@ -140,7 +140,7 @@ services:
   datasources_aws:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
@@ -151,7 +151,7 @@ services:
   datasources_azure:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
@@ -162,7 +162,7 @@ services:
   datasources_office365:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
@@ -173,7 +173,7 @@ services:
   datasources_webroot:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
@@ -184,7 +184,7 @@ services:
   datasources_logan:
     depends_on:
       - panel
-    image: "utmstack.azurecr.io/datasources:7.0.0"
+    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
       - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
     environment:
