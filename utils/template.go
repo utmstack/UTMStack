@@ -43,7 +43,7 @@ services:
       - 514:514/udp
 
   scanner:
-    image: "utmstack.azurecr.io/scanner:1.0.0"
+    image: "utmstack.azurecr.io/scanner:1.0.0-alpha.1"
     ports:
       - "5000:5000"
       - "8000:8000"
