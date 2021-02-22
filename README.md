@@ -15,14 +15,20 @@
 ## Requirements
 ### Firewall rules
 - Open the next input ports from probes to master:
-* 50051/TCP (Used to send logs)
-* 9200/TCP (Used to data access. This port must be closed from any other source, for security, only probes can reach this port)
-* 5044/TCP (Used to send logs)
-* 5432/TCP (Used to database access)
+
+  50051/TCP (Used to send logs)
+
+  9200/TCP (Used to data access. This port must be closed from any other source, for security, only probes can reach this port)
+
+  5044/TCP (Used to send logs)
+
+  5432/TCP (Used to database access)
 
 - Open the next input ports from master to probes:
-* 9390/TCP and 8888/TCP (Used to connect with the vulnerabilities scanner)
-* 5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
+
+  9390/TCP and 8888/TCP (Used to connect with the vulnerabilities scanner)
+
+  5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
 
 ## Installation steps
 
