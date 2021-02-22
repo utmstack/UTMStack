@@ -12,6 +12,19 @@
 [![Duplicated Lines (%)](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=duplicated_lines_density)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Technical Debt](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=sqale_index)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 
+## Recommendations
+### Resources for Master
+- To retain and access to 100GB of logs: 4 Cores, 16 GB RAM, 280GB Disk Space
+- To retain and access to 1000GB of logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
+- To retain 10000GB and access to 1000GB of logs: 16 Cores, 64 GB RAM, 10080 Disk Space
+- To retain and access to 10000GB of logs: A cluster of 10 servers with 16 Cores, 64 GB RAM, 2080GB Disk Space
+
+### Resources for Probe
+- 1 Core for each 10 agents or devices sending logs.
+- 2 GB of RAM for each 10 agents or devices sending logs.
+- 30 GB of disk space for each 10 agents or devices sending logs.
+(The master can act as probe if you like to connect agents directly to it or send logs directly from devices. In that case, we recommend to add this resources to the master)
+
 ## Requirements
 ### Firewall rules
 - Open the next input ports from probes to master:
