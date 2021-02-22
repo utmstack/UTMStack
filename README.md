@@ -20,6 +20,7 @@
 - To retain and access to 10000GB of logs: A cluster of 10 servers with 16 Cores, 64 GB RAM, 2080GB Disk Space
 
 ### Resources for Probe
+- 50 GB Disk Space for system.
 - 1 Core for each 10 agents or devices sending logs.
 - 2 GB of RAM for each 10 agents or devices sending logs.
 - 30 GB of disk space for each 10 agents or devices sending logs.
