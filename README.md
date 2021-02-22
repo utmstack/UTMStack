@@ -16,13 +16,9 @@
 ### Firewall rules
 - Open the next input ports from probes to master:
 
-  50051/TCP (Used to send logs)
+  50051/TCP and 5044/TCP (Used to send logs)
 
-  9200/TCP (Used to data access. This port must be closed from any other source, for security, only probes can reach this port)
-
-  5044/TCP (Used to send logs)
-
-  5432/TCP (Used to database access)
+  5432/TCP and 9200/TCP (Used to data access. This ports must be closed from any other source, for security, only probes can reach this ports)
 
 - Open the next input ports from master to probes:
 
