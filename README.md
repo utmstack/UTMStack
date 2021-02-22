@@ -12,10 +12,19 @@
 [![Duplicated Lines (%)](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=duplicated_lines_density)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Technical Debt](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=sqale_index)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 
-## Instalation steps
+## Installation steps
+
+### Preparing for installation
+- Download the latest version from https://github.com/UTMStack/installer/releases (You can use `# wget [URL]` to download the installer directly to the server)
+- Set execution permissions with `# chmod +x installer`
 
 ### Using Terminal User Interface
+- Execute the installer without parameters: `# ./installer`
 
-- Download the latest version from https://github.com/UTMStack/installer/releases
-- Set execution permissions with `# chmod +x installer`
-- Execute it with `# ./installer`
+### Using parameterized mode
+You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
+- Master:
+`# ./installer master --datadir "[/example/dir]" --db-pass "[ExAmPlEpaSsWoRd]" --fqdn "[server.example.domain]" --customer-name "[Your Business]" --customer-email "[your@email.com]"`
+
+- Probe:
+`# ./installer probe --datadir "[/example/dir]" --db-pass "[Master's DB password]" --host "[Master's IP or FQDN]"`
