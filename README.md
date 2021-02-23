@@ -1,6 +1,7 @@
 # UTMStack Installer
 
 ![Go](https://github.com/UTMStack/installer/workflows/Go/badge.svg)
+[![CodeQL](https://github.com/UTMStack/installer/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/UTMStack/installer/actions/workflows/codeql-analysis.yml)
 [![Quality Gate Status](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=alert_status)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Bugs](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=bugs)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Vulnerabilities](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=vulnerabilities)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
