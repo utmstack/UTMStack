@@ -125,6 +125,8 @@ services:
     environment:
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
+      - "shared_buffers=256MB"
+      - "max_connections=1000"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
