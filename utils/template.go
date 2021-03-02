@@ -1,8 +1,8 @@
 package utils
 
 const (
-	stackName        = "utmstack"
-	composerFile     = "utmstack.yml"
+	stackName    = "utmstack"
+	composerFile = "utmstack.yml"
 	baseTemplate = `version: "3.8"
 
 volumes:
@@ -126,7 +126,7 @@ services:
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
       - "shared_buffers=256MB"
-      - "max_connections=1000"
+      - "max_connections=1000000"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
