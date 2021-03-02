@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/UTMStack/installer/utils"
+	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 	"github.com/akamensky/argparse"
 )
 

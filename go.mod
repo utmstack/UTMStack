@@ -1,4 +1,4 @@
-module github.com/UTMStack/installer
+module github.com/AtlasInsideCorp/UTMStackInstaller
 
 go 1.15
 

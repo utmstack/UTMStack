@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/UTMStack/installer/utils"
+	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 
 	"github.com/rivo/tview"
 )
 
 const (
-	actionPageIndex = "0"
-	masterPageIndex = "1"
-	probePageIndex = "2"
+	actionPageIndex    = "0"
+	masterPageIndex    = "1"
+	probePageIndex     = "2"
 	uninstallPageIndex = "3"
-	errTag = "ERROR: "
+	errTag             = "ERROR: "
 )
 
 func tui() {
