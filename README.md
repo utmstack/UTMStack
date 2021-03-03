@@ -13,7 +13,12 @@
 [![Duplicated Lines (%)](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=duplicated_lines_density)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 [![Technical Debt](https://qube.atlasinside.com/api/project_badges/measure?project=utmstack_installer&metric=sqale_index)](https://qube.atlasinside.com/dashboard?id=utmstack_installer)
 
+
 ## Recommendations
+
+### Operating System
+This installation guide provides instructions to perform the UTMStack installation on Linux 18.04 LTS operating system.
+
 ### Resources for Master
 - For 100 GB of live logs: 4 Cores, 16 GB RAM, 280GB Disk Space
 - For 1000 GB of live logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
