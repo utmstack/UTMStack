@@ -6,11 +6,9 @@ const (
 	baseTemplate = `version: "3.8"
 
 volumes:
-  rsyslog_logs:
-    external: false
   postgres_data:
     external: false
-  wazuh_logs:
+  wazuh:
     external: false
 
 services:
