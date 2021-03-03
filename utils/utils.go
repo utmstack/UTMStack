@@ -28,7 +28,7 @@ var containersImages = [9]string{
 	"rsyslog:8.36.0",
 	"scanner:1.0.0-alpha.1",
 	"nginx:1.19.5",
-	"panel:7.0.0",
+	"panel:7.0.0-1",
 	"datasources:7.0.0-beta.1",
 }
 
@@ -96,7 +96,9 @@ func Uninstall(mode string) error {
 // InstallProbe Install UTMStack probe
 func InstallProbe(mode, datadir, pass, host string) error {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
-	logsDir := mkdirs(0777, datadir, "logs")
+	datasourcesDir := mkdirs(0777, datadir, "datasources")
+	rsyslogLogs := mkdirs(0777, datadir, "rsyslog")
+	wazuhLogs := mkdirs(0777, datadir, "wazuh")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -111,8 +113,10 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"DB_HOST=" + host,
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
-		"UTMSTACK_LOGSDIR=" + logsDir,
-		"SCANNER_IP="+mainIP,
+		"UTMSTACK_DATASOURCES=" + datasourcesDir,
+		"SCANNER_IP=" + mainIP,
+		"RSYSLOG_LOGS=" + rsyslogLogs,
+		"WAZUH_LOGS=" + wazuhLogs,
 	}
 
 	return initDocker(mode, baseTemplate, env)
@@ -124,7 +128,9 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
-	logsDir := mkdirs(0777, datadir, "logs")
+	datasourcesDir := mkdirs(0777, datadir, "datasources")
+	rsyslogLogs := mkdirs(0777, datadir, "rsyslog")
+	wazuhLogs := mkdirs(0777, datadir, "wazuh")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -145,8 +151,10 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"ES_BACKUPS=" + esBackups,
 		"NGINX_CERT=" + nginxCert,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
-		"UTMSTACK_LOGSDIR=" + logsDir,
-		"SCANNER_IP="+mainIP,
+		"UTMSTACK_DATASOURCES=" + datasourcesDir,
+		"SCANNER_IP=" + mainIP,
+		"RSYSLOG_LOGS=" + rsyslogLogs,
+		"WAZUH_LOGS=" + wazuhLogs,
 	}
 
 	if err := initDocker(mode, masterTemplate, env); err != nil {

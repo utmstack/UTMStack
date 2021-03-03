@@ -37,7 +37,7 @@ services:
   rsyslog:
     image: "utmstack.azurecr.io/rsyslog:8.36.0"
     volumes:
-      - rsyslog_logs:/logs
+      - ${RSYSLOG_LOGS}:/logs
     ports:
       - 514:514
       - 514:514/udp
@@ -51,7 +51,7 @@ services:
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     environment:
       - SERVER_NAME
@@ -63,7 +63,7 @@ services:
   datasources_openvas:
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - DB_NAME=gvmd
       - SERVER_NAME
@@ -75,9 +75,10 @@ services:
   datasources_transporter:
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
-      - rsyslog_logs:/logs
-      - wazuh_logs:/var/ossec/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+      - ${RSYSLOG_LOGS}:/logs
+      - wazuh:/var/ossec/
+      - ${WAZUH_LOGS}:/var/ossec/logs
     environment:
       - SERVER_NAME
       - SERVER_TYPE
@@ -88,8 +89,9 @@ services:
   datasources_probe_api:
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - wazuh_logs:/var/ossec/logs
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - wazuh:/var/ossec/
+      - ${WAZUH_LOGS}:/var/ossec/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
       - SERVER_TYPE
@@ -144,7 +146,7 @@ services:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -155,7 +157,7 @@ services:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -166,7 +168,7 @@ services:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -177,7 +179,7 @@ services:
       - logan
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
       - DB_PASS
@@ -188,7 +190,7 @@ services:
       - panel
     image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
     volumes:
-      - ${UTMSTACK_LOGSDIR}:/etc/utmstack/logs
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
       - DB_PASS
