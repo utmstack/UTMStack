@@ -12,6 +12,8 @@ volumes:
     external: false
   wazuh_var:
     external: false
+  wazuh_logs:
+    external: false
 
 services:
   openvas:
@@ -79,7 +81,7 @@ services:
       - ${RSYSLOG_LOGS}:/logs
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
-      - ${WAZUH_LOGS}:/var/ossec/logs
+      - wazuh_logs:/var/ossec/logs
     environment:
       - SERVER_NAME
       - SERVER_TYPE
@@ -92,7 +94,7 @@ services:
     volumes:
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
-      - ${WAZUH_LOGS}:/var/ossec/logs
+      - wazuh_logs:/var/ossec/logs
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME

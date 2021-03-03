@@ -98,7 +98,6 @@ func InstallProbe(mode, datadir, pass, host string) error {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := mkdirs(0777, datadir, "datasources")
 	rsyslogLogs := mkdirs(0777, datadir, "rsyslog")
-	wazuhLogs := mkdirs(0777, datadir, "wazuh")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -116,7 +115,6 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IP=" + mainIP,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
-		"WAZUH_LOGS=" + wazuhLogs,
 	}
 
 	return initDocker(mode, baseTemplate, env)
@@ -130,7 +128,6 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := mkdirs(0777, datadir, "datasources")
 	rsyslogLogs := mkdirs(0777, datadir, "rsyslog")
-	wazuhLogs := mkdirs(0777, datadir, "wazuh")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -154,7 +151,6 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IP=" + mainIP,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
-		"WAZUH_LOGS=" + wazuhLogs,
 	}
 
 	if err := initDocker(mode, masterTemplate, env); err != nil {
