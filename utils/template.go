@@ -14,10 +14,14 @@ volumes:
     external: false
   wazuh_logs:
     external: false
+  openvas_data:
+    external: false
 
 services:
   openvas:
     image: "utmstack.azurecr.io/openvas:11"
+    volumes:
+      - openvas_data:/data
     ports:
       - "8888:5432"
       - "9390:9390"
