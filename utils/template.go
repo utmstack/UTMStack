@@ -150,8 +150,6 @@ services:
       - ${NGINX_CERT}:/etc/nginx/cert
 
   datasources_aws:
-    depends_on:
-      - logan
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -161,8 +159,6 @@ services:
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_azure:
-    depends_on:
-      - logan
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -172,8 +168,6 @@ services:
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
-    depends_on:
-      - logan
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -183,8 +177,6 @@ services:
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
-    depends_on:
-      - logan
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -194,8 +186,6 @@ services:
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_logan:
-    depends_on:
-      - panel
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -207,10 +197,6 @@ services:
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
-    depends_on:
-      - postgres
-      - openvas
-      - elasticsearch
     image: "utmstack.azurecr.io/panel:7.0.0-1"
     environment:
       - TOMCAT_ADMIN_USER=admin
