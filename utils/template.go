@@ -8,7 +8,9 @@ const (
 volumes:
   postgres_data:
     external: false
-  wazuh:
+  wazuh_etc:
+    external: false
+  wazuh_var:
     external: false
 
 services:
@@ -75,7 +77,8 @@ services:
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${RSYSLOG_LOGS}:/logs
-      - wazuh:/var/ossec/
+      - wazuh_etc:/var/ossec/etc
+      - wazuh_var:/var/ossec/var
       - ${WAZUH_LOGS}:/var/ossec/logs
     environment:
       - SERVER_NAME
@@ -87,7 +90,8 @@ services:
   datasources_probe_api:
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
-      - wazuh:/var/ossec/
+      - wazuh_etc:/var/ossec/etc
+      - wazuh_var:/var/ossec/var
       - ${WAZUH_LOGS}:/var/ossec/logs
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
