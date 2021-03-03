@@ -15,17 +15,17 @@
 
 ## Recommendations
 ### Resources for Master
-- To retain and access to 100GB of logs: 4 Cores, 16 GB RAM, 280GB Disk Space
-- To retain and access to 1000GB of logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
-- To retain 10000GB and access to 1000GB of logs: 16 Cores, 64 GB RAM, 10080 Disk Space
-- To retain and access to 10000GB of logs: A cluster of 10 servers with 16 Cores, 64 GB RAM, 2080GB Disk Space
+- For 100 GB of live logs: 4 Cores, 16 GB RAM, 280GB Disk Space
+- For 1000 GB of live logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
+- For 10000 GB of data and 1000GB of live logs: 16 Cores, 64 GB RAM, 10080 Disk Space
+- For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 64 GB RAM, 2080GB Disk Space
 
-### Resources for Probe
+### Resources for Probe or Proxy server
 - 50 GB Disk Space for system.
-- 1 Core for each 10 agents or devices sending logs.
-- 2 GB of RAM for each 10 agents or devices sending logs.
-- 30 GB of disk space for each 10 agents or devices sending logs.
-(The master can act as probe if you like to connect agents directly to it or send logs directly from devices. In that case, we recommend to add this resources to the master)
+- 1 Core per 10 agents or devices sending logs.
+- 2 GB of RAM per 10 agents or devices sending logs.
+- 30 GB of disk space per 10 agents or devices sending logs.
+(The master can act as probe if a proxy is not used)
 
 ## Requirements
 ### Firewall rules
