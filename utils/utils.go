@@ -29,7 +29,7 @@ var containersImages = [9]string{
 	"scanner:1.0.0-alpha.1",
 	"nginx:1.19.5",
 	"panel:7.0.0-1",
-	"datasources:7.0.0-beta.1",
+	"datasources:testing",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {

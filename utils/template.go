@@ -49,7 +49,7 @@ services:
       - "8000:8000"
 
   datasources_mutate:
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
@@ -61,7 +61,7 @@ services:
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_openvas:
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -73,7 +73,7 @@ services:
     command: ["python3", "-m", "utmstack.openvas"]
 
   datasources_transporter:
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${RSYSLOG_LOGS}:/logs
@@ -87,7 +87,7 @@ services:
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - wazuh:/var/ossec/
       - ${WAZUH_LOGS}:/var/ossec/logs
@@ -144,7 +144,7 @@ services:
   datasources_aws:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -155,7 +155,7 @@ services:
   datasources_azure:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -166,7 +166,7 @@ services:
   datasources_office365:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -177,7 +177,7 @@ services:
   datasources_webroot:
     depends_on:
       - logan
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -188,7 +188,7 @@ services:
   datasources_logan:
     depends_on:
       - panel
-    image: "utmstack.azurecr.io/datasources:7.0.0-beta.1"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -203,7 +203,7 @@ services:
       - postgres
       - openvas
       - elasticsearch
-    image: "utmstack.azurecr.io/panel:7.0.0"
+    image: "utmstack.azurecr.io/panel:7.0.0-1"
     environment:
       - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
