@@ -57,3 +57,5 @@ You can replace the markups of the next examples by real values in order to use 
 
 - Probe:
 `# ./installer probe --datadir "[/example/dir]" --db-pass "[Master's DB password]" --host "[Master's IP or FQDN]"`
+
+Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
