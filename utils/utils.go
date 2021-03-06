@@ -28,8 +28,8 @@ var containersImages = [9]string{
 	"rsyslog:8.36.0",
 	"scanner:1.0.0-alpha.1",
 	"nginx:1.19.5",
-	"panel:7.0.0-1",
-	"datasources:testing",
+	"panel:7.0.0-2",
+	"datasources:7.0.0-1",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
