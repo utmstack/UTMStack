@@ -23,7 +23,7 @@ import (
 var containersImages = [9]string{
 	"opendistro:1.11.0",
 	"openvas:11",
-	"postgres:13",
+	"postgres:13-1",
 	"logstash:7.9.3",
 	"rsyslog:8.36.0",
 	"scanner:1.0.0-alpha.1",

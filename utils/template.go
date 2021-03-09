@@ -131,7 +131,7 @@ services:
       - path.repo=/usr/share/elasticsearch
 
   postgres:
-    image: "utmstack.azurecr.io/postgres:13"
+    image: "utmstack.azurecr.io/postgres:13-1"
     environment:
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
