@@ -139,7 +139,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-	command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
