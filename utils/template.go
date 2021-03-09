@@ -131,16 +131,15 @@ services:
       - path.repo=/usr/share/elasticsearch
 
   postgres:
-    image: "utmstack.azurecr.io/postgres:13-1"
+    image: "utmstack.azurecr.io/postgres:13"
     environment:
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
-      - "shared_buffers=256MB"
-      - "max_connections=1000000"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+	command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
     image: "utmstack.azurecr.io/nginx:1.19.5"
