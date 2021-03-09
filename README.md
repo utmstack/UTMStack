@@ -3,8 +3,7 @@
 ## Recommendations
 
 ### Operating System
-This installation guide provides instructions to perform the UTMStack installation on Linux 18.04 LTS operating system.
-
+This installation guide provides instructions to perform the UTMStack installation on Ubuntu LTS.
 ### Resources for Master
 - For 100 GB of live logs: 4 Cores, 16 GB RAM, 280GB Disk Space
 - For 1000 GB of live logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
