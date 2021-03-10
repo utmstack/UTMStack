@@ -232,5 +232,7 @@ services:
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
+    ports:
+      - "9999:8080"
 `
 )
