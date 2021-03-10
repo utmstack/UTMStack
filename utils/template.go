@@ -221,5 +221,16 @@ services:
       - CATALINA_BASE=/opt/tomcat/
       - CATALINA_HOME=/opt/tomcat/
       - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+  
+  zapier:
+    image: "utmstack.azurecr.io/zapier:testing"
+    environment:
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=${DB_PASS}
+      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_DATABASE=utmstack
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
 `
 )
