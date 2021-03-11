@@ -12,9 +12,8 @@ This installation guide provides instructions to perform the UTMStack installati
 
 ### Resources for Probe or Proxy server
 - 50 GB Disk Space for system.
-- 1 Core per 10 agents or devices sending logs.
-- 2 GB of RAM per 10 agents or devices sending logs.
-- 30 GB of disk space per 10 agents or devices sending logs.
+- 4 Cores.
+- 8 GB of RAM.
 (The master can act as probe if a proxy is not used)
 
 ## Requirements
