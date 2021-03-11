@@ -279,7 +279,7 @@ services:
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
-    image: "utmstack.azurecr.io/panel:7.0.0-2"
+    image: "utmstack.azurecr.io/panel:7.0.0-3"
     environment:
       - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}

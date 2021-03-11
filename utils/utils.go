@@ -28,7 +28,7 @@ var containersImages = [10]string{
 	"rsyslog:8.36.0",
 	"scanner:1.0.0-alpha.1",
 	"nginx:1.19.5",
-	"panel:7.0.0-2",
+	"panel:7.0.0-3",
 	"datasources:7.0.0-1",
 	"zapier:testing",
 }
