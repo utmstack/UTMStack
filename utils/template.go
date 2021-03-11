@@ -30,6 +30,11 @@ services:
       - PASSWORD=${DB_PASS}
       - DB_PASSWORD=${DB_PASS}
       - HTTPS=0
+    deploy:
+      resources:
+        limits:
+          cpus: '2.00'
+          memory: 1024M
 
   logstash:
     image: "utmstack.azurecr.io/logstash:7.9.3"
@@ -39,6 +44,11 @@ services:
       - 5044:5044
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
+    deploy:
+      resources:
+        limits:
+          cpus: '4.00'
+          memory: 2048M
 
   rsyslog:
     image: "utmstack.azurecr.io/rsyslog:8.36.0"
@@ -47,12 +57,22 @@ services:
     ports:
       - 514:514
       - 514:514/udp
-
+    deploy:
+      resources:
+        limits:
+          cpus: '2.00'
+          memory: 512M
+        
   scanner:
     image: "utmstack.azurecr.io/scanner:1.0.0-alpha.1"
     ports:
       - "5000:5000"
       - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
 
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:7.0.0-1"
@@ -64,6 +84,11 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_openvas:
@@ -76,6 +101,11 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.openvas"]
 
   datasources_transporter:
@@ -91,6 +121,11 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
@@ -113,6 +148,11 @@ services:
       - 1515:1515
       - 1516:1516
       - 55000:55000
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["/pw.sh"]
 `
 	masterTemplate = baseTemplate + `
@@ -129,6 +169,11 @@ services:
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch
+    deploy:
+      resources:
+        reservations:
+          cpus: '4.00'
+          memory: 4096M
 
   postgres:
     image: "utmstack.azurecr.io/postgres:13"
@@ -139,6 +184,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.00'
+          memory: 1024M
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
@@ -147,6 +197,11 @@ services:
       - "443:443"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
 
   datasources_aws:
     image: "utmstack.azurecr.io/datasources:7.0.0-1"
@@ -155,6 +210,11 @@ services:
     environment:
       - SERVER_NAME
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_azure:
@@ -164,6 +224,11 @@ services:
     environment:
       - SERVER_NAME
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
@@ -173,6 +238,11 @@ services:
     environment:
       - SERVER_NAME
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
@@ -182,6 +252,11 @@ services:
     environment:
       - SERVER_NAME
       - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_logan:
@@ -193,6 +268,14 @@ services:
       - DB_PASS
     ports:
       - "50051:50051"
+    deploy:
+      resources:
+        limits:
+          cpus: '4.00'
+          memory: 2048M
+        reservations:
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
@@ -221,6 +304,11 @@ services:
       - CATALINA_BASE=/opt/tomcat/
       - CATALINA_HOME=/opt/tomcat/
       - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 2048M
   
   zapier:
     image: "utmstack.azurecr.io/zapier:testing"
@@ -234,5 +322,10 @@ services:
       - ELASTICSEARCH_PORT=9200
     ports:
       - "9999:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
 `
 )
