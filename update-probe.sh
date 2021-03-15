@@ -1,15 +1,15 @@
 #!/bin/bash
 
-docker pull opendistro:latest
-docker pull openvas:latest
-docker pull postgres:latest
-docker pull logstash:latest
-docker pull rsyslog:latest
-docker pull scanner:latest
-docker pull nginx:latest
-docker pull panel:latest
-docker pull datasources:latest
-docker pull zapier:latest
+docker pull utmstack.azurecr.io/opendistro:latest
+docker pull utmstack.azurecr.io/openvas:latest
+docker pull utmstack.azurecr.io/postgres:latest
+docker pull utmstack.azurecr.io/logstash:latest
+docker pull utmstack.azurecr.io/rsyslog:latest
+docker pull utmstack.azurecr.io/scanner:latest
+docker pull utmstack.azurecr.io/nginx:latest
+docker pull utmstack.azurecr.io/panel:latest
+docker pull utmstack.azurecr.io/datasources:latest
+docker pull utmstack.azurecr.io/zapier:latest
 
 docker service update --image utmstack.azurecr.io/openvas:latest utmstack_openvas
 docker service update --image utmstack.azurecr.io/logstash:latest utmstack_logstash
