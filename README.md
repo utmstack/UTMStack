@@ -5,16 +5,15 @@
 ### Operating System
 This installation guide provides instructions to perform the UTMStack installation on Ubuntu LTS.
 ### Resources for Master
-- For 100 GB of live logs: 4 Cores, 16 GB RAM, 280GB Disk Space
+- For 100 GB of live logs: 8 Cores, 16 GB RAM, 280GB Disk Space
 - For 1000 GB of live logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
 - For 10000 GB of data and 1000GB of live logs: 16 Cores, 64 GB RAM, 10080 Disk Space
 - For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 64 GB RAM, 2080GB Disk Space
 
 ### Resources for Probe or Proxy server
 - 50 GB Disk Space for system.
-- 1 Core per 10 agents or devices sending logs.
-- 2 GB of RAM per 10 agents or devices sending logs.
-- 30 GB of disk space per 10 agents or devices sending logs.
+- 4 Cores.
+- 8 GB of RAM.
 (The master can act as probe if a proxy is not used)
 
 ## Requirements
