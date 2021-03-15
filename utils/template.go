@@ -75,7 +75,7 @@ services:
           memory: 512M
 
   datasources_mutate:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
@@ -92,7 +92,7 @@ services:
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_openvas:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -109,7 +109,7 @@ services:
     command: ["python3", "-m", "utmstack.openvas"]
 
   datasources_transporter:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${RSYSLOG_LOGS}:/logs
@@ -129,7 +129,7 @@ services:
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
@@ -204,7 +204,7 @@ services:
           memory: 512M
 
   datasources_aws:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -218,7 +218,7 @@ services:
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_azure:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -232,7 +232,7 @@ services:
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -246,7 +246,7 @@ services:
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -260,7 +260,7 @@ services:
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_logan:
-    image: "utmstack.azurecr.io/datasources:7.0.0-1"
+    image: "utmstack.azurecr.io/datasources:7.0.0-3"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -311,7 +311,7 @@ services:
           memory: 2048M
   
   zapier:
-    image: "utmstack.azurecr.io/zapier:testing"
+    image: "utmstack.azurecr.io/zapier:1.0"
     environment:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}

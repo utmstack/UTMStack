@@ -29,8 +29,8 @@ var containersImages = [10]string{
 	"scanner:1.0.0-alpha.1",
 	"nginx:1.19.5",
 	"panel:7.0.0-3",
-	"datasources:7.0.0-1",
-	"zapier:testing",
+	"datasources:7.0.0-3",
+	"zapier:1.0",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
