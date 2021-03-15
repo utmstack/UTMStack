@@ -21,16 +21,16 @@ import (
 )
 
 var containersImages = [10]string{
-	"opendistro:latest",
-	"openvas:latest",
-	"postgres:latest",
-	"logstash:latest",
-	"rsyslog:latest",
-	"scanner:latest",
-	"nginx:latest",
-	"panel:latest",
-	"datasources:latest",
-	"zapier:latest",
+	"opendistro:testing",
+	"openvas:testing",
+	"postgres:testing",
+	"logstash:testing",
+	"rsyslog:testing",
+	"scanner:testing",
+	"nginx:testing",
+	"panel:testing",
+	"datasources:testing",
+	"zapier:testing",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
