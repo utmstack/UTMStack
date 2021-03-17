@@ -327,5 +327,21 @@ services:
         limits:
           cpus: '1.00'
           memory: 512M
+
+  correlation:
+    image: "utmstack.azurecr.io/correlation:testing"
+    environment:
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=${DB_PASS}
+      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_DATABASE=utmstack
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    deploy:
+      resources:
+        limits:
+          cpus: '8.00'
+          memory: 4096M
 `
 )
