@@ -128,6 +128,22 @@ services:
           memory: 512M
     command: ["python3", "-m", "utmstack.transporter"]
 
+  datasources_netflow:
+    image: "utmstack.azurecr.io/datasources:testing"
+    volumes:
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+    environment:
+      - SERVER_NAME
+      - SERVER_TYPE
+      - DB_HOST
+      - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
+    command: ["python3", "-m", "utmstack.netflow"]
+
   datasources_probe_api:
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
@@ -258,6 +274,20 @@ services:
           cpus: '1.00'
           memory: 512M
     command: ["python3", "-m", "utmstack.webroot"]
+
+  datasources_sophos:
+    image: "utmstack.azurecr.io/datasources:testing"
+    volumes:
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+    environment:
+      - SERVER_NAME
+      - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
+    command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
     image: "utmstack.azurecr.io/datasources:testing"
