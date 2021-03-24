@@ -126,6 +126,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string) error {
 	esData := mkdirs(0777, datadir, "elasticsearch", "data")
 	esBackups := mkdirs(0777, datadir, "elasticsearch", "backups")
+	_ = mkdirs(0777, datadir, "elasticsearch", "backups", "incremental")
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := mkdirs(0777, datadir, "datasources")
@@ -475,7 +476,7 @@ func initializeElastic(secret string) error {
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
-				"location": "backups/incremental",
+				"location": "/usr/share/elasticsearch/backups/incremental",
 			},
 		},
 	})
