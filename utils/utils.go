@@ -475,7 +475,7 @@ func initializeElastic(secret string) error {
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
-				"location": "backups",
+				"location": "backups/incremental",
 			},
 		},
 	})
