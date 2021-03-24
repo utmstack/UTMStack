@@ -132,6 +132,8 @@ services:
     image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+    ports:
+      - "2055:2055/udp"
     environment:
       - SERVER_NAME
       - SERVER_TYPE
