@@ -18,23 +18,23 @@ volumes:
     external: false
 
 services:
-  openvas:
-    image: "utmstack.azurecr.io/openvas:testing"
-    volumes:
-      - openvas_data:/data
-    ports:
-      - "8888:5432"
-      - "9390:9390"
-    environment:
-      - USERNAME=admin
-      - PASSWORD=${DB_PASS}
-      - DB_PASSWORD=${DB_PASS}
-      - HTTPS=0
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 1024M
+  #openvas:
+  #  image: "utmstack.azurecr.io/openvas:testing"
+  #  volumes:
+  #    - openvas_data:/data
+  #  ports:
+  #    - "8888:5432"
+  #    - "9390:9390"
+  #  environment:
+  #    - USERNAME=admin
+  #    - PASSWORD=${DB_PASS}
+  #    - DB_PASSWORD=${DB_PASS}
+  #    - HTTPS=0
+  # deploy:
+  #    resources:
+  #      limits:
+  #        cpus: '2.00'
+  #        memory: 1024M
 
   logstash:
     image: "utmstack.azurecr.io/logstash:testing"
@@ -91,22 +91,22 @@ services:
           memory: 512M
     command: ["python3", "-m", "utmstack.mutate"]
 
-  datasources_openvas:
-    image: "utmstack.azurecr.io/datasources:testing"
-    volumes:
-      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
-    environment:
-      - DB_NAME=gvmd
-      - SERVER_NAME
-      - SERVER_TYPE
-      - DB_HOST
-      - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 512M
-    command: ["python3", "-m", "utmstack.openvas"]
+  #datasources_openvas:
+  #  image: "utmstack.azurecr.io/datasources:testing"
+  #  volumes:
+  #    - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+  #  environment:
+  #    - DB_NAME=gvmd
+  #    - SERVER_NAME
+  #    - SERVER_TYPE
+  #    - DB_HOST
+  #    - DB_PASS
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        cpus: '1.00'
+  #        memory: 512M
+  #  command: ["python3", "-m", "utmstack.openvas"]
 
   datasources_transporter:
     image: "utmstack.azurecr.io/datasources:testing"
