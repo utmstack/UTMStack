@@ -370,10 +370,5 @@ services:
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
-    deploy:
-      resources:
-        limits:
-          cpus: '8.00'
-          memory: 4096M
 `
 )
