@@ -187,11 +187,6 @@ services:
       - cluster.initial_master_nodes=elasticsearch
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch
-    deploy:
-      resources:
-        reservations:
-          cpus: '4.00'
-          memory: 4096M
 
   postgres:
     image: "utmstack.azurecr.io/postgres:testing"
@@ -202,11 +197,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    deploy:
-      resources:
-        reservations:
-          cpus: '2.00'
-          memory: 1024M
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
@@ -305,9 +295,6 @@ services:
         limits:
           cpus: '4.00'
           memory: 2048M
-        reservations:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
@@ -359,7 +346,6 @@ services:
         limits:
           cpus: '1.00'
           memory: 512M
-
   correlation:
     image: "utmstack.azurecr.io/correlation:testing"
     environment:
