@@ -62,17 +62,6 @@ services:
         limits:
           cpus: '2.00'
           memory: 512M
-        
-  scanner:
-    image: "utmstack.azurecr.io/scanner:testing"
-    ports:
-      - "5000:5000"
-      - "8000:8000"
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 512M
 
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:testing"
