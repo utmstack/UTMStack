@@ -154,6 +154,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IP=" + mainIP,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
+		"SCANNER_IP=" + mainIP,
 	}
 
 	if err := initDocker(mode, masterTemplate, env); err != nil {
