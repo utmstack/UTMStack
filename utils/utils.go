@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/dchest/uniuri"
@@ -47,11 +46,6 @@ func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 
 func runCmd(mode, command string, arg ...string) error {
 	return runEnvCmd(mode, []string{}, command, arg...)
-}
-
-func checkOutput(command string, arg ...string) (string, error) {
-	out, err := exec.Command(command, arg...).Output()
-	return strings.TrimSpace(string(out)), err
 }
 
 func mkdirs(mode os.FileMode, arg ...string) string {
@@ -193,7 +187,7 @@ func getMainIP() string {
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
-	return fmt.Sprintf("%s", localAddr.IP)
+	return string(localAddr.IP)
 }
 
 func getMainIface() string {
@@ -241,7 +235,7 @@ func initDocker(mode, composerTemplate string, env []string) error {
 		if err == nil {
 			break
 		} else if i == 3 {
-			return errors.New("Failed to deploy stack")
+			return errors.New("failed to deploy stack")
 		}
 	}
 
