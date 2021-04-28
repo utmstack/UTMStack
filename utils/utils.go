@@ -69,7 +69,7 @@ func Check(e error) {
 func Uninstall(mode string) error {
 	err := runCmd(mode, "docker", "stack", "rm", "utmstack")
 	if err != nil {
-		return errors.New(`Failed to remove "utmstack" docker stack`)
+		return errors.New(`failed to remove "utmstack" docker stack`)
 	}
 
 	// sleep while docker is removing the containers
@@ -638,7 +638,7 @@ func installDocker(mode string) error {
 
 	for _, config := range sysctl {
 		if err := runCmd(mode, "sysctl", "-w", config); err != nil {
-			return errors.New("Failed to set sysctl config")
+			return errors.New("failed to set sysctl config")
 		}
 		f.WriteString(config + "\n")
 	}
