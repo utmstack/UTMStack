@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -107,6 +108,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 	}
 
 	mainIP := getMainIP()
+	mainIface := getMainIface()
 
 	env := []string{
 		"SERVER_TYPE=probe",
@@ -115,8 +117,9 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
-		"SCANNER_IP=" + mainIP,
+		"SCANNER_IFACE=" + mainIface,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
+		"SCANNER_IP=" + mainIP,
 	}
 
 	return initDocker(mode, baseTemplate, env)
@@ -140,6 +143,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
 
 	mainIP := getMainIP()
+	mainIface := getMainIface()
 
 	env := []string{
 		"SERVER_TYPE=aio",
@@ -152,7 +156,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"NGINX_CERT=" + nginxCert,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
-		"SCANNER_IP=" + mainIP,
+		"SCANNER_IFACE=" + mainIface,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
 	}
@@ -190,6 +194,20 @@ func getMainIP() string {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	return fmt.Sprintf("%s", localAddr.IP)
+}
+
+func getMainIface() string {
+	cmd := exec.Command("/bin/sh", "-c", "route | grep '^default' | grep -o '[^ ]*$'")
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(stdout)
+	return buf.String()
 }
 
 func initDocker(mode, composerTemplate string, env []string) error {
@@ -611,9 +629,9 @@ func initializePostgres(dbPassword string, clientName string, clientDomain strin
 	return nil
 }
 
-func installDocker(mode string) error{
+func installDocker(mode string) error {
 	// set map_max_count size to 262144 and disable IPv6
-	sysctl := []string {
+	sysctl := []string{
 		"vm.max_map_count=262144",
 		"net.ipv6.conf.all.disable_ipv6=1",
 		"net.ipv6.conf.default.disable_ipv6=1",
@@ -624,22 +642,22 @@ func installDocker(mode string) error{
 	}
 	defer f.Close()
 
-	for _, config := range sysctl{
+	for _, config := range sysctl {
 		if err := runCmd(mode, "sysctl", "-w", config); err != nil {
 			return errors.New("Failed to set sysctl config")
 		}
-		f.WriteString(config+"\n")
+		f.WriteString(config + "\n")
 	}
 
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
-	runEnvCmd(mode, env, "apt","update")
+	runEnvCmd(mode, env, "apt", "update")
 	runEnvCmd(mode, env, "apt", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common")
 
 	runEnvCmd(mode, env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -")
 	runEnvCmd(mode, env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`)
 
-	runEnvCmd(mode, env,"apt","update")
-	runEnvCmd(mode, env,"apt","install", "-y", "docker-ce", "docker-ce-cli", "containerd.io")
+	runEnvCmd(mode, env, "apt", "update")
+	runEnvCmd(mode, env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io")
 
 	time.Sleep(20 * time.Second)
 
