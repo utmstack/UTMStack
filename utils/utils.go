@@ -229,7 +229,8 @@ func getMainIface() string {
 	}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(stdout)
-	return buf.String()
+	s := buf.String()
+	return s[:len(s)-2]
 }
 
 func initDocker(mode, composerTemplate string, env []string) error {
