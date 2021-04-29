@@ -318,7 +318,7 @@ func installSuricata(mode string, env []string) error {
 		return err
 	}
 
-	if err := runEnvCmd(mode, env, "sed", "-i", `"s/SCANNER_IFACE/${SCANNER_IFACE}/g"`, "/etc/suricata/suricata.yaml"); err != nil {
+	if err := runEnvCmd(mode, env, "sed", "-i", `s/SCANNER_IFACE/${SCANNER_IFACE}/g`, "/etc/suricata/suricata.yaml"); err != nil {
 		return err
 	}
 
