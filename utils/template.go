@@ -102,6 +102,7 @@ services:
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${RSYSLOG_LOGS}:/logs
+      - /var/log/suricata:/var/log/suricata
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
       - wazuh_logs:/var/ossec/logs
@@ -148,6 +149,7 @@ services:
       - DB_HOST
       - DB_PASS
       - SCANNER_IP
+      - SCANNER_IFACE
     ports:
       - 23949:23949
       - 1514:1514
