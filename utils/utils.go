@@ -119,7 +119,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		return err
 	}
 
-	if err := installSuricata(mode, env); err != nil {
+	if err := installSuricata(mode, mainIface); err != nil {
 		return err
 	}
 
@@ -170,7 +170,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		return err
 	}
 
-	if err := installSuricata(mode, env); err != nil {
+	if err := installSuricata(mode, mainIface); err != nil {
 		return err
 	}
 
@@ -301,7 +301,7 @@ func installScanner(mode string) error {
 	return nil
 }
 
-func installSuricata(mode string, env []string) error {
+func installSuricata(mode string, iface string) error {
 	if err := runCmd(mode, "add-apt-repository", "-y", "ppa:oisf/suricata-stable"); err != nil {
 		return err
 	}
@@ -314,7 +314,9 @@ func installSuricata(mode string, env []string) error {
 		return err
 	}
 
-	if err := runEnvCmd(mode, env, "sed", "-i", `s/SCANNER_IFACE/${SCANNER_IFACE}/g`, "/etc/suricata/suricata.yaml"); err != nil {
+	i := fmt.Sprintf("s/SCANNER_IFACE/%s/g", iface)
+
+	if err := runCmd(mode, "sed", "-i", i, "/etc/suricata/suricata.yaml"); err != nil {
 		return err
 	}
 
