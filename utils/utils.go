@@ -87,7 +87,7 @@ func Uninstall(mode string) error {
 	runCmd("docker", "logout", "utm_scanner.service")
 
 	// uninstall scanner
-	runCmd("systemctl", "stop", "utmstack.azurecr.io")
+	runCmd("systemctl", "stop", "utm_scanner")
 	runCmd("rm", "/etc/systemd/system/utm_scanner.service")
 	runCmd("systemctl", "daemon-reload")
 	runCmd("rm", "-R", "/opt/scanner/")
