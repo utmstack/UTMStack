@@ -26,7 +26,6 @@ var containersImages = [11]string{
 	"postgres:testing",
 	"logstash:testing",
 	"rsyslog:testing",
-	"scanner:testing",
 	"nginx:testing",
 	"panel:testing",
 	"datasources:testing",
@@ -116,7 +115,19 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"SCANNER_IP=" + mainIP,
 	}
 
-	return initDocker(mode, baseTemplate, env)
+	if err := installScanner(mode); err != nil {
+		return err
+	}
+
+	if err := installSuricata(mode, env); err != nil {
+		return err
+	}
+
+	if err := initDocker(mode, baseTemplate, env); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // InstallMaster Install UTMStack Master
@@ -153,6 +164,14 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"SCANNER_IFACE=" + mainIface,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
+	}
+
+	if err := installScanner(mode); err != nil {
+		return err
+	}
+
+	if err := installSuricata(mode, env); err != nil {
+		return err
 	}
 
 	if err := initDocker(mode, masterTemplate, env); err != nil {
@@ -237,6 +256,74 @@ func initDocker(mode, composerTemplate string, env []string) error {
 		} else if i == 3 {
 			return errors.New("failed to deploy stack")
 		}
+	}
+
+	return nil
+}
+
+func installScanner(mode string) error {
+	if err := runCmd(mode, "apt", "install", "-y", "python3", "python3-pip", "wget", "zip", "unzip"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "wget", "-O", "scanner.zip", "https://updates.utmstack.com/assets/scanner.zip"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "unzip", "scanner.zip"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "mv", "UTMStackHostScanner/", "/opt/scanner"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "mv", "/opt/scanner/utm_scanner.service", "/etc/systemd/system/"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "chmod", "777", "/opt/scanner/run.sh"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "pip3", "install", "-r", "/opt/scanner/requirements.txt"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "systemctl", "enable", "utm_scanner"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "systemctl", "start", "utm_scanner"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func installSuricata(mode string, env []string) error {
+	if err := runCmd(mode, "add-apt-repository", "-y", "ppa:oisf/suricata-stable"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "apt", "install", "-y", "suricata"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "suricata-update"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "wget", "-O", "/etc/suricata/suricata.yaml", "https://updates.utmstack.com/assets/suricata.yaml"); err != nil {
+		return err
+	}
+
+	if err := runEnvCmd(mode, env, "sed", "-i", `"s/SCANNER_IFACE/${SCANNER_IFACE}/g"`, "/etc/suricata/suricata.yaml"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "systemctl", "restart", "suricata"); err != nil {
+		return err
 	}
 
 	return nil
