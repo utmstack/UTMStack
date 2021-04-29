@@ -20,7 +20,7 @@ import (
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
-var containersImages = [11]string{
+var containersImages = [10]string{
 	"opendistro:testing",
 	"openvas:testing",
 	"postgres:testing",
