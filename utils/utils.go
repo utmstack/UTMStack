@@ -84,7 +84,16 @@ func Uninstall(mode string) error {
 	}
 
 	// logout from registry
-	runCmd("docker", "logout", "utmstack.azurecr.io")
+	runCmd("docker", "logout", "utm_scanner.service")
+
+	// uninstall scanner
+	runCmd("systemctl", "stop", "utmstack.azurecr.io")
+	runCmd("rm", "/etc/systemd/system/utm_scanner.service")
+	runCmd("systemctl", "daemon-reload")
+	runCmd("rm", "-R", "/opt/scanner/")
+
+	// uninstall suricata
+	runCmd("apt", "remove", "-y", "--purge", "suricata")
 
 	return nil
 }
@@ -314,7 +323,7 @@ func installSuricata(mode string, iface string) error {
 		return err
 	}
 
-	sed := fmt.Sprintf(`sed -i s/SCANNER_IFACE/%s/g /etc/suricata/suricata.yaml`, iface)
+	sed := fmt.Sprintf("sed -i \"s/SCANNER_IFACE/%s/g\" /etc/suricata/suricata.yaml", iface)
 
 	if err := runCmd(mode, "/bin/sh", "-c", sed); err != nil {
 		return err
