@@ -310,10 +310,6 @@ func installSuricata(mode string, env []string) error {
 		return err
 	}
 
-	if err := runCmd(mode, "suricata-update"); err != nil {
-		return err
-	}
-
 	if err := runCmd(mode, "wget", "-O", "/etc/suricata/suricata.yaml", "https://updates.utmstack.com/assets/suricata.yaml"); err != nil {
 		return err
 	}
@@ -323,6 +319,10 @@ func installSuricata(mode string, env []string) error {
 	}
 
 	if err := runCmd(mode, "systemctl", "restart", "suricata"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "suricata-update"); err != nil {
 		return err
 	}
 
