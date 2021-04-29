@@ -314,7 +314,7 @@ func installSuricata(mode string, iface string) error {
 		return err
 	}
 
-	i := fmt.Sprintf("s/SCANNER_IFACE/%s/g", iface)
+	i := fmt.Sprintf(`s/SCANNER_IFACE/%s/g`, iface)
 
 	if err := runCmd(mode, "sed", "-i", i, "/etc/suricata/suricata.yaml"); err != nil {
 		return err
