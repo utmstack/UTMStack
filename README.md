@@ -30,6 +30,9 @@ This installation guide provides instructions to perform the UTMStack installati
 
   5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
 
+- Open the next input ports from Internet to master:
+  9999/TCP
+
 ## Installation steps
 
 ### Preparing for installation
