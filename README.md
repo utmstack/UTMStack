@@ -31,12 +31,17 @@ This installation guide provides instructions to perform the UTMStack installati
   5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
 
 - Open the next input ports from Internet to master:
+
   9999/TCP (Used to conntect Zapier to UTMStack)
   
 - Open the next input ports from agents to master:
+
   1514-1516/TCP (Used for HIDS agent communications)
+  
   1514-1516/UDP (Used for HIDS agent communications)
+  
   55000/TCP (Used for HIDS management API)
+  
   23949/TCP (Used for connect to the probe API)
   
 
