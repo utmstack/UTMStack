@@ -34,7 +34,17 @@ This installation guide provides instructions to perform the UTMStack installati
 
   9999/TCP (Used to conntect Zapier to UTMStack)
   
-- Open the next input ports from agents to master:
+- Open the next input ports from agentless devices to master or probe:
+
+  2055/UDP (Used to send Netflow packets)
+  
+  514/UDP (Used to send syslog logs)
+  
+  514/TCP (Used to send syslog logs)
+  
+- Open the next input ports from agents to master or probe:
+  
+  5044/TCP (Used to send logs)
 
   1514-1516/TCP (Used for HIDS agent communications)
   
