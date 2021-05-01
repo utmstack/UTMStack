@@ -316,7 +316,11 @@ func installSuricata(mode string, iface string) error {
 		return err
 	}
 
-	if err := runCmd(mode, "apt", "install", "-y", "suricata"); err != nil {
+	env := []string{
+		"DEBIAN_FRONTEND=noninteractive",
+	}
+
+	if err := runEnvCmd(mode, env,"apt", "install", "-y", "suricata"); err != nil {
 		return err
 	}
 
