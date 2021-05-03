@@ -76,4 +76,4 @@ Once a UTMStack master server is installed, use admin admin as the default first
 
 10 minutes getting started video.
 
-[![Alt text]https://youtu.be/dM9dC9HNXUs]
+[![Alt text]()](https://youtu.be/dM9dC9HNXUs)
