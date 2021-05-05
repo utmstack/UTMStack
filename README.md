@@ -75,8 +75,10 @@ You can replace the markups of the next examples by real values in order to use 
 Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
 
 Watch this short 10 minutes if you still have questions.
+
 [![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
 Why UTMStack
+
 [![Alt text](https://img.youtube.com/vi/wv87dj15G5k/0.jpg)](https://youtu.be/wv87dj15G5k)
 
