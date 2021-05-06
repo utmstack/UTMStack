@@ -21,16 +21,16 @@ import (
 )
 
 var containersImages = [10]string{
-	"opendistro:testing",
-	"openvas:testing",
-	"postgres:testing",
-	"logstash:testing",
-	"rsyslog:testing",
-	"nginx:testing",
-	"panel:testing",
-	"datasources:testing",
-	"zapier:testing",
-	"correlation:testing",
+	"opendistro:latest",
+	"openvas:latest",
+	"postgres:latest",
+	"logstash:latest",
+	"rsyslog:latest",
+	"nginx:latest",
+	"panel:latest",
+	"datasources:latest",
+	"zapier:latest",
+	"correlation:latest",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
@@ -122,6 +122,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"SCANNER_IFACE=" + mainIface,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
+		"CORRElATION_URL=http://"+host+":9090",
 	}
 
 	if err := installScanner(mode); err != nil {
@@ -173,6 +174,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"SCANNER_IFACE=" + mainIface,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
+		"CORRELATION_URL=http://correlation:9090",
 	}
 
 	if err := installScanner(mode); err != nil {
