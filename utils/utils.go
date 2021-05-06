@@ -174,7 +174,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"SCANNER_IFACE=" + mainIface,
 		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://correlation:9090",
+		"CORRELATION_URL=http://correlation:8080",
 	}
 
 	if err := installScanner(mode); err != nil {
