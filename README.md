@@ -58,6 +58,7 @@ This installation guide provides instructions to perform the UTMStack installati
 ## Installation steps
 
 ### Preparing for installation
+- Install WGET and NET-TOOLS: apt install wget net-tools
 - Download the latest version from https://github.com/UTMStack/installer/releases (You can use `# wget [URL]` to download the installer directly to the server)
 - Set execution permissions with `# chmod +x installer`
 
