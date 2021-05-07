@@ -19,7 +19,7 @@ volumes:
 
 services:
   openvas:
-    image: "utmstack.azurecr.io/openvas:latest"
+    image: "utmstack.azurecr.io/openvas:testing"
     volumes:
       - openvas_data:/data
     ports:
@@ -37,11 +37,14 @@ services:
           memory: 1024M
 
   logstash:
-    image: "utmstack.azurecr.io/logstash:latest"
+    image: "utmstack.azurecr.io/logstash:testing"
     volumes:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     ports:
       - 5044:5044
+      - 8089:8089
+      - 514:514
+      - 514:514/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
     deploy:
@@ -50,21 +53,8 @@ services:
           cpus: '4.00'
           memory: 2048M
 
-  rsyslog:
-    image: "utmstack.azurecr.io/rsyslog:latest"
-    volumes:
-      - ${RSYSLOG_LOGS}:/logs
-    ports:
-      - 514:514
-      - 514:514/udp
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 512M
-
   datasources_mutate:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
@@ -81,12 +71,10 @@ services:
           memory: 512M
     command: ["python3", "-m", "utmstack.mutate"]
 
-
   datasources_transporter:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
-      - ${RSYSLOG_LOGS}:/logs
       - /var/log/suricata:/var/log/suricata
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
@@ -104,7 +92,7 @@ services:
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_netflow:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     ports:
@@ -122,7 +110,7 @@ services:
     command: ["python3", "-m", "utmstack.netflow"]
 
   datasources_probe_api:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
@@ -151,7 +139,7 @@ services:
 `
 	masterTemplate = baseTemplate + `
   elasticsearch:
-    image: "utmstack.azurecr.io/opendistro:latest"
+    image: "utmstack.azurecr.io/opendistro:testing"
     ports:
       - "9200:9200"
     volumes:
@@ -165,7 +153,7 @@ services:
       - path.repo=/usr/share/elasticsearch
 
   postgres:
-    image: "utmstack.azurecr.io/postgres:latest"
+    image: "utmstack.azurecr.io/postgres:testing"
     environment:
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
@@ -176,7 +164,7 @@ services:
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
-    image: "utmstack.azurecr.io/nginx:latest"
+    image: "utmstack.azurecr.io/nginx:testing"
     ports:
       - "443:443"
     volumes:
@@ -188,7 +176,7 @@ services:
           memory: 512M
 
   datasources_aws:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -202,7 +190,7 @@ services:
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_azure:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -216,7 +204,7 @@ services:
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -230,7 +218,7 @@ services:
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -244,7 +232,7 @@ services:
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -258,7 +246,7 @@ services:
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
-    image: "utmstack.azurecr.io/datasources:latest"
+    image: "utmstack.azurecr.io/datasources:testing"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -274,7 +262,7 @@ services:
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
-    image: "utmstack.azurecr.io/panel:latest"
+    image: "utmstack.azurecr.io/panel:testing"
     environment:
       - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
@@ -306,7 +294,7 @@ services:
           memory: 2048M
   
   zapier:
-    image: "utmstack.azurecr.io/zapier:latest"
+    image: "utmstack.azurecr.io/zapier:testing"
     environment:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
@@ -322,8 +310,9 @@ services:
         limits:
           cpus: '1.00'
           memory: 512M
+
   correlation:
-    image: "utmstack.azurecr.io/correlation:latest"
+    image: "utmstack.azurecr.io/correlation:testing"
     ports:
       - "9090:8080"
     environment:

@@ -20,17 +20,16 @@ import (
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
-var containersImages = [10]string{
-	"opendistro:latest",
-	"openvas:latest",
-	"postgres:latest",
-	"logstash:latest",
-	"rsyslog:latest",
-	"nginx:latest",
-	"panel:latest",
-	"datasources:latest",
-	"zapier:latest",
-	"correlation:latest",
+var containersImages = [9]string{
+	"opendistro:testing",
+	"openvas:testing",
+	"postgres:testing",
+	"logstash:testing",
+	"nginx:testing",
+	"panel:testing",
+	"datasources:testing",
+	"zapier:testing",
+	"correlation:testing",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
@@ -102,7 +101,6 @@ func Uninstall(mode string) error {
 func InstallProbe(mode, datadir, pass, host string) error {
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := mkdirs(0777, datadir, "datasources")
-	rsyslogLogs := mkdirs(0777, datadir, "rsyslog")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -120,7 +118,6 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
-		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
 		"CORRElATION_URL=http://"+host+":9090",
 	}
@@ -148,7 +145,6 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := mkdirs(0777, datadir, "datasources")
-	rsyslogLogs := mkdirs(0777, datadir, "rsyslog")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -172,7 +168,6 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
-		"RSYSLOG_LOGS=" + rsyslogLogs,
 		"SCANNER_IP=" + mainIP,
 		"CORRELATION_URL=http://correlation:8080",
 	}
