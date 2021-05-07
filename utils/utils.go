@@ -112,6 +112,11 @@ func Uninstall(mode string) error {
 		return err
 	}
 
+	// leave swarm
+	if err := runCmd(mode, "docker", "swarm", "leave", "--force"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
