@@ -73,26 +73,44 @@ func Uninstall(mode string) error {
 	// sleep while docker is removing the containers
 	time.Sleep(120 * time.Second)
 
+	// uninstall scanner
+	if err := runCmd(mode, "systemctl", "stop", "utm_scanner"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "rm", "/etc/systemd/system/utm_scanner.service"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "systemctl", "daemon-reload"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "rm", "-R", "/opt/scanner/"); err != nil {
+		return err
+	}
+
+	// uninstall suricata
+	if err := runCmd(mode, "apt", "remove", "-y", "--purge", "suricata"); err != nil {
+		return err
+	}
+
+	if err := runCmd(mode, "rm", "-R", "/var/log/suricata"); err != nil {
+		return err
+	}
+
 	// remove images
 	for _, image := range containersImages {
 		image = "utmstack.azurecr.io/" + image
-		err := runCmd(mode, "docker", "rmi", image)
-		if err != nil {
-			return errors.New("Failed to remove docker image: " + image)
+		if err := runCmd(mode, "docker", "rmi", image); err != nil {
+			return errors.New("failed to remove docker image: " + image)
 		}
 	}
 
 	// logout from registry
-	runCmd("docker", "logout", "utm_scanner.service")
-
-	// uninstall scanner
-	runCmd("systemctl", "stop", "utm_scanner")
-	runCmd("rm", "/etc/systemd/system/utm_scanner.service")
-	runCmd("systemctl", "daemon-reload")
-	runCmd("rm", "-R", "/opt/scanner/")
-
-	// uninstall suricata
-	runCmd("apt", "remove", "-y", "--purge", "suricata")
+	if err := runCmd(mode, "docker", "logout", "utm_scanner.service"); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -119,7 +137,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CORRElATION_URL=http://"+host+":9090",
+		"CORRElATION_URL=http://" + host + ":9090",
 	}
 
 	if err := installScanner(mode); err != nil {
