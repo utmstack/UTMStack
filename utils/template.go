@@ -25,6 +25,7 @@ services:
     ports:
       - "8888:5432"
       - "9390:9390"
+      - "9392:9392"
     environment:
       - USERNAME=admin
       - PASSWORD=${DB_PASS}
@@ -33,8 +34,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.00'
-          memory: 1024M
+          cpus: '4.00'
+          memory: 4096M
 
   logstash:
     image: "utmstack.azurecr.io/logstash:testing"
@@ -257,8 +258,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 2048M
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
