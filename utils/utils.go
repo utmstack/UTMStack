@@ -253,10 +253,14 @@ func initDocker(mode, composerTemplate string, env []string) error {
 		return err
 	}
 
-	runCmd(mode, "docker", "swarm", "init")
+	if err := runCmd(mode, "docker", "swarm", "init"); err != nil {
+		return err
+	}
 
 	// login to registry
-	runCmd(mode, "docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io")
+	if err := runCmd(mode, "docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io"); err != nil {
+		return err
+	}
 
 	// pull images from registry
 	for _, image := range containersImages {
@@ -762,14 +766,24 @@ func installDocker(mode string) error {
 	}
 
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
-	runEnvCmd(mode, env, "apt", "update")
-	runEnvCmd(mode, env, "apt", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common")
-
-	runEnvCmd(mode, env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -")
-	runEnvCmd(mode, env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`)
-
-	runEnvCmd(mode, env, "apt", "update")
-	runEnvCmd(mode, env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io")
+	if err := runEnvCmd(mode, env, "apt", "update"); err != nil {
+		return err
+	}
+	if err := runEnvCmd(mode, env, "apt", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
+		return err
+	}
+	if err := runEnvCmd(mode, env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"); err != nil {
+		return err
+	}
+	if err := runEnvCmd(mode, env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`); err != nil {
+		return err
+	}
+	if err := runEnvCmd(mode, env, "apt", "update"); err != nil {
+		return err
+	}
+	if err := runEnvCmd(mode, env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io"); err != nil {
+		return err
+	}
 
 	time.Sleep(20 * time.Second)
 
