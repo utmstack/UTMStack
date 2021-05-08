@@ -213,7 +213,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	}
 
 	// configure elastic
-	if err := initializeElastic(secret); err != nil {
+	if err := initializeElastic(); err != nil {
 		return err
 	}
 
@@ -474,7 +474,7 @@ nzvOGfUJga8KRGJAAenaKpxCw4S9RASrDoilCtlWDM4dBneB4daj4NoT0WNkSmCY
 	return nil
 }
 
-func initializeElastic(secret string) error {
+func initializeElastic() error {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
 	for {
