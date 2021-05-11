@@ -314,6 +314,8 @@ services:
 
   correlation:
     image: "utmstack.azurecr.io/correlation:testing"
+    volumes:
+      - ${UTMSTACK_RULES}:/app/rulesets/
     ports:
       - "9090:8080"
     environment:

@@ -168,6 +168,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	nginxCert := mkdirs(0777, datadir, "nginx", "cert")
 	logstashPipeline := mkdirs(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := mkdirs(0777, datadir, "datasources")
+	rules := mkdirs(0777, datadir, "rules")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -193,6 +194,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
 		"CORRELATION_URL=http://correlation:8080",
+		"UTMSTACK_RULES=" + rules,
 	}
 
 	if err := installScanner(mode); err != nil {
