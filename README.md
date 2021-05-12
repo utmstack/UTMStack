@@ -5,6 +5,10 @@
 ### Operating System
 This installation guide provides instructions to perform the UTMStack installation on Ubuntu LTS.
 ### Resources for Master
+| :exclamation:  Minimum Resources Requeriments
+|-----------------------------------------|
+
+- For test environments: 6 Cores, 8 GB of RAM ##(Minimum)
 - For 100 GB of live logs: 8 Cores, 16 GB RAM, 280GB Disk Space
 - For 1000 GB of live logs: 16 Cores, 64 GB RAM, 2080GB Disk Space
 - For 10000 GB of data and 1000GB of live logs: 16 Cores, 64 GB RAM, 10080 Disk Space
