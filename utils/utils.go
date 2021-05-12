@@ -245,7 +245,7 @@ func getMainIface(mode string) string {
 		log.Fatal(err)
 	}
 
-	if err := runCmd(mode, "apt", "install", "wget", "net-tools"); err != nil {
+	if err := runCmd(mode, "apt", "install", "-y", "wget", "net-tools"); err != nil {
 		log.Fatal(err)
 	}
 
