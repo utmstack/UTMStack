@@ -131,7 +131,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 	}
 
 	mainIP := getMainIP()
-	mainIface := getMainIface()
+	mainIface := getMainIface(mode)
 
 	env := []string{
 		"SERVER_TYPE=probe",
@@ -178,7 +178,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
 
 	mainIP := getMainIP()
-	mainIface := getMainIface()
+	mainIface := getMainIface(mode)
 
 	env := []string{
 		"SERVER_TYPE=aio",
