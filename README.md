@@ -75,8 +75,9 @@ You can replace the markups of the next examples by real values in order to use 
 `# ./installer probe --datadir "[/example/dir]" --db-pass "[Master's DB password]" --host "[Master's IP or FQDN]"`
 
 Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
+Note: Use HTTPS in front of your server name or IP to access the login page.
 
-Watch this short 10 minutes if you still have questions.
+Watch this short 10 minutes installation video if you still have questions.
 
 [![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
