@@ -240,7 +240,15 @@ func getMainIP() string {
 	return localAddr.IP.String()
 }
 
-func getMainIface() string {
+func getMainIface(mode string) string {
+	if err := runCmd(mode, "apt", "update"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := runCmd(mode, "apt", "install", "wget", "net-tools"); err != nil {
+		log.Fatal(err)
+	}
+
 	cmd := exec.Command("/bin/sh", "-c", "route | grep '^default' | grep -o '[^ ]*$'")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
