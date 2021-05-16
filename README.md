@@ -83,6 +83,7 @@ Note: Use HTTPS in front of your server name or IP to access the login page.
 
 | :exclamation: Demo Environment
 |-----------------------------------------|
+
 To see a fully operating UTMStack environment access our demo at: https://utmstack.com/demo
 
 Watch this short 10 minutes installation video if you still have questions.
