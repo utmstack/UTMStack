@@ -81,7 +81,7 @@ You can replace the markups of the next examples by real values in order to use 
 Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
-| :info:  Demo Environment
+| :exclamation:  Demo Environment
 |-----------------------------------------|
 ! To see a fully operating UTMStack environment access our demo at: https://utmstack.com/demo
 
