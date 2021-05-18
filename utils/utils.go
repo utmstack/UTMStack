@@ -142,7 +142,7 @@ func InstallProbe(mode, datadir, pass, host string) error {
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CORRElATION_URL=http://" + host + ":9090",
+		"CORRElATION_URL=http://" + host + ":9090/v1/newlog",
 	}
 
 	if err := installScanner(mode); err != nil {
@@ -193,7 +193,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://correlation:8080",
+		"CORRELATION_URL=http://correlation:8080/v1/newlog",
 		"UTMSTACK_RULES=" + rules,
 	}
 
