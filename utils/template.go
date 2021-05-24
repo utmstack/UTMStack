@@ -293,7 +293,7 @@ services:
         limits:
           cpus: '1.00'
           memory: 2048M
-  
+
   zapier:
     image: "utmstack.azurecr.io/zapier:testing"
     environment:
@@ -326,5 +326,15 @@ services:
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
+
+  filebrowser:
+    image: "utmstack.azurecr.io/filebrowser:testing"
+    volumes:
+      - ${LOGSTASH_PIPELINE}:/srv/pipelines
+      - ${UTMSTACK_RULES}:/srv/rules
+    ports:
+      - "9091:80"
+    environment:
+      - PASSWORD=${DB_PASS}
 `
 )

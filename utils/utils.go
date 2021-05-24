@@ -20,7 +20,7 @@ import (
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
-var containersImages = [9]string{
+var containersImages = [10]string{
 	"opendistro:testing",
 	"openvas:testing",
 	"postgres:testing",
@@ -30,6 +30,7 @@ var containersImages = [9]string{
 	"datasources:testing",
 	"zapier:testing",
 	"correlation:testing",
+	"filebrowser:testing",
 }
 
 func runEnvCmd(mode string, env []string, command string, arg ...string) error {
