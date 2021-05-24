@@ -330,7 +330,7 @@ services:
   filebrowser:
     image: "utmstack.azurecr.io/filebrowser:testing"
     volumes:
-      - ${LOGSTASH_PIPELINE}:/srv/pipelines
+      - ${LOGSTASH_PIPELINE}:/srv/pipeline
       - ${UTMSTACK_RULES}:/srv/rules
     ports:
       - "9091:80"
