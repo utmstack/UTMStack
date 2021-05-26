@@ -307,7 +307,7 @@ func initDocker(mode, composerTemplate string, env []string) error {
 }
 
 func installScanner(mode string) error {
-	if err := runCmd(mode, "apt", "install", "-y", "python3", "python3-pip", "wget", "zip", "unzip"); err != nil {
+	if err := runCmd(mode, "apt", "install", "-y", "python3", "python3-pip", "zip", "unzip"); err != nil {
 		return err
 	}
 
