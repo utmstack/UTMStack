@@ -167,7 +167,9 @@ services:
   nginx:
     image: "utmstack.azurecr.io/nginx:testing"
     ports:
+      - "80:80"
       - "443:443"
+      - "9091:9091"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
     deploy:
@@ -332,8 +334,6 @@ services:
     volumes:
       - ${LOGSTASH_PIPELINE}:/srv/pipeline
       - ${UTMSTACK_RULES}:/srv/rules
-    ports:
-      - "9091:80"
     environment:
       - PASSWORD=${DB_PASS}
 `
