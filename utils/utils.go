@@ -225,6 +225,8 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		return err
 	}
 
+	time.Sleep(120 * time.Second)
+
 	return nil
 }
 
