@@ -332,8 +332,7 @@ services:
   filebrowser:
     image: "utmstack.azurecr.io/filebrowser:testing"
     volumes:
-      - ${LOGSTASH_PIPELINE}:/srv/pipeline
-      - ${UTMSTACK_RULES}:/srv/rules
+      - ${UTMSTACK_RULES}:/srv
     environment:
       - PASSWORD=${DB_PASS}
 `
