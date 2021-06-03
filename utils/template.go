@@ -328,6 +328,7 @@ services:
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
+      - ERROR_LEVEL=debug
 
   filebrowser:
     image: "utmstack.azurecr.io/filebrowser:testing"
