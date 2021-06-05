@@ -73,10 +73,10 @@ This installation guide provides instructions to perform the UTMStack installati
 ### Install using the parameterized mode
 You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
 - Master:
-`# ./installer master --datadir "[/example/dir]" --db-pass "[ExAmPlEpaSsWoRd]" --fqdn "[server.example.domain]" --customer-name "[Your Business]" --customer-email "[your@email.com]"`
+`# ./installer master --datadir "/example/dir" --db-pass "ExAmPlEpaSsWoRd" --fqdn "server.example.domain" --customer-name "Your Business" --customer-email "your@email.com"`
 
 - Probe:
-`# ./installer probe --datadir "[/example/dir]" --db-pass "[Master's DB password]" --host "[Master's IP or FQDN]"`
+`# ./installer probe --datadir "/example/dir" --db-pass "Master's DB password" --host "Master's IP or FQDN"`
 
 Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
 Note: Use HTTPS in front of your server name or IP to access the login page.
