@@ -60,6 +60,7 @@ This installation guide provides instructions to perform the UTMStack installati
   
   23949/TCP (Used for connect to the probe API)
   
+- Open port 443 for accessing the UTMStack Web console.
 
 ## Installation steps
 
