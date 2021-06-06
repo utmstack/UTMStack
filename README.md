@@ -22,23 +22,25 @@ This installation guide provides instructions to perform the UTMStack installati
 
 ## Requirements
 ### Firewall rules
-- Open the next input ports from probes to master:
+- Open the following input ports on the master for access from the probe/proxy.
 
   50051/TCP and 5044/TCP (Used to send logs)
 
   5432/TCP and 9200/TCP (Used to data access. This ports must be closed from any other source, for security, only probes can reach this ports)
 
-- Open the next input ports from master to probes:
+- Open the following input ports on the probe/proxy for access from the master.
 
   9390/TCP and 8888/TCP (Used to connect with the vulnerabilities scanner)
 
   5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
 
-- Open the next input ports from Internet to master:
+- Open the following input ports for internet access to the master:
 
   9999/TCP (Used to conntect Zapier to UTMStack)
   
-- Open the next input ports from agentless devices to master or probe:
+  1194/TCP (Used to connect probe/proxy over the internet using VPN)
+  
+- Open the following ports from agentless devices (firewalls, hypervisors, etc) to master or probe/proxy:
 
   2055/UDP (Used to send Netflow packets)
   
@@ -46,7 +48,7 @@ This installation guide provides instructions to perform the UTMStack installati
   
   514/TCP (Used to send syslog logs)
   
-- Open the next input ports from agents to master or probe:
+- Open the following ports on the master for agents communication with master or probe/proxy:
   
   5044/TCP (Used to send logs)
 
