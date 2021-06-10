@@ -39,6 +39,10 @@ func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 	if mode == "cli" {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
+	} else {
+		f, _ := os.Open("utm-setup.log")
+		cmd.Stdout = f
+		cmd.Stderr = f
 	}
 	return cmd.Run()
 }
