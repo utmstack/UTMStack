@@ -40,7 +40,7 @@ func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	} else {
-		f, _ := os.OpenFile("/var/log/utm-setup.log", os.O_CREATE, os.ModePerm)
+		f, _ := os.OpenFile("/var/log/utm-setup.log", os.O_CREATE, os.ModeAppend.Perm())
 		defer f.Close()
 		cmd.Stdout = f
 		cmd.Stderr = f
