@@ -104,9 +104,9 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 					err := utils.Uninstall("ui")
 					var msg string
 					if err != nil {
-						msg = errTag + err.Error()
+						msg = errTag + err.Error() + ". " + logFileAnnouncement
 					} else {
-						msg = "Program removed successfully."
+						msg = "Program removed successfully. " + logFileAnnouncement
 					}
 					showResults(pages, app, msg)
 					app.Draw()
@@ -147,9 +147,9 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				err := utils.InstallMaster("ui", datadir, dbPass, fqdn, customerName, customerEmail)
 				var msg string
 				if err != nil {
-					msg = errTag + err.Error()
+					msg = errTag + err.Error() + ". " + logFileAnnouncement
 				} else {
-					msg = "Program installed successfully."
+					msg = "Program installed successfully. " + logFileAnnouncement
 				}
 				showResults(pages, app, msg)
 				app.Draw()
