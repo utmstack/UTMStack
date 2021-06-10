@@ -12,6 +12,7 @@ const (
 	probePageIndex     = "2"
 	uninstallPageIndex = "3"
 	errTag             = "ERROR: "
+	logFileAnnouncement = "Please see the logs in utm-setup.log for more details."
 )
 
 func tui() {
@@ -187,9 +188,9 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				err := utils.InstallProbe("ui", datadir, dbPass, host)
 				var msg string
 				if err != nil {
-					msg = errTag + err.Error()
+					msg = errTag + err.Error() + ". " + logFileAnnouncement
 				} else {
-					msg = "Program installed successfully."
+					msg = "Program installed successfully. " + logFileAnnouncement
 				}
 				showResults(pages, app, msg)
 				app.Draw()
