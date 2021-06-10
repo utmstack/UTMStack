@@ -41,6 +41,7 @@ func runEnvCmd(mode string, env []string, command string, arg ...string) error {
 		cmd.Stderr = os.Stderr
 	} else {
 		f, _ := os.Open("utm-setup.log")
+		defer f.Close()
 		cmd.Stdout = f
 		cmd.Stderr = f
 	}
