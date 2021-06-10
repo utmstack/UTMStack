@@ -166,6 +166,9 @@ services:
 
   nginx:
     image: "utmstack.azurecr.io/nginx:testing"
+    depends_on:
+      - "panel"
+      - "filebrowser"
     ports:
       - "80:80"
       - "443:443"
@@ -266,6 +269,9 @@ services:
 
   panel:
     image: "utmstack.azurecr.io/panel:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     environment:
       - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
