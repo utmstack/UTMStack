@@ -12,7 +12,7 @@ const (
 	probePageIndex     = "2"
 	uninstallPageIndex = "3"
 	errTag             = "ERROR: "
-	logFileAnnouncement = "Please see the logs in utm-setup.log for more details."
+	logFileAnnouncement = "Please see the logs in /var/log/utm-setup.log for more details."
 )
 
 func tui() {
