@@ -77,7 +77,7 @@ func Uninstall(mode string) error {
 	}
 
 	// sleep while docker is removing the containers
-	time.Sleep(120 * time.Second)
+	time.Sleep(2 * time.Minute)
 
 	// uninstall scanner
 	if err := runCmd(mode, "systemctl", "stop", "utm_scanner"); err != nil {
@@ -230,7 +230,7 @@ func InstallMaster(mode, datadir, pass, fqdn, customerName, customerEmail string
 		return err
 	}
 
-	time.Sleep(420 * time.Second)
+	time.Sleep(7 * time.Minute)
 
 	return nil
 }
@@ -496,7 +496,7 @@ func initializeElastic() error {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
 	for {
-		time.Sleep(50 * time.Second)
+		time.Sleep(2 * time.Minute)
 
 		_, err := grequests.Get(baseURL+"_cluster/healt", &grequests.RequestOptions{
 			Params: map[string]string{
@@ -651,7 +651,7 @@ func installDocker(mode string) error {
 		return err
 	}
 
-	time.Sleep(20 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	return nil
 }
