@@ -307,6 +307,8 @@ func initDocker(mode, composerTemplate string, env []string) error {
 			break
 		} else if i == 3 {
 			return errors.New("failed to deploy stack")
+		} else {
+			time.Sleep(5 * time.Second)
 		}
 	}
 
