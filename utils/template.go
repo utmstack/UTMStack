@@ -342,5 +342,10 @@ services:
       - ${UTMSTACK_RULES}:/srv
     environment:
       - PASSWORD=${DB_PASS}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
 `
 )
