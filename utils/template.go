@@ -299,8 +299,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 2048M
+          cpus: '4.00'
+          memory: 4096M
 
   zapier:
     image: "utmstack.azurecr.io/zapier:testing"
