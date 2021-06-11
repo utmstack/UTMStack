@@ -312,6 +312,8 @@ func initDocker(mode, composerTemplate string, env []string) error {
 		}
 	}
 
+	time.Sleep(2 * time.Second)
+
 	return nil
 }
 
