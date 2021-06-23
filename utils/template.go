@@ -335,6 +335,9 @@ services:
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
       - ERROR_LEVEL=debug
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
 
   filebrowser:
     image: "utmstack.azurecr.io/filebrowser:testing"
