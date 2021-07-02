@@ -9,10 +9,10 @@ This installation guide provides instructions to perform the UTMStack installati
 |-----------------------------------------|
 
 - MINIMUM REQUERED for non-prod environments: 6 Cores, 8 GB of RAM, 20GB Disk Space (Minimum requered)
-- For 100 GB of live logs: 8 Cores, 12 GB RAM, 280 GB Disk Space
-- For 1000 GB of live logs: 16 Cores, 32 GB RAM, 2080 GB Disk Space
-- For 10000 GB of data and 1000GB of live logs: 16 Cores, 64 GB RAM, 10080 Disk Space
-- For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 64 GB RAM, 2080GB Disk Space
+- For 100 GB of live logs: 6 Cores, 12 GB RAM, 180 GB Disk Space
+- For 1000 GB of live logs: 16 Cores, 32 GB RAM, 1080 GB Disk Space
+- For 10000 GB of cold data and 1000GB of live logs: 16 Cores, 32 GB RAM, 11080 Disk Space
+- For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 32 GB RAM, 2080GB Disk Space
 
 ### Resources for Probe or Proxy server
 - 50 GB Disk Space for system.
