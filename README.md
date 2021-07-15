@@ -20,7 +20,37 @@ This installation guide provides instructions to perform the UTMStack installati
 - 8 GB of RAM.
 (The master can act as probe if a proxy is not used)
 
-## Requirements
+## Installation steps
+
+### Preparing for installation
+- Update packages list: apt update
+- Install WGET and NET-TOOLS: apt install wget net-tools
+- Download the latest version from https://github.com/UTMStack/installer/releases (You can use `# wget [URL]` to download the installer directly to the server)
+- Set execution permissions with `# chmod +x installer`
+
+### Install using Terminal User Interface
+- Execute the installer without parameters: `# ./installer`
+
+### Install using the parameterized mode
+You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
+- Master:
+`# ./installer master --datadir "/example/dir" --db-pass "ExAmPlEpaSsWoRd" --fqdn "server.example.domain" --customer-name "Your Business" --customer-email "your@email.com"`
+
+- Probe:
+`# ./installer probe --datadir "/example/dir" --db-pass "Master's DB password" --host "Master's IP or FQDN"`
+
+Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
+Note: Use HTTPS in front of your server name or IP to access the login page.
+
+| :exclamation: Demo Environment
+|-----------------------------------------|
+
+To see a fully operating UTMStack environment access our demo at: https://utmstack.com/demo
+
+Watch this short 10 minutes installation video if you still have questions.
+
+[![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
+
 ### Firewall rules
 - Open the following input ports on the master for access from the probe/proxy.
 
@@ -62,36 +92,6 @@ This installation guide provides instructions to perform the UTMStack installati
   
 - Open port 443 for accessing the UTMStack Web console.
 
-## Installation steps
-
-### Preparing for installation
-- Update packages list: apt update
-- Install WGET and NET-TOOLS: apt install wget net-tools
-- Download the latest version from https://github.com/UTMStack/installer/releases (You can use `# wget [URL]` to download the installer directly to the server)
-- Set execution permissions with `# chmod +x installer`
-
-### Install using Terminal User Interface
-- Execute the installer without parameters: `# ./installer`
-
-### Install using the parameterized mode
-You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
-- Master:
-`# ./installer master --datadir "/example/dir" --db-pass "ExAmPlEpaSsWoRd" --fqdn "server.example.domain" --customer-name "Your Business" --customer-email "your@email.com"`
-
-- Probe:
-`# ./installer probe --datadir "/example/dir" --db-pass "Master's DB password" --host "Master's IP or FQDN"`
-
-Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
-Note: Use HTTPS in front of your server name or IP to access the login page.
-
-| :exclamation: Demo Environment
-|-----------------------------------------|
-
-To see a fully operating UTMStack environment access our demo at: https://utmstack.com/demo
-
-Watch this short 10 minutes installation video if you still have questions.
-
-[![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
 Why UTMStack
 
