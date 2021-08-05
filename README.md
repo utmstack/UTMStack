@@ -29,7 +29,7 @@ This installation guide provides instructions to perform the UTMStack installati
 - Set execution permissions with `# chmod +x installer`
 
 ### Install using Terminal User Interface
-- Execute the installer without parameters: `# ./installer`
+- Execute the installer without parameters: `sudo ./installer`
 
 ### Install using the parameterized mode
 You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
