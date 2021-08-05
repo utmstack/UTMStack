@@ -172,7 +172,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "9091:9091"
     volumes:
       - ${NGINX_CERT}:/etc/nginx/cert
     deploy:
@@ -183,6 +182,9 @@ services:
 
   datasources_aws:
     image: "utmstack.azurecr.io/datasources:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -197,6 +199,9 @@ services:
 
   datasources_azure:
     image: "utmstack.azurecr.io/datasources:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -211,6 +216,9 @@ services:
 
   datasources_office365:
     image: "utmstack.azurecr.io/datasources:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -225,6 +233,9 @@ services:
 
   datasources_webroot:
     image: "utmstack.azurecr.io/datasources:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -239,6 +250,9 @@ services:
 
   datasources_sophos:
     image: "utmstack.azurecr.io/datasources:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -253,6 +267,9 @@ services:
 
   datasources_logan:
     image: "utmstack.azurecr.io/datasources:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
@@ -304,6 +321,9 @@ services:
 
   zapier:
     image: "utmstack.azurecr.io/zapier:testing"
+    depends_on:
+      - "elasticsearch"
+      - "postgres"
     environment:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
