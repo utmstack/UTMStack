@@ -13,7 +13,7 @@ var branch string
 func main() {
 	branch = os.Getenv("UTMStack")
 	if branch == "" {
-		branch = "master"
+		branch = "latest"
 	}
 
 	parser := argparse.NewParser("", "UTMStack installer")
