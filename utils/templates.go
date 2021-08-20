@@ -139,7 +139,7 @@ services:
     command: ["/pw.sh"]
 `
 	masterTemplate = probeTemplate + `
-  elasticsearch:
+  node1:
     image: "utmstack.azurecr.io/opendistro:testing"
     ports:
       - "9200:9200"
@@ -147,9 +147,9 @@ services:
       - ${ES_DATA}:/usr/share/elasticsearch/data
       - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
     environment:
-      - node.name=elasticsearch
-      - discovery.seed_hosts=elasticsearch
-      - cluster.initial_master_nodes=elasticsearch
+      - node.name=node1
+      - discovery.seed_hosts=node1
+      - cluster.initial_master_nodes=node1
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch
 
@@ -183,7 +183,7 @@ services:
   datasources_aws:
     image: "utmstack.azurecr.io/datasources:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -200,7 +200,7 @@ services:
   datasources_azure:
     image: "utmstack.azurecr.io/datasources:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -217,7 +217,7 @@ services:
   datasources_office365:
     image: "utmstack.azurecr.io/datasources:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -234,7 +234,7 @@ services:
   datasources_webroot:
     image: "utmstack.azurecr.io/datasources:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -251,7 +251,7 @@ services:
   datasources_sophos:
     image: "utmstack.azurecr.io/datasources:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -268,7 +268,7 @@ services:
   datasources_logan:
     image: "utmstack.azurecr.io/datasources:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -287,7 +287,7 @@ services:
   panel:
     image: "utmstack.azurecr.io/panel:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     environment:
       - TOMCAT_ADMIN_USER=admin
@@ -297,7 +297,7 @@ services:
       - POSTGRESQL_HOST=postgres
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_SECRET=${CLIENT_SECRET}
       - OPENVAS_HOST=openvas
@@ -322,7 +322,7 @@ services:
   zapier:
     image: "utmstack.azurecr.io/zapier:testing"
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
     environment:
       - POSTGRESQL_USER=postgres
@@ -330,7 +330,7 @@ services:
       - POSTGRESQL_HOST=postgres
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
     ports:
       - "9999:8080"
@@ -352,11 +352,11 @@ services:
       - POSTGRESQL_HOST=postgres
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
       - ERROR_LEVEL=debug
     depends_on:
-      - "elasticsearch"
+      - "node1"
       - "postgres"
 
   filebrowser:
