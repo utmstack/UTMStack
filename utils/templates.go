@@ -52,7 +52,7 @@ services:
       resources:
         limits:
           cpus: '4.00'
-          memory: 2048M
+          memory: 4096M
 
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:${BRANCH}"
@@ -68,8 +68,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_transporter:
@@ -88,8 +88,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_netflow:
@@ -106,8 +106,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.netflow"]
 
   datasources_probe_api:
@@ -134,8 +134,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["/pw.sh"]
 `
 	masterTemplate = probeTemplate + `
@@ -177,8 +177,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
 
   datasources_aws:
     image: "utmstack.azurecr.io/datasources:${BRANCH}"
@@ -193,8 +193,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_azure:
@@ -210,8 +210,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
@@ -227,8 +227,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
@@ -244,8 +244,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
@@ -261,8 +261,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
@@ -280,8 +280,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: 512M
+          cpus: '4.00'
+          memory: 4096M
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
@@ -318,27 +318,6 @@ services:
         limits:
           cpus: '4.00'
           memory: 4096M
-
-  zapier:
-    image: "utmstack.azurecr.io/zapier:${BRANCH}"
-    depends_on:
-      - "node1"
-      - "postgres"
-    environment:
-      - POSTGRESQL_USER=postgres
-      - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=postgres
-      - POSTGRESQL_PORT=5432
-      - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=node1
-      - ELASTICSEARCH_PORT=9200
-    ports:
-      - "9999:8080"
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 512M
 
   correlation:
     image: "utmstack.azurecr.io/correlation:${BRANCH}"

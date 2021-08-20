@@ -17,7 +17,6 @@ var MasterImages = []string{
 	"nginx",
 	"panel",
 	"datasources",
-	"zapier",
 	"correlation",
 	"filebrowser",
 }
