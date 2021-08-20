@@ -3,7 +3,7 @@ package utils
 const (
 	stackName    = "utmstack"
 	composerFile = "utmstack.yml"
-	baseTemplate = `version: "3.8"
+	probeTemplate = `version: "3.8"
 
 volumes:
   postgres_data:
@@ -138,7 +138,7 @@ services:
           memory: 512M
     command: ["/pw.sh"]
 `
-	masterTemplate = baseTemplate + `
+	masterTemplate = probeTemplate + `
   elasticsearch:
     image: "utmstack.azurecr.io/opendistro:testing"
     ports:

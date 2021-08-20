@@ -119,22 +119,15 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 
 func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 	form := tview.NewForm().
-		AddInputField("Data directory", "", 25, nil, nil).
-		AddInputField("DB password", "", 25, nil, nil).
-		AddInputField("FQDN", "", 25, nil, nil).
-		AddInputField("Customer name", "", 25, nil, nil).
-		AddInputField("Customer E-mail", "", 25, nil, nil)
+		AddInputField("DB password", "", 25, nil, nil)
 	form.AddButton("Back", func() {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
-		datadir := form.GetFormItem(0).(*tview.InputField).GetText()
-		dbPass := form.GetFormItem(1).(*tview.InputField).GetText()
-		fqdn := form.GetFormItem(2).(*tview.InputField).GetText()
-		customerName := form.GetFormItem(3).(*tview.InputField).GetText()
-		customerEmail := form.GetFormItem(4).(*tview.InputField).GetText()
+		datadir := "/utmstack"
+		dbPass := form.GetFormItem(0).(*tview.InputField).GetText()
 
-		if datadir == "" || dbPass == "" || fqdn == "" || customerName == "" || customerEmail == "" {
-			alert(pages, "You must provide all requested data.")
+		if dbPass == ""{
+			alert(pages, "You must provide a database password.")
 		} else {
 			pages.AddPage(
 				"installing-dialog",
@@ -144,7 +137,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			)
 			pages.HidePage(masterPageIndex)
 			go func() {
-				err := utils.InstallMaster("ui", datadir, dbPass, fqdn, customerName, customerEmail)
+				err := utils.InstallMaster("ui", datadir, dbPass)
 				var msg string
 				if err != nil {
 					msg = errTag + err.Error() + ". " + logFileAnnouncement
@@ -164,17 +157,16 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 
 func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 	form := tview.NewForm().
-		AddInputField("Data directory", "", 25, nil, nil).
-		AddPasswordField("DB password", "", 25, '*', nil).
+		AddPasswordField("Master DB password", "", 25, '*', nil).
 		AddInputField("Master address", "", 25, nil, nil)
 	form.AddButton("Back", func() {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
-		datadir := form.GetFormItem(0).(*tview.InputField).GetText()
-		dbPass := form.GetFormItem(1).(*tview.InputField).GetText()
-		host := form.GetFormItem(2).(*tview.InputField).GetText()
+		datadir := "/utmstack"
+		dbPass := form.GetFormItem(0).(*tview.InputField).GetText()
+		host := form.GetFormItem(1).(*tview.InputField).GetText()
 
-		if datadir == "" || dbPass == "" || host == "" {
+		if dbPass == "" || host == "" {
 			alert(pages, "You must provide all requested data.")
 		} else {
 			pages.AddPage(
