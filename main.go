@@ -16,6 +16,10 @@ func main() {
 		branch = "latest"
 	}
 
+	utils.CheckCPU(6)
+	utils.CheckMem(7000)
+	utils.CheckDistro()
+
 	parser := argparse.NewParser("", "UTMStack installer")
 	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
 

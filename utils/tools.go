@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 
+	"github.com/attreios/holmes"
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
@@ -59,7 +59,8 @@ func MakeDir(mode os.FileMode, arg ...string) string {
 
 // Check Check if error is not nil or exit with error code
 func CheckErr(e error) {
+	h := holmes.New("debug", "UTMStack")
 	if e != nil {
-		log.Fatal(e)
+		h.FatalError("%v", e)
 	}
 }

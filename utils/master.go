@@ -26,8 +26,15 @@ func InstallMaster(mode, datadir, pass, branch string) error {
 
 	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
 
-	mainIP := GetMainIP()
-	mainIface := GetMainIface(mode)
+	mainIP, err := GetMainIP()
+	if err != nil {
+		return err
+	}
+
+	mainIface, err := GetMainIface(mode)
+	if err != nil {
+		return err
+	}
 
 	env := []string{
 		"SERVER_TYPE=aio",

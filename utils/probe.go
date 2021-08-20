@@ -11,8 +11,16 @@ func InstallProbe(mode, datadir, pass, host, branch string) error {
 		return err
 	}
 
-	mainIP := GetMainIP()
-	mainIface := GetMainIface(mode)
+	mainIP, err := GetMainIP()
+	if err != nil {
+		return err
+	}
+
+	mainIface, err := GetMainIface(mode)
+
+	if err != nil {
+		return err
+	}
 
 	env := []string{
 		"SERVER_TYPE=probe",
