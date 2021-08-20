@@ -40,14 +40,6 @@ func Uninstall(mode string) error {
 		return err
 	}
 
-	// remove images
-	for _, image := range MasterImages {
-		image = "utmstack.azurecr.io/" + image
-		if err := RunCmd(mode, "docker", "rmi", image); err != nil {
-			return errors.New("failed to remove docker image: " + image)
-		}
-	}
-
 	// logout from registry
 	if err := RunCmd(mode, "docker", "logout", "utm_scanner.service"); err != nil {
 		return err

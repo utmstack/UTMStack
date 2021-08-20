@@ -51,7 +51,7 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode, composerTemplate string, env []string, master bool) error {
+func InitDocker(mode, composerTemplate string, env []string, master bool, branch string) error {
 	if err := InstallDocker(mode); err != nil {
 		return err
 	}
@@ -68,14 +68,14 @@ func InitDocker(mode, composerTemplate string, env []string, master bool) error 
 	// pull images from registry
 	if master {
 		for _, image := range MasterImages {
-			image = "utmstack.azurecr.io/" + image
+			image = "utmstack.azurecr.io/" + image + ":" + branch
 			if err := RunCmd(mode, "docker", "pull", image); err != nil {
 				return errors.New("Failed to pull docker image: " + image)
 			}
 		}
 	} else {
 		for _, image := range ProbeImages {
-			image = "utmstack.azurecr.io/" + image
+			image = "utmstack.azurecr.io/" + image + ":" + branch
 			if err := RunCmd(mode, "docker", "pull", image); err != nil {
 				return errors.New("Failed to pull docker image: " + image)
 			}

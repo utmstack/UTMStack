@@ -8,14 +8,21 @@ import (
 	"github.com/akamensky/argparse"
 )
 
+var branch string
+
 func main() {
+	branch = os.Getenv("UTMStack")
+	if branch == "" {
+		branch = "master"
+	}
+
 	parser := argparse.NewParser("", "UTMStack installer")
 	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
 
 	masterCmd := parser.NewCommand("master", "Install Master")
 	masterDataDir := "/utmstack"
 	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Database password. Please use a secure password"})
-	
+
 	probeCmd := parser.NewCommand("probe", "Install Probe")
 	probeDataDir := "/utmstack"
 	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master database password"})
@@ -28,8 +35,8 @@ func main() {
 	} else if removeCmd.Happened() {
 		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
-		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass))
+		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, branch))
 	} else if probeCmd.Happened() {
-		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host))
+		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, branch))
 	}
 }

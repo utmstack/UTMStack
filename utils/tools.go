@@ -10,22 +10,22 @@ import (
 )
 
 var MasterImages = []string{
-	"opendistro:testing",
-	"openvas:testing",
-	"postgres:testing",
-	"logstash:testing",
-	"nginx:testing",
-	"panel:testing",
-	"datasources:testing",
-	"zapier:testing",
-	"correlation:testing",
-	"filebrowser:testing",
+	"opendistro",
+	"openvas",
+	"postgres",
+	"logstash",
+	"nginx",
+	"panel",
+	"datasources",
+	"zapier",
+	"correlation",
+	"filebrowser",
 }
 
 var ProbeImages = []string{
-	"openvas:testing",
-	"logstash:testing",
-	"datasources:testing",
+	"openvas",
+	"logstash",
+	"datasources",
 }
 
 func RunEnvCmd(mode string, env []string, command string, arg ...string) error {

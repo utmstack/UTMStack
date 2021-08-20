@@ -19,7 +19,7 @@ volumes:
 
 services:
   openvas:
-    image: "utmstack.azurecr.io/openvas:testing"
+    image: "utmstack.azurecr.io/openvas:${BRANCH}"
     volumes:
       - openvas_data:/data
     ports:
@@ -38,7 +38,7 @@ services:
           memory: 4096M
 
   logstash:
-    image: "utmstack.azurecr.io/logstash:testing"
+    image: "utmstack.azurecr.io/logstash:${BRANCH}"
     volumes:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     ports:
@@ -55,7 +55,7 @@ services:
           memory: 2048M
 
   datasources_mutate:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
@@ -73,7 +73,7 @@ services:
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_transporter:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - /var/log/suricata:/var/log/suricata
@@ -93,7 +93,7 @@ services:
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_netflow:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     ports:
@@ -111,7 +111,7 @@ services:
     command: ["python3", "-m", "utmstack.netflow"]
 
   datasources_probe_api:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     volumes:
       - wazuh_etc:/var/ossec/etc
       - wazuh_var:/var/ossec/var
@@ -140,7 +140,7 @@ services:
 `
 	masterTemplate = probeTemplate + `
   node1:
-    image: "utmstack.azurecr.io/opendistro:testing"
+    image: "utmstack.azurecr.io/opendistro:${BRANCH}"
     ports:
       - "9200:9200"
     volumes:
@@ -154,7 +154,7 @@ services:
       - path.repo=/usr/share/elasticsearch
 
   postgres:
-    image: "utmstack.azurecr.io/postgres:testing"
+    image: "utmstack.azurecr.io/postgres:${BRANCH}"
     environment:
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
@@ -165,7 +165,7 @@ services:
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
-    image: "utmstack.azurecr.io/nginx:testing"
+    image: "utmstack.azurecr.io/nginx:${BRANCH}"
     depends_on:
       - "panel"
       - "filebrowser"
@@ -181,7 +181,7 @@ services:
           memory: 512M
 
   datasources_aws:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -198,7 +198,7 @@ services:
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_azure:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -215,7 +215,7 @@ services:
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -232,7 +232,7 @@ services:
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -249,7 +249,7 @@ services:
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -266,7 +266,7 @@ services:
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
-    image: "utmstack.azurecr.io/datasources:testing"
+    image: "utmstack.azurecr.io/datasources:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -285,7 +285,7 @@ services:
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
-    image: "utmstack.azurecr.io/panel:testing"
+    image: "utmstack.azurecr.io/panel:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -320,7 +320,7 @@ services:
           memory: 4096M
 
   zapier:
-    image: "utmstack.azurecr.io/zapier:testing"
+    image: "utmstack.azurecr.io/zapier:${BRANCH}"
     depends_on:
       - "node1"
       - "postgres"
@@ -341,7 +341,7 @@ services:
           memory: 512M
 
   correlation:
-    image: "utmstack.azurecr.io/correlation:testing"
+    image: "utmstack.azurecr.io/correlation:${BRANCH}"
     volumes:
       - ${UTMSTACK_RULES}:/app/rulesets/
     ports:
@@ -360,7 +360,7 @@ services:
       - "postgres"
 
   filebrowser:
-    image: "utmstack.azurecr.io/filebrowser:testing"
+    image: "utmstack.azurecr.io/filebrowser:${BRANCH}"
     volumes:
       - ${UTMSTACK_RULES}:/srv
     environment:

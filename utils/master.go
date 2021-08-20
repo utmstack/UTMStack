@@ -10,7 +10,7 @@ import (
 	"github.com/pbnjay/memory"
 )
 
-func InstallMaster(mode, datadir, pass string) error {
+func InstallMaster(mode, datadir, pass, branch string) error {
 	esData := MakeDir(0777, datadir, "elasticsearch", "data")
 	esBackups := MakeDir(0777, datadir, "elasticsearch", "backups")
 	_ = MakeDir(0777, datadir, "elasticsearch", "backups", "incremental")
@@ -44,6 +44,7 @@ func InstallMaster(mode, datadir, pass string) error {
 		"SCANNER_IP=" + mainIP,
 		"CORRELATION_URL=http://correlation:8080/v1/newlog",
 		"UTMSTACK_RULES=" + rules,
+		"BRANCH=" + branch,
 	}
 
 	if err := InstallScanner(mode); err != nil {
@@ -54,7 +55,7 @@ func InstallMaster(mode, datadir, pass string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, masterTemplate, env, true); err != nil {
+	if err := InitDocker(mode, masterTemplate, env, true, branch); err != nil {
 		return err
 	}
 
