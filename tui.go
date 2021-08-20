@@ -78,7 +78,7 @@ func actionPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		AddItem("Install Probe", "", 'b', func() {
 			pages.SwitchToPage(probePageIndex)
 		}).
-		AddItem("Uninstall UTMStack", "", 'c', func() {
+		AddItem("Remove UTMStack", "", 'c', func() {
 			pages.SwitchToPage(uninstallPageIndex)
 		}).
 		AddItem("Quit", "", 'q', func() {
@@ -89,13 +89,13 @@ func actionPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 }
 
 func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
-	return tview.NewModal().SetText("Are you sure you want to uninstall UTMStack from your computer?").
-		AddButtons([]string{"Uninstall", "Cancel"}).
+	return tview.NewModal().SetText("Are you sure you want to remove UTMStack?").
+		AddButtons([]string{"Remove", "Cancel"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			if buttonIndex == 0 {
 				pages.AddPage(
 					"uninstalling-dialog",
-					tview.NewModal().SetText("Uninstalling... This may take several minutes. Please wait."),
+					tview.NewModal().SetText("Removing... This may take several minutes. Please wait."),
 					false,
 					true,
 				)
@@ -106,7 +106,7 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 					if err != nil {
 						msg = errTag + err.Error() + ". " + logFileAnnouncement
 					} else {
-						msg = "Program removed successfully. " + logFileAnnouncement
+						msg = "Successfully removed. " + logFileAnnouncement
 					}
 					showResults(pages, app, msg)
 					app.Draw()
