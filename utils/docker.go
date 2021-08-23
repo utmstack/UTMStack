@@ -81,7 +81,6 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, branch
 			}
 		}
 	}
-	
 
 	// generate composer file and deploy
 	f, err := os.Create(composerFile)
