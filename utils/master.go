@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"time"
 
@@ -41,7 +40,7 @@ func InstallMaster(mode, datadir, pass, branch string) error {
 		"SERVER_NAME=" + serverName,
 		"DB_PASS=" + pass,
 		"CLIENT_SECRET=" + secret,
-		fmt.Sprint("ES_MEM=", (memory.TotalMemory()/uint64(math.Pow(1024, 3))-4)/2),
+		fmt.Sprint("ES_MEM=", memory.TotalMemory()/2),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
 		"NGINX_CERT=" + nginxCert,
