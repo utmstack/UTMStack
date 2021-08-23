@@ -322,7 +322,7 @@ services:
   correlation:
     image: "utmstack.azurecr.io/correlation:${BRANCH}"
     volumes:
-      - ${UTMSTACK_RULES}:/app/rulesets/
+      - ${UTMSTACK_RULES}:/app/rulesets/custom
     ports:
       - "9090:8080"
     environment:

@@ -10,9 +10,8 @@ import (
 )
 
 func InstallMaster(mode, datadir, pass, branch string) error {
-	esData := MakeDir(0777, datadir, "elasticsearch", "data")
-	esBackups := MakeDir(0777, datadir, "elasticsearch", "backups")
-	_ = MakeDir(0777, datadir, "elasticsearch", "backups", "incremental")
+	esData := MakeDir(0777, datadir, "opendistro", "data")
+	esBackups := MakeDir(0777, datadir, "opendistro", "backups")
 	nginxCert := MakeDir(0777, datadir, "nginx", "cert")
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := MakeDir(0777, datadir, "datasources")
