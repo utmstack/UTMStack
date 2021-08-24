@@ -8,4 +8,4 @@
 
 ## Reporting a Vulnerability
 
-Please send an email to osmany@atlasintech.com if you find a vulnerability.
+Please open a ticket in https://atlasinside.freshdesk.com/support/home if you find a vulnerability.
