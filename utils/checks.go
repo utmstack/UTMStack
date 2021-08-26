@@ -23,10 +23,10 @@ func CheckCPU(cores int) {
 	}
 }
 
-func CheckDistro(){
+func CheckDistro(distro string){
 	h := holmes.New("debug", "UTMStack")
 	info, _ := host.Info()
-	if info.Platform != "ubuntu" {
-		h.FatalError("Your Linux distribution (%v) is not Ubuntu", info.Platform)
+	if info.Platform != distro {
+		h.FatalError("Your Linux distribution (%s) is not %s", info.Platform, distro)
 	}
 }
