@@ -2,7 +2,7 @@ package utils
 
 import "os"
 
-func InstallProbe(mode, datadir, pass, host, branch string) error {
+func InstallProbe(mode, datadir, pass, host, tag string) error {
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := MakeDir(0777, datadir, "datasources")
 
@@ -32,7 +32,7 @@ func InstallProbe(mode, datadir, pass, host, branch string) error {
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
 		"CORRELATION_URL=http://" + host + ":9090/v1/newlog",
-		"BRANCH=" + branch,
+		"TAG=" + tag,
 	}
 
 	if err := InstallScanner(mode); err != nil {
@@ -43,7 +43,7 @@ func InstallProbe(mode, datadir, pass, host, branch string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, probeTemplate, env, false, branch); err != nil {
+	if err := InitDocker(mode, probeTemplate, env, false, tag); err != nil {
 		return err
 	}
 

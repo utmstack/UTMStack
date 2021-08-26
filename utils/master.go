@@ -9,7 +9,7 @@ import (
 	"github.com/pbnjay/memory"
 )
 
-func InstallMaster(mode, datadir, pass, branch string) error {
+func InstallMaster(mode, datadir, pass, tag string) error {
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")
 	nginxCert := MakeDir(0777, datadir, "nginx", "cert")
@@ -49,7 +49,7 @@ func InstallMaster(mode, datadir, pass, branch string) error {
 		"SCANNER_IP=" + mainIP,
 		"CORRELATION_URL=http://correlation:8080/v1/newlog",
 		"UTMSTACK_RULES=" + rules,
-		"BRANCH=" + branch,
+		"TAG=" + tag,
 	}
 
 	if err := InstallScanner(mode); err != nil {
@@ -60,7 +60,7 @@ func InstallMaster(mode, datadir, pass, branch string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, masterTemplate, env, true, branch); err != nil {
+	if err := InitDocker(mode, masterTemplate, env, true, tag); err != nil {
 		return err
 	}
 

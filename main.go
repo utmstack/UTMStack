@@ -8,12 +8,12 @@ import (
 	"github.com/akamensky/argparse"
 )
 
-var branch string
+var tag string
 
 func main() {
-	branch = os.Getenv("UTMStack")
-	if branch == "" {
-		branch = "latest"
+	tag = os.Getenv("TAG")
+	if tag == "" {
+		tag = "latest"
 	}
 
 	utils.CheckCPU(6)
@@ -39,8 +39,8 @@ func main() {
 	} else if removeCmd.Happened() {
 		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
-		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, branch))
+		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag))
 	} else if probeCmd.Happened() {
-		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, branch))
+		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag))
 	}
 }
