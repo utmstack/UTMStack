@@ -3,15 +3,16 @@ package utils
 import (
 	"github.com/attreios/holmes"
 	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/host"
 )
 
 func CheckMem(size uint64) {
 	h := holmes.New("debug", "UTMStack")
-	v, _ := mem.VirtualMemory()
-	if v.Total < size {
-		h.FatalError("Your system does not have the minimal memory required: %v MB", size)
+	m := sigar.Mem{}
+	m.Get()
+	if m.Total < size {
+		h.FatalError("Your system does not have the minimal memory (%v MB) required: %v MB", m.Total, size)
 	}
 }
 
@@ -19,7 +20,7 @@ func CheckCPU(cores int) {
 	h := holmes.New("debug", "UTMStack")
 	c, _ := cpu.Counts(true)
 	if c < cores {
-		h.FatalError("Your system does not have the minimal CPU required: %v Cores", cores)
+		h.FatalError("Your system does not have the minimal CPU (%v cores) required: %v cores", c, cores)
 	}
 }
 
