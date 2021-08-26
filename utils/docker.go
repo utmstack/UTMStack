@@ -46,7 +46,7 @@ func InstallDocker(mode string) error {
 		return err
 	}
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(90 * time.Second)
 
 	return nil
 }
