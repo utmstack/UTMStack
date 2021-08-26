@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -79,7 +81,23 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
-	time.Sleep(7 * time.Minute)
+	baseURL := "https://127.0.0.1/"
+
+	for intent := 0; intent <= 5; intent++ {
+		time.Sleep(2 * time.Minute)
+
+		transCfg := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		
+		client := &http.Client{Transport: transCfg}
+		
+		_, err := client.Get(baseURL + "/utmstack/api/ping")
+
+		if err == nil {
+			break
+		}
+	}
 
 	return nil
 }
