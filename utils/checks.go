@@ -11,9 +11,9 @@ func CheckMem(size uint64) {
 	h := holmes.New("debug", "UTMStack")
 	m := sigar.Mem{}
 	m.Get()
-	total := m.Total/1024/1024
+	total := m.Total/1024/1024/1024
 	if total < size {
-		h.FatalError("Your system does not have the minimal memory (%v MB) required: %v MB", total, size)
+		h.FatalError("Your system does not have the minimal memory (%v GB) required: %v GB", total, size)
 	}
 }
 
