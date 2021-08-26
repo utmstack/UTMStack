@@ -11,7 +11,7 @@ func CheckMem(size uint64) {
 	h := holmes.New("debug", "UTMStack")
 	v, _ := mem.VirtualMemory()
 	if v.Total < size {
-		h.FatalError("Your system does not have the minimal memory required: %v MB", v.Total)
+		h.FatalError("Your system does not have the minimal memory required: %v MB", size)
 	}
 }
 
@@ -19,7 +19,7 @@ func CheckCPU(cores int) {
 	h := holmes.New("debug", "UTMStack")
 	c, _ := cpu.Counts(true)
 	if c < cores {
-		h.FatalError("Your system does not have the minimal CPU required: %v Cores", c)
+		h.FatalError("Your system does not have the minimal CPU required: %v Cores", cores)
 	}
 }
 
