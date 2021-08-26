@@ -7,8 +7,9 @@ import (
 	"os"
 	"time"
 
+	sigar "github.com/cloudfoundry/gosigar"
+
 	"github.com/dchest/uniuri"
-	"github.com/pbnjay/memory"
 )
 
 func InstallMaster(mode, datadir, pass, tag string) error {
@@ -36,12 +37,16 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
+	m := sigar.Mem{}
+	m.Get()
+	memory := m.Total / 1024 / 1024 / 1024 / 2
+
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
 		"DB_PASS=" + pass,
 		"CLIENT_SECRET=" + secret,
-		fmt.Sprint("ES_MEM=", memory.TotalMemory()/2),
+		fmt.Sprint("ES_MEM=", memory),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
 		"NGINX_CERT=" + nginxCert,
@@ -89,9 +94,9 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		transCfg := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
-		
+
 		client := &http.Client{Transport: transCfg}
-		
+
 		_, err := client.Get(baseURL + "/utmstack/api/ping")
 
 		if err == nil {
