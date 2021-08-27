@@ -1,34 +1,35 @@
 package utils
 
 import (
-	"github.com/attreios/holmes"
+	"fmt"
+
+	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/host"
 )
 
-func CheckMem(size uint64) {
-	h := holmes.New("debug", "UTMStack")
+func CheckMem(size uint64) error {
 	m := sigar.Mem{}
 	m.Get()
-	total := m.Total/1024/1024/1024
+	total := m.Total / 1024 / 1024 / 1024
 	if total < size {
-		h.FatalError("Your system does not have the minimal memory (%v GB) required: %v GB", total, size)
+		return fmt.Errorf("your system does not have the minimal memory (%v GB) required: %v GB", total, size)
 	}
+	return nil
 }
 
-func CheckCPU(cores int) {
-	h := holmes.New("debug", "UTMStack")
+func CheckCPU(cores int) error {
 	c, _ := cpu.Counts(true)
 	if c < cores {
-		h.FatalError("Your system does not have the minimal CPU (%v cores) required: %v cores", c, cores)
+		return fmt.Errorf("your system does not have the minimal CPU (%v cores) required: %v cores", c, cores)
 	}
+	return nil
 }
 
-func CheckDistro(distro string){
-	h := holmes.New("debug", "UTMStack")
+func CheckDistro(distro string) error {
 	info, _ := host.Info()
 	if info.Platform != distro {
-		h.FatalError("Your Linux distribution (%s) is not %s", info.Platform, distro)
+		return fmt.Errorf("your Linux distribution (%s) is not %s", info.Platform, distro)
 	}
+	return nil
 }

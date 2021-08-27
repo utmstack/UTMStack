@@ -11,8 +11,12 @@ import (
 )
 
 func InstallMaster(mode, datadir, pass, tag string) error {
-	CheckCPU(6)
-	CheckMem(7)
+	if err := CheckCPU(6); err != nil {
+		return err
+	}
+	if err := CheckMem(7); err != nil {
+		return err
+	}
 
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")

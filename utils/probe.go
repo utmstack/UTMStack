@@ -6,8 +6,12 @@ import (
 )
 
 func InstallProbe(mode, datadir, pass, host, tag string) error {
-	CheckCPU(4)
-	CheckMem(4)
+	if err := CheckCPU(4); err != nil {
+		return err
+	}
+	if err := CheckMem(3); err != nil {
+		return err
+	}
 
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := MakeDir(0777, datadir, "datasources")

@@ -16,7 +16,7 @@ func main() {
 		tag = "latest"
 	}
 
-	utils.CheckDistro("ubuntu")
+	utils.CheckErr(utils.CheckDistro("ubuntu"))
 
 	parser := argparse.NewParser("", "UTMStack installer")
 	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
