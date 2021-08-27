@@ -1,8 +1,8 @@
 package utils
 
 const (
-	stackName    = "utmstack"
-	composerFile = "utmstack.yml"
+	stackName     = "utmstack"
+	composerFile  = "utmstack.yml"
 	probeTemplate = `version: "3.8"
 
 volumes:
@@ -18,6 +18,13 @@ volumes:
     external: false
 
 services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_NO_RESTART=true
+
   openvas:
     image: "utmstack.azurecr.io/openvas:${TAG}"
     volumes:
