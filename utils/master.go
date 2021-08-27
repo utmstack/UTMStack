@@ -8,8 +8,6 @@ import (
 	"time"
 
 	sigar "github.com/cloudfoundry/gosigar"
-
-	"github.com/dchest/uniuri"
 )
 
 func InstallMaster(mode, datadir, pass, tag string) error {
