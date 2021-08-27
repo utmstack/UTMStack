@@ -330,6 +330,7 @@ services:
     image: "utmstack.azurecr.io/correlation:${TAG}"
     volumes:
       - ${UTMSTACK_RULES}:/app/rulesets/custom
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9090:8080"
     environment:
