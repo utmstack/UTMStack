@@ -341,7 +341,7 @@ services:
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
-      - ERROR_LEVEL=debug
+      - ERROR_LEVEL=info
     depends_on:
       - "node1"
       - "postgres"
