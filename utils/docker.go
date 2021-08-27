@@ -65,19 +65,23 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 		return err
 	}
 
+	if err := RunCmd(mode, "docker", "pull", "containrrr/watchtower"); err != nil {
+		return errors.New("failed to pull docker image: containrrr/watchtower")
+	}
+
 	// pull images from registry
 	if master {
 		for _, image := range MasterImages {
 			image = "utmstack.azurecr.io/" + image + ":" + tag
 			if err := RunCmd(mode, "docker", "pull", image); err != nil {
-				return errors.New("Failed to pull docker image: " + image)
+				return errors.New("failed to pull docker image: " + image)
 			}
 		}
 	} else {
 		for _, image := range ProbeImages {
 			image = "utmstack.azurecr.io/" + image + ":" + tag
 			if err := RunCmd(mode, "docker", "pull", image); err != nil {
-				return errors.New("Failed to pull docker image: " + image)
+				return errors.New("failed to pull docker image: " + image)
 			}
 		}
 	}
