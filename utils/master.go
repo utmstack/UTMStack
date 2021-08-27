@@ -7,16 +7,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
-
 	sigar "github.com/cloudfoundry/gosigar"
 
 	"github.com/dchest/uniuri"
 )
 
 func InstallMaster(mode, datadir, pass, tag string) error {
-	utils.CheckCPU(6)
-	utils.CheckMem(7)
+	CheckCPU(6)
+	CheckMem(7)
 
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")
