@@ -47,6 +47,7 @@ services:
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     ports:
       - 5044:5044
