@@ -16,8 +16,6 @@ func main() {
 		tag = "latest"
 	}
 
-	utils.CheckCPU(6)
-	utils.CheckMem(7)
 	utils.CheckDistro("ubuntu")
 
 	parser := argparse.NewParser("", "UTMStack installer")

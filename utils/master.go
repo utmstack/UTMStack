@@ -7,12 +7,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+
 	sigar "github.com/cloudfoundry/gosigar"
 
 	"github.com/dchest/uniuri"
 )
 
 func InstallMaster(mode, datadir, pass, tag string) error {
+	utils.CheckCPU(6)
+	utils.CheckMem(7)
+
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")
 	nginxCert := MakeDir(0777, datadir, "nginx", "cert")
@@ -24,8 +29,6 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 	if err != nil {
 		return err
 	}
-
-	secret := uniuri.NewLenChars(10, []byte("abcdefghijklmnopqrstuvwxyz0123456789"))
 
 	mainIP, err := GetMainIP()
 	if err != nil {
@@ -45,7 +48,6 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
 		"DB_PASS=" + pass,
-		"CLIENT_SECRET=" + secret,
 		fmt.Sprint("ES_MEM=", memory),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,

@@ -1,8 +1,15 @@
 package utils
 
-import "os"
+import (
+	"os"
+
+	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+)
 
 func InstallProbe(mode, datadir, pass, host, tag string) error {
+	utils.CheckCPU(4)
+	utils.CheckMem(4)
+
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := MakeDir(0777, datadir, "datasources")
 

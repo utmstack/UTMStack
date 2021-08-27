@@ -306,7 +306,6 @@ services:
       - POSTGRESQL_DATABASE=utmstack
       - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
-      - ELASTICSEARCH_SECRET=${CLIENT_SECRET}
       - OPENVAS_HOST=openvas
       - OPENVAS_PORT=9390
       - OPENVAS_USER=admin
