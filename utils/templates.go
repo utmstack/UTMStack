@@ -54,6 +54,7 @@ services:
       - 8089:8089
       - 514:514
       - 514:514/udp
+      - 2055:2055/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
     deploy:
@@ -99,24 +100,6 @@ services:
           cpus: '4.00'
           memory: 4096M
     command: ["python3", "-m", "utmstack.transporter"]
-
-  datasources_netflow:
-    image: "utmstack.azurecr.io/datasources:${TAG}"
-    volumes:
-      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
-    ports:
-      - "2055:2055/udp"
-    environment:
-      - SERVER_NAME
-      - SERVER_TYPE
-      - DB_HOST
-      - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '4.00'
-          memory: 4096M
-    command: ["python3", "-m", "utmstack.netflow"]
 
   datasources_probe_api:
     image: "utmstack.azurecr.io/datasources:${TAG}"
