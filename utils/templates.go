@@ -47,7 +47,6 @@ services:
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
     ports:
       - 5044:5044
@@ -68,6 +67,7 @@ services:
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - SERVER_NAME
       - SERVER_TYPE
@@ -313,7 +313,6 @@ services:
     image: "utmstack.azurecr.io/correlation:${TAG}"
     volumes:
       - ${UTMSTACK_RULES}:/app/rulesets/custom
-      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9090:8080"
     environment:
