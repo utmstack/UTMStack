@@ -34,6 +34,7 @@ services:
       - "9390:9390"
       - "9392:9392"
     environment:
+      - SERVER_NAME
       - USERNAME=admin
       - PASSWORD=${DB_PASS}
       - DB_PASSWORD=${DB_PASS}
@@ -55,6 +56,7 @@ services:
       - 514:514/udp
       - 2055:2055/udp
     environment:
+      - SERVER_NAME
       - CONFIG_RELOAD_AUTOMATIC=true
     deploy:
       resources:
@@ -138,6 +140,7 @@ services:
       - ${ES_DATA}:/usr/share/elasticsearch/data
       - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
     environment:
+      - SERVER_NAME
       - node.name=node1
       - discovery.seed_hosts=node1
       - cluster.initial_master_nodes=node1
@@ -147,6 +150,7 @@ services:
   postgres:
     image: "utmstack.azurecr.io/postgres:${TAG}"
     environment:
+      - SERVER_NAME
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
     volumes:
@@ -281,6 +285,7 @@ services:
       - "node1"
       - "postgres"
     environment:
+      - SERVER_NAME
       - TOMCAT_ADMIN_USER=admin
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
       - POSTGRESQL_USER=postgres
@@ -316,6 +321,7 @@ services:
     ports:
       - "9090:8080"
     environment:
+      - SERVER_NAME
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
       - POSTGRESQL_HOST=postgres
