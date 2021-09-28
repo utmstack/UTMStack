@@ -51,7 +51,7 @@ Watch this short 10 minutes installation video if you still have questions.
 
 [![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
-###Trubleshooting
+### Trubleshooting
 If you find any errors during the isntallation, please check the installation log for more details:" /var/log/utm-setup.log
 
 ### Firewall rules
@@ -96,7 +96,7 @@ If you find any errors during the isntallation, please check the installation lo
 - Open port 443 for accessing the UTMStack Web console.
 
 
-Why UTMStack
+## Why UTMStack
 
 [![Alt text](https://img.youtube.com/vi/wv87dj15G5k/0.jpg)](https://youtu.be/wv87dj15G5k)
 
