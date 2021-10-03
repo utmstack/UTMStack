@@ -25,7 +25,7 @@ This installation guide provides instructions to perform the UTMStack installati
 ### Preparing for installation
 - Update packages list: apt update
 - Install WGET and NET-TOOLS: apt install wget net-tools
-- Download the latest version from https://github.com/UTMStack/installer/releases (You can use `# wget [URL]` to download the installer directly to the server)
+- Download the latest version from https://github.com/AtlasInsideCorp/UTMStackInstaller/releases (You can use `# wget [URL]` to download the installer directly to the server)
 - Set execution permissions with `# chmod +x installer`
 
 ### Install using Terminal User Interface
@@ -51,7 +51,7 @@ Watch this short 10 minutes installation video if you still have questions.
 
 [![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
-###Trubleshooting
+### Trubleshooting
 If you find any errors during the isntallation, please check the installation log for more details:" /var/log/utm-setup.log
 
 ### Firewall rules
@@ -96,7 +96,7 @@ If you find any errors during the isntallation, please check the installation lo
 - Open port 443 for accessing the UTMStack Web console.
 
 
-Why UTMStack
+## Why UTMStack
 
 [![Alt text](https://img.youtube.com/vi/wv87dj15G5k/0.jpg)](https://youtu.be/wv87dj15G5k)
 
