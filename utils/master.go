@@ -42,7 +42,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 
 	m := sigar.Mem{}
 	m.Get()
-	memory := m.Total / 1024 / 1024 / 1024 / 2
+	memory := m.Total / 1024 / 1024 / 1024 / 3
 
 	env := []string{
 		"SERVER_TYPE=aio",
