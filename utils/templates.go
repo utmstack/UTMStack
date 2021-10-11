@@ -192,23 +192,6 @@ services:
           memory: 4096M
     command: ["python3", "-m", "utmstack.aws"]
 
-  datasources_azure:
-    image: "utmstack.azurecr.io/datasources:${TAG}"
-    depends_on:
-      - "node1"
-      - "postgres"
-    volumes:
-      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '4.00'
-          memory: 4096M
-    command: ["python3", "-m", "utmstack.azure"]
-
   datasources_office365:
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
