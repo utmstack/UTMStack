@@ -34,7 +34,6 @@ services:
       - "9390:9390"
       - "9392:9392"
     environment:
-      - SERVER_NAME
       - USERNAME=admin
       - PASSWORD=${DB_PASS}
       - DB_PASSWORD=${DB_PASS}
@@ -56,7 +55,6 @@ services:
       - 514:514/udp
       - 2055:2055/udp
     environment:
-      - SERVER_NAME
       - CONFIG_RELOAD_AUTOMATIC=true
     deploy:
       resources:
@@ -140,7 +138,6 @@ services:
       - ${ES_DATA}:/usr/share/elasticsearch/data
       - ${ES_BACKUPS}:/usr/share/elasticsearch/backups
     environment:
-      - SERVER_NAME
       - node.name=node1
       - discovery.seed_hosts=node1
       - cluster.initial_master_nodes=node1
@@ -150,7 +147,6 @@ services:
   postgres:
     image: "utmstack.azurecr.io/postgres:${TAG}"
     environment:
-      - SERVER_NAME
       - "POSTGRES_PASSWORD=${DB_PASS}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
     volumes:
@@ -184,6 +180,7 @@ services:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
+      - DB_HOST
       - DB_PASS
     deploy:
       resources:
@@ -191,23 +188,6 @@ services:
           cpus: '4.00'
           memory: 4096M
     command: ["python3", "-m", "utmstack.aws"]
-
-  datasources_azure:
-    image: "utmstack.azurecr.io/datasources:${TAG}"
-    depends_on:
-      - "node1"
-      - "postgres"
-    volumes:
-      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
-    environment:
-      - SERVER_NAME
-      - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '4.00'
-          memory: 4096M
-    command: ["python3", "-m", "utmstack.azure"]
 
   datasources_office365:
     image: "utmstack.azurecr.io/datasources:${TAG}"
@@ -218,6 +198,7 @@ services:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
+      - DB_HOST
       - DB_PASS
     deploy:
       resources:
@@ -225,6 +206,24 @@ services:
           cpus: '4.00'
           memory: 4096M
     command: ["python3", "-m", "utmstack.office365"]
+
+  datasources_azure:
+    image: "utmstack.azurecr.io/datasources:${TAG}"
+    depends_on:
+      - "node1"
+      - "postgres"
+    volumes:
+      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+    environment:
+      - SERVER_NAME
+      - DB_HOST
+      - DB_PASS
+    deploy:
+      resources:
+        limits:
+          cpus: '4.00'
+          memory: 4096M
+    command: ["python3", "-m", "utmstack.azure"]
 
   datasources_webroot:
     image: "utmstack.azurecr.io/datasources:${TAG}"
@@ -235,6 +234,7 @@ services:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
+      - DB_HOST
       - DB_PASS
     deploy:
       resources:
@@ -252,6 +252,7 @@ services:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
+      - DB_HOST
       - DB_PASS
     deploy:
       resources:
@@ -269,6 +270,7 @@ services:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
     environment:
       - SERVER_NAME
+      - DB_HOST
       - DB_PASS
     ports:
       - "50051:50051"

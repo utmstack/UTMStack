@@ -47,6 +47,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 	env := []string{
 		"SERVER_TYPE=aio",
 		"SERVER_NAME=" + serverName,
+		"DB_HOST=" + mainIP,
 		"DB_PASS=" + pass,
 		fmt.Sprint("ES_MEM=", memory),
 		"ES_DATA=" + esData,
@@ -56,7 +57,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://correlation:8080/v1/newlog",
+		"CORRELATION_URL=http://" + mainIP + ":9090/v1/newlog",
 		"UTMSTACK_RULES=" + rules,
 		"TAG=" + tag,
 	}
