@@ -48,6 +48,8 @@ services:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
+      - /var/log/suricata:/var/log/suricata
+      - wazuh_logs:/var/ossec/logs
     ports:
       - 5044:5044
       - 8089:8089
