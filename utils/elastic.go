@@ -38,7 +38,7 @@ func initializeElastic() error {
 
 	_, err = grequests.Put(baseURL+"_index_template/utmstack_indexes", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
-			"index_patterns": [5]string{"log-*", "dc-*", ".utm-*", ".utmstack-*"},
+			"index_patterns": []string{"log-*", "dc-*", ".utm-*", ".utmstack-*"},
 			"template": map[string]interface{}{
 				"settings": map[string]interface{}{
 					"index.number_of_shards":           1,
@@ -54,7 +54,7 @@ func initializeElastic() error {
 
 	_, err = grequests.Put(baseURL+"_index_template/log_mapping", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
-			"index_patterns": [5]string{"alert-*"},
+			"index_patterns": []string{"alert-*"},
 			"template": map[string]interface{}{
 				"settings": map[string]interface{}{
 					"index.number_of_shards":           1,
