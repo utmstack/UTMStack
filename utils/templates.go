@@ -294,10 +294,10 @@ services:
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_HOST=${DB_HOST}
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=node1
+      - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
       - OPENVAS_HOST=openvas
       - OPENVAS_PORT=9390
@@ -328,10 +328,10 @@ services:
       - SERVER_NAME
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_HOST=${DB_HOST}
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=node1
+      - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
       - ERROR_LEVEL=info
     depends_on:
