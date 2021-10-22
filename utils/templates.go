@@ -16,6 +16,8 @@ volumes:
     external: false
   openvas_data:
     external: false
+  geoip_data:
+    external: false
 
 services:
   watchtower:
@@ -321,6 +323,7 @@ services:
   correlation:
     image: "utmstack.azurecr.io/correlation:${TAG}"
     volumes:
+      - geoip_data:/app/geosets
       - ${UTMSTACK_RULES}:/app/rulesets/custom
     ports:
       - "9090:8080"
