@@ -26,6 +26,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WATCHTOWER_NO_RESTART=true
+      - WATCHTOWER_POLL_INTERVAL=3600
 
   openvas:
     image: "utmstack.azurecr.io/openvas:${TAG}"
