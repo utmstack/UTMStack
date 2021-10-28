@@ -24,6 +24,7 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
     environment:
       - WATCHTOWER_NO_RESTART=true
       - WATCHTOWER_POLL_INTERVAL=3600
