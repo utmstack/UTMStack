@@ -16,14 +16,18 @@ volumes:
     external: false
   openvas_data:
     external: false
+  geoip_data:
+    external: false
 
 services:
   watchtower:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
     environment:
       - WATCHTOWER_NO_RESTART=true
+      - WATCHTOWER_POLL_INTERVAL=3600
 
   openvas:
     image: "utmstack.azurecr.io/openvas:${TAG}"
@@ -48,6 +52,8 @@ services:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
+      - /var/log/suricata:/var/log/suricata
+      - wazuh_logs:/var/ossec/logs
     ports:
       - 5044:5044
       - 8089:8089
@@ -292,10 +298,10 @@ services:
       - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_HOST=${DB_HOST}
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=node1
+      - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
       - OPENVAS_HOST=openvas
       - OPENVAS_PORT=9390
@@ -319,6 +325,7 @@ services:
   correlation:
     image: "utmstack.azurecr.io/correlation:${TAG}"
     volumes:
+      - geoip_data:/app/geosets
       - ${UTMSTACK_RULES}:/app/rulesets/custom
     ports:
       - "9090:8080"
@@ -326,10 +333,10 @@ services:
       - SERVER_NAME
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
-      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_HOST=${DB_HOST}
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST=node1
+      - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
       - ERROR_LEVEL=info
     depends_on:

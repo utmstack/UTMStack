@@ -13,7 +13,7 @@ var tag string
 func main() {
 	tag = os.Getenv("TAG")
 	if tag == "" {
-		tag = "latest"
+		tag = "v8"
 	}
 
 	utils.CheckErr(utils.CheckDistro("ubuntu"))
