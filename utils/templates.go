@@ -45,8 +45,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '2.00'
+          memory: 2048M
 
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
@@ -65,8 +65,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '2.00'
+          memory: 2048M
 
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:${TAG}"
@@ -83,8 +83,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_transporter:
@@ -103,8 +103,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 512M
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
@@ -131,8 +131,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '2.00'
+          memory: 1024M
     command: ["/pw.sh"]
 `
 	masterTemplate = probeTemplate + `
@@ -174,8 +174,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '2.00'
+          memory: 1024M
 
   datasources_aws:
     image: "utmstack.azurecr.io/datasources:${TAG}"
@@ -191,8 +191,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_office365:
@@ -209,8 +209,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.office365"]
   
   datasources_azure:
@@ -227,8 +227,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_webroot:
@@ -245,8 +245,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
@@ -263,8 +263,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
@@ -283,8 +283,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '1.00'
+          memory: 1024M
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
@@ -319,8 +319,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.00'
-          memory: 4096M
+          cpus: '2.00'
+          memory: 2048M
 
   correlation:
     image: "utmstack.azurecr.io/correlation:${TAG}"
