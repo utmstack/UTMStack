@@ -54,8 +54,9 @@ func InstallOpenVPNClient(mode, host string) error {
 		return err
 	}
 
-	sed := fmt.Sprintf("'s/IPADDR/%s/g'", host)
-	if err := RunCmd(mode, "sed", "-i", sed, "/etc/openvpn/client.conf"); err != nil {
+	sed := fmt.Sprintf("sed -i \"s/IPADDR/%s/g\" /etc/openvpn/client.conf", host)
+
+	if err := RunCmd(mode, "/bin/sh", "-c", sed); err != nil {
 		return err
 	}
 	
