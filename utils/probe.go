@@ -35,13 +35,13 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 	env := []string{
 		"SERVER_TYPE=probe",
 		"SERVER_NAME=" + serverName,
-		"DB_HOST=" + host,
+		"DB_HOST=10.21.199.1",
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://" + host + ":9090/v1/newlog",
+		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog",
 		"TAG=" + tag,
 	}
 
@@ -50,6 +50,10 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 	}
 
 	if err := InstallSuricata(mode, mainIface); err != nil {
+		return err
+	}
+
+	if err := InstallOpenVPNClient(mode, host); err != nil {
 		return err
 	}
 

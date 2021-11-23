@@ -212,7 +212,7 @@ services:
           cpus: '4.00'
           memory: 4096M
     command: ["python3", "-m", "utmstack.office365"]
-
+  
   datasources_azure:
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
