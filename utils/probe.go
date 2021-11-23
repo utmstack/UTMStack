@@ -9,7 +9,7 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 	if err := CheckCPU(4); err != nil {
 		return err
 	}
-	if err := CheckMem(2); err != nil {
+	if err := CheckMem(3); err != nil {
 		return err
 	}
 
