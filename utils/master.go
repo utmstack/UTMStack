@@ -89,6 +89,11 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
+	// Install OpenVPN Master
+	if err := InstallOpenVPNMaster(mode); err != nil {
+		return err
+	}
+
 	baseURL := "https://127.0.0.1/"
 
 	for intent := 0; intent <= 5; intent++ {
