@@ -29,25 +29,6 @@ services:
       - WATCHTOWER_NO_RESTART=true
       - WATCHTOWER_POLL_INTERVAL=3600
 
-  openvas:
-    image: "utmstack.azurecr.io/openvas:${TAG}"
-    volumes:
-      - openvas_data:/data
-    ports:
-      - "8888:5432"
-      - "9390:9390"
-      - "9392:9392"
-    environment:
-      - USERNAME=admin
-      - PASSWORD=${DB_PASS}
-      - DB_PASSWORD=${DB_PASS}
-      - HTTPS=0
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 2048M
-
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
