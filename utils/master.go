@@ -11,7 +11,7 @@ import (
 )
 
 func InstallMaster(mode, datadir, pass, tag string) error {
-	if err := CheckCPU(6); err != nil {
+	if err := CheckCPU(4); err != nil {
 		return err
 	}
 	if err := CheckMem(7); err != nil {
