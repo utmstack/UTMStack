@@ -26,7 +26,8 @@ This installation guide provides instructions to perform the UTMStack installati
 - Update packages list: sudo apt update
 - Install WGET and NET-TOOLS: sudo apt install wget net-tools
 - Download the latest version from https://github.com/AtlasInsideCorp/UTMStackInstaller/releases (You can use `# wget [URL]` to download the installer directly to the server)
-- Set execution permissions with `# chmod +x installer`
+- Change to root user: `sudo su`
+- Set execution permissions with `chmod +x installer`
 
 ### Install using Terminal User Interface
 - Execute the installer without parameters: `sudo ./installer`
