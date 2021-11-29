@@ -27,7 +27,7 @@ services:
       - /root/.docker/config.json:/config.json
     environment:
       - WATCHTOWER_NO_RESTART=true
-      - WATCHTOWER_POLL_INTERVAL=3600
+      - WATCHTOWER_POLL_INTERVAL=${UPDATES}
 
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
@@ -278,8 +278,6 @@ services:
     environment:
       - SERVER_NAME
       - LITE
-      - TOMCAT_ADMIN_USER=admin
-      - TOMCAT_ADMIN_PASSWORD=${DB_PASS}
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=${DB_PASS}
       - POSTGRESQL_HOST=${DB_HOST}
@@ -295,11 +293,6 @@ services:
       - OPENVAS_PG_DATABASE=gvmd
       - OPENVAS_PG_USER=gvm
       - OPENVAS_PG_PASSWORD=${DB_PASS}
-      - JRE_HOME=/opt/tomcat/bin/jre
-      - JAVA_HOME=/opt/tomcat/bin/jre
-      - CATALINA_BASE=/opt/tomcat/
-      - CATALINA_HOME=/opt/tomcat/
-      - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
     deploy:
       resources:
         limits:

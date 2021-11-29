@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -42,6 +43,14 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
+	var updates uint32
+
+	if tag == "testing" {
+		updates = 600
+	} else {
+		updates = 3600
+	}
+
 	env := []string{
 		"SERVER_TYPE=probe",
 		"LITE=" + strconv.FormatBool(lite),
@@ -49,6 +58,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		"DB_HOST=10.21.199.1",
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
+		fmt.Sprint("UPDATES=", updates),
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
@@ -77,6 +87,6 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 	if err := InstallOpenVPNClient(mode, host); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
