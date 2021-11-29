@@ -20,7 +20,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")
-	nginxCert := MakeDir(0777, datadir, "nginx", "cert")
+	cert := MakeDir(0777, datadir, "cert")
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := MakeDir(0777, datadir, "datasources")
 	rules := MakeDir(0777, datadir, "rules")
@@ -52,7 +52,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		fmt.Sprint("ES_MEM=", memory),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
-		"NGINX_CERT=" + nginxCert,
+		"CERT=" + cert,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
@@ -70,12 +70,12 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, masterTemplate, env, true, tag); err != nil {
+	// Generate auto-signed cert and key
+	if err := generateCerts(cert); err != nil {
 		return err
 	}
 
-	// Generate nginx auto-signed cert and key
-	if err := generateCerts(nginxCert); err != nil {
+	if err := InitDocker(mode, masterTemplate, env, true, tag); err != nil {
 		return err
 	}
 

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-func generateCerts(nginxCert string) error {
+func generateCerts(folder string) error {
 	cert := `-----BEGIN CERTIFICATE-----
 MIIFJjCCBA6gAwIBAgISA7ylpw0Ob1YkGwHhx3lwj3gwMA0GCSqGSIb3DQEBCwUA
 MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD
@@ -93,14 +93,14 @@ nzvOGfUJga8KRGJAAenaKpxCw4S9RASrDoilCtlWDM4dBneB4daj4NoT0WNkSmCY
 -----END PRIVATE KEY-----
 `
 
-	crtFile, err := os.Create(filepath.Join(nginxCert, "utm.crt"))
+	crtFile, err := os.Create(filepath.Join(folder, "utm.crt"))
 	if err != nil {
 		return err
 	}
 	defer crtFile.Close()
 	crtFile.WriteString(cert)
 
-	keyFile, err := os.Create(filepath.Join(nginxCert, "utm.key"))
+	keyFile, err := os.Create(filepath.Join(folder, "utm.key"))
 	if err != nil {
 		return err
 	}

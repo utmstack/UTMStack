@@ -15,6 +15,7 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
 	datasourcesDir := MakeDir(0777, datadir, "datasources")
+	cert := MakeDir(0777, datadir, "cert")
 
 	serverName, err := os.Hostname()
 	if err != nil {
@@ -41,6 +42,7 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
+		"CERT=" + cert,
 		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog",
 		"TAG=" + tag,
 	}
@@ -53,11 +55,16 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 		return err
 	}
 
-	if err := InstallOpenVPNClient(mode, host); err != nil {
+	// Generate auto-signed cert and key
+	if err := generateCerts(cert); err != nil {
 		return err
 	}
 
 	if err := InitDocker(mode, probeTemplate, env, false, tag); err != nil {
+		return err
+	}
+
+	if err := InstallOpenVPNClient(mode, host); err != nil {
 		return err
 	}
 

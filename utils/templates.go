@@ -54,6 +54,7 @@ services:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
       - /var/log/suricata:/var/log/suricata
       - wazuh_logs:/var/ossec/logs
+      - ${CERT}:/cert
     ports:
       - 5044:5044
       - 8089:8089
@@ -114,6 +115,7 @@ services:
       - wazuh_var:/var/ossec/var
       - wazuh_logs:/var/ossec/logs
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
+      - ${CERT}:/cert
     environment:
       - SERVER_NAME
       - SERVER_TYPE
@@ -170,7 +172,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ${NGINX_CERT}:/etc/nginx/cert
+      - ${CERT}:/etc/nginx/cert
     deploy:
       resources:
         limits:

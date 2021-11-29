@@ -13,7 +13,7 @@ func CheckMem(size uint64) error {
 	m.Get()
 	total := m.Total / 1024 / 1024 / 1024
 	if total < size {
-		return fmt.Errorf("your system does not have the minimal memory (%v GB) required: %v GB", total, size)
+		return fmt.Errorf("your system does not have the minimal memory (%v GB) required: %v GB", total, size+1)
 	}
 	return nil
 }
