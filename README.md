@@ -3,8 +3,11 @@
 ## Recommendations
 
 ### Operating System
+
 This installation guide provides instructions to perform the UTMStack installation on Ubuntu 20.04 LTS.
+
 ### Resources for Master
+
 | :exclamation:  Minimum Resources Requeriments
 |-----------------------------------------|
 
@@ -15,6 +18,7 @@ This installation guide provides instructions to perform the UTMStack installati
 - For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 32 GB RAM, 1080GB Disk Space
 
 ### Resources for Probe or Proxy server
+
 - 50 GB Disk Space for system.
 - 4 Cores.
 - 8 GB of RAM.
@@ -23,17 +27,21 @@ This installation guide provides instructions to perform the UTMStack installati
 ## Installation steps
 
 ### Preparing for installation
+
 - Update packages list: sudo apt update
 - Install WGET and NET-TOOLS: sudo apt install wget net-tools
-- Download the latest version from https://github.com/AtlasInsideCorp/UTMStackInstaller/releases (You can use `# wget [URL]` to download the installer directly to the server)
+- Download the latest version from <https://github.com/AtlasInsideCorp/UTMStackInstaller/releases> (You can use `# wget [URL]` to download the installer directly to the server)
 - Change to root user: `sudo su`
 - Set execution permissions with `chmod +x installer`
 
 ### Install using Terminal User Interface
+
 - Execute the installer without parameters: `./installer`
 
 ### Install using the parameterized mode
+
 You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
+
 - Master:
 `# ./installer master --datadir "/example/dir" --db-pass "ExAmPlEpaSsWoRd" --fqdn "server.example.domain" --customer-name "Your Business" --customer-email "your@email.com"`
 
@@ -46,16 +54,18 @@ Note: Use HTTPS in front of your server name or IP to access the login page.
 | :exclamation: Demo Environment
 |-----------------------------------------|
 
-To see a fully operating UTMStack environment access our demo at: https://utmstack.com/demo
+To see a fully operating UTMStack environment access our demo at: <https://utmstack.com/demo>
 
 Watch this short 10 minutes installation video if you still have questions.
 
 [![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
 ### Trubleshooting
+
 If you find any errors during the isntallation, please check the installation log for more details:" /var/log/utm-setup.log
 
 ### Firewall rules
+
 - Open the following input ports on the master for access from the probe/proxy.
 
   50051/TCP and 5044/TCP (Used to send logs)
@@ -96,8 +106,6 @@ If you find any errors during the isntallation, please check the installation lo
   
 - Open port 443 for accessing the UTMStack Web console.
 
-
 ## Why UTMStack
 
 [![Alt text](https://img.youtube.com/vi/wv87dj15G5k/0.jpg)](https://youtu.be/wv87dj15G5k)
-
