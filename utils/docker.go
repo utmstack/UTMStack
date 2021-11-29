@@ -51,7 +51,7 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode, composerTemplate string, env []string, master bool, tag string) error {
+func InitDocker(mode, composerTemplate string, env []string, master bool, tag string, lite bool) error {
 	if err := InstallDocker(mode); err != nil {
 		return err
 	}
@@ -71,17 +71,35 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 
 	// pull images from registry
 	if master {
-		for _, image := range MasterImages {
-			image = "utmstack.azurecr.io/" + image + ":" + tag
-			if err := RunCmd(mode, "docker", "pull", image); err != nil {
-				return errors.New("failed to pull docker image: " + image)
+		if lite {
+			for _, image := range MasterLiteImages {
+				image = "utmstack.azurecr.io/" + image + ":" + tag
+				if err := RunCmd(mode, "docker", "pull", image); err != nil {
+					return errors.New("failed to pull docker image: " + image)
+				}
+			}
+		} else {
+			for _, image := range MasterStandardImages {
+				image = "utmstack.azurecr.io/" + image + ":" + tag
+				if err := RunCmd(mode, "docker", "pull", image); err != nil {
+					return errors.New("failed to pull docker image: " + image)
+				}
 			}
 		}
 	} else {
-		for _, image := range ProbeImages {
-			image = "utmstack.azurecr.io/" + image + ":" + tag
-			if err := RunCmd(mode, "docker", "pull", image); err != nil {
-				return errors.New("failed to pull docker image: " + image)
+		if lite {
+			for _, image := range ProbeImages {
+				image = "utmstack.azurecr.io/" + image + ":" + tag
+				if err := RunCmd(mode, "docker", "pull", image); err != nil {
+					return errors.New("failed to pull docker image: " + image)
+				}
+			}
+		} else {
+			for _, image := range ProbeStandardImages {
+				image = "utmstack.azurecr.io/" + image + ":" + tag
+				if err := RunCmd(mode, "docker", "pull", image); err != nil {
+					return errors.New("failed to pull docker image: " + image)
+				}
 			}
 		}
 	}

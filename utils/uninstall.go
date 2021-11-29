@@ -45,6 +45,14 @@ func Uninstall(mode string) error {
 		return err
 	}
 
+	if err := RunCmd(mode, "docker", "volume", "prune", "-f"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "docker", "system", "prune", "-f"); err != nil {
+		return err
+	}
+
 	// leave swarm
 	if err := RunCmd(mode, "docker", "swarm", "leave", "--force"); err != nil {
 		return err

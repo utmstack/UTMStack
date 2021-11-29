@@ -2,15 +2,24 @@ package utils
 
 import (
 	"os"
-
+	"strconv"
 )
 
-func InstallProbe(mode, datadir, pass, host, tag string) error {
-	if err := CheckCPU(4); err != nil {
-		return err
-	}
-	if err := CheckMem(3); err != nil {
-		return err
+func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
+	if lite {
+		if err := CheckCPU(2); err != nil {
+			return err
+		}
+		if err := CheckMem(1); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckCPU(4); err != nil {
+			return err
+		}
+		if err := CheckMem(3); err != nil {
+			return err
+		}
 	}
 
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
@@ -35,6 +44,7 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 
 	env := []string{
 		"SERVER_TYPE=probe",
+		"LITE=" + strconv.FormatBool(lite),
 		"SERVER_NAME=" + serverName,
 		"DB_HOST=10.21.199.1",
 		"DB_PASS=" + pass,
@@ -60,7 +70,7 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, probeTemplate, env, false, tag); err != nil {
+	if err := InitDocker(mode, probeTemplate, env, false, tag, lite); err != nil {
 		return err
 	}
 

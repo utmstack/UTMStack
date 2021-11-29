@@ -9,23 +9,25 @@ import (
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
-var MasterImages = []string{
-	"opendistro",
-	"openvas",
-	"postgres",
+var ProbeImages = []string{
 	"logstash",
-	"nginx",
-	"panel",
 	"datasources",
-	"correlation",
+}
+
+var MasterImages = []string{
+	"opendistro", 
+	"postgres", 
+	"nginx", 
+	"panel", 
+	"correlation", 
 	"filebrowser",
 }
 
-var ProbeImages = []string{
-	"openvas",
-	"logstash",
-	"datasources",
-}
+var ProbeStandardImages = append(ProbeImages, "openvas")
+
+var MasterLiteImages =append(ProbeImages, MasterImages...)
+
+var MasterStandardImages =append(ProbeStandardImages, MasterImages...)
 
 func RunEnvCmd(mode string, env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)

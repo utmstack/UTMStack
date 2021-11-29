@@ -5,18 +5,29 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	sigar "github.com/cloudfoundry/gosigar"
 )
 
-func InstallMaster(mode, datadir, pass, tag string) error {
-	if err := CheckCPU(4); err != nil {
-		return err
+func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
+	if lite {
+		if err := CheckCPU(4); err != nil {
+			return err
+		}
+		if err := CheckMem(3); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckCPU(4); err != nil {
+			return err
+		}
+		if err := CheckMem(7); err != nil {
+			return err
+		}
 	}
-	if err := CheckMem(7); err != nil {
-		return err
-	}
+	
 
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")
@@ -46,6 +57,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 
 	env := []string{
 		"SERVER_TYPE=aio",
+		"LITE=" + strconv.FormatBool(lite),
 		"SERVER_NAME=" + serverName,
 		"DB_HOST=" + mainIP,
 		"DB_PASS=" + pass,
@@ -75,7 +87,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, masterTemplate, env, true, tag); err != nil {
+	if err := InitDocker(mode, masterTemplate, env, true, tag, lite); err != nil {
 		return err
 	}
 

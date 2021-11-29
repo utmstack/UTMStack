@@ -9,11 +9,18 @@ import (
 )
 
 var tag string
+var lite bool
 
 func main() {
 	tag = os.Getenv("TAG")
 	if tag == "" {
 		tag = "v8"
+	}
+
+	if os.Getenv("LITE") == "true"{
+		lite = true
+	} else {
+		lite = false
 	}
 
 	utils.CheckErr(utils.CheckDistro("ubuntu"))
@@ -37,8 +44,8 @@ func main() {
 	} else if removeCmd.Happened() {
 		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
-		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag))
+		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag, lite))
 	} else if probeCmd.Happened() {
-		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag))
+		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag, lite))
 	}
 }
