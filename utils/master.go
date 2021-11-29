@@ -27,7 +27,6 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 			return err
 		}
 	}
-	
 
 	esData := MakeDir(0777, datadir, "opendistro", "data")
 	esBackups := MakeDir(0777, datadir, "opendistro", "backups")

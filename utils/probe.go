@@ -77,6 +77,6 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 	if err := InstallOpenVPNClient(mode, host); err != nil {
 		return err
 	}
-
+	
 	return nil
 }
