@@ -332,7 +332,7 @@ services:
           cpus: '1.00'
           memory: 512M
 `
-openvasTemplate = `
+	openvasTemplate = `
   openvas:
     image: "utmstack.azurecr.io/openvas:${TAG}"
     volumes:
@@ -352,7 +352,6 @@ openvasTemplate = `
           cpus: '2.00'
           memory: 2048M`
 
-
-probeTemplateStandard = probeTemplate+openvasTemplate
-masterTemplateStandard = probeTemplateStandard+masterTemplate
+	probeTemplateStandard  = probeTemplate + openvasTemplate
+	masterTemplateStandard = probeTemplateStandard + masterTemplate
 )

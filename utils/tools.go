@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/attreios/holmes"
+	"github.com/quantfall/holmes"
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
@@ -15,19 +15,19 @@ var ProbeImages = []string{
 }
 
 var MasterImages = []string{
-	"opendistro", 
-	"postgres", 
-	"nginx", 
-	"panel", 
-	"correlation", 
+	"opendistro",
+	"postgres",
+	"nginx",
+	"panel",
+	"correlation",
 	"filebrowser",
 }
 
 var ProbeStandardImages = append(ProbeImages, "openvas")
 
-var MasterLiteImages =append(ProbeImages, MasterImages...)
+var MasterLiteImages = append(ProbeImages, MasterImages...)
 
-var MasterStandardImages =append(ProbeStandardImages, MasterImages...)
+var MasterStandardImages = append(ProbeStandardImages, MasterImages...)
 
 func RunEnvCmd(mode string, env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)

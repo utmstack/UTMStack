@@ -58,8 +58,8 @@ func initializeElastic() error {
 			"indices":              "utm-geoip",
 			"ignore_unavailable":   true,
 			"include_global_state": false,
-			"rename_pattern": "utm-geoip",
-			"rename_replacement": ".utm-geoip",
+			"rename_pattern":       "utm-geoip",
+			"rename_replacement":   ".utm-geoip",
 		},
 	})
 	if err != nil {

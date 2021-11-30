@@ -59,7 +59,7 @@ func InstallOpenVPNClient(mode, host string) error {
 	if err := RunCmd(mode, "/bin/sh", "-c", sed); err != nil {
 		return err
 	}
-	
+
 	if err := RunCmd(mode, "systemctl", "restart", "openvpn"); err != nil {
 		return err
 	}

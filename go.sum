@@ -2,8 +2,6 @@ github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDO
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
 github.com/akamensky/argparse v1.2.2 h1:P17T0ZjlUNJuWTPPJ2A5dM1wxarHgHqfYH+AZTo2xQA=
 github.com/akamensky/argparse v1.2.2/go.mod h1:S5kwC7IuDcEr5VeXtGPRVZ5o/FdhcMlQz4IZQuw64xA=
-github.com/attreios/holmes v1.0.2 h1:b1VKUBUD/3c+pyG9rSyu0ryOppoSqtYVWGyOYxkxqkQ=
-github.com/attreios/holmes v1.0.2/go.mod h1:nGzkzMsJbRyv6Dkj1bULRVcHJsDVy//JD48e8KNdy10=
 github.com/cloudfoundry/gosigar v1.2.0 h1:WhQ4aCTT5XqEdoqsPbVbskf1fprablU46Ts14Q9fSro=
 github.com/cloudfoundry/gosigar v1.2.0/go.mod h1:3qLfc2GlfmwOx2+ZDaRGH3Y9fwQ0sQeaAleo2GV5pH0=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -65,6 +63,8 @@ github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/quantfall/holmes v1.3.0 h1:cy0kEz5qfBVWg/33cXBPfQVMAcwN7nLrPuqkyizKZfI=
+github.com/quantfall/holmes v1.3.0/go.mod h1:yC2xubHFP3b0NfYlDhHhNtgvct79iGzJgmiY18YSr8Q=
 github.com/rivo/tview v0.0.0-20210125085121-dbc1f32bb1d0 h1:WCfp+Jq9Mx156zIf9X6Frd6F19rf7wIRlm54UPxUfcU=
 github.com/rivo/tview v0.0.0-20210125085121-dbc1f32bb1d0/go.mod h1:1QW7hX7RQzOqyGgx8O64bRPQBrFtPflioPPX5gFPV3A=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
