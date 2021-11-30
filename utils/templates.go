@@ -145,7 +145,7 @@ services:
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   nginx:
-    image: "utmstack.azurecr.io/nginx:${TAG}"
+    image: "utmstack.azurecr.io/utmstack_frontend:${TAG}"
     depends_on:
       - "panel"
       - "filebrowser"
@@ -271,7 +271,7 @@ services:
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
-    image: "utmstack.azurecr.io/panel:${TAG}"
+    image: "utmstack.azurecr.io/utmstack_backend:${TAG}"
     depends_on:
       - "node1"
       - "postgres"

@@ -17,8 +17,8 @@ var ProbeImages = []string{
 var MasterImages = []string{
 	"opendistro",
 	"postgres",
-	"nginx",
-	"panel",
+	"utmstack_frontend",
+	"utmstack_backend",
 	"correlation",
 	"filebrowser",
 }
