@@ -3,6 +3,15 @@ package utils
 import "fmt"
 
 func InstallSuricata(mode string, iface string) error {
+	
+	if err := RunCmd(mode, "apt", "update"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "apt", "install", "-y", "software-properties-common"); err != nil {
+		return err
+	}
+
 	if err := RunCmd(mode, "add-apt-repository", "-y", "ppa:oisf/suricata-stable"); err != nil {
 		return err
 	}
