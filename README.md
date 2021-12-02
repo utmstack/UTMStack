@@ -8,11 +8,8 @@ This installation guide provides instructions to perform the UTMStack installati
 
 ### Resources for Master
 
-| :exclamation:  Minimum Resources Requeriments
-|-----------------------------------------|
-
-- MINIMUM REQUERED for non-prod environments: 6 Cores, 8 GB of RAM, 20GB Disk Space (Minimum requered)
-- For 100 GB of live logs: 6 Cores, 12 GB RAM, 180 GB Disk Space
+- MINIMUM REQUERED for non-prod environments: 4 Cores, 8 GB of RAM, 20GB Disk Space (Minimum requered)
+- For 100 GB of live logs: 4 Cores, 12 GB RAM, 180 GB Disk Space
 - For 1000 GB of live logs: 16 Cores, 32 GB RAM, 1080 GB Disk Space
 - For 10000 GB of cold data and 1000GB of live logs: 16 Cores, 64 GB RAM, 11080 Disk Space
 - For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 32 GB RAM, 1080GB Disk Space
@@ -20,8 +17,8 @@ This installation guide provides instructions to perform the UTMStack installati
 ### Resources for Probe or Proxy server
 
 - 50 GB Disk Space for system.
-- 4 Cores.
-- 8 GB of RAM.
+- 4 Cores. (May require more cores depending on how much data is collected and the number of devices monitored)
+- 4 GB of RAM. (May require more memory depending on how much data is collected and the number of devices monitored)
 (The master can act as probe if a proxy is not used)
 
 ## Installation steps
@@ -29,24 +26,24 @@ This installation guide provides instructions to perform the UTMStack installati
 ### Preparing for installation
 
 - Update packages list: sudo apt update
-- Install WGET and NET-TOOLS: sudo apt install wget net-tools
-- Download the latest version from <https://github.com/AtlasInsideCorp/UTMStackInstaller/releases> (You can use `# wget [URL]` to download the installer directly to the server)
-- Change to root user: `sudo su`
-- Set execution permissions with `chmod +x installer`
+- Install WGET: `$ sudo apt install wget`
+- Download the latest version from <https://github.com/AtlasInsideCorp/UTMStackInstaller/releases> (You can use `$ wget [URL]` to download the installer directly to the server)
+- Change to root user: `$ sudo su`
+- Set execution permissions with `# chmod +x installer`
 
 ### Install using Terminal User Interface
 
-- Execute the installer without parameters: `./installer`
+- Execute the installer without parameters: `# ./installer`
 
 ### Install using the parameterized mode
 
 You can replace the markups of the next examples by real values in order to use the parameterized mode to install UTMStack Master or Probe.
 
 - Master:
-`# ./installer master --datadir "/example/dir" --db-pass "ExAmPlEpaSsWoRd" --fqdn "server.example.domain" --customer-name "Your Business" --customer-email "your@email.com"`
+`# ./installer master --db-pass "ExAmPlEpaSsWoRd"`
 
 - Probe:
-`# ./installer probe --datadir "/example/dir" --db-pass "Master's DB password" --host "Master's IP or FQDN"`
+`# ./installer probe --db-pass "Master's DB password" --host "Master's IP or FQDN"`
 
 Once a UTMStack master server is installed, use admin admin as the default first time login user and password.
 Note: Use HTTPS in front of your server name or IP to access the login page.
