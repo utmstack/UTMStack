@@ -38,6 +38,38 @@ func InstallSuricata(mode string, iface string) error {
 		return err
 	}
 
+	if err := RunCmd(mode, "suricata-update", "update-sources"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "malsilo/win-malware"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "tgreen/hunting"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "etnetera/aggressive"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "sslbl/ja3-fingerprints"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "sslbl/ssl-fp-blacklist"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "ptresearch/attackdetection"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "suricata-update", "enable-source", "oisf/trafficid"); err != nil {
+		return err
+	}
+
 	if err := RunCmd(mode, "suricata-update"); err != nil {
 		return err
 	}
