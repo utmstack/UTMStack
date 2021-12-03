@@ -89,6 +89,8 @@ If you find any errors during the isntallation, please check the installation lo
   
   514/TCP (Used to send syslog logs)
   
+  8089/TCP (Used to send logs through http post)
+  
 - Open the following ports on the master for agents communication with master or probe/proxy:
   
   5044/TCP (Used to send logs)
