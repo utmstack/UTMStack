@@ -44,11 +44,6 @@ services:
       - 2055:2055/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 2048M
 
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:${TAG}"
@@ -62,11 +57,6 @@ services:
       - DB_HOST
       - DB_PASS
       - CORRELATION_URL
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 512M
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_transporter:
@@ -82,11 +72,6 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 512M
     command: ["python3", "-m", "utmstack.transporter"]
 
   datasources_probe_api:
@@ -111,11 +96,6 @@ services:
       - 1515:1515
       - 1516:1516
       - 55000:55000
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 1024M
     command: ["/pw.sh"]
 `
 	masterTemplate = probeTemplate + `
@@ -154,11 +134,6 @@ services:
       - "443:443"
     volumes:
       - ${CERT}:/etc/nginx/cert
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 1024M
 
   datasources_aws:
     image: "utmstack.azurecr.io/datasources:${TAG}"
@@ -171,11 +146,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_office365:
@@ -189,11 +159,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.office365"]
   
   datasources_azure:
@@ -207,11 +172,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.azure"]
 
   datasources_webroot:
@@ -225,11 +185,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
@@ -243,11 +198,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
@@ -263,11 +213,6 @@ services:
       - DB_PASS
     ports:
       - "50051:50051"
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
     command: ["python3", "-m", "utmstack.logan"]
 
   panel:
@@ -285,11 +230,6 @@ services:
       - DB_NAME=utmstack
       - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 2048M
 
   correlation:
     image: "utmstack.azurecr.io/correlation:${TAG}"
