@@ -65,9 +65,7 @@ If you find any errors during the isntallation, please check the installation lo
 
 - Open the following input ports on the master for access from the probe/proxy.
 
-  50051/TCP and 5044/TCP (Used to send logs)
-
-  5432/TCP and 9200/TCP (Used to data access. This ports must be closed from any other source, for security, only probes can reach this ports)
+  1194/TCP (Used to connect probe/proxy over the internet using VPN)
 
 - Open the following input ports on the probe/proxy for access from the master.
 
@@ -75,13 +73,7 @@ If you find any errors during the isntallation, please check the installation lo
 
   5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
 
-- Open the following input ports for internet access to the master:
-
-  9999/TCP (Used to conntect Zapier to UTMStack)
-  
-  1194/TCP (Used to connect probe/proxy over the internet using VPN)
-  
-- Open the following ports from agentless devices (firewalls, hypervisors, etc) to master or probe/proxy:
+ - Open the following ports from agentless devices (firewalls, hypervisors, etc) to master or probe/proxy:
 
   2055/UDP (Used to send Netflow packets)
   
