@@ -73,7 +73,7 @@ If you find any errors during the isntallation, please check the installation lo
 
   5000/TCP and 8000/TCP (Used to connect with the assets discovery service)
 
- - Open the following ports from agentless devices (firewalls, hypervisors, etc) to master or probe/proxy:
+- Open the following ports from agentless devices (firewalls, hypervisors, etc) to master or probe/proxy:
 
   2055/UDP (Used to send Netflow packets)
   
