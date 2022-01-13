@@ -8,11 +8,25 @@ const (
 volumes:
   postgres_data:
     external: false
-  wazuh_etc:
+  ossec_api_configuration:
     external: false
-  wazuh_var:
+  ossec_etc:
     external: false
-  wazuh_logs:
+  ossec_logs:
+    external: false
+  ossec_queue:
+    external: false
+  ossec_var_multigroups:
+    external: false
+  ossec_integrations:
+    external: false
+  ossec_active_response:
+    external: false
+  ossec_agentless:
+    external: false
+  ossec_wodles:
+    external: false
+  ossec_var:
     external: false
   openvas_data:
     external: false
@@ -34,13 +48,14 @@ services:
     volumes:
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
       - /var/log/suricata:/var/log/suricata
-      - wazuh_logs:/var/ossec/logs
+      - ossec_logs:/var/ossec/logs
       - ${CERT}:/cert
     ports:
       - 5044:5044
       - 8089:8089
       - 514:514
-      - 514:514/udp
+      - 1470:1470
+      - 2056:2056
       - 2055:2055/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
@@ -59,27 +74,24 @@ services:
       - CORRELATION_URL
     command: ["python3", "-m", "utmstack.mutate"]
 
-  datasources_transporter:
+  datasources_cleaner:
     image: "utmstack.azurecr.io/datasources:${TAG}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - /var/log/suricata:/var/log/suricata
-      - wazuh_etc:/var/ossec/etc
-      - wazuh_var:/var/ossec/var
-      - wazuh_logs:/var/ossec/logs
+      - ossec_etc:/var/ossec/etc
+      - ossec_var:/var/ossec/var
+      - ossec_logs:/var/ossec/logs
     environment:
       - SERVER_NAME
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
-    command: ["python3", "-m", "utmstack.transporter"]
+    command: ["python3", "-m", "utmstack.cleaner"]
 
   datasources_probe_api:
     image: "utmstack.azurecr.io/datasources:${TAG}"
     volumes:
-      - wazuh_etc:/var/ossec/etc
-      - wazuh_var:/var/ossec/var
-      - wazuh_logs:/var/ossec/logs
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${CERT}:/cert
     environment:
@@ -89,14 +101,28 @@ services:
       - DB_PASS
       - SCANNER_IP
       - SCANNER_IFACE
-    ports:
-      - 23949:23949
-      - 1514:1514
-      - 1514:1514/udp
-      - 1515:1515
-      - 1516:1516
-      - 55000:55000
     command: ["/pw.sh"]
+  
+  wazuh:
+    image: utmstack.azurecr.io/wazuh-odfe:4.2.4
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "55000:55000"
+    environment:
+      - API_USERNAME=wazuh
+      - API_PASSWORD=${DB_PASS}
+    volumes:
+      - ossec_api_configuration:/var/ossec/api/configuration
+      - ossec_etc:/var/ossec/etc
+      - ossec_logs:/var/ossec/logs
+      - ossec_queue:/var/ossec/queue
+      - ossec_var_multigroups:/var/ossec/var/multigroups
+      - ossec_var:/var/ossec/var
+      - ossec_integrations:/var/ossec/integrations
+      - ossec_active_response:/var/ossec/active-response/bin
+      - ossec_agentless:/var/ossec/agentless
+      - ossec_wodles:/var/ossec/wodles
 `
 	masterTemplate = probeTemplate + `
   node1:
@@ -160,19 +186,6 @@ services:
       - DB_HOST
       - DB_PASS
     command: ["python3", "-m", "utmstack.office365"]
-  
-  datasources_azure:
-    image: "utmstack.azurecr.io/datasources:${TAG}"
-    depends_on:
-      - "node1"
-      - "postgres"
-    volumes:
-      - ${UTMSTACK_DATASOURCES}:/etc/utmstack
-    environment:
-      - SERVER_NAME
-      - DB_HOST
-      - DB_PASS
-    command: ["python3", "-m", "utmstack.azure"]
 
   datasources_webroot:
     image: "utmstack.azurecr.io/datasources:${TAG}"
