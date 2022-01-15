@@ -8,23 +8,7 @@ const (
 volumes:
   postgres_data:
     external: false
-  ossec_api_configuration:
-    external: false
-  ossec_etc:
-    external: false
   ossec_logs:
-    external: false
-  ossec_queue:
-    external: false
-  ossec_var_multigroups:
-    external: false
-  ossec_integrations:
-    external: false
-  ossec_active_response:
-    external: false
-  ossec_agentless:
-    external: false
-  ossec_wodles:
     external: false
   ossec_var:
     external: false
@@ -102,27 +86,32 @@ services:
       - SCANNER_IP
       - SCANNER_IFACE
     command: ["/pw.sh"]
-  
+
+  datasources_agent_manager:
+    image: "utmstack.azurecr.io/agent-manager:${TAG}"
+    volumes:
+      - ${CERT}:/cert
+    ports:
+      - "9000:9000"
+    environment:
+      - DB_HOST
+      - DB_PASS
+    depends_on:
+      - "node1"
+      - "postgres"
+      - "panel"
+      - "wazuh"
+    command: ["/run.sh"]
+
   wazuh:
-    image: utmstack.azurecr.io/wazuh-odfe:4.2.4
+    image: "utmstack.azurecr.io/wazuh:${TAG}"
     ports:
       - "1514:1514"
       - "1515:1515"
       - "55000:55000"
-    environment:
-      - API_USERNAME=wazuh
-      - API_PASSWORD=${DB_PASS}
     volumes:
-      - ossec_api_configuration:/var/ossec/api/configuration
-      - ossec_etc:/var/ossec/etc
       - ossec_logs:/var/ossec/logs
-      - ossec_queue:/var/ossec/queue
-      - ossec_var_multigroups:/var/ossec/var/multigroups
-      - ossec_var:/var/ossec/var
-      - ossec_integrations:/var/ossec/integrations
-      - ossec_active_response:/var/ossec/active-response/bin
-      - ossec_agentless:/var/ossec/agentless
-      - ossec_wodles:/var/ossec/wodles
+      - ossec_var:/var/ossec
 `
 	masterTemplate = probeTemplate + `
   node1:
