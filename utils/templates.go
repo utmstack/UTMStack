@@ -63,7 +63,6 @@ services:
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - /var/log/suricata:/var/log/suricata
-      - ossec_etc:/var/ossec/etc
       - ossec_var:/var/ossec/var
       - ossec_logs:/var/ossec/logs
     environment:
