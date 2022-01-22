@@ -30,6 +30,7 @@ services:
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
+	  - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
       - /var/log/suricata:/var/log/suricata
       - ossec_logs:/var/ossec/logs
