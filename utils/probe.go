@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	sigar "github.com/cloudfoundry/gosigar"
 )
 
 func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
@@ -38,10 +40,13 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 	}
 
 	mainIface, err := GetMainIface(mode)
-
 	if err != nil {
 		return err
 	}
+
+	m := sigar.Mem{}
+	m.Get()
+	lm := m.Total / 1024 / 1024 / 1024 / 4
 
 	var updates uint32
 
@@ -58,6 +63,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		"DB_HOST=10.21.199.1",
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
+		fmt.Sprint("LS_MEM=", lm),
 		fmt.Sprint("UPDATES=", updates),
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,

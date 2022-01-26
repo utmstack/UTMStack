@@ -52,7 +52,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 	m := sigar.Mem{}
 	m.Get()
-	memory := m.Total / 1024 / 1024 / 1024 / 3
+	em := m.Total / 1024 / 1024 / 1024 / 3
+	lm := m.Total / 1024 / 1024 / 1024 / 4
 
 	var updates uint32
 
@@ -68,7 +69,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		"SERVER_NAME=" + serverName,
 		"DB_HOST=" + mainIP,
 		"DB_PASS=" + pass,
-		fmt.Sprint("ES_MEM=", memory),
+		fmt.Sprint("ES_MEM=", em),
+		fmt.Sprint("LS_MEM=", lm),
 		fmt.Sprint("UPDATES=", updates),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
