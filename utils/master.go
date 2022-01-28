@@ -95,7 +95,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, masterTemplate, env, true, tag, lite); err != nil {
+	if err := InitDocker(mode, masterTemplate, env, true, tag, lite, mainIP); err != nil {
 		return err
 	}
 
