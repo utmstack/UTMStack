@@ -30,6 +30,7 @@ services:
   logstash:
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
+	    - ${UTMSTACK_DATASOURCES}:/etc/utmstack
       - ${LOGSTASH_PIPELINE}:/usr/share/logstash/pipeline
       - /var/log/suricata:/var/log/suricata
       - ossec_logs:/var/ossec/logs
@@ -43,6 +44,8 @@ services:
       - 2055:2055/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
+      - "LS_JAVA_OPTS=-Xms${LS_MEM}g -Xmx${LS_MEM}g"
+      - PIPELINE_WORKERS=6
 
   datasources_mutate:
     image: "utmstack.azurecr.io/datasources:${TAG}"
