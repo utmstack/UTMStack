@@ -82,12 +82,14 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		"TAG=" + tag,
 	}
 
-	if err := InstallScanner(mode); err != nil {
-		return err
-	}
+	if !lite {
+		if err := InstallScanner(mode); err != nil {
+			return err
+		}
 
-	if err := InstallSuricata(mode, mainIface); err != nil {
-		return err
+		if err := InstallSuricata(mode, mainIface); err != nil {
+			return err
+		}
 	}
 
 	// Generate auto-signed cert and key

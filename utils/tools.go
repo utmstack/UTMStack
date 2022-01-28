@@ -12,6 +12,8 @@ import (
 var ProbeImages = []string{
 	"logstash",
 	"datasources",
+	"wazuh",
+	"agent-manager",
 }
 
 var MasterImages = []string{
