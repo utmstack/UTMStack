@@ -55,8 +55,8 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 	if err := InstallDocker(mode); err != nil {
 		return err
 	}
-
-	if err := RunCmd(mode, "docker", "swarm", "init"); err != nil {
+	
+	if err := RunEnvCmd(mode, env, "docker", "swarm", "init", "--advertise-addr", "$SCANNER_IP"); err != nil {
 		return err
 	}
 
