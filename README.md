@@ -25,7 +25,7 @@ This installation guide provides instructions to perform the UTMStack installati
 
 ### Preparing for installation
 
-- Update packages list: sudo apt update
+- Update packages list: `sudo apt update`
 - Install WGET: `$ sudo apt install wget`
 - Download the latest version of the installer by typing `$ wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer`
 - Change to root user: `$ sudo su`
