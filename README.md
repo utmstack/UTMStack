@@ -45,7 +45,7 @@ You can replace the markups of the next examples by real values in order to use 
 - Probe:
 `# ./installer probe --db-pass "Master's DB password" --host "Master's IP or FQDN"`
 
-Once a UTMStack master server is installed, use admin as the user and admin as the password used during installation as the password for the default user to login.
+Once a UTMStack master server is installed, use admin as the user and admin as the password for the default user to login.
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
 | :exclamation: Demo Environment
