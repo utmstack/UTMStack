@@ -1,14 +1,13 @@
 package utils
 
 import (
-	"errors"
 	"time"
 )
 
 func Uninstall(mode string) error {
-	err := RunCmd(mode, "docker", "stack", "rm", "utmstack")
+	err := RunCmd(mode, "docker-compose", "down")
 	if err != nil {
-		return errors.New(`failed to remove "utmstack" docker stack`)
+		return err
 	}
 
 	// sleep while docker is removing the containers
@@ -40,21 +39,11 @@ func Uninstall(mode string) error {
 		return err
 	}
 
-	// logout from registry
-	if err := RunCmd(mode, "docker", "logout", "utm_scanner.service"); err != nil {
-		return err
-	}
-
 	if err := RunCmd(mode, "docker", "volume", "prune", "-f"); err != nil {
 		return err
 	}
 
 	if err := RunCmd(mode, "docker", "system", "prune", "-f"); err != nil {
-		return err
-	}
-
-	// leave swarm
-	if err := RunCmd(mode, "docker", "swarm", "leave", "--force"); err != nil {
 		return err
 	}
 
