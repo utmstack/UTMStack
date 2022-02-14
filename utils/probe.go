@@ -88,7 +88,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, probeTemplate, env, false, tag, lite, mainIP); err != nil {
+	if err := InitDocker(mode, env, false, tag, lite, mainIP); err != nil {
 		return err
 	}
 

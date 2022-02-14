@@ -42,7 +42,7 @@ func InstallDocker(mode string) error {
 	if err := RunEnvCmd(mode, env, "apt", "update"); err != nil {
 		return err
 	}
-	if err := RunEnvCmd(mode, env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io"); err != nil {
+	if err := RunEnvCmd(mode, env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
 		return err
 	}
 
@@ -51,12 +51,8 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode, composerTemplate string, env []string, master bool, tag string, lite bool, advAddr string) error {
+func InitDocker(mode string, env []string, master bool, tag string, lite bool, advAddr string) error {
 	if err := InstallDocker(mode); err != nil {
-		return err
-	}
-
-	if err := RunCmd(mode, "docker", "swarm", "init", "--advertise-addr", advAddr); err != nil {
 		return err
 	}
 
@@ -69,6 +65,8 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 		return errors.New("failed to pull docker image: containrrr/watchtower")
 	}
 
+	var composerTemplate string
+
 	// pull images from registry
 	if master {
 		if lite {
@@ -78,6 +76,7 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 					return errors.New("failed to pull docker image: " + image)
 				}
 			}
+			composerTemplate = masterTemplateLite
 		} else {
 			for _, image := range MasterStandardImages {
 				image = "utmstack.azurecr.io/" + image + ":" + tag
@@ -85,6 +84,7 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 					return errors.New("failed to pull docker image: " + image)
 				}
 			}
+			composerTemplate = masterTemplateStandard
 		}
 	} else {
 		if lite {
@@ -94,6 +94,7 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 					return errors.New("failed to pull docker image: " + image)
 				}
 			}
+			composerTemplate = probeTemplateLite
 		} else {
 			for _, image := range ProbeStandardImages {
 				image = "utmstack.azurecr.io/" + image + ":" + tag
@@ -101,6 +102,7 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 					return errors.New("failed to pull docker image: " + image)
 				}
 			}
+			composerTemplate = probeTemplateStandard
 		}
 	}
 
@@ -113,11 +115,11 @@ func InitDocker(mode, composerTemplate string, env []string, master bool, tag st
 	f.WriteString(composerTemplate)
 
 	for i := 1; i <= 3; i++ {
-		err := RunEnvCmd(mode, env, "docker", "stack", "deploy", "--compose-file", composerFile, stackName)
+		err := RunEnvCmd(mode, env, "docker-compose", "up", "-d")
 		if err == nil {
 			break
 		} else if i == 3 {
-			return errors.New("failed to deploy stack")
+			return err
 		} else {
 			time.Sleep(5 * time.Second)
 		}

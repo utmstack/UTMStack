@@ -1,33 +1,34 @@
 package utils
 
 const (
-	stackName     = "utmstack"
-	composerFile  = "utmstack.yml"
-	probeTemplate = `version: "3.8"
+	composerFile  = "docker-compose.yml"
+	probeTemplateLite = `version: "3"
 
 volumes:
   postgres_data:
-    external: false
   ossec_logs:
-    external: false
   ossec_var:
-    external: false
   openvas_data:
-    external: false
   geoip_data:
-    external: false
+
+networks:
+  utmstack-net:
 
 services:
   watchtower:
+    container_name: watchtower
+    restart: always
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
     environment:
-      - WATCHTOWER_NO_RESTART=true
+      - WATCHTOWER_NO_RESTART=false
       - WATCHTOWER_POLL_INTERVAL=${UPDATES}
 
   logstash:
+    container_name: logstash
+    restart: always
     image: "utmstack.azurecr.io/logstash:${TAG}"
     volumes:
 	    - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -39,6 +40,7 @@ services:
       - 5044:5044
       - 8089:8089
       - 514:514
+      - 514:514/udp
       - 1470:1470
       - 2056:2056
       - 2055:2055/udp
@@ -46,8 +48,12 @@ services:
       - CONFIG_RELOAD_AUTOMATIC=true
       - "LS_JAVA_OPTS=-Xms${LS_MEM}g -Xmx${LS_MEM}g"
       - PIPELINE_WORKERS=6
+    networks:
+      - utmstack-net
 
   datasources_mutate:
+    container_name: datasources_mutate
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -59,9 +65,13 @@ services:
       - DB_HOST
       - DB_PASS
       - CORRELATION_URL
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_cleaner:
+    container_name: datasources_transporter
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -73,9 +83,13 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.cleaner"]
 
   datasources_probe_api:
+    container_name: datasources_probe_api
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     volumes:
       - ${UTMSTACK_DATASOURCES}:/etc/utmstack
@@ -87,9 +101,13 @@ services:
       - DB_PASS
       - SCANNER_IP
       - SCANNER_IFACE
+    networks:
+      - utmstack-net
     command: ["/pw.sh"]
 
   datasources_agent_manager:
+    container_name: datasources_agent_manager
+    restart: always
     image: "utmstack.azurecr.io/agent-manager:${TAG}"
     volumes:
       - ${CERT}:/cert
@@ -103,9 +121,13 @@ services:
       - "postgres"
       - "panel"
       - "wazuh"
+    networks:
+      - utmstack-net
     command: ["/run.sh"]
 
   wazuh:
+    container_name: wazuh
+    restart: always
     image: "utmstack.azurecr.io/wazuh:${TAG}"
     ports:
       - "1514:1514"
@@ -114,9 +136,13 @@ services:
     volumes:
       - ossec_logs:/var/ossec/logs
       - ossec_var:/var/ossec
+    networks:
+      - utmstack-net
 `
-	masterTemplate = probeTemplate + `
+	masterTemplate = `
   node1:
+    container_name: node1
+    restart: always
     image: "utmstack.azurecr.io/opendistro:${TAG}"
     ports:
       - "9200:9200"
@@ -129,8 +155,12 @@ services:
       - cluster.initial_master_nodes=node1
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch
+    networks:
+      - utmstack-net
 
   postgres:
+    container_name: postgres
+    restart: always
     image: "utmstack.azurecr.io/postgres:${TAG}"
     environment:
       - "POSTGRES_PASSWORD=${DB_PASS}"
@@ -139,20 +169,28 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - utmstack-net
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
-  nginx:
+  frontend:
+    container_name: frontend
+    restart: always
     image: "utmstack.azurecr.io/utmstack_frontend:${TAG}"
     depends_on:
-      - "panel"
+      - "backend"
       - "filebrowser"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ${CERT}:/etc/nginx/cert
+    networks:
+      - utmstack-net
 
   datasources_aws:
+    container_name: datasources_aws
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
       - "node1"
@@ -163,9 +201,13 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_office365:
+    container_name: datasources_office365
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
       - "node1"
@@ -176,9 +218,13 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
+    container_name: datasources_webroot
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
       - "node1"
@@ -189,9 +235,13 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
+    container_name: datasources_sophos
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
       - "node1"
@@ -202,9 +252,13 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
+    container_name: datasources_logan
+    restart: always
     image: "utmstack.azurecr.io/datasources:${TAG}"
     depends_on:
       - "node1"
@@ -217,9 +271,13 @@ services:
       - DB_PASS
     ports:
       - "50051:50051"
+    networks:
+      - utmstack-net
     command: ["python3", "-m", "utmstack.logan"]
 
-  panel:
+  backend:
+    container_name: backend
+    restart: always
     image: "utmstack.azurecr.io/utmstack_backend:${TAG}"
     depends_on:
       - "node1"
@@ -234,8 +292,12 @@ services:
       - DB_NAME=utmstack
       - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
+    networks:
+      - utmstack-net
 
   correlation:
+    container_name: correlation
+    restart: always
     image: "utmstack.azurecr.io/correlation:${TAG}"
     volumes:
       - geoip_data:/app/geosets
@@ -245,7 +307,7 @@ services:
     environment:
       - SERVER_NAME
       - POSTGRESQL_USER=postgres
-      - POSTGRESQL_PASSWORD=${DB_PASS}
+      - "POSTGRESQL_PASSWORD=${DB_PASS}"
       - POSTGRESQL_HOST=${DB_HOST}
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
@@ -255,21 +317,25 @@ services:
     depends_on:
       - "node1"
       - "postgres"
+      - "backend"
+    networks:
+      - utmstack-net
 
   filebrowser:
+    container_name: filebrowser
+    restart: always
     image: "utmstack.azurecr.io/filebrowser:${TAG}"
     volumes:
       - ${UTMSTACK_RULES}:/srv
     environment:
-      - PASSWORD=${DB_PASS}
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 512M
+      - "PASSWORD=${DB_PASS}"
+    networks:
+      - utmstack-net
 `
 	openvasTemplate = `
   openvas:
+    container_name: openvas
+    restart: always
     image: "utmstack.azurecr.io/openvas:${TAG}"
     volumes:
       - openvas_data:/data
@@ -279,15 +345,14 @@ services:
       - "9392:9392"
     environment:
       - USERNAME=admin
-      - PASSWORD=${DB_PASS}
-      - DB_PASSWORD=${DB_PASS}
+      - "PASSWORD=${DB_PASS}"
+      - "DB_PASSWORD=${DB_PASS}"
       - HTTPS=0
-    deploy:
-      resources:
-        limits:
-          cpus: '2.00'
-          memory: 2048M`
+    networks:
+      - utmstack-net`
 
-	probeTemplateStandard  = probeTemplate + openvasTemplate
-	masterTemplateStandard = probeTemplateStandard + masterTemplate
+
+  probeTemplateStandard  = probeTemplateLite + openvasTemplate
+  masterTemplateStandard = probeTemplateLite + masterTemplate + openvasTemplate
+  masterTemplateLite     = probeTemplateLite + masterTemplate
 )
