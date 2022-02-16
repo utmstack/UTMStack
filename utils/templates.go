@@ -50,6 +50,8 @@ services:
       - PIPELINE_WORKERS=6
     networks:
       - utmstack-net
+    depends_on:
+      - "datasources_mutate"
 
   datasources_mutate:
     container_name: datasources_mutate
