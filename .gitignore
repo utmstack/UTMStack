@@ -2,3 +2,5 @@
 vendor/
 .idea/
 UTMStackInstaller
+docker-compose.yml
+scanner.zip
