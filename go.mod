@@ -14,4 +14,5 @@ require (
 	github.com/rivo/tview v0.0.0-20210125085121-dbc1f32bb1d0
 	github.com/shirou/gopsutil/v3 v3.21.7
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
