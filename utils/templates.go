@@ -40,14 +40,13 @@ services:
       - 5044:5044
       - 8089:8089
       - 514:514
-      - 514:514/udp
       - 1470:1470
       - 2056:2056
       - 2055:2055/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
       - "LS_JAVA_OPTS=-Xms${LS_MEM}g -Xmx${LS_MEM}g"
-      - PIPELINE_WORKERS=6
+      - PIPELINE_WORKERS=4
     networks:
       - utmstack-net
     depends_on:
@@ -357,4 +356,16 @@ services:
   probeTemplateStandard  = probeTemplateLite + openvasTemplate
   masterTemplateStandard = probeTemplateLite + masterTemplate + openvasTemplate
   masterTemplateLite     = probeTemplateLite + masterTemplate
+
+  crontabTemplate = `
+  SHELL=/bin/sh
+  PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+  
+  17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+  25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+  47 6    * * 7   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+  52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+  */1 *   * * *   root    docker start $(docker ps -q -f status=exited)
+
+  `
 )
