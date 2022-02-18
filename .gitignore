@@ -4,3 +4,4 @@ vendor/
 UTMStackInstaller
 docker-compose.yml
 scanner.zip
+installer
