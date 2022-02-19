@@ -120,7 +120,7 @@ services:
     depends_on:
       - "node1"
       - "postgres"
-      - "panel"
+      - "backend"
       - "wazuh"
     networks:
       - utmstack-net
