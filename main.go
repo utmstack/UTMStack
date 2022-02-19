@@ -14,7 +14,7 @@ var lite bool
 func main() {
 	tag = os.Getenv("TAG")
 	if tag == "" {
-		tag = "v8"
+		tag = "v9"
 	}
 
 	if os.Getenv("LITE") == "true"{
