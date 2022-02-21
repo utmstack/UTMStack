@@ -118,9 +118,6 @@ services:
       - DB_HOST
       - DB_PASS
     depends_on:
-      - "node1"
-      - "postgres"
-      - "backend"
       - "wazuh"
     networks:
       - utmstack-net
