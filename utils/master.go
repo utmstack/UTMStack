@@ -58,7 +58,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	var updates uint32
 
 	if tag == "testing" {
-		updates = 600
+		updates = 60
 	} else {
 		updates = 3600
 	}
