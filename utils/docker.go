@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 )
@@ -124,14 +123,6 @@ func InitDocker(mode string, env []string, master bool, tag string, lite bool, a
 		} else {
 			time.Sleep(5 * time.Second)
 		}
-	}
-
-	if err := writeToFile("/etc/crontab", crontabTemplate); err != nil {
-		return err
-	}
-
-	if err := RunCmd(mode, "systemctl", "restart", "cron"); err != nil {
-		return fmt.Errorf("failed to restart cron: %s", err)
 	}
 
 	time.Sleep(2 * time.Second)
