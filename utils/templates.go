@@ -117,6 +117,7 @@ services:
     environment:
       - DB_HOST
       - DB_PASS
+      - SCANNER_IP
     depends_on:
       - "wazuh"
     networks:
