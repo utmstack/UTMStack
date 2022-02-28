@@ -16,14 +16,14 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(3); err != nil {
+		if err := CheckMem(7); err != nil {
 			return err
 		}
 	} else {
-		if err := CheckCPU(4); err != nil {
+		if err := CheckCPU(6); err != nil {
 			return err
 		}
-		if err := CheckMem(7); err != nil {
+		if err := CheckMem(11); err != nil {
 			return err
 		}
 	}

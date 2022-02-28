@@ -10,17 +10,17 @@ import (
 
 func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 	if lite {
-		if err := CheckCPU(2); err != nil {
+		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(1); err != nil {
+		if err := CheckMem(4); err != nil {
 			return err
 		}
 	} else {
 		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(3); err != nil {
+		if err := CheckMem(7); err != nil {
 			return err
 		}
 	}
