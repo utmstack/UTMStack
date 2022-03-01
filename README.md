@@ -33,7 +33,7 @@ This installation guide provides instructions to perform the UTMStack installati
 
 ### Install using Terminal User Interface
 
-- Execute the installer without parameters: `# ./installer`
+- Execute the installer without parameters: `./installer`
 
 ### Install using the parameterized mode
 
