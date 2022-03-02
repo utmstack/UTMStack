@@ -4,8 +4,12 @@ func InstallScanner(mode string) error {
 	if err := RunCmd(mode, "apt", "update"); err != nil {
 		return err
 	}
-	
+
 	if err := RunCmd(mode, "apt", "install", "-y", "python3", "python3-pip", "zip", "unzip"); err != nil {
+		return err
+	}
+
+	if err := RunCmd(mode, "pip3", "install", "pipenv"); err != nil {
 		return err
 	}
 
