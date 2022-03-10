@@ -331,42 +331,18 @@ services:
 :ufw-user-forward - [0:0]
 # End required lines
 
-# CLOSE ALL DOCKER PORTS
-:DOCKER-USER - [0:0]
--A DOCKER-USER -j RETURN -s 10.0.0.0/8
--A DOCKER-USER -j RETURN -s 172.16.0.0/12
--A DOCKER-USER -j RETURN -s 192.168.0.0/16
--A DOCKER-USER -j ufw-user-forward
--A DOCKER-USER -j DROP -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 192.168.0.0/16
--A DOCKER-USER -j DROP -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 10.0.0.0/8
--A DOCKER-USER -j DROP -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 172.16.0.0/12
--A DOCKER-USER -j DROP -p udp -m udp --dport 0:32767 -d 192.168.0.0/16
--A DOCKER-USER -j DROP -p udp -m udp --dport 0:32767 -d 10.0.0.0/8
--A DOCKER-USER -j DROP -p udp -m udp --dport 0:32767 -d 172.16.0.0/12
--A DOCKER-USER -j RETURN
+# ALLOW SSH AND OPENVPN PORTS
+-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 1194 -j ACCEPT
 
-# ALLOW PORTS FOR UTMSTACK DATA INPUT
--A ufw-after-input -p tcp -m tcp --dport 22 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 80 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 443 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 1194 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 5044 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 8089 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 514 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 1470 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 2056 -j ACCEPT
--A ufw-after-input -p udp -m udp --dport 2055 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 9000 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 1514:1516 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 55000 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 50051 -j ACCEPT
--A ufw-after-input -p tcp -m tcp --dport 9090 -j ACCEPT
--A ufw-after-input -p tcp -m tcp -s 10.21.199.0/24 -j ACCEPT
--A ufw-after-input -p udp -m udp -s 10.21.199.0/24 -j ACCEPT
--A ufw-after-input -p tcp -m tcp -s 172.17.0.0/16 -j ACCEPT
--A ufw-after-input -p udp -m udp -s 172.17.0.0/16 -j ACCEPT
--A ufw-after-input -p tcp -m tcp -s 172.18.0.0/16 -j ACCEPT
--A ufw-after-input -p udp -m udp -s 172.18.0.0/16 -j ACCEPT
+# ALLOW ALL FROM VPN AND DOCKER SUBNETS
+-A INPUT -s 10.21.199.0/24 -j ACCEPT
+-A INPUT -s 172.17.0.0/16 -j ACCEPT
+-A INPUT -s 172.18.0.0/16 -j ACCEPT
+
+# SECURING ELASTIC AND POSTGRES
+-A DOCKER-USER -p tcp -m tcp --dport 5432 -j DROP
+-A DOCKER-USER -p tcp -m tcp --dport 9200 -j DROP
 
 # don't log noisy services by default
 -A ufw-after-input -p udp --dport 137 -j ufw-skip-to-policy-input
