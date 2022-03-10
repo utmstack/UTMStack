@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func writeToFile(fileName string, body string) error {
+func WriteToFile(fileName string, body string) error {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
 
 	if err != nil {
@@ -21,7 +21,7 @@ func writeToFile(fileName string, body string) error {
 	return err
 }
 
-func getMyPath() (string, error) {
+func GetMyPath() (string, error) {
 	ex, err := os.Executable()
 	if err != nil {
 		return "", err
@@ -30,7 +30,7 @@ func getMyPath() (string, error) {
 	return exPath, nil
 }
 
-func readYAML(url string, result interface{}) error {
+func ReadYAML(url string, result interface{}) error {
 	f, err := os.Open(url)
 	if err != nil {
 		return err
@@ -43,13 +43,13 @@ func readYAML(url string, result interface{}) error {
 	return nil
 }
 
-func writeYAML(url string, data interface{}) error {
+func WriteYAML(url string, data interface{}) error {
 	config, err := yaml.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	err = writeToFile(url, string(config[:]))
+	err = WriteToFile(url, string(config[:]))
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func writeYAML(url string, data interface{}) error {
 	return nil
 }
 
-func generateFromTemplate(data interface{}, tfile string, cfile string) error {
+func GenerateFromTemplate(data interface{}, tfile string, cfile string) error {
 	_, fileName := filepath.Split(tfile)
 	ut, err := template.New(fileName).ParseFiles(tfile)
 
