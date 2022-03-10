@@ -329,6 +329,7 @@ services:
 :ufw-after-output - [0:0]
 :ufw-after-forward - [0:0]
 :ufw-user-forward - [0:0]
+:DOCKER-USER - [0:0]
 # End required lines
 
 # ALLOW SSH AND OPENVPN PORTS
