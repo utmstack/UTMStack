@@ -11,9 +11,6 @@ volumes:
   openvas_data:
   geoip_data:
 
-networks:
-  utmstack-net:
-
 services:
   watchtower:
     container_name: watchtower
@@ -47,8 +44,6 @@ services:
       - CONFIG_RELOAD_AUTOMATIC=true
       - "LS_JAVA_OPTS=-Xms${LS_MEM}g -Xmx${LS_MEM}g"
       - PIPELINE_WORKERS=4
-    networks:
-      - utmstack-net
     depends_on:
       - "datasources_mutate"
 
@@ -66,8 +61,6 @@ services:
       - DB_HOST
       - DB_PASS
       - CORRELATION_URL
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_cleaner:
@@ -84,8 +77,6 @@ services:
       - SERVER_TYPE
       - DB_HOST
       - DB_PASS
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.cleaner"]
 
   datasources_probe_api:
@@ -102,8 +93,6 @@ services:
       - DB_PASS
       - SCANNER_IP
       - SCANNER_IFACE
-    networks:
-      - utmstack-net
     command: ["/pw.sh"]
 
   datasources_agent_manager:
@@ -120,8 +109,6 @@ services:
       - SCANNER_IP
     depends_on:
       - "wazuh"
-    networks:
-      - utmstack-net
     command: ["/run.sh"]
 
   wazuh:
@@ -135,8 +122,6 @@ services:
     volumes:
       - ossec_logs:/var/ossec/logs
       - ossec_var:/var/ossec
-    networks:
-      - utmstack-net
 `
 	masterTemplate = `
   node1:
@@ -154,8 +139,6 @@ services:
       - cluster.initial_master_nodes=node1
       - "ES_JAVA_OPTS=-Xms${ES_MEM}g -Xmx${ES_MEM}g"
       - path.repo=/usr/share/elasticsearch
-    networks:
-      - utmstack-net
 
   postgres:
     container_name: postgres
@@ -168,8 +151,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - utmstack-net
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   frontend:
@@ -184,8 +165,6 @@ services:
       - "443:443"
     volumes:
       - ${CERT}:/etc/nginx/cert
-    networks:
-      - utmstack-net
 
   datasources_aws:
     container_name: datasources_aws
@@ -200,8 +179,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_office365:
@@ -217,8 +194,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
@@ -234,8 +209,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
@@ -251,8 +224,6 @@ services:
       - SERVER_NAME
       - DB_HOST
       - DB_PASS
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
@@ -270,8 +241,6 @@ services:
       - DB_PASS
     ports:
       - "50051:50051"
-    networks:
-      - utmstack-net
     command: ["python3", "-m", "utmstack.logan"]
 
   backend:
@@ -291,8 +260,6 @@ services:
       - DB_NAME=utmstack
       - ELASTICSEARCH_HOST=${DB_HOST}
       - ELASTICSEARCH_PORT=9200
-    networks:
-      - utmstack-net
 
   correlation:
     container_name: correlation
@@ -317,8 +284,6 @@ services:
       - "node1"
       - "postgres"
       - "backend"
-    networks:
-      - utmstack-net
 
   filebrowser:
     container_name: filebrowser
@@ -328,8 +293,6 @@ services:
       - ${UTMSTACK_RULES}:/srv
     environment:
       - "PASSWORD=${DB_PASS}"
-    networks:
-      - utmstack-net
 `
 	openvasTemplate = `
   openvas:
@@ -347,11 +310,76 @@ services:
       - "PASSWORD=${DB_PASS}"
       - "DB_PASSWORD=${DB_PASS}"
       - HTTPS=0
-    networks:
-      - utmstack-net`
-
-
+`
   probeTemplateStandard  = probeTemplateLite + openvasTemplate
   masterTemplateStandard = probeTemplateLite + masterTemplate + openvasTemplate
   masterTemplateLite     = probeTemplateLite + masterTemplate
+  ufw = `# rules.input-after
+#
+# Rules that should be run after the ufw command line added rules. Custom
+# rules should be added to one of these chains:
+#   ufw-after-input
+#   ufw-after-output
+#   ufw-after-forward
+#
+
+# Don't delete these required lines, otherwise there will be errors
+*filter
+:ufw-after-input - [0:0]
+:ufw-after-output - [0:0]
+:ufw-after-forward - [0:0]
+:ufw-user-forward - [0:0]
+# End required lines
+
+# CLOSE ALL DOCKER PORTS
+:DOCKER-USER - [0:0]
+-A DOCKER-USER -j RETURN -s 10.0.0.0/8
+-A DOCKER-USER -j RETURN -s 172.16.0.0/12
+-A DOCKER-USER -j RETURN -s 192.168.0.0/16
+-A DOCKER-USER -j ufw-user-forward
+-A DOCKER-USER -j DROP -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 192.168.0.0/16
+-A DOCKER-USER -j DROP -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 10.0.0.0/8
+-A DOCKER-USER -j DROP -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 172.16.0.0/12
+-A DOCKER-USER -j DROP -p udp -m udp --dport 0:32767 -d 192.168.0.0/16
+-A DOCKER-USER -j DROP -p udp -m udp --dport 0:32767 -d 10.0.0.0/8
+-A DOCKER-USER -j DROP -p udp -m udp --dport 0:32767 -d 172.16.0.0/12
+-A DOCKER-USER -j RETURN
+
+# ALLOW PORTS FOR UTMSTACK DATA INPUT
+-A ufw-after-input -p tcp -m tcp --dport 22 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 80 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 443 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 1194 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 5044 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 8089 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 514 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 1470 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 2056 -j ACCEPT
+-A ufw-after-input -p udp -m udp --dport 2055 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 9000 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 1514:1516 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 55000 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 50051 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp --dport 9090 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp -s 10.21.199.0/24 -j ACCEPT
+-A ufw-after-input -p udp -m udp -s 10.21.199.0/24 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp -s 172.17.0.0/16 -j ACCEPT
+-A ufw-after-input -p udp -m udp -s 172.17.0.0/16 -j ACCEPT
+-A ufw-after-input -p tcp -m tcp -s 172.18.0.0/16 -j ACCEPT
+-A ufw-after-input -p udp -m udp -s 172.18.0.0/16 -j ACCEPT
+
+# don't log noisy services by default
+-A ufw-after-input -p udp --dport 137 -j ufw-skip-to-policy-input
+-A ufw-after-input -p udp --dport 138 -j ufw-skip-to-policy-input
+-A ufw-after-input -p tcp --dport 139 -j ufw-skip-to-policy-input
+-A ufw-after-input -p tcp --dport 445 -j ufw-skip-to-policy-input
+-A ufw-after-input -p udp --dport 67 -j ufw-skip-to-policy-input
+-A ufw-after-input -p udp --dport 68 -j ufw-skip-to-policy-input
+
+# don't log noisy broadcast
+-A ufw-after-input -m addrtype --dst-type BROADCAST -j ufw-skip-to-policy-input
+
+# don't delete the 'COMMIT' line or these rules won't be processed
+COMMIT
+`
 )
