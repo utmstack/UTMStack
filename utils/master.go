@@ -85,10 +85,6 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	}
 
 	if !lite {
-		if err := InstallScanner(mode); err != nil {
-			return err
-		}
-
 		if err := InstallSuricata(mode, mainIface); err != nil {
 			return err
 		}
@@ -134,6 +130,10 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		if err == nil {
 			break
 		}
+	}
+
+	if err := ConfigureFirewall(mode); err != nil {
+		return err
 	}
 
 	return nil

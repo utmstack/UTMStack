@@ -74,10 +74,6 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 	}
 
 	if !lite {
-		if err := InstallScanner(mode); err != nil {
-			return err
-		}
-
 		if err := InstallSuricata(mode, mainIface); err != nil {
 			return err
 		}
