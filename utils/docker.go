@@ -27,21 +27,27 @@ func InstallDocker(mode string) error {
 	}
 
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
+
 	if err := RunEnvCmd(mode, env, "apt", "update"); err != nil {
 		return err
 	}
+
 	if err := RunEnvCmd(mode, env, "apt", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
 		return err
 	}
+
 	if err := RunEnvCmd(mode, env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"); err != nil {
 		return err
 	}
+
 	if err := RunEnvCmd(mode, env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`); err != nil {
 		return err
 	}
+
 	if err := RunEnvCmd(mode, env, "apt", "update"); err != nil {
 		return err
 	}
+
 	if err := RunEnvCmd(mode, env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
 		return err
 	}
