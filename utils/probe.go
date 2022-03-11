@@ -46,7 +46,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 
 	m := sigar.Mem{}
 	m.Get()
-	lm := m.Total / 1024 / 1024 / 1024 / 4
+	lm := m.Total / 1024 / 1024 / 1024 / 3
 
 	var updates uint32
 
@@ -65,10 +65,10 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		fmt.Sprint("LS_MEM=", lm),
 		fmt.Sprint("UPDATES=", updates),
+		"CERT=" + cert,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CERT=" + cert,
 		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog",
 		"TAG=" + tag,
 	}

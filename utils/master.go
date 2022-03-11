@@ -53,7 +53,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	m := sigar.Mem{}
 	m.Get()
 	em := m.Total / 1024 / 1024 / 1024 / 3
-	lm := m.Total / 1024 / 1024 / 1024 / 4
+	lm := m.Total / 1024 / 1024 / 1024 / 3
 
 	var updates uint32
 
@@ -67,19 +67,19 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		"SERVER_TYPE=aio",
 		"LITE=" + strconv.FormatBool(lite),
 		"SERVER_NAME=" + serverName,
-		"DB_HOST=" + mainIP,
+		"DB_HOST=10.21.199.1",
 		"DB_PASS=" + pass,
+		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		fmt.Sprint("ES_MEM=", em),
 		fmt.Sprint("LS_MEM=", lm),
 		fmt.Sprint("UPDATES=", updates),
 		"ES_DATA=" + esData,
 		"ES_BACKUPS=" + esBackups,
 		"CERT=" + cert,
-		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
 		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://" + mainIP + ":9090/v1/newlog",
+		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog",
 		"UTMSTACK_RULES=" + rules,
 		"TAG=" + tag,
 	}
