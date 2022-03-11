@@ -92,5 +92,9 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
+	if err := ConfigureFirewall(mode); err != nil {
+		return err
+	}
+
 	return nil
 }
