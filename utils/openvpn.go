@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func InstallOpenVPNMaster(mode string) error {
 	if err := RunCmd(mode, "apt-get", "update"); err != nil {
@@ -84,6 +87,8 @@ func InstallOpenVPNClient(mode, host string) error {
 	if err := RunCmd(mode, "systemctl", "restart", "openvpn"); err != nil {
 		return err
 	}
+
+	time.Sleep(10 * time.Second)
 
 	return nil
 }
