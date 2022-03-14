@@ -11,13 +11,5 @@ func ConfigureFirewall(mode string) error {
 		return err
 	}
 
-	if err := RunCmd(mode, "systemctl", "enable", "ufw"); err != nil {
-		return err
-	}
-
-	if err := RunCmd(mode, "systemctl", "start", "ufw"); err != nil {
-		return err
-	}
-
 	return nil
 }
