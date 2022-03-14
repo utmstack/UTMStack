@@ -42,7 +42,7 @@ services:
       - 2055:2055/udp
     environment:
       - CONFIG_RELOAD_AUTOMATIC=true
-      - "LS_JAVA_OPTS=-Xms${LS_MEM}g -Xmx${LS_MEM}g"
+      - "LS_JAVA_OPTS=-Xms${LS_MEM}g -Xmx${LS_MEM}g -Xss100m"
       - PIPELINE_WORKERS=4
     depends_on:
       - "datasources_mutate"
@@ -334,12 +334,14 @@ services:
 
 # ALLOW SSH AND OPENVPN PORTS
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
--A INPUT -p tcp -m tcp --dport 1194 -j ACCEPT
 
 # ALLOW ALL FROM VPN AND DOCKER SUBNETS
 -A INPUT -s 10.21.199.0/24 -j ACCEPT
 -A INPUT -s 172.17.0.0/16 -j ACCEPT
 -A INPUT -s 172.18.0.0/16 -j ACCEPT
+-A DOCKER-USER -s 10.21.199.0/24 -j ACCEPT
+-A DOCKER-USER -s 172.17.0.0/16 -j ACCEPT
+-A DOCKER-USER -s 172.18.0.0/16 -j ACCEPT
 
 # SECURING ELASTIC AND POSTGRES
 -A DOCKER-USER -p tcp -m tcp --dport 5432 -j DROP
