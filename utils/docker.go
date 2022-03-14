@@ -57,7 +57,7 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode string, env []string, master bool, tag string, lite bool, advAddr string) error {
+func InitDocker(mode string, env []string, master bool, tag string, lite bool) error {
 	if err := InstallDocker(mode); err != nil {
 		return err
 	}
