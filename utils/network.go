@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	"net"
 	"os/exec"
 	"strings"
@@ -31,7 +32,15 @@ func GetIfaceIP(iface string) (string, error) {
 		return "", err
 	}
 
-	return strings.Split(addrs[0].String(), "/")[0], nil
+	cidr := addrs[0].String()
+	
+	addr := strings.Split(cidr, "/")
+
+	if len(addr) == 0 {
+		return "", fmt.Errorf("cannot get tun0 address")
+	}
+
+	return addr[0], nil
 }
 
 func GetMainIface(mode string) (string, error) {
