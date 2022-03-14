@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net"
 	"os/exec"
+	"strings"
 )
 
 func GetMainIP() (string, error) {
@@ -30,7 +31,7 @@ func GetIfaceIP(iface string) (string, error) {
 		return "", err
 	}
 
-	return addrs[0].String(), nil
+	return strings.Split(addrs[0].String(), "/")[0], nil
 }
 
 func GetMainIface(mode string) (string, error) {
