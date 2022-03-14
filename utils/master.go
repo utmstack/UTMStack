@@ -40,11 +40,6 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
-	mainIP, err := GetMainIP()
-	if err != nil {
-		return err
-	}
-
 	mainIface, err := GetMainIface(mode)
 	if err != nil {
 		return err
@@ -67,7 +62,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		"SERVER_TYPE=aio",
 		"LITE=" + strconv.FormatBool(lite),
 		"SERVER_NAME=" + serverName,
-		"DB_HOST=10.21.199.1",
+		"DB_HOST=10.21.199.1", // is always 10.21.199.1, deprecated
 		"DB_PASS=" + pass,
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		fmt.Sprint("ES_MEM=", em),
@@ -78,8 +73,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		"CERT=" + cert,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
-		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog",
+		"SCANNER_IP=10.21.199.1",
+		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog", // is always the same, deprecated
 		"UTMSTACK_RULES=" + rules,
 		"TAG=" + tag,
 	}
@@ -95,7 +90,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, env, true, tag, lite, mainIP); err != nil {
+	if err := InitDocker(mode, env, true, tag, lite); err != nil {
 		return err
 	}
 
