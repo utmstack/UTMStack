@@ -34,7 +34,11 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
-	mainIP, err := GetMainIP()
+	if err := InstallOpenVPNClient(mode, host); err != nil {
+		return err
+	}
+
+	tunIP, err := GetIfaceIP("tun0")
 	if err != nil {
 		return err
 	}
@@ -60,16 +64,16 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		"SERVER_TYPE=probe",
 		"LITE=" + strconv.FormatBool(lite),
 		"SERVER_NAME=" + serverName,
-		"DB_HOST=10.21.199.1",
-		"DB_PASS=" + pass,
+		"DB_HOST=10.21.199.1", // is always 10.21.199.1, will be removed in the  future
+		"DB_PASS=" + pass,     // will be removed in the  future
 		"LOGSTASH_PIPELINE=" + logstashPipeline,
 		fmt.Sprint("LS_MEM=", lm),
 		fmt.Sprint("UPDATES=", updates),
 		"CERT=" + cert,
 		"UTMSTACK_DATASOURCES=" + datasourcesDir,
 		"SCANNER_IFACE=" + mainIface,
-		"SCANNER_IP=" + mainIP,
-		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog",
+		"SCANNER_IP=" + tunIP,
+		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog", //Is always the same, deprecated
 		"TAG=" + tag,
 	}
 
@@ -84,11 +88,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, env, false, tag, lite, mainIP); err != nil {
-		return err
-	}
-
-	if err := InstallOpenVPNClient(mode, host); err != nil {
+	if err := InitDocker(mode, env, false, tag, lite); err != nil {
 		return err
 	}
 
