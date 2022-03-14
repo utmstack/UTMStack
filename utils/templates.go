@@ -349,6 +349,7 @@ services:
 -A DOCKER-USER -p tcp -m tcp --dport 8888 -j DROP
 -A DOCKER-USER -p tcp -m tcp --dport 9390 -j DROP
 -A DOCKER-USER -p tcp -m tcp --dport 9392 -j DROP
+-A DOCKER-USER -p tcp -m tcp --dport 55000 -j DROP
 
 # don't log noisy services by default
 -A ufw-after-input -p udp --dport 137 -j ufw-skip-to-policy-input
