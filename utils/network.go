@@ -18,6 +18,21 @@ func GetMainIP() (string, error) {
 	return localAddr.IP.String(), nil
 }
 
+func GetIfaceIP(iface string) (string, error) {
+	ief, err := net.InterfaceByName(iface)
+
+	if err != nil {
+		return "", err
+	}
+
+	addrs, err := ief.Addrs()
+	if err != nil {
+		return "", err
+	}
+
+	return addrs[0].String(), nil
+}
+
 func GetMainIface(mode string) (string, error) {
 	err := RunCmd(mode, "apt", "update")
 	if err != nil {
