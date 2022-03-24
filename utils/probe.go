@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	sigar "github.com/cloudfoundry/gosigar"
 )
@@ -54,7 +55,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 
 	var updates uint32
 
-	if tag == "testing" {
+	if strings.Contains(tag, "testing") {
 		updates = 60
 	} else {
 		updates = 3600

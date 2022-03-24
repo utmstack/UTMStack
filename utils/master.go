@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	sigar "github.com/cloudfoundry/gosigar"
@@ -51,8 +52,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	lm := m.Total / 1024 / 1024 / 1024 / 3
 
 	var updates uint32
-
-	if tag == "testing" {
+	
+	if strings.Contains(tag, "testing") {
 		updates = 60
 	} else {
 		updates = 3600
