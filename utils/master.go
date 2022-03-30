@@ -17,14 +17,14 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(7); err != nil {
+		if err := CheckMem(5); err != nil {
 			return err
 		}
 	} else {
-		if err := CheckCPU(6); err != nil {
+		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(11); err != nil {
+		if err := CheckMem(7); err != nil {
 			return err
 		}
 	}
@@ -52,7 +52,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	lm := m.Total / 1024 / 1024 / 1024 / 3
 
 	var updates uint32
-	
+
 	if strings.Contains(tag, "testing") {
 		updates = 60
 	} else {
