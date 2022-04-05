@@ -2,10 +2,8 @@ package utils
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -59,25 +57,25 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		updates = 3600
 	}
 
-	env := []string{
-		"SERVER_TYPE=aio",
-		"LITE=" + strconv.FormatBool(lite),
-		"SERVER_NAME=" + serverName,
-		"DB_HOST=10.21.199.1", // is always 10.21.199.1, deprecated
-		"DB_PASS=" + pass,
-		"LOGSTASH_PIPELINE=" + logstashPipeline,
-		fmt.Sprint("ES_MEM=", em),
-		fmt.Sprint("LS_MEM=", lm),
-		fmt.Sprint("UPDATES=", updates),
-		"ES_DATA=" + esData,
-		"ES_BACKUPS=" + esBackups,
-		"CERT=" + cert,
-		"UTMSTACK_DATASOURCES=" + datasourcesDir,
-		"SCANNER_IFACE=" + mainIface,
-		"SCANNER_IP=10.21.199.1",
-		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog", // is always the same, deprecated
-		"UTMSTACK_RULES=" + rules,
-		"TAG=" + tag,
+	var c = Config{
+		ServerType:       "aio",
+		Lite:             lite,
+		ServerName:       serverName,
+		DBHost:           "10.21.199.1",
+		DBPass:           pass,
+		LogstashPipeline: logstashPipeline,
+		ESMem:            em,
+		LSMem:            lm,
+		Updates:          updates,
+		ESData:           esData,
+		ESBackups:        esBackups,
+		Cert:             cert,
+		Datasources:      datasourcesDir,
+		ScannerIface:     mainIface,
+		ScannerIP:        "10.21.199.1",
+		Correlation:      "http://10.21.199.1:9090/v1/newlog",
+		Rules:            rules,
+		Tag:              tag,
 	}
 
 	if !lite {
@@ -91,7 +89,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, env, true, tag, lite); err != nil {
+	if err := InitDocker(mode, c, true, tag, lite); err != nil {
 		return err
 	}
 

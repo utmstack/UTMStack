@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	sigar "github.com/cloudfoundry/gosigar"
@@ -61,21 +59,21 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		updates = 3600
 	}
 
-	env := []string{
-		"SERVER_TYPE=probe",
-		"LITE=" + strconv.FormatBool(lite),
-		"SERVER_NAME=" + serverName,
-		"DB_HOST=10.21.199.1", // is always 10.21.199.1, will be removed in the  future
-		"DB_PASS=" + pass,     // will be removed in the  future
-		"LOGSTASH_PIPELINE=" + logstashPipeline,
-		fmt.Sprint("LS_MEM=", lm),
-		fmt.Sprint("UPDATES=", updates),
-		"CERT=" + cert,
-		"UTMSTACK_DATASOURCES=" + datasourcesDir,
-		"SCANNER_IFACE=" + mainIface,
-		"SCANNER_IP=" + tunIP,
-		"CORRELATION_URL=http://10.21.199.1:9090/v1/newlog", //Is always the same, deprecated
-		"TAG=" + tag,
+	var c = Config{
+		ServerType:       "probe",
+		Lite:             lite,
+		ServerName:       serverName,
+		DBHost:           "10.21.199.1",
+		DBPass:           pass,
+		LogstashPipeline: logstashPipeline,
+		LSMem:            lm,
+		Updates:          updates,
+		Cert:             cert,
+		Datasources:      datasourcesDir,
+		ScannerIface:     mainIface,
+		ScannerIP:        tunIP,
+		Correlation:      "http://10.21.199.1:9090/v1/newlog",
+		Tag:              tag,
 	}
 
 	if !lite {
@@ -89,7 +87,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, env, false, tag, lite); err != nil {
+	if err := InitDocker(mode, c, false, tag, lite); err != nil {
 		return err
 	}
 

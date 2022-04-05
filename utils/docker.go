@@ -6,6 +6,27 @@ import (
 	"time"
 )
 
+type Config struct {
+	ServerType       string
+	Lite             bool
+	ServerName       string
+	DBHost           string
+	DBPass           string
+	LogstashPipeline string
+	ESMem            uint64
+	LSMem            uint64
+	Updates          uint32
+	ESData           string
+	ESBackups        string
+	Cert             string
+	Datasources      string
+	ScannerIface     string
+	ScannerIP        string
+	Correlation      string
+	Rules            string
+	Tag              string
+}
+
 func InstallDocker(mode string) error {
 	// set map_max_count size to 262144 and disable IPv6
 	sysctl := []string{
@@ -55,7 +76,7 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode string, env []string, master bool, tag string, lite bool) error {
+func InitDocker(mode string, c Config, master bool, tag string, lite bool) error {
 	if err := InstallDocker(mode); err != nil {
 		return err
 	}
@@ -111,17 +132,14 @@ func InitDocker(mode string, env []string, master bool, tag string, lite bool) e
 	}
 
 	// generate composer file and deploy
-	f, err := os.Create(composerFile)
-	if err != nil {
-		return err
+	if err := GenerateFromTemplate(c, composerTemplate, composerFile); err != nil {
+		return errors.New("failed to generate compose file: " + err.Error())
 	}
-	defer f.Close()
-	f.WriteString(composerTemplate)
 
 	for intent := 0; intent <= 10; intent++ {
 		time.Sleep(1 * time.Minute)
 
-		err := RunEnvCmd(mode, env, "docker-compose", "up", "-d")
+		err := RunCmd(mode, "docker-compose", "up", "-d")
 
 		if err != nil && intent <= 9 {
 			continue
