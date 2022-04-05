@@ -112,8 +112,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 	baseURL := "https://127.0.0.1/"
 
-	for intent := 0; intent <= 5; intent++ {
-		time.Sleep(2 * time.Minute)
+	for intent := 0; intent <= 10; intent++ {
+		time.Sleep(1 * time.Minute)
 
 		transCfg := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -123,9 +123,13 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 		_, err := client.Get(baseURL + "/utmstack/api/ping")
 
-		if err == nil {
+		if err != nil && intent <= 9 {
+			continue
+		} else if err == nil {
 			break
 		}
+
+		return err
 	}
 
 	if err := ConfigureFirewall(mode); err != nil {

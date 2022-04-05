@@ -9,8 +9,8 @@ import (
 func initializeElastic() error {
 	// wait for elastic to be ready
 	baseURL := "http://127.0.0.1:9200/"
-	for {
-		time.Sleep(2 * time.Minute)
+	for intent := 0; intent <= 10; intent++ {
+		time.Sleep(1 * time.Minute)
 
 		_, err := grequests.Get(baseURL+"_cluster/healt", &grequests.RequestOptions{
 			Params: map[string]string{
@@ -19,9 +19,13 @@ func initializeElastic() error {
 			},
 		})
 
-		if err == nil {
+		if err != nil && intent <= 9 {
+			continue
+		} else if err == nil {
 			break
 		}
+
+		return err
 	}
 
 	_, err := grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{

@@ -52,8 +52,6 @@ func InstallDocker(mode string) error {
 		return err
 	}
 
-	time.Sleep(90 * time.Second)
-
 	return nil
 }
 
@@ -120,18 +118,19 @@ func InitDocker(mode string, env []string, master bool, tag string, lite bool) e
 	defer f.Close()
 	f.WriteString(composerTemplate)
 
-	for i := 1; i <= 3; i++ {
-		err := RunEnvCmd(mode, env, "docker-compose", "up", "-d")
-		if err == nil {
-			break
-		} else if i == 3 {
-			return err
-		} else {
-			time.Sleep(5 * time.Second)
-		}
-	}
+	for intent := 0; intent <= 10; intent++ {
+		time.Sleep(1 * time.Minute)
 
-	time.Sleep(2 * time.Second)
+		err := RunEnvCmd(mode, env, "docker-compose", "up", "-d")
+
+		if err != nil && intent <= 9 {
+			continue
+		} else if err == nil {
+			break
+		}
+
+		return err
+	}
 
 	return nil
 }

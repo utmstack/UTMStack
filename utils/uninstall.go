@@ -11,7 +11,7 @@ func Uninstall(mode string) error {
 	}
 
 	// sleep while docker is removing the containers
-	time.Sleep(2 * time.Minute)
+	time.Sleep(20 * time.Second)
 
 	// uninstall suricata
 	if err := RunCmd(mode, "apt", "remove", "-y", "--purge", "suricata"); err != nil {

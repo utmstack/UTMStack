@@ -42,6 +42,8 @@ func InstallOpenVPNMaster(mode string) error {
 		return err
 	}
 
+	time.Sleep(10 * time.Second)
+
 	return nil
 }
 
