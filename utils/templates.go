@@ -102,6 +102,7 @@ services:
     image: "utmstack.azurecr.io/agent-manager:{{.Tag}}"
     volumes:
       - {{.Cert}}:/cert
+      - {{.Datasources}}:/etc/utmstack
     ports:
       - "9000:9000"
     environment:
