@@ -134,7 +134,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
-	go Restart(mode)
+	go Restart("auto")
 
 	return nil
 }
