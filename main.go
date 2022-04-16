@@ -45,7 +45,7 @@ func main() {
 		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
 		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag, lite))
-		fmt.Println("Installed successfully. Restarting system. " + logFileAnnouncement)
+		fmt.Println("Installed successfully. Restarting system.")
 		utils.Restart("cli")
 	} else if probeCmd.Happened() {
 		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag, lite))
