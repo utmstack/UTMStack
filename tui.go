@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	actionPageIndex    = "0"
-	masterPageIndex    = "1"
-	probePageIndex     = "2"
-	uninstallPageIndex = "3"
-	errTag             = "ERROR: "
+	actionPageIndex     = "0"
+	masterPageIndex     = "1"
+	probePageIndex      = "2"
+	uninstallPageIndex  = "3"
+	errTag              = "ERROR: "
 	logFileAnnouncement = "Please see the logs in /var/log/utm-setup.log for more details."
 )
 
@@ -126,7 +126,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		datadir := "/utmstack"
 		dbPass := form.GetFormItem(0).(*tview.InputField).GetText()
 
-		if dbPass == ""{
+		if dbPass == "" {
 			alert(pages, "You must provide a database password.")
 		} else {
 			pages.AddPage(
@@ -149,7 +149,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			}()
 		}
 	}).AddButton("Quit", func() {
-		utils.Restart("ui")
+		app.Stop()
 	})
 	form.SetBorder(true).SetTitle("Install Master").SetTitleAlign(tview.AlignCenter)
 	return center(46, 15, form)

@@ -44,6 +44,11 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
+	mainIP, err := GetMainIP()
+	if err != nil {
+		return err
+	}
+
 	m := sigar.Mem{}
 	m.Get()
 	em := m.Total / 1024 / 1024 / 1024 / 3
@@ -61,7 +66,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		ServerType:       "aio",
 		Lite:             lite,
 		ServerName:       serverName,
-		DBHost:           "10.21.199.1",
+		DBHost:           mainIP,
 		DBPass:           pass,
 		LogstashPipeline: logstashPipeline,
 		ESMem:            em,
@@ -72,8 +77,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		Cert:             cert,
 		Datasources:      datasourcesDir,
 		ScannerIface:     mainIface,
-		ScannerIP:        "10.21.199.1",
-		Correlation:      "http://10.21.199.1:9090/v1/newlog",
+		ScannerIP:        mainIP,
+		Correlation:      "http://correlation:8080/v1/newlog",
 		Rules:            rules,
 		Tag:              tag,
 	}
@@ -130,11 +135,9 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		return err
 	}
 
-	if err := ConfigureFirewall(mode); err != nil {
+	if err := ConfigureFirewall(mode, c); err != nil {
 		return err
 	}
-
-	go Restart("auto")
 
 	return nil
 }

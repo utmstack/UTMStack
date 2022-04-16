@@ -179,7 +179,6 @@ services:
       - {{.Datasources}}:/etc/utmstack
     environment:
       - SERVER_NAME={{.ServerName}}
-      - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
     command: ["python3", "-m", "utmstack.aws"]
 
@@ -194,7 +193,6 @@ services:
       - {{.Datasources}}:/etc/utmstack
     environment:
       - SERVER_NAME={{.ServerName}}
-      - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
     command: ["python3", "-m", "utmstack.office365"]
 
@@ -209,7 +207,6 @@ services:
       - {{.Datasources}}:/etc/utmstack
     environment:
       - SERVER_NAME={{.ServerName}}
-      - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
     command: ["python3", "-m", "utmstack.webroot"]
 
@@ -224,7 +221,6 @@ services:
       - {{.Datasources}}:/etc/utmstack
     environment:
       - SERVER_NAME={{.ServerName}}
-      - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
     command: ["python3", "-m", "utmstack.sophos"]
 
@@ -239,7 +235,6 @@ services:
       - {{.Datasources}}:/etc/utmstack
     environment:
       - SERVER_NAME={{.ServerName}}
-      - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
     ports:
       - "50051:50051"
@@ -257,10 +252,10 @@ services:
       - LITE={{.Lite}}
       - DB_USER=postgres
       - "DB_PASS={{.DBPass}}"
-      - DB_HOST={{.DBHost}}
+      - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=utmstack
-      - ELASTICSEARCH_HOST={{.DBHost}}
+      - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
 
   correlation:
@@ -276,10 +271,10 @@ services:
       - SERVER_NAME={{.ServerName}}
       - POSTGRESQL_USER=postgres
       - "POSTGRESQL_PASSWORD={{.DBPass}}"
-      - POSTGRESQL_HOST={{.DBHost}}
+      - POSTGRESQL_HOST=postgres
       - POSTGRESQL_PORT=5432
       - POSTGRESQL_DATABASE=utmstack
-      - ELASTICSEARCH_HOST={{.DBHost}}
+      - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
       - ERROR_LEVEL=info
     depends_on:
@@ -341,9 +336,11 @@ services:
 -A INPUT -s 10.21.199.0/24 -j ACCEPT
 -A INPUT -s 172.17.0.0/16 -j ACCEPT
 -A INPUT -s 172.18.0.0/16 -j ACCEPT
+-A INPUT -s {{.DBHost}} -j ACCEPT
 -A DOCKER-USER -s 10.21.199.0/24 -j ACCEPT
 -A DOCKER-USER -s 172.17.0.0/16 -j ACCEPT
 -A DOCKER-USER -s 172.18.0.0/16 -j ACCEPT
+-A DOCKER-USER -s {{.DBHost}} -j ACCEPT
 
 # SECURING ELASTIC AND POSTGRES
 -A DOCKER-USER -p tcp -m tcp --dport 5432 -j DROP
