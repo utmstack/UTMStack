@@ -142,14 +142,14 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				if err != nil {
 					msg = errTag + err.Error() + ". " + logFileAnnouncement
 				} else {
-					msg = "Program installed successfully. " + logFileAnnouncement
+					msg = "Installed successfully. The system will be restarted in 10 second. " + logFileAnnouncement
 				}
 				showResults(pages, app, msg)
 				app.Draw()
 			}()
 		}
 	}).AddButton("Quit", func() {
-		app.Stop()
+		utils.Restart("ui")
 	})
 	form.SetBorder(true).SetTitle("Install Master").SetTitleAlign(tview.AlignCenter)
 	return center(46, 15, form)

@@ -17,7 +17,7 @@ func main() {
 		tag = "v9"
 	}
 
-	if os.Getenv("LITE") == "true"{
+	if os.Getenv("LITE") == "true" {
 		lite = true
 	} else {
 		lite = false
@@ -45,6 +45,8 @@ func main() {
 		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
 		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag, lite))
+		fmt.Println("Installed successfully. Restarting system. " + logFileAnnouncement)
+		utils.Restart("cli")
 	} else if probeCmd.Happened() {
 		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag, lite))
 	}
