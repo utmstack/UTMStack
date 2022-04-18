@@ -51,8 +51,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 	m := sigar.Mem{}
 	m.Get()
-	em := m.Total / 1024 / 1024 / 1024 / 3
-	lm := m.Total / 1024 / 1024 / 1024 / 3
+	em := m.Total / 1024 / 1024 / 1024 / 4
+	lm := m.Total / 1024 / 1024 / 1024 / 4
 
 	var updates uint32
 
