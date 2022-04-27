@@ -124,7 +124,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 		client := &http.Client{Transport: transCfg}
 
-		_, err := client.Get(baseURL + "/utmstack/api/ping")
+		_, err := client.Get(baseURL + "/api/ping")
 
 		if err != nil && intent <= 9 {
 			continue
