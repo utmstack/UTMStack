@@ -22,6 +22,10 @@ services:
     environment:
       - WATCHTOWER_NO_RESTART=false
       - WATCHTOWER_POLL_INTERVAL={{.Updates}}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   logstash:
     container_name: logstash
@@ -47,6 +51,10 @@ services:
       - PIPELINE_WORKERS=4
     depends_on:
       - "datasources_mutate"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   datasources_mutate:
     container_name: datasources_mutate
@@ -62,6 +70,10 @@ services:
       - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
       - CORRELATION_URL={{.Correlation}}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_cleaner:
@@ -78,6 +90,10 @@ services:
       - SERVER_TYPE={{.ServerType}}
       - DB_HOST={{.DBHost}}
       - "DB_PASS={{.DBPass}}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.cleaner"]
 
   datasources_probe_api:
@@ -94,6 +110,10 @@ services:
       - "DB_PASS={{.DBPass}}"
       - SCANNER_IP={{.ScannerIP}}
       - SCANNER_IFACE={{.ScannerIface}}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["/pw.sh"]
 
   datasources_agent_manager:
@@ -111,6 +131,10 @@ services:
       - SCANNER_IP={{.ScannerIP}}
     depends_on:
       - "wazuh"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["/run.sh"]
 
   wazuh:
@@ -124,6 +148,10 @@ services:
     volumes:
       - ossec_logs:/var/ossec/logs
       - ossec_var:/var/ossec
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 `
 	masterTemplate = `
   node1:
@@ -141,6 +169,10 @@ services:
       - cluster.initial_master_nodes=node1
       - "ES_JAVA_OPTS=-Xms{{.ESMem}}g -Xmx{{.ESMem}}g"
       - path.repo=/usr/share/elasticsearch
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   postgres:
     container_name: postgres
@@ -153,6 +185,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   frontend:
@@ -167,6 +203,10 @@ services:
       - "443:443"
     volumes:
       - {{.Cert}}:/etc/nginx/cert
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   datasources_aws:
     container_name: datasources_aws
@@ -180,6 +220,10 @@ services:
     environment:
       - SERVER_NAME={{.ServerName}}
       - "DB_PASS={{.DBPass}}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_office365:
@@ -194,6 +238,10 @@ services:
     environment:
       - SERVER_NAME={{.ServerName}}
       - "DB_PASS={{.DBPass}}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_webroot:
@@ -208,6 +256,10 @@ services:
     environment:
       - SERVER_NAME={{.ServerName}}
       - "DB_PASS={{.DBPass}}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.webroot"]
 
   datasources_sophos:
@@ -222,6 +274,10 @@ services:
     environment:
       - SERVER_NAME={{.ServerName}}
       - "DB_PASS={{.DBPass}}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
@@ -238,6 +294,10 @@ services:
       - "DB_PASS={{.DBPass}}"
     ports:
       - "50051:50051"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
     command: ["python3", "-m", "utmstack.logan"]
 
   backend:
@@ -257,6 +317,10 @@ services:
       - DB_NAME=utmstack
       - ELASTICSEARCH_HOST=node1
       - ELASTICSEARCH_PORT=9200
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   correlation:
     container_name: correlation
@@ -281,6 +345,10 @@ services:
       - "node1"
       - "postgres"
       - "backend"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   filebrowser:
     container_name: filebrowser
@@ -290,6 +358,10 @@ services:
       - {{.Rules}}:/srv
     environment:
       - "PASSWORD={{.DBPass}}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 `
 	openvasTemplate = `
   openvas:
@@ -307,6 +379,10 @@ services:
       - "PASSWORD={{.DBPass}}"
       - "DB_PASSWORD={{.DBPass}}"
       - HTTPS=0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 `
 	probeTemplateStandard  = probeTemplateLite + openvasTemplate
 	masterTemplateStandard = probeTemplateLite + masterTemplate + openvasTemplate
