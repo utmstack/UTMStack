@@ -24,13 +24,13 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	p.MinSpecialCharacters = 3
 
 	com, perr := p.IsCompliant(pass)
+	
+	if perr != nil {
+		return fmt.Errorf("Your password contains an invalid character. Please use only English letters, numbers and the following special characters: . , = + $ € / § _ ; <")
+	}
 
 	if !com {
 		return fmt.Errorf("Your password does not meet the minimum security requirements. Please use at least 5 lower case letters, 3 capital case letters, 5 numbers and 3 special characters")
-	}
-
-	if perr != nil {
-		return fmt.Errorf("Your password contains an invalid character. Please use only English letters, numbers and the following special characters: . , = + $ € / § _ ; <")
 	}
 	
 	if lite {
