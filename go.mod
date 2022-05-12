@@ -11,7 +11,7 @@ require (
 	github.com/onsi/gomega v1.16.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quantfall/holmes v1.3.0
-	github.com/quantfall/secp v1.0.1
+	github.com/quantfall/secp v1.0.2
 	github.com/rivo/tview v0.0.0-20210125085121-dbc1f32bb1d0
 	github.com/shirou/gopsutil/v3 v3.21.7
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect

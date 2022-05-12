@@ -30,12 +30,15 @@ func main() {
 
 	masterCmd := parser.NewCommand("master", "Install Master")
 	masterDataDir := "/utmstack"
-	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Database password. Please use a secure password"})
+	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Please use a secure password"})
+	utils.CheckErr(utils.CheckPassword(*masterPass))
+
 
 	probeCmd := parser.NewCommand("probe", "Install Probe")
 	probeDataDir := "/utmstack"
-	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master database password"})
-	host := probeCmd.String("", "host", &argparse.Options{Required: true, Help: "Master server address"})
+	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. The same used during the installation of the master"})
+	utils.CheckErr(utils.CheckPassword(*probePass))
+	host := probeCmd.String("", "host", &argparse.Options{Required: true, Help: "Master server IP or FQDN"})
 
 	if len(os.Args) == 1 {
 		tui()

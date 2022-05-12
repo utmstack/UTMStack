@@ -119,15 +119,21 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 
 func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 	form := tview.NewForm().
-		AddInputField("DB password", "", 25, nil, nil)
+		AddPasswordField("New password", "", 25, '*', nil).
+		AddPasswordField("Confirm password", "", 25, '*', nil)
 	form.AddButton("Back", func() {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
 		datadir := "/utmstack"
 		dbPass := form.GetFormItem(0).(*tview.InputField).GetText()
+		confirmDBPass := form.GetFormItem(1).(*tview.InputField).GetText()
 
-		if dbPass == "" {
-			alert(pages, "You must provide a database password.")
+		if dbPass == "" || confirmDBPass == "" {
+			alert(pages, "You must provide all requested data.")
+		} else if dbPass != confirmDBPass {
+			alert(pages, "Password confirmation does not match")
+		} else if err := utils.CheckPassword(dbPass); err != nil {
+			alert(pages, err.Error())
 		} else {
 			pages.AddPage(
 				"installing-dialog",
@@ -157,17 +163,23 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 
 func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 	form := tview.NewForm().
-		AddPasswordField("Master DB password", "", 25, '*', nil).
-		AddInputField("Master address", "", 25, nil, nil)
+		AddPasswordField("Master password", "", 25, '*', nil).
+		AddPasswordField("Confirm master password", "", 25, '*', nil).
+		AddInputField("Master IP or FQDN", "", 25, nil, nil)
 	form.AddButton("Back", func() {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
 		datadir := "/utmstack"
 		dbPass := form.GetFormItem(0).(*tview.InputField).GetText()
-		host := form.GetFormItem(1).(*tview.InputField).GetText()
+		confirmDBPass := form.GetFormItem(1).(*tview.InputField).GetText()
+		host := form.GetFormItem(2).(*tview.InputField).GetText()
 
-		if dbPass == "" || host == "" {
+		if dbPass == "" || confirmDBPass == "" || host == "" {
 			alert(pages, "You must provide all requested data.")
+		} else if dbPass != confirmDBPass {
+			alert(pages, "Password confirmation does not match")
+		} else if err := utils.CheckPassword(dbPass); err != nil {
+			alert(pages, err.Error())
 		} else {
 			pages.AddPage(
 				"installing-dialog",

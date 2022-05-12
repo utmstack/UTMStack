@@ -2,37 +2,15 @@ package utils
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	sigar "github.com/cloudfoundry/gosigar"
-	"github.com/quantfall/secp"
 )
 
 func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
-	p := secp.New()
-	p.AllowedCapitalLetters = secp.AllEnglishCapitalLetters()
-	p.AllowedLowerLetters = secp.AllEnglishLowerLetters()
-	p.AllowedNumbers = secp.AllNumbers()
-	p.AllowedSpecialCharacters = secp.SymbolsNonReservedByYAML()
-	p.MinCapitalLetters = 3
-	p.MinLowerLetters = 5
-	p.MinNumbers = 5
-	p.MinSpecialCharacters = 3
-
-	com, perr := p.IsCompliant(pass)
-	
-	if perr != nil {
-		return fmt.Errorf("Your password contains an invalid character. Please use only English letters, numbers and the following special characters: . , = + $ € / § _ ; <")
-	}
-
-	if !com {
-		return fmt.Errorf("Your password does not meet the minimum security requirements. Please use at least 5 lower case letters, 3 capital case letters, 5 numbers and 3 special characters")
-	}
-	
 	if lite {
 		if err := CheckCPU(4); err != nil {
 			return err
