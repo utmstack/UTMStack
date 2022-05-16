@@ -60,10 +60,6 @@ Note: Use HTTPS in front of your server name or IP to access the login page.
 
 To see a fully operating UTMStack environment access our demo at: <https://utmstack.com/demo>
 
-Watch this short 10 minutes installation video if you still have questions.
-
-[![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
-
 ### Trubleshooting
 
 If you find any errors during the isntallation, please check the installation log for more details:" /var/log/utm-setup.log
