@@ -31,6 +31,13 @@ This installation guide provides instructions to perform the UTMStack installati
 - Change to root user: `sudo su`
 - Set execution permissions with `chmod +x installer`
 
+### UTMStack password requirements
+- 3 capital case letters.
+- 5 lower case letters.
+- 5 numbers.
+- 3 special characters. 
+- Allowed special characters: `, . _`
+
 ### Install using Terminal User Interface
 
 - Execute the installer without parameters: `./installer`
@@ -52,10 +59,6 @@ Note: Use HTTPS in front of your server name or IP to access the login page.
 |-----------------------------------------|
 
 To see a fully operating UTMStack environment access our demo at: <https://utmstack.com/demo>
-
-Watch this short 10 minutes installation video if you still have questions.
-
-[![Alt text](https://img.youtube.com/vi/dM9dC9HNXUs/0.jpg)](https://youtu.be/dM9dC9HNXUs)
 
 ### Trubleshooting
 
