@@ -8,7 +8,7 @@ This installation guide provides instructions to perform the UTMStack installati
 
 ### Resources for Master
 
-- For non-prod environments: 4 Cores, 10 GB of RAM, 20GB Disk Space (Minimum requered)
+- For non-prod environments: 4 Cores, 10 GB of RAM, 50GB Disk Space (Minimum requered)
 - For 100 GB of live logs: 4 Cores, 12 GB RAM, 180 GB Disk Space
 - For 1000 GB of live logs: 16 Cores, 32 GB RAM, 1080 GB Disk Space
 - For 10000 GB of cold data and 1000GB of live logs: 16 Cores, 64 GB RAM, 11080 Disk Space
