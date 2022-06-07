@@ -32,10 +32,10 @@ This installation guide provides instructions to perform the UTMStack installati
 - Set execution permissions with `chmod +x installer`
 
 ### UTMStack password requirements
-- 3 capital case letters.
-- 5 lower case letters.
-- 5 numbers.
-- 3 special characters. 
+- at least 3 capital case letters.
+- at least 5 lower case letters.
+- at least 5 numbers.
+- at least 3 special characters. 
 - Allowed special characters: `, . _`
 
 ### Install using Terminal User Interface
