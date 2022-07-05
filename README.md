@@ -84,6 +84,10 @@ If you find any errors during the isntallation, please check the installation lo
   
   514/TCP (Used to send syslog logs)
   
+  1470/TCP (Used to send syslog logs)
+  
+  2056/TCP (Used to send syslog logs)
+  
   8089/TCP (Used to send logs through http post)
   
 - Open the following ports on the master for agents communication with master or probe/proxy:
@@ -92,11 +96,9 @@ If you find any errors during the isntallation, please check the installation lo
 
   1514-1516/TCP (Used for HIDS agent communications)
   
-  1514-1516/UDP (Used for HIDS agent communications)
-  
   55000/TCP (Used for HIDS management API)
   
-  23949/TCP (Used for connect to the probe API)
+  9000/TCP (Used for connect to the Agent Manager)
   
 - Open port 443 for accessing the UTMStack Web console.
 
