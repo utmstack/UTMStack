@@ -62,7 +62,7 @@ To see a fully operating UTMStack environment access our demo at: <https://utmst
 
 ### Trubleshooting
 
-If you find any errors during the isntallation, please check the installation log for more details:" /var/log/utm-setup.log
+If you find any errors during the installation, please check the installation log for more details:" /var/log/utm-setup.log
 
 ### Firewall rules
 
