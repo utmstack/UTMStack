@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 
 	"github.com/rivo/tview"
@@ -127,7 +129,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 
 		pages.AddPage(
 			"installing-dialog",
-			tview.NewModal().SetText("Installing... This may take several minutes. Please wait."),
+			tview.NewModal().SetText("Installing... This may take several minutes, please wait."),
 			false,
 			true,
 		)
@@ -139,7 +141,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			if err != nil {
 				msg = errTag + err.Error() + ". " + logFileAnnouncement
 			} else {
-				msg = "Installed successfully. Please check your installation details in the file docker-compose.yml" + logFileAnnouncement
+				msg = fmt.Sprintf("Installed successfully. Master password: %s", dbPass)
 			}
 			showResults(pages, app, msg)
 			app.Draw()
