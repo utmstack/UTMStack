@@ -125,7 +125,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
 		datadir := "/utmstack"
-		dbPass := utils.GenerateSecret(16)
+		dbPass := utils.GenerateSecret()
 
 		pages.AddPage(
 			"installing-dialog",

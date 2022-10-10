@@ -244,24 +244,6 @@ services:
         max-size: "50m"
     command: ["python3", "-m", "utmstack.office365"]
 
-  datasources_webroot:
-    container_name: datasources_webroot
-    restart: always
-    image: "utmstack.azurecr.io/datasources:{{.Tag}}"
-    depends_on:
-      - "node1"
-      - "postgres"
-    volumes:
-      - {{.Datasources}}:/etc/utmstack
-    environment:
-      - SERVER_NAME={{.ServerName}}
-      - "DB_PASS={{.DBPass}}"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-    command: ["python3", "-m", "utmstack.webroot"]
-
   datasources_sophos:
     container_name: datasources_sophos
     restart: always
