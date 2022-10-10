@@ -30,7 +30,7 @@ func main() {
 
 	masterCmd := parser.NewCommand("master", "Install Master")
 	masterDataDir := "/utmstack"
-	masterPass := utils.GenerateSecret(16)
+	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Please use a secure password"})
 	
 	probeCmd := parser.NewCommand("probe", "Install Probe")
 	probeDataDir := "/utmstack"
