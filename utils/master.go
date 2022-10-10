@@ -12,7 +12,7 @@ import (
 
 func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	if lite {
-		if err := CheckCPU(4); err != nil {
+		if err := CheckCPU(2); err != nil {
 			return err
 		}
 		if err := CheckMem(5); err != nil {
