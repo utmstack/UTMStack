@@ -139,7 +139,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			if err != nil {
 				msg = errTag + err.Error() + ". " + logFileAnnouncement
 			} else {
-				msg = "Installed successfully. " + logFileAnnouncement
+				msg = "Installed successfully. Please check your installation details in the file docker-compose.yml" + logFileAnnouncement
 			}
 			showResults(pages, app, msg)
 			app.Draw()
