@@ -1,25 +1,25 @@
 package utils
 
 import (
-	"fmt"
-
-	"github.com/quantfall/secp"
+	"math/rand"
+	"time"
 )
 
-func CheckPassword(pass string) error {
-	p := secp.New()
-	p.AllowedCapitalLetters = secp.AllEnglishCapitalLetters()
-	p.AllowedLowerLetters = secp.AllEnglishLowerLetters()
-	p.AllowedNumbers = secp.AllNumbers()
-	p.AllowedSpecialCharacters = secp.SymbolsNonReservedByYAML()
-	p.MinCapitalLetters = 3
-	p.MinLowerLetters = 5
-	p.MinNumbers = 5
-	p.MinSpecialCharacters = 3
+func GenerateSecret(size int) string {
+	var letters = []rune(".abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	rand.Seed(time.Now().UTC().UnixNano())
 
-	if perr := p.IsCompliant(pass); perr != nil {
-		return fmt.Errorf("Invalid password: %v", perr)
+	dot := rand.Intn(size)
+
+	s := make([]rune, size)
+	for i := range s {
+		if i != dot {
+			s[i] = letters[rand.Intn(len(letters))]
+		} else {
+			s[i] = letters[0]
+		}
+
 	}
 
-	return nil
+	return string(s)
 }

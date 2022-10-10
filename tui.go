@@ -125,35 +125,27 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
 		datadir := "/utmstack"
-		dbPass := form.GetFormItem(0).(*tview.InputField).GetText()
-		confirmDBPass := form.GetFormItem(1).(*tview.InputField).GetText()
+		dbPass := utils.GenerateSecret(16)
 
-		if dbPass == "" || confirmDBPass == "" {
-			alert(pages, "You must provide all requested data.")
-		} else if dbPass != confirmDBPass {
-			alert(pages, "Password confirmation does not match")
-		} else if err := utils.CheckPassword(dbPass); err != nil {
-			alert(pages, err.Error())
-		} else {
-			pages.AddPage(
-				"installing-dialog",
-				tview.NewModal().SetText("Installing... This may take several minutes. Please wait."),
-				false,
-				true,
-			)
-			pages.HidePage(masterPageIndex)
-			go func() {
-				err := utils.InstallMaster("ui", datadir, dbPass, tag, lite)
-				var msg string
-				if err != nil {
-					msg = errTag + err.Error() + ". " + logFileAnnouncement
-				} else {
-					msg = "Installed successfully. " + logFileAnnouncement
-				}
-				showResults(pages, app, msg)
-				app.Draw()
-			}()
-		}
+		pages.AddPage(
+			"installing-dialog",
+			tview.NewModal().SetText("Installing... This may take several minutes. Please wait."),
+			false,
+			true,
+		)
+
+		pages.HidePage(masterPageIndex)
+		go func() {
+			err := utils.InstallMaster("ui", datadir, dbPass, tag, lite)
+			var msg string
+			if err != nil {
+				msg = errTag + err.Error() + ". " + logFileAnnouncement
+			} else {
+				msg = "Installed successfully. " + logFileAnnouncement
+			}
+			showResults(pages, app, msg)
+			app.Draw()
+		}()
 	}).AddButton("Quit", func() {
 		app.Stop()
 	})
@@ -178,8 +170,6 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			alert(pages, "You must provide all requested data.")
 		} else if dbPass != confirmDBPass {
 			alert(pages, "Password confirmation does not match")
-		} else if err := utils.CheckPassword(dbPass); err != nil {
-			alert(pages, err.Error())
 		} else {
 			pages.AddPage(
 				"installing-dialog",

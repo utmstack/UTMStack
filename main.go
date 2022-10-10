@@ -30,11 +30,11 @@ func main() {
 
 	masterCmd := parser.NewCommand("master", "Install Master")
 	masterDataDir := "/utmstack"
-	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Please use a secure password"})
+	masterPass := utils.GenerateSecret(16)
 	
 	probeCmd := parser.NewCommand("probe", "Install Probe")
 	probeDataDir := "/utmstack"
-	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. The same used during the installation of the master"})
+	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Generated when the master was installed"})
 	host := probeCmd.String("", "host", &argparse.Options{Required: true, Help: "Master server IP or FQDN"})
 
 	if len(os.Args) == 1 {
@@ -44,11 +44,9 @@ func main() {
 	} else if removeCmd.Happened() {
 		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
-		utils.CheckErr(utils.CheckPassword(*masterPass))
-		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag, lite))
+		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, masterPass, tag, lite))
 		fmt.Println("Installed successfully.")
 	} else if probeCmd.Happened() {
-		utils.CheckErr(utils.CheckPassword(*probePass))
 		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag, lite))
 		fmt.Println("Installed successfully.")
 	}

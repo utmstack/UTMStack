@@ -65,8 +65,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/quantfall/holmes v1.3.0 h1:cy0kEz5qfBVWg/33cXBPfQVMAcwN7nLrPuqkyizKZfI=
 github.com/quantfall/holmes v1.3.0/go.mod h1:yC2xubHFP3b0NfYlDhHhNtgvct79iGzJgmiY18YSr8Q=
-github.com/quantfall/secp v1.0.3 h1:+Y2XOWp/z26vqJhg/klWEBTzLSwZz8hhWrhd1Hm5K/Q=
-github.com/quantfall/secp v1.0.3/go.mod h1:0J7woTLjuN2OM6u/QJclblixUmLzXfM6z72JSj7iwkY=
 github.com/rivo/tview v0.0.0-20210125085121-dbc1f32bb1d0 h1:WCfp+Jq9Mx156zIf9X6Frd6F19rf7wIRlm54UPxUfcU=
 github.com/rivo/tview v0.0.0-20210125085121-dbc1f32bb1d0/go.mod h1:1QW7hX7RQzOqyGgx8O64bRPQBrFtPflioPPX5gFPV3A=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
