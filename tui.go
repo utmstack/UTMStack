@@ -118,9 +118,7 @@ func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 }
 
 func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
-	form := tview.NewForm().
-		AddPasswordField("New password", "", 25, '*', nil).
-		AddPasswordField("Confirm password", "", 25, '*', nil)
+	form := tview.NewForm()
 	form.AddButton("Back", func() {
 		pages.SwitchToPage(actionPageIndex)
 	}).AddButton("Install", func() {
