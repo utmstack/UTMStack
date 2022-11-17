@@ -157,7 +157,7 @@ services:
   autoupdate:
     container_name: autoupdate
     restart: always
-    image: "ghcr.io/quantfall/utmstackupdates:v9-testing"
+    image: "ghcr.io/quantfall/utmstackupdates:{{.Tag}}"
     volumes:
       - postgres_data:/mnt/postgres
       - ossec_logs:/mnt/ossec_logs
