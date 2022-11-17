@@ -82,6 +82,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		Rules:            rules,
 		Tag:              tag,
 		Kind:             "master",
+		Last:             -1,
 	}
 
 	if !lite {

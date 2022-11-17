@@ -75,6 +75,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		Correlation:      "http://10.21.199.1:9090/v1/newlog",
 		Tag:              tag,
 		Kind:             "probe",
+		Last:             -1,
 	}
 
 	if !lite {

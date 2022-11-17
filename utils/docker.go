@@ -26,6 +26,7 @@ type Config struct {
 	Rules            string
 	Tag              string
 	Kind             string
+	Last             int64
 }
 
 func InstallDocker(mode string) error {

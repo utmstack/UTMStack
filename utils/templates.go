@@ -172,7 +172,7 @@ services:
       - 9001:9001
     environment:
       - KIND={{.Kind}}
-      - FREQUENCY=5
+      - "LAST={{.Last}}"
     logging:
       driver: "json-file"
       options:
