@@ -9,28 +9,6 @@ import (
 	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
-var ProbeImages = []string{
-	"logstash",
-	"datasources",
-	"wazuh",
-	"agent-manager",
-}
-
-var MasterImages = []string{
-	"opendistro",
-	"postgres",
-	"utmstack_frontend",
-	"utmstack_backend",
-	"correlation",
-	"filebrowser",
-}
-
-var ProbeStandardImages = append(ProbeImages, "openvas")
-
-var MasterLiteImages = append(ProbeImages, MasterImages...)
-
-var MasterStandardImages = append(ProbeStandardImages, MasterImages...)
-
 func RunEnvCmd(mode string, env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
 	cmd.Env = append(os.Environ(), env...)

@@ -81,6 +81,7 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		Correlation:      "http://correlation:8080/v1/newlog",
 		Rules:            rules,
 		Tag:              tag,
+		Kind:             "master",
 	}
 
 	if !lite {
@@ -136,10 +137,6 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	}
 
 	if err := ConfigureFirewall(mode, c); err != nil {
-		return err
-	}
-
-	if err := ConfigureUpdater(mode); err != nil {
 		return err
 	}
 

@@ -74,6 +74,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		ScannerIP:        tunIP,
 		Correlation:      "http://10.21.199.1:9090/v1/newlog",
 		Tag:              tag,
+		Kind:             "probe",
 	}
 
 	if !lite {
@@ -92,10 +93,6 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 	}
 
 	if err := ConfigureFirewall(mode, c); err != nil {
-		return err
-	}
-
-	if err := ConfigureUpdater(mode); err != nil {
 		return err
 	}
 

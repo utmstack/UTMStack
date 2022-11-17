@@ -10,6 +10,7 @@ volumes:
   ossec_var:
   openvas_data:
   geoip_data:
+  updates:
 
 services:
   watchtower:
@@ -152,6 +153,30 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+
+  autoupdate:
+    container_name: autoupdate
+    restart: always
+    image: "ghcr.io/quantfall/utmstackupdates:v9-testing"
+    volumes:
+      - postgres_data:/mnt/postgres
+      - ossec_logs:/mnt/ossec_logs
+      - ossec_var:/mnt/ossec_var
+      - openvas_data:/mnt/openvas
+      - geoip_data:/mnt/geoip
+      - updates:/mnt/updates
+      - /utmstack:/mnt/utmstack
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    ports:
+      - 9001:9001
+    environment:
+      - KIND={{.Kind}}
+      - FREQUENCY=5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "52m"
 `
 	masterTemplate = `
   node1:

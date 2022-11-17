@@ -25,6 +25,7 @@ type Config struct {
 	Correlation      string
 	Rules            string
 	Tag              string
+	Kind             string
 }
 
 func InstallDocker(mode string) error {
@@ -86,47 +87,19 @@ func InitDocker(mode string, c Config, master bool, tag string, lite bool) error
 		return err
 	}
 
-	if err := RunCmd(mode, "docker", "pull", "containrrr/watchtower"); err != nil {
-		return errors.New("failed to pull docker image: containrrr/watchtower")
-	}
-
 	var composerTemplate string
 
 	// pull images from registry
 	if master {
 		if lite {
-			for _, image := range MasterLiteImages {
-				image = "utmstack.azurecr.io/" + image + ":" + tag
-				if err := RunCmd(mode, "docker", "pull", image); err != nil {
-					return errors.New("failed to pull docker image: " + image)
-				}
-			}
 			composerTemplate = masterTemplateLite
 		} else {
-			for _, image := range MasterStandardImages {
-				image = "utmstack.azurecr.io/" + image + ":" + tag
-				if err := RunCmd(mode, "docker", "pull", image); err != nil {
-					return errors.New("failed to pull docker image: " + image)
-				}
-			}
 			composerTemplate = masterTemplateStandard
 		}
 	} else {
 		if lite {
-			for _, image := range ProbeImages {
-				image = "utmstack.azurecr.io/" + image + ":" + tag
-				if err := RunCmd(mode, "docker", "pull", image); err != nil {
-					return errors.New("failed to pull docker image: " + image)
-				}
-			}
 			composerTemplate = probeTemplateLite
 		} else {
-			for _, image := range ProbeStandardImages {
-				image = "utmstack.azurecr.io/" + image + ":" + tag
-				if err := RunCmd(mode, "docker", "pull", image); err != nil {
-					return errors.New("failed to pull docker image: " + image)
-				}
-			}
 			composerTemplate = probeTemplateStandard
 		}
 	}
