@@ -4,7 +4,7 @@
 
 ### Operating System
 
-This installation guide provides instructions to perform the UTMStack installation on Ubuntu 20.04 LTS.
+This installation guide provides instructions to perform the UTMStack installation on Ubuntu 20.04 LTS and 22.04 LTS.
 
 ### Resources for Master
 
