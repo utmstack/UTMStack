@@ -14,5 +14,9 @@ func ConfigureFirewall(mode string, c Config) error {
 		return errors.New("failed to generate after.rules file: " + err.Error())
 	}
 
+	if err := RunCmd(mode, "sh", "-c", "echo y | sudo ufw enable"); err != nil {
+		return err
+	}
+
 	return nil
 }
