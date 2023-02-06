@@ -1,0 +1,97 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 2 (0x2)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=US, ST=FL, L=Miami, O=AtlasInside, OU=IT, CN=AtlasInside CA/name=Authority/emailAddress=osmontero@icloud.com
+        Validity
+            Not Before: Aug  7 17:48:12 2020 GMT
+            Not After : Aug  5 17:48:12 2030 GMT
+        Subject: C=US, ST=FL, L=Miami, O=AtlasInside, OU=IT, CN=client/name=Authority/emailAddress=osmontero@icloud.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:a8:19:16:8a:de:97:f5:47:e4:b7:b1:e5:ba:15:
+                    67:88:c0:12:fa:2e:7f:15:ab:87:e9:dc:ef:ee:7f:
+                    4e:4a:0e:a6:aa:44:0d:d1:57:6a:7a:8e:39:32:0c:
+                    e9:c4:64:3b:c0:bb:38:0a:ac:9d:9c:75:08:4a:45:
+                    91:e4:5f:bf:61:26:c5:6a:52:23:90:45:b5:91:a2:
+                    c5:b6:5f:6f:31:ea:75:57:17:91:09:63:55:e7:bd:
+                    fb:13:44:c3:06:ae:ed:c1:e3:95:1b:c4:5b:f9:cf:
+                    8a:93:00:08:8c:e8:1e:9a:c0:e3:f6:8c:2c:18:3a:
+                    74:42:3e:e6:1e:f7:d6:66:c3:39:5f:85:25:d9:5f:
+                    da:92:51:32:19:43:e4:53:d1:a8:fc:a1:ea:ea:a4:
+                    f8:f2:23:cb:ae:04:ba:20:dd:11:88:f7:db:5f:f0:
+                    70:ab:0e:9b:eb:34:65:95:6d:72:f1:de:c8:2a:73:
+                    60:66:07:16:66:e5:48:eb:13:2a:66:d1:6f:a2:8f:
+                    e4:ff:70:71:54:7d:e5:32:23:c7:f4:bc:51:f5:57:
+                    c0:ae:e4:d4:c1:e1:0a:30:bf:55:7d:5e:e5:bb:b1:
+                    d1:b8:da:68:d5:8e:ea:d2:96:fb:76:c8:8b:11:49:
+                    8f:5a:47:a2:b0:97:dc:48:4a:d1:61:5c:84:33:2e:
+                    04:13
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                Easy-RSA Generated Certificate
+            X509v3 Subject Key Identifier: 
+                40:D5:5F:99:60:D5:48:3A:73:39:69:0E:BD:D0:2D:81:AF:5A:C8:4F
+            X509v3 Authority Key Identifier: 
+                keyid:95:AD:58:9D:B7:F3:39:49:5E:84:7F:42:A3:CC:41:9E:FA:95:C5:D5
+                DirName:/C=US/ST=FL/L=Miami/O=AtlasInside/OU=IT/CN=AtlasInside CA/name=Authority/emailAddress=osmontero@icloud.com
+                serial:09:7D:A2:C2:C7:D4:39:EA:E4:01:6A:7C:BD:65:2E:AA:47:4F:2A:1B
+
+            X509v3 Extended Key Usage: 
+                TLS Web Client Authentication
+            X509v3 Key Usage: 
+                Digital Signature
+            X509v3 Subject Alternative Name: 
+                DNS:client
+    Signature Algorithm: sha256WithRSAEncryption
+         0e:4e:95:bd:53:cd:9a:41:12:77:01:f1:8c:b5:bc:1a:bd:7d:
+         df:21:77:95:42:89:1b:a4:bc:24:23:9f:17:16:34:c8:73:3f:
+         9b:cb:b3:ad:6a:be:34:09:2f:b3:a3:2a:2c:62:64:47:21:36:
+         56:26:6d:47:74:27:d4:8f:93:a8:9b:85:8a:e7:92:ea:3b:9a:
+         79:55:ac:63:79:69:ac:d8:49:ed:d0:20:02:b4:c4:3c:99:59:
+         c9:32:44:cd:74:6c:95:cc:37:21:38:e4:41:7f:f7:a1:55:75:
+         48:f9:7e:b0:96:5b:32:26:ce:70:f2:a3:51:fd:0e:01:09:97:
+         47:2b:9b:01:d8:03:df:68:ee:a9:cc:39:6a:1c:3c:35:01:87:
+         59:1b:b3:35:26:9e:95:f3:73:76:a4:ed:c0:50:80:08:76:55:
+         2e:d1:5e:96:67:78:dd:4f:81:65:24:c8:88:4f:d3:b2:4e:22:
+         d8:c2:cf:25:ab:db:9f:50:e7:aa:c3:b0:e3:58:91:41:32:f3:
+         71:c2:98:97:07:34:4f:31:8e:5c:78:95:46:f1:6f:6d:bd:3c:
+         da:b6:88:b9:9f:a6:54:6e:21:16:3f:0a:82:4a:dc:d3:72:2d:
+         31:9e:de:cf:54:43:f7:26:37:40:42:bc:f7:a3:3c:05:33:a9:
+         94:7b:71:c7
+-----BEGIN CERTIFICATE-----
+MIIFKTCCBBGgAwIBAgIBAjANBgkqhkiG9w0BAQsFADCBnzELMAkGA1UEBhMCVVMx
+CzAJBgNVBAgTAkZMMQ4wDAYDVQQHEwVNaWFtaTEUMBIGA1UEChMLQXRsYXNJbnNp
+ZGUxCzAJBgNVBAsTAklUMRcwFQYDVQQDEw5BdGxhc0luc2lkZSBDQTESMBAGA1UE
+KRMJQXV0aG9yaXR5MSMwIQYJKoZIhvcNAQkBFhRvc21vbnRlcm9AaWNsb3VkLmNv
+bTAeFw0yMDA4MDcxNzQ4MTJaFw0zMDA4MDUxNzQ4MTJaMIGXMQswCQYDVQQGEwJV
+UzELMAkGA1UECBMCRkwxDjAMBgNVBAcTBU1pYW1pMRQwEgYDVQQKEwtBdGxhc0lu
+c2lkZTELMAkGA1UECxMCSVQxDzANBgNVBAMTBmNsaWVudDESMBAGA1UEKRMJQXV0
+aG9yaXR5MSMwIQYJKoZIhvcNAQkBFhRvc21vbnRlcm9AaWNsb3VkLmNvbTCCASIw
+DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKgZForel/VH5Lex5boVZ4jAEvou
+fxWrh+nc7+5/TkoOpqpEDdFXanqOOTIM6cRkO8C7OAqsnZx1CEpFkeRfv2EmxWpS
+I5BFtZGixbZfbzHqdVcXkQljVee9+xNEwwau7cHjlRvEW/nPipMACIzoHprA4/aM
+LBg6dEI+5h731mbDOV+FJdlf2pJRMhlD5FPRqPyh6uqk+PIjy64EuiDdEYj321/w
+cKsOm+s0ZZVtcvHeyCpzYGYHFmblSOsTKmbRb6KP5P9wcVR95TIjx/S8UfVXwK7k
+1MHhCjC/VX1e5bux0bjaaNWO6tKW+3bIixFJj1pHorCX3EhK0WFchDMuBBMCAwEA
+AaOCAXQwggFwMAkGA1UdEwQCMAAwLQYJYIZIAYb4QgENBCAWHkVhc3ktUlNBIEdl
+bmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUQNVfmWDVSDpzOWkOvdAtga9a
+yE8wgd8GA1UdIwSB1zCB1IAUla1YnbfzOUlehH9Co8xBnvqVxdWhgaWkgaIwgZ8x
+CzAJBgNVBAYTAlVTMQswCQYDVQQIEwJGTDEOMAwGA1UEBxMFTWlhbWkxFDASBgNV
+BAoTC0F0bGFzSW5zaWRlMQswCQYDVQQLEwJJVDEXMBUGA1UEAxMOQXRsYXNJbnNp
+ZGUgQ0ExEjAQBgNVBCkTCUF1dGhvcml0eTEjMCEGCSqGSIb3DQEJARYUb3Ntb250
+ZXJvQGljbG91ZC5jb22CFAl9osLH1Dnq5AFqfL1lLqpHTyobMBMGA1UdJQQMMAoG
+CCsGAQUFBwMCMAsGA1UdDwQEAwIHgDARBgNVHREECjAIggZjbGllbnQwDQYJKoZI
+hvcNAQELBQADggEBAA5Olb1TzZpBEncB8Yy1vBq9fd8hd5VCiRukvCQjnxcWNMhz
+P5vLs61qvjQJL7OjKixiZEchNlYmbUd0J9SPk6ibhYrnkuo7mnlVrGN5aazYSe3Q
+IAK0xDyZWckyRM10bJXMNyE45EF/96FVdUj5frCWWzImznDyo1H9DgEJl0crmwHY
+A99o7qnMOWocPDUBh1kbszUmnpXzc3ak7cBQgAh2VS7RXpZneN1PgWUkyIhP07JO
+ItjCzyWr259Q56rDsONYkUEy83HCmJcHNE8xjlx4lUbxb229PNq2iLmfplRuIRY/
+CoJK3NNyLTGe3s9UQ/cmN0BCvPejPAUzqZR7ccc=
+-----END CERTIFICATE-----

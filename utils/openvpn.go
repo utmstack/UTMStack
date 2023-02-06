@@ -14,27 +14,27 @@ func InstallOpenVPNMaster(mode string) error {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/master/ca.crt", "-O", "/etc/openvpn/ca.crt"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/ca.crt", "-O", "/etc/openvpn/ca.crt"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/master/ta.key", "-O", "/etc/openvpn/ta.key"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/ta.key", "-O", "/etc/openvpn/ta.key"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/master/dh2048.pem", "-O", "/etc/openvpn/dh2048.pem"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/dh2048.pem", "-O", "/etc/openvpn/dh2048.pem"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/master/server.conf", "-O", "/etc/openvpn/server.conf"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/server.conf", "-O", "/etc/openvpn/server.conf"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/master/server.crt", "-O", "/etc/openvpn/server.crt"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/server.crt", "-O", "/etc/openvpn/server.crt"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/master/server.key", "-O", "/etc/openvpn/server.key"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/server.key", "-O", "/etc/openvpn/server.key"); err != nil {
 		return err
 	}
 
@@ -56,27 +56,27 @@ func InstallOpenVPNClient(mode, host string) error {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/proxy/ca.crt", "-O", "/etc/openvpn/ca.crt"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/ca.crt", "-O", "/etc/openvpn/ca.crt"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/proxy/ta.key", "-O", "/etc/openvpn/ta.key"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/ta.key", "-O", "/etc/openvpn/ta.key"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/proxy/client.csr", "-O", "/etc/openvpn/client.csr"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/client.csr", "-O", "/etc/openvpn/client.csr"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/proxy/client.conf", "-O", "/etc/openvpn/client.conf"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/client.conf", "-O", "/etc/openvpn/client.conf"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/proxy/client.crt", "-O", "/etc/openvpn/client.crt"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/client.crt", "-O", "/etc/openvpn/client.crt"); err != nil {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "https://updates.utmstack.com/assets/openvpn/proxy/client.key", "-O", "/etc/openvpn/client.key"); err != nil {
+	if err := RunCmd(mode, "wget", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/client.key", "-O", "/etc/openvpn/client.key"); err != nil {
 		return err
 	}
 

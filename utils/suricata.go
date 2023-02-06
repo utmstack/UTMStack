@@ -24,7 +24,7 @@ func InstallSuricata(mode string, iface string) error {
 		return err
 	}
 
-	if err := RunCmd(mode, "wget", "-O", "/etc/suricata/suricata.yaml", "https://updates.utmstack.com/assets/suricata.yaml"); err != nil {
+	if err := RunCmd(mode, "wget", "-O", "/etc/suricata/suricata.yaml", "https://raw.githubusercontent.com/AtlasInsideCorp/UTMStackInstaller/master/defaults/suricata.yaml"); err != nil {
 		return err
 	}
 
