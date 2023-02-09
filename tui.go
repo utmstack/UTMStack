@@ -141,7 +141,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			if err != nil {
 				msg = errTag + err.Error() + ". " + logFileAnnouncement
 			} else {
-				msg = fmt.Sprintf("Installed successfully. Master password: %s", dbPass)
+				msg = fmt.Sprintf("Successfully installed. Master password: %s", dbPass)
 			}
 			showResults(pages, app, msg)
 			app.Draw()
@@ -184,7 +184,7 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 				if err != nil {
 					msg = errTag + err.Error() + ". " + logFileAnnouncement
 				} else {
-					msg = "Program installed successfully. " + logFileAnnouncement
+					msg = "Successfully installed. " + logFileAnnouncement
 				}
 				showResults(pages, app, msg)
 				app.Draw()
