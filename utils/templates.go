@@ -414,7 +414,6 @@ services:
 
 # ALLOW SSH AND OPENVPN PORTS
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
--A INPUT -p tcp -m tcp --dport 1194 -j ACCEPT
 
 # ALLOW ALL FROM VPN AND DOCKER SUBNETS
 -A INPUT -s 192.168.0.0/16 -j ACCEPT
