@@ -6,7 +6,7 @@
 
 This installation guide provides instructions to perform the UTMStack installation on Ubuntu 20.04 LTS and 22.04 LTS.
 
-### Resources for Master
+### MINIMUM RECOMMENDED RESOURCES FOR MASTER
 
 - For non-prod environments: 4 Cores, 10 GB of RAM, 50GB Disk Space (Minimum requered)
 - For 100 GB of live logs: 4 Cores, 12 GB RAM, 180 GB Disk Space
@@ -14,7 +14,7 @@ This installation guide provides instructions to perform the UTMStack installati
 - For 10000 GB of cold data and 1000GB of live logs: 16 Cores, 64 GB RAM, 11080 Disk Space
 - For 10000GB of live logs: A cluster of 10 servers with 16 Cores, 32 GB RAM, 1080GB Disk Space
 
-### Resources for Probe or Proxy server
+### MINIMUM RECOMMENDED RESOURCES FOR PROBE
 
 - 50 GB Disk Space for system.
 - 4 Cores. (May require more cores depending on how much data is collected and the number of devices monitored)
