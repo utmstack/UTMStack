@@ -9,7 +9,7 @@ import (
 )
 
 var tag string
-var lite bool
+var lite = true
 
 func main() {
 	tag = os.Getenv("TAG")
@@ -17,9 +17,8 @@ func main() {
 		tag = "v9"
 	}
 
-	if os.Getenv("LITE") == "true" {
-		lite = true
-	} else {
+	switch os.Getenv("LITE") {
+	case "false":
 		lite = false
 	}
 
@@ -31,7 +30,7 @@ func main() {
 	masterCmd := parser.NewCommand("master", "Install Master")
 	masterDataDir := "/utmstack"
 	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Please use a secure password"})
-	
+
 	probeCmd := parser.NewCommand("probe", "Install Probe")
 	probeDataDir := "/utmstack"
 	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Generated when the master was installed"})

@@ -12,17 +12,17 @@ import (
 
 func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 	if lite {
-		if err := CheckCPU(2); err != nil {
+		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(5); err != nil {
+		if err := CheckMem(7); err != nil {
 			return err
 		}
 	} else {
 		if err := CheckCPU(4); err != nil {
 			return err
 		}
-		if err := CheckMem(7); err != nil {
+		if err := CheckMem(11); err != nil {
 			return err
 		}
 	}
@@ -85,10 +85,8 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		Last:             -1,
 	}
 
-	if !lite {
-		if err := InstallSuricata(mode, mainIface); err != nil {
-			return err
-		}
+	if err := InstallSuricata(mode, mainIface); err != nil {
+		return err
 	}
 
 	// Generate auto-signed cert and key
