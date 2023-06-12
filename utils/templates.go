@@ -1,8 +1,8 @@
 package utils
 
 const (
-	composerFile      = "docker-compose.yml"
-	probeTemplateLite = `version: "3"
+	composerFile          = "docker-compose.yml"
+	probeTemplateStandard = `version: "3"
 
 volumes:
   postgres_data:
@@ -370,30 +370,7 @@ services:
       options:
         max-size: "50m"
 `
-	openvasTemplate = `
-  openvas:
-    container_name: openvas
-    restart: always
-    image: "utmstack.azurecr.io/openvas:{{.Tag}}"
-    volumes:
-      - openvas_data:/data
-    ports:
-      - "8888:5432"
-      - "9390:9390"
-      - "9392:9392"
-    environment:
-      - USERNAME=admin
-      - "PASSWORD={{.DBPass}}"
-      - "DB_PASSWORD={{.DBPass}}"
-      - HTTPS=0
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-`
-	probeTemplateStandard  = probeTemplateLite + openvasTemplate
-	masterTemplateStandard = probeTemplateLite + masterTemplate + openvasTemplate
-	masterTemplateLite     = probeTemplateLite + masterTemplate
+	masterTemplateStandard = probeTemplateStandard + masterTemplate
 	ufw                    = `# rules.input-after
 #
 # Rules that should be run after the ufw command line added rules. Custom

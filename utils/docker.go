@@ -78,7 +78,7 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode string, c Config, master bool, tag string, lite bool) error {
+func InitDocker(mode string, c Config, master bool, tag string) error {
 	if err := InstallDocker(mode); err != nil {
 		return err
 	}
@@ -92,17 +92,9 @@ func InitDocker(mode string, c Config, master bool, tag string, lite bool) error
 
 	// pull images from registry
 	if master {
-		if lite {
-			composerTemplate = masterTemplateLite
-		} else {
-			composerTemplate = masterTemplateStandard
-		}
+		composerTemplate = masterTemplateStandard
 	} else {
-		if lite {
-			composerTemplate = probeTemplateLite
-		} else {
-			composerTemplate = probeTemplateStandard
-		}
+		composerTemplate = probeTemplateStandard
 	}
 
 	// generate composer file and deploy

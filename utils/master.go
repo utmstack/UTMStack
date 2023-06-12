@@ -10,21 +10,13 @@ import (
 	sigar "github.com/cloudfoundry/gosigar"
 )
 
-func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
-	if lite {
-		if err := CheckCPU(4); err != nil {
-			return err
-		}
-		if err := CheckMem(7); err != nil {
-			return err
-		}
-	} else {
-		if err := CheckCPU(4); err != nil {
-			return err
-		}
-		if err := CheckMem(11); err != nil {
-			return err
-		}
+func InstallMaster(mode, datadir, pass, tag string) error {
+	if err := CheckCPU(4); err != nil {
+		return err
+	}
+
+	if err := CheckMem(8); err != nil {
+		return err
 	}
 
 	esData := MakeDir(0777, datadir, "opendistro", "data")
@@ -64,7 +56,6 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 	var c = Config{
 		ServerType:       "aio",
-		Lite:             lite,
 		ServerName:       serverName,
 		DBHost:           mainIP,
 		DBPass:           pass,
@@ -85,16 +76,12 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 		Last:             -1,
 	}
 
-	if err := InstallSuricata(mode, mainIface); err != nil {
-		return err
-	}
-
 	// Generate auto-signed cert and key
 	if err := generateCerts(cert); err != nil {
 		return err
 	}
 
-	if err := InitDocker(mode, c, true, tag, lite); err != nil {
+	if err := InitDocker(mode, c, true, tag); err != nil {
 		return err
 	}
 
@@ -105,11 +92,6 @@ func InstallMaster(mode, datadir, pass, tag string, lite bool) error {
 
 	// Initialize PostgreSQL Database
 	if err := initializePostgres(pass); err != nil {
-		return err
-	}
-
-	// Install OpenVPN Master
-	if err := InstallOpenVPNMaster(mode); err != nil {
 		return err
 	}
 

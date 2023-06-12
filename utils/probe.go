@@ -1,27 +1,20 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
 	sigar "github.com/cloudfoundry/gosigar"
 )
 
-func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
-	if lite {
-		if err := CheckCPU(4); err != nil {
-			return err
-		}
-		if err := CheckMem(5); err != nil {
-			return err
-		}
-	} else {
-		if err := CheckCPU(4); err != nil {
-			return err
-		}
-		if err := CheckMem(7); err != nil {
-			return err
-		}
+func InstallProbe(mode, datadir, pass, host, tag string) error {
+	if err := CheckCPU(2); err != nil {
+		return err
+	}
+
+	if err := CheckMem(4); err != nil {
+		return err
 	}
 
 	logstashPipeline := MakeDir(0777, datadir, "logstash", "pipeline")
@@ -30,10 +23,6 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 
 	serverName, err := os.Hostname()
 	if err != nil {
-		return err
-	}
-
-	if err := InstallOpenVPNClient(mode, host); err != nil {
 		return err
 	}
 
@@ -61,9 +50,8 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 
 	var c = Config{
 		ServerType:       "probe",
-		Lite:             lite,
 		ServerName:       serverName,
-		DBHost:           "10.21.199.1",
+		DBHost:           host,
 		DBPass:           pass,
 		LogstashPipeline: logstashPipeline,
 		LSMem:            lm,
@@ -72,14 +60,10 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		Datasources:      datasourcesDir,
 		ScannerIface:     mainIface,
 		ScannerIP:        tunIP,
-		Correlation:      "http://10.21.199.1:9090/v1/newlog",
+		Correlation:      fmt.Sprintf("http://%s:9090/v1/newlog", host),
 		Tag:              tag,
 		Kind:             "probe",
 		Last:             -1,
-	}
-
-	if err := InstallSuricata(mode, mainIface); err != nil {
-		return err
 	}
 
 	// Generate auto-signed cert and key
@@ -87,7 +71,7 @@ func InstallProbe(mode, datadir, pass, host, tag string, lite bool) error {
 		return err
 	}
 
-	if err := InitDocker(mode, c, false, tag, lite); err != nil {
+	if err := InitDocker(mode, c, false, tag); err != nil {
 		return err
 	}
 

@@ -136,7 +136,7 @@ func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 
 		pages.HidePage(masterPageIndex)
 		go func() {
-			err := utils.InstallMaster("ui", datadir, dbPass, tag, lite)
+			err := utils.InstallMaster("ui", datadir, dbPass, tag)
 			var msg string
 			if err != nil {
 				msg = errTag + err.Error() + ". " + logFileAnnouncement
@@ -179,7 +179,7 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 			)
 			pages.HidePage(probePageIndex)
 			go func() {
-				err := utils.InstallProbe("ui", datadir, dbPass, host, tag, lite)
+				err := utils.InstallProbe("ui", datadir, dbPass, host, tag)
 				var msg string
 				if err != nil {
 					msg = errTag + err.Error() + ". " + logFileAnnouncement
