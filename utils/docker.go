@@ -2,13 +2,12 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
-	"time"
 )
 
 type Config struct {
 	ServerType       string
-	Lite             bool
 	ServerName       string
 	DBHost           string
 	DBPass           string
@@ -20,13 +19,9 @@ type Config struct {
 	ESBackups        string
 	Cert             string
 	Datasources      string
-	ScannerIface     string
-	ScannerIP        string
 	Correlation      string
 	Rules            string
 	Tag              string
-	Kind             string
-	Last             int64
 }
 
 func InstallDocker(mode string) error {
@@ -78,8 +73,13 @@ func InstallDocker(mode string) error {
 	return nil
 }
 
-func InitDocker(mode string, c Config, master bool, tag string) error {
+func InitDocker(mode string, c Config, master bool, tag, mainIP string) error {
 	if err := InstallDocker(mode); err != nil {
+		return err
+	}
+
+	// init swarm
+	if err := RunCmd(mode, "docker", "swarm", "init", "--advertise-addr", mainIP); err != nil {
 		return err
 	}
 
@@ -90,7 +90,6 @@ func InitDocker(mode string, c Config, master bool, tag string) error {
 
 	var composerTemplate string
 
-	// pull images from registry
 	if master {
 		composerTemplate = masterTemplateStandard
 	} else {
@@ -102,18 +101,9 @@ func InitDocker(mode string, c Config, master bool, tag string) error {
 		return errors.New("failed to generate compose file: " + err.Error())
 	}
 
-	for intent := 0; intent <= 10; intent++ {
-		time.Sleep(1 * time.Minute)
-
-		err := RunCmd(mode, "docker-compose", "up", "-d")
-
-		if err != nil && intent <= 9 {
-			continue
-		} else if err == nil {
-			break
-		}
-
-		return err
+	// deploy stack
+	if err := RunCmd(mode, "docker", "stack", "deploy", "-c", composerFile, tag); err != nil {
+		return fmt.Errorf("failed to deploy stack: %s", err.Error())
 	}
 
 	return nil

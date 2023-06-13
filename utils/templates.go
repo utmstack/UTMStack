@@ -1,7 +1,7 @@
 package utils
 
 const (
-	composerFile          = "docker-compose.yml"
+	composerFile          = "compose.yml"
 	probeTemplateStandard = `version: "3"
 
 volumes:
@@ -14,7 +14,6 @@ volumes:
 
 services:
   watchtower:
-    container_name: watchtower
     restart: always
     image: containrrr/watchtower
     volumes:
@@ -27,9 +26,12 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   logstash:
-    container_name: logstash
     restart: always
     image: "utmstack.azurecr.io/logstash:{{.Tag}}"
     volumes:
@@ -56,9 +58,12 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   datasources_mutate:
-    container_name: datasources_mutate
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     volumes:
@@ -75,10 +80,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_cleaner:
-    container_name: datasources_cleaner
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     volumes:
@@ -95,10 +103,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["python3", "-m", "utmstack.cleaner"]
 
   datasources_probe_api:
-    container_name: datasources_probe_api
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     volumes:
@@ -115,10 +126,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["/pw.sh"]
 
   datasources_agent_manager:
-    container_name: datasources_agent_manager
     restart: always
     image: "utmstack.azurecr.io/agent-manager:{{.Tag}}"
     volumes:
@@ -136,11 +150,14 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["/run.sh"]
 `
 	masterTemplate = `
   node1:
-    container_name: node1
     restart: always
     image: "utmstack.azurecr.io/opensearch:{{.Tag}}"
     ports:
@@ -158,9 +175,12 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   postgres:
-    container_name: postgres
     restart: always
     image: "utmstack.azurecr.io/postgres:{{.Tag}}"
     environment:
@@ -174,10 +194,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   frontend:
-    container_name: frontend
     restart: always
     image: "utmstack.azurecr.io/utmstack_frontend:{{.Tag}}"
     depends_on:
@@ -192,9 +215,12 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   datasources_aws:
-    container_name: datasources_aws
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     depends_on:
@@ -209,10 +235,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["python3", "-m", "utmstack.aws"]
 
   datasources_office365:
-    container_name: datasources_office365
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     depends_on:
@@ -227,10 +256,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["python3", "-m", "utmstack.office365"]
 
   datasources_sophos:
-    container_name: datasources_sophos
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     depends_on:
@@ -245,10 +277,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["python3", "-m", "utmstack.sophos"]
 
   datasources_logan:
-    container_name: datasources_logan
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     depends_on:
@@ -265,10 +300,13 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     command: ["python3", "-m", "utmstack.logan"]
 
   backend:
-    container_name: backend
     restart: always
     image: "utmstack.azurecr.io/utmstack_backend:{{.Tag}}"
     depends_on:
@@ -288,9 +326,12 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   correlation:
-    container_name: correlation
     restart: always
     image: "utmstack.azurecr.io/correlation:{{.Tag}}"
     volumes:
@@ -316,9 +357,12 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   filebrowser:
-    container_name: filebrowser
     restart: always
     image: "utmstack.azurecr.io/filebrowser:{{.Tag}}"
     volumes:
@@ -329,59 +373,10 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 `
 	masterTemplateStandard = probeTemplateStandard + masterTemplate
-	ufw                    = `# rules.input-after
-#
-# Rules that should be run after the ufw command line added rules. Custom
-# rules should be added to one of these chains:
-#   ufw-after-input
-#   ufw-after-output
-#   ufw-after-forward
-#
-
-# Don't delete these required lines, otherwise there will be errors
-*filter
-:ufw-after-input - [0:0]
-:ufw-after-output - [0:0]
-:ufw-after-forward - [0:0]
-:ufw-user-forward - [0:0]
-:DOCKER-USER - [0:0]
-# End required lines
-
-# ALLOW SSH AND OPENVPN PORTS
--A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
-
-# ALLOW ALL FROM VPN AND DOCKER SUBNETS
--A INPUT -s 192.168.0.0/16 -j ACCEPT
--A INPUT -s 172.16.0.0/12 -j ACCEPT
--A INPUT -s 10.0.0.0/8 -j ACCEPT
--A INPUT -s {{.DBHost}} -j ACCEPT
--A DOCKER-USER -s 192.168.0.0/16 -j ACCEPT
--A DOCKER-USER -s 172.16.0.0/12 -j ACCEPT
--A DOCKER-USER -s 10.0.0.0/8 -j ACCEPT
--A DOCKER-USER -s {{.DBHost}} -j ACCEPT
-
-# SECURING ELASTIC AND POSTGRES
--A DOCKER-USER -p tcp -m tcp --dport 5432 -j DROP
--A DOCKER-USER -p tcp -m tcp --dport 9200 -j DROP
--A DOCKER-USER -p tcp -m tcp --dport 8888 -j DROP
--A DOCKER-USER -p tcp -m tcp --dport 9390 -j DROP
--A DOCKER-USER -p tcp -m tcp --dport 9392 -j DROP
--A DOCKER-USER -p tcp -m tcp --dport 55000 -j DROP
-
-# don't log noisy services by default
--A ufw-after-input -p udp --dport 137 -j ufw-skip-to-policy-input
--A ufw-after-input -p udp --dport 138 -j ufw-skip-to-policy-input
--A ufw-after-input -p tcp --dport 139 -j ufw-skip-to-policy-input
--A ufw-after-input -p tcp --dport 445 -j ufw-skip-to-policy-input
--A ufw-after-input -p udp --dport 67 -j ufw-skip-to-policy-input
--A ufw-after-input -p udp --dport 68 -j ufw-skip-to-policy-input
-
-# don't log noisy broadcast
--A ufw-after-input -m addrtype --dst-type BROADCAST -j ufw-skip-to-policy-input
-
-# don't delete the 'COMMIT' line or these rules won't be processed
-COMMIT
-`
 )

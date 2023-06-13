@@ -26,12 +26,7 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 		return err
 	}
 
-	tunIP, err := GetIfaceIP("tun0")
-	if err != nil {
-		return err
-	}
-
-	mainIface, err := GetMainIface(mode)
+	mainIP, err := GetMainIP()
 	if err != nil {
 		return err
 	}
@@ -58,12 +53,8 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 		Updates:          updates,
 		Cert:             cert,
 		Datasources:      datasourcesDir,
-		ScannerIface:     mainIface,
-		ScannerIP:        tunIP,
 		Correlation:      fmt.Sprintf("http://%s:9090/v1/newlog", host),
 		Tag:              tag,
-		Kind:             "probe",
-		Last:             -1,
 	}
 
 	// Generate auto-signed cert and key
@@ -71,9 +62,9 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, c, false, tag); err != nil {
+	if err := InitDocker(mode, c, false, tag, mainIP); err != nil {
 		return err
 	}
-	
+
 	return nil
 }

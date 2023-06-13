@@ -31,11 +31,6 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
-	mainIface, err := GetMainIface(mode)
-	if err != nil {
-		return err
-	}
-
 	mainIP, err := GetMainIP()
 	if err != nil {
 		return err
@@ -67,13 +62,9 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		ESBackups:        esBackups,
 		Cert:             cert,
 		Datasources:      datasourcesDir,
-		ScannerIface:     mainIface,
-		ScannerIP:        mainIP,
 		Correlation:      "http://correlation:8080/v1/newlog",
 		Rules:            rules,
 		Tag:              tag,
-		Kind:             "master",
-		Last:             -1,
 	}
 
 	// Generate auto-signed cert and key
@@ -81,7 +72,7 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
-	if err := InitDocker(mode, c, true, tag); err != nil {
+	if err := InitDocker(mode, c, true, tag, mainIP); err != nil {
 		return err
 	}
 
