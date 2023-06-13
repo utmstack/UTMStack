@@ -37,7 +37,7 @@ func GetIfaceIP(iface string) (string, error) {
 	addr := strings.Split(cidr, "/")
 
 	if len(addr) == 0 {
-		return "", fmt.Errorf("cannot get tun0 address")
+		return "", fmt.Errorf("cannot get %s address", iface)
 	}
 
 	return addr[0], nil
