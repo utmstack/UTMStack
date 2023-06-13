@@ -74,10 +74,6 @@ func InstallProbe(mode, datadir, pass, host, tag string) error {
 	if err := InitDocker(mode, c, false, tag); err != nil {
 		return err
 	}
-
-	if err := ConfigureFirewall(mode, c); err != nil {
-		return err
-	}
-
+	
 	return nil
 }

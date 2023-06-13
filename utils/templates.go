@@ -78,7 +78,7 @@ services:
     command: ["python3", "-m", "utmstack.mutate"]
 
   datasources_cleaner:
-    container_name: datasources_transporter
+    container_name: datasources_cleaner
     restart: always
     image: "utmstack.azurecr.io/datasources:{{.Tag}}"
     volumes:
@@ -137,54 +137,14 @@ services:
       options:
         max-size: "50m"
     command: ["/run.sh"]
-
-  wazuh:
-    container_name: wazuh
-    restart: always
-    image: "utmstack.azurecr.io/wazuh:{{.Tag}}"
-    ports:
-      - "1514:1514"
-      - "1515:1515"
-      - "55000:55000"
-    volumes:
-      - ossec_logs:/var/ossec/logs
-      - ossec_var:/var/ossec
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-
-  autoupdate:
-    container_name: autoupdate
-    restart: always
-    image: "ghcr.io/quantfall/utmstackupdates:{{.Tag}}"
-    volumes:
-      - postgres_data:/mnt/postgres
-      - ossec_logs:/mnt/ossec_logs
-      - ossec_var:/mnt/ossec_var
-      - openvas_data:/mnt/openvas
-      - geoip_data:/mnt/geoip
-      - updates:/mnt/updates
-      - /utmstack:/mnt/utmstack
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    ports:
-      - 9001:9001
-    environment:
-      - KIND={{.Kind}}
-      - "LAST={{.Last}}"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "52m"
 `
 	masterTemplate = `
   node1:
     container_name: node1
     restart: always
-    image: "utmstack.azurecr.io/opendistro:{{.Tag}}"
+    image: "utmstack.azurecr.io/opensearch:{{.Tag}}"
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     volumes:
       - {{.ESData}}:/usr/share/elasticsearch/data
       - {{.ESBackups}}:/usr/share/elasticsearch/backups
@@ -209,7 +169,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     logging:
       driver: "json-file"
       options:
@@ -335,7 +295,7 @@ services:
     image: "utmstack.azurecr.io/correlation:{{.Tag}}"
     volumes:
       - geoip_data:/app/geosets
-      - {{.Rules}}:/app/rulesets/custom
+      - {{.Rules}}:/app/rulesets
     ports:
       - "9090:8080"
     environment:

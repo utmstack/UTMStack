@@ -85,16 +85,6 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 		return err
 	}
 
-	// configure elastic
-	if err := initializeElastic(); err != nil {
-		return err
-	}
-
-	// Initialize PostgreSQL Database
-	if err := initializePostgres(pass); err != nil {
-		return err
-	}
-
 	baseURL := "https://127.0.0.1/"
 
 	for intent := 0; intent <= 10; intent++ {
@@ -114,10 +104,6 @@ func InstallMaster(mode, datadir, pass, tag string) error {
 			break
 		}
 
-		return err
-	}
-
-	if err := ConfigureFirewall(mode, c); err != nil {
 		return err
 	}
 
