@@ -12,7 +12,6 @@ const (
 	actionPageIndex     = "0"
 	masterPageIndex     = "1"
 	probePageIndex      = "2"
-	uninstallPageIndex  = "3"
 	errTag              = "ERROR: "
 	logFileAnnouncement = "Please see the logs in /var/log/utm-setup.log for more details."
 )
@@ -24,7 +23,6 @@ func tui() {
 	pages.AddPage(actionPageIndex, actionPage(pages, app), true, true)
 	pages.AddPage(masterPageIndex, masterPage(pages, app), true, false)
 	pages.AddPage(probePageIndex, probePage(pages, app), true, false)
-	pages.AddPage(uninstallPageIndex, uninstallPage(pages, app), false, false)
 
 	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
@@ -80,43 +78,11 @@ func actionPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		AddItem("Install Probe", "", 'b', func() {
 			pages.SwitchToPage(probePageIndex)
 		}).
-		AddItem("Remove UTMStack", "", 'c', func() {
-			pages.SwitchToPage(uninstallPageIndex)
-		}).
 		AddItem("Quit", "", 'q', func() {
 			app.Stop()
 		})
 	list.SetBorder(true).SetTitle("UTMStack - Select Operation").SetTitleAlign(tview.AlignCenter).SetBorderPadding(1, 0, 1, 0)
 	return center(33, 12, list)
-}
-
-func uninstallPage(pages *tview.Pages, app *tview.Application) tview.Primitive {
-	return tview.NewModal().SetText("Are you sure you want to remove UTMStack?").
-		AddButtons([]string{"Remove", "Cancel"}).
-		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			if buttonIndex == 0 {
-				pages.AddPage(
-					"uninstalling-dialog",
-					tview.NewModal().SetText("Removing... This may take several minutes. Please wait."),
-					false,
-					true,
-				)
-				pages.HidePage(uninstallPageIndex)
-				go func() {
-					err := utils.Uninstall("ui")
-					var msg string
-					if err != nil {
-						msg = errTag + err.Error() + ". " + logFileAnnouncement
-					} else {
-						msg = "Successfully removed. " + logFileAnnouncement
-					}
-					showResults(pages, app, msg)
-					app.Draw()
-				}()
-			} else {
-				pages.SwitchToPage(actionPageIndex)
-			}
-		})
 }
 
 func masterPage(pages *tview.Pages, app *tview.Application) tview.Primitive {

@@ -19,7 +19,6 @@ func main() {
 	utils.CheckErr(utils.CheckDistro("ubuntu"))
 
 	parser := argparse.NewParser("", "UTMStack installer")
-	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
 
 	masterCmd := parser.NewCommand("master", "Install Master")
 	masterDataDir := "/utmstack"
@@ -34,8 +33,6 @@ func main() {
 		tui()
 	} else if err := parser.Parse(os.Args); err != nil {
 		fmt.Print(parser.Usage(err))
-	} else if removeCmd.Happened() {
-		utils.CheckErr(utils.Uninstall("cli"))
 	} else if masterCmd.Happened() {
 		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag))
 		fmt.Println("Successfully installed.")
