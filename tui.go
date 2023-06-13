@@ -169,7 +169,7 @@ func probePage(pages *tview.Pages, app *tview.Application) tview.Primitive {
 		if dbPass == "" || confirmDBPass == "" || host == "" {
 			alert(pages, "You must provide all requested data.")
 		} else if dbPass != confirmDBPass {
-			alert(pages, "Password confirmation does not match")
+			alert(pages, "Password confirmation does not match.")
 		} else {
 			pages.AddPage(
 				"installing-dialog",
