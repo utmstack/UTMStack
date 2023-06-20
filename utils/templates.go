@@ -6,6 +6,7 @@ const (
 
 volumes:
   postgres_data:
+  
   ossec_logs:
   ossec_var:
   openvas_data:

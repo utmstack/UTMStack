@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func generateCerts(folder string) error {
+func GenerateCerts(folder string) error {
 	ca := &x509.Certificate{
 		SerialNumber: big.NewInt(2019),
 		Subject: pkix.Name{

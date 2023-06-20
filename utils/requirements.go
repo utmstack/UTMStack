@@ -10,7 +10,11 @@ import (
 
 func CheckMem(size uint64) error {
 	m := sigar.Mem{}
-	m.Get()
+	err := m.Get()
+	if err != nil {
+		return err
+	}
+	
 	total := m.Total / 1024 / 1024 / 1024
 	if total < size {
 		return fmt.Errorf("your system does not have the minimal memory (%v GB) required: %v GB", total, size+1)
