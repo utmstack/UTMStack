@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"net/http"
+	"path"
 	"time"
 
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
@@ -14,6 +15,10 @@ func Master(c *Config) error {
 	}
 
 	if err := utils.CheckCPU(4); err != nil {
+		return err
+	}
+
+	if err := utils.GenerateCerts(path.Join(c.DataDir, "certs")); err != nil {
 		return err
 	}
 

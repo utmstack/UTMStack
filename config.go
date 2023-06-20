@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path"
 
 	"gopkg.in/yaml.v2"
 )
@@ -13,8 +14,10 @@ type Config struct {
 	DataDir    string `yaml:"data_dir"`
 }
 
+var configPath = path.Join("/root", "utmstack.yml")
+
 func (c *Config) Get() error {
-	config, err := os.ReadFile("/root/utmstack.yml")
+	config, err := os.ReadFile(configPath)
 	if err != nil {
 		return err
 	}
@@ -33,7 +36,7 @@ func (c *Config) Set() error {
 		return err
 	}
 
-	err = os.WriteFile("/root/utmstack.yml", config, 0644)
+	err = os.WriteFile(configPath, config, 0644)
 	if err != nil {
 		return err
 	}
