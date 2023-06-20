@@ -26,10 +26,11 @@ type Service struct {
 }
 
 type Volume struct {
-	External map[string]interface{}
+	External map[string]interface{} `yaml:"external,omitempty"`
 }
 
 type Compose struct {
-	Volumes  map[string]Volume
-	Services map[string]Service
+	Version  *string            `yaml:"version,omitempty"`
+	Volumes  map[string]Volume  `yaml:"volumes,omitempty"`
+	Services map[string]Service `yaml:"services,omitempty"`
 }

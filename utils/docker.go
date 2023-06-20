@@ -84,3 +84,11 @@ func InitSwarm(mainIP string) error {
 
 	return nil
 }
+
+func GenerateCompose() error {
+	return nil
+}
+
+func StackUP() error {
+	return nil
+}
