@@ -25,5 +25,6 @@ func Probe(c *Config) error {
 }
 
 func ConfigureRedirection(c *Config) error {
+	// TODO: implement
 	return nil
 }
