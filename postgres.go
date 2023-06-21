@@ -1,14 +1,14 @@
-package utils
+package main
 
 import (
 	"database/sql"
 	"fmt"
 )
 
-func initializePostgres(dbPassword string) error {
+func InitPostgres(c *Config) error {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
-		dbPassword)
+		c.Password)
 	srv, err := sql.Open("postgres", psqlconn)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func initializePostgres(dbPassword string) error {
 
 	// Connecting to utmstack
 	psqlconn = fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack",
-		dbPassword)
+		c.Password)
 	db, err := sql.Open("postgres", psqlconn)
 	if err != nil {
 		return err
@@ -48,19 +48,19 @@ func initializePostgres(dbPassword string) error {
 
 	// Creating utm_client
 	_, err = db.Exec(`CREATE TABLE public.utm_client (		
-	id serial NOT NULL,
-	client_name varchar(100) NULL,
-	client_domain varchar(100) NULL,
-	client_prefix varchar(10) NULL,
-	client_mail varchar(100) NULL,
-	client_user varchar(50) NULL,
-	client_pass varchar(50) NULL,
-	client_licence_creation timestamp(0) NULL,
-	client_licence_expire timestamp(0) NULL,
-	client_licence_id varchar(100) NULL,
-	client_licence_verified bool NOT NULL,
-	CONSTRAINT utm_client_pkey PRIMARY KEY (id)
-	);`)
+id serial NOT NULL,
+client_name varchar(100) NULL,
+client_domain varchar(100) NULL,
+client_prefix varchar(10) NULL,
+client_mail varchar(100) NULL,
+client_user varchar(50) NULL,
+client_pass varchar(50) NULL,
+client_licence_creation timestamp(0) NULL,
+client_licence_expire timestamp(0) NULL,
+client_licence_id varchar(100) NULL,
+client_licence_verified bool NOT NULL,
+CONSTRAINT utm_client_pkey PRIMARY KEY (id)
+);`)
 	if err != nil {
 		return err
 	}

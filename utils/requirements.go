@@ -10,18 +10,37 @@ import (
 
 func CheckMem(size uint64) error {
 	m := sigar.Mem{}
-	m.Get()
-	total := m.Total / 1024 / 1024 / 1024
-	if total < size {
-		return fmt.Errorf("your system does not have the minimal memory (%v GB) required: %v GB", total, size+1)
+	err := m.Get()
+	if err != nil {
+		return err
 	}
+
+	total := m.Total / 1024 / 1024 / 1024
+	if total < size+1 {
+		return fmt.Errorf("your system does not have the minimal memory required: %v GB", size+1)
+	}
+	return nil
+}
+
+func CheckDisk(size uint64) error {
+	d := sigar.FileSystemUsage{}
+	err := d.Get("/")
+	if err != nil {
+		return err
+	}
+
+	free := d.Free / 1024 / 1024 / 1024
+	if free < size+1 {
+		return fmt.Errorf("your system does not have the minimal disk space required: %v GB", size+1)
+	}
+
 	return nil
 }
 
 func CheckCPU(cores int) error {
 	c, _ := cpu.Counts(true)
 	if c < cores {
-		return fmt.Errorf("your system does not have the minimal CPU (%v cores) required: %v cores", c, cores)
+		return fmt.Errorf("your system does not have the minimal CPU required: %v cores", cores)
 	}
 	return nil
 }

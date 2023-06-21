@@ -1,4 +1,4 @@
-package utils
+package main
 
 import (
 	"time"
@@ -6,8 +6,7 @@ import (
 	"github.com/levigross/grequests"
 )
 
-func initializeElastic() error {
-	// wait for elastic to be ready
+func InitOpenSearch() error {
 	baseURL := "http://127.0.0.1:9200/"
 	for intent := 0; intent <= 10; intent++ {
 		time.Sleep(1 * time.Minute)
@@ -19,20 +18,21 @@ func initializeElastic() error {
 			},
 		})
 
-		if err != nil && intent <= 9 {
-			continue
-		} else if err == nil {
+		if err != nil {
+			if intent >= 10 {
+				return err
+			}
+		} else {
 			break
 		}
-
-		return err
 	}
 
-	_, err := grequests.Put(baseURL+"_snapshot/utm_geoip", &grequests.RequestOptions{
+	_, err := grequests.Put(baseURL+"_snapshot/.utm_geoip", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
-				"location": "utm-geoip",
+				"location": "/usr/share/opensearch/.utm-geoip/",
+				"readonly": true,
 			},
 		},
 	})
@@ -56,14 +56,9 @@ func initializeElastic() error {
 		return err
 	}
 
-	// restore geoip snapshot
-	_, err = grequests.Post(baseURL+"_snapshot/utm_geoip/utm-geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
+	_, err = grequests.Post(baseURL+"_snapshot/.utm_geoip/.utm_geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
-			"indices":              "utm-geoip",
-			"ignore_unavailable":   true,
-			"include_global_state": false,
-			"rename_pattern":       "utm-geoip",
-			"rename_replacement":   ".utm-geoip",
+			"indices": ".utm-geoip",
 		},
 	})
 	if err != nil {

@@ -5,48 +5,61 @@ import (
 	"os"
 
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
-	"github.com/akamensky/argparse"
 )
 
-var tag string
-var lite = true
-
 func main() {
-	tag = os.Getenv("TAG")
-	if tag == "" {
-		tag = "v9"
+	if err := utils.CheckDistro("ubuntu"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
-	switch os.Getenv("LITE") {
-	case "false":
-		lite = false
+	var config = new(Config)
+	err := config.Get()
+	if err != nil {
+		fmt.Println("creating new config file because: ", err)
+
+		mainIP, err := utils.GetMainIP()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		sName, err := os.Hostname()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		config.Branch = "v10"
+		config.Password = utils.GenerateSecret(16)
+		config.InternalKey = utils.GenerateSecret(32)
+		config.DataDir = "/utmstack"
+		config.MainServer = mainIP
+		config.ServerType = "aio"
+		config.ServerName = sName
+
+		err = config.Set()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 
-	utils.CheckErr(utils.CheckDistro("ubuntu"))
-
-	parser := argparse.NewParser("", "UTMStack installer")
-	removeCmd := parser.NewCommand("remove", "Uninstall UTMStack")
-
-	masterCmd := parser.NewCommand("master", "Install Master")
-	masterDataDir := "/utmstack"
-	masterPass := masterCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Please use a secure password"})
-
-	probeCmd := parser.NewCommand("probe", "Install Probe")
-	probeDataDir := "/utmstack"
-	probePass := probeCmd.String("", "db-pass", &argparse.Options{Required: true, Help: "Master password. Generated when the master was installed"})
-	host := probeCmd.String("", "host", &argparse.Options{Required: true, Help: "Master server IP or FQDN"})
-
-	if len(os.Args) == 1 {
-		tui()
-	} else if err := parser.Parse(os.Args); err != nil {
-		fmt.Print(parser.Usage(err))
-	} else if removeCmd.Happened() {
-		utils.CheckErr(utils.Uninstall("cli"))
-	} else if masterCmd.Happened() {
-		utils.CheckErr(utils.InstallMaster("cli", masterDataDir, *masterPass, tag, lite))
-		fmt.Println("Successfully installed.")
-	} else if probeCmd.Happened() {
-		utils.CheckErr(utils.InstallProbe("cli", probeDataDir, *probePass, *host, tag, lite))
-		fmt.Println("Successfully installed.")
+	switch config.ServerType {
+	case "probe":
+		err := Probe(config)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	case "aio":
+		err := Master(config)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	default:
+		fmt.Println("unknown server type, try with probe or aio")
+		os.Exit(1)
 	}
 }
