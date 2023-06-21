@@ -8,14 +8,36 @@ import (
 )
 
 func main() {
-	config := Config{}
+	if err := utils.CheckDistro("ubuntu"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	var config = new(Config)
 	err := config.Get()
 	if err != nil {
-		fmt.Println("creating new config file because of: ", err)
+		fmt.Println("creating new config file because: ", err)
+
+		mainIP, err := utils.GetMainIP()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		sName, err := os.Hostname()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		config.Branch = "v10"
-		config.Password = utils.GenerateSecret(32)
-		config.MainServer = ""
+		config.Password = utils.GenerateSecret(16)
+		config.InternalKey = utils.GenerateSecret(32)
 		config.DataDir = "/utmstack"
+		config.MainServer = mainIP
+		config.ServerType = "aio"
+		config.ServerName = sName
+
 		err = config.Set()
 		if err != nil {
 			fmt.Println(err)
@@ -23,23 +45,21 @@ func main() {
 		}
 	}
 
-	if err := utils.CheckDistro("ubuntu"); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	switch config.MainServer {
-	case "":
-		err := Master(&config)
+	switch config.ServerType {
+	case "probe":
+		err := Probe(config)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	case "aio":
+		err := Master(config)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	default:
-		err := Probe(&config)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		fmt.Println("unknown server type, try with probe or aio")
+		os.Exit(1)
 	}
 }

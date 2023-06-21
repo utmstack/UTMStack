@@ -13,5 +13,17 @@ func Probe(c *Config) error {
 		return err
 	}
 
+	if err := utils.CheckDisk(10); err != nil {
+		return err
+	}
+
+	if err := ConfigureRedirection(c); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ConfigureRedirection(c *Config) error {
 	return nil
 }

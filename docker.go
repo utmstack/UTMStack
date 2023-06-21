@@ -1,0 +1,134 @@
+package main
+
+import (
+	"errors"
+	"os"
+
+	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	sigar "github.com/cloudfoundry/gosigar"
+	"github.com/shirou/gopsutil/v3/cpu"
+)
+
+type StackConfig struct {
+	LogstashPipeline string
+	ESMem            uint64
+	LSMem            uint64
+	Threads          int
+	ESData           string
+	ESBackups        string
+	Cert             string
+	Datasources      string
+	Rules            string
+}
+
+func (s *StackConfig) Populate(c *Config) error {
+	cores, err := cpu.Counts(false)
+	if err != nil {
+		return err
+	}
+
+	mem := sigar.Mem{}
+	err = mem.Get()
+	if err != nil {
+		return err
+	}
+
+	s.Threads = cores
+	s.Cert = utils.MakeDir(0777, c.DataDir, "cert")
+	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
+	s.Rules = utils.MakeDir(0777, c.DataDir, "rules")
+	s.LogstashPipeline = utils.MakeDir(0777, c.DataDir, "logstash", "pipeline")
+	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
+	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
+	s.ESMem = mem.Total / 1024 / 1024 / 1024 / 3
+	s.LSMem = mem.Total / 1024 / 1024 / 1024 / 4
+
+	return nil
+}
+
+func InstallDocker() error {
+	sysctl := []string{
+		"vm.max_map_count=262144",
+		"net.ipv6.conf.all.disable_ipv6=1",
+		"net.ipv6.conf.default.disable_ipv6=1",
+	}
+
+	f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	for _, config := range sysctl {
+		if err := utils.RunCmd("sysctl", "-w", config); err != nil {
+			return errors.New("failed to set sysctl config")
+		}
+		f.WriteString(config + "\n")
+	}
+
+	env := []string{"DEBIAN_FRONTEND=noninteractive"}
+
+	if err := utils.RunEnvCmd(env, "apt", "update"); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "apt", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "apt", "update"); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InitSwarm(mainIP string) error {
+	if err := utils.RunCmd("docker", "swarm", "init", "--advertise-addr", mainIP); err != nil {
+		return err
+	}
+
+	if err := utils.RunCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func StackUP(c *Config, stack *StackConfig) error {
+	var compose = new(Compose)
+	d, err := compose.Populate(c, stack).Encode()
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile("compose.yml", d, 0644)
+	if err != nil {
+		return err
+	}
+
+	for _, service := range compose.Services {
+		if err := utils.RunCmd("docker", "pull", *service.Image); err != nil {
+			return err
+		}
+	}
+
+	if err := utils.RunCmd("docker", "stack", "deploy", "-c", "compose.yml", "utmstack"); err != nil {
+		return err
+	}
+
+	return nil
+}

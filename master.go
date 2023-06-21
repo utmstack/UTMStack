@@ -1,11 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
-	"net/http"
-	"path"
-	"time"
-
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 )
 
@@ -18,29 +13,53 @@ func Master(c *Config) error {
 		return err
 	}
 
-	if err := utils.GenerateCerts(path.Join(c.DataDir, "certs")); err != nil {
+	if err := utils.CheckDisk(256); err != nil {
 		return err
 	}
 
-	baseURL := "https://127.0.0.1/"
+	var stack = new(StackConfig)
+	if err := stack.Populate(c); err != nil {
+		return err
+	}
 
-	for intent := 0; intent <= 10; intent++ {
-		time.Sleep(1 * time.Minute)
-
-		transCfg := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	if utils.GetVersion() < 10 {
+		if err := utils.GenerateCerts(stack.Cert); err != nil {
+			return err
 		}
 
-		client := &http.Client{Transport: transCfg}
-
-		_, err := client.Get(baseURL + "/api/ping")
-
-		if err != nil && intent <= 9 {
-			continue
-		} else if err == nil {
-			break
+		if err := InstallDocker(); err != nil {
+			return err
 		}
 
+		mainIP, err := utils.GetMainIP()
+		if err != nil {
+			return err
+		}
+
+		if err := InitSwarm(mainIP); err != nil {
+			return err
+		}
+	}
+
+	if err := StackUP(c, stack); err != nil {
+		return err
+	}
+
+	if utils.GetVersion() < 10 {
+		if err := InitPostgres(c); err != nil {
+			return err
+		}
+
+		if err := InitOpenSearch(); err != nil {
+			return err
+		}
+	}
+
+	if err := Backend(); err != nil {
+		return err
+	}
+
+	if err := utils.SetVersion(10); err != nil {
 		return err
 	}
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -8,10 +9,13 @@ import (
 )
 
 type Config struct {
-	Branch     string `yaml:"branch"`
-	Password   string `yaml:"password"`
-	MainServer string `yaml:"main_server"`
-	DataDir    string `yaml:"data_dir"`
+	MainServer  string `yaml:"main_server"`
+	Branch      string `yaml:"branch"`
+	Password    string `yaml:"password"`
+	DataDir     string `yaml:"data_dir"`
+	ServerType  string `yaml:"server_type"`
+	ServerName  string `yaml:"server_name"`
+	InternalKey string `yaml:"internal_key"`
 }
 
 var configPath = path.Join("/root", "utmstack.yml")
@@ -22,9 +26,37 @@ func (c *Config) Get() error {
 		return err
 	}
 
-	err = yaml.Unmarshal(config, c)
+	err = yaml.UnmarshalStrict(config, c)
 	if err != nil {
 		return err
+	}
+
+	if c.DataDir == "" {
+		return fmt.Errorf("data_dir is empty")
+	}
+
+	if c.Password == "" {
+		return fmt.Errorf("password is empty")
+	}
+
+	if c.Branch == "" {
+		return fmt.Errorf("branch is empty")
+	}
+
+	if c.MainServer == "" {
+		return fmt.Errorf("main_server is empty")
+	}
+
+	if c.ServerType == "" {
+		return fmt.Errorf("server_type is empty")
+	}
+
+	if c.ServerName == "" {
+		return fmt.Errorf("server_name is empty")
+	}
+
+	if c.InternalKey == "" {
+		return fmt.Errorf("internal_key is empty")
 	}
 
 	return nil
