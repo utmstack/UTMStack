@@ -22,15 +22,37 @@ func Master(c *Config) error {
 		return err
 	}
 
-	if utils.GetVersion() < 10 {
+	if utils.GetStep() < 1 {
 		if err := utils.GenerateCerts(stack.Cert); err != nil {
 			return err
 		}
 
+		if err := utils.SetStep(1); err != nil {
+			return err
+		}
+	}
+
+	if utils.GetStep() < 2 {
+		if err := PrepareSystem(); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(2); err != nil {
+			return err
+		}
+	}
+
+	if utils.GetStep() < 3 {
 		if err := InstallDocker(); err != nil {
 			return err
 		}
 
+		if err := utils.SetStep(3); err != nil {
+			return err
+		}
+	}
+
+	if utils.GetStep() < 4 {
 		mainIP, err := utils.GetMainIP()
 		if err != nil {
 			return err
@@ -39,27 +61,41 @@ func Master(c *Config) error {
 		if err := InitSwarm(mainIP); err != nil {
 			return err
 		}
+
+		if err := utils.SetStep(4); err != nil {
+			return err
+		}
 	}
 
 	if err := StackUP(c, stack); err != nil {
 		return err
 	}
 
-	if utils.GetVersion() < 10 {
+	if err := DownloadTools(); err != nil {
+		return err
+	}
+
+	if utils.GetStep() < 7 {
+		if err := InitOpenSearch(); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(7); err != nil {
+			return err
+		}
+	}
+
+	if utils.GetStep() < 8 {
 		if err := InitPostgres(c); err != nil {
 			return err
 		}
 
-		if err := InitOpenSearch(); err != nil {
+		if err := utils.SetStep(8); err != nil {
 			return err
 		}
 	}
 
 	if err := Backend(); err != nil {
-		return err
-	}
-
-	if err := utils.SetVersion(10); err != nil {
 		return err
 	}
 

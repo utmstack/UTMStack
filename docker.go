@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"os"
 
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
@@ -47,26 +46,6 @@ func (s *StackConfig) Populate(c *Config) error {
 }
 
 func InstallDocker() error {
-	sysctl := []string{
-		"vm.max_map_count=262144",
-		"net.ipv6.conf.all.disable_ipv6=1",
-		"net.ipv6.conf.default.disable_ipv6=1",
-	}
-
-	f, err := os.OpenFile("/etc/sysctl.conf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	for _, config := range sysctl {
-		if err := utils.RunCmd("sysctl", "-w", config); err != nil {
-			return errors.New("failed to set sysctl config")
-		}
-		f.WriteString(config + "\n")
-	}
-
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
 	if err := utils.RunEnvCmd(env, "apt", "update"); err != nil {

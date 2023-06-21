@@ -6,8 +6,8 @@ import (
 	"strconv"
 )
 
-func GetVersion() int {
-	v, err := os.ReadFile("/root/version.txt")
+func GetStep() int {
+	v, err := os.ReadFile("/root/step.txt")
 	if err != nil {
 		return 0
 	}
@@ -20,8 +20,8 @@ func GetVersion() int {
 	return vi
 }
 
-func SetVersion(v int) error {
-	if err := os.WriteFile("/root/version.txt", []byte(fmt.Sprintf("%d", v)), 0644); err != nil {
+func SetStep(v int) error {
+	if err := os.WriteFile("/root/step.txt", []byte(fmt.Sprintf("%d", v)), 0644); err != nil {
 		return err
 	}
 
