@@ -21,7 +21,6 @@ type Deploy struct {
 }
 
 type Service struct {
-	Restart     *string  `yaml:"restart,omitempty"`
 	Image       *string  `yaml:"image,omitempty"`
 	Volumes     []string `yaml:"volumes,omitempty"`
 	Ports       []string `yaml:"ports,omitempty"`
@@ -68,7 +67,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["logstash"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
 		Environment: []string{
 			"CONFIG_RELOAD_AUTOMATIC=true",
@@ -99,7 +97,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["mutate"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
@@ -121,7 +118,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["probeapi"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
@@ -141,7 +137,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["agentmanager"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
@@ -167,7 +162,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["postgres"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
@@ -187,7 +181,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["frontend"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/utmstack_frontend:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
@@ -207,7 +200,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["aws"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
@@ -229,7 +221,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["office365"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
@@ -251,7 +242,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["sophos"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
@@ -273,7 +263,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["logan"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
@@ -298,7 +287,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["backend"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/utmstack_backend:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
@@ -323,7 +311,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["filebrowser"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("filebrowser/filebrowser:" + conf.Branch),
 		Volumes: []string{
 			stack.Rules + ":/srv",
@@ -338,7 +325,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["correlation"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/correlation:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
@@ -367,7 +353,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["node1"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
 		Ports: []string{
 			"127.0.0.1:9200:9200",
@@ -400,7 +385,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["socai"] = Service{
-		Restart: utils.Str("always"),
 		Image:   utils.Str("utmstack.azurecr.io/soc-ai:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
