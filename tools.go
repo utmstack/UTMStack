@@ -3,7 +3,8 @@ package main
 import "github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 
 func InstallTools() error {
-	err := utils.RunCmd("apt", "install", "-y", "cockpit")
+	env := []string{"DEBIAN_FRONTEND=noninteractive"}
+	err := utils.RunEnvCmd(env, "apt", "install", "-y", "cockpit")
 	if err != nil {
 		return err
 	}
