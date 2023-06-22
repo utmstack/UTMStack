@@ -1,0 +1,49 @@
+name: Go
+
+on:
+  push:
+    tags: [ '!v10.*-dev', '!v10.*-alpha', '!v10.*-beta', '!v10.*-rc', 'v10.*' ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v3
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v4
+      with:
+        go-version: ^1.20 
+      id: go
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+
+    - name: Test
+      run: go test -v .
+
+    - name: Build
+      run: go build -v .
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - First Change
+          - Second Change
+        draft: false
+        prerelease: false
