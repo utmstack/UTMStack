@@ -42,10 +42,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        body: |
-          Changes in this Release
-          - First Change
-          - Second Change
+        body_path: ./CHANGELOG.md
         draft: false
         prerelease: false
         files: |

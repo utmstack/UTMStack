@@ -42,11 +42,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        body: |
-          Changes in this Release
-          - First Change
-          - Second Change
         draft: false
         prerelease: true
+        body_path: ./CHANGELOG.md
         files: |
           installer
