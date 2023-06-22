@@ -17,3 +17,4 @@
 - Removed deprecated containers.
 - Added CHANGELOG.md
 - Updated SECURITY.md
+- Updated EULA
