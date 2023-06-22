@@ -349,9 +349,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Rules + ":/app/rulesets",
 			"geoip_data:/app/geosets",
 		},
-		Ports: []string{
-			"9090:8080",
-		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
 			"POSTGRESQL_USER=postgres",

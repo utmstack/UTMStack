@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	fmt.Println("### UTMStack Installer ###")
+	fmt.Println("Checking system requirements")
 	if err := utils.CheckDistro("ubuntu"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

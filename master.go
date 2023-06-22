@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 )
 
@@ -17,11 +19,18 @@ func Master(c *Config) error {
 		return err
 	}
 
+	fmt.Println("Checking system requirements [OK]")
+
+	fmt.Println("Generating Stack configuration")
+	
 	var stack = new(StackConfig)
 	if err := stack.Populate(c); err != nil {
 		return err
 	}
 
+	fmt.Println("Generating Stack configuration [OK]")
+
+	fmt.Println("Generating certificates")
 	if utils.GetStep() < 1 {
 		if err := utils.GenerateCerts(stack.Cert); err != nil {
 			return err
@@ -31,6 +40,10 @@ func Master(c *Config) error {
 			return err
 		}
 	}
+
+	fmt.Println("Generating certificates [OK]")
+
+	fmt.Println("Preparing system to run UTMStack")
 
 	if utils.GetStep() < 2 {
 		if err := PrepareSystem(); err != nil {
@@ -42,6 +55,10 @@ func Master(c *Config) error {
 		}
 	}
 
+	fmt.Println("Preparing system to run UTMStack [OK]")
+	
+	fmt.Println("Installing Docker")
+	
 	if utils.GetStep() < 3 {
 		if err := InstallDocker(); err != nil {
 			return err
@@ -51,6 +68,10 @@ func Master(c *Config) error {
 			return err
 		}
 	}
+
+	fmt.Println("Installing Docker [OK]")
+
+	fmt.Println("Initializing Swarm")
 
 	if utils.GetStep() < 4 {
 		mainIP, err := utils.GetMainIP()
@@ -67,9 +88,17 @@ func Master(c *Config) error {
 		}
 	}
 
+	fmt.Println("Initializing Swarm [OK]")
+
+	fmt.Println("Installing Stack. This may take a while")
+
 	if err := StackUP(c, stack); err != nil {
 		return err
 	}
+
+	fmt.Println("Installing Stack [OK]")
+
+	fmt.Println("Installing Administration Tools")
 
 	if utils.GetStep() < 6 {
 		if err := InstallTools(); err != nil {
@@ -81,6 +110,10 @@ func Master(c *Config) error {
 		}
 	}
 
+	fmt.Println("Installing Administration Tools [OK]")
+
+	fmt.Println("Initializing OpenSearch. This may take a while")
+
 	if utils.GetStep() < 7 {
 		if err := InitOpenSearch(); err != nil {
 			return err
@@ -90,6 +123,10 @@ func Master(c *Config) error {
 			return err
 		}
 	}
+
+	fmt.Println("Initializing OpenSearch [OK]")
+
+	fmt.Println("Initializing PostgreSQL")
 
 	if utils.GetStep() < 8 {
 		if err := InitPostgres(c); err != nil {
@@ -101,9 +138,22 @@ func Master(c *Config) error {
 		}
 	}
 
+	fmt.Println("Initializing PostgreSQL [OK]")
+
+	fmt.Println("Initializing Web-GUI. This may take a while")
+
 	if err := Backend(); err != nil {
 		return err
 	}
+
+	fmt.Println("Initializing Web-GUI [OK]")
+
+	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
+	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
+	fmt.Println("You can access to your Web-GUI at https://<your-server-ip>:443 using admin as your username and the password in the configuration file.")
+	fmt.Println("You can also access to your Web-based Administration Interface at https://<your-server-ip>:9090 using your Linux system credentials.")
+
+	fmt.Println("### Thanks for using UTMStack ###")
 
 	return nil
 }
