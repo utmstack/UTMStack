@@ -309,7 +309,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["filebrowser"] = Service{
-		Image: utils.Str("filebrowser/filebrowser:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/filebrowser:" + conf.Branch),
 		Volumes: []string{
 			stack.Rules + ":/srv",
 		},
