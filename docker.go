@@ -115,12 +115,12 @@ func StackUP(c *Config, stack *StackConfig) error {
 }
 
 func PostInstallation() error {
-	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "node1"); err != nil {
+	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {
 		return err
 	}
 
 
-	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "5432", "postgres"); err != nil {
+	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "5432", "utmstack_postgres"); err != nil {
 		return err
 	}
 

@@ -365,7 +365,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"node.name=node1",
 			"discovery.seed_hosts=node1",
 			"cluster.initial_master_nodes=node1",
-			"bootstrap.memory_lock=true",
+			"bootstrap.memory_lock=false",
 			"DISABLE_SECURITY_PLUGIN=true",
 			"DISABLE_INSTALL_DEMO_CONFIG:true",
 			"JAVA_HOME:/usr/share/opensearch/jdk",
