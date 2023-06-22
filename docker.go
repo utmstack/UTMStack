@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
@@ -100,6 +101,7 @@ func StackUP(c *Config, stack *StackConfig) error {
 	}
 
 	for _, service := range compose.Services {
+		fmt.Println("Downloading ", *service.Image)
 		if err := utils.RunCmd("docker", "pull", *service.Image); err != nil {
 			return err
 		}

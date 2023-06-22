@@ -22,7 +22,7 @@ func Master(c *Config) error {
 	fmt.Println("Checking system requirements [OK]")
 
 	fmt.Println("Generating Stack configuration")
-	
+
 	var stack = new(StackConfig)
 	if err := stack.Populate(c); err != nil {
 		return err
@@ -30,8 +30,8 @@ func Master(c *Config) error {
 
 	fmt.Println("Generating Stack configuration [OK]")
 
-	fmt.Println("Generating certificates")
 	if utils.GetStep() < 1 {
+		fmt.Println("Generating certificates")
 		if err := utils.GenerateCerts(stack.Cert); err != nil {
 			return err
 		}
@@ -39,13 +39,11 @@ func Master(c *Config) error {
 		if err := utils.SetStep(1); err != nil {
 			return err
 		}
+		fmt.Println("Generating certificates [OK]")
 	}
 
-	fmt.Println("Generating certificates [OK]")
-
-	fmt.Println("Preparing system to run UTMStack")
-
 	if utils.GetStep() < 2 {
+		fmt.Println("Preparing system to run UTMStack")
 		if err := PrepareSystem(); err != nil {
 			return err
 		}
@@ -53,13 +51,11 @@ func Master(c *Config) error {
 		if err := utils.SetStep(2); err != nil {
 			return err
 		}
+		fmt.Println("Preparing system to run UTMStack [OK]")
 	}
 
-	fmt.Println("Preparing system to run UTMStack [OK]")
-	
-	fmt.Println("Installing Docker")
-	
 	if utils.GetStep() < 3 {
+		fmt.Println("Installing Docker")
 		if err := InstallDocker(); err != nil {
 			return err
 		}
@@ -67,13 +63,11 @@ func Master(c *Config) error {
 		if err := utils.SetStep(3); err != nil {
 			return err
 		}
+		fmt.Println("Installing Docker [OK]")
 	}
 
-	fmt.Println("Installing Docker [OK]")
-
-	fmt.Println("Initializing Swarm")
-
 	if utils.GetStep() < 4 {
+		fmt.Println("Initializing Swarm")
 		mainIP, err := utils.GetMainIP()
 		if err != nil {
 			return err
@@ -86,9 +80,8 @@ func Master(c *Config) error {
 		if err := utils.SetStep(4); err != nil {
 			return err
 		}
+		fmt.Println("Initializing Swarm [OK]")
 	}
-
-	fmt.Println("Initializing Swarm [OK]")
 
 	fmt.Println("Installing Stack. This may take a while")
 
@@ -98,9 +91,8 @@ func Master(c *Config) error {
 
 	fmt.Println("Installing Stack [OK]")
 
-	fmt.Println("Installing Administration Tools")
-
 	if utils.GetStep() < 6 {
+		fmt.Println("Installing Administration Tools")
 		if err := InstallTools(); err != nil {
 			return err
 		}
@@ -108,13 +100,11 @@ func Master(c *Config) error {
 		if err := utils.SetStep(6); err != nil {
 			return err
 		}
+		fmt.Println("Installing Administration Tools [OK]")
 	}
 
-	fmt.Println("Installing Administration Tools [OK]")
-
-	fmt.Println("Initializing OpenSearch. This may take a while")
-
 	if utils.GetStep() < 7 {
+		fmt.Println("Initializing OpenSearch. This may take a while")
 		if err := InitOpenSearch(); err != nil {
 			return err
 		}
@@ -122,13 +112,11 @@ func Master(c *Config) error {
 		if err := utils.SetStep(7); err != nil {
 			return err
 		}
+		fmt.Println("Initializing OpenSearch [OK]")
 	}
 
-	fmt.Println("Initializing OpenSearch [OK]")
-
-	fmt.Println("Initializing PostgreSQL")
-
 	if utils.GetStep() < 8 {
+		fmt.Println("Initializing PostgreSQL")
 		if err := InitPostgres(c); err != nil {
 			return err
 		}
@@ -136,9 +124,8 @@ func Master(c *Config) error {
 		if err := utils.SetStep(8); err != nil {
 			return err
 		}
+		fmt.Println("Initializing PostgreSQL [OK]")
 	}
-
-	fmt.Println("Initializing PostgreSQL [OK]")
 
 	fmt.Println("Initializing Web-GUI. This may take a while")
 
