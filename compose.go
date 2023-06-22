@@ -49,11 +49,9 @@ func (c *Compose) Encode() ([]byte, error) {
 }
 
 func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
-	c = &Compose{
-		Version:  utils.Str("3.8"),
-		Services: make(map[string]Service),
-		Volumes:  make(map[string]Volume),
-	}
+	c.Version = utils.Str("3.8")
+	c.Services = make(map[string]Service)
+	c.Volumes = make(map[string]Volume)
 
 	pManager := Placement{
 		Constraints: []string{"node.role == manager"},
@@ -67,7 +65,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["logstash"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
 		Environment: []string{
 			"CONFIG_RELOAD_AUTOMATIC=true",
 			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dg -Xmx%dg -Xss100m", stack.LSMem, stack.LSMem),
@@ -97,7 +95,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["mutate"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
 			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
@@ -118,7 +116,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["probeapi"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
 			stack.Cert + ":/cert",
@@ -137,7 +135,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["agentmanager"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
 			stack.Datasources + ":/etc/utmstack",
@@ -162,7 +160,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["postgres"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
@@ -181,7 +179,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["frontend"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/utmstack_frontend:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/utmstack_frontend:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"filebrowser",
@@ -200,7 +198,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["aws"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -221,7 +219,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["office365"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -242,7 +240,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["sophos"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -263,7 +261,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["logan"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -287,7 +285,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["backend"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/utmstack_backend:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/utmstack_backend:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -311,7 +309,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["filebrowser"] = Service{
-		Image:   utils.Str("filebrowser/filebrowser:" + conf.Branch),
+		Image: utils.Str("filebrowser/filebrowser:" + conf.Branch),
 		Volumes: []string{
 			stack.Rules + ":/srv",
 		},
@@ -325,7 +323,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["correlation"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/correlation:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/correlation:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -353,7 +351,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["node1"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
 		Ports: []string{
 			"127.0.0.1:9200:9200",
 		},
@@ -385,7 +383,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["socai"] = Service{
-		Image:   utils.Str("utmstack.azurecr.io/soc-ai:" + conf.Branch),
+		Image: utils.Str("utmstack.azurecr.io/soc-ai:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
