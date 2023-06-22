@@ -2,7 +2,6 @@ package utils
 
 import (
 	"math/rand"
-	"time"
 )
 
 func GenerateSecret(size int) string {
@@ -13,7 +12,6 @@ func GenerateSecret(size int) string {
 		if len(s) >= size {
 			break
 		}
-		rand.Seed(time.Now().UTC().UnixNano())
 
 		s += string(characters[rand.Intn(len(characters))])
 	}
