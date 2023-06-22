@@ -13,7 +13,7 @@ func RunEnvCmd(env []string, command string, arg ...string) error {
 	cmd.Env = append(os.Environ(), env...)
 
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	return cmd.Run()
 }
