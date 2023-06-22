@@ -8,14 +8,18 @@
 - Can work as a library for other projects.
 - Generate certificates on execution.
 - Installing Cockpit for easy system management.
+- Removed LDAP connection for Active Directory.
+- Removed OSSEC.
+- Added incident response automation to agents.
+- Using multiple pipelines.
+- Removed Suricata.
+- Removed deprecated containers.
 
 # Minor Changes
 - Checking distribution.
 - Checking min disk space.
 - Automated releases with GitHub Actions.
 - Updated Go to v1.20 and dependencies.
-- Removed Suricata.
-- Removed deprecated containers.
 - Added CHANGELOG.md.
 - Updated SECURITY.md.
 - Updated EULA.
