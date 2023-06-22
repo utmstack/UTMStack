@@ -26,11 +26,6 @@ This installation guide provides instructions to perform the UTMStack installati
 Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can found the password and other generated configurations in /root/utmstack.yml
 Note: Use HTTPS in front of your server name or IP to access the login page.
 
-| :exclamation: Demo Environment
-|-----------------------------------------|
-
-To see a fully operating UTMStack environment access our demo at: <https://utmstack.com/demo>
-
 ### Required ports
 - 22/TCP Secure Shell (Only required for admin access)
 - 80/TCP UTMStack Web-based Graphical User Interface Redirector (Only required for analyst/admin access)
@@ -38,6 +33,3 @@ To see a fully operating UTMStack environment access our demo at: <https://utmst
 - 9090/TCP Cockpit Web-based Graphical Interface for Servers (Only required for admin access)
 - Others ports will be required during the configuration of UTMStack's integrations. (Will be listed on the integration guide)
 
-## Why UTMStack
-
-[![Alt text](https://img.youtube.com/vi/wv87dj15G5k/0.jpg)](https://youtu.be/wv87dj15G5k)
