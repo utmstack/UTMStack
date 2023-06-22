@@ -2,7 +2,7 @@ name: rc build
 
 on:
   push:
-    tags: [ 'v10.*-rc' ]
+    tags: [ 'v*-rc' ]
 
 jobs:
   build:

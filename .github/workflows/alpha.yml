@@ -2,7 +2,7 @@ name: alpha release
 
 on:
   push:
-    tags: [ 'v10.*-alpha' ]
+    tags: [ 'v*-alpha' ]
 
 jobs:
   build:
