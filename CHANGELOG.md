@@ -7,6 +7,7 @@
 - Using Swarm for container orchestration.
 - Can work as a library for other projects.
 - Generate certificates on execution.
+- Installing Cockpit for easy system management.
 
 # Minor Changes
 - Checking distribution.
