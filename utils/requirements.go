@@ -29,7 +29,7 @@ func CheckDisk(size uint64) error {
 		return err
 	}
 
-	free := d.Free / 1024 / 1024 / 1024
+	free := d.Free / 1024 / 1024
 	if free < size-1 {
 		return fmt.Errorf("your system does not have the minimal disk space required: %v GB", size)
 	}
