@@ -169,7 +169,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"postgres_data:/var/lib/postgresql/data",
 		},
 		Ports: []string{
-			"127.0.0.1:5432:5432",
+			"5432:5432",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -353,7 +353,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	c.Services["node1"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
 		Ports: []string{
-			"127.0.0.1:9200:9200",
+			"9200:9200",
 		},
 		Volumes: []string{
 			stack.ESData + ":/usr/share/opensearch/data",

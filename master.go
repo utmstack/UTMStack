@@ -127,6 +127,14 @@ func Master(c *Config) error {
 		fmt.Println("Initializing PostgreSQL [OK]")
 	}
 
+	fmt.Println("Running post installation scripts")
+
+	if err := PostInstallation(); err != nil {
+		return err
+	}
+
+	fmt.Println("Running post installation scripts [OK]")
+
 	fmt.Println("Initializing Web-GUI. This may take a while")
 
 	if err := Backend(); err != nil {
