@@ -17,14 +17,7 @@ func Probe(c *Config) error {
 		return err
 	}
 
-	if err := ConfigureRedirection(c); err != nil {
-		return err
-	}
+	// NOTHING TO DO HERE YET
 
-	return nil
-}
-
-func ConfigureRedirection(c *Config) error {
-	// TODO: implement
 	return nil
 }
