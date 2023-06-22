@@ -16,8 +16,8 @@ func CheckMem(size uint64) error {
 	}
 
 	total := m.Total / 1024 / 1024 / 1024
-	if total < size+1 {
-		return fmt.Errorf("your system does not have the minimal memory required: %v GB", size-1)
+	if total < size-1 {
+		return fmt.Errorf("your system does not have the minimal memory required: %v GB", size)
 	}
 	return nil
 }
@@ -30,8 +30,8 @@ func CheckDisk(size uint64) error {
 	}
 
 	free := d.Free / 1024 / 1024 / 1024
-	if free < size+1 {
-		return fmt.Errorf("your system does not have the minimal disk space required: %v GB", size-1)
+	if free < size-1 {
+		return fmt.Errorf("your system does not have the minimal disk space required: %v GB", size)
 	}
 
 	return nil
