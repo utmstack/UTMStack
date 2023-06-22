@@ -47,6 +47,6 @@ jobs:
           - First Change
           - Second Change
         draft: false
-        prerelease: true
+        prerelease: false
         files: |
           installer
