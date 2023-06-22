@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    tags: [ '!v*-dev', '!v*-alpha', '!v*-beta', '!v*-rc', 'v*' ]
+    tags: [ 'v*' ]
 
 jobs:
   build:
