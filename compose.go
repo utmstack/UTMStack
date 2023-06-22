@@ -29,7 +29,7 @@ type Service struct {
 	DependsOn   []string `yaml:"depends_on,omitempty"`
 	Logging     *Logging `yaml:"logging,omitempty"`
 	Deploy      *Deploy  `yaml:"deploy,omitempty"`
-	Command     []string `yaml:"command,omitempty,inline"`
+	Command     []string `yaml:"command,omitempty,flow"`
 }
 
 type Volume map[string]interface{}

@@ -12,6 +12,9 @@ func RunEnvCmd(env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
 	cmd.Env = append(os.Environ(), env...)
 
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
+
 	return cmd.Run()
 }
 
