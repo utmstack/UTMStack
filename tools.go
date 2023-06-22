@@ -1,6 +1,12 @@
 package main
 
-func DownloadTools() error {
-	// TODO: Download tools from repository
+import "github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+
+func InstallTools() error {
+	err := utils.RunCmd("apt", "install", "-y", "cockpit")
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -71,8 +71,14 @@ func Master(c *Config) error {
 		return err
 	}
 
-	if err := DownloadTools(); err != nil {
-		return err
+	if utils.GetStep() < 6 {
+		if err := InstallTools(); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(6); err != nil {
+			return err
+		}
 	}
 
 	if utils.GetStep() < 7 {
