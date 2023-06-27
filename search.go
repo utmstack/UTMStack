@@ -42,7 +42,7 @@ func InitOpenSearch() error {
 
 	_, err = grequests.Put(baseURL+"_index_template/utmstack_indexes", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
-			"index_patterns": []string{"alert-*", "log-*", "dc-*", ".utm-*", ".utmstack-*"},
+			"index_patterns": []string{"alert-*", "log-*", ".utm-*", ".utmstack-*"},
 			"template": map[string]interface{}{
 				"settings": map[string]interface{}{
 					"index.number_of_shards":           1,
