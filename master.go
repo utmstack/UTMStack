@@ -7,15 +7,15 @@ import (
 )
 
 func Master(c *Config) error {
-	if err := utils.CheckMem(8); err != nil {
+	if err := utils.CheckMem(6); err != nil {
 		return err
 	}
 
-	if err := utils.CheckCPU(4); err != nil {
+	if err := utils.CheckCPU(2); err != nil {
 		return err
 	}
 
-	if err := utils.CheckDisk(200); err != nil {
+	if err := utils.CheckDisk(100); err != nil {
 		return err
 	}
 
