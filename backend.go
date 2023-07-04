@@ -7,7 +7,7 @@ import (
 )
 
 func Backend() error {
-	baseURL := "https://127.0.0.1/"
+	baseURL := "https://127.0.0.1"
 
 	transCfg := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
