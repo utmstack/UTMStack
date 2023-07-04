@@ -115,37 +115,20 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Command: []string{"python3", "-m", "utmstack.mutate"},
 	}
 
-	c.Services["probeapi"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-			stack.Cert + ":/cert",
-		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"SERVER_TYPE=" + conf.ServerType,
-			"DB_HOST=postgres",
-			"DB_PASS=" + conf.Password,
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-		},
-		Command: []string{"/pw.sh"},
-	}
-
 	c.Services["agentmanager"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
 			stack.Datasources + ":/etc/utmstack",
+			"agent_manager:/data",
 		},
 		Ports: []string{
 			"9000:9000",
 		},
 		Environment: []string{
-			"DB_HOST=postgres",
-			"DB_PASS=" + conf.Password,
+			"DB_PATH=/data/utmstack.db",
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"UTM_HOST=backend:8080",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -258,30 +241,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 		},
 		Command: []string{"python3", "-m", "utmstack.sophos"},
-	}
-
-	c.Services["logan"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
-		DependsOn: []string{
-			"postgres",
-			"node1",
-			"backend",
-		},
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"DB_PASS=" + conf.Password,
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-		},
-		Ports: []string{
-			"50051:50051",
-		},
-		Command: []string{"python3", "-m", "utmstack.logan"},
 	}
 
 	c.Services["backend"] = Service{
@@ -408,6 +367,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Volumes["geoip_data"] = Volume{
+		"external": false,
+	}
+
+	c.Volumes["agent_manager"] = Volume{
 		"external": false,
 	}
 
