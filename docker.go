@@ -119,8 +119,11 @@ func PostInstallation() error {
 		return err
 	}
 
-
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "5432", "utmstack_postgres"); err != nil {
+		return err
+	}
+
+	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
 		return err
 	}
 
