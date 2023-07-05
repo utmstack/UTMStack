@@ -115,6 +115,8 @@ func StackUP(c *Config, stack *StackConfig) error {
 }
 
 func PostInstallation() error {
+	fmt.Println("Securing ports 9200 and 5432")
+	
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {
 		return err
 	}
@@ -122,10 +124,16 @@ func PostInstallation() error {
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "5432", "utmstack_postgres"); err != nil {
 		return err
 	}
+	
+	fmt.Println("Securing ports 9200 and 5432 [OK]")
 
+	fmt.Println("Cleaning up Docker system")
+	
 	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
 		return err
 	}
+	
+	fmt.Println("Cleaning up Docker system [OK]")
 
 	return nil
 }
