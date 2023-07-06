@@ -119,11 +119,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Image: utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
-			stack.Datasources + ":/etc/utmstack",
+			//stack.Datasources + ":/etc/utmstack",
 			"agent_manager:/data",
 		},
 		Ports: []string{
-			"9000:9000",
+			"9000:50051",
 		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
@@ -260,6 +260,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
 			"SOC_AI_BASE_URL=http://socai:8080/process",
+			"GRPC_AGENT_MANAGER_HOST=agentmanager",
+			"GRPC_AGENT_MANAGER_PORT=50051",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
