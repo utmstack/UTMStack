@@ -139,7 +139,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"node1",
 			"backend",
 		},
-		Command: []string{"/run.sh"},
+		Command: []string{"/app/server"},
 	}
 
 	c.Services["postgres"] = Service{
