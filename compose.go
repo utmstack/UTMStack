@@ -128,7 +128,12 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
 			"INTERNAL_KEY=" + conf.InternalKey,
-			"UTM_HOST=backend:8080",
+			"UTM_HOST=http://backend:8080",
+			"DB_USER=postgres",
+			"DB_PASSWORD=" + conf.Password,
+			"DB_HOST=postgres",
+			"DB_PORT=5432",
+			"DB_NAME=agentmanager",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

@@ -23,8 +23,14 @@ func InitPostgres(c *Config) error {
 		return err
 	}
 
-	// Crating utmstack
+	// Creating utmstack
 	_, err = srv.Exec("CREATE DATABASE utmstack")
+	if err != nil {
+		return err
+	}
+
+	// Creating agentmanager
+	_, err = srv.Exec("CREATE DATABASE agentmanager")
 	if err != nil {
 		return err
 	}
