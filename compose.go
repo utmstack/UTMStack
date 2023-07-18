@@ -142,7 +142,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		DependsOn: []string{
 			"postgres",
 			"node1",
-			"backend",
 		},
 		Command: []string{"/app/server"},
 	}
@@ -253,6 +252,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		DependsOn: []string{
 			"postgres",
 			"node1",
+			"agentmanager",
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
