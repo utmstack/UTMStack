@@ -104,27 +104,27 @@ func Master(c *Config) error {
 	}
 
 	if utils.GetStep() < 7 {
-		fmt.Println("Initializing OpenSearch. This may take a while")
-		if err := InitOpenSearch(); err != nil {
+		fmt.Println("Initializing PostgreSQL")
+		if err := InitPostgres(c); err != nil {
 			return err
 		}
 
 		if err := utils.SetStep(7); err != nil {
 			return err
 		}
-		fmt.Println("Initializing OpenSearch [OK]")
+		fmt.Println("Initializing PostgreSQL [OK]")
 	}
 
 	if utils.GetStep() < 8 {
-		fmt.Println("Initializing PostgreSQL")
-		if err := InitPostgres(c); err != nil {
+		fmt.Println("Initializing OpenSearch. This may take a while")
+		if err := InitOpenSearch(); err != nil {
 			return err
 		}
 
 		if err := utils.SetStep(8); err != nil {
 			return err
 		}
-		fmt.Println("Initializing PostgreSQL [OK]")
+		fmt.Println("Initializing OpenSearch [OK]")
 	}
 
 	fmt.Println("Running post installation scripts")

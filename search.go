@@ -56,7 +56,7 @@ func InitOpenSearch() error {
 		return err
 	}
 
-	_, err = grequests.Post(baseURL+"_snapshot/.utm_geoip/.utm_geoip/_restore?wait_for_completion=false", &grequests.RequestOptions{
+	_, err = grequests.Post(baseURL+"_snapshot/.utm_geoip/.utm_geoip/_restore?wait_for_completion=true", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"indices": ".utm-geoip",
 		},
