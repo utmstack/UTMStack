@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 	sigar "github.com/cloudfoundry/gosigar"
@@ -132,6 +133,8 @@ func PostInstallation() error {
 	if err := utils.RunCmd("systemctl", "restart", "docker"); err != nil {
 		return err
 	}
+
+	time.Sleep(60 * time.Second)
 
 	fmt.Println("Restarting Stack [OK]")
 
