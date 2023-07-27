@@ -130,6 +130,8 @@ func PostInstallation() error {
 
 	fmt.Println("Restarting Stack")
 
+	time.Sleep(60 * time.Second)
+
 	if err := utils.RunCmd("systemctl", "restart", "docker"); err != nil {
 		return err
 	}
