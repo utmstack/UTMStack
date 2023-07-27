@@ -127,6 +127,14 @@ func PostInstallation() error {
 	
 	fmt.Println("Securing ports 9200 and 5432 [OK]")
 
+	fmt.Println("Restarting Stack")
+
+	if err := utils.RunCmd("systemctl", "restart", "docker"); err != nil {
+		return err
+	}
+
+	fmt.Println("Restarting Stack [OK]")
+
 	fmt.Println("Cleaning up Docker system")
 	
 	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
