@@ -260,7 +260,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Datasources + ":/etc/utmstack",
 		},
 		Environment: []string{
-			"PANEL_SERV_NAME=backend",
+			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
 			"SYSLOG_PROTOCOL=tcp",
 			"SYSLOG_HOST=logstash",
