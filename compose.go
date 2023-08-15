@@ -247,6 +247,32 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Command: []string{"python3", "-m", "utmstack.sophos"},
 	}
 
+	c.Services["bitdefender"] = Service{
+		Image: utils.Str("utmstack.azurecr.io/bitdefender:" + conf.Branch),
+		DependsOn: []string{
+			"backend",
+			"logstash",
+		},
+		Ports: []string{
+			"8000:8000",
+		},
+		Volumes: []string{
+			stack.Datasources + ":/etc/utmstack",
+		},
+		Environment: []string{
+			"PANEL_SERV_NAME=backend",
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"SYSLOG_PROTOCOL=tcp",
+			"SYSLOG_HOST=logstash",
+			"SYSLOG_PORT=514",
+			"CONNECTOR_PORT=8000",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+		},
+	}
+
 	c.Services["backend"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/utmstack_backend:" + conf.Branch),
 		DependsOn: []string{
