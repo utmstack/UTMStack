@@ -111,7 +111,9 @@ func Master(c *Config) error {
 				if i > 8 {
 					return err
 				}
-				time.Sleep(5 * time.Second)
+				time.Sleep(10 * time.Second)
+			} else {
+				break
 			}
 		}
 
