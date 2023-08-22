@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 )
@@ -105,13 +106,19 @@ func Master(c *Config) error {
 
 	if utils.GetStep() < 7 {
 		fmt.Println("Initializing PostgreSQL")
-		if err := InitPostgres(c); err != nil {
-			return err
+		for i := 0; i < 10; i++ {
+			if err := InitPostgres(c); err != nil {
+				if i > 8 {
+					return err
+				}
+				time.Sleep(5 * time.Second)
+			}
 		}
 
 		if err := utils.SetStep(7); err != nil {
 			return err
 		}
+
 		fmt.Println("Initializing PostgreSQL [OK]")
 	}
 
