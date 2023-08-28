@@ -2,7 +2,7 @@ name: dev build
 
 on:
   push:
-    tags: [ 'dev*' ]
+    tags: [ 'dev-*' ]
 
 jobs:
   build:
