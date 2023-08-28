@@ -2,7 +2,7 @@ name: beta release
 
 on:
   push:
-    tags: [ 'beta*' ]
+    tags: [ '*-beta' ]
 
 jobs:
   build:
