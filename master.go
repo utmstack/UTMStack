@@ -152,6 +152,18 @@ func Master(c *Config) error {
 
 	fmt.Println("Initializing Web-GUI [OK]")
 
+	if utils.GetStep() < 9 {
+		fmt.Println("Generating Connection Key")
+		if err := RegenerateKey(c.InternalKey); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(9); err != nil {
+			return err
+		}
+		fmt.Println("Generating Connection Key [OK]")
+	}
+
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
 	fmt.Println("You can access to your Web-GUI at https://<your-server-ip>:443 using admin as your username and the password in the configuration file.")
