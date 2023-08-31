@@ -15,6 +15,7 @@
 - Removed Suricata.
 - Removed deprecated containers.
 - Populate modules with sample data.
+- Added initial setup wizard.
 
 # Minor Changes
 - Checking distribution.
