@@ -84,7 +84,7 @@ func Master(c *Config) error {
 		fmt.Println("Initializing Swarm [OK]")
 	}
 
-	fmt.Println("Installing Stack. This may take a while")
+	fmt.Println("Installing Stack. This may take a while.")
 
 	if err := StackUP(c, stack); err != nil {
 		return err
@@ -125,7 +125,7 @@ func Master(c *Config) error {
 	}
 
 	if utils.GetStep() < 8 {
-		fmt.Println("Initializing OpenSearch. This may take a while")
+		fmt.Println("Initializing OpenSearch. This may take a while.")
 		if err := InitOpenSearch(); err != nil {
 			return err
 		}
@@ -136,21 +136,13 @@ func Master(c *Config) error {
 		fmt.Println("Initializing OpenSearch [OK]")
 	}
 
-	fmt.Println("Running post installation scripts")
-
-	if err := PostInstallation(); err != nil {
-		return err
-	}
-
-	fmt.Println("Running post installation scripts [OK]")
-
-	fmt.Println("Initializing Web-GUI. This may take a while")
+	fmt.Println("Waiting for Backend to be ready. This may take a while.")
 
 	if err := Backend(); err != nil {
 		return err
 	}
 
-	fmt.Println("Initializing Web-GUI [OK]")
+	fmt.Println("Waiting for Backend to be ready [OK]")
 
 	if utils.GetStep() < 9 {
 		fmt.Println("Generating Connection Key")
@@ -163,6 +155,42 @@ func Master(c *Config) error {
 		}
 		fmt.Println("Generating Connection Key [OK]")
 	}
+
+	if utils.GetStep() < 10 {
+		fmt.Println("Generating Base URL")
+		if err := SetBaseURL(c.Password, c.ServerName); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(10); err != nil {
+			return err
+		}
+		fmt.Println("Generating Base URL [OK]")
+	}
+
+	if utils.GetStep() < 11 {
+		fmt.Println("Sending sample logs")
+		if err := SendSampleData(); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(11); err != nil {
+			return err
+		}
+		fmt.Println("Sending sample logs [OK]")
+	}
+
+	fmt.Println("Running post installation scripts. This may take a while.")
+
+	if err := PostInstallation(); err != nil {
+		return err
+	}
+
+	if err := Backend(); err != nil {
+		return err
+	}
+
+	fmt.Println("Running post installation scripts [OK]")
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")

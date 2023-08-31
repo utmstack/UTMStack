@@ -321,6 +321,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"node1",
 			"backend",
 		},
+		Ports: []string{
+			"10000:8080",
+		},
 		Volumes: []string{
 			stack.Rules + ":/app/rulesets",
 			"geoip_data:/app/geosets",

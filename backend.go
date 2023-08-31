@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
+	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -49,11 +51,37 @@ func RegenerateKey(internal string) error {
 	client := &http.Client{Transport: transCfg}
 
 	resp, err := client.Do(req)
-	if err !=nil{
+	if err != nil {
 		return err
 	}
 
 	err = resp.Body.Close()
+
+	return err
+}
+
+func SetBaseURL(password, hostname string) error {
+	// Connecting to utmstack
+	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable database=utmstack", password)
+	db, err := sql.Open("postgres", psqlconn)
+	if err != nil {
+		return err
+	}
+
+	// Close connection when finish
+	defer db.Close()
+
+	// Check connection status
+	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	// Set Base URL
+	_, err = db.Exec(`UPDATE public.utm_configuration_parameter SET conf_param_value=? WHERE conf_param_short='utmstack.mail.baseUrl';`, fmt.Sprintf("https://%s.utmstack.com", hostname))
+	if err != nil {
+		return err
+	}
 
 	return err
 }
