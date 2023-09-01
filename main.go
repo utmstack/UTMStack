@@ -20,31 +20,32 @@ func main() {
 	if err != nil {
 		fmt.Println("creating new config file because: ", err)
 
-		mainIP, err := utils.GetMainIP()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		sName, err := os.Hostname()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
 		config.Branch = "v10"
 		config.Password = utils.GenerateSecret(16)
 		config.InternalKey = utils.GenerateSecret(32)
 		config.DataDir = "/utmstack"
-		config.MainServer = mainIP
 		config.ServerType = "aio"
-		config.ServerName = sName
+	}
 
-		err = config.Set()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	mainIP, err := utils.GetMainIP()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	sName, err := os.Hostname()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	config.ServerName = sName
+	config.MainServer = mainIP
+
+	err = config.Set()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	switch config.ServerType {
