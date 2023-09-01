@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func generateSample(severity string) Log {
+func generateSample(severity string, seq int) Log {
 	return Log{
 		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 		DataSource: "sample-host",
@@ -26,6 +26,7 @@ func generateSample(severity string) Log {
 			"dest_port":   8080,
 			"src_ip":      "192.168.1.80",
 			"dest_ip":     "192.168.1.81",
+			"sequence":    seq,
 		},
 	}
 }
@@ -43,41 +44,42 @@ func SendSampleData() error {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	for _, s := range severities {
-		log := generateSample(s)
+	for i := 0; i <= 1000; i++ {
+		for _, s := range severities {
+			log := generateSample(s, i)
 
-		jLog, err := json.Marshal(log)
-		if err != nil {
-			return err
-		}
-
-		req, err := http.NewRequest("POST", baseURL+"/v1/newlog", bytes.NewBuffer(jLog))
-		if err != nil {
-			return err
-		}
-
-		client := &http.Client{Transport: transCfg}
-
-		var resp *http.Response
-
-		for intent := 0; intent <= 10; intent++ {
-			resp, err = client.Do(req)
+			jLog, err := json.Marshal(log)
 			if err != nil {
-				if intent >= 10 {
-					return err
+				return err
+			}
+
+			req, err := http.NewRequest("POST", baseURL+"/v1/newlog", bytes.NewBuffer(jLog))
+			if err != nil {
+				return err
+			}
+
+			client := &http.Client{Transport: transCfg}
+
+			var resp *http.Response
+
+			for intent := 0; intent <= 10; intent++ {
+				resp, err = client.Do(req)
+				if err != nil {
+					if intent >= 10 {
+						return err
+					}
+					time.Sleep(1 * time.Minute)
+				} else {
+					break
 				}
-				time.Sleep(1 * time.Minute)
-			} else {
-				break
+			}
+
+			err = resp.Body.Close()
+
+			if err != nil {
+				return err
 			}
 		}
-
-		err = resp.Body.Close()
-
-		if err != nil {
-			return err
-		}
-
 	}
 
 	return nil
