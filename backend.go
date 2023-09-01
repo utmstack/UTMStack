@@ -78,7 +78,7 @@ func SetBaseURL(password, hostname string) error {
 	}
 
 	// Set Base URL
-	_, err = db.Exec(`UPDATE public.utm_configuration_parameter SET conf_param_value=? WHERE conf_param_short='utmstack.mail.baseUrl';`, fmt.Sprintf("https://%s.utmstack.com", hostname))
+	_, err = db.Exec(`UPDATE public.utm_configuration_parameter SET conf_param_value=$1 WHERE conf_param_short='utmstack.mail.baseUrl';`, fmt.Sprintf("https://%s.utmstack.com", hostname))
 	if err != nil {
 		return err
 	}
