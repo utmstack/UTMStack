@@ -186,10 +186,6 @@ func Master(c *Config) error {
 		return err
 	}
 
-	if err := Backend(); err != nil {
-		return err
-	}
-
 	fmt.Println("Running post installation scripts [OK]")
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")

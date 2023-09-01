@@ -140,7 +140,9 @@ func PostInstallation() error {
 		return err
 	}
 
-	time.Sleep(60 * time.Second)
+	if err := Backend(); err != nil {
+		return err
+	}
 
 	fmt.Println("Restarting Stack [OK]")
 
