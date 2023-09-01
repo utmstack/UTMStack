@@ -47,7 +47,7 @@ func SendSampleData() error {
 		log := generateSample(s)
 
 		jLog, err := json.Marshal(log)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 
@@ -58,16 +58,26 @@ func SendSampleData() error {
 
 		client := &http.Client{Transport: transCfg}
 
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
+		var resp *http.Response
+
+		for intent := 0; intent <= 10; intent++ {
+			resp, err = client.Do(req)
+			if err != nil {
+				if intent >= 10 {
+					return err
+				}
+				time.Sleep(1 * time.Minute)
+			} else {
+				break
+			}
 		}
 
 		err = resp.Body.Close()
 
-		if err != nil{
+		if err != nil {
 			return err
 		}
+
 	}
 
 	return nil
