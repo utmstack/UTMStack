@@ -385,6 +385,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"backend",
 		},
 		Environment: []string{
+			"PANEL_SERV_NAME=http://backend:8080",
 			"POSTGRES_USER=postgres",
 			"POSTGRES_HOST=postgres",
 			"POSTGRES_PORT=5432",
