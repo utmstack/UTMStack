@@ -18,6 +18,17 @@ type Placement struct {
 
 type Deploy struct {
 	Placement *Placement `yaml:"placement,omitempty"`
+	Resources *Resources `yaml:"resources,omitempty"`
+}
+
+type Res struct {
+	CPUs   *string `yaml:"cpus,omitempty"`
+	Memory *string `yaml:"memory,omitempty"`
+}
+
+type Resources struct {
+	Limits       *Res `yaml:"limits,omitempty"`
+	Reservations *Res `yaml:"reservations,omitempty"`
 }
 
 type Service struct {
@@ -82,6 +93,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",stack.LSMem*2)),
+				},
+				Reservations: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",stack.LSMem)),
+				},
+			},
 		},
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
@@ -297,6 +316,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",stack.ESMem)),
+				},
+				Reservations: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",stack.ESMem/2)),
+				},
+			},
 		},
 	}
 
@@ -342,6 +369,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
+				},
+				Reservations: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+				},
+			},
 		},
 	}
 
@@ -374,6 +409,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
+				},
+				Reservations: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+				},
+			},
 		},
 	}
 
