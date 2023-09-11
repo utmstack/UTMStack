@@ -95,10 +95,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.LSMem*2)),
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.LSMem*2)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.LSMem)),
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.LSMem)),
 				},
 			},
 		},
@@ -132,7 +132,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -164,7 +164,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -192,10 +192,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM",512)),
+					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
 				},
 			},
 		},
@@ -220,7 +220,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -245,7 +245,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -271,7 +271,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -297,7 +297,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -329,7 +329,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -361,10 +361,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM",512)),
+					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
 				},
 			},
 		},
@@ -383,7 +383,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
@@ -492,7 +492,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 			},
 		},
