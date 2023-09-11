@@ -130,6 +130,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.mutate"},
 	}
@@ -157,6 +162,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 		DependsOn: []string{
 			"postgres",
@@ -208,6 +218,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 	}
 
@@ -228,6 +243,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.aws"},
 	}
@@ -249,6 +269,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.office365"},
 	}
@@ -270,6 +295,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.sophos"},
 	}
@@ -297,6 +327,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 	}
 
@@ -346,6 +381,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 	}
 
@@ -447,6 +487,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"OPENSEARCH_HOST=node1",
 			"OPENSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
+		},
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+			},
 		},
 	}
 
