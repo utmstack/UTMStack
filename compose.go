@@ -180,6 +180,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
+				},
+				Reservations: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vM",512)),
+				},
+			},
 		},
 		Command: []string{"postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"},
 	}
@@ -318,10 +326,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.ESMem)),
+					Memory: utils.Str(fmt.Sprintf("%vG",1)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.ESMem/2)),
+					Memory: utils.Str(fmt.Sprintf("%vM",512)),
 				},
 			},
 		},

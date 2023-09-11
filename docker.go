@@ -41,8 +41,8 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.LogstashPipeline = utils.MakeDir(0777, c.DataDir, "logstash", "pipeline")
 	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
-	s.ESMem = mem.Total / 1024 / 1024 / 1024 / 3
-	s.LSMem = mem.Total / 1024 / 1024 / 1024 / 4
+	s.ESMem = mem.Total / 1024 / 1024 / 1024 / 4
+	s.LSMem = mem.Total / 1024 / 1024 / 1024 / 5
 
 	return nil
 }
