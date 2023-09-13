@@ -6,8 +6,19 @@
 
 This installation guide provides instructions to perform the UTMStack installation on Ubuntu 22.04 LTS.
 
-### MINIMUM RECOMMENDED RESOURCES
-- For each 100 GB of live logs: 4 Cores, 8 GB RAM, 256 GB Disk Space
+### SYSTEM RESOURCES
+Assumptions: 60 data sources (devices) generate approximately 100 GB of monthly data.
+
+Definitions:
+Hot logs storage definition: not archived data that can be accessed for analysis at any time.
+Cold storage: archived data that should be restored before accessing it.
+Datasource: Any individual source of logs, for example, devices, agents, SaaS integrations.
+
+Resources needed.
+- For 50 data sources (100 GB) of hot logs storage you will need 4 Cores, 8 GB RAM, 150 GB Disk Space
+- For 120 data sources (250 GB) of hot logs storage you will need 8 Cores, 16 GB RAM, 250 GB Disk Space
+- For 240 data sources (500 GB) of hot logs storage you will need 16 Cores, 32 GB RAM, 450 GB Disk Space
+You may combine these tiers to create your own resource allocation.
 
 ## Installation steps
 
