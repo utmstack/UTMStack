@@ -498,6 +498,39 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	c.Services["log-auth-proxy"] = Service{
+		Image: utils.Str("utmstack.azurecr.io/log-auth-proxy:" + conf.Branch),
+		DependsOn: []string{
+			"logstash",
+		},
+		Ports: []string{
+			"50051:50051",
+			"8080:8080",
+			"8081:8081",
+		},
+		Volumes: []string{
+			stack.Cert + ":/cert",
+		},
+		Environment: []string{
+			"SERVER_NAME=" + conf.ServerName,
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"UTM_AGENT_MANAGER_HOST=agentmanager:50051",
+			"UTM_HOST=http://backend:8080",
+			"UTM_LOGSTASH_HOST=logstash",
+			"UTM_LOGSTASH_PORT_SERVICES=winlogbeat:10001,filebeat:10002,syslog:10003,http:10004,tcp:10005",
+			"UTM_CERTS_LOCATION=/certs",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+				},
+			},
+		},
+	}
+
 	c.Volumes["postgres_data"] = Volume{
 		"external": false,
 	}
