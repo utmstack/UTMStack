@@ -95,10 +95,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.LSMem*2)),
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.LSMem*2)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.LSMem)),
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.LSMem)),
 				},
 			},
 		},
@@ -130,6 +130,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.mutate"},
 	}
@@ -157,6 +162,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 		DependsOn: []string{
 			"postgres",
@@ -180,6 +190,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+				Reservations: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
+				},
+			},
 		},
 		Command: []string{"postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"},
 	}
@@ -200,6 +218,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 	}
 
@@ -220,6 +243,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.aws"},
 	}
@@ -241,6 +269,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.office365"},
 	}
@@ -262,6 +295,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 		Command: []string{"python3", "-m", "utmstack.sophos"},
 	}
@@ -289,6 +327,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 	}
 
@@ -318,10 +361,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.ESMem)),
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG",stack.ESMem/2)),
+					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
 				},
 			},
 		},
@@ -338,6 +381,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 	}
 
@@ -439,6 +487,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"OPENSEARCH_HOST=node1",
 			"OPENSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
+		},
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+				},
+			},
 		},
 	}
 
