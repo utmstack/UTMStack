@@ -1,4 +1,9 @@
-# UTMStack
+<h1 align="center">
+  <br>
+  <a href="https://utmstack.com"><img src="images/utmstack-logo.png" width="200px" alt="UTMStack"></a>
+</h1>
+
+<h4 align="center">Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence</h4>
 
 ## Introduction
 
