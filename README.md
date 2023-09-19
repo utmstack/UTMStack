@@ -11,7 +11,7 @@ Welcome to the UTMStack open-source project! UTMStack is a unified threat manage
 
 We have a [dedicated repository](https://github.com/AtlasInsideCorp/UTMStackCorrelationRules)  for correlation rules, contributors are welcome to submit a pull request. 
 <h1 align="center">
-<a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif" width="400px" alt="UTMStack"></a> <h1  </h1> <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif" width="370px" alt="UTMStack"></a> </h1>
+<a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif" width="400px" alt="UTMStack"></a>   <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif" width="370px" alt="UTMStack"></a> </h1>
 
 ## Features
 
