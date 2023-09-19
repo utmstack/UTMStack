@@ -1,4 +1,48 @@
-# UTMStack Installer
+# UTMStack
+
+## Introduction
+
+Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques.
+
+## Features
+
+- Log Management and Correlation
+- Threat Detection and Response
+- SOC AI-Powered Analysis
+- Security Compliance
+- Threat Intelligence
+
+## Why UTMStack?
+
+UTMStack stands out in threat prevention by surpassing the boundaries of traditional systems. Our software platform can swiftly analyze log data to identify and halt threats at their source in real-time, even if the threat was not directly detected on the server itself. This seamless integration of SIEM and XDR capabilities sets UTMStack apart from competitors, providing organizations with an effective, holistic cybersecurity suite that enhances threat detection, response, and remediation across clients’ valuable digital infrastructure. Correlation happens before data ingestion, reducing workload and improving response times.
+
+## Getting Started
+
+To get started with UTMStack, visit our demo at utmstack.com/demo. You can also watch our videos to learn more about our platform:
+
+- [Video 1](https://www.youtube.com/watch?v=Rqbl65cJMuA)
+- [Video 2](https://www.youtube.com/watch?v=lKkydWFiu4Y)
+
+## Contributing
+
+We welcome contributions from the community! Whether you're a developer, a security expert, or just someone interested in cybersecurity, your contributions can help make UTMStack even better. Check out our [Contributing Guide](CONTRIBUTING.md) for more information on how you can contribute to this project.
+
+## Security
+
+UTMStack is designed with security in mind. Every instance of UTMStack gets a dedicated Virtual Machine, protected by two firewalls for additional isolation from the internet and other tenants. All data at rest and in transit is encrypted, and server keys are stored in a KeyVault and can only be accessed by the Cloud Operations Engineering team for support and maintenance reasons.
+
+## License
+
+UTMStack is open-source software licensed under the AGPL. For more information, see the [LICENSE](LICENSE.md) file.
+
+## Contact
+
+If you have any questions or suggestions, feel free to open an issue or submit a pull request. We're always happy to hear from our community!
+
+Join us in making UTMStack the best it can be!
+
+
+# Installation
 
 ## Recommendations
 
