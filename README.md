@@ -68,7 +68,7 @@ Assumptions: 60 data sources (devices) generate approximately 100 GB of monthly 
 
 Definitions:
 - Hot log storage: not archived data that can be accessed for analysis at any time.
-- Cold storage: archived data that should be restored before accessing it.
+- Cold log storage: archived data that should be restored before accessing it.
 - Data source: any individual source of logs, for example, devices, agents, SaaS integrations.
 
 Resources needed for one month of hot log storage.
@@ -103,7 +103,7 @@ Note: Use HTTPS in front of your server name or IP to access the login page.
 
 # FAQ
 - Is this based on Grafana, Kibana, or a similar reporting tool?
-  Answer: It is not. UTMStack has been built from the ground up to be a simple and intuitive SIEM/XDR. A generic reporting tool modified for log management might not be user-friendly.
+  Answer: It is not. UTMStack has been built from the ground up to be a simple and intuitive SIEM/XDR.
 - Does UTMStack use ELK for log correlation?
   Answer: It does not. UTMStack correlation engine was built from scratch to analyze data before ingestion and maximize real-time correlation.
 - What is the difference between the Open Source and Enterprise version?
