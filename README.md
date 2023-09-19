@@ -3,6 +3,16 @@
   <a href="https://utmstack.com"><img src="images/utmstack-logo.png" width="200px" alt="UTMStack"></a>
 </h1>
 
+<p align="center">
+<img src="https://img.shields.io/github/go-mod/go-version/utmstack/utmstack?filename=v2%2Fgo.mod">
+<a href="https://github.com/projectdiscovery/nuclei/releases"><img src="https://img.shields.io/github/downloads/utmstack/utmstack/total">
+<a href="https://github.com/projectdiscovery/nuclei/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
+<a href="https://github.com/projectdiscovery/nuclei/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
+<a href="https://github.com/projectdiscovery/nuclei/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
+<a href="https://github.com/projectdiscovery/nuclei/discussions"><img src="https://img.shields.io/github/discussions/utmstack/utmstack">
+</p>
+      
+
 <h4 align="center">Enterprise-ready SIEM and XDR powered by Real-Time correlation and Threat Intelligence</h4>
 
 ## Introduction
