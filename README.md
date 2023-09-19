@@ -102,7 +102,7 @@ Note: Use HTTPS in front of your server name or IP to access the login page.
 
 # FAQ
 - Is this based on Grafana, Kibana, or a similar reporting tool?
-  Answer: It is not. UTMStack has been built from the ground up to be a simple and intuitive SIEM/XDR.
+  Answer: It is not. UTMStack has been built from the ground up to be a simple and intuitive SIEM/XDR. A generic reporting tool modified for log management might not be user-friendly.
 - Does UTMStack use ELK for log correlation?
   Answer: It does not. UTMStack correlation engine was built from scratch to analyze data before ingestion and maximize real-time correlation.
 - What is the difference between the Open Source and Enterprise version?
