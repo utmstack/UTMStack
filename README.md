@@ -13,9 +13,12 @@ Welcome to the UTMStack open-source project! UTMStack is a unified threat manage
 
 - Log Management and Correlation
 - Threat Detection and Response
+- Threat Intelligence
+- Alert Investigation
+- File Classification
 - SOC AI-Powered Analysis
 - Security Compliance
-- Threat Intelligence
+
 
 ## Why UTMStack?
 
