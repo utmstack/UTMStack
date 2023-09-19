@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		fmt.Println("creating new config file because: ", err)
 
-		config.Branch = "v10"
+		config.Branch = "v10.1"
 		config.Password = utils.GenerateSecret(16)
 		config.InternalKey = utils.GenerateSecret(32)
 		config.DataDir = "/utmstack"
