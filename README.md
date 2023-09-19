@@ -41,7 +41,7 @@ UTMStack is designed with security in mind. Every instance of UTMStack gets a de
 
 ## License
 
-UTMStack is open-source software licensed under the AGPL. For more information, see the [LICENSE](LICENSE.md) file.
+UTMStack is open-source software licensed under the AGPL. For more information, see the [LICENSE](LICENSE) file.
 
 ## Contact
 
