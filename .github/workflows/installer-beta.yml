@@ -1,8 +1,10 @@
-name: release
+name: beta release
 
 on:
   push:
-    tags: [ 'v*' ]
+    tags: [ '*-beta' ]
+    paths:
+      - 'installer/**'
 
 jobs:
   build:
@@ -20,6 +22,7 @@ jobs:
       id: go
 
     - name: Get dependencies
+      working-directory: ./installer
       run: |
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
@@ -28,9 +31,11 @@ jobs:
         fi
 
     - name: Test
+      working-directory: ./installer
       run: go test -v .
 
     - name: Build
+      working-directory: ./installer
       env:
         GOOS: linux
         GOARCH: amd64
@@ -44,6 +49,6 @@ jobs:
       with:
         body_path: ./CHANGELOG.md
         draft: false
-        prerelease: false
+        prerelease: true
         files: |
-          installer
+          ./installer/installer
