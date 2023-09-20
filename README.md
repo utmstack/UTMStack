@@ -5,7 +5,6 @@
 
 <p align="center">
 <img src="https://img.shields.io/github/go-mod/go-version/utmstack/utmstack?filename=go.mod">
-<a href="https://github.com/UTMStack/UTMStack/releases"><img src="https://img.shields.io/github/downloads/utmstack/utmstack/total">
 <a href="https://github.com/UTMStack/UTMStack/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
