@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://utmstack.com"><img src="images/utmstack-logo.png" width="200px" alt="UTMStack"></a>
+  <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/02/utmstack-logo-favicon.png" width="200px" alt="UTMStack"></a>
 </h1>
 
 <p align="center">
