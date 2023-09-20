@@ -1,0 +1,35 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Rules based correlation engine for UTMStack.",
+        "title": "UTMStack's Correlation Engine",
+        "contact": {
+            "name": "Osmany Montero",
+            "email": "osmany@quantfall.com"
+        },
+        "license": {
+            "name": "Private"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/v1",
+    "paths": {
+        "/newlog": {
+            "post": {
+                "description": "Insert log to correlation engine",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "queue"
+                ],
+                "summary": "Insert log",
+                "responses": {}
+            }
+        }
+    }
+}

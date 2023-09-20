@@ -1,0 +1,24 @@
+basePath: /v1
+host: localhost:8080
+info:
+  contact:
+    email: osmany@quantfall.com
+    name: Osmany Montero
+  description: Rules based correlation engine for UTMStack.
+  license:
+    name: Private
+  title: UTMStack's Correlation Engine
+  version: "1.0"
+paths:
+  /newlog:
+    post:
+      consumes:
+      - application/json
+      description: Insert log to correlation engine
+      produces:
+      - application/json
+      responses: {}
+      summary: Insert log
+      tags:
+      - queue
+swagger: "2.0"
