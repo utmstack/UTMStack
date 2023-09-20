@@ -10,7 +10,7 @@
 <a href="https://github.com/UTMStack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/commits/master"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
-<a href="https://discord.gg/utmstack"><img src="https://img.shields.io/discord/ZznvZ8xcHh.svg?logo=discord">
+<a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/ZznvZ8xcHh.svg?logo=discord">
 </p>
       
 
