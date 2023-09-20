@@ -9,7 +9,8 @@
 <a href="https://github.com/projectdiscovery/nuclei/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
 <a href="https://github.com/projectdiscovery/nuclei/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
 <a href="https://github.com/projectdiscovery/nuclei/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
-<a href="https://github.com/projectdiscovery/nuclei/discussions"><img src="https://img.shields.io/github/discussions/utmstack/utmstack">
+<a href="https://github.com/UTMStack/UTMStack/commits/master"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
+<a href="https://github.com/UTMStack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
 </p>
       
 
