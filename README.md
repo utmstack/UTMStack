@@ -4,10 +4,10 @@
 </h1>
 
 <p align="center">
+<a href="https://github.com/UTMStack/UTMStack/commits/master"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
-<a href="https://github.com/UTMStack/UTMStack/commits/master"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
 <a href="https://github.com/UTMStack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
 <a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/1154016563775672400.svg?logo=discord">
 </p>
