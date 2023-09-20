@@ -17,7 +17,7 @@
 
 ## Introduction
 
-Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo).  
+Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)  
 
 We have a [dedicated repository](https://github.com/AtlasInsideCorp/UTMStackCorrelationRules)  for correlation rules, contributors are welcome to submit a pull request. 
 
