@@ -4,7 +4,7 @@
 </h1>
 
 <p align="center">
-<img src="https://img.shields.io/github/go-mod/go-version/utmstack/utmstack?filename=v2%2Fgo.mod">
+<img src="https://img.shields.io/github/go-mod/go-version/utmstack/utmstack?filename=go.mod">
 <a href="https://github.com/projectdiscovery/nuclei/releases"><img src="https://img.shields.io/github/downloads/utmstack/utmstack/total">
 <a href="https://github.com/projectdiscovery/nuclei/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/utmstack/utmstack">
 <a href="https://github.com/projectdiscovery/nuclei/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
