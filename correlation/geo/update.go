@@ -17,18 +17,18 @@ func Update(updateReady chan bool) {
 		h.Info("Downloading GeoIP databases")
 		cnf := utils.GetConfig()
 		var files = map[string]string{
-			filepath.Join(cnf.GeoIPFolder, "GeoLite2-ASN-Blocks-IPv4.csv"):   "https://updates.utmstack.com/assets/GeoLite2-ASN-Blocks-IPv4.csv",
-			filepath.Join(cnf.GeoIPFolder, "GeoLite2-ASN-Blocks-IPv6.csv"):   "https://updates.utmstack.com/assets/GeoLite2-ASN-Blocks-IPv6.csv",
-			filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Blocks-IPv4.csv"):  "https://updates.utmstack.com/assets/GeoLite2-City-Blocks-IPv4.csv",
-			filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Blocks-IPv6.csv"):  "https://updates.utmstack.com/assets/GeoLite2-City-Blocks-IPv6.csv",
-			filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Locations-en.csv"): "https://updates.utmstack.com/assets/GeoLite2-City-Locations-en.csv",
+			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"):   "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v4.csv",
+			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"):   "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v6.csv",
+			filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):  "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v4.csv",
+			filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):  "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v6.csv",
+			filepath.Join(cnf.GeoIPFolder, "locations-en.csv"): "https://storage.googleapis.com/utmstack-updates/geoip/locations-en.csv",
 		}
 
 		if _, err := os.Stat(cnf.GeoIPFolder); os.IsNotExist(err) {
 			os.MkdirAll(cnf.GeoIPFolder, os.ModeDir)
 		}
 
-		if _, err := os.Stat(filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Locations-en.csv")); os.IsNotExist(err) || !first {
+		if _, err := os.Stat(filepath.Join(cnf.GeoIPFolder, "locations-en.csv")); os.IsNotExist(err) || !first {
 			for file, url := range files {
 				if err := utils.Download(url, file); err != nil {
 					h.Error("Could not download file: %v", err)
@@ -41,17 +41,17 @@ func Update(updateReady chan bool) {
 			csv := utils.ReadCSV(file)
 			mu.Lock()
 			switch file {
-			case filepath.Join(cnf.GeoIPFolder, "GeoLite2-ASN-Blocks-IPv4.csv"):
+			case filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"):
 				asnBlocks = nil
 				populateASNBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "GeoLite2-ASN-Blocks-IPv6.csv"):
+			case filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"):
 				populateASNBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Blocks-IPv4.csv"):
+			case filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):
 				cityBlocks = nil
 				populateCityBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Blocks-IPv6.csv"):
+			case filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):
 				populateCityBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "GeoLite2-City-Locations-en.csv"):
+			case filepath.Join(cnf.GeoIPFolder, "locations-en.csv"):
 				cityLocations = nil
 				populateCityLocations(csv)
 			}
