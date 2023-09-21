@@ -1,9 +1,4 @@
 *~
 vendor/
 .idea/
-UTMStackInstaller
-docker-compose.yml
-scanner.zip
-installer
-
 .DS_Store
