@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/statistics"
+	"github.com/utmstack/UTMStack/correlation/statistics"
 )
 
 func TestOne(t *testing.T) {

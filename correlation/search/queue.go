@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/statistics"
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/statistics"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/tidwall/gjson"
 )
 

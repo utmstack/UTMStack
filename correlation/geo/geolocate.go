@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/levigross/grequests"
 	"github.com/quantfall/holmes"
 )

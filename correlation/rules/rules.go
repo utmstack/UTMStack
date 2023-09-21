@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/fsnotify/fsnotify"
 	"github.com/quantfall/holmes"
 )

@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/cache"
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/search"
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/cache"
+	"github.com/utmstack/UTMStack/correlation/search"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/quantfall/holmes"

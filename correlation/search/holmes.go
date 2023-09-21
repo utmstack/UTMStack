@@ -1,7 +1,7 @@
 package search
 
 import (
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/quantfall/holmes"
 )
 

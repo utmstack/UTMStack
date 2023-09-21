@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/search"
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/search"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/google/uuid"
 	"github.com/levigross/grequests"
 )

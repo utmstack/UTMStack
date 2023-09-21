@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/geo"
+	"github.com/utmstack/UTMStack/correlation/geo"
 	"github.com/levigross/grequests"
 )
 
