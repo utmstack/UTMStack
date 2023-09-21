@@ -1,10 +1,11 @@
-package utils
+package utils_test
 
 import (
 	"testing"
+	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 )
 // Test CheckDisk
 func TestCheckDisk(t *testing.T) {
-	err := CheckDisk(100)
+	err := utils.CheckDisk(100)
 	t.Log(err)
 }
