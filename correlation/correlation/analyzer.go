@@ -3,8 +3,8 @@ package correlation
 import (
 	"net"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/geo"
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/rules"
+	"github.com/utmstack/UTMStack/correlation/geo"
+	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/tidwall/gjson"
 )
 

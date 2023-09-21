@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/rules"
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/rules"
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/quantfall/holmes"
 	"github.com/tidwall/gjson"
 )

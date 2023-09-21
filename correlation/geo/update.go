@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/utils"
+	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 // Goroutine for update geolocalization databases

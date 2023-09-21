@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackCorrelationEngine/sqldb"
+	"github.com/utmstack/UTMStack/correlation/sqldb"
 )
 
 var stats = make(map[string]interface{})
