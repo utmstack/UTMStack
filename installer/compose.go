@@ -209,11 +209,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"filebrowser",
 		},
 		Ports: []string{
-			"80:80",
-			"443:443",
+			"8080:80",
 		},
 		Volumes: []string{
 			stack.Cert + ":/etc/nginx/cert",
+			stack.FrontEndNginx + ":/etc/nginx/conf.d",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

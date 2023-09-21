@@ -11,6 +11,7 @@ import (
 )
 
 type StackConfig struct {
+	FrontEndNginx    string
 	LogstashPipeline string
 	ESMem            uint64
 	LSMem            uint64
@@ -36,6 +37,7 @@ func (s *StackConfig) Populate(c *Config) error {
 
 	s.Threads = cores
 	s.Cert = utils.MakeDir(0777, c.DataDir, "cert")
+	s.FrontEndNginx = utils.MakeDir(0777, c.DataDir, "front-end", "nginx")
 	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
 	s.Rules = utils.MakeDir(0777, c.DataDir, "rules")
 	s.LogstashPipeline = utils.MakeDir(0777, c.DataDir, "logstash", "pipeline")
@@ -117,7 +119,7 @@ func StackUP(c *Config, stack *StackConfig) error {
 
 func PostInstallation() error {
 	fmt.Println("Securing ports 9200, 5432 and 10000")
-	
+
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {
 		return err
 	}
@@ -129,7 +131,7 @@ func PostInstallation() error {
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "10000", "utmstack_correlation"); err != nil {
 		return err
 	}
-	
+
 	fmt.Println("Securing ports 9200, 5432 and 10000 [OK]")
 
 	fmt.Println("Restarting Stack")
@@ -147,11 +149,11 @@ func PostInstallation() error {
 	fmt.Println("Restarting Stack [OK]")
 
 	fmt.Println("Cleaning up Docker system")
-	
+
 	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
 		return err
 	}
-	
+
 	fmt.Println("Cleaning up Docker system [OK]")
 
 	return nil
