@@ -3,8 +3,6 @@ name: release
 on:
   push:
     tags: [ 'v*' ]
-    paths:
-      - 'installer/**'
 
 jobs:
   build:
