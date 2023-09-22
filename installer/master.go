@@ -84,6 +84,18 @@ func Master(c *Config) error {
 		fmt.Println("Initializing Swarm [OK]")
 	}
 
+	fmt.Println("Installing reverse proxy. This may take a while.")
+
+	if err := InstallNginx(); err != nil {
+		return err
+	}
+
+	if err := ConfigureNginx(c, stack); err != nil {
+		return err
+	}
+
+	fmt.Println("Installing reverse proxy [OK]")
+
 	fmt.Println("Installing Stack. This may take a while.")
 
 	if err := StackUP(c, stack); err != nil {

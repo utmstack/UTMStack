@@ -1,4 +1,6 @@
-server {
+package templates
+
+const Proxy string = `server {
     listen 80 default_server;
     server_name _;
     return 301 https://$host$request_uri;
@@ -8,7 +10,7 @@ server {
     listen 443 ssl;
     server_name _;
 
-    set $utmstack http://127.0.0.1:8080;
+    set $utmstack http://127.0.0.1:10001;
     set $shared_key {{.SharedKey}};
 
     location / {
@@ -32,4 +34,4 @@ server {
 
     client_max_body_size 200M;
     client_body_buffer_size 200M;
-}
+}`
