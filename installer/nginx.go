@@ -40,5 +40,9 @@ func ConfigureNginx(conf *Config, stack *StackConfig) error {
 		return err
 	}
 
+	if err := utils.RunCmd("systemctl", "restart", "nginx"); err != nil {
+		return err
+	}
+
 	return nil
 }
