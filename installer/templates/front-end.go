@@ -1,4 +1,6 @@
-server {
+package templates
+
+const FrontEnd string =`server {
     listen 80;
     server_name _;
     resolver 127.0.0.11 valid=10s ipv6=off;
@@ -89,4 +91,4 @@ server {
 
     client_max_body_size 200M;
     client_body_buffer_size 200M;
-}
+}`
