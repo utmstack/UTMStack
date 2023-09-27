@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - master
-  paths:
+    paths:
       - 'mutate/**'
 
   # Allows you to run this workflow manually from the Actions tab
