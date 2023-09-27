@@ -1,0 +1,5 @@
+{% for pipeline_id, pipeline_path in active_pipelines.items() -%}
+- pipeline.id: {{pipeline_id}}
+  path.config: "{{pipeline_path}}"
+  pipeline.ecs_compatibility: disabled
+{% endfor %}
