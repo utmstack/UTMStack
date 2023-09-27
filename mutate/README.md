@@ -43,3 +43,4 @@ Before running the container, ensure you have set the required environment varia
         -v /path/on/host/to/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml \
         mutate:latest
    ```
+
