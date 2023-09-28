@@ -12,7 +12,7 @@ import (
 
 type StackConfig struct {
 	FrontEndNginx    string
-	LogstashPipeline string
+	LogstashPipelines string
 	LogstashConfig   string
 	ESMem            uint64
 	LSMem            uint64
@@ -41,7 +41,7 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.FrontEndNginx = utils.MakeDir(0777, c.DataDir, "front-end", "nginx")
 	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
 	s.Rules = utils.MakeDir(0777, c.DataDir, "rules")
-	s.LogstashPipeline = utils.MakeDir(0777, c.DataDir, "logstash", "pipeline")
+	s.LogstashPipelines = utils.MakeDir(0777, c.DataDir, "logstash", "pipelines")
 	s.LogstashConfig = utils.MakeDir(0777, c.DataDir, "logstash", "config")
 	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")

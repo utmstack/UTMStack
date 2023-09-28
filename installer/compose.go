@@ -104,7 +104,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
-			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
+			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
 			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
 			stack.Cert + ":/cert",
 		},
@@ -118,7 +118,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Image: utils.Str("ghcr.io/utmstack/utmstack/mutate:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
-			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
+			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
 			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
 			"/var/run/docker.sock:/var/run/docker.sock",
 		},
