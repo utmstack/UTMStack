@@ -1,0 +1,19 @@
+filter {
+  if ![dataType]{
+    mutate {
+      add_field => {"[dataType]" => "generic"}
+    }
+  }
+  if ![dataSource]{
+    mutate {
+      add_field => {"[dataSource]" => "unknown"}
+    }
+  }
+}
+output {
+  http {
+    url => "{{correlation_url}}"
+    http_method => "post"
+    format => "json"
+  }
+}

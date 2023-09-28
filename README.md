@@ -93,7 +93,7 @@ Resources needed for one month of hot log storage.
 
 - Update packages list: `sudo apt update`
 - Install WGET: `sudo apt install wget`
-- Download the latest version of the installer by typing `wget http://github.com/AtlasInsideCorp/UTMStackInstaller/releases/latest/download/installer`
+- Download the latest version of the installer by typing `wget http://github.com/utmstack/UTMStack/releases/latest/download/installer`
 - Change to root user: `sudo su`
 - Set execution permissions with `chmod +x installer`
 
