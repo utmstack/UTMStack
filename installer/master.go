@@ -31,7 +31,7 @@ func Master(c *Config) error {
 
 	fmt.Println("Generating Stack configuration [OK]")
 
-	if utils.GetStep() < 1 {
+	if utils.GetStep(1) {
 		fmt.Println("Generating certificates")
 		if err := utils.GenerateCerts(stack.Cert); err != nil {
 			return err
@@ -43,7 +43,7 @@ func Master(c *Config) error {
 		fmt.Println("Generating certificates [OK]")
 	}
 
-	if utils.GetStep() < 2 {
+	if utils.GetStep(2) {
 		fmt.Println("Preparing system to run UTMStack")
 		if err := PrepareSystem(); err != nil {
 			return err
@@ -55,7 +55,7 @@ func Master(c *Config) error {
 		fmt.Println("Preparing system to run UTMStack [OK]")
 	}
 
-	if utils.GetStep() < 3 {
+	if utils.GetStep(3) {
 		fmt.Println("Installing Docker")
 		if err := InstallDocker(); err != nil {
 			return err
@@ -67,7 +67,7 @@ func Master(c *Config) error {
 		fmt.Println("Installing Docker [OK]")
 	}
 
-	if utils.GetStep() < 4 {
+	if utils.GetStep(4) {
 		fmt.Println("Initializing Swarm")
 		mainIP, err := utils.GetMainIP()
 		if err != nil {
@@ -104,19 +104,19 @@ func Master(c *Config) error {
 
 	fmt.Println("Installing Stack [OK]")
 
-	if utils.GetStep() < 6 {
+	if utils.GetStep(5) {
 		fmt.Println("Installing Administration Tools")
 		if err := InstallTools(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(6); err != nil {
+		if err := utils.SetStep(5); err != nil {
 			return err
 		}
 		fmt.Println("Installing Administration Tools [OK]")
 	}
 
-	if utils.GetStep() < 7 {
+	if utils.GetStep(6) {
 		fmt.Println("Initializing PostgreSQL")
 		for i := 0; i < 10; i++ {
 			if err := InitPostgres(c); err != nil {
@@ -129,20 +129,20 @@ func Master(c *Config) error {
 			}
 		}
 
-		if err := utils.SetStep(7); err != nil {
+		if err := utils.SetStep(6); err != nil {
 			return err
 		}
 
 		fmt.Println("Initializing PostgreSQL [OK]")
 	}
 
-	if utils.GetStep() < 8 {
+	if utils.GetStep(7) {
 		fmt.Println("Initializing OpenSearch. This may take a while.")
 		if err := InitOpenSearch(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(8); err != nil {
+		if err := utils.SetStep(7); err != nil {
 			return err
 		}
 		fmt.Println("Initializing OpenSearch [OK]")
@@ -156,37 +156,37 @@ func Master(c *Config) error {
 
 	fmt.Println("Waiting for Backend to be ready [OK]")
 
-	if utils.GetStep() < 9 {
+	if utils.GetStep(8) {
 		fmt.Println("Generating Connection Key")
 		if err := RegenerateKey(c.InternalKey); err != nil {
+			return err
+		}
+
+		if err := utils.SetStep(8); err != nil {
+			return err
+		}
+		fmt.Println("Generating Connection Key [OK]")
+	}
+
+	if utils.GetStep(9) {
+		fmt.Println("Generating Base URL")
+		if err := SetBaseURL(c.Password, c.ServerName); err != nil {
 			return err
 		}
 
 		if err := utils.SetStep(9); err != nil {
 			return err
 		}
-		fmt.Println("Generating Connection Key [OK]")
-	}
-
-	if utils.GetStep() < 10 {
-		fmt.Println("Generating Base URL")
-		if err := SetBaseURL(c.Password, c.ServerName); err != nil {
-			return err
-		}
-
-		if err := utils.SetStep(10); err != nil {
-			return err
-		}
 		fmt.Println("Generating Base URL [OK]")
 	}
 
-	if utils.GetStep() < 11 {
+	if utils.GetStep(10) {
 		fmt.Println("Sending sample logs")
 		if err := SendSampleData(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(11); err != nil {
+		if err := utils.SetStep(10); err != nil {
 			return err
 		}
 		fmt.Println("Sending sample logs [OK]")
