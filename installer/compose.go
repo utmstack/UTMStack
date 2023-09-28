@@ -115,7 +115,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["mutate"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/mutate:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
 			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
