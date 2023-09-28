@@ -349,6 +349,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_HOST=postgres",
 			"DB_PORT=5432",
 			"DB_NAME=utmstack",
+			"LOGSTASH_URL=http://logstash:9600",
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
