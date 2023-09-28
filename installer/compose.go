@@ -139,7 +139,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				},
 			},
 		},
-		Command: []string{"python3", "-m", "utmstack.mutate"},
 	}
 
 	c.Services["agentmanager"] = Service{
