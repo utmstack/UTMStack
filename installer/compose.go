@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/utils"
 	"gopkg.in/yaml.v2"
 )
 

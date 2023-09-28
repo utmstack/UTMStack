@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/utils"
 )
 
 func Master(c *Config) error {

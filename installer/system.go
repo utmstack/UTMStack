@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/utils"
 )
 
 func PrepareSystem() error {
