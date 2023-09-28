@@ -105,6 +105,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
 			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
+			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
 			stack.Cert + ":/cert",
 		},
 		DependsOn: []string{
@@ -118,6 +119,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
 			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
+			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
 			"/var/run/docker.sock:/var/run/docker.sock",
 		},
 		Environment: []string{
@@ -523,7 +525,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
 			"INTERNAL_KEY=" + conf.InternalKey,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
+
 			"UTM_AGENT_MANAGER_HOST=agentmanager:50051",
 			"UTM_HOST=http://backend:8080",
 			"UTM_LOGSTASH_HOST=logstash",
