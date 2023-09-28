@@ -123,6 +123,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
 			"SERVER_TYPE=" + conf.ServerType,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_HOST=postgres",
 			"DB_PASS=" + conf.Password,
 			"CORRELATION_URL=http://correlation:8080/v1/newlog",
@@ -152,6 +153,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"UTM_HOST=http://backend:8080",
 			"DB_USER=postgres",
 			"DB_PASSWORD=" + conf.Password,
@@ -238,6 +240,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_PASS=" + conf.Password,
 		},
 		Logging: &dLogging,
@@ -264,6 +267,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_PASS=" + conf.Password,
 		},
 		Logging: &dLogging,
@@ -290,6 +294,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_PASS=" + conf.Password,
 		},
 		Logging: &dLogging,
@@ -319,6 +324,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"SYSLOG_PROTOCOL=tcp",
 			"SYSLOG_HOST=logstash",
 			"SYSLOG_PORT=514",
@@ -353,6 +359,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"SOC_AI_BASE_URL=http://socai:8080/process",
 			"GRPC_AGENT_MANAGER_HOST=agentmanager",
 			"GRPC_AGENT_MANAGER_PORT=50051",
@@ -488,6 +495,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"OPENSEARCH_HOST=node1",
 			"OPENSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 		},
 		Deploy: &Deploy{
 			Placement: &pManager,
@@ -515,6 +523,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"UTM_AGENT_MANAGER_HOST=agentmanager:50051",
 			"UTM_HOST=http://backend:8080",
 			"UTM_LOGSTASH_HOST=logstash",
