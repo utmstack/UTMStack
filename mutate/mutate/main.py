@@ -17,12 +17,12 @@ from mutate.util.utils import get_pipelines, get_active_pipelines, compare_dicts
 # Constants
 PIPELINES_PATH = "/usr/share/logstash/pipelines/"
 CONF_FILE_PATH = "/usr/share/logstash/config/pipelines.yml"
-TEMPLATE_DIR = "Templates/"
+TEMPLATE_DIR = "Templates"
 LOG_FORMAT = '%(asctime)s %(clientip)-15s %(user)-8s %(message)s'
 SLEEP_TIME_CONFIG_GEN = 30
 SLEEP_TIME_ERROR = 15
 
-ENVIRONMENT = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+ENVIRONMENT = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), TEMPLATE_DIR)))
 
 # Setting up logging
 logging.basicConfig(format=LOG_FORMAT)

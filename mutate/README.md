@@ -10,11 +10,12 @@ The mutate service facilitates the creation of Logstash pipelines. This README o
 - `DB_USER`: The username to authenticate with the PostgreSQL database server.
 - `DB_PASSWORD`: The password to authenticate with the PostgreSQL database server.
 - `ENCRYPTION_KEY`: Key used for encryption within UTMstack.
+- `SERVER_NAME`
 
 ## Volumes
 
-- Host Volume: `/utmstack/logstash/pipeline` -> Container Path: `/usr/share/logstash/pipeline`
-- Host Volume: `/utmstack/logstash/pipelines.yml` -> Container Path: `/usr/share/logstash/config/pipelines.yml`
+- Host Volume: `/path/on/host/to/logstash/pipelines` -> Container Path: `/usr/share/logstash/pipelines`
+- Host Volume: `/path/on/host/to/logstash/config/pipelines.yml` -> Container Path: `/usr/share/logstash/config/pipelines.yml`
 
 ## Getting Started
 
@@ -39,8 +40,8 @@ Before running the container, ensure you have set the required environment varia
         -e DB_USER=your_db_user \
         -e DB_PASSWORD=your_db_password \
         -e ENCRYPTION_KEY=your_encryption_key \
-        -v /path/on/host/to/logstash/pipeline:/usr/share/logstash/pipeline \
-        -v /path/on/host/to/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml \
+        -v /path/on/host/to/logstash/pipelines:/usr/share/logstash/pipelines \
+        -v /path/on/host/to/logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml \
         mutate:latest
    ```
 
