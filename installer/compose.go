@@ -518,7 +518,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"UTM_HOST=http://backend:8080",
 			"UTM_LOGSTASH_HOST=logstash",
 			"UTM_LOGSTASH_PORT_SERVICES=winlogbeat:10001,filebeat:10002,syslog:10003,http:10004,tcp:10005",
-			"UTM_CERTS_LOCATION=/certs",
+			"UTM_CERTS_LOCATION=/cert",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
