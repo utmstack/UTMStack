@@ -5,23 +5,24 @@ import (
 	"os"
 	"time"
 
-	"github.com/utmstack/UTMStack/utils"
 	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/utmstack/UTMStack/utils"
 )
 
 type StackConfig struct {
-	FrontEndNginx    string
+	FrontEndNginx     string
 	LogstashPipelines string
-	LogstashConfig   string
-	ESMem            uint64
-	LSMem            uint64
-	Threads          int
-	ESData           string
-	ESBackups        string
-	Cert             string
-	Datasources      string
-	Rules            string
+	LogstashConfig    string
+	ESMem             uint64
+	LSMem             uint64
+	Threads           int
+	ESData            string
+	ESBackups         string
+	Cert              string
+	Datasources       string
+	Rules             string
+	LocksDir          string
 }
 
 func (s *StackConfig) Populate(c *Config) error {
@@ -47,6 +48,7 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
 	s.ESMem = mem.Total / 1024 / 1024 / 1024 / 4
 	s.LSMem = mem.Total / 1024 / 1024 / 1024 / 5
+	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
 
 	return nil
 }
