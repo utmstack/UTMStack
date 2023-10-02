@@ -3,7 +3,7 @@ module github.com/AtlasInsideCorp/UTMStackInstaller
 go 1.20
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.28
+	github.com/cloudfoundry/gosigar v1.3.29
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
 	github.com/lib/pq v1.10.9
 	github.com/shirou/gopsutil/v3 v3.23.8
