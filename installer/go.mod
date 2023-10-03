@@ -1,12 +1,14 @@
-module github.com/AtlasInsideCorp/UTMStackInstaller
+module github.com/utmstack/UTMStack/installer
 
-go 1.20
+go 1.21
+
+toolchain go1.21.1
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.22
+	github.com/cloudfoundry/gosigar v1.3.29
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
 	github.com/lib/pq v1.10.9
-	github.com/shirou/gopsutil/v3 v3.23.7
+	github.com/shirou/gopsutil/v3 v3.23.9
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -21,6 +23,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
-	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/net v0.15.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 )
