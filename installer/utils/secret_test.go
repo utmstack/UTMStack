@@ -2,7 +2,7 @@ package utils_test
 
 import (
 	"testing"
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func TestSecret(t *testing.T) {

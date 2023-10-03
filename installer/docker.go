@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
 	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 type StackConfig struct {

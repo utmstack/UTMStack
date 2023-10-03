@@ -1,6 +1,8 @@
-module github.com/AtlasInsideCorp/UTMStackInstaller
+module github.com/utmstack/UTMStack/installer
 
-go 1.20
+go 1.21
+
+toolchain go1.21.1
 
 require (
 	github.com/cloudfoundry/gosigar v1.3.29
