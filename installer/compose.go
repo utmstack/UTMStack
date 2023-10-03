@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/utmstack/UTMStack/installer/utils"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Logging struct {
