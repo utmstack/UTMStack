@@ -35,7 +35,7 @@ jobs:
         id: go
   
       - name: Build Binary
-        working-directory: ./integrations/o365
+        working-directory: ./office365
         run: go build -o o365_integration -v .
         
       - name: Login to GitHub Container Registry
@@ -48,7 +48,7 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v2
         with:
-          context: ./integrations/o365
+          context: ./office365
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}_${{ env.TAG }},ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
 
