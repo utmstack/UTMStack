@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "rc" ]
     paths:
-      - 'integrations/o365/**'
+      - 'office365/**'
   workflow_dispatch:
 
 jobs:

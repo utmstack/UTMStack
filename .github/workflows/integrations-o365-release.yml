@@ -5,7 +5,7 @@ on:
     tags: 
       - 'v*'
     paths:
-      - 'integrations/o365/**'
+      - 'office365/**'
   workflow_dispatch:
 
 jobs:
