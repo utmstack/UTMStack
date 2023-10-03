@@ -19,7 +19,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	transCfg := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{},
 	}
 	client := &http.Client{Transport: transCfg}
 
