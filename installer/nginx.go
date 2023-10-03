@@ -3,8 +3,8 @@ package main
 import (
 	"path"
 
-	"github.com/utmstack/UTMStack/templates"
-	"github.com/utmstack/UTMStack/utils"
+	"github.com/utmstack/UTMStack/installer/templates"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func InstallNginx() error {

@@ -7,7 +7,7 @@ import (
 
 	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/utmstack/UTMStack/utils"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 type StackConfig struct {

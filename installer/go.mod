@@ -1,4 +1,4 @@
-module github.com/utmstack/UTMStack
+module github.com/utmstack/UTMStack/installer
 
 go 1.21
 

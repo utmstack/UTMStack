@@ -1,0 +1,4 @@
+github.com/quantfall/holmes v1.3.0 h1:cy0kEz5qfBVWg/33cXBPfQVMAcwN7nLrPuqkyizKZfI=
+github.com/quantfall/holmes v1.3.0/go.mod h1:yC2xubHFP3b0NfYlDhHhNtgvct79iGzJgmiY18YSr8Q=
+github.com/utmstack/config-client-go v1.0.2 h1:koGue9v112k6cia2rI79g/oMcUlc0fGtaMueszfu6Vc=
+github.com/utmstack/config-client-go v1.0.2/go.mod h1:5B1phBmxHZmnggujCsNVAHK2oFXIy89mLCc9ixrDcCo=

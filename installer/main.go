@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/utmstack/UTMStack/utils"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func main() {
