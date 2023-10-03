@@ -523,7 +523,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
 			"INTERNAL_KEY=" + conf.InternalKey,
-
 			"UTM_AGENT_MANAGER_HOST=agentmanager:50051",
 			"UTM_HOST=http://backend:8080",
 			"UTM_LOGSTASH_HOST=logstash",
