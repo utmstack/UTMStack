@@ -108,7 +108,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Cert + ":/cert",
 		},
 		DependsOn: []string{
-			"datasources_mutate",
+			"mutate",
 		},
 		Logging: &dLogging,
 	}
@@ -253,18 +253,19 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["office365"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/office365:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
 			"backend",
+			"correlation",
 		},
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
 		},
 		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"DB_PASS=" + conf.Password,
+			"PANEL_SERV_NAME=backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,			
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -275,7 +276,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				},
 			},
 		},
-		Command: []string{"python3", "-m", "utmstack.office365"},
 	}
 
 	c.Services["sophos"] = Service{
