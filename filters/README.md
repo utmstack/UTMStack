@@ -1,5 +1,5 @@
 # Logstash filters used by UTMStack
-This part of the project, represents the default system filters used by logstash to proccess logs data comming from many sources.
+This part of the project, represents the default system filters used by logstash to proccess logs data coming from many sources.
 
 ## Getting Started
 Before you begin, you must know the basics about git and Logstash. Logstash documentation can be found at: https://www.elastic.co/guide/en/logstash/current/getting-started-with-logstash.html
