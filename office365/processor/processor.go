@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/office365/configuration"
@@ -78,6 +77,9 @@ func (o *OfficeProcessor) StartSubscriptions(h *holmes.Logger) error {
 
 		resp, status, err := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
 		if err != nil || status != http.StatusOK {
+			if status == http.StatusBadRequest && resp.Error.Code == "AF20024" {
+				continue
+			}
 			h.Error("failed to start subscription: %v", err)
 			continue
 		}
@@ -93,29 +95,15 @@ func (o *OfficeProcessor) StartSubscriptions(h *holmes.Logger) error {
 }
 
 func (o *OfficeProcessor) GetContentList(subscription string, startTime string, endTime string, group types.ModuleGroup) ([]ContentList, error) {
-	url := configuration.GetContentLink(o.TenantId)
-
-	reqParams := map[string]string{
-		"contentType": subscription,
-		"startTime":   startTime,
-		"endTime":     endTime,
-	}
-
-	var b strings.Builder
-	for key, value := range reqParams {
-		fmt.Fprintf(&b, "%s=%s&", key, value)
-	}
-
-	paramString := b.String()
-	paramString = paramString[:len(paramString)-1]
+	url := configuration.GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s", startTime, endTime, subscription)
 
 	headers := map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	respBody, status, err := utils.DoReq[[]ContentList](url, []byte(paramString), http.MethodGet, headers)
-	if err != nil || status != http.StatusOK {
+	respBody, status, err := utils.DoReq[[]ContentList](url, nil, http.MethodGet, headers)
+	if err != nil && status != http.StatusOK {
 		return []ContentList{}, err
 	}
 
@@ -129,7 +117,7 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	respBody, status, err := utils.DoReq[ContentDetailsResponse](url, []byte("{}"), http.MethodGet, headers)
+	respBody, status, err := utils.DoReq[ContentDetailsResponse](url, nil, http.MethodGet, headers)
 	if err != nil || status != http.StatusOK {
 		return ContentDetailsResponse{}, err
 	}
