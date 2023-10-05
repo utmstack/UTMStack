@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -18,10 +17,10 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 		req.Header.Add(k, v)
 	}
 
-	transCfg := &http.Transport{
-		TLSClientConfig: &tls.Config{},
-	}
-	client := &http.Client{Transport: transCfg}
+	//transCfg := &http.Transport{
+	//	TLSClientConfig: &tls.Config{},
+	//}
+	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
