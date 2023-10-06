@@ -21,7 +21,7 @@ func ETLProcess(data []map[string]interface{}, group types.ModuleGroup) []Transf
 	for _, log := range data {
 		transformedLog := TransformedLog{}
 		if creationTime, ok := log["CreationTime"].(string); ok {
-			transformedLog.Timestamp = creationTime
+			transformedLog.Timestamp = creationTime + ".000Z"
 		}
 		transformedLog.DataType = "o365"
 		transformedLog.DataSource = group.GroupName
