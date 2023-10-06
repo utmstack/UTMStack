@@ -90,10 +90,21 @@ def create_filter(pipeline_directory, filters):
     :param filters: The list of filters.
     """
     try:
-        if not filters or filters[0] is None:
-            return
+        # Start with a default empty string for filters_content
+        # Construct filters content based on conditions
+        filters_content = "".join([
+            """filter{
+            split {
+                field => "message"
+                terminator => "<utm-log-separator>"
+            }
+        }""" if pipeline_directory.endswith("generic") else "",
+            "\n\n".join(filters) if filters and filters[0] else ""
+        ])
 
-        filters_content = "\n\n".join(filters)
+        # Return if no filters content is found
+        if not filters_content.strip():
+            return
 
         path = os.path.join(pipeline_directory, "111-filter.conf")
         with open(path, "w", errors="ignore", encoding='utf-8') as file:
