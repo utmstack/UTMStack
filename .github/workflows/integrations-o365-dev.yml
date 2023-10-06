@@ -1,0 +1,17 @@
+name: O365 Integration Build DEV
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'office365/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/integrations-o365-build-image.yml
+    with:
+      image_name: office365
+      environment: v10-dev
+      branch: ''
+      tag_message: "Automatic Tag Deployed to development env"

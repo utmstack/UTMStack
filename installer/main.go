@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func main() {
@@ -49,12 +49,6 @@ func main() {
 	}
 
 	switch config.ServerType {
-	case "probe":
-		err := Probe(config)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 	case "aio":
 		err := Master(config)
 		if err != nil {

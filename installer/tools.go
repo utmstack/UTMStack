@@ -1,6 +1,6 @@
 package main
 
-import "github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+import "github.com/utmstack/UTMStack/installer/utils"
 
 func InstallTools() error {
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}

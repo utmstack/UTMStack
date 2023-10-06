@@ -1,0 +1,17 @@
+name: O365 Integration Build RC
+
+on:
+  push:
+    branches: [ "rc" ]
+    paths:
+      - 'office365/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/integrations-o365-build-image.yml
+    with:
+      image_name: office365
+      environment: v10-rc
+      branch: ''
+      tag_message: "Automatic Tag Release Candidate"
