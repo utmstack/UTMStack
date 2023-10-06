@@ -44,15 +44,14 @@ func main() {
 		var wg sync.WaitGroup
 		wg.Add(len(moduleConfig.ConfigurationGroups))
 		for _, group := range moduleConfig.ConfigurationGroups {
-			wg.Add(1)
 			go func(group types.ModuleGroup) {
 				for _, cnf := range group.Configurations {
 					if cnf.ConfValue == "" || cnf.ConfValue == " " {
 						h.Info("program not configured yet for group: %s", group.GroupName)
 						continue
 					}
-					go processor.PullLogs(startTime, endTime, group, h)
 				}
+				processor.PullLogs(startTime, endTime, group, h)
 				defer wg.Done()
 			}(group)
 		}
