@@ -20,9 +20,12 @@ func SendToCorrelation(data []TransformedLog, h *holmes.Logger) error {
 			continue
 		}
 
-		_, status, err := utils.DoReq[map[string]interface{}](configuration.CORRELATIONURL, body, http.MethodPost, map[string]string{})
-		if err != nil || (status != http.StatusOK && status != http.StatusCreated) {
-			h.Error(fmt.Sprintf("Error sending log to correlation engine with status code %d: %v", status, err))
+		resp, status, err := utils.DoReq[map[string]interface{}](configuration.CORRELATIONURL, body, http.MethodPost, map[string]string{})
+		if err != nil {
+			h.Error(fmt.Sprintf("Error sending log to correlation engine: %v", err))
+			continue
+		} else if status != http.StatusOK && status != http.StatusCreated {
+			h.Error(fmt.Sprintf("Error sending log to correlation engine with status code %d: %v", status, resp))
 			continue
 		}
 
