@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func Probe(c *Config) error {

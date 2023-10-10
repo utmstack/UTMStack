@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/AtlasInsideCorp/UTMStackInstaller/utils"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		fmt.Println("creating new config file because: ", err)
 
-		config.Branch = "v10.1"
+		config.Branch = "v10"
 		config.Password = utils.GenerateSecret(16)
 		config.InternalKey = utils.GenerateSecret(32)
 		config.DataDir = "/utmstack"
