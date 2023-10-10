@@ -82,15 +82,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dg -Xmx%dg -Xss100m", stack.LSMem, stack.LSMem),
 			fmt.Sprintf("PIPELINE_WORKERS=%d", stack.Threads),
 		},
-		Ports: []string{
-			"5044:5044",
-			"8089:8089",
-			"514:514",
-			"514:514/udp",
-			"1470:1470",
-			"2056:2056",
-			"2055:2055/udp",
-		},
 		Deploy: &Deploy{
 			Placement: &pManager,
 			Resources: &Resources{
