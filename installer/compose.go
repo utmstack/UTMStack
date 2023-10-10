@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/utmstack/UTMStack/installer/utils"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Logging struct {
@@ -82,15 +82,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dg -Xmx%dg -Xss100m", stack.LSMem, stack.LSMem),
 			fmt.Sprintf("PIPELINE_WORKERS=%d", stack.Threads),
 		},
-		Ports: []string{
-			"5044:5044",
-			"8089:8089",
-			"514:514",
-			"514:514/udp",
-			"1470:1470",
-			"2056:2056",
-			"2055:2055/udp",
-		},
 		Deploy: &Deploy{
 			Placement: &pManager,
 			Resources: &Resources{
@@ -104,7 +95,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
-			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
+			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
+			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
 			stack.Cert + ":/cert",
 		},
 		DependsOn: []string{
@@ -114,17 +106,21 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["mutate"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/mutate:" + conf.Branch),
 		Volumes: []string{
 			stack.Datasources + ":/etc/utmstack",
-			stack.LogstashPipeline + ":/usr/share/logstash/pipeline",
-			"/var/run/docker.sock:/var/run/docker.sock",
+			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
+			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
 			"SERVER_TYPE=" + conf.ServerType,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_HOST=postgres",
-			"DB_PASS=" + conf.Password,
+			"DB_PASSWORD=" + conf.Password,
+			"DB_USER=postgres",
+			"DB_NAME=utmstack",
+			"DB_PORT=5432",
 			"CORRELATION_URL=http://correlation:8080/v1/newlog",
 		},
 		Logging: &dLogging,
@@ -136,7 +132,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				},
 			},
 		},
-		Command: []string{"python3", "-m", "utmstack.mutate"},
 	}
 
 	c.Services["agentmanager"] = Service{
@@ -152,6 +147,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"UTM_HOST=http://backend:8080",
 			"DB_USER=postgres",
 			"DB_PASSWORD=" + conf.Password,
@@ -238,6 +234,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_PASS=" + conf.Password,
 		},
 		Logging: &dLogging,
@@ -290,6 +287,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"DB_PASS=" + conf.Password,
 		},
 		Logging: &dLogging,
@@ -319,6 +317,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"SYSLOG_PROTOCOL=tcp",
 			"SYSLOG_HOST=logstash",
 			"SYSLOG_PORT=514",
@@ -349,9 +348,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_HOST=postgres",
 			"DB_PORT=5432",
 			"DB_NAME=utmstack",
+			"LOGSTASH_URL=http://logstash:9600",
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"SOC_AI_BASE_URL=http://socai:8080/process",
 			"GRPC_AGENT_MANAGER_HOST=agentmanager",
 			"GRPC_AGENT_MANAGER_PORT=50051",
@@ -487,6 +488,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"OPENSEARCH_HOST=node1",
 			"OPENSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
 		},
 		Deploy: &Deploy{
 			Placement: &pManager,
@@ -506,7 +508,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Ports: []string{
 			"50051:50051",
 			"8080:8080",
-			"8081:8081",
 		},
 		Volumes: []string{
 			stack.Cert + ":/cert",
@@ -517,8 +518,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"UTM_AGENT_MANAGER_HOST=agentmanager:50051",
 			"UTM_HOST=http://backend:8080",
 			"UTM_LOGSTASH_HOST=logstash",
-			"UTM_LOGSTASH_PORT_SERVICES=winlogbeat:10001,filebeat:10002,syslog:10003,http:10004,tcp:10005",
-			"UTM_CERTS_LOCATION=/certs",
+			"UTM_CERTS_LOCATION=/cert",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
