@@ -9,9 +9,9 @@ on:
 
 jobs:
   docker:
-    uses: ./.github/workflows/integrations-o365-build-image.yml
+    uses: ./.github/workflows/integrations-build-image.yml
     with:
       image_name: office365
       environment: v10-rc
-      branch: ''
-      tag_message: "Automatic Tag Release Candidate"
+      directory: office365
+      binary: o365_integration

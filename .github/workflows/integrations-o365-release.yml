@@ -10,9 +10,24 @@ on:
 
 jobs:
   docker:
-    uses: ./.github/workflows/integrations-o365-build-image.yml
+    uses: ./.github/workflows/integrations-build-image.yml
     with:
       image_name: office365
       environment: v10
-      branch: ''
-      tag_message: "Automatic Tag Deployed to production"
+      directory: office365
+      binary: o365_integration
+  
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set env
+        run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      - name: "Print tag"
+        run: echo "Creating image with tag ${{env.TAG}}"
+
+      - name: Create Tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: v10_${{ env.TAG }}
+          message: "Automatic Tag Deployed to production"

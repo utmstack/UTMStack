@@ -9,9 +9,9 @@ on:
 
 jobs:
   docker:
-    uses: ./.github/workflows/integrations-bdgz-build-image.yml
+    uses: ./.github/workflows/integrations-build-image.yml
     with:
       image_name: bitdefender
       environment: v10-qa
-      branch: ''
-      tag_message: "Automatic Tag Deployed to testing env"
+      directory: bdgz
+      binary: bdgz_integration
