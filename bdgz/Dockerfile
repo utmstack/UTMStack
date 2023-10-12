@@ -1,6 +1,8 @@
-FROM ubuntu:20.04
+FROM ubuntu:latest
 
-COPY bdgz_integration /app/
+RUN apt update
 
-# Run the server binary
-CMD ["/app/bdgz_integration"]
+COPY bdgz_integration .
+
+RUN chmod +x bdgz_integration
+ENTRYPOINT ./bdgz_integration
