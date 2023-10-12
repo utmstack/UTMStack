@@ -1,17 +1,17 @@
-name: O365 Integration Build QA
+name: Bitdefender Integration Build QA
 
 on:
   pull_request:
     branches: [ "rc" ]
     paths:
-      - 'office365/**'
+      - 'bdgz/**'
   workflow_dispatch:
 
 jobs:
   docker:
     uses: ./.github/workflows/integrations-build-image.yml
     with:
-      image_name: office365
+      image_name: bitdefender
       environment: v10-qa
-      directory: office365
-      binary: o365_integration
+      directory: bdgz
+      binary: bdgz_integration

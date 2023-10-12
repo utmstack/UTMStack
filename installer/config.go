@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -26,7 +26,7 @@ func (c *Config) Get() error {
 		return err
 	}
 
-	err = yaml.UnmarshalStrict(config, c)
+	err = yaml.Unmarshal(config, c)
 	if err != nil {
 		return err
 	}

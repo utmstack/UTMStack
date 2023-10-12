@@ -31,43 +31,43 @@ func Master(c *Config) error {
 
 	fmt.Println("Generating Stack configuration [OK]")
 
-	if utils.GetStep() < 1 {
+	if utils.GetLock(1, stack.LocksDir) {
 		fmt.Println("Generating certificates")
 		if err := utils.GenerateCerts(stack.Cert); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(1); err != nil {
+		if err := utils.SetLock(1, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Generating certificates [OK]")
 	}
 
-	if utils.GetStep() < 2 {
+	if utils.GetLock(2, stack.LocksDir) {
 		fmt.Println("Preparing system to run UTMStack")
 		if err := PrepareSystem(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(2); err != nil {
+		if err := utils.SetLock(2, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Preparing system to run UTMStack [OK]")
 	}
 
-	if utils.GetStep() < 3 {
+	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Println("Installing Docker")
 		if err := InstallDocker(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(3); err != nil {
+		if err := utils.SetLock(3, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Installing Docker [OK]")
 	}
 
-	if utils.GetStep() < 4 {
+	if utils.GetLock(4, stack.LocksDir) {
 		fmt.Println("Initializing Swarm")
 		mainIP, err := utils.GetMainIP()
 		if err != nil {
@@ -78,7 +78,7 @@ func Master(c *Config) error {
 			return err
 		}
 
-		if err := utils.SetStep(4); err != nil {
+		if err := utils.SetLock(4, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Initializing Swarm [OK]")
@@ -104,19 +104,19 @@ func Master(c *Config) error {
 
 	fmt.Println("Installing Stack [OK]")
 
-	if utils.GetStep() < 6 {
+	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Println("Installing Administration Tools")
 		if err := InstallTools(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(6); err != nil {
+		if err := utils.SetLock(5, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Installing Administration Tools [OK]")
 	}
 
-	if utils.GetStep() < 7 {
+	if utils.GetLock(6, stack.LocksDir) {
 		fmt.Println("Initializing PostgreSQL")
 		for i := 0; i < 10; i++ {
 			if err := InitPostgres(c); err != nil {
@@ -129,20 +129,20 @@ func Master(c *Config) error {
 			}
 		}
 
-		if err := utils.SetStep(7); err != nil {
+		if err := utils.SetLock(6, stack.LocksDir); err != nil {
 			return err
 		}
 
 		fmt.Println("Initializing PostgreSQL [OK]")
 	}
 
-	if utils.GetStep() < 8 {
+	if utils.GetLock(7, stack.LocksDir) {
 		fmt.Println("Initializing OpenSearch. This may take a while.")
 		if err := InitOpenSearch(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(8); err != nil {
+		if err := utils.SetLock(7, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Initializing OpenSearch [OK]")
@@ -156,37 +156,37 @@ func Master(c *Config) error {
 
 	fmt.Println("Waiting for Backend to be ready [OK]")
 
-	if utils.GetStep() < 9 {
+	if utils.GetLock(8, stack.LocksDir) {
 		fmt.Println("Generating Connection Key")
 		if err := RegenerateKey(c.InternalKey); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(9); err != nil {
+		if err := utils.SetLock(8, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Generating Connection Key [OK]")
 	}
 
-	if utils.GetStep() < 10 {
+	if utils.GetLock(9, stack.LocksDir) {
 		fmt.Println("Generating Base URL")
 		if err := SetBaseURL(c.Password, c.ServerName); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(10); err != nil {
+		if err := utils.SetLock(9, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Generating Base URL [OK]")
 	}
 
-	if utils.GetStep() < 11 {
+	if utils.GetLock(10, stack.LocksDir) {
 		fmt.Println("Sending sample logs")
 		if err := SendSampleData(); err != nil {
 			return err
 		}
 
-		if err := utils.SetStep(11); err != nil {
+		if err := utils.SetLock(10, stack.LocksDir); err != nil {
 			return err
 		}
 		fmt.Println("Sending sample logs [OK]")
