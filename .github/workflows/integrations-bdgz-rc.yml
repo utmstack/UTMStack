@@ -1,0 +1,17 @@
+name: Bitdefender Integration Build RC
+
+on:
+  push:
+    branches: [ "rc" ]
+    paths:
+      - 'bdgz/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/integrations-bdgz-build-image.yml
+    with:
+      image_name: bitdefender
+      environment: v10-rc
+      branch: ''
+      tag_message: "Automatic Tag Release Candidate"
