@@ -1,0 +1,17 @@
+name: Bitdefender Integration Build DEV
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'bdgz/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/integrations-bdgz-build-image.yml
+    with:
+      image_name: bitdefender
+      environment: v10-dev
+      branch: ''
+      tag_message: "Automatic Tag Deployed to development env"
