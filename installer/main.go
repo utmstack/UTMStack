@@ -55,8 +55,14 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+	case "cloud":
+		err := Cloud(config)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	default:
-		fmt.Println("unknown server type, try with probe or aio")
+		fmt.Println(`unknown server type, try with "aio" or "cloud"`)
 		os.Exit(1)
 	}
 }
