@@ -10,6 +10,17 @@ import (
 func main() {
 	fmt.Println("### UTMStack Installer ###")
 	fmt.Println("Checking system requirements")
+
+	args := os.Args
+
+	var update bool
+
+	for _, arg := range args{
+		if arg == "update"{
+			update = true
+		}
+	}
+
 	if err := utils.CheckDistro("ubuntu"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -55,8 +66,14 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+	case "cloud":
+		err := Cloud(config, update)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	default:
-		fmt.Println("unknown server type, try with probe or aio")
+		fmt.Println(`unknown server type, try with "aio" or "cloud"`)
 		os.Exit(1)
 	}
 }

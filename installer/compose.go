@@ -262,7 +262,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
-			"INTERNAL_KEY=" + conf.InternalKey,			
+			"INTERNAL_KEY=" + conf.InternalKey,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -349,7 +349,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_PORT=5432",
 			"DB_NAME=utmstack",
 			"LOGSTASH_URL=http://logstash:9600",
-			"ELASTICSEARCH_HOST=node1",
+			"ELASTICSEARCH_HOST=" + utils.Mode(conf.ServerType, map[string]interface{}{
+				"aio":   "node1",
+				"cloud": "gateway.utmstack.local",
+			}).(string),
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
 			"ENCRYPTION_KEY=" + conf.InternalKey,
@@ -392,11 +395,17 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 
 	c.Services["correlation"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/correlation:" + conf.Branch),
-		DependsOn: []string{
-			"postgres",
-			"node1",
-			"backend",
-		},
+		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
+			"aio": []string{
+				"postgres",
+				"node1",
+				"backend",
+			},
+			"cloud": []string{
+				"postgres",
+				"backend",
+			},
+		}).([]string),
 		Ports: []string{
 			"10000:8080",
 		},
@@ -411,7 +420,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"POSTGRESQL_HOST=postgres",
 			"POSTGRESQL_PORT=5432",
 			"POSTGRESQL_DATABASE=utmstack",
-			"ELASTICSEARCH_HOST=node1",
+			"ELASTICSEARCH_HOST=" + utils.Mode(conf.ServerType, map[string]interface{}{
+				"aio":   "node1",
+				"cloud": "gateway.utmstack.local",
+			}).(string),
 			"ELASTICSEARCH_PORT=9200",
 			"ERROR_LEVEL=info",
 		},
@@ -429,44 +441,46 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
-	c.Services["node1"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
-		Ports: []string{
-			"9200:9200",
-		},
-		Volumes: []string{
-			stack.ESData + ":/usr/share/opensearch/data",
-			stack.ESBackups + ":/usr/share/opensearch/backups",
-			stack.Cert + ":/usr/share/opensearch/config/certificates:ro",
-		},
-		Environment: []string{
-			"cluster.name=utmstack",
-			"node.name=node1",
-			"discovery.seed_hosts=node1",
-			"cluster.initial_master_nodes=node1",
-			"bootstrap.memory_lock=false",
-			"DISABLE_SECURITY_PLUGIN=true",
-			"DISABLE_INSTALL_DEMO_CONFIG:true",
-			"JAVA_HOME:/usr/share/opensearch/jdk",
-			"action.auto_create_index:true",
-			"compatibility.override_main_response_version:true",
-			"opensearch_security.disabled: true",
-			"path.repo=/usr/share/opensearch",
-			fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dg -Xmx%dg", stack.ESMem, stack.ESMem),
-			"network.host:0.0.0.0",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
-				},
-				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+	if conf.ServerType == "aio" {
+		c.Services["node1"] = Service{
+			Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
+			Ports: []string{
+				"9200:9200",
+			},
+			Volumes: []string{
+				stack.ESData + ":/usr/share/opensearch/data",
+				stack.ESBackups + ":/usr/share/opensearch/backups",
+				stack.Cert + ":/usr/share/opensearch/config/certificates:ro",
+			},
+			Environment: []string{
+				"cluster.name=utmstack",
+				"node.name=node1",
+				"discovery.seed_hosts=node1",
+				"cluster.initial_master_nodes=node1",
+				"bootstrap.memory_lock=false",
+				"DISABLE_SECURITY_PLUGIN=true",
+				"DISABLE_INSTALL_DEMO_CONFIG:true",
+				"JAVA_HOME:/usr/share/opensearch/jdk",
+				"action.auto_create_index:true",
+				"compatibility.override_main_response_version:true",
+				"opensearch_security.disabled: true",
+				"path.repo=/usr/share/opensearch",
+				fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dg -Xmx%dg", stack.ESMem, stack.ESMem),
+				"network.host:0.0.0.0",
+			},
+			Logging: &dLogging,
+			Deploy: &Deploy{
+				Placement: &pManager,
+				Resources: &Resources{
+					Limits: &Res{
+						Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
+					},
+					Reservations: &Res{
+						Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+					},
 				},
 			},
-		},
+		}
 	}
 
 	c.Services["socai"] = Service{
