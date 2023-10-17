@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,17 +18,25 @@ import (
 	UTMStackConfigurationClient "github.com/utmstack/config-client-go"
 )
 
-const delayCheckConfig = 1 * time.Minute
+type ModuleConfig struct {
+	ConnectionKey string
+	AccessUrl     string
+	MasterIp      string
+	CompaniesIDs  []string
+}
 
-var configsSent = []string{}
+const delayCheckConfig = 30 * time.Second
 
-// ConfigureModules updates the module configuration every minute.
+var configsSent = make(map[string]ModuleConfig)
+
+// ConfigureModules updates the module configuration every 30 seconds.
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *holmes.Logger) {
 	intKey := constants.GetInternalKey()
 	panelServ := constants.GetPanelServiceName()
 	client := UTMStackConfigurationClient.NewUTMClient(intKey, "http://"+panelServ)
 	for {
 		time.Sleep(delayCheckConfig)
+
 		// Get Bitdefender module configs
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)
 		if err != nil {
@@ -42,13 +51,9 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *hol
 
 		// Configure the group to send data to the syslog server if it is not already configured
 		for _, group := range (*cnf).ConfigurationGroups {
-			var configured bool
-			for _, name := range configsSent {
-				if name == group.GroupName {
-					configured = true
-				}
-			}
-			if !configured {
+			isNecessaryConfig := compareConfigs(configsSent, group)
+
+			if isNecessaryConfig {
 				h.Info("new configuration found: groupName: %s, master: %s, CompanyIDs: %s", group.GroupName, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue)
 				if err := confBDGZApiPush(group, "sendConf", h); err != nil {
 					h.Error("error sending configuration")
@@ -63,7 +68,13 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *hol
 					h.Error("error sending test event")
 					continue
 				}
-				configsSent = append(configsSent, group.GroupName)
+
+				configsSent[group.GroupName] = ModuleConfig{
+					ConnectionKey: group.Configurations[0].ConfValue,
+					AccessUrl:     group.Configurations[1].ConfValue,
+					MasterIp:      group.Configurations[2].ConfValue,
+					CompaniesIDs:  strings.Split(group.Configurations[3].ConfValue, ","),
+				}
 			}
 		}
 	}

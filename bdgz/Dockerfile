@@ -6,3 +6,4 @@ COPY bdgz_integration .
 
 RUN chmod +x bdgz_integration
 ENTRYPOINT ./bdgz_integration
+
