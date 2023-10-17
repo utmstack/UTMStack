@@ -10,6 +10,17 @@ import (
 func main() {
 	fmt.Println("### UTMStack Installer ###")
 	fmt.Println("Checking system requirements")
+
+	args := os.Args
+
+	var update bool
+
+	for _, arg := range args{
+		if arg == "update"{
+			update = true
+		}
+	}
+
 	if err := utils.CheckDistro("ubuntu"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -56,7 +67,7 @@ func main() {
 			os.Exit(1)
 		}
 	case "cloud":
-		err := Cloud(config)
+		err := Cloud(config, update)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

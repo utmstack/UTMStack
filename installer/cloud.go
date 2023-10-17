@@ -7,8 +7,8 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Cloud(c *Config) error {
-	if err := utils.CheckMem(6); err != nil {
+func Cloud(c *Config, update bool) error {
+	if err := utils.CheckMem(4); err != nil {
 		return err
 	}
 
@@ -84,25 +84,37 @@ func Cloud(c *Config) error {
 		fmt.Println("Initializing Swarm [OK]")
 	}
 
-	fmt.Println("Installing reverse proxy. This may take a while.")
+	if utils.GetLock(11, stack.LocksDir) || update {
+		fmt.Println("Installing reverse proxy. This may take a while.")
 
-	if err := InstallNginx(); err != nil {
-		return err
+		if err := InstallNginx(); err != nil {
+			return err
+		}
+
+		if err := ConfigureNginx(c, stack); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(11, stack.LocksDir); err != nil {
+			return err
+		}
+
+		fmt.Println("Installing reverse proxy [OK]")
 	}
 
-	if err := ConfigureNginx(c, stack); err != nil {
-		return err
+	if utils.GetLock(12, stack.LocksDir) || update {
+		fmt.Println("Installing Stack. This may take a while.")
+
+		if err := StackUP(c, stack); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(12, stack.LocksDir); err != nil {
+			return err
+		}
+
+		fmt.Println("Installing Stack [OK]")
 	}
-
-	fmt.Println("Installing reverse proxy [OK]")
-
-	fmt.Println("Installing Stack. This may take a while.")
-
-	if err := StackUP(c, stack); err != nil {
-		return err
-	}
-
-	fmt.Println("Installing Stack [OK]")
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Println("Installing Administration Tools")
@@ -192,13 +204,19 @@ func Cloud(c *Config) error {
 		fmt.Println("Sending sample logs [OK]")
 	}
 
-	fmt.Println("Running post installation scripts. This may take a while.")
+	if utils.GetLock(13, stack.LocksDir) || update {
+		fmt.Println("Running post installation scripts. This may take a while.")
 
-	if err := PostInstallation(); err != nil {
-		return err
+		if err := PostInstallation(); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(13, stack.LocksDir); err != nil {
+			return err
+		}
+
+		fmt.Println("Running post installation scripts [OK]")
 	}
-
-	fmt.Println("Running post installation scripts [OK]")
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
