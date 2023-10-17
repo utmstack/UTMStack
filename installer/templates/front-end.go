@@ -89,6 +89,24 @@ const FrontEnd string =`server {
         proxy_cache_bypass $http_upgrade;
     }
 
+    location /swagger-ui {
+        proxy_pass  $utmstack_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 900;
+    }
+
+    location /v3 {
+        proxy_pass  $utmstack_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 900;
+    }
+
     client_max_body_size 200M;
     client_body_buffer_size 200M;
 }`
