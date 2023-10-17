@@ -8,6 +8,8 @@ import (
 )
 
 func Master(c *Config) error {
+	fmt.Println("Checking system requirements")
+
 	if err := utils.CheckMem(6); err != nil {
 		return err
 	}
@@ -202,7 +204,8 @@ func Master(c *Config) error {
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
-	fmt.Println("You can access to your Web-GUI at https://<your-server-ip>:443 using admin as your username and the password in the configuration file.")
+	fmt.Println("You can access to your Web-GUI at https://<your-server-ip>:443 using admin as your username")
+	fmt.Printf("Web-GUI default password for admin: %s \n", c.Password)
 	fmt.Println("You can also access to your Web-based Administration Interface at https://<your-server-ip>:9090 using your Linux system credentials.")
 
 	fmt.Println("### Thanks for using UTMStack ###")
