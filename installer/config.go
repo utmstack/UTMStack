@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path"
 
@@ -20,46 +19,13 @@ type Config struct {
 
 var configPath = path.Join("/root", "utmstack.yml")
 
-func (c *Config) Get() error {
+func (c *Config) Get() {
 	config, err := os.ReadFile(configPath)
 	if err != nil {
-		return err
+		return
 	}
 
-	err = yaml.Unmarshal(config, c)
-	if err != nil {
-		return err
-	}
-
-	if c.DataDir == "" {
-		return fmt.Errorf("data_dir is empty")
-	}
-
-	if c.Password == "" {
-		return fmt.Errorf("password is empty")
-	}
-
-	if c.Branch == "" {
-		return fmt.Errorf("branch is empty")
-	}
-
-	if c.MainServer == "" {
-		return fmt.Errorf("main_server is empty")
-	}
-
-	if c.ServerType == "" {
-		return fmt.Errorf("server_type is empty")
-	}
-
-	if c.ServerName == "" {
-		return fmt.Errorf("server_name is empty")
-	}
-
-	if c.InternalKey == "" {
-		return fmt.Errorf("internal_key is empty")
-	}
-
-	return nil
+	_ = yaml.Unmarshal(config, c)
 }
 
 func (c *Config) Set() error {

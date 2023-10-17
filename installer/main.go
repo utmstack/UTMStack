@@ -15,8 +15,8 @@ func main() {
 
 	var update bool
 
-	for _, arg := range args{
-		if arg == "update"{
+	for _, arg := range args {
+		if arg == "update" {
 			update = true
 		}
 	}
@@ -27,22 +27,15 @@ func main() {
 	}
 
 	var config = new(Config)
-	err := config.Get()
-	if err != nil {
-		fmt.Println("creating new config file because: ", err)
-
-		config.Branch = "v10.1.0"
-		config.Password = utils.GenerateSecret(16)
-		config.InternalKey = utils.GenerateSecret(32)
-		config.DataDir = "/utmstack"
-		config.ServerType = "aio"
-	}
+	config.Get()
 
 	mainIP, err := utils.GetMainIP()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	config.MainServer = mainIP
 
 	sName, err := os.Hostname()
 	if err != nil {
@@ -51,7 +44,29 @@ func main() {
 	}
 
 	config.ServerName = sName
-	config.MainServer = mainIP
+
+	if config.ServerType != "aio" &&
+		config.ServerType != "cloud" {
+		config.ServerType = "aio"
+	}
+
+	if config.Password == "" {
+		config.Password = utils.GenerateSecret(16)
+	}
+
+	if config.InternalKey == "" {
+		config.InternalKey = utils.GenerateSecret(32)
+	}
+
+	if config.Branch != "v10-dev" &&
+		config.Branch != "v10-qa" &&
+		config.Branch != "v10-rc" {
+		config.Branch = "v10.1.0"
+	}
+
+	if config.DataDir == "" {
+		config.DataDir = "/utmstack"
+	}
 
 	err = config.Set()
 	if err != nil {
