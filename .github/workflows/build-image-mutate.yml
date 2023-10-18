@@ -49,8 +49,3 @@ jobs:
           context: ./mutate
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}_${{ env.TAG }},ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
-
-      - uses: rickstaa/action-create-tag@v1
-        with:
-          tag: "${{inputs.environment}}_${{ env.TAG }}"
-          message: ${{inputs.tag_message}}
