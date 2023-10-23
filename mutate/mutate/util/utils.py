@@ -16,18 +16,18 @@ from mutate.util.postgres import Postgres
 def get_module_group(module: str):
     """Get groups of configuration module"""
     query = """select distinct group_name from
-    utm_server_configurations WHERE server_name=%s AND module_name=%s;"""
+    utm_server_configurations WHERE module_name=%s;"""
     return [group[0] for group in Postgres().fetchall(query,
-                                                      (os.environ.get('SERVER_NAME'), module))]
+                                                      ( module))]
 
 
 def get_config(module: str, group: str) -> Dict[str, Any]:
     """Get configuration for the given module."""
     query = """SELECT conf_short, conf_value
         FROM utm_server_configurations
-        WHERE server_name=%s AND module_name=%s AND group_name=%s;"""
+        WHERE module_name=%s AND group_name=%s;"""
     configs = Postgres().fetchall(
-        query, (os.environ.get('SERVER_NAME'), module, group))
+        query, (module, group))
     cfg = {}
     for key, value in configs:
         try:
