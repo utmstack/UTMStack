@@ -34,8 +34,8 @@ def create_directory(root_dir, directory_name):
     if not os.path.exists(new_directory_path):
         try:
             os.makedirs(new_directory_path)
-        except OSError as error:
-            logging.error(f"Unable to create directory '{new_directory_path}'. Error: {error}")
+        except OSError as e:
+            logging.error(e)
     return new_directory_path
 
 
@@ -75,7 +75,7 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
                 inputs_content += content
 
             except Exception as e:
-                logging.error(f"Error during input file generation: {e}")
+                logging.error(e)
                 continue
 
         if inputs_content:
@@ -101,7 +101,7 @@ def create_filter(pipeline_directory, filters):
             file.write(filters_content)
 
     except Exception as e:
-        logging.error(f"Error during filter file generation: {e}")
+        logging.error(e)
 
 
 def create_output(pipeline_directory, environment):
@@ -124,4 +124,4 @@ def create_output(pipeline_directory, environment):
             file.write(content)
 
     except Exception as e:
-        logging.error(f"Error during output file generation: {e}")
+        logging.error(e)

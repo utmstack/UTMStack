@@ -68,7 +68,7 @@ def get_pipelines():
         return {row['pipeline_id']: dict(row) for row in query_result}
 
     except Exception as e:
-        logging.error(f"Unexpected error occurred when trying to get pipelines: {e}")
+        logging.error(e)
         return {}
 
 
@@ -83,7 +83,7 @@ def get_active_pipelines():
         return [row['pipeline_id'] for row in query_result]
 
     except Exception as e:
-        logging.error(f"Unexpected error occurred when trying to get active pipelines: {e}")
+        logging.error(e)
         return []
 
 

@@ -56,15 +56,15 @@ class Postgres:
                 res = cur.fetchall()
 
         except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
-            logging.error(f"Database connection error, rolling back...: {e}")
+            logging.error(e)
             self.conn.rollback()
             raise
         except psycopg2.DatabaseError as e:
-            logging.error(f"Query execution error, rolling back... {e}")
+            logging.error(e)
             self.conn.rollback()
             raise
         except Exception as e:
-            logging.error(f"Unexpected error occurred when trying to fetchall {e}")
+            logging.error(e)
             self.conn.rollback()
             raise
 

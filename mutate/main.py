@@ -31,8 +31,8 @@ def handle_new_pipeline(pipeline_conf):
         generate_logstash_pipeline(pipeline_root=PIPELINES_PATH,
                                    environment=ENVIRONMENT,
                                    pipeline=pipeline_conf)
-    except Exception as exception:
-        logging.error(f'Error occurred during generating new pipelines. {exception}')
+    except Exception as e:
+        logging.error(e)
 
 def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
     try:
@@ -45,8 +45,8 @@ def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
                 inputs=actual_inputs,
                 environment=ENVIRONMENT
             )
-    except Exception as exception:
-        logging.error(f'Error occurred during checking and updating inputs. {exception}')
+    except Exception as e:
+        logging.error(e)
 
 
 def handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations):
@@ -55,8 +55,8 @@ def handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations):
         last_filters = last_configurations[pipeline_id].get('filters')
         if Counter(actual_filters) != Counter(last_filters):
             create_filter(os.path.join(PIPELINES_PATH, pipeline_id), actual_filters)
-    except Exception as exception:
-        logging.error(f'Error occurred during checking and updating filters. {exception}')
+    except Exception as e:
+        logging.error(e)
 
 
 def check_and_update_configurations(last_configurations, actual_configurations):
@@ -80,8 +80,8 @@ def check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_in
                     inputs=pipeline_conf,
                     environment=ENVIRONMENT
                 )
-        except Exception as exception:
-            logging.error(f'Error occurred during checking and updating cloud integrations inputs. {exception}')
+        except Exception as e:
+            logging.error(e)
 
 
 def check_and_update_active_pipelines(last_active_pipelines, actual_active_pipelines):
@@ -93,7 +93,7 @@ def check_and_update_active_pipelines(last_active_pipelines, actual_active_pipel
         generate_logstash_config(actual_active_pipelines)
 
     except Exception as e:
-        logging.error(f'Error occurred during checking and updating active pipelines. {e}')
+        logging.error(e)
 
 
 def generate_logstash_config(pipelines):
@@ -112,7 +112,7 @@ def generate_logstash_config(pipelines):
         with open(CONF_FILE_PATH, "w", encoding='utf-8') as file:
             file.write(content)
     except Exception as e:
-        logging.error(f"Error occurred during configuration file generation: {e}")
+        logging.error(e)
 
 
 def main():
@@ -153,7 +153,7 @@ def main():
             time.sleep(SLEEP_TIME_CONFIG_GEN)
 
         except Exception as e:
-            logging.error(f"An error occurred during configuration update: {e}")
+            logging.error(e)
             time.sleep(SLEEP_TIME_ERROR)
 
 
