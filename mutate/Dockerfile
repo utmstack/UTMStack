@@ -19,7 +19,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY ./* /app/mutate
+COPY . /app/mutate
 
 COPY --from=compile-image /app/venv /app/venv
 
