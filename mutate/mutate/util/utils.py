@@ -1,13 +1,9 @@
 # pylint: disable=R1732
 """UTMStack utilities."""
 
-import argparse
 import json
 import logging.handlers
-import os
-import time
-from threading import Thread
-from typing import Any, Callable, Dict, Generator, Optional
+from typing import Any, Dict
 
 # pylama:ignore=W0611
 from mutate.util.postgres import Postgres
@@ -17,8 +13,9 @@ def get_module_group(module: str):
     """Get groups of configuration module"""
     query = """select distinct group_name from
     utm_server_configurations WHERE module_name=%s;"""
-    return [group[0] for group in Postgres().fetchall(query,
-                                                      ( module))]
+    queryresult = Postgres().fetchall(query,(module))
+    groups = [group['group_name'] for group in queryresult]
+    return groups
 
 
 def get_config(module: str, group: str) -> Dict[str, Any]:
@@ -29,14 +26,15 @@ def get_config(module: str, group: str) -> Dict[str, Any]:
     configs = Postgres().fetchall(
         query, (module, group))
     cfg = {}
-    for key, value in configs:
+    for row in configs:
+        key = row['conf_short']
+        value_str = row['conf_value']
         try:
-            val = json.loads(value)
+            value = json.loads(value_str)
         except Exception:
-            val = value
-        cfg[key] = val
+            value = value_str
+        cfg[key] = value
     return cfg
-
 
 def get_pipelines():
     try:
