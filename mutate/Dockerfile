@@ -1,4 +1,4 @@
-FROM python:3.11 AS compile-image
+FROM python:3.9 AS compile-image
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -15,7 +15,7 @@ ENV PATH="/app/venv/bin:$PATH"
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
