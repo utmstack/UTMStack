@@ -5,7 +5,8 @@ import os
 import psycopg2
 from psycopg2 import extras
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S')
 logger = logging.getLogger(__name__)
 
 class Postgres:

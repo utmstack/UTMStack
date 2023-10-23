@@ -8,7 +8,8 @@ from typing import Any, Dict
 # pylama:ignore=W0611
 from util.postgres import Postgres
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S')
 logger = logging.getLogger(__name__)
 
 def get_module_group(module: str):
