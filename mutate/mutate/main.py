@@ -129,8 +129,10 @@ def main():
 
     while True:
         try:
+            logging.info("Getting current pipelines")
             actual_configurations = get_pipelines()
 
+            logging.info("Generating cloud integrations")
             actual_cloud_integrations = {
                 'cloud_google': IntegrationCreator().create_integration(
                     IntegrationEnum.GOOGLE
@@ -139,10 +141,13 @@ def main():
                     IntegrationEnum.AZURE
                 ).get_integration_config()
             }
+            logging.info("Active pipelines")
             actual_active_pipelines = get_active_pipelines()
-
+            logging.info("check_and_update_configurations")
             check_and_update_configurations(last_configurations, actual_configurations)
+            logging.info("check_and_update_cloud_integrations")
             check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_integrations)
+            logging.info("check_and_update_active_pipelines")
             check_and_update_active_pipelines(last_active_pipelines, actual_active_pipelines)
 
             last_configurations = actual_configurations
