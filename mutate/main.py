@@ -24,7 +24,7 @@ SLEEP_TIME_ERROR = 15
 ENVIRONMENT = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), TEMPLATE_DIR)))
 
 # Setting up logging
-logging.basicConfig(format='%(asctime)s %(clientip)-15s %(user)-8s %(message)s', level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def handle_new_pipeline(pipeline_conf):
@@ -33,7 +33,7 @@ def handle_new_pipeline(pipeline_conf):
                                    environment=ENVIRONMENT,
                                    pipeline=pipeline_conf)
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
 
 def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
     try:
@@ -47,7 +47,7 @@ def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
                 environment=ENVIRONMENT
             )
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
 
 
 def handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations):
@@ -57,7 +57,7 @@ def handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations):
         if Counter(actual_filters) != Counter(last_filters):
             create_filter(os.path.join(PIPELINES_PATH, pipeline_id), actual_filters)
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
 
 
 def check_and_update_configurations(last_configurations, actual_configurations):
@@ -82,7 +82,7 @@ def check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_in
                     environment=ENVIRONMENT
                 )
         except Exception as e:
-            logger.error(e)
+            logger.error(str(e))
 
 
 def check_and_update_active_pipelines(last_active_pipelines, actual_active_pipelines):
@@ -94,7 +94,7 @@ def check_and_update_active_pipelines(last_active_pipelines, actual_active_pipel
         generate_logstash_config(actual_active_pipelines)
 
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
 
 
 def generate_logstash_config(pipelines):
@@ -113,7 +113,7 @@ def generate_logstash_config(pipelines):
         with open(CONF_FILE_PATH, "w", encoding='utf-8') as file:
             file.write(content)
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
 
 
 def main():
@@ -157,7 +157,7 @@ def main():
 
             time.sleep(SLEEP_TIME_CONFIG_GEN)
         except Exception as e:
-            logger.error(e)
+            logger.error(str(e))
             time.sleep(SLEEP_TIME_ERROR)
 
 

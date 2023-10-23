@@ -1,9 +1,7 @@
 import logging
 import os
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s - %(levelname)s - %(message)s",
-                    datefmt="%d-%b-%y %H:%M:%S")
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def generate_logstash_pipeline(pipeline_root, environment, pipeline: dict) -> None:
@@ -35,7 +33,7 @@ def create_directory(root_dir, directory_name):
         try:
             os.makedirs(new_directory_path)
         except OSError as e:
-            logger.error(e)
+            logger.error(str(e))
     return new_directory_path
 
 
@@ -75,7 +73,7 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
                 inputs_content += content
 
             except Exception as e:
-                logger.error(e)
+                logger.error(str(e))
                 continue
 
         if inputs_content:
@@ -101,7 +99,7 @@ def create_filter(pipeline_directory, filters):
             file.write(filters_content)
 
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
 
 
 def create_output(pipeline_directory, environment):
@@ -124,4 +122,4 @@ def create_output(pipeline_directory, environment):
             file.write(content)
 
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))

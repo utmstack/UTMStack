@@ -8,7 +8,7 @@ from typing import Any, Dict
 # pylama:ignore=W0611
 from util.postgres import Postgres
 
-logging.basicConfig(format='%(asctime)s %(clientip)-15s %(user)-8s %(message)s', level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def get_module_group(module: str):
@@ -70,7 +70,7 @@ def get_pipelines():
         return {row['pipeline_id']: dict(row) for row in query_result}
 
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         return {}
 
 
@@ -85,7 +85,7 @@ def get_active_pipelines():
         return [row['pipeline_id'] for row in query_result]
 
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         return []
 
 
