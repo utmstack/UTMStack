@@ -4,7 +4,7 @@ import os
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     datefmt="%d-%b-%y %H:%M:%S")
-
+logger = logging.getLogger(__name__)
 
 def generate_logstash_pipeline(pipeline_root, environment, pipeline: dict) -> None:
     """
@@ -35,7 +35,7 @@ def create_directory(root_dir, directory_name):
         try:
             os.makedirs(new_directory_path)
         except OSError as e:
-            logging.error(e)
+            logger.error(e)
     return new_directory_path
 
 
@@ -64,7 +64,7 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
                 template_name = f"{input_plugin}_template.j2"
 
                 if not os.path.isfile(os.path.join(os.path.dirname(__file__), "templates", template_name)):
-                    logging.error(f"No template exists for the input plugin: {input_plugin}")
+                    logger.error(f"No template exists for the input plugin: {input_plugin}")
                     continue
 
                 template = environment.get_template(template_name)
@@ -75,7 +75,7 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
                 inputs_content += content
 
             except Exception as e:
-                logging.error(e)
+                logger.error(e)
                 continue
 
         if inputs_content:
@@ -101,7 +101,7 @@ def create_filter(pipeline_directory, filters):
             file.write(filters_content)
 
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
 
 
 def create_output(pipeline_directory, environment):
@@ -124,4 +124,4 @@ def create_output(pipeline_directory, environment):
             file.write(content)
 
     except Exception as e:
-        logging.error(e)
+        logger.error(e)

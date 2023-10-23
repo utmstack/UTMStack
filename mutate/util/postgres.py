@@ -5,6 +5,8 @@ import os
 import psycopg2
 from psycopg2 import extras
 
+logging.basicConfig(format='%(asctime)s %(clientip)-15s %(user)-8s %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Postgres:
     """Helper class for database manipulation."""
@@ -56,15 +58,15 @@ class Postgres:
                 res = cur.fetchall()
 
         except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
-            logging.error(e)
+            logger.error(e)
             self.conn.rollback()
             raise
         except psycopg2.DatabaseError as e:
-            logging.error(e)
+            logger.error(e)
             self.conn.rollback()
             raise
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
             self.conn.rollback()
             raise
 
