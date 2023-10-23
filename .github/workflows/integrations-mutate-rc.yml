@@ -1,0 +1,17 @@
+name: Mutate RC
+
+on:
+  push:
+    branches: [ "rc" ]
+    paths:
+      - 'mutate/**'
+
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-basic.yml
+    with:
+      image_name: mutate
+      environment: v10-rc
+      directory: mutate

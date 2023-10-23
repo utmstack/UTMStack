@@ -1,4 +1,4 @@
-name: O365 Integration Build QA
+name: O365 QA
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   docker:
-    uses: ./.github/workflows/integrations-build-image.yml
+    uses: ./.github/workflows/docker-golang.yml
     with:
       image_name: office365
       environment: v10-qa

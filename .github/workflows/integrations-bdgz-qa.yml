@@ -1,4 +1,4 @@
-name: Bitdefender Integration Build QA
+name: Bitdefender QA
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   docker:
-    uses: ./.github/workflows/integrations-build-image.yml
+    uses: ./.github/workflows/docker-golang.yml
     with:
       image_name: bitdefender
       environment: v10-qa
