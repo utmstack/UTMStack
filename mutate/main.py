@@ -6,18 +6,17 @@ from collections import Counter
 
 from jinja2 import Environment, FileSystemLoader
 
-from mutate.cloudIntegrations.integration_creator import IntegrationCreator
-from mutate.cloudIntegrations.integration_enum import IntegrationEnum
-from mutate.pipeline_generator import (
+from cloud_integrations.integration_creator import IntegrationCreator
+from cloud_integrations.integration_enum import IntegrationEnum
+from pipeline_generator import (
     generate_logstash_pipeline,
     create_input, create_filter
 )
-from mutate.util.utils import get_pipelines, get_active_pipelines, compare_dicts_in_unordered_lists
+from util.misc import get_pipelines, get_active_pipelines, compare_dicts_in_unordered_lists
 
-# Constants
 PIPELINES_PATH = "/usr/share/logstash/pipelines/"
 CONF_FILE_PATH = "/usr/share/logstash/config/pipelines.yml"
-TEMPLATE_DIR = "Templates"
+TEMPLATE_DIR = "templates"
 LOG_FORMAT = '%(asctime)s %(clientip)-15s %(user)-8s %(message)s'
 SLEEP_TIME_CONFIG_GEN = 30
 SLEEP_TIME_ERROR = 15
@@ -25,8 +24,7 @@ SLEEP_TIME_ERROR = 15
 ENVIRONMENT = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), TEMPLATE_DIR)))
 
 # Setting up logging
-logging.basicConfig(format=LOG_FORMAT)
-
+logging.basicConfig(format=LOG_FORMAT, level=logging.ERROR)
 
 def handle_new_pipeline(pipeline_conf):
     try:
@@ -35,7 +33,6 @@ def handle_new_pipeline(pipeline_conf):
                                    pipeline=pipeline_conf)
     except Exception as exception:
         logging.error(f'Error occurred during generating new pipelines. {exception}')
-
 
 def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
     try:
@@ -78,11 +75,11 @@ def check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_in
         try:
             if pipeline_conf != last_cloud_integrations[pipeline_id]:
                 create_input(
-                pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
-                pipeline_id=pipeline_id,
-                inputs=pipeline_conf,
-                environment=ENVIRONMENT
-            )
+                    pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
+                    pipeline_id=pipeline_id,
+                    inputs=pipeline_conf,
+                    environment=ENVIRONMENT
+                )
         except Exception as exception:
             logging.error(f'Error occurred during checking and updating cloud integrations inputs. {exception}')
 
@@ -122,13 +119,14 @@ def main():
     """Main loop for periodically updating Logstash configuration."""
     last_configurations = {}
     last_cloud_integrations = {
-             'cloud_google': None,
-             'cloud_azure': None
-         }
+        'cloud_google': None,
+        'cloud_azure': None
+    }
     last_active_pipelines = []
 
     while True:
         try:
+
             actual_configurations = get_pipelines()
 
             actual_cloud_integrations = {
@@ -139,10 +137,13 @@ def main():
                     IntegrationEnum.AZURE
                 ).get_integration_config()
             }
+
             actual_active_pipelines = get_active_pipelines()
 
             check_and_update_configurations(last_configurations, actual_configurations)
+
             check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_integrations)
+
             check_and_update_active_pipelines(last_active_pipelines, actual_active_pipelines)
 
             last_configurations = actual_configurations

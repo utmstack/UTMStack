@@ -6,10 +6,10 @@ from string import Template
 import jwt
 import requests
 
-from mutate.cloudIntegrations.integration import Integration
-from mutate.util.aes_cipher import AESCipher
-from mutate.util.module_enum import GOOGLE_PUBSUB
-from mutate.util.utils import get_module_group
+from cloud_integrations.integration import Integration
+from util.aes_cipher import AESCipher
+from util.module_enum import GOOGLE_PUBSUB
+from util.misc import get_module_group
 
 LOCATION = "/etc/utmstack/"
 

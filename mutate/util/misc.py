@@ -1,23 +1,19 @@
 # pylint: disable=R1732
 """UTMStack utilities."""
 
-import argparse
 import json
 import logging.handlers
-import os
-import time
-from threading import Thread
-from typing import Any, Callable, Dict, Generator, Optional
+from typing import Any, Dict
 
 # pylama:ignore=W0611
-from mutate.util.postgres import Postgres
+from util.postgres import Postgres
 
 
 def get_module_group(module: str):
     """Get groups of configuration module"""
     query = """select distinct group_name from
-    utm_server_configurations WHERE server_name=%s AND module_name=%s;"""
-    queryresult = Postgres().fetchall(query,(os.environ.get('SERVER_NAME'), module))
+    utm_server_configurations WHERE module_name=%s;"""
+    queryresult = Postgres().fetchall(query, (module,))
     groups = [group['group_name'] for group in queryresult]
     return groups
 
@@ -26,9 +22,9 @@ def get_config(module: str, group: str) -> Dict[str, Any]:
     """Get configuration for the given module."""
     query = """SELECT conf_short, conf_value
         FROM utm_server_configurations
-        WHERE server_name=%s AND module_name=%s AND group_name=%s;"""
+        WHERE module_name=%s AND group_name=%s;"""
     configs = Postgres().fetchall(
-        query, (os.environ.get('SERVER_NAME'), module, group))
+        query, (module, group))
     cfg = {}
     for row in configs:
         key = row['conf_short']
@@ -39,6 +35,7 @@ def get_config(module: str, group: str) -> Dict[str, Any]:
             value = value_str
         cfg[key] = value
     return cfg
+
 
 def get_pipelines():
     try:
