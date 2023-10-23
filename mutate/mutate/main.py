@@ -25,7 +25,7 @@ SLEEP_TIME_ERROR = 15
 ENVIRONMENT = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), TEMPLATE_DIR)))
 
 # Setting up logging
-logging.basicConfig(format=LOG_FORMAT)
+logging.basicConfig(format=LOG_FORMAT, level=logging.NOTSET)
 
 
 def handle_new_pipeline(pipeline_conf):
@@ -78,11 +78,11 @@ def check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_in
         try:
             if pipeline_conf != last_cloud_integrations[pipeline_id]:
                 create_input(
-                pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
-                pipeline_id=pipeline_id,
-                inputs=pipeline_conf,
-                environment=ENVIRONMENT
-            )
+                    pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
+                    pipeline_id=pipeline_id,
+                    inputs=pipeline_conf,
+                    environment=ENVIRONMENT
+                )
         except Exception as exception:
             logging.error(f'Error occurred during checking and updating cloud integrations inputs. {exception}')
 
@@ -122,9 +122,9 @@ def main():
     """Main loop for periodically updating Logstash configuration."""
     last_configurations = {}
     last_cloud_integrations = {
-             'cloud_google': None,
-             'cloud_azure': None
-         }
+        'cloud_google': None,
+        'cloud_azure': None
+    }
     last_active_pipelines = []
 
     while True:
