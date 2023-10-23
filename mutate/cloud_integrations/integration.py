@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from mutate.util.utils import get_config, get_module_group
+from util.misc import get_config, get_module_group
 
 
 class Integration(ABC):

@@ -1,8 +1,8 @@
 from string import Template
 
-from mutate.cloudIntegrations.integration import Integration
-from mutate.util.module_enum import AZURE
-from mutate.util.utils import get_module_group
+from cloud_integrations.integration import Integration
+from util.module_enum import AZURE
+from util.misc import get_module_group
 
 
 def get_event_hubs(conf):

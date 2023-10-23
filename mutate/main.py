@@ -6,18 +6,17 @@ from collections import Counter
 
 from jinja2 import Environment, FileSystemLoader
 
-from mutate.cloudIntegrations.integration_creator import IntegrationCreator
-from mutate.cloudIntegrations.integration_enum import IntegrationEnum
-from mutate.pipeline_generator import (
+from cloud_integrations.integration_creator import IntegrationCreator
+from cloud_integrations.integration_enum import IntegrationEnum
+from pipeline_generator import (
     generate_logstash_pipeline,
     create_input, create_filter
 )
-from mutate.util.utils import get_pipelines, get_active_pipelines, compare_dicts_in_unordered_lists
+from util.misc import get_pipelines, get_active_pipelines, compare_dicts_in_unordered_lists
 
-# Constants
 PIPELINES_PATH = "/usr/share/logstash/pipelines/"
 CONF_FILE_PATH = "/usr/share/logstash/config/pipelines.yml"
-TEMPLATE_DIR = "Templates"
+TEMPLATE_DIR = "templates"
 LOG_FORMAT = '%(asctime)s %(clientip)-15s %(user)-8s %(message)s'
 SLEEP_TIME_CONFIG_GEN = 30
 SLEEP_TIME_ERROR = 15
@@ -27,7 +26,6 @@ ENVIRONMENT = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(_
 # Setting up logging
 logging.basicConfig(format=LOG_FORMAT, level=logging.ERROR)
 
-
 def handle_new_pipeline(pipeline_conf):
     try:
         generate_logstash_pipeline(pipeline_root=PIPELINES_PATH,
@@ -35,7 +33,6 @@ def handle_new_pipeline(pipeline_conf):
                                    pipeline=pipeline_conf)
     except Exception as exception:
         logging.error(f'Error occurred during generating new pipelines. {exception}')
-
 
 def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
     try:

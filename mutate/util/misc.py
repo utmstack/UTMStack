@@ -6,7 +6,7 @@ import logging.handlers
 from typing import Any, Dict
 
 # pylama:ignore=W0611
-from mutate.util.postgres import Postgres
+from util.postgres import Postgres
 
 
 def get_module_group(module: str):
