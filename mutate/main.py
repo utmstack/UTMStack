@@ -75,7 +75,7 @@ def check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_in
     """Checks and updates cloud integrations if there are changes."""
     for pipeline_id, pipeline_conf in actual_cloud_integrations.items():
         try:
-            if pipeline_conf != last_cloud_integrations[pipeline_id]:
+            if pipeline_id not in last_cloud_integrations.keys():
                 create_input(
                     pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
                     pipeline_id=pipeline_id,
