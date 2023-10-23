@@ -48,11 +48,13 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
     :param inputs: The list of inputs.
     :param environment: The Jinja environment for the use of the template.
     """
-    inputs_content = ""
 
+    path = os.path.join(pipeline_directory, "000-input.conf")
     if pipeline_id in ['cloud_azure', 'cloud_google'] and isinstance(inputs, str):
-        inputs_content = inputs
+        with open(path, "w", errors="ignore", encoding='utf-8') as file:
+            file.write(inputs)
     else:
+        inputs_content = ""
         for input_item in inputs:
             try:
                 input_plugin = input_item.get('input_plugin', None)
@@ -76,10 +78,9 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
                 logging.error(f"Error during input file generation: {e}")
                 continue
 
-    if inputs_content:
-        path = os.path.join(pipeline_directory, "000-input.conf")
-        with open(path, "w", errors="ignore", encoding='utf-8') as file:
-            file.write("input{" + inputs_content + "}")
+        if inputs_content:
+            with open(path, "w", errors="ignore", encoding='utf-8') as file:
+                file.write("input{" + inputs_content + "}")
 
 
 def create_filter(pipeline_directory, filters):

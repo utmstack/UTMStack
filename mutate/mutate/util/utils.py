@@ -13,7 +13,7 @@ def get_module_group(module: str):
     """Get groups of configuration module"""
     query = """select distinct group_name from
     utm_server_configurations WHERE module_name=%s;"""
-    queryresult = Postgres().fetchall(query,(module))
+    queryresult = Postgres().fetchall(query, (module,))
     groups = [group['group_name'] for group in queryresult]
     return groups
 
@@ -35,6 +35,7 @@ def get_config(module: str, group: str) -> Dict[str, Any]:
             value = value_str
         cfg[key] = value
     return cfg
+
 
 def get_pipelines():
     try:
