@@ -24,15 +24,17 @@ SLEEP_TIME_ERROR = 15
 ENVIRONMENT = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), TEMPLATE_DIR)))
 
 # Setting up logging
-logging.basicConfig(format=LOG_FORMAT, level=logging.ERROR)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S')
+logger = logging.getLogger(__name__)
 
 def handle_new_pipeline(pipeline_conf):
     try:
         generate_logstash_pipeline(pipeline_root=PIPELINES_PATH,
                                    environment=ENVIRONMENT,
                                    pipeline=pipeline_conf)
-    except Exception as exception:
-        logging.error(f'Error occurred during generating new pipelines. {exception}')
+    except Exception as e:
+        logger.error(str(e))
 
 def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
     try:
@@ -45,8 +47,8 @@ def handle_pipeline_inputs(pipeline_id, pipeline_conf, last_configurations):
                 inputs=actual_inputs,
                 environment=ENVIRONMENT
             )
-    except Exception as exception:
-        logging.error(f'Error occurred during checking and updating inputs. {exception}')
+    except Exception as e:
+        logger.error(str(e))
 
 
 def handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations):
@@ -55,8 +57,8 @@ def handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations):
         last_filters = last_configurations[pipeline_id].get('filters')
         if Counter(actual_filters) != Counter(last_filters):
             create_filter(os.path.join(PIPELINES_PATH, pipeline_id), actual_filters)
-    except Exception as exception:
-        logging.error(f'Error occurred during checking and updating filters. {exception}')
+    except Exception as e:
+        logger.error(str(e))
 
 
 def check_and_update_configurations(last_configurations, actual_configurations):
@@ -73,15 +75,15 @@ def check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_in
     """Checks and updates cloud integrations if there are changes."""
     for pipeline_id, pipeline_conf in actual_cloud_integrations.items():
         try:
-            if pipeline_conf != last_cloud_integrations[pipeline_id]:
+            if pipeline_id not in last_cloud_integrations.keys():
                 create_input(
                     pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
                     pipeline_id=pipeline_id,
                     inputs=pipeline_conf,
                     environment=ENVIRONMENT
                 )
-        except Exception as exception:
-            logging.error(f'Error occurred during checking and updating cloud integrations inputs. {exception}')
+        except Exception as e:
+            logger.error(str(e))
 
 
 def check_and_update_active_pipelines(last_active_pipelines, actual_active_pipelines):
@@ -93,7 +95,7 @@ def check_and_update_active_pipelines(last_active_pipelines, actual_active_pipel
         generate_logstash_config(actual_active_pipelines)
 
     except Exception as e:
-        logging.error(f'Error occurred during checking and updating active pipelines. {e}')
+        logger.error(str(e))
 
 
 def generate_logstash_config(pipelines):
@@ -112,11 +114,14 @@ def generate_logstash_config(pipelines):
         with open(CONF_FILE_PATH, "w", encoding='utf-8') as file:
             file.write(content)
     except Exception as e:
-        logging.error(f"Error occurred during configuration file generation: {e}")
+        logger.error(str(e))
 
 
 def main():
     """Main loop for periodically updating Logstash configuration."""
+    
+    logger.info("Starting Mutate")
+    
     last_configurations = {}
     last_cloud_integrations = {
         'cloud_google': None,
@@ -126,6 +131,7 @@ def main():
 
     while True:
         try:
+            logger.info("Configuring Pipeline")
 
             actual_configurations = get_pipelines()
 
@@ -151,9 +157,8 @@ def main():
             last_active_pipelines = actual_active_pipelines
 
             time.sleep(SLEEP_TIME_CONFIG_GEN)
-
         except Exception as e:
-            logging.error(f"An error occurred during configuration update: {e}")
+            logger.error(str(e))
             time.sleep(SLEEP_TIME_ERROR)
 
 

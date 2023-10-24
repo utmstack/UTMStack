@@ -8,6 +8,9 @@ from typing import Any, Dict
 # pylama:ignore=W0611
 from util.postgres import Postgres
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S')
+logger = logging.getLogger(__name__)
 
 def get_module_group(module: str):
     """Get groups of configuration module"""
@@ -68,7 +71,7 @@ def get_pipelines():
         return {row['pipeline_id']: dict(row) for row in query_result}
 
     except Exception as e:
-        logging.error(f"Unexpected error occurred when trying to get pipelines: {e}")
+        logger.error(str(e))
         return {}
 
 
@@ -83,7 +86,7 @@ def get_active_pipelines():
         return [row['pipeline_id'] for row in query_result]
 
     except Exception as e:
-        logging.error(f"Unexpected error occurred when trying to get active pipelines: {e}")
+        logger.error(str(e))
         return []
 
 
