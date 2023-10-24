@@ -29,6 +29,9 @@ class AzureIntegration(Integration):
     def get_integration_config(self) -> str:
         """Implement interface, build string for
         integration"""
+
+        print("Generating azure pipelines...")
+
         azure = ""
         module = AZURE
         groups = get_module_group("AZURE")
