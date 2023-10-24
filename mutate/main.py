@@ -145,16 +145,16 @@ def main():
                 ).get_integration_config()
             }
 
-            print("Step1")
+            logger.info("Step1")
             actual_active_pipelines = get_active_pipelines()
 
-            print("Step2")
+            logger.info("Step2")
             check_and_update_configurations(last_configurations, actual_configurations)
 
-            print("Step3")
+            logger.info("Step3")
             check_and_update_cloud_integrations(last_cloud_integrations, actual_cloud_integrations)
 
-            print("Step4")
+            logger.info("Step4")
             check_and_update_active_pipelines(last_active_pipelines, actual_active_pipelines)
 
             last_configurations = actual_configurations
@@ -163,7 +163,7 @@ def main():
 
             time.sleep(SLEEP_TIME_CONFIG_GEN)
         except Exception as e:
-            logger.error(str(e))
+            logger.exception(e)
             time.sleep(SLEEP_TIME_ERROR)
 
 
