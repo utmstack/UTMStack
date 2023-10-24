@@ -135,18 +135,19 @@ class GoogleIntegration(Integration):
                             pass
 
                         pubsubs += """
-                            input{
-                                google_pubsub {
-                                    project_id => "{}"
-                                    id => "{}"
-                                    add_field => { "[@metadata][dataSource]" => "{}" }
-                                    type => "gcp"
-                                    topic => "{}"
-                                    subscription => "{}"
-                                    json_key_file => "{}"
-                                }
-                            }
-                            """.format(pubsub_configs["projectId"],group,group,pubsub_configs["topic"],pubsub_configs["subscription"],json_filename)
+                                    input{{
+                                    google_pubsub {{
+                                        project_id => "{}"
+                                        id => "{}"
+                                        add_field => {{ "[@metadata][dataSource]" => "{}" }}
+                                        type => "gcp"
+                                        topic => "{}"
+                                        subscription => "{}"
+                                        json_key_file => "{}"
+                                    }}
+                                    }}
+                                    """.format(pubsub_configs["projectId"],group,group,pubsub_configs["topic"],pubsub_configs["subscription"],json_filename)
+
                 return pubsubs
         except Exception as exception:
             print("Unable to start google pubsub: " + str(exception))

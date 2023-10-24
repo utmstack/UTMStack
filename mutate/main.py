@@ -3,6 +3,7 @@ import logging
 import os
 import time
 from collections import Counter
+import traceback
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -158,6 +159,7 @@ def main():
 
             time.sleep(SLEEP_TIME_CONFIG_GEN)
         except Exception as e:
+            traceback.print_exc()
             logger.error(str(e))
             time.sleep(SLEEP_TIME_ERROR)
 

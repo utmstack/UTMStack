@@ -41,18 +41,19 @@ class AzureIntegration(Integration):
                 if azure_configs is not None:
                     config = get_event_hubs(azure_configs)
                     if config is not None:
-                        azure += """input{ 
-                                        azure_event_hubs {
+                        azure += """input{{ 
+                                        azure_event_hubs {{
                                             config_mode => "advanced"
                                             id => "{}"
-                                            add_field => { "[@metadata][dataSource]" => "{}" }
+                                            add_field => {{ "[@metadata][dataSource]" => "{}" }}
                                             type => "azure"
                                             decorate_events => true
                                             event_hubs => [
                                                 {}
                                             ]
-                                        }
-                                    } """.format(group, group, config)
+                                        }}
+                                    }} """.format(group, group, config)
+
                         return azure
                     else:
                         pass
