@@ -75,7 +75,7 @@ def check_and_update_cloud_integrations(last_cloud_integrations, current_cloud_i
     """Checks and updates cloud integrations if there are changes."""
     for pipeline_id in current_cloud_integrations.keys():
         try:
-            if (last_cloud_integrations[pipeline_id] == None) or (current_cloud_integrations[pipeline_id].get_integration_config() != last_cloud_integrations[pipeline_id].get_integration_config()):
+            if (last_cloud_integrations[pipeline_id] == None) or (current_cloud_integrations[pipeline_id] != last_cloud_integrations[pipeline_id]):
                 logger.info("Creating {} input...".format(pipeline_id))
                 create_input(
                     pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
