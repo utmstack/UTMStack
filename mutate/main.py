@@ -80,7 +80,7 @@ def check_and_update_cloud_integrations(last_cloud_integrations, current_cloud_i
                 create_input(
                     pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
                     pipeline_id=pipeline_id,
-                    inputs=current_cloud_integrations[pipeline_id].get_integration_config(),
+                    inputs=current_cloud_integrations[pipeline_id],
                     environment=ENVIRONMENT
                 )
         except Exception as e:

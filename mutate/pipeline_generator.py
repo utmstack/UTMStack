@@ -63,7 +63,7 @@ def create_input(pipeline_directory, pipeline_id, inputs, environment):
 
                 template_name = f"{input_plugin}_template.j2"
 
-                if not os.path.isfile(os.path.join(os.path.dirname(__file__), "Templates", template_name)):
+                if not os.path.isfile(os.path.join(os.path.dirname(__file__), "templates", template_name)):
                     logging.error(f"No template exists for the input plugin: {input_plugin}")
                     continue
 
