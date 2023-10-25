@@ -71,8 +71,7 @@ def get_pipelines():
         return {row['pipeline_id']: dict(row) for row in query_result}
 
     except Exception as e:
-        logger.error(str(e))
-        return {}
+        raise
 
 
 def get_active_pipelines():
@@ -86,8 +85,7 @@ def get_active_pipelines():
         return [row['pipeline_id'] for row in query_result]
 
     except Exception as e:
-        logger.error(str(e))
-        return []
+        raise
 
 
 def compare_dicts_in_unordered_lists(list1, list2):

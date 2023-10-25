@@ -107,7 +107,6 @@ class GoogleIntegration(Integration):
 
     def get_integration_config(self) -> str:
         try:
-            print("Generating google pipelines...")
             pubsubs = ""
             module = GOOGLE_PUBSUB
             groups = get_module_group("GCP")
@@ -135,7 +134,7 @@ class GoogleIntegration(Integration):
                             pass
 
                         pubsubs += """
-                                    input{{
+                                    input {{
                                     google_pubsub {{
                                         project_id => "{}"
                                         id => "{}"
