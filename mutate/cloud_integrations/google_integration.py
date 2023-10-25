@@ -134,17 +134,15 @@ class GoogleIntegration(Integration):
                             pass
 
                         pubsubs += """
-                                    input {{
-                                    google_pubsub {{
-                                        project_id => "{}"
-                                        id => "{}"
-                                        add_field => {{ "[@metadata][dataSource]" => "{}" }}
-                                        type => "gcp"
-                                        topic => "{}"
-                                        subscription => "{}"
-                                        json_key_file => "{}"
-                                    }}
-                                    }}
+    google_pubsub {{
+        project_id => "{}"
+        id => "{}"
+        add_field => {{ "[@metadata][dataSource]" => "{}" }}
+        type => "gcp"
+        topic => "{}"
+        subscription => "{}"
+        json_key_file => "{}"
+    }}
                                     """.format(pubsub_configs["projectId"],group,group,pubsub_configs["topic"],pubsub_configs["subscription"],json_filename)
 
                 return pubsubs
