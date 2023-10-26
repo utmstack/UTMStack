@@ -71,11 +71,11 @@ def check_and_update_configurations(last_configurations, current_configurations)
             handle_pipeline_filters(pipeline_id, pipeline_conf, last_configurations)
 
 
-def check_and_update_cloud_integrations(last_cloud_integrations, current_cloud_integrations):
+def check_and_update_cloud_integrations(last_cloud_integrations, current_cloud_integrations, current_active_pipelines):
     """Checks and updates cloud integrations if there are changes."""
     for pipeline_id in current_cloud_integrations.keys():
         try:
-            if (last_cloud_integrations[pipeline_id] == None) or (current_cloud_integrations[pipeline_id] != last_cloud_integrations[pipeline_id]):
+            if pipeline_id in current_active_pipelines and current_cloud_integrations[pipeline_id] != None and ((last_cloud_integrations[pipeline_id] == None) or (current_cloud_integrations[pipeline_id] != last_cloud_integrations[pipeline_id])):
                 logger.info("Creating {} input...".format(pipeline_id))
                 create_input(
                     pipeline_directory=os.path.join(PIPELINES_PATH, pipeline_id),
@@ -153,7 +153,7 @@ def main():
             check_and_update_configurations(last_configurations, current_configurations)
             logger.info("Pipelines configurations checked and updated correctly")
 
-            check_and_update_cloud_integrations(last_cloud_integrations, current_cloud_integrations)
+            check_and_update_cloud_integrations(last_cloud_integrations, current_cloud_integrations, current_active_pipelines)
             logger.info("Cloud Integrations configurations checked and updated correctly")
 
             check_and_update_active_pipelines(last_active_pipelines, current_active_pipelines)

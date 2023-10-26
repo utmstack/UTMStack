@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/utils"
@@ -55,6 +56,13 @@ func Master(c *Config) error {
 			return err
 		}
 		fmt.Println("Preparing system to run UTMStack [OK]")
+	}
+
+	if utils.GetLock(202310261604, stack.LocksDir){
+		err := utils.RunCmd("touch", path.Join(stack.LogstashConfig, "pipelines.yml"))
+		if err != nil {
+			return err
+		}
 	}
 
 	if utils.GetLock(3, stack.LocksDir) {
