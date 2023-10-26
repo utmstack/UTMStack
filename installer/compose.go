@@ -303,7 +303,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["bitdefender"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/bitdefender:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/bitdefender:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"logstash",
