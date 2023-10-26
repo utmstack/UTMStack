@@ -320,7 +320,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"SYSLOG_PROTOCOL=tcp",
 			"SYSLOG_HOST=logstash",
-			"SYSLOG_PORT=514",
+			"SYSLOG_PORT=10019",
 			"CONNECTOR_PORT=8000",
 		},
 		Logging: &dLogging,
