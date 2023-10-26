@@ -5,22 +5,24 @@ import (
 	"os"
 	"time"
 
-	"github.com/utmstack/UTMStack/installer/utils"
 	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 type StackConfig struct {
-	FrontEndNginx    string
-	LogstashPipeline string
-	ESMem            uint64
-	LSMem            uint64
-	Threads          int
-	ESData           string
-	ESBackups        string
-	Cert             string
-	Datasources      string
-	Rules            string
+	FrontEndNginx     string
+	LogstashPipelines string
+	LogstashConfig    string
+	ESMem             uint64
+	LSMem             uint64
+	Threads           int
+	ESData            string
+	ESBackups         string
+	Cert              string
+	Datasources       string
+	Rules             string
+	LocksDir          string
 }
 
 func (s *StackConfig) Populate(c *Config) error {
@@ -40,11 +42,13 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.FrontEndNginx = utils.MakeDir(0777, c.DataDir, "front-end", "nginx")
 	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
 	s.Rules = utils.MakeDir(0777, c.DataDir, "rules")
-	s.LogstashPipeline = utils.MakeDir(0777, c.DataDir, "logstash", "pipeline")
+	s.LogstashPipelines = utils.MakeDir(0777, c.DataDir, "logstash", "pipelines")
+	s.LogstashConfig = utils.MakeDir(0777, c.DataDir, "logstash", "config")
 	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
 	s.ESMem = mem.Total / 1024 / 1024 / 1024 / 4
 	s.LSMem = mem.Total / 1024 / 1024 / 1024 / 5
+	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
 
 	return nil
 }

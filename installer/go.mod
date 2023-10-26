@@ -9,7 +9,7 @@ require (
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
 	github.com/lib/pq v1.10.9
 	github.com/shirou/gopsutil/v3 v3.23.9
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

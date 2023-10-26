@@ -1,0 +1,7 @@
+file {
+		id => "{{file_id |default('NUL')}}"
+		path => "{{ file_path }}"
+		codec => "json"
+		mode => "tail"
+		start_position => "end"
+	}
