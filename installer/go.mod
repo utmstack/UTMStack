@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.2
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.33
+	github.com/cloudfoundry/gosigar v1.3.34
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
 	github.com/lib/pq v1.10.9
 	github.com/shirou/gopsutil/v3 v3.23.9
