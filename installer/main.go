@@ -61,7 +61,7 @@ func main() {
 	if config.Branch != "v10-dev" &&
 		config.Branch != "v10-qa" &&
 		config.Branch != "v10-rc" {
-		config.Branch = "v10.1.0"
+		config.Branch = "v10"
 	}
 
 	if config.DataDir == "" {
