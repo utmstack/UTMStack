@@ -1,4 +1,4 @@
-name: O365 Release
+name: Bitdefender Release
 
 on:
   push:
