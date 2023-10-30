@@ -432,7 +432,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*3)),
 				},
 				Reservations: &Res{
 					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
