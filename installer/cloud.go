@@ -87,6 +87,20 @@ func Cloud(c *Config, update bool) error {
 	}
 
 	if utils.GetLock(11, stack.LocksDir) || update {
+		fmt.Println("Installing Stack. This may take a while.")
+
+		if err := StackUP(c, stack); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(12, stack.LocksDir); err != nil {
+			return err
+		}
+
+		fmt.Println("Installing Stack [OK]")
+	}
+
+	if utils.GetLock(12, stack.LocksDir) || update {
 		fmt.Println("Installing reverse proxy. This may take a while.")
 
 		if err := InstallNginx(); err != nil {
@@ -102,20 +116,6 @@ func Cloud(c *Config, update bool) error {
 		}
 
 		fmt.Println("Installing reverse proxy [OK]")
-	}
-
-	if utils.GetLock(12, stack.LocksDir) || update {
-		fmt.Println("Installing Stack. This may take a while.")
-
-		if err := StackUP(c, stack); err != nil {
-			return err
-		}
-
-		if err := utils.SetLock(12, stack.LocksDir); err != nil {
-			return err
-		}
-
-		fmt.Println("Installing Stack [OK]")
 	}
 
 	if utils.GetLock(5, stack.LocksDir) {
