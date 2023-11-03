@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -28,7 +28,7 @@ var h = holmes.New(utils.GetConfig().ErrorLevel, "API")
 func NewLog(c *gin.Context) {
 	start := time.Now()
 	var response = map[string]string{}
-	body, err := ioutil.ReadAll(c.Request.Body)
+	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		response["status"] = "error"
 		response["error"] = fmt.Sprintf("%v", err)

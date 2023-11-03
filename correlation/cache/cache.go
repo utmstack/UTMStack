@@ -2,6 +2,7 @@ package cache
 
 import (
 	"sync"
+	"runtime"
 	"time"
 
 	"github.com/utmstack/UTMStack/correlation/rules"
@@ -74,20 +75,24 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 	return elements
 }
 
-var logs = make(chan string, 100)
+var logs = make(chan string, 10000)
 
 func AddToCache(l string) {
 	logs <- l
 }
 
-func ProccessQueue() {
-	for {
-		l := <-logs
-		cacheStorageMutex.Lock()
-		cacheStorage = append(cacheStorage, l)
-		cacheStorageMutex.Unlock()
-	}
-
+func ProcessQueue() {
+    numCPU := runtime.NumCPU() * 2
+    for i := 0; i < numCPU; i++ {
+        go func() {
+            for {
+                l := <-logs
+                cacheStorageMutex.Lock()
+                cacheStorage = append(cacheStorage, l)
+                cacheStorageMutex.Unlock()
+            }
+        }()
+    }
 }
 
 func Clean() {
