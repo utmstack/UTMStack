@@ -78,6 +78,10 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 var logs = make(chan string, 10000)
 
 func AddToCache(l string) {
+	if len(l) == 10000{
+		h.Error("Buffer is full, you could be lossing events")
+		return
+	}
 	logs <- l
 }
 
