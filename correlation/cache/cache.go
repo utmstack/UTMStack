@@ -1,28 +1,26 @@
 package cache
 
 import (
-	"sync"
+	"log"
 	"runtime"
+	"sync"
 	"time"
 
+	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/utils"
-	"github.com/quantfall/holmes"
-	"github.com/tidwall/gjson"
 )
 
 var cacheStorageMutex = &sync.RWMutex{}
 
 var CacheStorage []string
 
-var h = holmes.New(utils.GetConfig().ErrorLevel, "CACHE")
-
 func Status() {
 	for {
-		h.Info("Logs in cache: %v", len(CacheStorage))
+		log.Printf("Logs in cache: %v", len(CacheStorage))
 		if len(CacheStorage) != 0 {
 			est := gjson.Get(CacheStorage[0], "@timestamp").String()
-			h.Info("Old document in cache: %s", est)
+			log.Printf("Old document in cache: %s", est)
 		}
 		time.Sleep(60 * time.Second)
 	}
@@ -39,7 +37,7 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 		est := gjson.Get(CacheStorage[i], "@timestamp").String()
 		eit, err := time.Parse(time.RFC3339Nano, est)
 		if err != nil {
-			h.Error("Could not parse @timestamp: %v", err)
+			log.Printf("Could not parse @timestamp: %v", err)
 			continue
 		}
 		if eit.Unix() < ait {
@@ -70,33 +68,33 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 		}
 	}
 	cacheStorageMutex.RUnlock()
-	h.Debug("Cache storage unlocked by search. Search took: %s", time.Since(start))
-	h.Debug("Returned %v elements", len(elements))
+	log.Printf("Cache storage unlocked by search. Search took: %s", time.Since(start))
+	log.Printf("Returned %v elements", len(elements))
 	return elements
 }
 
 var logs = make(chan string, 10000)
 
 func AddToCache(l string) {
-	if len(l) == 10000{
-		h.Error("Buffer is full, you could be lossing events")
+	if len(l) == 10000 {
+		log.Printf("Buffer is full, you could be lossing events")
 		return
 	}
 	logs <- l
 }
 
 func ProcessQueue() {
-    numCPU := runtime.NumCPU() * 2
-    for i := 0; i < numCPU; i++ {
-        go func() {
-            for {
-                l := <-logs
-                cacheStorageMutex.Lock()
-                CacheStorage = append(CacheStorage, l)
-                cacheStorageMutex.Unlock()
-            }
-        }()
-    }
+	numCPU := runtime.NumCPU() * 2
+	for i := 0; i < numCPU; i++ {
+		go func() {
+			for {
+				l := <-logs
+				cacheStorageMutex.Lock()
+				CacheStorage = append(CacheStorage, l)
+				cacheStorageMutex.Unlock()
+			}
+		}()
+	}
 }
 
 func Clean() {

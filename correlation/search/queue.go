@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"runtime"
 	"strings"
 	"sync"
@@ -37,7 +38,7 @@ func ProcessQueue() {
 						ndMutex.Unlock()
 						body, err := utils.DoPost(url, "application/x-ndjson", strings.NewReader(tmp))
 						if err != nil {
-							h.FatalError("Could not send logs to Elasticsearch: %v. %s", err, body)
+							log.Fatalf("Could not send logs to Elasticsearch: %v. %s", err, body)
 						}
 					}
 					time.Sleep(5 * time.Second)
@@ -58,7 +59,7 @@ func ProcessQueue() {
 
 				index, err := IndexBuilder("log-"+dataType, timestamp)
 				if err != nil {
-					h.Error("Error trying to build index name: %v", err)
+					log.Printf("Error trying to build index name: %v", err)
 					continue
 				}
 
@@ -68,8 +69,9 @@ func ProcessQueue() {
 				nd += fmt.Sprintf(`{"index": {"_index": "%s", "_id": "%s"}}`, index, id) + "\n" + cl.String() + "\n"
 				ndMutex.Unlock()
 
-				h.Debug("Generate ND took: %s", time.Since(start))
+				log.Printf("Generate ND took: %s", time.Since(start))
 			}
 		}()
 	}
 }
+

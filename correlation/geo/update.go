@@ -1,6 +1,7 @@
 package geo
 
 import (
+	"log"
 	"net"
 	"os"
 	"path/filepath"
@@ -14,14 +15,14 @@ import (
 func Update(updateReady chan bool) {
 	first := true
 	for {
-		h.Info("Downloading GeoIP databases")
+		log.Printf("Downloading GeoIP databases")
 		cnf := utils.GetConfig()
 		var files = map[string]string{
-			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"):   "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v4.csv",
-			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"):   "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v6.csv",
-			filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):  "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v4.csv",
-			filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):  "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v6.csv",
-			filepath.Join(cnf.GeoIPFolder, "locations-en.csv"): "https://storage.googleapis.com/utmstack-updates/geoip/locations-en.csv",
+			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"): "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v4.csv",
+			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"): "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v6.csv",
+			filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):     "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v4.csv",
+			filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):     "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v6.csv",
+			filepath.Join(cnf.GeoIPFolder, "locations-en.csv"):  "https://storage.googleapis.com/utmstack-updates/geoip/locations-en.csv",
 		}
 
 		if _, err := os.Stat(cnf.GeoIPFolder); os.IsNotExist(err) {
@@ -31,7 +32,7 @@ func Update(updateReady chan bool) {
 		if _, err := os.Stat(filepath.Join(cnf.GeoIPFolder, "locations-en.csv")); os.IsNotExist(err) || !first {
 			for file, url := range files {
 				if err := utils.Download(url, file); err != nil {
-					h.Error("Could not download file: %v", err)
+					log.Printf("Could not download file: %v", err)
 					continue
 				}
 			}
@@ -58,10 +59,10 @@ func Update(updateReady chan bool) {
 			mu.Unlock()
 		}
 
-		h.Debug("asnBlocks rows: %v", len(asnBlocks))
-		h.Debug("cityBlocks rows: %v", len(cityBlocks))
-		h.Debug("cityLocations rows: %v", len(cityLocations))
-		h.Info("GeoIP databases updated")
+		log.Printf("asnBlocks rows: %v", len(asnBlocks))
+		log.Printf("cityBlocks rows: %v", len(cityBlocks))
+		log.Printf("cityLocations rows: %v", len(cityLocations))
+		log.Printf("GeoIP databases updated")
 
 		if first {
 			first = false
@@ -79,13 +80,13 @@ func populateASNBlocks(csv [][]string) {
 		}
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			h.Error("Could not get CIDR in populateASNBlocks: %v", err)
+			log.Printf("Could not get CIDR in populateASNBlocks: %v", err)
 			continue
 		}
 
 		asn, err := strconv.Atoi(line[1])
 		if err != nil {
-			h.Error("Could not get ASN in populateASNBlocks: %v", err)
+			log.Printf("Could not get ASN in populateASNBlocks: %v", err)
 			continue
 		}
 
@@ -106,7 +107,7 @@ func populateCityBlocks(csv [][]string) {
 		}
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			h.Error("Could not parse CIDR in populateCityBlocks: %v", err)
+			log.Printf("Could not parse CIDR in populateCityBlocks: %v", err)
 			continue
 		}
 
@@ -115,13 +116,13 @@ func populateCityBlocks(csv [][]string) {
 		}
 		geonameID, err := strconv.Atoi(line[1])
 		if err != nil {
-			h.Error("Could not parse geonameID in populateCityBlocks: %v", err)
+			log.Printf("Could not parse geonameID in populateCityBlocks: %v", err)
 			continue
 		}
 
 		isAnonymousProxy, err := strconv.Atoi(line[4])
 		if err != nil {
-			h.Error("Could not parse isAnonymousProxy in populateCityBlocks: %v", err)
+			log.Printf("Could not parse isAnonymousProxy in populateCityBlocks: %v", err)
 			continue
 		}
 
@@ -132,7 +133,7 @@ func populateCityBlocks(csv [][]string) {
 
 		isSatelliteProvider, err := strconv.Atoi(line[5])
 		if err != nil {
-			h.Error("Could not parse isSatelliteProvider in populateCityBlocks: %v", err)
+			log.Printf("Could not parse isSatelliteProvider in populateCityBlocks: %v", err)
 			continue
 		}
 
@@ -143,19 +144,19 @@ func populateCityBlocks(csv [][]string) {
 
 		latitude, err := strconv.ParseFloat(line[7], 64)
 		if err != nil {
-			h.Error("Could not parse latitude in populateCityBlocks: %v", err)
+			log.Printf("Could not parse latitude in populateCityBlocks: %v", err)
 			continue
 		}
 
 		longitude, err := strconv.ParseFloat(line[8], 64)
 		if err != nil {
-			h.Error("Could not parse longitude in populateCityBlocks: %v", err)
+			log.Printf("Could not parse longitude in populateCityBlocks: %v", err)
 			continue
 		}
 
 		accuracyRadius, err := strconv.Atoi(line[9])
 		if err != nil {
-			h.Error("Could not parse accuracyRadius in populateCityBlocks: %v", err)
+			log.Printf("Could not parse accuracyRadius in populateCityBlocks: %v", err)
 			continue
 		}
 
@@ -181,13 +182,13 @@ func populateCityLocations(csv [][]string) {
 		}
 		geonameID, err := strconv.Atoi(line[0])
 		if err != nil {
-			h.Error("Could not parse geonameID in populateCityLocations: %v", err)
+			log.Printf("Could not parse geonameID in populateCityLocations: %v", err)
 			continue
 		}
 
 		isInEuropeanUnion, err := strconv.Atoi(line[13])
 		if err != nil {
-			h.Error("Could not parse isInEuropeanUnion in populateCityLocations: %v", err)
+			log.Printf("Could not parse isInEuropeanUnion in populateCityLocations: %v", err)
 			continue
 		}
 
