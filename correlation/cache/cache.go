@@ -103,7 +103,7 @@ func Clean() {
 	for {
 		if utils.AssignedMemory >= 50 && len(cacheStorage) > 500 {
 			cacheStorageMutex.Lock()
-			cacheStorage = cacheStorage[1:]
+			cacheStorage = cacheStorage[500:]
 			cacheStorageMutex.Unlock()
 		} else {
 			time.Sleep(5 * time.Second)
