@@ -13,15 +13,15 @@ import (
 
 var cacheStorageMutex = &sync.RWMutex{}
 
-var cacheStorage []string
+var CacheStorage []string
 
 var h = holmes.New(utils.GetConfig().ErrorLevel, "CACHE")
 
 func Status() {
 	for {
-		h.Info("Logs in cache: %v", len(cacheStorage))
-		if len(cacheStorage) != 0 {
-			est := gjson.Get(cacheStorage[0], "@timestamp").String()
+		h.Info("Logs in cache: %v", len(CacheStorage))
+		if len(CacheStorage) != 0 {
+			est := gjson.Get(CacheStorage[0], "@timestamp").String()
 			h.Info("Old document in cache: %s", est)
 		}
 		time.Sleep(60 * time.Second)
@@ -35,8 +35,8 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 	start := time.Now()
 	cToBreak := 0
 	ait := time.Now().UTC().Unix() - int64(seconds)
-	for i := len(cacheStorage) - 1; i >= 0; i-- {
-		est := gjson.Get(cacheStorage[i], "@timestamp").String()
+	for i := len(CacheStorage) - 1; i >= 0; i-- {
+		est := gjson.Get(CacheStorage[i], "@timestamp").String()
 		eit, err := time.Parse(time.RFC3339Nano, est)
 		if err != nil {
 			h.Error("Could not parse @timestamp: %v", err)
@@ -53,19 +53,19 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 			var allCatch bool
 			var oneCatch bool
 			for _, of := range oneOf {
-				oneCatch = evalElement(cacheStorage[i], of.Field, of.Operator, of.Value)
+				oneCatch = evalElement(CacheStorage[i], of.Field, of.Operator, of.Value)
 				if oneCatch {
 					break
 				}
 			}
 			for _, af := range allOf {
-				allCatch = evalElement(cacheStorage[i], af.Field, af.Operator, af.Value)
+				allCatch = evalElement(CacheStorage[i], af.Field, af.Operator, af.Value)
 				if !allCatch {
 					break
 				}
 			}
 			if (len(allOf) == 0 || allCatch) && (len(oneOf) == 0 || oneCatch) {
-				elements = append(elements, cacheStorage[i])
+				elements = append(elements, CacheStorage[i])
 			}
 		}
 	}
@@ -92,7 +92,7 @@ func ProcessQueue() {
             for {
                 l := <-logs
                 cacheStorageMutex.Lock()
-                cacheStorage = append(cacheStorage, l)
+                CacheStorage = append(CacheStorage, l)
                 cacheStorageMutex.Unlock()
             }
         }()
@@ -101,9 +101,9 @@ func ProcessQueue() {
 
 func Clean() {
 	for {
-		if utils.AssignedMemory >= 50 && len(cacheStorage) > 500 {
+		if utils.AssignedMemory >= 50 && len(CacheStorage) > 500 {
 			cacheStorageMutex.Lock()
-			cacheStorage = cacheStorage[500:]
+			CacheStorage = CacheStorage[500:]
 			cacheStorageMutex.Unlock()
 		} else {
 			time.Sleep(5 * time.Second)
