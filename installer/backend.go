@@ -21,10 +21,10 @@ func Backend() error {
 	for intent := 0; intent <= 10; intent++ {
 		time.Sleep(1 * time.Minute)
 
-		_, err := client.Get(baseURL + "/api/ping")
-		if err != nil {
+		resp, err := client.Get(baseURL + "/api/ping")
+		if err != nil || (resp.StatusCode != 200 && resp.StatusCode != 202) {
 			if intent >= 10 {
-				return err
+				return fmt.Errorf("backend start failure: %v", err)
 			}
 		} else {
 			break
@@ -53,6 +53,10 @@ func RegenerateKey(internal string) error {
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode != 200 && resp.StatusCode != 202{
+		return fmt.Errorf("error regenerating connection key, response status code: %d", resp.StatusCode)
 	}
 
 	err = resp.Body.Close()
