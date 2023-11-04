@@ -2,6 +2,7 @@ package correlation
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"log"
 	"time"
@@ -18,7 +19,11 @@ func Finder(rule rules.Rule) {
 		return
 	}
 
-	sleep := rule.Frequency * time.Second
+	sleep, err := time.ParseDuration(fmt.Sprintf("%ds", rule.Frequency))
+	if err != nil {
+		log.Printf("Omiting rule: '%s' execution, because of error: '%v", rule.Name, err)
+		return
+	}
 	
 	for {
 		var execute bool
@@ -33,7 +38,7 @@ func Finder(rule rules.Rule) {
 		}
 
 		if !execute{
-			log.Printf("Omiting rule: '%s' execution, because we could not find any data related to it", rule.Name)
+			log.Printf("Skipping rule: '%s' execution, because we could not find any data related to it", rule.Name)
 			time.Sleep(1 * time.Minute)
 			continue
 		}

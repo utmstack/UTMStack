@@ -63,17 +63,17 @@ type Search struct {
 }
 
 type Rule struct {
-	Name        string        `yaml:"name"`
-	Severity    string        `yaml:"severity"`
-	Description string        `yaml:"description"`
-	Solution    string        `yaml:"solution"`
-	Category    string        `yaml:"category"`
-	Tactic      string        `yaml:"tactic"`
-	DataTypes   []string      `yaml:"dataTypes"`
-	Reference   []string      `yaml:"reference"`
-	Frequency   time.Duration `yaml:"frequency"`
-	Cache       []Cache       `yaml:"cache"`
-	Search      []Search      `yaml:"search"`
+	Name        string   `yaml:"name"`
+	Severity    string   `yaml:"severity"`
+	Description string   `yaml:"description"`
+	Solution    string   `yaml:"solution"`
+	Category    string   `yaml:"category"`
+	Tactic      string   `yaml:"tactic"`
+	DataTypes   []string `yaml:"dataTypes"`
+	Reference   []string `yaml:"reference"`
+	Frequency   int64      `yaml:"frequency"`
+	Cache       []Cache  `yaml:"cache"`
+	Search      []Search `yaml:"search"`
 }
 
 func GetRules() []Rule {
