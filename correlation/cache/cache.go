@@ -30,7 +30,6 @@ func Status() {
 func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 	var elements []string
 	cacheStorageMutex.RLock()
-	start := time.Now()
 	cToBreak := 0
 	ait := time.Now().UTC().Unix() - func()int64{
 		switch seconds{
@@ -75,8 +74,6 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 		}
 	}
 	cacheStorageMutex.RUnlock()
-	log.Printf("Cache storage unlocked by search. Search took: %s", time.Since(start))
-	log.Printf("Returned %v elements", len(elements))
 	return elements
 }
 
@@ -106,7 +103,7 @@ func ProcessQueue() {
 
 func Clean() {
 	for {
-		if utils.AssignedMemory >= 50 && len(CacheStorage) > 500 {
+		if utils.AssignedMemory >= 80 && len(CacheStorage) > 500 {
 			cacheStorageMutex.Lock()
 			CacheStorage = CacheStorage[500:]
 			cacheStorageMutex.Unlock()

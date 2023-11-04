@@ -33,7 +33,12 @@ func Finder(rule rules.Rule) {
 			for _, s := range stats{
 				if rt == s.Type{
 					execute = true
+					break
 				}
+			}
+			
+			if execute{
+				break
 			}
 		}
 
@@ -43,14 +48,11 @@ func Finder(rule rules.Rule) {
 			continue
 		}
 
-		start := time.Now()
 		if len(rule.Cache) != 0 {
 			findInCache(rule)
 		} else if len(rule.Search) != 0 {
 			findInSearch(rule)
 		}
-		
-		log.Printf("Process rule '%s' took: %s", rule.Name, time.Since(start))
 		
 		switch sleep{
 		case 0:
