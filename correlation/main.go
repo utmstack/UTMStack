@@ -48,9 +48,8 @@ func main() {
 	go cache.Status()
 	go utils.Status()
 	go cache.Clean()
-	go cache.ProccessQueue()
-	go search.NDGenerator()
-	go search.Bulk()
+	go cache.ProcessQueue()
+	go search.ProcessQueue()
 	go statistics.Update()
 
 	go func() {

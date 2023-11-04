@@ -3,16 +3,13 @@ package correlation
 import (
 	"bytes"
 	"html/template"
+	"log"
 	"time"
 
 	"github.com/utmstack/UTMStack/correlation/cache"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/search"
-	"github.com/utmstack/UTMStack/correlation/utils"
-	"github.com/quantfall/holmes"
 )
-
-var h = holmes.New(utils.GetConfig().ErrorLevel, "CORRELATION")
 
 func Finder(rule rules.Rule) {
 	for {
@@ -22,7 +19,7 @@ func Finder(rule rules.Rule) {
 		} else if len(rule.Search) != 0 {
 			findInSearch(rule)
 		}
-		h.Debug("Process rule '%s' took: %s", rule.Name, time.Since(start))
+		log.Printf("Process rule '%s' took: %s", rule.Name, time.Since(start))
 		time.Sleep(rule.Frequency * time.Second)
 	}
 }
@@ -40,7 +37,7 @@ func findInSearch(rule rules.Rule) {
 				t := template.Must(template.New("query").Parse(query.Query))
 				err := t.Execute(&q, fields)
 				if err != nil {
-					h.Error("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+					log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
 				} else {
 					l := search.Search(q.String())
 					processResponse(l, rule, query.Save, &tmpLogs, len(rule.Search), step, query.MinCount)
@@ -64,7 +61,7 @@ func findInCache(rule rules.Rule) {
 					t := template.Must(template.New("allOf").Parse(allOf.Value))
 					err := t.Execute(&value, fields)
 					if err != nil {
-						h.Error("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+						log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
 					} else {
 						allOfList = append(allOfList, rules.AllOf{Field: allOf.Field, Operator: allOf.Operator, Value: value.String()})
 					}
@@ -76,7 +73,7 @@ func findInCache(rule rules.Rule) {
 					t := template.Must(template.New("oneOf").Parse(oneOf.Value))
 					err := t.Execute(&value, fields)
 					if err != nil {
-						h.Error("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+						log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
 					} else {
 						oneOfList = append(oneOfList, rules.OneOf{Field: oneOf.Field, Operator: oneOf.Operator, Value: value.String()})
 					}
