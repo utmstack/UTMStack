@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"log"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -12,7 +13,7 @@ func Update(updateReady chan bool) {
 	first := true
 	for {
 		mu.Lock()
-		h.Info("Downloading rules")
+		log.Println("Downloading rules")
 		cnf := utils.GetConfig()
 		clone := exec.Command("git", "clone", "https://github.com/AtlasInsideCorp/UTMStackCorrelationRules.git", cnf.RulesFolder+"system")
 		_ = clone.Run()
@@ -20,15 +21,16 @@ func Update(updateReady chan bool) {
 		pull := exec.Command("git", "pull")
 		pull.Dir = filepath.Join(cnf.RulesFolder, "system")
 		if err := pull.Run(); err != nil {
-			h.Error("Could not update ruleset: %v", err)
+			log.Printf("Could not update ruleset: %v", err)
 		}
 
 		if first {
 			first = false
 			updateReady <- true
 		}
-		h.Info("Rules updated")
+		log.Println("Rules updated")
 		mu.Unlock()
 		time.Sleep(24 * time.Hour)
 	}
 }
+

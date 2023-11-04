@@ -6,10 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/utmstack/UTMStack/correlation/search"
-	"github.com/utmstack/UTMStack/correlation/utils"
+	"log"
+
 	"github.com/google/uuid"
 	"github.com/levigross/grequests"
+	"github.com/utmstack/UTMStack/correlation/search"
+	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 type Host struct {
@@ -76,7 +78,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 
 	index, err := search.IndexBuilder("alert", time.Now().UTC().Format(time.RFC3339Nano))
 	if err != nil {
-		h.Error("Could not build index name: %v", err)
+		log.Printf("Could not build index name: %v", err)
 		return true
 	}
 
@@ -171,7 +173,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 		JSON: request,
 	})
 	if err != nil {
-		h.Error("Could not check existent alert: %v", err)
+		log.Printf("Could not check existent alert: %v", err)
 		return false
 	}
 
@@ -184,7 +186,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 	err = json.Unmarshal([]byte(resultStr), &resultObj)
 
 	if err != nil {
-		h.Error("Could not check existent alert: %v", err)
+		log.Printf("Could not check existent alert: %v", err)
 		return false
 	}
 
@@ -206,7 +208,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 					})
 					_ = r.Close()
 					if err != nil {
-						h.Error("Could not update existent alert: %v", err)
+						log.Printf("Could not update existent alert: %v", err)
 						return false
 					}
 				}
@@ -324,13 +326,13 @@ func NewAlert(name, severity, description, solution, category, tactic string, re
 			url := cnf.Elasticsearch + "/" + index + "/_doc"
 			_, err := utils.DoPost(url, "application/json", body)
 			if err != nil {
-				h.Error("Could not send alert to Elasticsearch: %v", err)
+				log.Printf("Could not send alert to Elasticsearch: %v", err)
 			}
 		} else {
-			h.Error("Could not build index name: %v", err)
+			log.Printf("Could not build index name: %v", err)
 		}
 	} else {
-		h.Error("Could not encode alert in JSON: %v", err)
+		log.Printf("Could not encode alert in JSON: %v", err)
 	}
 	time.Sleep(3 * time.Second)
 }

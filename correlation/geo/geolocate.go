@@ -6,14 +6,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/levigross/grequests"
-	"github.com/quantfall/holmes"
 )
 
 var mu = &sync.Mutex{}
-
-var h = holmes.New(utils.GetConfig().ErrorLevel, "GEO")
 
 var myExternalIP net.IP
 var myExternalIPOnce sync.Once

@@ -394,7 +394,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["correlation"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/correlation:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/correlation:" + conf.Branch),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
 				"postgres",

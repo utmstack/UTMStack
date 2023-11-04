@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+smbprotocol = "*"
+requests = "*"
+pysmb = "*"
+paramiko = "*"
+
+[dev-packages]
+pylama = "*"
+pylint = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.11"

@@ -1,0 +1,17 @@
+name: Correlation RC
+
+on:
+  push:
+    branches: [ "rc" ]
+    paths:
+      - 'correlation/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-golang.yml
+    with:
+      image_name: correlation
+      environment: v10-rc
+      directory: correlation
+      binary: correlation
