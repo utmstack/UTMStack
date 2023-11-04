@@ -55,6 +55,10 @@ func RegenerateKey(internal string) error {
 		return err
 	}
 
+	if resp.StatusCode != 200 && resp.StatusCode != 202{
+		return fmt.Errorf("error regenerating connection key, response status code: %d", resp.StatusCode)
+	}
+
 	err = resp.Body.Close()
 
 	return err
