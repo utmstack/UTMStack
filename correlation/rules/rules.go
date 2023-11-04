@@ -4,14 +4,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
-	"github.com/utmstack/UTMStack/correlation/utils"
 	"github.com/fsnotify/fsnotify"
+	"github.com/utmstack/UTMStack/correlation/utils"
 )
-
-var mu = &sync.Mutex{}
 
 func ListRulesFiles() []string {
 	var files []string
@@ -127,10 +124,8 @@ func RulesChanges(signals chan os.Signal) {
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					if event.Name != cnf.RulesFolder+"system/.git/FETCH_HEAD" {
 						log.Printf("Changes detected in: %s", event.Name)
-						mu.Lock()
 						log.Printf("Restarting correlation engine")
 						signals <- os.Interrupt
-						mu.Unlock()
 					}
 				}
 			}
