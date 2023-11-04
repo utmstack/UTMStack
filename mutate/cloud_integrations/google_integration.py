@@ -6,10 +6,10 @@ from string import Template
 import jwt
 import requests
 
-from mutate.cloudIntegrations.integration import Integration
-from mutate.util.aes_cipher import AESCipher
-from mutate.util.module_enum import GOOGLE_PUBSUB
-from mutate.util.utils import get_module_group
+from cloud_integrations.integration import Integration
+from util.aes_cipher import AESCipher
+from util.module_enum import GOOGLE_PUBSUB
+from util.misc import get_module_group
 
 LOCATION = "/etc/utmstack/"
 
@@ -133,21 +133,17 @@ class GoogleIntegration(Integration):
                             print("Unable to start google pubsub: " + str(err))
                             pass
 
-                        pubsubs += Template(
-                            "google_pubsub {\n"
-                            "   project_id => \"$projectId\"\n"
-                            "   id => \"$id\"\n"
-                            "   add_field => { \"[@metadata][dataSource]\" => \"$group\" }\n"
-                            "   type => \"gcp\"\n"
-                            "   topic => \"$topic\"\n"
-                            "   subscription => \"$subscription\"\n"
-                            "   json_key_file => \"$jsonLocation\"\n"
-                            "  }\n").substitute(
-                            projectId=pubsub_configs["projectId"],
-                            id=group, group=group,
-                            topic=pubsub_configs["topic"],
-                            subscription=pubsub_configs["subscription"],
-                            jsonLocation=json_filename)
+                        pubsubs += """
+    google_pubsub {{
+        project_id => "{}"
+        id => "{}"
+        add_field => {{ "[@metadata][dataSource]" => "{}" }}
+        type => "gcp"
+        topic => "{}"
+        subscription => "{}"
+        json_key_file => "{}"
+    }}
+                                    """.format(pubsub_configs["projectId"],group,group,pubsub_configs["topic"],pubsub_configs["subscription"],json_filename)
 
                 return pubsubs
         except Exception as exception:

@@ -1,8 +1,8 @@
 from string import Template
 
-from mutate.cloudIntegrations.integration import Integration
-from mutate.util.module_enum import AZURE
-from mutate.util.utils import get_module_group
+from cloud_integrations.integration import Integration
+from util.module_enum import AZURE
+from util.misc import get_module_group
 
 
 def get_event_hubs(conf):
@@ -29,6 +29,7 @@ class AzureIntegration(Integration):
     def get_integration_config(self) -> str:
         """Implement interface, build string for
         integration"""
+        
         azure = ""
         module = AZURE
         groups = get_module_group("AZURE")
@@ -38,17 +39,20 @@ class AzureIntegration(Integration):
                 if azure_configs is not None:
                     config = get_event_hubs(azure_configs)
                     if config is not None:
-                        azure += "azure_event_hubs {\n" \
-                                 "   config_mode => \"advanced\"\n" \
-                                 "   id => \"$group\"\n" \
-                                 "   add_field => { \"[@metadata][dataSource]\" => \"$group\" }\n" \
-                                 "   type => \"azure\"\n" \
-                                 "   decorate_events => true\n" \
-                                 "   event_hubs => [\n" \
-                                 "      $event_hubs\n" \
-                                 "   ]\n" \
-                                 " }\n "
-                        return Template(azure).substitute(event_hubs=config, group=group)
+                        azure += """
+    azure_event_hubs {{
+        config_mode => "advanced"
+        id => "{}"
+        add_field => {{ "[@metadata][dataSource]" => "{}" }}
+        type => "azure"
+        decorate_events => true
+        event_hubs => [
+            {}
+        ]
+    }}
+                                    """.format(group, group, config)
+
+                        return azure
                     else:
                         pass
                 else:

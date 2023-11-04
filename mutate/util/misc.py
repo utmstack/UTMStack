@@ -1,40 +1,42 @@
 # pylint: disable=R1732
 """UTMStack utilities."""
 
-import argparse
 import json
 import logging.handlers
-import os
-import time
-from threading import Thread
-from typing import Any, Callable, Dict, Generator, Optional
+from typing import Any, Dict
 
 # pylama:ignore=W0611
-from mutate.util.postgres import Postgres
+from util.postgres import Postgres
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S')
+logger = logging.getLogger(__name__)
 
 def get_module_group(module: str):
     """Get groups of configuration module"""
     query = """select distinct group_name from
-    utm_server_configurations WHERE server_name=%s AND module_name=%s;"""
-    return [group[0] for group in Postgres().fetchall(query,
-                                                      (os.environ.get('SERVER_NAME'), module))]
+    utm_server_configurations WHERE module_name=%s;"""
+    queryresult = Postgres().fetchall(query, (module,))
+    groups = [group['group_name'] for group in queryresult]
+    return groups
 
 
 def get_config(module: str, group: str) -> Dict[str, Any]:
     """Get configuration for the given module."""
     query = """SELECT conf_short, conf_value
         FROM utm_server_configurations
-        WHERE server_name=%s AND module_name=%s AND group_name=%s;"""
+        WHERE module_name=%s AND group_name=%s;"""
     configs = Postgres().fetchall(
-        query, (os.environ.get('SERVER_NAME'), module, group))
+        query, (module, group))
     cfg = {}
-    for key, value in configs:
+    for row in configs:
+        key = row['conf_short']
+        value_str = row['conf_value']
         try:
-            val = json.loads(value)
+            value = json.loads(value_str)
         except Exception:
-            val = value
-        cfg[key] = val
+            value = value_str
+        cfg[key] = value
     return cfg
 
 
@@ -69,8 +71,7 @@ def get_pipelines():
         return {row['pipeline_id']: dict(row) for row in query_result}
 
     except Exception as e:
-        logging.error(f"Unexpected error occurred when trying to get pipelines: {e}")
-        return {}
+        raise
 
 
 def get_active_pipelines():
@@ -84,8 +85,7 @@ def get_active_pipelines():
         return [row['pipeline_id'] for row in query_result]
 
     except Exception as e:
-        logging.error(f"Unexpected error occurred when trying to get active pipelines: {e}")
-        return []
+        raise
 
 
 def compare_dicts_in_unordered_lists(list1, list2):

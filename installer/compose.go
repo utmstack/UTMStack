@@ -303,7 +303,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["bitdefender"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/bitdefender:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/bitdefender:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"logstash",
@@ -320,7 +320,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"ENCRYPTION_KEY=" + conf.InternalKey,
 			"SYSLOG_PROTOCOL=tcp",
 			"SYSLOG_HOST=logstash",
-			"SYSLOG_PORT=514",
+			"SYSLOG_PORT=10019",
 			"CONNECTOR_PORT=8000",
 		},
 		Logging: &dLogging,
@@ -432,7 +432,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
+					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*3)),
 				},
 				Reservations: &Res{
 					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),

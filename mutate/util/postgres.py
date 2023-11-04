@@ -5,6 +5,9 @@ import os
 import psycopg2
 from psycopg2 import extras
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S')
+logger = logging.getLogger(__name__)
 
 class Postgres:
     """Helper class for database manipulation."""
@@ -56,15 +59,15 @@ class Postgres:
                 res = cur.fetchall()
 
         except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
-            logging.error(f"Database connection error, rolling back...: {e}")
+            logger.error(str(e))
             self.conn.rollback()
             raise
         except psycopg2.DatabaseError as e:
-            logging.error(f"Query execution error, rolling back... {e}")
+            logger.error(str(e))
             self.conn.rollback()
             raise
         except Exception as e:
-            logging.error(f"Unexpected error occurred when trying to fetchall {e}")
+            logger.error(str(e))
             self.conn.rollback()
             raise
 
