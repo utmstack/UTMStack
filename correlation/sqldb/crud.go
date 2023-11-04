@@ -35,7 +35,7 @@ func GetStatus() ([]map[string]interface{}, error) {
 	return dataSourceStatus, err
 }
 
-func UpdateStatistics(i, s, t string, c int) {
+func UpdateStatistics(i, s, t string, c int64) {
 	ping()
 
 	var err error

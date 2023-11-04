@@ -2,6 +2,7 @@ package correlation
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"log"
 	"time"
@@ -9,17 +10,46 @@ import (
 	"github.com/utmstack/UTMStack/correlation/cache"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/search"
+	"github.com/utmstack/UTMStack/correlation/statistics"
 )
 
 func Finder(rule rules.Rule) {
-	sleep := rule.Frequency * time.Second
+	if len(rule.DataTypes) == 0{
+		log.Printf("Omiting rule: '%s' execution, because dataTypes is empty", rule.Name)
+		return
+	}
+
+	sleep, err := time.ParseDuration(fmt.Sprintf("%ds", rule.Frequency))
+	if err != nil {
+		log.Printf("Omiting rule: '%s' execution, because of error: '%v", rule.Name, err)
+		return
+	}
+	
 	for {
+		var execute bool
+		stats := statistics.GetStats()
+
+		for _, rt := range rule.DataTypes{
+			for _, s := range stats{
+				if rt == s.Type{
+					execute = true
+				}
+			}
+		}
+
+		if !execute{
+			log.Printf("Skipping rule: '%s' execution, because we could not find any data related to it", rule.Name)
+			time.Sleep(1 * time.Minute)
+			continue
+		}
+
 		start := time.Now()
 		if len(rule.Cache) != 0 {
 			findInCache(rule)
 		} else if len(rule.Search) != 0 {
 			findInSearch(rule)
 		}
+		
 		log.Printf("Process rule '%s' took: %s", rule.Name, time.Since(start))
 		
 		switch sleep{
