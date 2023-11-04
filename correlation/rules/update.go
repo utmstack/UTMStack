@@ -12,7 +12,6 @@ import (
 func Update(updateReady chan bool) {
 	first := true
 	for {
-		mu.Lock()
 		log.Println("Downloading rules")
 		cnf := utils.GetConfig()
 		clone := exec.Command("git", "clone", "https://github.com/AtlasInsideCorp/UTMStackCorrelationRules.git", cnf.RulesFolder+"system")
@@ -29,7 +28,6 @@ func Update(updateReady chan bool) {
 			updateReady <- true
 		}
 		log.Println("Rules updated")
-		mu.Unlock()
 		time.Sleep(24 * time.Hour)
 	}
 }

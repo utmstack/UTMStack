@@ -32,7 +32,14 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 	cacheStorageMutex.RLock()
 	start := time.Now()
 	cToBreak := 0
-	ait := time.Now().UTC().Unix() - int64(seconds)
+	ait := time.Now().UTC().Unix() - func()int64{
+		switch seconds{
+		case 0:
+			return 60
+		default:
+			return int64(seconds)
+		}
+	}()
 	for i := len(CacheStorage) - 1; i >= 0; i-- {
 		est := gjson.Get(CacheStorage[i], "@timestamp").String()
 		eit, err := time.Parse(time.RFC3339Nano, est)
