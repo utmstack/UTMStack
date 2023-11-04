@@ -33,7 +33,12 @@ func Finder(rule rules.Rule) {
 			for _, s := range stats{
 				if rt == s.Type{
 					execute = true
+					break
 				}
+			}
+			
+			if execute{
+				break
 			}
 		}
 
