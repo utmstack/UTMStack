@@ -12,7 +12,12 @@ import (
 )
 
 func Finder(rule rules.Rule) {
+	if len(rule.DataTypes) == 0{
+		return
+	}
+
 	sleep := rule.Frequency * time.Second
+	
 	for {
 		start := time.Now()
 		if len(rule.Cache) != 0 {
