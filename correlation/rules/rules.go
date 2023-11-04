@@ -69,6 +69,7 @@ type Rule struct {
 	Solution    string        `yaml:"solution"`
 	Category    string        `yaml:"category"`
 	Tactic      string        `yaml:"tactic"`
+	DataTypes   []string      `yaml:"dataTypes"`
 	Reference   []string      `yaml:"reference"`
 	Frequency   time.Duration `yaml:"frequency"`
 	Cache       []Cache       `yaml:"cache"`

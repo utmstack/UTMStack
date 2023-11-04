@@ -7,32 +7,44 @@ import (
 	"github.com/utmstack/UTMStack/correlation/sqldb"
 )
 
-var stats = make(map[string]interface{})
+var stats = make(map[string]Stat)
 var statsMutex = &sync.Mutex{}
 
-func GetStats() map[string]interface{} {
+type Stat struct{
+	Id string `json:"id"`
+	Source string `json:"source"`
+	Type string `json:"type"`
+	Count int64 `json:"count"`
+}
+
+func GetStats() map[string]Stat {
+	statsMutex.Lock()
+	defer statsMutex.Unlock()
+	
 	return stats
 }
 
 func One(t, s string) {
 	id := t + s
+	
 	statsMutex.Lock()
-	if stats[id] == nil {
-		stats[id] = map[string]interface{}{
-			"id":     id,
-			"source": s,
-			"type":   t,
-			"count":  1,
+	defer statsMutex.Unlock()
+
+	if _, ok := stats[id]; !ok {
+		stats[id] = Stat{
+			Id:     id,
+			Source: s,
+			Type:   t,
+			Count:  1,
 		}
 	} else {
-		stats[id] = map[string]interface{}{
-			"id":     id,
-			"source": s,
-			"type":   t,
-			"count":  stats[id].(map[string]interface{})["count"].(int) + 1,
+		stats[id] = Stat{
+			Id:     id,
+			Source: s,
+			Type:   t,
+			Count:  stats[id].Count + 1,
 		}
 	}
-	statsMutex.Unlock()
 }
 
 func Update() {
@@ -40,14 +52,14 @@ func Update() {
 		statsMutex.Lock()
 		tmp := stats
 		stats = nil
-		stats = make(map[string]interface{})
+		stats = make(map[string]Stat)
 		statsMutex.Unlock()
 		for _, s := range tmp {
 			sqldb.UpdateStatistics(
-				s.(map[string]interface{})["id"].(string),
-				s.(map[string]interface{})["source"].(string),
-				s.(map[string]interface{})["type"].(string),
-				s.(map[string]interface{})["count"].(int),
+				s.Id,
+				s.Source,
+				s.Type,
+				s.Count,
 			)
 		}
 		time.Sleep(1 * time.Second)
