@@ -12,6 +12,7 @@ import (
 )
 
 func Finder(rule rules.Rule) {
+	sleep := rule.Frequency * time.Second
 	for {
 		start := time.Now()
 		if len(rule.Cache) != 0 {
@@ -20,7 +21,13 @@ func Finder(rule rules.Rule) {
 			findInSearch(rule)
 		}
 		log.Printf("Process rule '%s' took: %s", rule.Name, time.Since(start))
-		time.Sleep(rule.Frequency * time.Second)
+		
+		switch sleep{
+		case 0:
+			time.Sleep(5 * time.Minute)
+		default:
+			time.Sleep(sleep)
+		}
 	}
 }
 
