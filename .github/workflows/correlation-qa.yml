@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ "rc" ]
     paths:
-      - 'bdgz/**'
+      - 'correlation/**'
   workflow_dispatch:
 
 jobs:

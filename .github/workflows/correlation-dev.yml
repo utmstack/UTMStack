@@ -1,10 +1,10 @@
-name: Correlation Release
+name: Correlation Dev
 
 on:
   push:
-    tags: [ 'v*' ]
+    branches: [ "main" ]
     paths:
-      - 'bdgz/**'
+      - 'correlation/**'
   workflow_dispatch:
 
 jobs:
@@ -12,6 +12,6 @@ jobs:
     uses: ./.github/workflows/docker-golang.yml
     with:
       image_name: correlation
-      environment: v10
+      environment: v10-dev
       directory: correlation
       binary: correlation
