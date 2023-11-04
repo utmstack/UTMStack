@@ -32,7 +32,7 @@ func Status() {
 		log.Printf("Memory used by engine: %v MB", usedByEngine)
 		log.Printf("Free memory: %v MB", FreeMemory())
 		log.Printf("Physical memory: %v MB", TotalMemory())
-		AssignedMemory = float32(usedByEngine) / float32(TotalMemory()/3) * 100
+		AssignedMemory = float32(usedByEngine) / float32(TotalMemory()/4) * 100
 		log.Printf("Assigned memory used: %v %%", AssignedMemory)
 		time.Sleep(60 * time.Second)
 	}

@@ -103,7 +103,7 @@ func ProcessQueue() {
 
 func Clean() {
 	for {
-		if utils.AssignedMemory >= 50 && len(CacheStorage) > 500 {
+		if utils.AssignedMemory >= 80 && len(CacheStorage) > 500 {
 			cacheStorageMutex.Lock()
 			CacheStorage = CacheStorage[500:]
 			cacheStorageMutex.Unlock()
