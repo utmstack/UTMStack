@@ -51,7 +51,6 @@ func ProcessQueue() {
 			for {
 				l := <-logs
 				var cl *bytes.Buffer = new(bytes.Buffer)
-				start := time.Now()
 				dataType := gjson.Get(l, "dataType").String()
 				dataSource := gjson.Get(l, "dataSource").String()
 
@@ -71,8 +70,6 @@ func ProcessQueue() {
 				ndMutex.Lock()
 				nd += fmt.Sprintf(`{"index": {"_index": "%s", "_id": "%s"}}`, index, id) + "\n" + cl.String() + "\n"
 				ndMutex.Unlock()
-
-				log.Printf("Generate ND took: %s", time.Since(start))
 			}
 		}()
 	}

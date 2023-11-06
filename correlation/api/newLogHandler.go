@@ -23,14 +23,12 @@ import (
 // @Produce  json
 // @Router /newlog [post]
 func NewLog(c *gin.Context) {
-	start := time.Now()
 	var response = map[string]string{}
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		response["status"] = "error"
 		response["error"] = fmt.Sprintf("%v", err)
 		log.Println(response["error"])
-		log.Printf("Request took: %s", time.Since(start))
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -40,7 +38,6 @@ func NewLog(c *gin.Context) {
 		response["status"] = "error"
 		response["error"] = fmt.Sprintf("%v", err)
 		log.Println(response["error"])
-		log.Printf("Request took: %s", time.Since(start))
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -51,7 +48,6 @@ func NewLog(c *gin.Context) {
 	if !ok {
 		response["status"] = "error"
 		response["error"] = "@timestamp required"
-		log.Printf("Request took: %s", time.Since(start))
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -59,7 +55,6 @@ func NewLog(c *gin.Context) {
 	if _, err := time.Parse(time.RFC3339Nano, timestamp.(string)); err != nil {
 		response["status"] = "error"
 		response["error"] = fmt.Sprintf("%v", err)
-		log.Printf("Request took: %s", time.Since(start))
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -74,7 +69,6 @@ func NewLog(c *gin.Context) {
 		response["status"] = "error"
 		response["error"] = "The log does't have the required fields. Please be sure that you are sending the @timestamp in RFC3339Nano format, the dataType that could be windows, linux, iis, macos, ... and the dataSource that could be the Hostname or IP of the log source."
 		log.Printf("%s LOG: %s", response["error"], l)
-		log.Printf("Request took: %s", time.Since(start))
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -82,6 +76,5 @@ func NewLog(c *gin.Context) {
 	cache.AddToCache(l)
 	search.AddToQueue(l)
 	response["status"] = "queued"
-	log.Printf("Request took: %s", time.Since(start))
 	c.JSON(http.StatusOK, response)
 }
