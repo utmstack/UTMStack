@@ -22,6 +22,7 @@ func Finder(rule rules.Rule) {
 	sleep, err := time.ParseDuration(fmt.Sprintf("%ds", rule.Frequency))
 	if err != nil {
 		log.Printf("Disabling rule '%s', because of error: '%v", rule.Name, err)
+		log.Printf("Disabling rule '%s', because of error: '%v", rule.Name, err)
 		return
 	}
 
@@ -52,6 +53,8 @@ func Finder(rule rules.Rule) {
 			time.Sleep(1 * time.Minute)
 			continue
 		}
+
+		log.Printf("Executing rule: %s", rule.Name)
 
 		log.Printf("Executing rule: %s", rule.Name)
 
