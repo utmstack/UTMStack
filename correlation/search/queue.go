@@ -42,7 +42,7 @@ func ProcessQueue() {
 							log.Fatalf("Could not send logs to Elasticsearch: %v. %s", err, body)
 						}
 					}
-					time.Sleep(5 * time.Second)
+					time.Sleep(1 * time.Second)
 				}
 			}()
 
