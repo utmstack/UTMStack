@@ -11,6 +11,8 @@ import (
 	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
+const bufferSize int = 1000000
+
 var cacheStorageMutex = &sync.RWMutex{}
 
 var CacheStorage []string
@@ -77,10 +79,10 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 	return elements
 }
 
-var logs = make(chan string, 10000)
+var logs = make(chan string, bufferSize)
 
 func AddToCache(l string) {
-	if len(logs) == 10000 {
+	if len(logs) == bufferSize {
 		log.Printf("Buffer is full, you could be lossing events")
 		return
 	}
