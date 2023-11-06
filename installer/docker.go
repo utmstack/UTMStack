@@ -122,7 +122,7 @@ func StackUP(c *Config, stack *StackConfig) error {
 }
 
 func PostInstallation() error {
-	time.Sleep(1 * time.Minute)
+	time.Sleep(3 * time.Minute)
 
 	fmt.Println("Securing ports 9200, 5432 and 10000")
 
