@@ -122,6 +122,8 @@ func StackUP(c *Config, stack *StackConfig) error {
 }
 
 func PostInstallation() error {
+	time.Sleep(3 * time.Minute)
+
 	fmt.Println("Securing ports 9200, 5432 and 10000")
 
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {

@@ -71,7 +71,7 @@ type Rule struct {
 	Tactic      string   `yaml:"tactic"`
 	DataTypes   []string `yaml:"dataTypes"`
 	Reference   []string `yaml:"reference"`
-	Frequency   int64      `yaml:"frequency"`
+	Frequency   int64    `yaml:"frequency"`
 	Cache       []Cache  `yaml:"cache"`
 	Search      []Search `yaml:"search"`
 }

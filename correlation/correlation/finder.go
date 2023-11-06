@@ -14,47 +14,56 @@ import (
 )
 
 func Finder(rule rules.Rule) {
-	if len(rule.DataTypes) == 0{
-		log.Printf("Omiting rule: '%s' execution, because dataTypes is empty", rule.Name)
+	if len(rule.DataTypes) == 0 {
+		log.Printf("Disabling rule '%s', because dataTypes is empty", rule.Name)
 		return
 	}
 
 	sleep, err := time.ParseDuration(fmt.Sprintf("%ds", rule.Frequency))
 	if err != nil {
-		log.Printf("Omiting rule: '%s' execution, because of error: '%v", rule.Name, err)
+		log.Printf("Disabling rule '%s', because of error: '%v", rule.Name, err)
 		return
 	}
-	
+
 	for {
 		var execute bool
 		stats := statistics.GetStats()
 
-		for _, rt := range rule.DataTypes{
-			for _, s := range stats{
-				if rt == s.Type{
+		for _, rt := range rule.DataTypes {
+			if rt == "generic" {
+				execute = true
+				break
+			}
+
+			for _, s := range stats {
+				if rt == s.Type {
 					execute = true
 					break
 				}
 			}
-			
-			if execute{
+
+			if execute {
 				break
 			}
 		}
 
-		if !execute{
-			log.Printf("Skipping rule: '%s' execution, because we could not find any data related to it", rule.Name)
+		if !execute {
+			log.Printf("Skipping execution of rule '%s', because we could not find any data related to it", rule.Name)
 			time.Sleep(1 * time.Minute)
 			continue
 		}
+
+		log.Printf("Executing rule: %s", rule.Name)
 
 		if len(rule.Cache) != 0 {
 			findInCache(rule)
 		} else if len(rule.Search) != 0 {
 			findInSearch(rule)
 		}
-		
-		switch sleep{
+
+		log.Printf("Execution of rule '%s' finished", rule.Name)
+
+		switch sleep {
 		case 0:
 			time.Sleep(5 * time.Minute)
 		default:
