@@ -67,6 +67,8 @@ type AlertFields struct {
 func Alert(name, severity, description, solution, category, tactic string, reference []string, dataType, dataSource string,
 	details map[string]string) {
 
+	log.Printf("Reporting alert: %s", name)
+
 	if !UpdateAlert(name, severity, details) {
 		NewAlert(name, severity, description, solution, category, tactic, reference, dataType, dataSource,
 			details)

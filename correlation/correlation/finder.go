@@ -48,7 +48,6 @@ func Finder(rule rules.Rule) {
 		}
 
 		if !execute {
-			log.Printf("Skipping execution of rule '%s', because we could not find any data related to it", rule.Name)
 			time.Sleep(1 * time.Minute)
 			continue
 		}
