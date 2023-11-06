@@ -36,6 +36,9 @@ func ProcessQueue() {
 						tmp := nd
 						nd = ""
 						ndMutex.Unlock()
+
+						log.Printf("Sending %d logs to Elasticsearch", len(tmp))
+						
 						body, err := utils.DoPost(url, "application/x-ndjson", strings.NewReader(tmp))
 						if err != nil {
 							log.Fatalf("Could not send logs to Elasticsearch: %v. %s", err, body)

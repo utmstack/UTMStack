@@ -27,7 +27,7 @@ func Status() {
 
 }
 
-func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
+func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 	var elements []string
 	cacheStorageMutex.RLock()
 	cToBreak := 0
@@ -36,7 +36,7 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 		case 0:
 			return 60
 		default:
-			return int64(seconds)
+			return seconds
 		}
 	}()
 	for i := len(CacheStorage) - 1; i >= 0; i-- {
@@ -80,7 +80,7 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 var logs = make(chan string, 10000)
 
 func AddToCache(l string) {
-	if len(l) == 10000 {
+	if len(logs) == 10000 {
 		log.Printf("Buffer is full, you could be lossing events")
 		return
 	}
