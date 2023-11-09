@@ -1,0 +1,48 @@
+name: Installer Dev
+
+on:
+  push:
+    branches: [ 'main' ]
+    paths:
+      - 'installer/**'
+  workflow_run:
+    workflows: ["Correlation Dev", "Bitdefender Dev", "Mutate Dev", "O365 Dev"]
+    types:
+      - completed
+
+jobs:
+  build:
+    name: Build
+    runs-on: dev
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v3
+
+    - name: Get dependencies
+      working-directory: ./installer
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+
+    - name: Test
+      working-directory: ./installer
+      run: go test -v .
+
+    - name: Build
+      working-directory: ./installer
+      env:
+        GOOS: linux
+        GOARCH: amd64
+      run: |
+        go build -o installer -v .
+        mv installer /home/utmstack/installer
+        chmod +x /home/utmstack/installer
+
+    - name: Run
+      id: run_installer
+      working-directory: /home/utmstack
+      run: |
+          sudo ./installer
