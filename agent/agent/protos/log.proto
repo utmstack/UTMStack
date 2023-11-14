@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/AtlasInsideCorp/UTMStackAgentServer/logservice";
+
+package logservice;
+
+message LogMessage {
+  string log_type = 1;
+  repeated string data = 2;
+}
+message ReceivedMessage {
+  bool received = 1;
+  string message = 2;
+}
+service LogService {
+  rpc ProcessLogs(LogMessage) returns (ReceivedMessage) {}
+}
