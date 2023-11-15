@@ -1,0 +1,14 @@
+name: AD Auditor DEV
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'ad-auditor/**'
+  workflow_dispatch:
+jobs:
+  docker-etl-java:
+    uses: ./.github/workflows/docker-java.yml
+    with:
+      image_name: user-auditor
+      environment: v10-dev
+      directory: user-auditor
