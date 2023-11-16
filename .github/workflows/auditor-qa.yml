@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   docker-etl-java:
-    uses: ./.github/workflows/docker-java.yml
+    uses: ./.github/workflows/auditor-docker-java.yml
     with:
       image_name: user-auditor
       environment: v10-qa
