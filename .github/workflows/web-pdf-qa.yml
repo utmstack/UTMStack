@@ -1,0 +1,14 @@
+name: WEB PDF QA
+on:
+  pull_request:
+    branches: [ "rc" ]
+    paths:
+      - 'web-pdf/**'
+  workflow_dispatch:
+jobs:
+  docker-etl-java:
+    uses: ./.github/workflows/web-pdf-docker-java.yml
+    with:
+      image_name: web-pdf
+      environment: v10-qa
+      directory: web-pdf
