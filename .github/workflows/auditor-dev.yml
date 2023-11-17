@@ -1,7 +1,7 @@
 name: AD Auditor DEV
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'ad-auditor/**'
   workflow_dispatch:
