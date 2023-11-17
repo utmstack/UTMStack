@@ -1,7 +1,7 @@
 name: WEB PDF DEV
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'web-pdf/**'
   workflow_dispatch:
