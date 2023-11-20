@@ -6,7 +6,7 @@ on:
       - 'web-pdf/**'
   workflow_dispatch:
 jobs:
-  docker-etl-java:
+  docker-native-image-java:
     uses: ./.github/workflows/web-pdf-docker-java.yml
     with:
       image_name: web-pdf
