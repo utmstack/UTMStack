@@ -28,9 +28,7 @@ jobs:
         run: |
           echo "Building native image"
           mvn -Pnative native:compile
-        env:
-          MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
-
+        
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
