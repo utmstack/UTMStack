@@ -1,4 +1,4 @@
-name: Create and Publish Docker Image for Java projects
+name: Create and Publish Docker Image for Native Java projects
 on:
   workflow_call:
     inputs:
@@ -39,5 +39,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/work/utmstack/utmstack/${{inputs.directory}}/
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
