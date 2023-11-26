@@ -1,14 +1,14 @@
-name: AD Auditor QA
+name: User Auditor RC
 on:
-  pull_request:
+  push:
     branches: [ "rc" ]
     paths:
-      - 'ad-auditor/**'
+      - 'user-auditor/**'
   workflow_dispatch:
 jobs:
   docker-etl-java:
     uses: ./.github/workflows/auditor-docker-java.yml
     with:
       image_name: user-auditor
-      environment: v10-qa
+      environment: v10-rc
       directory: user-auditor

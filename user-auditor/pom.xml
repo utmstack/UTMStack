@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.5</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>3.2.0</version>
+        <relativePath/>
     </parent>
     <groupId>com.utmstack</groupId>
     <artifactId>user-auditor</artifactId>
     <version>1.0.0</version>
     <name>user-auditor</name>
-    <description>user-auditor</description>
+    <description>userAuditor</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -70,21 +70,21 @@
     <build>
         <plugins>
             <plugin>
-				<groupId>org.graalvm.buildtools</groupId>
-				<artifactId>native-maven-plugin</artifactId>
-				<configuration>
-					<imageName>${project.name}</imageName>
-					<fallback>false</fallback>
-					<verbose>true</verbose>
-					<quickBuild>true</quickBuild>
-					<buildArgs>
-						<arg>-H:+ReportExceptionStackTraces</arg>
-					</buildArgs>
-					<metadataRepository>
-						<enabled>true</enabled>
-					</metadataRepository>
-				</configuration>
-			</plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                    <imageName>${project.name}</imageName>
+                    <fallback>false</fallback>
+                    <verbose>true</verbose>
+                    <quickBuild>true</quickBuild>
+                    <buildArgs>
+                        <arg>-H:+ReportExceptionStackTraces</arg>
+                    </buildArgs>
+                    <metadataRepository>
+                        <enabled>true</enabled>
+                    </metadataRepository>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -99,5 +99,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

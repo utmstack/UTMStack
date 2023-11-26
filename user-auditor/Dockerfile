@@ -1,6 +1,5 @@
-# The deployment Image
-FROM docker.io/oraclelinux:8-slim
+FROM docker.io/library/user-auditor:1.0.0
 
-# Copy the native executable into the containers
-COPY user-auditor .
-ENTRYPOINT ["./user-auditor"]
+EXPOSE 8080
+
+ENTRYPOINT ["/workspace/com.utmstack.userauditor.UserAuditorApplication"]

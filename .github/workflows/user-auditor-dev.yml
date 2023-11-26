@@ -1,14 +1,14 @@
-name: AD Auditor Release
+name: User Auditor DEV
 on:
   push:
-    tags: [ 'v*' ]
+    branches: [ main ]
     paths:
-      - 'ad-auditor/**'
+      - 'user-auditor/**'
   workflow_dispatch:
 jobs:
   docker-etl-java:
     uses: ./.github/workflows/auditor-docker-java.yml
     with:
       image_name: user-auditor
-      environment: v10
+      environment: v10-dev
       directory: user-auditor
