@@ -1,11 +1,5 @@
-FROM openjdk:17-jdk-alpine
-
-RUN apk add --no-cache curl
-RUN apk update && \
-    apk add chromium chromium-chromedriver
-
-COPY target/webToPdf-1.0.0.jar app.jar
+FROM docker.io/library/web-pdf:1.0.0
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/workspace/com.utmstack.webtopdf.WebToPdfApplication"]

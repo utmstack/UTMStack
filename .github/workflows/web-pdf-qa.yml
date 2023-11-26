@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   docker-native-image-java:
-    uses: ./.github/workflows/docker-java-native.yml
+    uses: ./.github/workflows/web-pdf-docker.yml
     with:
       image_name: web-pdf
       environment: v10-qa
