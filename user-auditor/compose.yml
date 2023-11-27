@@ -4,7 +4,7 @@ services:
         environment:
             - SERVER_NAME=utmstack
             - DB_USER=postgres
-            - DB_PASS=DF7JOMKyU6oNwmy4
+            - DB_PASS=
             - DB_HOST=postgres
             - DB_PORT=5432
             - DB_NAME=user-auditor
