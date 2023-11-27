@@ -1,0 +1,20 @@
+services:
+    user-auditor:
+        image: utmstack.azurecr.io/user-auditor:v10-dev
+        environment:
+            - SERVER_NAME=utmstack
+            - DB_USER=postgres
+            - DB_PASS=DF7JOMKyU6oNwmy4
+            - DB_HOST=postgres
+            - DB_PORT=5432
+            - DB_NAME=user-auditor
+            - ELASTICSEARCH_HOST=node1
+            - ELASTICSEARCH_PORT=9200
+        depends_on:
+            - postgres
+        deploy:
+            resources:
+                limits:
+                    memory: 1G
+                reservations:
+                    memory: 512M
