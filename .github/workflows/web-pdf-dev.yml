@@ -1,0 +1,14 @@
+name: WEB PDF DEV
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'web-pdf/**'
+  workflow_dispatch:
+jobs:
+  docker-native-image-java:
+    uses: ./.github/workflows/web-pdf-docker.yml
+    with:
+      image_name: web-pdf
+      environment: v10-dev
+      directory: web-pdf
