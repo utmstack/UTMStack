@@ -24,7 +24,7 @@ import java.net.URL;
 public class WebPdfController {
 
     private final PdfGenerationService pdfGenerationService;
-    String domain = System.getenv("DOMAIN");
+    String domain = System.getenv("DOMAIN_URL");
 
     @GetMapping("/generate-pdf")
     public ResponseEntity<ResponseDto> generatePdf(@RequestParam String url) {
