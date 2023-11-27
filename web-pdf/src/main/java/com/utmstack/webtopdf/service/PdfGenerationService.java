@@ -1,19 +1,16 @@
 package com.utmstack.webtopdf.service;
 
+import com.utmstack.webtopdf.config.WebDriverConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.*;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Pdf;
+import org.openqa.selenium.PrintsPage;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.print.PageMargin;
 import org.openqa.selenium.print.PageSize;
 import org.openqa.selenium.print.PrintOptions;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -22,34 +19,33 @@ public class PdfGenerationService {
 
     final private PrintOptions printOptions;
 
-    private final WebDriver chromeDriver;
+    private final WebDriverConfig webDriverConfig;
 
-    public PdfGenerationService(WebDriver chromeDriver) {
+    public PdfGenerationService(WebDriverConfig webDriverConfig) {
 
         printOptions = new PrintOptions();
         printOptions.setPageMargin(new PageMargin(0, 0, 0, 0));
         printOptions.setPageSize(new PageSize(29.7, 21));
 
-        this.chromeDriver = chromeDriver;
+        this.webDriverConfig = webDriverConfig;
     }
 
-    public byte[] generatePdf(String url) throws Exception {
+    public byte[] generatePdf(String url)  {
+
+        WebDriver webDriver = webDriverConfig.createWebDriver();
 
         try {
-
-            chromeDriver.get(url);
-
-            TimeUnit.SECONDS.sleep(10);
-
-            Pdf print = ((PrintsPage) chromeDriver).print(printOptions);
+            webDriver.get(url);
+            TimeUnit.SECONDS.sleep(5);
+            Pdf print = ((PrintsPage) webDriver).print(printOptions);
+            webDriver.quit();
 
             return OutputType.BYTES.convertFromBase64Png(print.getContent());
 
         } catch (Exception e) {
             log.error(e.getMessage());
-            chromeDriver.quit();
+            webDriver.quit();
         }
         return new byte[0];
     }
 }
-
