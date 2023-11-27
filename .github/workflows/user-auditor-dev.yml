@@ -6,8 +6,8 @@ on:
       - 'user-auditor/**'
   workflow_dispatch:
 jobs:
-  docker-etl-java:
-    uses: ./.github/workflows/auditor-docker-java.yml
+  docker-native-image-java:
+    uses: ./.github/workflows/user-auditor-docker.yml
     with:
       image_name: user-auditor
       environment: v10-dev
