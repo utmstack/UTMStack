@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "github.com/utmstack/UTMStack/agent";
+
+package agent;
+
+service AgentConfigService {
+  rpc GetAgentConfig(ListAgentsModulesRequest) returns (ListAgentsModulesResponse) {}
+  rpc AgentModuleUpdateStream(stream AgentModuleConfiguration) returns (stream UpdateConfigResponse) {}
+}
+
+
+message AgentModule {
+  uint32 id = 1;
+  uint32 agent_id = 2;
+  string short_name = 3;
+  string large_name = 4;
+  string description = 5;
+  bool enabled = 6;
+  bool allow_disabled = 7;
+  repeated AgentModuleConfiguration module_configs = 8;
+}
+
+message UpdateAgentModule {
+  string agent_module_short = 1;
+  string conf_key = 4;
+  string conf_value = 5;
+}
+
+message AgentModuleConfiguration {
+  uint32 id = 1;
+  uint32 agent_module_id = 2;
+  string short_name = 3;
+  string conf_key = 4;
+  string conf_value = 5;
+  string conf_name = 6;
+  string conf_description = 7;
+  string conf_datatype = 8;
+  bool conf_required = 9;
+  string conf_regex = 10;
+}
+
+message UpdateConfigResponse{
+  string accepted = 1;
+}
+
+// ListAgentsRequest message definition
+message ListAgentsModulesRequest {
+  string agent_key = 2;
+}
+
+// ListAgentsResponse message definition
+message ListAgentsModulesResponse {
+  repeated AgentModule modules = 1;
+}
+

@@ -1,0 +1,17 @@
+name: Agent Manager Dev
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'agent-manager/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-golang.yml
+    with:
+      image_name: agent-manager
+      environment: v10-dev
+      directory: agent-manager
+      binary: server
