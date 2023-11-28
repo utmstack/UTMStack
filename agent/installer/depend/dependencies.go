@@ -29,7 +29,7 @@ func DownloadDependencies(servBins ServicesBin, ip string) error {
 	}
 
 	urlFiles := map[string]string{
-		"dependencies.zip":         configuration.Bucket + env.Branch + "/agent_service/v" + currentVersion.MasterVersion + "/" + runtime.GOOS + "_dependencies.zip?time=" + utils.GetCurrentTime(),
+		"dependencies.zip":         configuration.Bucket + env.Branch + "/agent_service/v" + currentVersion.AgentVersion + "/" + runtime.GOOS + "_dependencies.zip?time=" + utils.GetCurrentTime(),
 		servBins.AgentServiceBin:   configuration.Bucket + env.Branch + "/agent_service/v" + currentVersion.AgentVersion + "/" + servBins.AgentServiceBin + "?time=" + utils.GetCurrentTime(),
 		servBins.UpdaterServiceBin: configuration.Bucket + env.Branch + "/updater_service/v" + currentVersion.UpdaterVersion + "/" + servBins.UpdaterServiceBin + "?time=" + utils.GetCurrentTime(),
 		servBins.RedlineServiceBin: configuration.Bucket + env.Branch + "/redline_service/v" + currentVersion.RedlineVersion + "/" + servBins.RedlineServiceBin + "?time=" + utils.GetCurrentTime(),
