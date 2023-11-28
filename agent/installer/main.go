@@ -11,6 +11,7 @@ import (
 
 	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/agent/runner/checkversion"
+	"github.com/utmstack/UTMStack/agent/runner/configuration"
 	"github.com/utmstack/UTMStack/agent/runner/depend"
 	"github.com/utmstack/UTMStack/agent/runner/services"
 	"github.com/utmstack/UTMStack/agent/runner/utils"
@@ -56,6 +57,11 @@ func main() {
 
 			fmt.Println("Installing UTMStack Agent services...")
 			h.Info("Installing UTMStack Agent services...")
+
+			if !utils.IsPortOpen(ip, configuration.AgentManagerPort) || !utils.IsPortOpen(ip, configuration.LogAuthProxyPort) {
+				fmt.Printf("Error installing the UTMStack Agent: one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
+				h.FatalError("Error installing the UTMStack Agent: one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
+			}
 
 			err = checkversion.CleanOldVersions(h)
 			if err != nil {
