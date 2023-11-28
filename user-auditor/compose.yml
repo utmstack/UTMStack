@@ -2,16 +2,16 @@ services:
     user-auditor:
         image: utmstack.azurecr.io/user-auditor:v10-dev
         environment:
-            - SERVER_NAME=utmstack
             - DB_USER=postgres
             - DB_PASS=
             - DB_HOST=postgres
             - DB_PORT=5432
-            - DB_NAME=user-auditor
+            - DB_NAME=user-auditor # create new bd
             - ELASTICSEARCH_HOST=node1
             - ELASTICSEARCH_PORT=9200
         depends_on:
             - postgres
+            - node1
         deploy:
             resources:
                 limits:
