@@ -1,14 +1,14 @@
 services:
-    user-auditor:
-        image: utmstack.azurecr.io/web-pdf:v10-dev
-        environment:
-            - WEB_DRIVER_HOST=localhost
-            - WEB_DRIVER_PORT=4444    
-        depends_on:
-            - selenium-standalone-chrome
     selenium-standalone-chrome:
         image: selenium/standalone-chrome:latest
-        shm_size: '2gb'
         ports:
             - "4444:4444"
             - "5900:5900"
+    web-pdf:
+        image: utmstack.azurecr.io/web-pdf:v10-dev
+        environment:
+            - WEB_DRIVER_HOST=localhost
+            - WEB_DRIVER_PORT=4444
+            - DOMAIN_URL= "URL DEL FRONT"
+        depends_on:
+            - selenium-standalone-chrome
