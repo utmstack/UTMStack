@@ -1,0 +1,17 @@
+name: Log Auth Proxy QA
+
+on:
+  pull_request:
+    branches: [ "rc" ]
+    paths:
+      - 'log-auth-proxy/**'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-golang.yml
+    with:
+      image_name: log-auth-proxy
+      environment: v10-qa
+      directory: log-auth-proxy
+      binary: server
