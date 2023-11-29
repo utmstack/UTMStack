@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+option go_package = "github.com/AtlasInsideCorp/UTMStackAgentServer/agent";
+
+package agent;
+
+
+service AgentService {
+  rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+}
+
+
+message Id{
+  int64 id = 1;
+}
+
+message Agent {
+  string ip = 1;
+  string hostname = 2;
+  string os = 3;
+  AgentStatus status = 4;
+  string platform = 5;
+  string version = 6;
+  string agent_key = 7;
+  uint32 id = 8;
+  string last_seen = 9;
+  string mac = 10 ;
+  string os_major_version = 11;
+  string os_minor_version = 12;
+  string aliases = 13;
+  string addresses = 14;
+}
+
+enum AgentStatus {
+  ONLINE = 0;
+  OFFLINE = 1;
+  UNKNOWN = 2;
+}
+
+
+message ListRequest {
+  int32 page_number = 1;
+  int32 page_size = 2;
+  string search_query = 3;
+  string sort_by = 4;
+}
+
+message ListAgentsResponse {
+  repeated Agent rows = 1;
+  int32 total = 2;
+}
+
+
+
+

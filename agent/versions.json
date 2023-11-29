@@ -1,0 +1,10 @@
+{
+    "versions": [
+        {
+            "master_version": "10.1.0",
+            "agent_version": "10.1.1",
+            "updater_version": "10.1.1",
+            "redline_version": "10.1.1"
+        }
+    ]
+}

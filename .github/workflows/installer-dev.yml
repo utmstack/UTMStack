@@ -3,10 +3,8 @@ name: Installer Dev
 on:
   push:
     branches: [ 'main' ]
-    paths:
-      - 'installer/**'
   workflow_run:
-    workflows: ["Correlation Dev", "Bitdefender Dev", "Mutate Dev", "O365 Dev"]
+    workflows: ["Log Auth Proxy Dev", "Agent Manager Dev", "Correlation Dev", "Bitdefender Dev", "Mutate Dev", "O365 Dev"]
     types:
       - completed
 
