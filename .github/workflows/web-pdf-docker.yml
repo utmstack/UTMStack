@@ -39,5 +39,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/work/UTMStack/UTMStack/${{inputs.directory}}/
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
