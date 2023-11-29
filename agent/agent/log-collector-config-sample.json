@@ -1,0 +1,43 @@
+{
+  "log_collector_enabled": {
+      "enabled": false
+  },
+  "integrations": {
+        "antivirus_deceptivebytes": {
+            "enabled": false
+        },
+        "antivirus_eset": {
+            "enabled": false
+        },
+        "antivirus_kaspersky": {
+            "enabled": false
+        },
+        "antivirus_sentinel_one": {
+            "enabled": false
+        },
+        "cisco": {
+            "enabled": false
+        },
+        "firewall_fortinet": {
+            "enabled": false
+        },
+        "firewall_mikrotik": {
+            "enabled": false
+        },
+        "firewall_paloalto": {
+            "enabled": false
+        },
+        "firewall_sonicwall": {
+            "enabled": false
+        },
+        "firewall_sophos": {
+            "enabled": false
+        },
+        "macos": {
+            "enabled": false
+        },
+        "vmware": {
+            "enabled": false
+        }
+  }
+}
