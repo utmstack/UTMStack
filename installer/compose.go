@@ -135,7 +135,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["agentmanager"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
 			//stack.Datasources + ":/etc/utmstack",
@@ -515,7 +515,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["log-auth-proxy"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/log-auth-proxy:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/log-auth-proxy:" + conf.Branch),
 		DependsOn: []string{
 			"logstash",
 		},

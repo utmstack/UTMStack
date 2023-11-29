@@ -24,7 +24,7 @@ jobs:
             distribution: 'graalvm' # See 'Options' for all available distributions
 
       - name: Build with Maven
-        #working-directory: ./${{inputs.directory}}
+        working-directory: ./${{inputs.directory}}
         run: |
           echo "Building native image"
           mvn -Pnative native:compile -s settings.xml

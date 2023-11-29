@@ -3,10 +3,8 @@ name: Installer QA
 on:
   pull_request:
     branches: [ 'rc' ]
-    paths:
-      - 'installer/**'
   workflow_run:
-    workflows: ["Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
+    workflows: ["Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
     types:
       - completed
 
