@@ -1,4 +1,7 @@
 # Major Changes
-- Added new logs authentication proxy.
-- Added agents capability to collect remote syslog messages and receive events by HTTP POST.
-- Created individual Logstash pipelines for each type of logs.
+- Added buffering to correlation data I/O.
+- Multiple improvements to process more incoming data more efficiently
+
+# Minor Changes
+- The rule execution is skipped until the correlation receives data related to the rule.
+- Rules are required to include a string list field that includes the data types the rule relates to.

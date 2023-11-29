@@ -1,0 +1,14 @@
+name: Agent Updater Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+    paths:
+      - 'agent/updater/**'
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/agent-basic.yml
+    with:
+      binary: utmstack_updater_service
+      directory: updater

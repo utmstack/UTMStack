@@ -4,64 +4,72 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/statistics"
 	"github.com/utmstack/UTMStack/correlation/utils"
-	"github.com/tidwall/gjson"
 )
 
-var ndMutex = &sync.Mutex{}
-var nd string
-
-var logs = make(chan string, 100)
+var logs = make(chan string, 10000)
 
 func AddToQueue(l string) {
 	logs <- l
 }
 
-func NDGenerator() {
-	for {
-		l := <-logs
-		var cl *bytes.Buffer = new(bytes.Buffer)
-		start := time.Now()
-		dataType := gjson.Get(l, "dataType").String()
-		dataSource := gjson.Get(l, "dataSource").String()
+func ProcessQueue() {
+	numCPU := runtime.NumCPU() * 2
+	for i := 0; i < numCPU; i++ {
+		go func() {
+			var ndMutex = &sync.Mutex{}
+			var nd string
 
-		statistics.One(dataType, dataSource)
+			go func() {
+				for {
+					if nd != "" {
+						url := fmt.Sprintf("%s/_bulk", utils.GetConfig().Elasticsearch)
+						ndMutex.Lock()
+						tmp := nd
+						nd = ""
+						ndMutex.Unlock()
+						
+						body, err := utils.DoPost(url, "application/x-ndjson", strings.NewReader(tmp))
+						if err != nil {
+							log.Fatalf("Could not send logs to Elasticsearch: %v. %s", err, body)
+						}
+					}
+					time.Sleep(1 * time.Second)
+				}
+			}()
 
-		timestamp := gjson.Get(l, "@timestamp").String()
-		id := gjson.Get(l, "id").String()
+			for {
+				l := <-logs
+				var cl *bytes.Buffer = new(bytes.Buffer)
+				dataType := gjson.Get(l, "dataType").String()
+				dataSource := gjson.Get(l, "dataSource").String()
 
-		index, err := IndexBuilder("log-"+dataType, timestamp)
-		if err != nil {
-			h.Error("Error trying to build index name: %v", err)
-			continue
-		}
+				statistics.One(dataType, dataSource)
 
-		json.Compact(cl, []byte(l))
+				timestamp := gjson.Get(l, "@timestamp").String()
+				id := gjson.Get(l, "id").String()
 
-		ndMutex.Lock()
-		nd += fmt.Sprintf(`{"index": {"_index": "%s", "_id": "%s"}}`, index, id) + "\n" + cl.String() + "\n"
-		ndMutex.Unlock()
+				index, err := IndexBuilder("log-"+dataType, timestamp)
+				if err != nil {
+					log.Printf("Error trying to build index name: %v", err)
+					continue
+				}
 
-		h.Debug("Generate ND took: %s", time.Since(start))
+				json.Compact(cl, []byte(l))
+
+				ndMutex.Lock()
+				nd += fmt.Sprintf(`{"index": {"_index": "%s", "_id": "%s"}}`, index, id) + "\n" + cl.String() + "\n"
+				ndMutex.Unlock()
+			}
+		}()
 	}
 }
 
-func Bulk() {
-	for {
-		url := fmt.Sprintf("%s/_bulk", utils.GetConfig().Elasticsearch)
-		ndMutex.Lock()
-		tmp := nd
-		nd = ""
-		ndMutex.Unlock()
-		body, err := utils.DoPost(url, "application/x-ndjson", strings.NewReader(tmp))
-		if err != nil {
-			h.FatalError("Could not send logs to Elasticsearch: %v. %s", err, body)
-		}
-		time.Sleep(1 * time.Second)
-	}
-}

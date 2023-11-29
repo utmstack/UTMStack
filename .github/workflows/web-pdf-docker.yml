@@ -1,0 +1,44 @@
+name: Create and Publish Docker Image for Native Java projects
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      directory:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: graalvm/setup-graalvm@v1
+        with:
+            java-version: '17'
+            distribution: 'graalvm' # See 'Options' for all available distributions
+
+      - name: Build with Maven
+        working-directory: ./${{inputs.directory}}
+        run: |
+          echo "Building native image"
+          mvn -Pnative spring-boot:build-image
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: utmstack
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push the Image
+        uses: docker/build-push-action@v5
+        with:
+          context: /home/runner/work/UTMStack/UTMStack/${{inputs.directory}}/
+          push: true
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}

@@ -1,0 +1,52 @@
+name: Installer QA
+
+on:
+  pull_request:
+    branches: [ 'rc' ]
+  workflow_run:
+    workflows: ["Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
+    types:
+      - completed
+
+jobs:
+  build:
+    name: Build
+    runs-on: qa
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v3
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v4
+      with:
+        go-version: ^1.20 
+      id: go
+
+    - name: Get dependencies
+      working-directory: ./installer
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+
+    - name: Test
+      working-directory: ./installer
+      run: go test -v .
+
+    - name: Build
+      working-directory: ./installer
+      env:
+        GOOS: linux
+        GOARCH: amd64
+      run: |
+        go build -o installer -v .
+        mv installer /home/utmstack/installer
+        chmod +x /home/utmstack/installer
+
+    - name: Run
+      id: run_installer
+      working-directory: /home/utmstack
+      run: |
+          sudo ./installer

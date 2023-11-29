@@ -1,0 +1,17 @@
+name: Mutate Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+    paths:
+      - 'mutate/**'
+  workflow_dispatch:
+
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-basic.yml
+    with:
+      image_name: mutate
+      environment: v10
+      directory: mutate

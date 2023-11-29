@@ -2,28 +2,72 @@ package correlation
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
+	"log"
 	"time"
 
 	"github.com/utmstack/UTMStack/correlation/cache"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/search"
-	"github.com/utmstack/UTMStack/correlation/utils"
-	"github.com/quantfall/holmes"
+	"github.com/utmstack/UTMStack/correlation/statistics"
 )
 
-var h = holmes.New(utils.GetConfig().ErrorLevel, "CORRELATION")
-
 func Finder(rule rules.Rule) {
+	if len(rule.DataTypes) == 0 {
+		log.Printf("Disabling rule '%s', because dataTypes is empty", rule.Name)
+		return
+	}
+
+	sleep, err := time.ParseDuration(fmt.Sprintf("%ds", rule.Frequency))
+	if err != nil {
+		log.Printf("Disabling rule '%s', because of error: '%v", rule.Name, err)
+		return
+	}
+
 	for {
-		start := time.Now()
+		var execute bool
+		stats := statistics.GetStats()
+
+		for _, rt := range rule.DataTypes {
+			if rt == "generic" {
+				execute = true
+				break
+			}
+
+			for _, s := range stats {
+				if rt == s.Type {
+					execute = true
+					break
+				}
+			}
+
+			if execute {
+				break
+			}
+		}
+
+		if !execute {
+			time.Sleep(1 * time.Minute)
+			continue
+		}
+
+		log.Printf("Executing rule: %s", rule.Name)
+
 		if len(rule.Cache) != 0 {
 			findInCache(rule)
 		} else if len(rule.Search) != 0 {
 			findInSearch(rule)
 		}
-		h.Debug("Process rule '%s' took: %s", rule.Name, time.Since(start))
-		time.Sleep(rule.Frequency * time.Second)
+
+		log.Printf("Execution of rule '%s' finished", rule.Name)
+
+		switch sleep {
+		case 0:
+			time.Sleep(5 * time.Minute)
+		default:
+			time.Sleep(sleep)
+		}
 	}
 }
 
@@ -40,7 +84,7 @@ func findInSearch(rule rules.Rule) {
 				t := template.Must(template.New("query").Parse(query.Query))
 				err := t.Execute(&q, fields)
 				if err != nil {
-					h.Error("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+					log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
 				} else {
 					l := search.Search(q.String())
 					processResponse(l, rule, query.Save, &tmpLogs, len(rule.Search), step, query.MinCount)
@@ -64,7 +108,7 @@ func findInCache(rule rules.Rule) {
 					t := template.Must(template.New("allOf").Parse(allOf.Value))
 					err := t.Execute(&value, fields)
 					if err != nil {
-						h.Error("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+						log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
 					} else {
 						allOfList = append(allOfList, rules.AllOf{Field: allOf.Field, Operator: allOf.Operator, Value: value.String()})
 					}
@@ -76,7 +120,7 @@ func findInCache(rule rules.Rule) {
 					t := template.Must(template.New("oneOf").Parse(oneOf.Value))
 					err := t.Execute(&value, fields)
 					if err != nil {
-						h.Error("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
+						log.Printf("Error while trying to process the query %v of the rule %s: %v", step+1, rule.Name, err)
 					} else {
 						oneOfList = append(oneOfList, rules.OneOf{Field: oneOf.Field, Operator: oneOf.Operator, Value: value.String()})
 					}

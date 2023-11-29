@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"log"
 	"time"
 )
 
@@ -13,7 +14,7 @@ func GetStatus() ([]map[string]interface{}, error) {
 	rows, err := db.Query(`SELECT source, data_type, timestamp, median FROM utm_data_input_status`)
 
 	if err != nil {
-		h.Error("Error getting status from utm_data_input_status: %v", err)
+		log.Printf("Error getting status from utm_data_input_status: %v", err)
 	} else {
 		for rows.Next() {
 			var (
@@ -34,7 +35,7 @@ func GetStatus() ([]map[string]interface{}, error) {
 	return dataSourceStatus, err
 }
 
-func UpdateStatistics(i, s, t string, c int) {
+func UpdateStatistics(i, s, t string, c int64) {
 	ping()
 
 	var err error
@@ -45,7 +46,7 @@ func UpdateStatistics(i, s, t string, c int) {
 	DO UPDATE SET amount = public.utm_asset_metrics.amount + $4`, i, s, t, c)
 
 	if err != nil {
-		h.Error("Error updating statistics for datasource %s: %v", s, err)
+		log.Printf("Error updating statistics for datasource %s: %v", s, err)
 	}
 
 	timestamp := time.Now().UTC().Unix()
@@ -58,6 +59,6 @@ func UpdateStatistics(i, s, t string, c int) {
 	DO UPDATE SET timestamp=$4, median=$5`, i, s, t, timestamp, int64(10800))
 
 	if err != nil {
-		h.Error("Error updating status for datasource %s: %v", s, err)
+		log.Printf("Error updating status for datasource %s: %v", s, err)
 	}
 }

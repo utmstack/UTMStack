@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
+	"path"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func Master(c *Config) error {
+	fmt.Println("Checking system requirements")
+
 	if err := utils.CheckMem(6); err != nil {
 		return err
 	}
@@ -55,6 +58,19 @@ func Master(c *Config) error {
 		fmt.Println("Preparing system to run UTMStack [OK]")
 	}
 
+	if utils.GetLock(202310261604, stack.LocksDir){
+		fmt.Println("Creating pipelines.yml file")
+		err := utils.RunCmd("touch", path.Join(stack.LogstashConfig, "pipelines.yml"))
+		if err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(202310261604, stack.LocksDir); err != nil {
+			return err
+		}
+		fmt.Println("Creating pipelines.yml file [OK]")
+	}
+
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Println("Installing Docker")
 		if err := InstallDocker(); err != nil {
@@ -84,6 +100,14 @@ func Master(c *Config) error {
 		fmt.Println("Initializing Swarm [OK]")
 	}
 
+	fmt.Println("Installing Stack. This may take a while.")
+
+	if err := StackUP(c, stack); err != nil {
+		return err
+	}
+
+	fmt.Println("Installing Stack [OK]")
+
 	fmt.Println("Installing reverse proxy. This may take a while.")
 
 	if err := InstallNginx(); err != nil {
@@ -95,14 +119,6 @@ func Master(c *Config) error {
 	}
 
 	fmt.Println("Installing reverse proxy [OK]")
-
-	fmt.Println("Installing Stack. This may take a while.")
-
-	if err := StackUP(c, stack); err != nil {
-		return err
-	}
-
-	fmt.Println("Installing Stack [OK]")
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Println("Installing Administration Tools")
@@ -202,7 +218,8 @@ func Master(c *Config) error {
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
-	fmt.Println("You can access to your Web-GUI at https://<your-server-ip>:443 using admin as your username and the password in the configuration file.")
+	fmt.Println("You can access to your Web-GUI at https://<your-server-ip>:443 using admin as your username")
+	fmt.Printf("Web-GUI default password for admin: %s \n", c.Password)
 	fmt.Println("You can also access to your Web-based Administration Interface at https://<your-server-ip>:9090 using your Linux system credentials.")
 
 	fmt.Println("### Thanks for using UTMStack ###")

@@ -1,0 +1,29 @@
+winlogbeat.event_logs:
+  - name: Application
+    ignore_older: 72h
+  - name: System
+  - name: Security
+  - name: Microsoft-Windows-Sysmon/Operational
+  - name: Windows PowerShell
+    event_id: 400, 403, 600, 800
+  - name: Microsoft-Windows-PowerShell/Operational
+    event_id: 4103, 4104, 4105, 4106
+  - name: ForwardedEvents
+    tags: [forwarded]
+
+#==================== Elasticsearch template setting ==========================
+setup.template.settings:
+ index.number_of_shards: 3
+
+# ------------------------------ File Output -------------------------------
+output.file:
+  path: '{{.LogsPath}}'
+  filename: '{{.LogFileName}}'
+  rotate_every_kb: 10000
+  number_of_files: 7
+
+#================================ Processors =====================================
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~

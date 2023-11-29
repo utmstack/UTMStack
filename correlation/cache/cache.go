@@ -1,44 +1,51 @@
 package cache
 
 import (
+	"log"
+	"runtime"
 	"sync"
 	"time"
 
+	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/rules"
 	"github.com/utmstack/UTMStack/correlation/utils"
-	"github.com/quantfall/holmes"
-	"github.com/tidwall/gjson"
 )
+
+const bufferSize int = 1000000
 
 var cacheStorageMutex = &sync.RWMutex{}
 
-var cacheStorage []string
-
-var h = holmes.New(utils.GetConfig().ErrorLevel, "CACHE")
+var CacheStorage []string
 
 func Status() {
 	for {
-		h.Info("Logs in cache: %v", len(cacheStorage))
-		if len(cacheStorage) != 0 {
-			est := gjson.Get(cacheStorage[0], "@timestamp").String()
-			h.Info("Old document in cache: %s", est)
+		log.Printf("Logs in cache: %v", len(CacheStorage))
+		if len(CacheStorage) != 0 {
+			est := gjson.Get(CacheStorage[0], "@timestamp").String()
+			log.Printf("Old document in cache: %s", est)
 		}
 		time.Sleep(60 * time.Second)
 	}
 
 }
 
-func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
+func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 	var elements []string
 	cacheStorageMutex.RLock()
-	start := time.Now()
 	cToBreak := 0
-	ait := time.Now().UTC().Unix() - int64(seconds)
-	for i := len(cacheStorage) - 1; i >= 0; i-- {
-		est := gjson.Get(cacheStorage[i], "@timestamp").String()
+	ait := time.Now().UTC().Unix() - func()int64{
+		switch seconds{
+		case 0:
+			return 60
+		default:
+			return seconds
+		}
+	}()
+	for i := len(CacheStorage) - 1; i >= 0; i-- {
+		est := gjson.Get(CacheStorage[i], "@timestamp").String()
 		eit, err := time.Parse(time.RFC3339Nano, est)
 		if err != nil {
-			h.Error("Could not parse @timestamp: %v", err)
+			log.Printf("Could not parse @timestamp: %v", err)
 			continue
 		}
 		if eit.Unix() < ait {
@@ -52,49 +59,55 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int) []string {
 			var allCatch bool
 			var oneCatch bool
 			for _, of := range oneOf {
-				oneCatch = evalElement(cacheStorage[i], of.Field, of.Operator, of.Value)
+				oneCatch = evalElement(CacheStorage[i], of.Field, of.Operator, of.Value)
 				if oneCatch {
 					break
 				}
 			}
 			for _, af := range allOf {
-				allCatch = evalElement(cacheStorage[i], af.Field, af.Operator, af.Value)
+				allCatch = evalElement(CacheStorage[i], af.Field, af.Operator, af.Value)
 				if !allCatch {
 					break
 				}
 			}
 			if (len(allOf) == 0 || allCatch) && (len(oneOf) == 0 || oneCatch) {
-				elements = append(elements, cacheStorage[i])
+				elements = append(elements, CacheStorage[i])
 			}
 		}
 	}
 	cacheStorageMutex.RUnlock()
-	h.Debug("Cache storage unlocked by search. Search took: %s", time.Since(start))
-	h.Debug("Returned %v elements", len(elements))
 	return elements
 }
 
-var logs = make(chan string, 100)
+var logs = make(chan string, bufferSize)
 
 func AddToCache(l string) {
+	if len(logs) == bufferSize {
+		log.Printf("Buffer is full, you could be lossing events")
+		return
+	}
 	logs <- l
 }
 
-func ProccessQueue() {
-	for {
-		l := <-logs
-		cacheStorageMutex.Lock()
-		cacheStorage = append(cacheStorage, l)
-		cacheStorageMutex.Unlock()
+func ProcessQueue() {
+	numCPU := runtime.NumCPU() * 2
+	for i := 0; i < numCPU; i++ {
+		go func() {
+			for {
+				l := <-logs
+				cacheStorageMutex.Lock()
+				CacheStorage = append(CacheStorage, l)
+				cacheStorageMutex.Unlock()
+			}
+		}()
 	}
-
 }
 
 func Clean() {
 	for {
-		if utils.AssignedMemory >= 50 && len(cacheStorage) > 500 {
+		if utils.AssignedMemory >= 80 && len(CacheStorage) > 500 {
 			cacheStorageMutex.Lock()
-			cacheStorage = cacheStorage[1:]
+			CacheStorage = CacheStorage[500:]
 			cacheStorageMutex.Unlock()
 		} else {
 			time.Sleep(5 * time.Second)

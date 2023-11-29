@@ -31,3 +31,7 @@ func MakeDir(mode os.FileMode, arg ...string) string {
 	}
 	return path
 }
+
+func Remove(path string) error{
+	return os.Remove(path)
+}

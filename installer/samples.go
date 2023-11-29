@@ -45,7 +45,7 @@ func SendSampleData() error {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	for i := 0; i <= 1000; i++ {
+	for i := 0; i <= 10; i++ {
 		for _, s := range severities {
 			log := generateSample(s, i)
 

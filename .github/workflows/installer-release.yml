@@ -1,8 +1,10 @@
-name: release
+name: Installer Release
 
 on:
   push:
     tags: [ 'v*' ]
+    paths:
+      - 'installer/**'
 
 jobs:
   build:

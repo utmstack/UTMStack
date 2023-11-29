@@ -10,7 +10,14 @@ import (
 
 func processResponse(logs []string, rule rules.Rule, save []rules.SavedField, tmpLogs *[20][]map[string]string,
 	steps, step, minCount int) {
-	if len(logs) >= minCount {
+	if len(logs) >= func()int{
+		switch minCount{
+		case 0:
+			return 1
+		default:
+			return minCount
+		}
+	}() {
 		for _, l := range logs {
 			var fields = map[string]string{
 				"id": gjson.Get(l, "id").String(),
