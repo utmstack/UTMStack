@@ -27,7 +27,7 @@ jobs:
         working-directory: ./${{inputs.directory}}
         run: |
           echo "Building native image"
-          mvn -Pnative native:compile -s settings.xml
+          mvn -Pnative spring-boot:build-image -s settings.xml
         env:
           MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
 
@@ -41,5 +41,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/work/UTMStack/UTMStack/${{inputs.directory}}/
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
