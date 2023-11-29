@@ -27,7 +27,7 @@ jobs:
         working-directory: ./${{inputs.directory}}
         run: |
           echo "Building native image"
-          mvn -Pnative native:compile -s settings.xml
+          mvn -Pnative spring-boot:build-image -s settings.xml
         env:
           MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
 
