@@ -99,7 +99,7 @@ func InitPgUserAuditor(c *Config) error {
 	}
 
 	// Creating user-auditor
-	_, err = srv.Exec("CREATE DATABASE user-auditor")
+	_, err = srv.Exec("CREATE DATABASE userauditor")
 	if err != nil {
 		return err
 	}
