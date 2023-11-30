@@ -145,9 +145,9 @@ func Cloud(c *Config, update bool) error {
 	}
 
 	if utils.GetLock(6, stack.LocksDir) {
-		fmt.Println("Initializing PostgreSQL")
+		fmt.Println("Initializing UTMStack and AgentManager databases")
 		for i := 0; i < 10; i++ {
-			if err := InitPostgres(c); err != nil {
+			if err := InitPgUtmstack(c); err != nil {
 				if i > 8 {
 					return err
 				}
@@ -161,7 +161,27 @@ func Cloud(c *Config, update bool) error {
 			return err
 		}
 
-		fmt.Println("Initializing PostgreSQL [OK]")
+		fmt.Println("Initializing UTMStack and AgentManager databases [OK]")
+	}
+
+	if utils.GetLock(202311301747, stack.LocksDir) {
+		fmt.Println("Initializing User Auditor database")
+		for i := 0; i < 10; i++ {
+			if err := InitPgUserAuditor(c); err != nil {
+				if i > 8 {
+					return err
+				}
+				time.Sleep(10 * time.Second)
+			} else {
+				break
+			}
+		}
+
+		if err := utils.SetLock(202311301747, stack.LocksDir); err != nil {
+			return err
+		}
+
+		fmt.Println("Initializing User Auditor database [OK]")
 	}
 
 	if utils.GetLock(7, stack.LocksDir) {

@@ -545,6 +545,34 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	c.Services["user-auditor"] = Service{
+		Image: utils.Str("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
+		DependsOn: []string{
+			"postgres",
+			"node1",
+		},
+		Environment: []string{
+			"SERVER_NAME=" + conf.ServerName,
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"DB_USER=postgres",
+			"DB_HOST=postgres",
+			"DB_PORT=5432",
+			"DB_NAME=utmstack",
+			"DB_PASS" + conf.Password,
+			"ELASTICSEARCH_HOST=node1",
+			"ELASTICSEARCH_PORT=9200",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
+	}
+
 	c.Volumes["postgres_data"] = Volume{
 		"external": false,
 	}

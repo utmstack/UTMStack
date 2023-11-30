@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func InitPostgres(c *Config) error {
+func InitPgUtmstack(c *Config) error {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
 		c.Password)
@@ -73,6 +73,33 @@ CONSTRAINT utm_client_pkey PRIMARY KEY (id)
 
 	// Insert client data
 	_, err = db.Exec(`INSERT INTO public.utm_client (client_licence_verified) VALUES (false);`)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InitPgUserAuditor(c *Config) error {
+	// Connecting to PostgreSQL
+	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
+		c.Password)
+	srv, err := sql.Open("postgres", psqlconn)
+	if err != nil {
+		return err
+	}
+
+	// Close connection when finish
+	defer srv.Close()
+
+	// Check connection status
+	err = srv.Ping()
+	if err != nil {
+		return err
+	}
+
+	// Creating user-auditor
+	_, err = srv.Exec("CREATE DATABASE user-auditor")
 	if err != nil {
 		return err
 	}
