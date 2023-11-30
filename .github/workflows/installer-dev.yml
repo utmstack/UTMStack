@@ -4,7 +4,7 @@ on:
   push:
     branches: [ 'main' ]
   workflow_run:
-    workflows: ["Log Auth Proxy Dev", "Agent Manager Dev", "Correlation Dev", "Bitdefender Dev", "Mutate Dev", "O365 Dev"]
+    workflows: ["User Auditor Dev", "Web PDF Dev", "Log Auth Proxy Dev", "Agent Manager Dev", "Correlation Dev", "Bitdefender Dev", "Mutate Dev", "O365 Dev"]
     types:
       - completed
 

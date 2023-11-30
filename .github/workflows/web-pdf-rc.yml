@@ -1,4 +1,4 @@
-name: WEB PDF RC
+name: Web PDF RC
 on:
   push:
     branches: [ "rc" ]
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   docker-native-image-java:
-    uses: ./.github/workflows/web-pdf-docker.yml
+    uses: ./.github/workflows/docker-graalvm.yml
     with:
       image_name: web-pdf
       environment: v10-rc

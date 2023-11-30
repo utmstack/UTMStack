@@ -1,4 +1,4 @@
-name: WEB PDF Release
+name: Web PDF Release
 on:
   push:
     tags: [ 'v*' ]
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   docker-native-image-java:
-    uses: ./.github/workflows/web-pdf-docker.yml
+    uses: ./.github/workflows/docker-graalvm.yml
     with:
       image_name: web-pdf
       environment: v10

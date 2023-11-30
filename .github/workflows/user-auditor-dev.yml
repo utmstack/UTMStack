@@ -1,4 +1,4 @@
-name: User Auditor DEV
+name: User Auditor Dev
 on:
   push:
     branches: [ main ]
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   docker-native-image-java:
-    uses: ./.github/workflows/user-auditor-docker.yml
+    uses: ./.github/workflows/docker-graalvm.yml
     with:
       image_name: user-auditor
       environment: v10-dev

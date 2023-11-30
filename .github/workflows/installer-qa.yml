@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ 'rc' ]
   workflow_run:
-    workflows: ["Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
+    workflows: ["Web PDF QA", "User Auditor QA", "Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
     types:
       - completed
 
