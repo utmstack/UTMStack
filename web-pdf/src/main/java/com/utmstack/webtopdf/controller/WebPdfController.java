@@ -24,12 +24,11 @@ import java.net.URL;
 public class WebPdfController {
 
     private final PdfGenerationService pdfGenerationService;
-    String domain = System.getenv("DOMAIN_URL");
 
     @GetMapping("/generate-pdf")
     public ResponseEntity<ResponseDto> generatePdf(@RequestParam String url) {
         try {
-            URI serverUrl = new URL(domain + url).toURI();
+            URI serverUrl = new URL(url).toURI();
             byte[] pdfBytes = pdfGenerationService.generatePdf(String.valueOf(serverUrl));
 
             return ResponseEntity.ok().body(ResponseDto.builder().pdfBytes(pdfBytes).build());
