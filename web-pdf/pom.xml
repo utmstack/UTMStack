@@ -61,6 +61,7 @@
 					<quickBuild>true</quickBuild>
 					<buildArgs>
 						<arg>-H:+ReportExceptionStackTraces</arg>
+						<arg>-march=compatibility</arg>
 					</buildArgs>
 					<metadataRepository>
 						<enabled>true</enabled>
