@@ -1,5 +1,6 @@
-FROM docker.io/library/user-auditor:1.0.0
+FROM openjdk:17-alpine
+ADD target/user-auditor-1.0.0.jar ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["/workspace/com.utmstack.userauditor.UserAuditorApplication"]
+ENTRYPOINT ["java","-jar","user-auditor-1.0.0.jar"]

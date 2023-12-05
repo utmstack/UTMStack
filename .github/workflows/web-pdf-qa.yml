@@ -6,8 +6,8 @@ on:
       - 'web-pdf/**'
   workflow_dispatch:
 jobs:
-  docker-native-image-java:
-    uses: ./.github/workflows/docker-graalvm.yml
+  docker-image-java:
+    uses: ./.github/workflows/docker-java.yml
     with:
       image_name: web-pdf
       environment: v10-qa
