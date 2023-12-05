@@ -42,31 +42,9 @@
 			<artifactId>selenium-java</artifactId>
 			<version>4.11.0</version>
 		</dependency>
-		<dependency>
-			<groupId>io.github.bonigarcia</groupId>
-			<artifactId>webdrivermanager</artifactId>
-			<version>5.4.1</version>
-		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.graalvm.buildtools</groupId>
-				<artifactId>native-maven-plugin</artifactId>
-				<configuration>
-					<imageName>${project.name}</imageName>
-					<fallback>false</fallback>
-					<verbose>true</verbose>
-					<quickBuild>true</quickBuild>
-					<buildArgs>
-						<arg>-H:+ReportExceptionStackTraces</arg>
-					</buildArgs>
-					<metadataRepository>
-						<enabled>true</enabled>
-					</metadataRepository>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
