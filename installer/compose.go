@@ -558,7 +558,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_HOST=postgres",
 			"DB_PORT=5432",
 			"DB_NAME=userauditor",
-			"DB_PASS" + conf.Password,
+			"DB_PASS=" + conf.Password,
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 		},
