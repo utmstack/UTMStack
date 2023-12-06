@@ -50,7 +50,6 @@ public class EventData {
     public String targetDomainName;
     @JsonProperty("TargetLinkedLogonId")
     public String targetLinkedLogonId;
-
     @JsonProperty("TargetSid")
     public String targetSid;
     @JsonProperty("TargetLogonId")
@@ -103,4 +102,7 @@ public class EventData {
     public String userPrincipalName;
     @JsonProperty("UserWorkstations")
     public String userWorkstations;
+
+    @JsonProperty("RemoteCredentialGuard")
+    public String remoteCredentialGuard;
 }
