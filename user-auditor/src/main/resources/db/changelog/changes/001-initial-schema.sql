@@ -10,7 +10,7 @@ create table utm_user_source
 );
 
 INSERT INTO public.utm_user_source (id, created_date, modified_date, index_name, index_pattern, active) VALUES (1, now(), null, 'WINDOWS_AGENT', 'log-wineventlog-*', true);
-INSERT INTO public.utm_user_source (id, created_date, modified_date, index_name, index_pattern, active) VALUES (2, now(), null, 'SYSLOG', 'log-syslog-*', true);
+INSERT INTO public.utm_user_source (id, created_date, modified_date, index_name, index_pattern, active) VALUES (2, now(), null, 'SYSLOG', 'log-syslog-*', false);
 INSERT INTO public.utm_user_source (id, created_date, modified_date, index_name, index_pattern, active) VALUES (3, now(), null, 'VMWARE', 'log-vmware-esxi-*', false);
 INSERT INTO public.utm_user_source (id, created_date, modified_date, index_name, index_pattern, active) VALUES (4, now(), null, 'LINUX_AGENT', 'log-linux-*', false);
 INSERT INTO public.utm_user_source (id, created_date, modified_date, index_name, index_pattern, active) VALUES (5, now(), null, 'AUDITD', 'log-auditd-*', false);
