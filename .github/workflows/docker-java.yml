@@ -1,4 +1,4 @@
-name: Docker Image GraalVM
+name: Docker Image Java
 on:
   workflow_call:
     inputs:
@@ -18,16 +18,16 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17
-        uses: graalvm/setup-graalvm@v1
+        uses: actions/setup-java@v2
         with:
-            java-version: '17'
-            distribution: 'graalvm' # See 'Options' for all available distributions
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Build with Maven
         working-directory: ./${{inputs.directory}}
         run: |
-          echo "Building native image"
-          mvn -Pnative spring-boot:build-image -s settings.xml
+          echo "Building with maven"
+          mvn clean install -U -s settings.xml
         env:
           MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
 

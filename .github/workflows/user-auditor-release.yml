@@ -6,8 +6,8 @@ on:
       - 'user-auditor/**'
   workflow_dispatch:
 jobs:
-  docker-native-image-java:
-    uses: ./.github/workflows/docker-graalvm.yml
+  docker-image-java:
+    uses: ./.github/workflows/docker-java.yml
     with:
       image_name: user-auditor
       environment: v10
