@@ -11,7 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/runner/utils"
 )
 
-func DownloadDependencies(servBins ServicesBin, ip string) error {
+func DownloadDependencies(servBins ServicesBin, ip string, skip string) error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("failed to get current path: %v", err)
@@ -23,7 +23,7 @@ func DownloadDependencies(servBins ServicesBin, ip string) error {
 		return fmt.Errorf("error reading environment configuration: %v", err)
 	}
 
-	currentVersion, err := getCurrentVersion(ip, env.Branch)
+	currentVersion, err := getCurrentVersion(ip, env.Branch, skip)
 	if err != nil {
 		return fmt.Errorf("error getting current version: %v", err)
 	}

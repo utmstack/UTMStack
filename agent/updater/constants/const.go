@@ -1,8 +1,11 @@
 package constants
 
 import (
+	"path/filepath"
 	"runtime"
 	"time"
+
+	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
 const (
@@ -10,7 +13,7 @@ const (
 	SERV_LOG              = "utmstack_updater.log"
 	SERV_LOCK             = "utmstack_updater.lock"
 	MASTERVERSIONENDPOINT = "/management/info"
-	Bucket                = "https://storage.googleapis.com/utmstack-updates/agent_updates/"
+	Bucket                = "https://cdn.utmstack.com/agent_updates/"
 )
 
 type ServiceAttribt struct {
@@ -52,4 +55,19 @@ func GetAgentBin() string {
 		bin = "utmstack_agent_service"
 	}
 	return bin
+}
+
+func GetCertPath() string {
+	path, _ := utils.GetMyPath()
+	return filepath.Join(path, "certs", "utm.crt")
+}
+
+func GetKeyPath() string {
+	path, _ := utils.GetMyPath()
+	return filepath.Join(path, "certs", "utm.key")
+}
+
+func GetCaPath() string {
+	path, _ := utils.GetMyPath()
+	return filepath.Join(path, "certs", "ca.crt")
 }
