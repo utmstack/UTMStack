@@ -70,7 +70,7 @@ func main() {
 			}
 
 			// Download dependencies
-			err := depend.DownloadDependencies(servBins, ip)
+			err := depend.DownloadDependencies(servBins, ip, skip)
 			if err != nil {
 				fmt.Printf("error downloading dependencies: %v", err)
 				h.FatalError("error downloading dependencies: %v", err)

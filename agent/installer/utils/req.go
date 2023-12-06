@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func DoReq[response any](url string, data []byte, method string, headers map[string]string) (response, int, error) {
+func DoReq[response any](url string, data []byte, method string, headers map[string]string, config *tls.Config) (response, int, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
 		return *new(response), http.StatusInternalServerError, err
@@ -19,7 +19,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	transp := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: config,
 	}
 
 	client := &http.Client{Transport: transp}

@@ -1,6 +1,7 @@
 package depend
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -10,8 +11,18 @@ import (
 	"github.com/utmstack/UTMStack/agent/runner/utils"
 )
 
-func getMasterVersion(ip string) (string, error) {
-	resp, status, err := utils.DoReq[InfoResponse]("https://"+ip+configuration.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{})
+func getMasterVersion(ip string, skip string) (string, error) {
+	var config *tls.Config
+	if skip == "yes" {
+		config = &tls.Config{InsecureSkipVerify: true}
+	} else {
+		var err error
+		config, err = utils.LoadTLSCredentials(configuration.GetCertPath())
+		if err != nil {
+			return "", fmt.Errorf("error loading tls credentials: %v", err)
+		}
+	}
+	resp, status, err := utils.DoReq[InfoResponse]("https://"+ip+configuration.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{}, config)
 	if err != nil {
 		return "", err
 	} else if status != http.StatusOK {
@@ -20,11 +31,11 @@ func getMasterVersion(ip string) (string, error) {
 	return resp.Build.Version, nil
 }
 
-func getCurrentVersion(ip string, env string) (Version, error) {
+func getCurrentVersion(ip string, env string, skip string) (Version, error) {
 	currentVersion := Version{}
 
 	// Get master version
-	mastVers, err := getMasterVersion(ip)
+	mastVers, err := getMasterVersion(ip, skip)
 	if err != nil {
 		return currentVersion, fmt.Errorf("error getting master version: %v", err)
 	}
