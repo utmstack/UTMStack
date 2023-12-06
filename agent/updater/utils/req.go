@@ -18,7 +18,11 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 		req.Header.Add(k, v)
 	}
 
-	client := &http.Client{}
+	transp := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{Transport: transp}
 
 	resp, err := client.Do(req)
 	if err != nil {

@@ -10,7 +10,7 @@ const (
 	SERV_LOG              = "utmstack_updater.log"
 	SERV_LOCK             = "utmstack_updater.lock"
 	MASTERVERSIONENDPOINT = "/management/info"
-	Bucket                = "https://storage.googleapis.com/utmstack-updates/agent_updates/"
+	Bucket                = "https://cdn.utmstack.com/agent_updates/"
 )
 
 type ServiceAttribt struct {

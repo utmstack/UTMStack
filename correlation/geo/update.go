@@ -18,11 +18,11 @@ func Update(updateReady chan bool) {
 		log.Printf("Downloading GeoIP databases")
 		cnf := utils.GetConfig()
 		var files = map[string]string{
-			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"): "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v4.csv",
-			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"): "https://storage.googleapis.com/utmstack-updates/geoip/asn-blocks-v6.csv",
-			filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):     "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v4.csv",
-			filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):     "https://storage.googleapis.com/utmstack-updates/geoip/blocks-v6.csv",
-			filepath.Join(cnf.GeoIPFolder, "locations-en.csv"):  "https://storage.googleapis.com/utmstack-updates/geoip/locations-en.csv",
+			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v4.csv",
+			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v6.csv",
+			filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):     "https://cdn.utmstack.com/geoip/blocks-v4.csv",
+			filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):     "https://cdn.utmstack.com/geoip/blocks-v6.csv",
+			filepath.Join(cnf.GeoIPFolder, "locations-en.csv"):  "https://cdn.utmstack.com/geoip/locations-en.csv",
 		}
 
 		if _, err := os.Stat(cnf.GeoIPFolder); os.IsNotExist(err) {
