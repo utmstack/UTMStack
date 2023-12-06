@@ -70,7 +70,7 @@ public class WindowsSource implements Source {
             if (!elasticsearchService.indexExist(userSource.getIndexPattern()))
                 return this.userEvents;
 
-            if (currentDate.getMonth().compareTo(startDate.getMonth()) > 0) {
+            if (currentDate.getYear()  >= startDate.getYear()  && currentDate.getMonth().compareTo(startDate.getMonth()) > 0) {
                 for (SourceFilter filter : userSource.getFilters()) {
                     this.executeQuery(startDate.format(formatter), startDate.plusMonths(2).format(formatter), 10, filter);
                 }
