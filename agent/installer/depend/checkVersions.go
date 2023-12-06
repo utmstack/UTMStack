@@ -11,11 +11,9 @@ import (
 	"github.com/utmstack/UTMStack/agent/runner/utils"
 )
 
-func getMasterVersion(ip string, skip string) (string, error) {
-	var config *tls.Config
-	if skip == "yes" {
-		config = &tls.Config{InsecureSkipVerify: true}
-	} else {
+func getMasterVersion(ip string, skip bool) (string, error) {
+	config := &tls.Config{InsecureSkipVerify: skip}
+	if !skip {
 		var err error
 		config, err = utils.LoadTLSCredentials(configuration.GetCertPath())
 		if err != nil {
@@ -35,7 +33,8 @@ func getCurrentVersion(ip string, env string, skip string) (Version, error) {
 	currentVersion := Version{}
 
 	// Get master version
-	mastVers, err := getMasterVersion(ip, skip)
+	skipB := skip == "yes"
+	mastVers, err := getMasterVersion(ip, skipB)
 	if err != nil {
 		return currentVersion, fmt.Errorf("error getting master version: %v", err)
 	}

@@ -12,10 +12,8 @@ import (
 )
 
 func getMasterVersion(ip string, skip bool) (string, error) {
-	var config *tls.Config
-	if skip {
-		config = &tls.Config{InsecureSkipVerify: true}
-	} else {
+	config := &tls.Config{InsecureSkipVerify: skip}
+	if !skip {
 		var err error
 		config, err = utils.LoadTLSCredentials(constants.GetCertPath())
 		if err != nil {
