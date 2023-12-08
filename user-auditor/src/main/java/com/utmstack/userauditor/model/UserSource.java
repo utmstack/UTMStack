@@ -1,7 +1,5 @@
 package com.utmstack.userauditor.model;
 
-import com.utmstack.userauditor.model.winevent.SourceFilter;
-import com.utmstack.userauditor.model.winevent.SourceScan;
 import lombok.Getter;
 import lombok.Setter;
 

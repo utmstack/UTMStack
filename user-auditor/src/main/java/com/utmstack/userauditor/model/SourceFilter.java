@@ -1,16 +1,11 @@
-package com.utmstack.userauditor.model.winevent;
+package com.utmstack.userauditor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.utmstack.userauditor.model.Base;
-import com.utmstack.userauditor.model.UserSource;
 import lombok.Getter;
 import lombok.Setter;
 
 import jakarta.persistence.*;
 
-/**
- * A UtmAuditorUserSourcesQuery.
- */
 @Getter
 @Setter
 @Entity
