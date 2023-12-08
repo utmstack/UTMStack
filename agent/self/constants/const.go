@@ -7,7 +7,7 @@ const (
 	SERV_LOG          = "utmstack_updater_self.log"
 	UPDATER_SERV_NAME = "UTMStackUpdater"
 	UPDATER_SERV_LOCK = "utmstack_updater.lock"
-	Bucket            = "https://storage.googleapis.com/utmstack-updates/agent_updates/"
+	Bucket            = "https://cdn.utmstack.com/agent_updates/"
 	SERV_LOCK         = "utmstack_updater.lock"
 )
 

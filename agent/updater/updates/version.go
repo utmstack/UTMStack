@@ -1,6 +1,7 @@
 package updates
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,8 +11,16 @@ import (
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
-func getMasterVersion(ip string) (string, error) {
-	resp, status, err := utils.DoReq[InfoResponse]("https://"+ip+constants.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{})
+func getMasterVersion(ip string, skip bool) (string, error) {
+	config := &tls.Config{InsecureSkipVerify: skip}
+	if !skip {
+		var err error
+		config, err = utils.LoadTLSCredentials(constants.GetCertPath())
+		if err != nil {
+			return "", fmt.Errorf("error loading tls credentials: %v", err)
+		}
+	}
+	resp, status, err := utils.DoReq[InfoResponse]("https://"+ip+constants.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{}, config)
 	if err != nil {
 		return "", err
 	} else if status != http.StatusOK {

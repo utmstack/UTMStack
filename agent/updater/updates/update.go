@@ -14,7 +14,7 @@ func UpdateServices(cnf configuration.Config, h *holmes.Logger) {
 	for {
 		time.Sleep(constants.CheckUpdatesEvery)
 
-		masterVersion, err := getMasterVersion(cnf.Server)
+		masterVersion, err := getMasterVersion(cnf.Server, cnf.SkipCertValidation)
 		if err != nil {
 			h.Error("error getting master version: %v", err)
 			continue
