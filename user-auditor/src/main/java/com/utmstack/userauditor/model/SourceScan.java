@@ -1,14 +1,12 @@
-package com.utmstack.userauditor.model.winevent;
+package com.utmstack.userauditor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.utmstack.userauditor.model.Audit;
-import com.utmstack.userauditor.model.Base;
-import com.utmstack.userauditor.model.UserSource;
 import com.utmstack.userauditor.model.audit.Auditable;
 import lombok.*;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "utm_source_scan")
@@ -19,8 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class SourceScan extends Base implements Auditable {
 
-    @JoinColumn(name = "execution_date")
-    private LocalDateTime executionDate;
+    @Column(name = "last_execution_date")
+    private LocalDate executionDate;
 
     @ManyToOne
     @JoinColumn(name = "user_sources_id")

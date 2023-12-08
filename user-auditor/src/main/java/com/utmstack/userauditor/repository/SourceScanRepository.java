@@ -1,6 +1,6 @@
 package com.utmstack.userauditor.repository;
 
-import com.utmstack.userauditor.model.winevent.SourceScan;
+import com.utmstack.userauditor.model.SourceScan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
