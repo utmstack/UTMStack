@@ -5,8 +5,8 @@ import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
 import com.utmstack.userauditor.model.*;
 import com.utmstack.userauditor.model.winevent.EventLog;
-import com.utmstack.userauditor.model.winevent.SourceFilter;
-import com.utmstack.userauditor.model.winevent.SourceScan;
+import com.utmstack.userauditor.model.SourceFilter;
+import com.utmstack.userauditor.model.SourceScan;
 import com.utmstack.userauditor.repository.SourceScanRepository;
 import com.utmstack.userauditor.service.elasticsearch.ElasticsearchService;
 import com.utmstack.userauditor.service.elasticsearch.SearchUtil;
@@ -21,16 +21,22 @@ import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
 public class WindowsSource implements Source {
+
+    @Value("${app.elasticsearch.startYear}")
+    private int startYear;
+
+    @Value("${app.elasticsearch.searchIntervalMonths}")
+    private int searchIntervalMonths;
 
     Map<String, List<EventLog>> userEvents;
     final ElasticsearchService elasticsearchService;
@@ -53,16 +59,15 @@ public class WindowsSource implements Source {
 
         LocalDate currentDate = LocalDate.now();
         Map<String, List<UserAttribute>> users = new HashMap<>();
-        LocalDateTime startDate = LocalDateTime.of(LocalDate.now().getYear(), 1, 1, 0, 0, 0);
-        ;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDate startDate = LocalDate.of( startYear, 1, 1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         final String ctx = "UserService.userlogs";
         List<SourceScan> scans = sourceScanRepository.findBySource_Id(userSource.getId());
 
         if (!scans.isEmpty()) {
             startDate = scans.stream()
                     .map(SourceScan::getExecutionDate)
-                    .max(LocalDateTime::compareTo)
+                    .max(LocalDate::compareTo)
                     .orElse(startDate);
         }
 
@@ -70,12 +75,12 @@ public class WindowsSource implements Source {
             if (!elasticsearchService.indexExist(userSource.getIndexPattern()))
                 return this.userEvents;
 
-            if (currentDate.getYear()  >= startDate.getYear()  && currentDate.getMonth().compareTo(startDate.getMonth()) > 0) {
+            if (currentDate.isAfter(startDate)) {
                 for (SourceFilter filter : userSource.getFilters()) {
-                    this.executeQuery(startDate.format(formatter), startDate.plusMonths(2).format(formatter), 10, filter);
+                    this.executeQuery(startDate.format(formatter), startDate.plusMonths(searchIntervalMonths).format(formatter), 10, filter);
                 }
                 sourceScanRepository.save(SourceScan.builder()
-                        .executionDate(startDate.plusMonths(2))
+                        .executionDate(startDate.plusMonths(searchIntervalMonths))
                         .source(userSource)
                         .build());
             }
@@ -94,24 +99,16 @@ public class WindowsSource implements Source {
 
         SearchRequest.Builder srb = getBuilder(sourceFilter, from, to);
 
-       /* SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
-                .index(sourceFilter.getSource().getIndexPattern())
-                .aggregations(AGG_NAME, agg -> agg
-                        .terms(t -> t.field("logx.wineventlog.event_data.SubjectUserName.keyword").order(List.of(Map.of("_count", SortOrder.Desc))))
-                        .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
-                                        .size(1)
-                                        .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))))
-                )
-        );*/
-
         SearchResponse<String> rs = elasticsearchService.search(srb.build(), String.class);
 
         List<BucketAggregation> buckets = TermAggregateParser.parse(rs.aggregations().get(AGG_NAME));
         buckets.forEach(b -> {
-            if (!this.userEvents.containsKey(b.getKey())) {
-                this.userEvents.put(b.getKey(), userAttributes(b.getSubAggregations().get("top_events").topHits()));
-            } else {
-                this.userEvents.get(b.getKey()).addAll(userAttributes(b.getSubAggregations().get("top_events").topHits()));
+            if (!b.getKey().equals("-")){
+                if (!this.userEvents.containsKey(b.getKey())) {
+                    this.userEvents.put(b.getKey(), userAttributes(b.getSubAggregations().get("top_events").topHits()));
+                } else {
+                    this.userEvents.get(b.getKey()).addAll(userAttributes(b.getSubAggregations().get("top_events").topHits()));
+                }
             }
         });
     }
