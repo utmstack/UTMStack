@@ -143,4 +143,7 @@ public class EventData {
 
     @JsonProperty("UserWorkstations")
     public String userWorkstations;
+
+    @JsonProperty("RemoteCredentialGuard")
+    public String remoteCredentialGuard;
 }
