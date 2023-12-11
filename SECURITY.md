@@ -4,4 +4,4 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  10.0.x | :white_check_mark: |
+|  10.y.z | :white_check_mark: |
