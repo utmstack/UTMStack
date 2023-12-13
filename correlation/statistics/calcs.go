@@ -62,6 +62,6 @@ func Update() {
 				s.Count,
 			)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(10 * time.Minute)
 	}
 }
