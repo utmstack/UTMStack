@@ -7,8 +7,9 @@ on:
       - 'agent/installer/**'
 
 jobs:
-  deploy:
+  build:
     uses: ./.github/workflows/agent-basic.yml
     with:
       binary: utmstack_agent_installer
       directory: installer
+      branch: rc

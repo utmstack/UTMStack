@@ -6,8 +6,6 @@ on:
     paths:
       - 'mutate/**'
 
-  workflow_dispatch:
-
 jobs:
   docker:
     uses: ./.github/workflows/docker-basic.yml
@@ -15,4 +13,5 @@ jobs:
       image_name: mutate
       environment: v10-dev
       directory: mutate
+      branch: main
         

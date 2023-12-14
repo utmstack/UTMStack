@@ -9,16 +9,20 @@ on:
       directory:
         required: true
         type: string
+      branch:
+        required: true
+        type: string
 
 jobs:
   build:
     name: Build
     runs-on: signing
     steps:
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v3
-
+    - name: Check out code into the right branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{inputs.branch}}
+        
     - name: Build for Linux
       working-directory: ./agent/${{inputs.directory}}
       env:

@@ -4,11 +4,12 @@ on:
     branches: [ main ]
     paths:
       - 'user-auditor/**'
-  workflow_dispatch:
+
 jobs:
-  docker-image-java:
+  docker:
     uses: ./.github/workflows/docker-java.yml
     with:
       image_name: user-auditor
       environment: v10-dev
       directory: user-auditor
+      branch: main

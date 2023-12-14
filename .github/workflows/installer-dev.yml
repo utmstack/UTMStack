@@ -13,8 +13,10 @@ jobs:
     name: Build
     runs-on: dev
     steps:
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v3
+    - name: Check out code into the right branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v4

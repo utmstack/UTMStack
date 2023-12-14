@@ -12,3 +12,4 @@ jobs:
     with:
       binary: utmstack_redline_service
       directory: redline
+      branch: rc

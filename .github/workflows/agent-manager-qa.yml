@@ -5,7 +5,6 @@ on:
     branches: [ "rc" ]
     paths:
       - 'agent-manager/**'
-  workflow_dispatch:
 
 jobs:
   docker:
@@ -15,3 +14,4 @@ jobs:
       environment: v10-qa
       directory: agent-manager
       binary: server
+      branch: main

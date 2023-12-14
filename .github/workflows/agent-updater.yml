@@ -12,3 +12,4 @@ jobs:
     with:
       binary: utmstack_updater_service
       directory: updater
+      branch: rc

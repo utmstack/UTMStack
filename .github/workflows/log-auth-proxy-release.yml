@@ -5,7 +5,6 @@ on:
     tags: [ 'v*' ]
     paths:
       - 'log-auth-proxy/**'
-  workflow_dispatch:
 
 jobs:
   docker:
@@ -15,3 +14,4 @@ jobs:
       environment: v10
       directory: log-auth-proxy
       binary: server
+      branch: rc
