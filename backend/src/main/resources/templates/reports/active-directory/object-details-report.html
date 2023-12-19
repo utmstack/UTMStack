@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Active Directory Object Detail Report</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../static/css/style.css"/>
+</head>
+<body>
+<div
+    style="padding: 0 1%;">
+    <div style="text-align: left; margin-bottom: 40px;">
+        <div>
+            <img th:if="${logo}" th:src="${logo.getUserImg()}"/>
+            <h4 th:unless="${logo}" style="font-family:Roboto, sans-serif; margin-bottom: 1px;">
+                <b class="color-green">UTM</b><b style="color: #0d47a1">STACK</b>
+            </h4>
+        </div>
+        <div style="width: 100%;">
+            <div style="width: 50%; float: left;">
+                <h6 style="font-family: Roboto, sans-serif; margin-top: 1px; margin-bottom: 1px; font-weight: 500;">
+                    Active Directory Object Detail Report
+                </h6>
+            </div>
+            <div style="width: 50%; float: right; text-align: right">
+                <h6 style="font-family: Roboto, sans-serif; margin-top: 1px; margin-bottom: 1px; font-weight: 500;"
+                    th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}">
+                </h6>
+            </div>
+        </div>
+    </div>
+    <div th:each="object : ${adObjects}">
+        <div th:switch="${object.getType()}">
+            <div th:case="'user'" style="margin-bottom: 10px;"
+                 th:insert="reports/active-directory/fragments/user-detail-fragment.html :: user-detail">
+            </div>
+            <div th:case="'computer'" style="margin-bottom: 10px;"
+                 th:insert="reports/active-directory/fragments/computer-detail-fragment.html :: computer-detail">
+            </div>
+            <div th:case="'group'" style="margin-bottom: 10px;"
+                 th:insert="reports/active-directory/fragments/group-detail-fragment.html :: group-detail">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

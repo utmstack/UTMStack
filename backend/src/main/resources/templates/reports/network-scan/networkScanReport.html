@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>UtmStack Network Scan Report</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}"/>
+</head>
+<body>
+<!--/*@thymesVar id="logo" type="com.park.utmstack.domain.UtmImages"*/-->
+<div style="padding-left: 2%;">
+    <img th:if="${logo}" th:src="${logo.getUserImg()}"/>
+    <h2 th:unless="${logo}" style="font-family:Roboto, sans-serif;"><b style="color: black">UTM</b><b
+        style="color: #0d47a1">STACK</b>
+    </h2>
+</div>
+<!--/*@thymesVar id="asset" type="com.park.utmstack.domain.network_scan.UtmNetworkScan"*/-->
+<div
+    style="padding: 0;color:#2a2a2a;font-size:15px;font-family:Roboto,sans-serif;margin-bottom:50px;text-align:left;"
+    th:each="asset : ${assets}">
+    <div style="width: 100%; text-align: left;">
+        <h3 th:text="${asset.getAssetName() != null ? asset.getAssetName() : asset.getAssetIp()}"></h3>
+    </div>
+    <hr/>
+    <div>
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr style="font-family:Roboto, sans-serif;font-size: 11px">
+                <td style="font-weight: bold; width: 10%;" th:text="'Ip:'"></td>
+                <td style="width: 23%;" th:text="${asset.getAssetIp() != null ? asset.getAssetIp() : '-'}"></td>
+                <td style="font-weight: bold; width: 10%;" th:text="'Mac:'"></td>
+                <td style="width: 23%;" th:text="${asset.getAssetMac() != null ? asset.getAssetMac() : '-'}"></td>
+                <td style="font-weight: bold; width: 10%;" th:text="'Os:'"></td>
+                <td style="width: 23%;" th:text="${asset.getAssetOs() != null ? asset.getAssetOs() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 11px">
+                <td style="font-weight: bold; width: 10%;" th:text="'Alive:'"></td>
+                <td style="width: 23%;"
+                    th:text="${asset.getAssetAlive() != null ? (asset.getAssetAlive() ? 'Yes' : 'No') : '-'}"></td>
+                <td style="font-weight: bold; width: 10%;" th:text="'Status:'"></td>
+                <td style="width: 23%;" th:text="${asset.getAssetStatus() != null ? asset.getAssetStatus() : '-'}"></td>
+                <td style="font-weight: bold; width: 10%;" th:text="'Severity:'"></td>
+                <td style="width: 23%;"
+                    th:text="${asset.getAssetSeverity() != null ? asset.getAssetSeverity() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 11px">
+                <td style="font-weight: bold; width: 10%;" th:text="'Type:'"></td>
+                <td style="width: 23%;"
+                    th:text="${asset.getAssetType() != null ? asset.getAssetType().getTypeName() : '-'}"></td>
+                <td style="font-weight: bold; width: 10%;" th:text="'Discovered:'"></td>
+                <td style="width: 23%;"
+                    th:text="${asset.getDiscoveredAt() != null ? #dates.format(asset.getDiscoveredAt(), 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                <td style="font-weight: bold; width: 10%;" th:text="'Modified:'"></td>
+                <td style="width: 23%;"
+                    th:text="${asset.getModifiedAt() != null ? #dates.format(asset.getModifiedAt(), 'yyyy-MM-dd HH:mm') : '-'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr/>
+    <div style="margin-bottom: 20px"
+         th:if="${asset.getAssetNotes() != null  || asset.getAssetAddresses() != null || asset.getAssetAliases() != null}">
+        <div style="text-align: center;margin-bottom: 10px;font-weight: bold;font-size: 13px;"
+             th:text="'Additional information'"></div>
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${asset.getAssetAddresses() != null}">
+                <td style="font-weight: bold;font-size: 12px"
+                    th:text="'Addresses'"></td>
+            </tr>
+            <tr th:if="${asset.getAssetAddresses() != null}">
+                <td style="font-size: 12px;height: 30px;vertical-align: top;"
+                    th:text="${asset.getAssetAddresses()}"></td>
+            </tr>
+
+            <tr th:if="${asset.getAssetAliases() != null}">
+                <td style="font-weight: bold;font-size: 12px;"
+                    th:text="'Aliases'"></td>
+            </tr>
+            <tr th:if="${asset.getAssetAliases() != null}">
+                <td style="font-size: 12px;height: 30px;vertical-align: top;"
+                    th:text="${asset.getAssetAliases()}"></td>
+            </tr>
+
+            <tr th:if="${asset.getAssetNotes() != null}">
+                <td style="font-weight: bold;font-size: 12px;"
+                    th:text="'Notes'"></td>
+            </tr>
+            <tr th:if="${asset.getAssetNotes() != null}">
+                <td style="font-size: 12px;height: 30px;vertical-align: top;"
+                    th:text="${asset.getAssetNotes()}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <hr/>
+    </div>
+
+    <div style="margin-bottom: 20px" th:if="${asset.getMetrics() != null && !asset.getMetrics().isEmpty()}">
+        <div style="text-align: center;margin-bottom: 10px;font-weight: bold;font-size: 13px;"
+             th:text="'Metrics Information'"></div>
+        <table style="width: 100%;border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;"
+                    th:text="'Metric Name'"></th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;"
+                    th:text="'Amount'"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="metric : ${asset.getMetrics()}">
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 12px;"
+                    th:text="${metric.getMetric()}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 12px;"
+                    th:text="${metric.getAmount()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-bottom: 20px" th:if="${asset.getPorts() != null}">
+        <div style="text-align: center;margin-bottom: 10px;font-weight: bold;font-size: 13px;"
+             th:text="'Ports Information'"></div>
+        <table style="width: 100%;border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;"
+                    th:text="'Port'"></th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;"
+                    th:text="'Tcp'"></th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;"
+                    th:text="'Udp'"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="port : ${asset.getPorts()}">
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 12px;"
+                    th:text="${port.getPort()}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 12px;"
+                    th:text="${port.getTcp()}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 12px;"
+                    th:text="${port.getUdp()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

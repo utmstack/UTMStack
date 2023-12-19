@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  lang="en">
+<head>
+    <title th:text="#{email.alert.title}">Utmstack alert notification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}"/>
+</head>
+<body>
+<div>
+    <h1 style="font-family:Roboto, sans-serif;">
+        <b style="color: black">UTM</b>
+        <b style="color: #0d47a1; position: absolute">STACK</b>
+    </h1>
+</div>
+
+<p style="font-family: Roboto, sans-serif; background: #232f3e; padding: 5px 5px; color: #fff;">
+    Alert Detail Summary
+</p>
+
+<div style="padding: 0 1%;">
+    <div th:insert="mail/fragments/alert-detail-fragment.html :: alert-detail"></div>
+    <hr>
+</div>
+
+<div style="padding: 0 1%;">
+    <div style="font-family:Roboto, sans-serif;font-size: 13px">
+        <p>Best regards</p>
+        <p>
+            UTMStack
+            <br>
+            <a th:href="${baseUrl}">
+                utmstack.com
+            </a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

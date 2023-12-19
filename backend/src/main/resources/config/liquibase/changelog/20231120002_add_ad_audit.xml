@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231120002" author="Freddy">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (800, 'User Auditor', null, null, 1, null, 12, true, false, 'active-directory-federation-services.svg', 'AD_AUDIT');
+
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (801, 'User Audit', 'active-directory/view', 800, 1, null, 1, true, false, null, null);
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (801, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (801, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (800, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (800, 'ROLE_USER');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

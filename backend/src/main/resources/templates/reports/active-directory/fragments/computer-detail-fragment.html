@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="computer-detail">
+    <div style="border-bottom: solid 1px;">
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th style="width: 10%;"></th>
+                <th style="width: 40%;"></th>
+                <th style="width: 10%;"></th>
+                <th style="width: 40%;"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                    DETAILS
+                </td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Type:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getType()) ? object.getType() : '-'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getCn()) ? object.getCn() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Id:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getObjectSid()) ? object.getObjectSid() : '-'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">SAM Account Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getsAMAccountName()) ? object.getsAMAccountName() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Os:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getOperatingSystem()) ? object.getOperatingSystem() : '-'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">Os Version:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getOperatingSystemVersion()) ? object.getOperatingSystemVersion() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Distinguished Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getDistinguishedName()) ? object.getDistinguishedName() : '-'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">DNS Host Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getdNSHostName()) ? object.getdNSHostName() : '-'}"></td>
+            </tr>
+            <!--///////////////////////////////////////////////////-->
+            <th:block th:if="${not #lists.isEmpty(object.getIps())}">
+                <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                    <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                        IP LIST
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding-left: 5px; padding-top: 5px;">
+                        <div style="width: 100%;">
+                            <table style="width: 100%;">
+                                <thead>
+                                <tr style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: bold;">
+                                    <th style="width: 20%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                        Interface Index
+                                    </th>
+                                    <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                        Suffix Origin
+                                    </th>
+                                    <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                        Prefix Length
+                                    </th>
+                                    <th style="width: 20%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                        IP Address
+                                    </th>
+                                    <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                        Prefix Origin
+                                    </th>
+                                    <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                        Address State
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="ip : ${object.getIps()}"
+                                    style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: 100;">
+                                    <td th:text="${ip.getInterfaceIndex()}"></td>
+                                    <td th:text="${ip.getSuffixOrigin()}"></td>
+                                    <td th:text="${ip.getPrefixLength()}"></td>
+                                    <td th:text="${ip.getIPAddress()}"></td>
+                                    <td th:text="${ip.getPrefixOrigin()}"></td>
+                                    <td th:text="${ip.getAddressState()}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            <!--///////////////////////////////////////////////////-->
+            <th:block th:if="${not #lists.isEmpty(object.getLocalGroups())}"
+                      th:with="groups=${object.getLocalGroups()}">
+                <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                    <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                        GROUPS
+                    </td>
+                </tr>
+                <tr th:each="group : ${groups}">
+                    <td colspan="4" style="padding-left: 5px; padding-top: 5px;">
+                        <div style="width: 100%; display: table; font-family:Roboto, sans-serif;font-size: 8px;">
+                            <div
+                                style="display: table-row; font-weight: bold;">
+                                <div style="display: table-cell; width: 6%;">
+                                    Name:
+                                </div>
+                                <div style="display: table-cell; font-weight: 100;" th:text="${group.getName()}">
+                                </div>
+                            </div>
+                            <div
+                                style="display: table-row; font-weight: bold;">
+                                <div style="display: table-cell; width: 6%;">
+                                    Description:
+                                </div>
+                                <div style="display: table-cell; font-weight: 100;" th:text="${group.getDescription()}">
+                                </div>
+                            </div>
+                            <div
+                                style="display: table-row; font-weight: bold;">
+                                <div style="display: table-cell; width: 6%;">
+                                    Memebers:
+                                </div>
+                                <div th:if="${not #lists.isEmpty(group.getMembers())}"
+                                     th:with="members = ${group.getMembers()}"
+                                     style="display: table-cell; font-weight: 100;">
+                                    <table style="width: 100%;">
+                                        <thead>
+                                        <tr style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: bold;">
+                                            <th style="width: 20%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Name
+                                            </th>
+                                            <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Type
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="member : ${members}"
+                                            style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: 100;">
+                                            <td th:text="${member.getName()}"></td>
+                                            <td th:text="${member.getObjectClass()}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            <!--///////////////////////////////////////////////////-->
+            <th:block th:if="${not #lists.isEmpty(object.getLocalFolders())}"
+                      th:with="folders=${object.getLocalFolders()}">
+                <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                    <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                        FOLDERS
+                    </td>
+                </tr>
+                <tr th:each="folder : ${folders}">
+                    <td colspan="4" style="padding-left: 5px; padding-top: 5px;">
+                        <div style="width: 100%; display: table; font-family:Roboto, sans-serif;font-size: 8px;">
+                            <div
+                                style="display: table-row; font-weight: bold;">
+                                <div style="display: table-cell; width: 6%;">
+                                    Folder:
+                                </div>
+                                <div style="display: table-cell; font-weight: 100;" th:text="${folder.getFolder()}">
+                                </div>
+                            </div>
+                            <div
+                                style="display: table-row; font-weight: bold;">
+                                <div style="display: table-cell; width: 6%;">
+                                    Owner:
+                                </div>
+                                <div style="display: table-cell; font-weight: 100;" th:text="${folder.getOwner()}">
+                                </div>
+                            </div>
+                            <div
+                                style="display: table-row; font-weight: bold;">
+                                <div style="display: table-cell; width: 6%;">
+                                    Access:
+                                </div>
+                                <div th:if="${not #lists.isEmpty(folder.getAccess())}"
+                                     th:with="accs = ${folder.getAccess()}"
+                                     style="display: table-cell; font-weight: 100;">
+                                    <table style="width: 100%;">
+                                        <thead>
+                                        <tr style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: bold;">
+                                            <th style="width: 20%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Is Inherited
+                                            </th>
+                                            <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Identity Reference
+                                            </th>
+                                            <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Inheritance Flags
+                                            </th>
+                                            <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Access Control Type
+                                            </th>
+                                            <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                Propagation Flags
+                                            </th>
+                                            <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                                File System Rights
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="acc : ${accs}"
+                                            style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: 100;">
+                                            <td th:text="${acc.getIsInherited()}"></td>
+                                            <td th:text="${acc.getIdentityReference()}"></td>
+                                            <td th:text="${acc.getInheritanceFlags()}"></td>
+                                            <td th:text="${acc.getAccessControlType()}"></td>
+                                            <td th:text="${acc.getPropagationFlags()}"></td>
+                                            <td th:text="${acc.getFileSystemRights()}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            <!--///////////////////////////////////////////////////-->
+            <th:block th:if="${not #lists.isEmpty(object.getLocalUsers())}"
+                      th:with="users=${object.getLocalUsers()}">
+                <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                    <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                        USERS
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding-left: 5px; padding-top: 5px;">
+                        <table style="width: 100%;">
+                            <thead>
+                            <tr style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: bold;">
+                                <th style="width: 20%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                    Name
+                                </th>
+                                <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                    Description
+                                </th>
+                                <th style="width: 16%; text-align: left; padding: 1px 1px;border: 1px solid #dddddd;background-color: #dddddd;">
+                                    Enabled
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user, iterStat : ${users}"
+                                style="font-family:Roboto, sans-serif;font-size: 8px; font-weight: 100;">
+                                <td th:text="${user.getName()}"
+                                    th:style="${iterStat.odd ? 'border: 1px solid #f1f1f1;background-color: #f1f1f1;' : null}"></td>
+                                <td th:text="${user.getDescription()}"
+                                    th:style="${iterStat.odd ? 'border: 1px solid #f1f1f1;background-color: #f1f1f1;' : null}"></td>
+                                <td th:text="${user.getEnabled()}"
+                                    th:style="${iterStat.odd ? 'border: 1px solid #f1f1f1;background-color: #f1f1f1;' : null}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

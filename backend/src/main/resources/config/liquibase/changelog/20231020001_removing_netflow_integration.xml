@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231020001" author="Freddy">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            DELETE FROM utm_menu_authority WHERE menu_id in (115,214);
+            DELETE FROM utm_menu WHERE id in (115,214);
+            DELETE FROM utm_index_pattern WHERE pattern = 'log-netflow-*';
+            DELETE FROM utm_group_logstash_pipeline_filters WHERE pipeline_id = 20;
+            DELETE FROM utm_logstash_filter WHERE filter_name = 'netflow';
+            DELETE FROM utm_data_source_config WHERE data_type = 'netflow';
+            DELETE FROM utm_module WHERE module_name = 'NETFLOW';
+
+            DELETE FROM utm_compliance_report_config WHERE dashboard_id in (232,250);
+            DELETE FROM utm_dashboard_visualization WHERE id_dashboard in (232,250);
+            DELETE FROM utm_dashboard WHERE id in (232,250);
+            DELETE FROM utm_visualization WHERE id in (524,525,526);
+
+            DELETE FROM utm_logstash_input_configuration WHERE id=4;
+            DELETE FROM utm_logstash_input WHERE id=4;
+            DELETE FROM utm_logstash_pipeline WHERE id=20;
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>
