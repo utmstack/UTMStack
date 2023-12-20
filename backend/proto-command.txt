@@ -1,0 +1,4 @@
+cd src/main/resources/protos
+protoc --java_out=${absolute path to the package}/agent_grpc  *.proto
+
+protoc --java_out=/src/main/java/com/park/utmstack/service/incident_response/agent_grpc/ --grpc-java_out=/src/main/java/com/park/utmstack/service/incident_response/agent_grpc/ *.proto

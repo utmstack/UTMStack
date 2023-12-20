@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231027001" author="Freddy">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            DELETE FROM utm_menu_authority WHERE menu_id in (235,258);
+            DELETE FROM utm_menu WHERE id in (235,258);
+            DELETE FROM utm_index_pattern WHERE pattern in ('log-firewall-ufw-*','log-rsyslog-linux-*');
+            DELETE FROM utm_group_logstash_pipeline_filters WHERE pipeline_id in (34,41);
+            DELETE FROM utm_logstash_filter WHERE module_name in ('UFW','LINUX_LOGS');
+            DELETE FROM utm_data_source_config WHERE data_type in ('rsyslog-linux','firewall-ufw');
+            DELETE FROM utm_module WHERE module_name in ('UFW','LINUX_LOGS');
+
+            DELETE FROM utm_logstash_input_configuration WHERE id in (23,57);
+            DELETE FROM utm_logstash_input WHERE id in (23,57);
+            DELETE FROM utm_logstash_pipeline WHERE id in (34,41);
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

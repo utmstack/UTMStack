@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="group-detail">
+    <div style="border-bottom: solid 1px;">
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th style="width: 10%;"></th>
+                <th style="width: 40%;"></th>
+                <th style="width: 10%;"></th>
+                <th style="width: 40%;"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                    DETAILS
+                </td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Type:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getType()) ? object.getType() : '-'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getCn()) ? object.getCn() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Id:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getObjectSid()) ? object.getObjectSid() : '-'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">Description:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getDescription()) ? object.getDescription() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Administrator:</td>
+                <td style="vertical-align: top;" th:text="${object.getAdminCount() ? 'Yes' : 'No'}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Distinguished Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getDistinguishedName()) ? object.getDistinguishedName() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold; padding-left: 5px;">Creation Date:</td>
+                <td style="vertical-align: top;"
+                    th:text="${#strings.isEmpty(object.getWhenCreated()) ? '-' : object.getWhenCreated()}"></td>
+                <!---->
+                <td style="vertical-align: top; font-weight: bold;">Modification Date:</td>
+                <td style="vertical-align: top;"
+                    th:text="${#strings.isEmpty(object.getWhenChanged()) ? '-' : object.getWhenChanged()}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 8px;">
+                <td style="vertical-align: top; font-weight: bold;">SAM Account Name:</td>
+                <td style="vertical-align: top;"
+                    th:text="${not #strings.isEmpty(object.getsAMAccountName()) ? object.getsAMAccountName() : '-'}"></td>
+            </tr>
+            <!--//////////////////////////////////////////////-->
+            <th:block th:if="${not #lists.isEmpty(object.getMemberClean())}"
+                      th:with="members = ${object.getMemberClean()}">
+                <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                    <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                        MEMBERS
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding-left: 5px; padding-top: 5px;">
+                        <ul style="font-family:Roboto, sans-serif;font-size: 8px;">
+                            <li th:each="member : ${members}" th:text="${member}"></li>
+                        </ul>
+                    </td>
+                </tr>
+            </th:block>
+            <!--//////////////////////////////////////////////-->
+            <th:block th:if="${not #lists.isEmpty(object.getMemberOfClean())}"
+                      th:with="parents = ${object.getMemberOfClean()}">
+                <tr style="font-family:Roboto, sans-serif;font-size: 10px; font-weight: bold;">
+                    <td colspan="4" style="padding: 1px 1px;border: 1px solid #9e9e9e;background-color: #9e9e9e;">
+                        MEMBER OF
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding-left: 5px; padding-top: 5px;">
+                        <ul style="font-family:Roboto, sans-serif;font-size: 8px;">
+                            <li th:each="parent : ${parents}" th:text="${parent}"></li>
+                        </ul>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

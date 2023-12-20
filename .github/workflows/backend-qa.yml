@@ -1,0 +1,15 @@
+name: UTMStack API - QA
+on:
+  pull_request:
+    branches: [ "rc" ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-java.yml
+    with:
+      image_name: backend
+      environment: v10-qa
+      directory: backend
+      branch: main
