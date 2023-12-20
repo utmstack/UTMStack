@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231017002" author="Freddy">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            ----------------------------------
+            -- Adding syslog index_pattern  --
+            ----------------------------------
+            INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+            VALUES(62, 'log-syslog-*', 'SYSLOG', true, true);
+
+            ------------------------
+            ----- Updating menu-----
+            ------------------------
+            UPDATE utm_menu SET url='discover/log-analyzer?patternId=62&indexPattern=log-syslog-*'
+            WHERE id=259;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

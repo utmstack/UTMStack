@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Two Factor Authentication Verification Code</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p th:text="${'Dear ' + user.login}">
+</p>
+<p>
+    This is your verification code for the next authentication step. This code is valid only for 5 minutes.
+</p>
+<p th:text="${tfaCode}">
+</p>
+<p>
+    <span>Regards, </span>
+    <br/>
+    <em>UtmStack Team.</em>
+</p>
+</body>
+</html>

@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+package agent;
+
+option java_multiple_files = true;
+option java_generic_services = true;
+option java_outer_classname = "AgentManagerGrpc";
+option java_package = "com.park.utmstack.service.grpc";
+
+import "google/protobuf/timestamp.proto";
+
+service AgentService {
+    rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
+    rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+    rpc UpdateAgentType (AgentTypeUpdate) returns (Agent) {}
+    rpc UpdateAgentGroup (AgentGroupUpdate) returns (Agent) {}
+    rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
+    rpc GetAgentByHostname (Hostname) returns (Agent) {}
+    rpc ListAgentsWithCommands (ListRequest) returns (ListAgentsResponse) {}
+    rpc DeleteAgent(AgentDelete) returns (AgentResponse) {}
+}
+
+service PanelService {
+    rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
+}
+
+service AgentGroupService {
+    rpc CreateGroup (AgentGroup) returns (AgentGroup){}
+    rpc EditGroup (AgentGroup) returns (AgentGroup){}
+    rpc ListGroups (ListRequest) returns (ListAgentsGroupResponse){}
+    rpc DeleteGroup (Id) returns (Id){}
+}
+
+service AgentTypeService {
+    rpc ListAgentTypes (ListRequest) returns (ListAgentsTypeResponse){}
+}
+
+message Id{
+    int64 id = 1;
+}
+
+message Hostname{
+    string hostname = 1;
+}
+
+message Agent {
+    string ip = 1;
+    string hostname = 2;
+    string os = 3;
+    AgentStatus status = 4;
+    string platform = 5;
+    string version = 6;
+    string agent_key = 7;
+    uint32 id = 8;
+    string last_seen = 9;
+    string mac = 10 ;
+    string os_major_version = 11;
+    string os_minor_version = 12;
+    string aliases = 13;
+    string addresses = 14;
+}
+
+message AgentTypeUpdate {
+    uint32 agent_id = 1;
+    uint32 agent_type = 2;
+}
+
+message AgentGroupUpdate {
+    uint32 agent_id = 1;
+    uint32 agent_group = 3;
+}
+
+enum AgentStatus {
+    ONLINE = 0;
+    OFFLINE = 1;
+    UNKNOWN = 2;
+}
+
+message AgentRequest {
+    string ip = 1;
+    string hostname = 2;
+    string os = 3;
+    string platform = 4;
+    string version = 5;
+    string register_by = 6;
+    string mac = 7 ;
+    string os_major_version = 8;
+    string os_minor_version = 9;
+    string aliases = 10;
+    string addresses = 11;  // IP secondary ips
+}
+
+message AgentResponse {
+    uint32  id = 1;
+    string agent_key = 2;
+}
+
+message AgentDelete {
+    string deleted_by = 1;
+    string agent_key = 2;
+}
+
+
+message UtmCommand {
+    string agent_key = 1;
+    string command = 2;
+    string executed_by = 3;
+    string cmd_id = 4;
+    string origin_type = 5;
+    string origin_id = 6;
+    string reason = 7;
+}
+
+message CommandResult {
+    string agent_key = 1;
+    string result = 2;
+    google.protobuf.Timestamp executed_at = 3;
+    string cmd_id = 4;
+}
+
+message PingRequest {
+    string agent_key = 1;
+}
+
+message PingResponse {
+    bool is_alive = 1;
+    string  agent_key = 2;
+}
+
+message BidirectionalStream {
+    oneof stream_message {
+        UtmCommand command = 1;
+        CommandResult result = 2;
+        AuthResponse auth_response = 3;
+    }
+}
+
+message AuthResponse {
+    uint64 agent_id = 1;
+    string agent_key = 2;
+}
+
+message ListRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    string search_query = 3;
+    string sort_by = 4;
+}
+
+message ListAgentsResponse {
+    repeated Agent rows = 1;
+    int32 total = 2;
+}
+
+message ListAgentsCommandsResponse {
+    repeated AgentCommand rows = 1;
+    int32 total = 2;
+}
+
+enum AgentCommandStatus {
+    NOT_EXECUTED = 0;
+    QUEUE = 1;
+    PENDING = 2;
+    EXECUTED = 3;
+    ERROR = 4;
+}
+
+message AgentCommand {
+    google.protobuf.Timestamp created_at = 1;
+    google.protobuf.Timestamp updated_at = 2;
+    uint32 agent_id = 3;
+    string command = 4;
+    AgentCommandStatus command_status = 5;
+    string result = 6;
+    string executed_by = 7;
+    string cmd_id = 8;
+    Agent agent = 9;
+    string reason = 10;
+    string origin_type = 11;
+    string origin_id = 12;
+}
+
+message AgentType {
+    uint32 id = 1;
+    string type_name = 2;
+}
+
+message AgentGroup  {
+    uint32 id = 1;
+    string group_name = 2;
+    string group_description = 3;
+}
+
+message ListAgentsGroupResponse {
+    repeated AgentGroup rows = 1;
+    int32 total = 2;
+}
+
+message ListAgentsTypeResponse {
+    repeated AgentType rows = 1;
+    int32 total = 2;
+}

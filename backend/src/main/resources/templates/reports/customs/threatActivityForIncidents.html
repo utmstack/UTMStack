@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Utmstack Incident Notification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}"/>
+</head>
+<body>
+
+<div>
+    <img th:if="${logo}" th:src="${logo.getUserImg()}"/>
+    <h3 th:unless="${logo}" style="font-family:Roboto, sans-serif;"><b style="color: black">UTM</b><b
+        style="color: #0d47a1">STACK</b></h3>
+</div>
+<!--/*@thymesVar id="incidentType" type="com.park.utmstack.domain.reports.types.IncidentType"*/-->
+<!--/*@thymesVar id="srcResponses" type="com.park.utmstack.domain.incident_response.UtmIncidentJob"*/-->
+<!--/*@thymesVar id="destResponses" type="com.park.utmstack.domain.incident_response.UtmIncidentJob"*/-->
+<div
+    style="padding: 0;color:#2a2a2a;font-size:15px;font-family:Roboto, sans-serif;margin-bottom:50px;text-align:left;"
+    th:each="incidentType : ${incidents}"
+    th:with="incident=${incidentType.getIncident()},
+             srcResponses=${incidentType.getSrcResponses()},
+             destResponses=${incidentType.getDestResponses()}">
+    <div style="width: 100%;text-align: center;">
+        <h3 th:text="'[' + ${#strings.substring(incident.getId(), 0, 5)} + ']: ' + ${incident.getName()}"></h3>
+    </div>
+    <hr/>
+    <div>
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr style="font-family:Roboto, sans-serif;font-size: 11px">
+                <td style="font-weight: bold;">
+                    Status:
+                </td>
+                <td th:text="${incident.getStatusLabel() != null ? incident.getStatusLabel().getName().toUpperCase() : '-'}"></td>
+                <td style="font-weight: bold;">
+                    Datasource:
+                </td>
+                <td th:text="${incident.getDataSource() != null ? incident.getDataSource() : '-'}"></td>
+                <td style="font-weight: bold;">
+                    Severity:
+                </td>
+                <td th:text="${incident.getSeverityLabel() != null ? incident.getSeverityLabel().toUpperCase() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 11px">
+                <td style="font-weight: bold;">
+                    Category:
+                </td>
+                <td th:text="${incident.getCategory() != null ? incident.getCategory() : '-'}"></td>
+                <td style="font-weight: bold;">
+                    Protocol:
+                </td>
+                <td th:text="${incident.getProtocol() != null ? incident.getProtocol().toUpperCase() : '-'}"></td>
+                <td style="font-weight: bold;">
+                    Data type:
+                </td>
+                <td th:text="${incident.getDataType() != null ? incident.getDataType() : '-'}"></td>
+            </tr>
+            <tr style="font-family:Roboto, sans-serif;font-size: 11px">
+                <td style="font-weight: bold;">
+                    Created On:
+                </td>
+                <td th:with="timestampFormatted = ${incident.getTimestampFormatted()}"
+                    th:text="${#strings.isEmpty(timestampFormatted) ? '-' : timestampFormatted}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr/>
+    <div th:if="${incident.getDescription() != null || incident.getSolution() != null
+    }">
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${incident.getDescription() != null}">
+                <td style="font-weight: bold;font-size: 12px;">
+                    Incident Description
+                </td>
+            </tr>
+            <tr th:if="${incident.getDescription() != null}">
+                <td style="font-size: 11px;height: 30px;vertical-align: top;"
+                    th:text="${incident.getDescription()}"></td>
+            </tr>
+            <tr th:if="${incident.getSolution() != null}">
+                <td style="font-weight: bold;font-size: 12px;">
+                    Proposed Solution
+                </td>
+            </tr>
+            <tr th:if="${incident.getSolution() != null}">
+                <td style="font-size: 11px;height: 30px;vertical-align: top;"
+                    th:text="${incident.getSolution()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <div style="text-align: center;margin: 10px 0;font-weight: bold;font-size: 13px;">
+            Involved Hosts/IPs
+        </div>
+        <table style="width: 100%;border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    IP Address
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Port
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Hostname
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Country
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    City
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Type
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${incident.getSource() != null}">
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getSource().getIp() != null && !incident.getSource().getIp().isEmpty()) ? incident.getSource().getIp() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${incident.getSource().getPort() != null ? incident.getSource().getPort() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getSource().getHost() != null && !incident.getSource().getHost().isEmpty()) ? incident.getSource().getHost() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getSource().getCountry() != null && !incident.getSource().getCountry().isEmpty()) ? incident.getSource().getCountry() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getSource().getCity() != null && !incident.getSource().getCity().isEmpty()) ? incident.getSource().getCity() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;">Source</td>
+            </tr>
+            <tr th:if="${incident.getDestination() != null}">
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getDestination().getIp() != null && !incident.getDestination().getIp().isEmpty()) ? incident.getDestination().getIp() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${incident.getDestination().getPort() != null ? incident.getDestination().getPort() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getDestination().getHost() != null && !incident.getDestination().getHost().isEmpty()) ? incident.getDestination().getHost() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getDestination().getCountry() != null && !incident.getDestination().getCountry().isEmpty()) ? incident.getDestination().getCountry() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${(incident.getDestination().getCity() != null && !incident.getDestination().getCity().isEmpty()) ? incident.getDestination().getCity() : '-'}"></td>
+                <td style="border: 1px solid #dddddd;font-size: 11px;">Destination</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${srcResponses != null && !srcResponses.isEmpty()}">
+        <div style="text-align: center;margin: 10px 0;font-weight: bold;font-size: 13px;">
+            Incident responses for source host
+        </div>
+        <table style="width: 100%;border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Action
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Status
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;width: 30%;">
+                    Params
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;width: 40%;">
+                    Result
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="srcResponse : ${srcResponses}">
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${srcResponse.getAction().getActionDescription() != null ? srcResponse.getAction().getActionDescription() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${srcResponse.getStatusLabel() != null ? srcResponse.getStatusLabel() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${srcResponse.getParams() != null ? srcResponse.getParams() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${srcResponse.getJobResult() != null ? srcResponse.getJobResult() : '-'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-bottom: 20px;" th:if="${destResponses != null && !destResponses.isEmpty()}">
+        <div style="text-align: center;margin: 10px 0;font-weight: bold;font-size: 13px;">
+            Incident responses for destination host
+        </div>
+        <table style="width: 100%;border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Action
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;">
+                    Status
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;width: 30%;">
+                    Params
+                </th>
+                <th style="padding: 3px 3px;border: 1px solid #dddddd;background-color: #dddddd;font-size: 12px;width: 40%;">
+                    Result
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="destResponse : ${destResponses}">
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${destResponse.getAction().getActionDescription() != null ? destResponse.getAction().getActionDescription() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${destResponse.getStatusLabel() != null ? destResponse.getStatusLabel() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${destResponse.getParams() != null ? destResponse.getParams() : '-'}"></td>
+                <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 11px;"
+                    th:text="${destResponse.getJobResult() != null ? destResponse.getJobResult() : '-'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

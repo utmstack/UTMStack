@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <include file="config/liquibase/changelog/20231013001_init_database.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231017001_update_syslog_macos_and_generic_pipeline.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231017002_adding_menu_and_index_pattern_syslog_module.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231017003_updating_logstash_filters.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231020001_removing_netflow_integration.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231025001_updating_old_gcp_configurations.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231026001_updating_data_source_config_values.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231027001_removing_ufw_and_linuxlogs_integrations.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231104001_fix_user_default_password.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231120001_fixing_soc_ai_integration_function.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231120002_add_ad_audit.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231129001_updating_mikrotik_filter.xml" relativeToChangelogFile="false"/>
+
+</databaseChangeLog>
