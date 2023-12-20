@@ -21,8 +21,8 @@ export class UtmCpCronEditorComponent implements ControlValueAccessor {
 
   disabled = false;
 
-  protected readonly TimeFrequency = TimeFrequency;
-  protected readonly DaysOfWeek = DaysOfWeek;
+  public readonly TimeFrequency = TimeFrequency;
+  public readonly DaysOfWeek = DaysOfWeek;
 
   months: { name: string, value: string }[] = Object.keys(MonthsOfYear).map(key => ({
     name: key,
