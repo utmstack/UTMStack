@@ -1,0 +1,47 @@
+<div class="card host-card">
+  <div class="p-1 d-flex justify-content-between align-items-center">
+    <div class="host-header-name">
+      <!--      <i (click)="toggleCheck()" [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"-->
+      <!--         class="cursor-pointer"></i>-->
+      <label class="ml-2 text-blue-800">
+        {{asset.name}}
+      </label>
+    </div>
+    <!--    <div class="host-header-action" ngbDropdown>-->
+    <!--      <span-->
+    <!--        class="cursor-pointer" ngbDropdownToggle-->
+    <!--        data-toggle="dropdown"-->
+    <!--        aria-expanded="true"></span>-->
+    <!--      <div class="dropdown-menu" x-placement="right"-->
+    <!--           ngbDropdownMenu-->
+    <!--           style="left: -140px !important;">-->
+    <!--        <ul>-->
+    <!--          <li class="dropdown-item cursor-pointer text-blue-800">-->
+    <!--            <span> los</span>-->
+    <!--          </li>-->
+    <!--          <li class="dropdown-item cursor-pointer text-blue-800">-->
+    <!--            <span> los</span>-->
+    <!--          </li>-->
+    <!--          <li class="dropdown-item cursor-pointer text-blue-800">-->
+    <!--            <span> los</span>-->
+    <!--          </li>-->
+    <!--          <li class="dropdown-item cursor-pointer text-blue-800">-->
+    <!--            <span> los</span>-->
+    <!--          </li>-->
+    <!--          <li class="dropdown-item cursor-pointer text-blue-800">-->
+    <!--            <span> los</span>-->
+    <!--          </li>-->
+    <!--          <li class="dropdown-item cursor-pointer text-blue-800">-->
+    <!--            <span> los</span>-->
+    <!--          </li>-->
+    <!--        </ul>-->
+    <!--      </div>-->
+    <!--    </div>-->
+  </div>
+  <div class="card-body asset-card-body">
+    <app-asset-severity-chart [severity]="asset.host.severity.value" [type]="'card'"></app-asset-severity-chart>
+    <div class="mt-3">
+      <app-asset-os [asset]="asset"></app-asset-os>
+    </div>
+  </div>
+</div>

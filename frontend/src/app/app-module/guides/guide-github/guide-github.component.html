@@ -1,0 +1,59 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      GitHub
+    </h4>
+  </div>
+  <div class="card-body">
+    <h6 class="font-weight-semibold mb-3">
+      You can install webhooks on an organization or on a specific repository.
+    </h6>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          To set up a webhook, go to the settings page of your repository or organization.
+          <img alt="GitHub" class="step-img"
+               height="auto" src="../../../../assets/img/guides/github/webhook.png"
+               width="800">
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          From there, click Webhooks, then Add webhook.
+        </p>
+        <h6 class="font-weight-semibold mb-3 mt-3">Setting up a webhook</h6>
+        <div class="d-flex flex-column">
+          <label class="font-weight-semibold mb-1">Payload URL</label>
+          <code>https://{{instance}}:8080/v1/github-webhook</code>
+
+          <label class="font-weight-semibold mb-1 mt-2">Content type</label>
+          <code>application/json</code>
+
+          <label class="font-weight-semibold mb-1 mt-2">Secret</label>
+          <p>Copy the <a class="text-primary font-weight-semibold font-size-base"
+                         routerLink="/app-management/settings/connection-key">panel connection key</a> and copy in the
+            Secret field.</p>
+
+        </div>
+
+        <img alt="GitHub" class="step-img"
+             height="auto" src="../../../../assets/img/guides/github/github-webhook.png"
+             width="800">
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">3</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.GITHUB"
+                                        [type]="'integration'" class="mt-3"
+                                        [serverId]="serverId">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>
+
+

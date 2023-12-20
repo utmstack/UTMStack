@@ -1,0 +1,127 @@
+<div class="modal-header">
+  <h4 class="modal-title">Set up your admin account</h4>
+</div>
+<div class="container-fluid p-3">
+  <div class="d-flex justify-content-center align-items-center">
+    <span inlineSVG="assets/icons/system/USER_MANAGE.svg" class="svg-icon svg-icon-grey svg-icon-10x"></span>
+  </div>
+  <p class="text-justify font-size-lg mt-3">
+    Please set an email
+    <ng-container *ngIf="inSass">and password</ng-container>
+    for your admin account. It will be used for account-related notifications and password recovery.
+  </p>
+  <form [formGroup]="formEmail" class="form mt-3">
+    <div class="form-group">
+      <label class="pb-1 span-small-icon" for="ip">
+        <i
+          [ngClass]="formEmail.get('email').valid?'icon-checkmark-circle text-success'
+                 :'text-danger icon-circle2'"
+          [ngbTooltip]="'This param is required'"
+          class="mr-1"
+          container="body"
+          placement="auto"></i>
+        Enter your email</label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(formEmail.get('email'))"
+             class="border-1 border-grey-600 form-control" formControlName="email"
+             id="ip"
+             name="ip">
+      <app-formcontrol-error [formcontrol]="formEmail.get('email')"></app-formcontrol-error>
+    </div>
+    <ng-container>
+      <div class="form-group" *ngIf="!inSass">
+        <label class="span-small-icon" for="currentPassword">
+          <i
+            [ngClass]="currentPassword!==''?'icon-checkmark-circle text-success'
+                 :'text-danger icon-circle2'"
+            [ngbTooltip]="'This param is required'"
+            class="mr-1"
+            container="body"
+            placement="auto"></i>Current password</label>
+        <input #currentPasswordInput="ngModel" [(ngModel)]="currentPassword" class="form-control" id="currentPassword"
+               name="currentPassword"
+               [ngModelOptions]="{standalone:true}"
+               required type="password">
+        <div *ngIf="currentPasswordInput.dirty && currentPasswordInput.invalid">
+          <small *ngIf="currentPasswordInput.errors.required"
+                 class="form-text text-danger">
+            Your password is required.
+          </small>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="pb-1 span-small-icon" for="newPassword">
+          <i
+            [ngClass]="newPassword!==''?'icon-checkmark-circle text-success'
+                 :'text-danger icon-circle2'"
+            [ngbTooltip]="'This param is required'"
+            class="mr-1"
+            container="body"
+            placement="auto"></i>
+          New password</label>
+        <input #newPasswordInput="ngModel" [(ngModel)]="newPassword" class="form-control mb-2" id="newPassword"
+               maxlength=50
+               [ngModelOptions]="{standalone:true}"
+               minlength=4
+               name="newPassword" required type="password">
+        <div *ngIf="newPasswordInput.dirty && newPasswordInput.invalid" class="mb-2">
+          <small *ngIf="newPasswordInput.errors.required"
+                 class="form-text text-danger">
+            Your password is required.
+          </small>
+          <small *ngIf="newPasswordInput.errors.minlength"
+                 class="form-text text-danger">
+            Your password is required to be at least 4 characters.
+          </small>
+          <small *ngIf="newPasswordInput.errors.maxlength"
+                 class="form-text text-danger">
+            Your password cannot be longer than 50 characters.
+          </small>
+        </div>
+        <app-password-strength-bar [passwordToCheck]="newPassword"></app-password-strength-bar>
+      </div>
+      <div class="form-group">
+        <label class="pb-1 span-small-icon" for="confirmPassword">
+          <i
+            [ngClass]="confirmPassword===newPassword?'icon-checkmark-circle text-success'
+                 :'text-danger icon-circle2'"
+            [ngbTooltip]="'This param is required'"
+            class="mr-1"
+            container="body"
+            placement="auto"></i>
+          Confirm password</label>
+        <input #confirmPasswordInput="ngModel" [(ngModel)]="confirmPassword" class="form-control" id="confirmPassword"
+               maxlength=50
+               [ngModelOptions]="{standalone:true}"
+               minlength=4
+               name="confirmPassword" required type="password">
+        <div *ngIf="confirmPasswordInput.dirty && confirmPasswordInput.invalid">
+          <small *ngIf="confirmPasswordInput.errors.required"
+                 class="form-text text-danger">
+            Your confirmation password is required.
+          </small>
+          <small *ngIf="confirmPasswordInput.errors.minlength"
+                 class="form-text text-danger">
+            Your confirmation password is required to be at least 4 characters.
+          </small>
+          <small *ngIf="confirmPasswordInput.errors.maxlength"
+                 class="form-text text-danger">
+            Your confirmation password cannot be longer than 50 characters.
+          </small>
+          <small *ngIf="confirmPassword !== newPassword" class="form-text text-danger">
+            The password and its confirmation do not match!
+          </small>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+
+  <div class="button-container d-flex justify-content-end">
+
+    <button (click)="saveAccount()"
+            [disabled]="saving || !isValid()"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="saving?'icon-spinner2 spinner':'icon-user'"></i>
+      Set up
+    </button>
+  </div>
+</div>

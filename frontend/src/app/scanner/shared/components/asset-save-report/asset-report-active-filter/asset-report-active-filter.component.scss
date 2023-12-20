@@ -1,0 +1,12 @@
+.utm-box {
+  position: relative;
+  z-index: 1;
+
+  .utm-box-label {
+    position: absolute;
+    top: -16px;
+    left: 10px;
+    z-index: 3;
+    background: white;
+  }
+}

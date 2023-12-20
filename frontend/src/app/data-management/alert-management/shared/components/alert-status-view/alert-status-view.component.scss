@@ -1,0 +1,9 @@
+.status-container {
+  max-width: 95px;
+}
+
+.item-status {
+  &:hover {
+    background-color: #eef4ff;
+  }
+}

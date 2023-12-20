@@ -1,0 +1,324 @@
+<app-utm-modal-header [name]="mode==='simple'?'New asset discovery':task?'Edit task':'New task'"
+                      class="w-100"></app-utm-modal-header>
+
+<div class="p-3 create-task-container task-form-container">
+  <div *ngIf="task && task.alterable!=='1'"
+       class="alert alert-info alert-styled-right mb-2 mt-2">
+    <span class="font-weight-semibold">Information! </span>
+    <span>
+         This task was created with the "alterable" attribute equal to true, due to this configuration, Target, Scan and Scan config cannot be changed
+    </span>
+  </div>
+  <form [formGroup]="taskForm" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1" for="name">Name</label>
+      <input [ngClass]="inputClass.resolveClassInput(taskForm.get('name'))"
+             class="border-1 border-grey-600 form-control" formControlName="name"
+             id="name"
+             name="name">
+      <app-formcontrol-error [formcontrol]="taskForm.get('name')"></app-formcontrol-error>
+    </div>
+
+    <div class="form-group">
+      <label class="pb-1" for="comment">Comments</label>
+      <textarea [ngClass]="inputClass.resolveClassInput(taskForm.get('comment'))"
+                class="border-1 border-grey-600 form-control" formControlName="comment" id="comment"
+                name="comment"
+                rows="2">
+        </textarea>
+      <app-formcontrol-error [formcontrol]="taskForm.get('comment')"></app-formcontrol-error>
+    </div>
+    <!--targets-->
+    <div class="mt-3 d-flex align-items-center w-75">
+      <div class="d-flex flex-column flex-grow-1">
+        <label class="pb-1" for="name">Target</label>
+        <ng-select [clearable]="false"
+                   [items]="targets"
+                   [loadingText]="'Loading targets...'"
+                   [loading]="loadingTarget"
+                   [ngClass]="inputClass.resolveClassInput(taskForm.get('targetId'))"
+                   [searchable]="true"
+                   bindLabel="name"
+                   bindValue="uuid"
+                   formControlName="targetId"
+                   style="width: 201px">
+        </ng-select>
+        <app-formcontrol-error [formcontrol]="taskForm.get('targetId')"></app-formcontrol-error>
+      </div>
+      <div class="add-action-form ml-3 pt-3">
+           <span (click)="newTarget()">
+             <i class="icon-plus3"></i>
+             Add target
+           </span>
+      </div>
+    </div>
+    <!--alert-->
+    <!--      <div class="mt-3 d-flex align-items-center w-75">-->
+    <!--        <div class="d-flex flex-column flex-grow-1">-->
+    <!--          <label for="name" class="pb-1">Alerts</label>-->
+    <!--          <ng-select [items]="targets"-->
+    <!--                     bindLabel="name"-->
+    <!--                     autofocus-->
+    <!--                     [searchable]="true"-->
+    <!--                     bindValue="id">-->
+    <!--          </ng-select>-->
+    <!--        </div>-->
+    <!--        <div class="add-action-form ml-3">-->
+    <!--           <span>-->
+    <!--             <i class="icon-plus3"></i>-->
+    <!--             Add Alert-->
+    <!--           </span>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--schedules-->
+    <div class="mt-3 d-flex align-items-center">
+      <div class="d-flex flex-column flex-grow-1">
+        <label class="pb-1" for="name">Schedules</label>
+        <ng-select (change)="setSchedule($event)"
+                   [clearable]="false"
+                   [items]="schedules"
+                   [loadingText]="'Loading schedules...'"
+                   [loading]="loadingTarget"
+                   [ngClass]="inputClass.resolveClassInput(taskForm.get('scheduleId'))"
+                   [searchable]="true"
+                   bindLabel="name"
+                   bindValue="uuid"
+                   class="pr-4"
+                   formControlName="scheduleId">
+        </ng-select>
+        <app-formcontrol-error [formcontrol]="taskForm.get('scheduleId')"></app-formcontrol-error>
+      </div>
+      <div class="check ml-3 pt-3">
+        <input (change)="changePeriod($event)" [checked]="runOnce" class="form-check-input magic-checkbox"
+               formControlName="schedulePeriods" id="low"
+               name="schedulePeriods" type="checkbox">
+        <label class="mb-0" for="low">Run once</label>
+      </div>
+      <div class="add-action-form ml-3 pt-3">
+           <span (click)="newSchedule()">
+             <i class="icon-plus3"></i>
+             Add Schedule
+           </span>
+      </div>
+    </div>
+    <div *ngIf="mode === 'normal'" class="w-100">
+      <div class="row m-0 mb-3 mt-3">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+          <!--assets to result-->
+          <div class="d-flex justify-content-start flex-column">
+            <label class="pb-1" for="name">Add result to assets?</label>
+            <div class="d-flex justify-content-start align-items-center">
+              <input [value]="1"
+                     class="form-check-input magic-radio" formControlName="inAssets" id="yes"
+                     name="inAssets"
+                     type="radio">
+              <label class="mb-0" for="yes">
+                Yes
+              </label>
+              <input [value]="0"
+                     class="form-check-input magic-radio" formControlName="inAssets"
+                     id="no"
+                     name="inAssets"
+                     type="radio">
+              <label class="mb-0 ml-4" for="no">
+                No
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+          <!--      applyOverride-->
+          <div class="d-flex justify-content-center align-items-center flex-column">
+            <label class="pb-1" for="name">Apply Overrides?</label>
+            <div class="d-flex justify-content-start align-items-center">
+              <input [value]="1"
+                     class="form-check-input magic-radio" formControlName="applyOverrides"
+                     id="applyOverrideYes"
+                     name="applyOverrides"
+                     type="radio">
+              <label class="mb-0" for="applyOverrideYes">
+                Yes
+              </label>
+              <input [value]="0"
+                     class="form-check-input magic-radio" formControlName="applyOverrides"
+                     id="applyOverrideNo"
+                     name="applyOverrides"
+                     type="radio">
+              <label class="mb-0 ml-4" for="applyOverrideNo">
+                No
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-0 mb-3 mt-3">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+          <!--assets to result-->
+          <div class="form-group">
+            <label class="pb-1" for="minQoD">Min QoD</label>
+            <div class="input-group">
+              <input class="form-control" formControlName="minQod" id="minQoD"
+                     type="number">
+              <div class="input-group-append">
+                <span class="input-group-text bg-blue-800 text-white">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+          <div class="d-flex justify-content-center align-items-center flex-column h-100">
+            <label class="pb-1" for="name">Alterable Task?</label>
+            <div class="d-flex justify-content-start align-items-center pt-2">
+              <input class="form-check-input magic-radio"
+                     formControlName="alterable"
+                     [value]="1"
+                     id="alterableTaskYes"
+                     name="alterable"
+                     type="radio">
+              <label class="mb-0" for="alterableTaskYes">
+                Yes
+              </label>
+              <input class="form-check-input magic-radio"
+                     formControlName="alterable"
+                     [value]="0"
+                     id="alterableTaskNo"
+                     name="alterable"
+                     type="radio">
+              <label class="mb-0 ml-4" for="alterableTaskNo">
+                No
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-0 mb-3 mt-3 justify-content-start flex-column">
+        <label class="pb-1" for="name">Auto Delete Reports?</label>
+        <div class="row m-0 pt-2">
+          <div class="col-lg-6 pl-0 col-md-6 col-sm-12">
+            <input [value]="0"
+                   class="form-check-input magic-radio" formControlName="autoDelete"
+                   id="autoDeleteYes"
+                   name="autoDelete"
+                   type="radio">
+            <label class="mb-0" for="autoDeleteYes">
+              Do not automatically delete reports
+            </label>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-12">
+            <input [value]="1"
+                   class="form-check-input magic-radio" formControlName="autoDelete"
+                   id="autoDeleteNo"
+                   name="autoDelete"
+                   type="radio">
+            <label class="mb-0" for="autoDeleteNo">
+              Automatically delete oldest reports but always keep newest
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!--targets-->
+      <div class="row m-0 mb-3 mt-3">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+          <!--assets to result-->
+          <div class="d-flex flex-column">
+            <label class="pb-1 pt-1" for="name">Scanner</label>
+            <ng-select [clearable]="false"
+                       [items]="scanners"
+                       [loadingText]="'Loading scanners...'"
+                       [loading]="loadingScanners"
+                       [ngClass]="inputClass.resolveClassInput(taskForm.get('scannerId'))"
+                       [searchable]="true"
+                       bindLabel="name"
+                       bindValue="uuid"
+                       formControlName="scannerId">
+            </ng-select>
+            <app-formcontrol-error [formcontrol]="taskForm.get('scannerId')"></app-formcontrol-error>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+          <div class="d-flex flex-column">
+            <label class="pb-1 pt-1" for="name">Scan config</label>
+            <ng-select [clearable]="false"
+                       [items]="configs"
+                       [loadingText]="'Loading config scanners...'"
+                       [loading]="loadingScannersConfig"
+                       [ngClass]="inputClass.resolveClassInput(taskForm.get('scannerId'))"
+                       [searchable]="true"
+                       bindLabel="name"
+                       bindValue="uuid"
+                       formControlName="configId">
+            </ng-select>
+            <app-formcontrol-error [formcontrol]="taskForm.get('scannerId')"></app-formcontrol-error>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-0 mb-3 mt-3">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+          <!--      applyOverride-->
+          <div class="form-group">
+            <label class="pb-1" for="network">Network Source Interface</label>
+            <input class="border-1 border-grey-600 form-control" formControlName="sourceIface" id="network"
+                   name="">
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+          <div class="form-group">
+            <label class="pb-1" for="nvts">Max executed NVTs per host</label>
+            <input class="border-1 border-grey-600 form-control" formControlName="maxChecks" id="nvts" name=""
+                   type="number">
+          </div>
+        </div>
+        <!--        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">-->
+        <!--          &lt;!&ndash;assets to result&ndash;&gt;-->
+        <!--          <div class="d-flex flex-column">-->
+        <!--            <label for="name" class="pb-1">Order for target hosts</label>-->
+        <!--            <ng-select [items]="hostOrder"-->
+        <!--                       bindLabel="id"-->
+        <!--                       [searchable]="true"-->
+        <!--                       [clearable]="false"-->
+        <!--                       formControlName="hostsOrdering"-->
+        <!--                       bindValue="id">-->
+        <!--            </ng-select>-->
+        <!--          </div>-->
+        <!--        </div>-->
+      </div>
+      <!--      <div class="form-group w-50">-->
+      <!--        <label for="nvts" class="pb-1">Maximum concurrently executed NVTs per host</label>-->
+      <!--        <input name="" type="number" id="nvts" class="border-1 border-grey-600 form-control"-->
+      <!--               formControlName="maxChecks">-->
+      <!--      </div>-->
+      <div class="row">
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1" for="scanned">Maximum scanned hosts</label>
+            <input class="border-1 border-grey-600 form-control" formControlName="maxHosts" id="scanned" name=""
+                   type="number">
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createTask()"
+            *ngIf="!task" [disabled]="!taskForm.valid || creating" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-task'"></i>&nbsp;
+      Save
+    </button>
+    <button (click)="editTask()"
+            *ngIf="task" [disabled]="!taskForm.valid || creating" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-task'"></i>&nbsp;
+      Edit
+    </button>
+  </div>
+</div>
+
+

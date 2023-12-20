@@ -1,0 +1,33 @@
+<div [ngbTooltip]="note==='' ?'Add note':note"
+     placement="top"
+     tooltipClass="utm-tooltip-top">
+<span #notePopober=ngbPopover
+      [ngbPopover]="colContent"
+      [popoverTitle]="colTitle"
+      autoClose="outside"
+      class="text-blue-800 position-relative cursor-pointer small-md-icon"
+      container="body"
+      placement="auto"
+      popoverClass="utm-popover"
+      triggers="click">
+  <i [ngClass]="creating?'icon-spinner2 spinner':note==='' ? 'icon-pencil3' : 'icon-pencil4'"></i>
+  <span *ngIf="showNote" class="ml-3">
+    {{note}}
+  </span>
+</span>
+</div>
+<ng-template #colContent>
+  <div class="w-100">
+    <textarea [(ngModel)]="note" class="form-control" rows="5"></textarea>
+  </div>
+
+
+  <div class="d-flex justify-content-around align-items-center my-2">
+     <span (click)="addNote();notePopober.close()" class="badge badge-flat border-primary text-blue-800 cursor-pointer span-small-icon">
+         <i class="icon-pencil3"></i>&nbsp;Apply comment
+    </span>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Comment</h6>
+</ng-template>

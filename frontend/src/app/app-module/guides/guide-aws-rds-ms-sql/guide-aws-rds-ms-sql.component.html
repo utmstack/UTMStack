@@ -1,0 +1,60 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      AWS RDS MS-SQL
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      For this integration to work properly, first you need to configure the IAM user for UTMStack.
+    </div>
+
+    <ol class="setup_list">
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Open the Amazon RDS console at
+          <a class="text-primary font-weight-semibold" href="https://console.aws.amazon.com/rds/" target="_blank">https://console.aws.amazon.com/rds/</a>
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          In the navigation pane, choose Databases and then choose the DB instance that you want
+          to modify.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Choose Modify.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          In the Log exports section, choose the logs that you want to start publishing to
+          CloudWatch Logs. You can choose error, agent, or both.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Choose Continue and then choose Modify DB Instance on the summary page.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">6</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.AWS_SQL_SERVER"
+                                        [type]="'integration'" class="mt-3"
+                                        [serverId]="serverId">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>

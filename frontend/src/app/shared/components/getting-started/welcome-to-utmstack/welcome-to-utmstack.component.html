@@ -1,0 +1,43 @@
+<div class="bg-image-utmstack bg-image-utmstack-blurry"></div>
+<div class="container getting-started d-flex flex-column justify-content-between">
+  <div class="row flex-column justify-content-center align-items-center ">
+    <h1 class="font-weight-thin">Welcome to UTMStack</h1>
+    <h5 class="mt-3 font-weight-thin">Kick things off by quickly sending data to our data collectors</h5>
+
+    <div class="row justify-content-center align-items-center mt-5 w-100">
+      <div class="setup-card card text-center p-3 m-0 d-flex flex-column align-items-center
+       justify-content-between">
+          <span class="mb-3 mt-1 svg svg-icon svg-muted svg-icon-5x"
+                inlineSVG="/assets/icons/system/SPEED_OPTIMIZATION.svg"></span>
+
+        <h5 class="card-title font-weight-thin">Quick setup</h5>
+        <p class="mb-3 font-weight-thin font-size-base">
+          Follow simple step-by-step instruction to start protecting your devices
+        </p>
+        <button class="btn utm-button mb-3 utm-button-primary" (click)="gettingStarted()">
+          Get started
+        </button>
+      </div>
+      <h6 class="text-muted ml-4 mr-4">or</h6>
+      <div class="setup-card card text-center p-3 m-0 d-flex flex-column align-items-center
+       justify-content-between">
+          <span class="mb-3 mt-1 svg svg-icon svg-muted svg-icon-5x"
+                inlineSVG="/assets/icons/system/TECHNICAL_TOOLS.svg"></span>
+
+        <h5 class="card-title font-weight-thin">Expert mode</h5>
+        <p class="mb-3 font-weight-thin font-size-base">
+          I will configure everything without instructions
+        </p>
+        <button class="btn utm-button mb-3 utm-button-primary" (click)="exit()">
+          Explore integrations
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <div class="row justify-content-between align-items-center">
+    <button class="btn utm-button utm-button-grey"><i class="icon-arrow-left8 mr-1" (click)="exit()"></i>Exit setup
+    </button>
+    <app-utm-online-documentation></app-utm-online-documentation>
+  </div>
+</div>

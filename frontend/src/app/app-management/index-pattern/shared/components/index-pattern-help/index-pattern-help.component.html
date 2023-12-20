@@ -1,0 +1,44 @@
+<app-utm-modal-header [name]="'Index pattern help'"></app-utm-modal-header>
+<div class="container-fluid p-3 create-task-container">
+  <div class="d-flex flex-column justify-content-start align-items-start mt-2">
+    <div class="">
+      <div class="">
+        <div class="">
+          <div class="">
+            <div class="">
+              <p class="font-weight-bold text-blue-800">
+                Index patterns allow you to bucket disparate data sources
+                together so their shared fields may be queried in UTMStack.</p>
+            </div>
+          </div>
+          <hr class="">
+          <div class=""></div>
+          <dl class="">
+            <dt class="text-blue-800">Single data source</dt>
+            <p class="">
+              Index a single data source named log-west-001 so you can build
+              charts or query its contents fast.
+            </p>
+            <dt class="text-blue-800 mt-3">Multiple data sources</dt>
+            <p class="">
+              Group all incoming data sources starting with log-west* so you
+              can query against all your west coast server logs.
+            </p>
+            <dt class="text-blue-800 mt-3">Custom groupings</dt>
+            <p class="">
+              Specifically group your archived, monthly, roll-up metrics of
+              those logs into a separate index pattern so you can aggregate
+              historical trends to compare.
+            </p>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button bg-danger-400 mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Close
+    </button>
+  </div>
+</div>

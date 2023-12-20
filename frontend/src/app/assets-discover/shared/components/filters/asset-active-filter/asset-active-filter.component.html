@@ -1,0 +1,108 @@
+<div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+  <span class="p-1 utm-box-label">
+          <i class="icon-filter4"></i>
+          Active filters
+ </span>
+  <div class="status mb-3 d-flex justify-content-start align-items-center">
+    <span class="mr-1">
+      Discovered is between
+    </span>
+    <span class="font-weight-semibold text-blue-800">
+     {{assetFilters.discoveredInitDate | date:'short':'UTC'}}
+    </span>
+    <span class="mr-1 ml-1">and</span>
+    <span class="font-weight-semibold text-blue-800">
+      {{assetFilters.discoveredEndDate | date:'short':'UTC'}}
+    </span>
+  </div>
+  <div class="status mb-3 d-flex justify-content-start align-items-center">
+    <span class="mr-1">
+      Assets alive is
+    </span>
+    <span class="font-weight-semibold text-blue-800 ">
+     {{assetFilters.alive === null ? 'All' : assetFilters.alive === true ? 'Yes' : 'No'}}
+    </span>
+  </div>
+  <div *ngIf="assetFilters.assetIpMacName"
+       class="status mb-3 d-flex justify-content-start align-items-center">
+    <span class="mr-1">
+      Where MAC, IP or Hostname contains
+    </span>
+    <span class="font-weight-semibold text-blue-800 ">
+     {{assetFilters.assetIpMacName}}
+    </span>
+  </div>
+  <div *ngIf="assetFilters.severity && assetFilters.severity.length>0"
+       class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label font-weight-thin">
+         Severity is one of
+     </span>
+    <div class="d-flex justify-content-start flex-wrap">
+      <span *ngFor="let severity of assetFilters.severity"
+            class="badge badge-flat border-primary text-primary-600 font-size-sm m-1">
+        {{severity}}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="assetFilters.status && assetFilters.status.length>0"
+       class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label font-weight-thin">
+          Status is one of
+     </span>
+    <div class="d-flex justify-content-start flex-wrap">
+      <span *ngFor="let status of assetFilters.status"
+            class="badge badge-flat border-primary text-primary-600 font-size-sm m-1">
+        {{status}}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="assetFilters.type && assetFilters.type.length>0"
+       class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label font-weight-thin">
+          Type is one of
+     </span>
+    <div class="d-flex justify-content-start flex-wrap">
+      <span *ngFor="let type of assetFilters.type"
+            class="badge badge-flat border-primary text-primary-600 font-size-sm m-1">
+        {{type}}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="assetFilters.openPorts && assetFilters.openPorts.length>0"
+       class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label font-weight-thin">
+          Port is one of
+     </span>
+    <div class="d-flex justify-content-start flex-wrap">
+      <span *ngFor="let port of assetFilters.openPorts"
+            class="badge badge-flat border-primary text-primary-600 font-size-sm m-1">
+        {{port}}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="assetFilters.os && assetFilters.os.length>0"
+       class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label font-weight-thin">
+          OS is one of
+     </span>
+    <div class="d-flex justify-content-start flex-wrap">
+      <span *ngFor="let os of assetFilters.os"
+            class="badge badge-flat border-primary text-primary-600 font-size-sm m-1">
+        {{os}}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="assetFilters.probe && assetFilters.probe.length>0"
+       class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label font-weight-thin">
+          Probe is one of
+     </span>
+    <div class="d-flex justify-content-start flex-wrap">
+      <span *ngFor="let pro of assetFilters.probe"
+            class="badge badge-flat border-primary text-primary-600 font-size-sm m-1">
+        {{pro}}
+      </span>
+    </div>
+  </div>
+</div>
+

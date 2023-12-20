@@ -1,0 +1,114 @@
+<form [formGroup]="formLegendOption">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewLegendProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewLegend?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Legend</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewLegend" class="properties-options">
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="formLegendOption.get('show').setValue($event)" [active]="true"
+                      label="Show legend?">
+      </app-utm-toggle>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendPosition">
+        Legend vertical position
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="legendPositionsTop"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="top"
+                 id="legendPosition">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendPosition">
+        Legend horizontal position
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="legendPositionsLeft"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="left"
+                 id="legendPositionLeft">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendOrientation">
+        Legend orientation
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="legendOrientations"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="orient"
+                 id="legendOrientation">
+      </ng-select>
+    </div>
+    <div class="row m-0 mt-3 p-0">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="form-group">
+          <label class="pb-1" for="itemWidth">Color Width</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="itemWidth"
+                 id="itemWidth"
+                 name=""
+                 type="number">
+        </div>
+
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+        <div class="form-group">
+          <label class="pb-1" for="itemHeight">Color height</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="itemHeight"
+                 id="itemHeight"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+    </div>
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="useCustomIcon($event)" [active]="false"
+                      label="Use custom icon for legend?"></app-utm-toggle>
+    </div>
+    <div *ngIf="!useIcon" class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendIcons">
+        Legend icon
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="legendIcons"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="icon"
+                 id="legendIcons">
+      </ng-select>
+    </div>
+    <div *ngIf="useIcon" class="form-group mt-3">
+      <label class="pb-1" for="customIcon">Custom icon&nbsp;
+        <span class="text-blue-800 cursor-pointer"
+              ngbTooltip="It can be set to an image with image://url,
+                   in which URL is the link to an image, or dataURI of an image,
+                   also icon can be set to arbitrary vector path via path://"
+              placement="top"
+              tooltipClass="utm-tooltip-top">
+             <i class="icon-question3"></i>
+           </span>
+      </label>
+      <textarea class="border-1 border-grey-600 form-control" formControlName="icon"
+                id="customIcon"
+                name=""
+                type="text"></textarea>
+    </div>
+  </div>
+</form>

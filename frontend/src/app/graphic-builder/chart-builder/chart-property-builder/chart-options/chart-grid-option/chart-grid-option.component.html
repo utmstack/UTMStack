@@ -1,0 +1,54 @@
+<form [formGroup]="formGridOption">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewGridProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewGrid?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Grid</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewGrid" class="properties-options">
+    <div class="top-grid d-flex justify-content-center align-items-center">
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="top">Top</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="top"
+               id="top"
+               name=""
+               type="text">
+      </div>
+    </div>
+    <div class="right-left-center d-flex align-items-center justify-content-between">
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="left">Left</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="left"
+               id="left"
+               name=""
+               type="text">
+      </div>
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="right">Right</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="right"
+               id="right"
+               name=""
+               type="text">
+      </div>
+    </div>
+    <div class="bottom-grid d-flex justify-content-center align-items-center">
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="bottom">Bottom</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="bottom"
+               id="bottom"
+               name=""
+               type="text">
+      </div>
+    </div>
+
+    <!--    <div class="form-group mt-3">-->
+    <!--      <label class="pb-1" for="top">Background Color</label>-->
+    <!--      <app-color-select (colorChange)="formGridOption.get('backgroundColor').setValue($event[0])"-->
+    <!--                        [colors]="formGridOption.get('backgroundColor').value"-->
+    <!--                        [multiple]="false">-->
+    <!--      </app-color-select>-->
+    <!--    </div>-->
+  </div>
+</form>

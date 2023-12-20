@@ -1,0 +1,13 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Application settings
+    </h6>
+  </div>
+
+  <div class="card-body w-100">
+    <div *ngFor="let sect of sections" class="w-100 mb-3 card p-3">
+      <app-config-sections [section]="sect"></app-config-sections>
+    </div>
+  </div>
+</div>

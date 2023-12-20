@@ -1,0 +1,202 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2 tab-header">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      {{title}}
+    </h5>
+    <div class="">
+      <button class="btn utm-button utm-button-primary"
+              routerLink="/active-directory/overview">
+        <i class="icon-chart"></i>
+        View dashboard
+      </button>
+      <button (click)="downloadReport()"
+              *ngIf="selected.length>0"
+              class="btn utm-button utm-button-primary  ml-2">
+        <i class="icon-download"></i>
+        Generate report ({{selected.length}})
+      </button>
+      <button (click)="adToTracking()"
+              *ngIf="selected.length>0"
+              class="btn utm-button utm-button-primary ml-2">
+        <i class="icon-target mr-1"></i>Track selected ({{selected.length}})
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-2 pr-0">
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+        </div>
+        <app-active-directory-filter (adFilterChange)="onAdFilterChange($event)"
+                                     [sAMAccountName]="sAMAccountName">
+        </app-active-directory-filter>
+      </div>
+    </div>
+    <div class="col-lg-10">
+      <div class="card h-100">
+        <div class="card bg-light border-0 m-0 p-0">
+          <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+            <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 1%">
+              </th>
+              <th class="text-center font-weight-semibold text-uppercase" style="width: 15px;">
+                <i (click)="toggleAllSelection()"
+                   [ngClass]="allSelected?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                   class="cursor-pointer"></i>
+              </th>
+              <th class="text-center font-weight-semibold text-uppercase" style="width: 15px;"></th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Name&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Account&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Member of&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Last logon&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Created at&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase text-center" style="width:8%">
+                Action&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody *ngFor="let adInfo of adInfos" [hidden]="!(adInfos || adInfos.length>0) && !loading">
+            <tr>
+              <td (click)="viewDetail===adInfo.id?viewDetail='':viewDetail=adInfo.id"
+                  class="cursor-pointer pr-0"
+                  style="width:15px">
+                <span class="text-blue-800">
+                  <i [ngClass]="viewDetail===adInfo.id?'icon-arrow-up32':'icon-arrow-down32'"></i>
+                </span>
+              </td>
+              <td class="text-center pr-0 pl-0">
+                <i (click)="addToSelected(adInfo)"
+                   [ngClass]="isSelected(adInfo)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                   class="cursor-pointer"></i>
+              </td>
+              <td class="text-center pr-0">
+                <i [ngClass]="objectIconResolver(adInfo)"
+                   [ngbTooltip]="" class="text-blue-800 font-size-sm"
+                   placement="top"
+                   tooltipClass="utm-tooltip-top"></i>
+              </td>
+              <td (click)="viewEvent=adInfo" class="cursor-pointer">
+                <span class="text-blue-800">
+                   {{adInfo.cn}}
+                </span>
+              </td>
+              <td (click)="viewEvent=adInfo" class="cursor-pointer">
+                <span>
+                   {{adInfo.sAMAccountName}}
+                </span>
+              </td>
+              <td (click)="viewEvent=adInfo" class="cursor-pointer">
+                <app-ad-member-of [members]="adInfo.memberOfClean"></app-ad-member-of>
+              </td>
+              <td (click)="viewEvent=adInfo" class="cursor-pointer">
+                <span>
+                   {{(adInfo.realLastLogon !== '0') ? (adInfo.realLastLogon| date:formatDateEnum.UTM_SHORT:'UTC') : 'Never'}}
+                </span>
+              </td>
+              <td (click)="viewEvent=adInfo" class="cursor-pointer">
+                <span>
+                   {{adInfo.whenCreated | date:formatDateEnum.UTM_SHORT:'UTC'}}
+                </span>
+              </td>
+              <td class="td-action text-center">
+                <div class="d-flex justify-content-center align-items-center medium-icon">
+                  <i (click)="trackUser(adInfo)"
+                     [ngClass]="!isTracked(adInfo)?'icon-target':'icon-target2'"
+                     class="cursor-pointer text-blue-800"
+                     ngbTooltip="Add to tracking"
+                     placement="left"
+                     tooltipClass="utm-tooltip"></i>
+                  <i (click)="downloadSingleReport(adInfo)"
+                     class="icon-download ml-3 text-blue-800 cursor-pointer"
+                     ngbTooltip="Download report"
+                     placement="left"
+                     tooltipClass="utm-tooltip"></i>
+                  <i (click)="viewEvent=adInfo"
+                     class="icon-list2 ml-3 text-blue-800 cursor-pointer"
+                     ngbTooltip="View Events"
+                     placement="left"
+                     tooltipClass="utm-tooltip"></i>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="adInfo.id=== viewDetail">
+              <td colspan="9">
+                <app-active-directory-detail [adInfo]="adInfo"></app-active-directory-detail>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="(!adInfos || adInfos.length===0) && !loading">
+            <tr>
+              <td colspan="9">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td colspan="9">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading...'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="adInfos && adInfos.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage($event)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="viewEvent" class="utm-right-container">
+  <div (click)="viewEvent= undefined" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Events of {{viewEvent.cn}} <span
+        *ngIf="this.apiUrl.includes('amount-of-users-scaled-privileges-details')">({{'scaled permission events'}}
+        )</span>
+      </h6>
+      <button (click)="viewEvent= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-active-directory-event [eventsFilter]="events"
+                                [objectId]="viewEvent.objectSid" [time]="timeFilter"></app-active-directory-event>
+  </div>
+</div>

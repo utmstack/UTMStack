@@ -1,0 +1,211 @@
+// defining app colors
+//$primary-color: #1565c0;
+$primary-color: #232f3e;
+//$primary-color: #63b175;
+$primary-color-hover: #1a202f;
+$blue-scroll: #0277bd;
+$blue-component: #0277bd;
+$active: #0a6ebd;
+$success-color: #4caf50;
+$danger-color: #f44336;
+$grey-color: #888;
+$white-color: #f1f1f1;
+$utm-header-color: $primary-color;
+$utm-header-menu-text-color: #f1f1f1;
+$utm-header-menu-hover-color: #f8f9fa;
+$grey-border-color: #d3dae6;
+$red-color: #F44336;
+$blue-color: #2196F3;
+$success-color: #4CAF50;
+$info-color: #FF9800;
+$teal-color: #009688;
+$indigo-color: #303F9F;
+
+// Black color
+$black: #000000 !default;
+
+// White color
+$white: #ffffff !default;
+
+// Gray colors
+$gray-100: #F3F6F9 !default;
+$gray-200: #EBEDF3 !default;
+$gray-300: #E4E6EF !default;
+$gray-400: #D1D3E0 !default;
+$gray-500: #B5B5C3 !default;
+$gray-600: #7E8299 !default;
+$gray-700: #5E6278 !default;
+$gray-800: #3F4254 !default;
+$gray-900: #181C32 !default;
+
+// Dark colors
+$dark: $gray-900 !default;
+$dark-75: $gray-800 !default; // Custom variable
+$dark-65: $gray-700 !default; // Custom variable
+$dark-50: $gray-600 !default; // Custom variable
+$dark-25: $gray-400 !default; // Custom variable
+
+// Text muted
+$text-muted: $gray-500 !default; // Custom variable
+
+// Gray colors list
+$grays: (
+  "100": $gray-100,
+  "200": $gray-200,
+  "300": $gray-300,
+  "400": $gray-400,
+  "500": $gray-500,
+  "600": $gray-600,
+  "700": $gray-700,
+  "800": $gray-800,
+  "900": $gray-900
+) !default; // Custom variable
+
+// Dark colors
+$dark: $dark !default; // Bootstrap variable
+$dark-hover: darken($dark, 3%) !default; // Custom variable
+$dark-light: $gray-400 !default; // Custom variable
+$dark-inverse: $white !default; // Custom variable
+
+// Primary colors
+$primary: #3699FF !default; // Bootstrap variable
+$primary-hover: #187DE4 !default; // Custom variable
+$primary-light: #E1F0FF !default; // Custom variable
+$primary-inverse: $white !default; // Custom variable
+
+// Secondary colors
+$secondary: $gray-300 !default; // Bootstrap variable
+$secondary-hover: darken($gray-300, 4%) !default; // Custom variable
+$secondary-light: $gray-200 !default; // Custom variable
+$secondary-inverse: $dark-75 !default; // Custom variable
+
+// Success colors
+$success: #1BC5BD !default; // Bootstrap variable
+$success-hover: #0BB7AF !default; // Custom variable
+$success-light: #C9F7F5 !default; // Custom variable
+$success-inverse: $white !default; // Custom variable
+
+// Inco colors
+$info: #8950FC !default; // Bootstrap variable
+$info-hover: #7337EE !default; // Custom variable
+$info-light: #EEE5FF !default; // Custom variable
+$info-inverse: $white !default; // Custom variable
+
+// Warning colors
+$warning: #FFA800 !default; // Bootstrap variable
+$warning-hover: #EE9D01 !default; // Custom variable
+$warning-light: #FFF4DE !default; // Custom variable
+$warning-inverse: $white !default; // Custom variable
+
+// Danger colors
+$danger: #F64E60 !default; // Bootstrap variable
+$danger-hover: #EE2D41 !default; // Custom variable
+$danger-light: #FFE2E5 !default; // Custom variable
+$danger-inverse: $white !default; // Custom variable
+
+// Light colors
+$light: $gray-100 !default; // Bootstrap variable
+$light-hover: $gray-300 !default; // Custom variable
+$light-light: $gray-100 !default; // Custom variable
+$light-inverse: $gray-600 !default; // Custom variable
+
+// White colors
+$white: $white !default; // Bootstrap variable
+$white-hover: $gray-100 !default; // Custom variable
+$white-light: $white !default; // Custom variable
+
+$theme-text-colors: (
+  "white": $white-color,
+  "primary": $primary-color,
+  "active": $active,
+  "secondary": $dark,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": light,
+  "dark": $dark,
+  "dark-75": $dark-75,
+  "dark-65": $dark-65,
+  "dark-50": $dark-50,
+  "dark-25": $dark-25,
+  "muted": $text-muted
+);
+
+// Bootstrap theme colors
+$theme-colors: (
+  "white": $white, // custom color type
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark
+) !default;
+
+// Extended hover colors for Bootstrap theme colors
+$theme-hover-colors: (
+  "white": $white-hover, // custom color type
+  "primary": $primary-hover,
+  "secondary": $secondary-hover,
+  "success": $success-hover,
+  "info": $info-hover,
+  "warning": $warning-hover,
+  "danger": $danger-hover,
+  "light": $light-hover,
+  "dark": $dark-hover
+) !default; // Custom variable
+
+// Extended inverse colors for Bootstrap theme colors
+$theme-inverse-colors: (
+  "primary": $primary-inverse,
+  "secondary": $secondary-inverse,
+  "success": $success-inverse,
+  "info": $info-inverse,
+  "warning": $warning-inverse,
+  "danger": $danger-inverse,
+  "light": $light-inverse,
+  "dark": $dark-inverse
+) !default; // Custom variable
+
+// Extended outline colors for Bootstrap theme colors
+$theme-outline-inverse-colors: (
+  "white": $white,
+  "primary": $primary,
+  "secondary": $dark-75,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $dark-75,
+  "dark": $dark
+) !default; // Custom variable
+
+// Extended light colors for Bootstrap theme colors
+$theme-light-colors: (
+  "white": $white-light,
+  "primary": $primary-light,
+  "secondary": $secondary-light,
+  "success": $success-light,
+  "info": $info-light,
+  "warning": $warning-light,
+  "danger": $danger-light,
+  "light": $light-light,
+  "dark": $dark-light
+) !default; // Custom variable
+
+// Extended shadow colors for Bootstrap theme colors
+$theme-shadow-colors: (
+  "white": $dark,
+  "primary": $primary,
+  "secondary": $dark,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $dark,
+  "dark": $dark
+) !default; // Custom variable
+

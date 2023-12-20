@@ -1,0 +1,41 @@
+<div *ngIf="integrationConfig"
+     class="d-flex justify-content-between align-items-center flex-nowrap w-100">
+  <div class="form-group w-100 mb-4">
+    <label [for]="'sectionParam'+integrationConfig.id"
+           class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+      <span>
+        <i [ngbTooltip]="'This param is required'"
+           [ngClass]="(integrationConfig.confValue === '' || integrationConfig.confValue === null || integrationConfig.confValue=== undefined)?'text-danger':'text-success'"
+           class="icon-circle2 mr-1"
+           placement="auto"></i>
+        {{integrationConfig.confName}}
+      </span>
+      <span>
+          <i *ngIf="integrationConfig.confDescription"
+             [ngbTooltip]="integrationConfig.confDescription"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+      </span>
+    </label>
+    <input (input)="save($event)"
+           *ngIf="integrationConfig.confDataType !== 'bool' && integrationConfig.confDataType !== 'list'"
+           [(ngModel)]="integrationConfig.confValue"
+           [attr.autocomplete]="'disabled'"
+           [disabled]="saving"
+           [id]="'sectionParam'+integrationConfig.id"
+           [name]="integrationConfig.confName"
+           [type]="integrationConfig.confDataType"
+           class="form-control" required>
+    <app-utm-toggle (toggleChange)="save($event)"
+                    *ngIf="integrationConfig.confDataType === 'bool'"
+                    [active]="integrationConfig.confValue === 'true'"
+                    [label]="'Enable/Disable param configuration'"></app-utm-toggle>
+
+    <small
+      *ngIf="integrationConfig.confValue === '' || integrationConfig.confValue === null || integrationConfig.confValue=== undefined"
+      class="text-danger">
+      Param {{integrationConfig.confName}} is required
+    </small>
+  </div>
+  <i *ngIf="saving" class="text-primary icon-spinner2 spinner ml-2"></i>
+</div>
+<app-utm-spinner *ngIf="loadingConf" [label]="'Loading configuration'"></app-utm-spinner>

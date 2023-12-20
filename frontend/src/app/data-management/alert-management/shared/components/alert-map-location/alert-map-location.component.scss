@@ -1,0 +1,20 @@
+.map-legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.map-legend-color-source {
+  background-color: #c05050;
+}
+
+.map-legend-color-destination {
+  background-color: #004b8b;
+}
+
+.legend {
+  position: absolute;
+  top: 0;
+  right: 1px;
+  z-index: 500;
+}

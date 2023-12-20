@@ -1,0 +1,27 @@
+<div class="card-body p-0" *ngIf="!updatingMetrics">
+  <div class="row mb-3">
+    <div class="col-lg-6 col-md-12 col-sm-12">
+      <app-utm-http-requests-preview [httpPreview]="httpRequest">
+      </app-utm-http-requests-preview>
+    </div>
+    <div class="col-lg-6 col-md-12 col-sm-12">
+      <app-utm-services-overview *ngIf="services" [serviceData]="services">
+      </app-utm-services-overview>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-6 col-md-12 col-sm-12">
+      <app-utm-jvm-metrics [jvm]="metrics['jvm']" [loading]="updatingMetrics">
+      </app-utm-jvm-metrics>
+    </div>
+    <div class="col-lg-6 col-md-12 col-sm-12">
+      <app-utm-system-metrics [systemMetrics]="metrics['processMetrics']"
+                              [updating]="updatingMetrics">
+      </app-utm-system-metrics>
+    </div>
+  </div>
+</div>
+<div *ngIf="updatingMetrics" class="p-5 d-flex justify-content-center align-content-center">
+  <app-utm-spinner [height]="'35px'" [loading]="updatingMetrics"
+                   [width]="'35px'" label="Loading metrics"></app-utm-spinner>
+</div>

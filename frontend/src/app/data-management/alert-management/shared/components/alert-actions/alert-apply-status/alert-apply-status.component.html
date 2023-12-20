@@ -1,0 +1,37 @@
+<button #tagPopober=ngbPopover [ngbPopover]="colContent"
+        autoClose="outside"
+        class="p-1 text-blue-800 font-weight-light"
+        container="body"
+        id="statusId"
+        placement="auto"
+        popoverClass="utm-popover"
+        triggers="click">
+  <span>Change status <i class="icon-arrow-down32"></i></span>
+</button>
+
+<ng-template #colContent>
+  <div *ngIf="statusFilter!=review" class="dropdown-item text-info-400">
+    <input [(ngModel)]="status" [checked]="status==review" [value]="review"
+           class="form-check-input magic-radio" id="inReviewStatus" name="review"
+           type="radio">
+    <label class="mb-0 span-small-icon" for="inReviewStatus">
+      <i [class]="reviewIcon"></i>&nbsp;In review</label>
+  </div>
+  <!--review-->
+  <!--close-->
+  <div class="dropdown-item text-blue-800">
+    <input [(ngModel)]="status" [checked]="status==closed" [value]="closed"
+           class="form-check-input magic-radio" id="closeStatus" name="closed"
+           type="radio">
+    <label class="mb-0 span-small-icon" for="closeStatus">
+      <i [class]="closedIcon"></i>&nbsp;Complete</label>
+  </div>
+  <!--close-->
+  <div class="d-flex justify-content-center my-2">
+    <span (click)="applyStatus();$event.stopPropagation();tagPopober.close()"
+          class="badge badge-flat border-primary text-blue-800 cursor-pointer span-small-icon my-2">
+          <i [ngClass]="!status?'icon-loop':status === closed?closedIcon:reviewIcon"></i>
+      Apply status
+    </span>
+  </div>
+</ng-template>

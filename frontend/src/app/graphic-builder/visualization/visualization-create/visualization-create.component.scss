@@ -1,0 +1,81 @@
+.card-icon {
+  font-weight: 400;
+  letter-spacing: -.005em;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-font-kerning: normal;
+  font-kerning: normal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  height: 96px;
+  width: 96px;
+  color: #69707D;
+  border: 1px solid #D3DAE6;
+  border-color: transparent;
+  border-radius: 4px;
+  -webkit-transition: border-color 150ms ease-in, -webkit-box-shadow 150ms ease-in;
+  transition: border-color 150ms ease-in, -webkit-box-shadow 150ms ease-in;
+  transition: border-color 150ms ease-in, box-shadow 150ms ease-in;
+  transition: border-color 150ms ease-in, box-shadow 150ms ease-in, -webkit-box-shadow 150ms ease-in;
+
+  &:hover, .euiKeyPadMenuItem:focus {
+    -webkit-box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+    box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+    border-color: #D3DAE6;
+  }
+
+  span {
+    margin-top: 10px;
+  }
+
+  .utm-icon-xs {
+    width: 24px;
+    height: 24px;
+  }
+
+}
+
+.chart-description {
+  height: 100%;
+  width: 100%;
+  position: relative;
+
+  .image-shadow {
+    position: absolute;
+    bottom: 25px;
+    right: 0;
+    opacity: 0.1;
+  }
+}
+
+.search-chart-container {
+  .input-group {
+    .input-group-text {
+      color: #777777;
+      background-color: #ffffff;
+      border-radius: 25px 0 0 25px;
+      border-right: 0 transparent solid;
+
+      + input:focus {
+        border-color: #0d47a1 !important;
+        outline: 1px !important;
+        box-shadow: 0 0 0 0 transparent !important;
+      }
+    }
+
+    input {
+      border-left: 0 transparent solid;
+      border-radius: 0 25px 25px 0;
+      padding-left: 0;
+    }
+  }
+}
+
+.card-chart-selected {
+  -webkit-box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+  box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+  border-color: #D3DAE6;
+}

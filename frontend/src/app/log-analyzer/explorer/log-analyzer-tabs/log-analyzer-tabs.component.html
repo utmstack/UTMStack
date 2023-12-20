@@ -1,0 +1,41 @@
+<div class="log-analyzer-container container-fluid pr-2 pl-2 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2 tab-header">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      Log analyzer
+    </h5>
+    <div class="header-elements">
+      <button class="btn utm-button utm-button-primary" routerLink="/discover/log-analyzer-queries">
+        <i class="icon-zoomin3 mr-1"></i> Queries
+      </button>
+    </div>
+  </div>
+  <ul class="nav nav-tabs">
+    <li (click)="tabChanged(tab)" *ngFor="let tab of tabs; let tabIndex = index"
+        class="nav-item">
+      <a [ngClass]="{'active':tab.active}" [ngbTooltip]="tab.title"
+         [openDelay]="1000"
+         class="nav-link"
+         placement="bottom"
+         tooltipClass="utm-tooltip-bottom">
+        <i (click)="removeTab(tabIndex)" class="icon-cross2 mr-2"></i>
+        {{tab.title}}
+      </a>
+    </li>
+    <li (click)="addNewTab()" class="nav-item">
+      <a class="nav-link">
+        <i class="icon-plus3"></i></a>
+    </li>
+  </ul>
+</div>
+<div *ngIf="tabs.length===0"
+     class="warning-empty-discovery w-100 p-5 mt-5 d-flex
+  justify-content-center align-items-center flex-column">
+  <i class="icon-zoomin3 icon-3x text-grey-300"></i>
+  <h6 (click)="addNewTab()"
+      class="text-blue-800 mt-3 cursor-pointer">Add new tab to explore your data</h6>
+</div>
+<div *ngIf="tabs.length>0">
+  <div *ngFor="let tab of tabs; let tabIndex = index" class="tab-container">
+    <app-tab-content [hidden]="tab !== tabSelected" [tab]="tab"></app-tab-content>
+  </div>
+</div>

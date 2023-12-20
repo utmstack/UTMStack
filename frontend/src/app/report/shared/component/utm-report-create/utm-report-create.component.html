@@ -1,0 +1,88 @@
+<app-utm-modal-header [name]="(report?'Edit':'Create') + ' report'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <div class="step-container">
+      <div class="step">
+         <span class="text-blue-800 font-weight-bold">
+          Report & Section
+        </span>
+        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-stack3'"></i>
+        </div>
+      </div>
+      <div class="step-link"></div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          View select
+        </span>
+        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-pie-chart8'"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="step===1" class="configure-step mt-3">
+    <form [formGroup]="formReport">
+      <div class="d-flex flex-column w-50 mb-3">
+        <label class="pb-1" for="reportSectionId">Section</label>
+        <ng-select [clearable]="false"
+                   [items]="reportSections"
+                   [loadingText]="'Loading sections...'"
+                   [loading]="!reportSections"
+                   bindLabel="repSecName"
+                   bindValue="id"
+                   formControlName="reportSectionId"
+                   id="reportSectionId">
+        </ng-select>
+        <app-formcontrol-error [formcontrol]="formReport.get('repName')"></app-formcontrol-error>
+      </div>
+      <div class="form-group">
+        <label class="pb-1" for="repName">Name</label>
+        <input [ngClass]="inputClass.resolveClassInput(formReport.get('repName'))"
+               class="border-1 border-grey-600 form-control" formControlName="repName"
+               id="repName"
+               name="">
+        <app-formcontrol-error [formcontrol]="formReport.get('repName')"></app-formcontrol-error>
+      </div>
+      <div class="form-group">
+        <label class="pb-1" for="repDescription">Description
+          ({{512 - formReport.get('repDescription').value.length}})</label>
+        <textarea [ngClass]="inputClass.resolveClassInput(formReport.get('repDescription'))"
+                  class="border-1 border-grey-600 form-control" formControlName="repDescription"
+                  id="repDescription"
+                  name=""
+                  rows="4"></textarea>
+        <app-formcontrol-error [formcontrol]="formReport.get('repName')"></app-formcontrol-error>
+      </div>
+    </form>
+  </div>
+  <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+    <app-utm-dashboard-select (dashboardSelected)="onDashboardSelected($event)"
+                              [idDashboard]="report?report.dashboardId:null">
+    </app-utm-dashboard-select>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="backStep()" *ngIf="step > 1"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-arrow-left22"></i>&nbsp;
+      Back
+    </button>
+    <button (click)="nextStep()" *ngIf="step ===1"
+            [disabled]="!formReport.valid"
+            class="btn utm-button utm-button-primary ml-2">
+      Next&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+
+    <button (click)="createCompliance()"
+            *ngIf="step===2"
+            [disabled]="!formReport.get('dashboardId').value"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-clipboard3'"></i>
+      {{report ? 'Edit' : 'Create'}} report&nbsp;
+    </button>
+  </div>
+</div>
+

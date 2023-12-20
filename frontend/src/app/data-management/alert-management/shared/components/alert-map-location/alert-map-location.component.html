@@ -1,0 +1,19 @@
+<div class="position-relative">
+  <div class="d-flex justify-content-center align-items-start p-2 legend">
+    <div *ngIf="hasCoord('source')" class="d-flex align-items-center justify-content-start">
+      <div class="map-legend-color map-legend-color-source"></div>
+      <span class="ml-1 font-weight-semibold">Source</span>
+    </div>
+    <div *ngIf="hasCoord('destination')" class="d-flex align-items-center justify-content-start ml-3">
+      <div class="map-legend-color map-legend-color-destination"></div>
+      <span class="ml-1 font-weight-semibold">Destination</span>
+    </div>
+  </div>
+</div>
+<div id="mapLocation" style="width: 100%; height: 650px;display: block"
+     [hidden]="alertLocations.length===0">
+</div>
+<div *ngIf="alertLocations.length===0"
+     class="d-flex justify-content-center align-items-center" style="width: 100%; height: 400px">
+  <app-no-data-chart [typeChart]="chartType.MARKER_CHART"></app-no-data-chart>
+</div>

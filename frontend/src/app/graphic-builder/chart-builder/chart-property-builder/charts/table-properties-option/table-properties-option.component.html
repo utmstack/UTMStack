@@ -1,0 +1,44 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-table utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Table option</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="tableForm">
+      <app-utm-toggle (toggleChange)="tableForm.get('dynamicPageSize').setValue($event)"
+                      [active]="tableForm.get('dynamicPageSize').value" label="Dynamic page size?">
+      </app-utm-toggle>
+      <div *ngIf="!tableForm.get('dynamicPageSize').value" [ngClass]="{'mt-2':!tableForm.get('dynamicPageSize').value}"
+           class="form-group">
+        <label class="pb-1" for="itemsPerPage">Items per page</label>
+        <input [min]="1"
+               class="border-1 border-grey-600 form-control"
+               formControlName="itemsPerPage"
+               id="itemsPerPage"
+               type="number">
+      </div>
+      <div *ngIf="visualization.chartType === charTypeEnum.TABLE_CHART" class="mt-3">
+        <app-utm-toggle (toggleChange)="tableForm.get('showTotal').setValue($event)"
+                        [active]="tableForm.get('showTotal').value" label="Show total?">
+        </app-utm-toggle>
+      </div>
+      <div *ngIf="tableForm.get('showTotal').value" class="d-flex flex-column flex-grow-1 mt-3">
+        <label class="pb-1" for="cap">Total functions</label>
+        <ng-select [clearable]="false"
+                   [items]="aggs"
+                   [loadingText]="'Loading agg....'"
+                   [loading]="!aggs"
+                   bindLabel="name"
+                   formControlName="totalFunction"
+                   id="cap">
+        </ng-select>
+      </div>
+      <div class="mt-3">
+        <app-utm-toggle (toggleChange)="tableForm.get('exportCsv').setValue($event)"
+                        [active]="tableForm.get('exportCsv').value"
+                        label="Can it be exported to CSV?">
+        </app-utm-toggle>
+      </div>
+    </form>
+  </div>
+</div>

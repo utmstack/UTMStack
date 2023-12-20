@@ -1,0 +1,211 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 *ngIf="visualization && !mode"
+        class="card-title mb-0 text-uppercase label-header">
+      Visualization builder
+    </h5>
+    <h5 *ngIf="visualization && mode==='edit'"
+        class="card-title mb-0 text-uppercase label-header">
+      {{visualization.name}}
+    </h5>
+    <div class="header-elements d-flex">
+      <button (click)="saveVisualization()" [disabled]="!(metricNoErrors && bucketNoErrors)"
+              class="btn utm-button utm-button-primary d-flex">
+        <span [ngClass]="chartIconResolver()" class="mr-2 utm-icon-xs utm-icon-white"></span>
+        Save visualization
+      </button>
+      <button class="btn utm-button utm-button-grey d-flex ml-2"
+              (click)="cancel()">
+        Cancel
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="visualization && visualization.filterType" class="col-lg-12 col-sm-12 col-md-12">
+      <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
+                              [filters]="visualization.filterType"
+                              [pattern]="pattern"
+                              [defaultTime]="defaultTime"
+                              class="w-100">
+      </app-utm-elastic-filter>
+    </div>
+  </div>
+  <div class="row visualization-builder mt-2">
+    <div class="col-lg-3 col-md-12 col-sm-12 pr-2">
+      <!--      border-left-1 border-right-1 border-bottom-1 border-blue-800-->
+      <div class="">
+        <div class="p-2 d-flex
+        justify-content-between
+        align-items-center bg-utm-bar">
+          <label class="text-white">{{pattern}}</label>
+          <span (click)="runVisualization()" *ngIf="(metricNoErrors && bucketNoErrors)"
+                class="cursor-pointer"
+                ngbTooltip="Run visualization"
+                placement="top"
+                tooltipClass="utm-tooltip-top">
+            <i [ngClass]="running?'icon-spinner2 spinner':'icon-play4'"></i>
+            {{running ? 'Running' : 'Run'}}
+          </span>
+          <span *ngIf="(!metricNoErrors || !bucketNoErrors)"
+                class="cursor-pointer"
+                ngbTooltip="Unable to run"
+                placement="top"
+                tooltipClass="utm-tooltip-top">
+            <i class="icon-warning"></i>
+          </span>
+        </div>
+        <div [ngSwitch]="chart" class="p-0">
+          <app-chart-property-header
+            (propertySetting)="viewProperty($event)"
+            [confNotify]="resolveConfStatus()"
+            [headers]="headers">
+          </app-chart-property-header>
+
+          <div class="metric-property-container">
+            <div
+              [hidden]="property!==headers[0].name"
+              class="pt-2 metric-data-container w-100 h-100">
+              <app-metric-aggregation (metricDefChange)="onMetricChange($event)"
+                                      [hidden]="chart ===chartTypeEnum.LIST_CHART"
+                                      (metricErrors)="onMetricErrors($event)"
+                                      *ngIf="visualization"
+                                      [allowMultiMetric]="multipleMetrics.includes(chart)"
+                                      [mode]="mode"
+                                      [visualization]="visualization">
+              </app-metric-aggregation>
+              <app-bucket-aggregation (bucketChange)="onBucketChange($event)"
+                                      [hidden]="chart ===chartTypeEnum.LIST_CHART"
+                                      (bucketErrors)="onBucketErrors($event)"
+                                      *ngIf="visualization"
+                                      [chart]="chart"
+                                      [mode]="mode"
+                                      [visualization]="visualization">
+              </app-bucket-aggregation>
+              <app-list-columns (bucketChange)="onBucketChange($event)"
+                                (bucketErrors)="onBucketErrors($event)"
+                                *ngIf="visualization"
+                                [chart]="chart"
+                                [hidden]="chart !==chartTypeEnum.LIST_CHART"
+                                [mode]="mode"
+                                [visualization]="visualization"></app-list-columns>
+            </div>
+            <div *ngIf="visualization" [hidden]="property!==headers[1].name"
+                 class="pt-2 option-container w-100 h-100">
+              <app-metric-properties-option (metricOptions)="onMetricOptionChange($event)"
+                                            *ngSwitchCase="chartTypeEnum.METRIC_CHART"
+                                            [mode]="mode"
+                                            [visualization]="visualization">
+              </app-metric-properties-option>
+              <ng-container *ngSwitchCase="chartTypeEnum.PIE_CHART">
+                <app-pie-properties-options (pieOptions)="onPieOptionsChange($event)"
+                                            *ngIf="visualization.chartConfig"
+                                            [mode]="mode"
+                                            [visualization]="visualization">
+                </app-pie-properties-options>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.GAUGE_CHART">
+                <app-gauge-properties-option (gaugeOptions)="onGaugeOptionChange($event)"
+                                             *ngIf="visualization.chartConfig"
+                                             [mode]="mode"
+                                             [visualization]="visualization">
+                </app-gauge-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.GOAL_CHART">
+                <app-goal-properties-option (goalOptions)="onGoalOptionChange($event)"
+                                            *ngIf="visualization.chartConfig"
+                                            [mode]="mode"
+                                            [visualization]="visualization">
+                </app-goal-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.TABLE_CHART">
+                <app-table-properties-option (tableOptions)="onTableOptionChange($event)"
+                                             *ngIf="visualization.chartConfig"
+                                             [mode]="mode"
+                                             [visualization]="visualization">
+                </app-table-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.LIST_CHART">
+                <app-table-properties-option (tableOptions)="onTableOptionChange($event)"
+                                             *ngIf="visualization.chartConfig"
+                                             [mode]="mode"
+                                             [visualization]="visualization">
+                </app-table-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.TAG_CLOUD_CHART">
+                <app-tag-cloud-properties-option (tagCloudOptions)="onTagOptionsChange($event)"
+                                                 *ngIf="visualization.chartConfig"
+                                                 [mode]="mode"
+                                                 [visualization]="visualization">
+                </app-tag-cloud-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.LINE_CHART">
+                <app-line-bar-properties-option (lineOptions)="onLineOptionsChange($event)"
+                                                *ngIf="visualization.chartConfig"
+                                                [mode]="mode"
+                                                [visualization]="visualization">
+                </app-line-bar-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.AREA_LINE_CHART">
+                <app-line-bar-properties-option (lineOptions)="onLineOptionsChange($event)"
+                                                *ngIf="visualization.chartConfig"
+                                                [mode]="mode"
+                                                [visualization]="visualization">
+                </app-line-bar-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.BAR_CHART">
+                <app-line-bar-properties-option (lineOptions)="onLineOptionsChange($event)"
+                                                *ngIf="visualization.chartConfig"
+                                                [mode]="mode"
+                                                [visualization]="visualization">
+                </app-line-bar-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.BAR_HORIZONTAL_CHART">
+                <app-line-bar-properties-option (lineOptions)="onLineOptionsChange($event)"
+                                                *ngIf="visualization.chartConfig"
+                                                [mode]="mode"
+                                                [visualization]="visualization">
+                </app-line-bar-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.MARKER_CHART">
+                <app-scatter-map-properties-option (scatterMapOptions)="onScatterMapOptions($event)">
+                </app-scatter-map-properties-option>
+              </ng-container>
+              <ng-container *ngSwitchCase="chartTypeEnum.HEATMAP_CHART">
+                <app-heat-map-properties-option
+                  (heatMapOptionChange)="onHeatMapOptionChange($event)"></app-heat-map-properties-option>
+              </ng-container>
+            </div>
+            <div *ngIf="visualization" [hidden]="property!==headers[2].name"
+                 class="pt-2 metric-data-container w-100 h-100">
+              <app-chart-action (chartAction)="onChartActionChange($event)"></app-chart-action>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-9 col-md-12 col-sm-12 position-relative pl-0 pt-5">
+      <div class="data-visualization d-flex
+      justify-content-center align-items-start w-100 h-100 position-absolute">
+        <app-utm-viewer (runned)="onRunVisualization($event)"
+                        [building]="true"
+                        [chart]="chart"
+                        [chartId]="tempId"
+                        class="position-sticky"
+                        [height]="'400px'"
+                        [visualization]="visualization"
+                        [width]="'600px'">
+        </app-utm-viewer>
+      </div>
+    </div>
+  </div>
+</div>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="line-scale-pulse-out">
+  <p style="color: #0d47a1">Loading visualization</p>
+</ngx-spinner>

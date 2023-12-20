@@ -1,0 +1,32 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-heatmap utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Heat map</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formHeatMapOption">
+      <app-chart-axis-option (axisOptionChange)="formHeatMapOption.get('xAxis').setValue($event)"
+                             [axis]="'xAxis'"
+                             [onlyCategory]="true"></app-chart-axis-option>
+
+      <app-chart-axis-option (axisOptionChange)="formHeatMapOption.get('yAxis').setValue($event)"
+                             [axis]="'yAxis'"
+                             [onlyCategory]="true"></app-chart-axis-option>
+
+      <app-chart-legend-option (legendOptionChange)="formHeatMapOption.get('legend').setValue($event)">
+      </app-chart-legend-option>
+
+      <app-chart-visual-map-option
+        (visualMapOptionChange)="formHeatMapOption.get('visualMap').setValue($event)"></app-chart-visual-map-option>
+
+      <app-chart-toolbox-option
+        (toolboxOptionChange)="formHeatMapOption.get('toolbox').setValue($event)"></app-chart-toolbox-option>
+
+      <app-chart-data-zoom (dataZoomOption)="formHeatMapOption.get('dataZoom').setValue($event)"></app-chart-data-zoom>
+
+      <app-chart-grid-option (gridOptionChange)="formHeatMapOption.get('grid').setValue($event)"
+                             [gridOption]=""></app-chart-grid-option>
+
+    </form>
+  </div>
+</div>

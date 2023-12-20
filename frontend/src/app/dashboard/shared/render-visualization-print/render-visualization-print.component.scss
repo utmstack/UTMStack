@@ -1,0 +1,241 @@
+
+app-utm-viewer {
+  width: 100%;
+}
+
+@media print {
+  .col-lg-6 .col-md-6 .col-sm-6 .col-xs-6 {
+    width: 50% !important;
+  }
+  .col-lg-12 .col-md-12 .col-sm-12 .col-xs-12 {
+    width: 100% !important;
+  }
+}
+
+.col-print-6 {
+  width: 1100px;
+}
+
+.col-print-12 {
+  width: 1100px;
+}
+
+.container-export {
+  width: 100%;
+}
+
+/* (320x480) iPhone (Original, 3G, 3GS) */
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 470px;
+  }
+
+  .col-print-12 {
+    width: 470px;
+  }
+}
+
+/* (320x480) Smartphone, Portrait */
+@media only screen and (device-width: 320px) and (orientation: portrait) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 470px;
+  }
+
+  .col-print-12 {
+    width: 470px;
+  }
+}
+
+/* (320x480) Smartphone, Landscape */
+@media only screen and (device-width: 480px) and (orientation: landscape) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 470px;
+  }
+
+  .col-print-12 {
+    width: 470px;
+  }
+}
+
+/* (480x800) Android */
+@media only screen and (min-device-width: 480px) and (max-device-width: 800px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 600px;
+  }
+
+  .col-print-12 {
+    width: 600px;
+  }
+}
+
+/* (640x960) iPhone 4 & 4S */
+@media only screen and (min-device-width: 640px) and (max-device-width: 960px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 700px;
+  }
+
+  .col-print-12 {
+    width: 700px;
+  }
+}
+
+/* (720x1280) Galaxy Nexus, WXGA */
+@media only screen and (min-device-width: 720px) and (max-device-width: 1280px) {
+
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (720x1280) Galaxy Nexus, Landscape */
+@media only screen and (min-device-width: 720px) and (max-device-width: 1280px) and (orientation: landscape) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1024x768) iPad 1 & 2, XGA */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1000px;
+  }
+
+  .col-print-12 {
+    width: 1000px;
+  }
+}
+
+/* (768x1024) iPad 1 & 2, Portrait */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1024x768) iPad 1 & 2, Landscape */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (2048x1536) iPad 3 */
+@media only screen and (min-device-width: 1536px) and (max-device-width: 2048px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1280x720) Galaxy Note 2, WXGA */
+@media only screen and (min-device-width: 720px) and (max-device-width: 1280px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1366x768) WXGA Display */
+@media screen and (max-width: 1366px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1280x1024) SXGA Display */
+@media screen and (max-width: 1280px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1440x900) WXGA+ Display */
+@media screen and (max-width: 1440px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1680x1050) WSXGA+ Display */
+@media screen and (max-width: 1680px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1920x1080) Full HD Display */
+@media screen and (max-width: 1920px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}
+
+/* (1600x900) HD+ Display */
+@media screen and (max-width: 1600px) {
+  /* insert styles here */
+  .col-print-6 {
+    width: 1100px;
+  }
+
+  .col-print-12 {
+    width: 1100px;
+  }
+}

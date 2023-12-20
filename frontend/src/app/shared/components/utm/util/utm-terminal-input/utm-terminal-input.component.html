@@ -1,0 +1,17 @@
+<div class="window">
+  <div class="terminal">
+        <span class="console-info">
+         {{terminal}}
+        </span>
+    <div class="d-flex justify-content-start align-items-start">
+          <span class="console-info">
+            $
+          </span>
+      <p *ngIf="readonly" [innerHTML]="param | safe:'html'" class="command ml-2"></p>
+      <textarea (input)="paramChange.emit($event.target['value'])"
+                *ngIf="!readonly" class="command ml-2"
+                rows="5"
+                placeholder="Enter command here"></textarea>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,85 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      AWS BeansTalk
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      For this integration to work properly, first you need to configure the IAM user for UTMStack.
+    </div>
+
+    <p class="mt-3 font-size-base">
+      You can configure your environment to stream logs to Amazon CloudWatch Logs in the AWS Management Console. With
+      CloudWatch Logs, each instance in your environment streams logs to log groups that you can configure to be
+      retained for 1 day, even after your environment is terminated.<br><br>
+      The set of logs streamed varies per environment, but always includes eb-activity.log and access logs from the
+      nginx or Apache proxy server that runs in front of your application.<br><br>
+      You can configure log streaming in the AWS Management Console either during environment creation or for an
+      existing environment.
+    </p>
+    <h6 class="font-weight-semibold mt-3 mb-3">
+      To configure instance log rotation and log streaming in the Elastic Beanstalk console:
+    </h6>
+    <ol class="setup_list">
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Open the Elastic Beanstalk console.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Navigate to the management page for your environment.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Choose Configuration.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          In the Software configuration category, choose Modify.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Under S3 log storage, choose Rotate logs to enable uploading rotated logs to Amazon S3.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          Under Instance log streaming to CloudWatch Logs, configure the following settings:
+        </p>
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li><strong>Log streaming:</strong> Choose to enable log streaming.</li>
+          <li><strong>Retention:</strong> Specify the number of days to retain logs in CloudWatch Logs (One day).</li>
+          <li><strong>Lifecycle:</strong> Set to Delete logs upon termination to delete logs from CloudWatch Logs
+            immediately if the environment is terminated, instead of waiting for them to expire.
+          </li>
+          <li><strong>Log streaming:</strong> Choose to enable log streaming.</li>
+          <li>Choose Apply and send to us the log group name.</li>
+        </ul>
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">7</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.AWS_BEANSTALK"
+                                        [type]="'integration'" class="mt-3"
+                                        [serverId]="serverId">
+        </app-app-module-activate-button>
+      </li>
+
+    </ol>
+  </div>
+</div>

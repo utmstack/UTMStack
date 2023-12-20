@@ -1,0 +1,65 @@
+<div *ngIf=" this.awsGroup"
+     class="d-flex justify-content-between align-items-center flex-wrap w-100">
+  <input id="username" name="fakeusernameremembered" style="display:none" type="text">
+  <input id="password" name="fakepasswordremembered" style="display:none" type="password">
+  <div class="d-flex justify-content-start align-items-center w-100">
+    <div class="form-group w-30">
+      <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+             for="">
+      <span>
+        <i
+          [ngClass]="(awsGroup.module === '' || awsGroup.module === null || awsGroup.module=== undefined)?'text-danger':'text-success'"
+          [ngbTooltip]="'This param is required'"
+          class="icon-circle2 mr-1"
+          placement="auto"></i>
+       Module
+      </span>
+        <span>
+          <i [ngbTooltip]="'Module of AWS local group'"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+      </span>
+      </label>
+      <input (input)="save($event)"
+             [(ngModel)]=" awsGroup.module"
+             class="form-control"
+             [autocomplete]="awsGroup.module"
+             required type="text">
+      <small
+        *ngIf=" awsGroup.module === '' || awsGroup.module === null || awsGroup.module=== undefined"
+        class="text-danger">
+        Param module is required
+      </small>
+    </div>
+    <div class="form-group w-50 ml-3">
+      <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+             for="">
+      <span>
+        <i
+          [ngClass]="(awsGroup.name === '' || awsGroup.name === null || awsGroup.name=== undefined)?'text-danger':'text-success'"
+          [ngbTooltip]="'This param is required'"
+          class="icon-circle2 mr-1"
+          placement="auto"></i>
+       Name
+      </span>
+        <span>
+          <i [ngbTooltip]="'Name of AWS local group'"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+      </span>
+      </label>
+      <input (input)="save($event)"
+             [(ngModel)]="awsGroup.name"
+             class="form-control"
+             [autocomplete]="awsGroup.name"
+             required type="text">
+      <small
+        *ngIf="awsGroup.name === '' || awsGroup.name === null || awsGroup.name=== undefined"
+        class="text-danger">
+        Param name is required
+      </small>
+    </div>
+  </div>
+</div>
+<app-utm-spinner *ngIf="loadingConf" [label]="'Loading configuration'" [loading]="loadingConf"></app-utm-spinner>
+<div *ngIf="saving" class="d-flex align-items-center justify-content-end text-primary">
+  <i class="icon-spinner2 spinner mr-2"></i> Saving configuration
+</div>

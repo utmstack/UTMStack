@@ -1,0 +1,74 @@
+<div class="p-2 section-standard-container">
+  <h6 *ngIf="standard"
+      class="card-title mb-0 text-uppercase label-header text-blue-800 mb-2">
+    {{standard.standardName}}
+  </h6>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="flex-grow-1">
+      <app-utm-search-input (searchFor)="onSearchFor($event)"
+                            [placeholder]="'Search section'"
+                            [searching]="false"></app-utm-search-input>
+    </div>
+    <button (click)="createStandardSection()" *ngIf="manage"
+            class="btn utm-button utm-button-primary ml-2">
+      <i class="icon-plus2"></i> Add section
+    </button>
+
+  </div>
+  <div *ngIf="loadingTemplates"
+       class="w-100 p-5 m-5 d-flex justify-content-center align-items-center">
+    <app-utm-spinner [height]="'110px'" [loading]="loadingTemplates" [width]="'110px'"
+                     label="Loading templates">
+    </app-utm-spinner>
+  </div>
+  <div *ngIf="!loadingTemplates && standardSections.length===0" class="">
+    <app-no-data-found></app-no-data-found>
+  </div>
+  <div (scrolled)="onScroll()"
+       *ngIf="!loadingTemplates && standardSections.length>0"
+       [fromRoot]="true"
+       [infiniteScrollDistance]="1"
+       [infiniteScrollThrottle]="50"
+       [scrollWindow]="false"
+       infiniteScroll>
+    <div (click)="cpStandardSectionBehavior.$standardSection.next(section)"
+         *ngFor="let section of standardSections"
+         class="w-100 card p-3 d-flex flex-row cursor-pointer">
+      <div class="d-flex flex-column flex-grow-1 cursor-pointer">
+        <div class="mb-2">
+          <label [innerHTML]="section.standardSectionName|highlight:solution:'text-white bg-primary-300'"
+                 class="text-blue-800 font-weight-semibold">
+          </label>
+        </div>
+        <div>
+          <p [innerHTML]="(section.standardSectionDescription | slice:0:50)+'...'"
+             class="font-size-base">
+          </p>
+        </div>
+      </div>
+      <div>
+        <span (click)="generateReport(section)" *ngIf="!manage"
+              class="text-blue-800 cursor-pointer badge border-1 border-blue-800">
+                      Generate Report
+        </span>
+        <span *ngIf="manage" class="d-flex span-small-icon">
+           <i (click)="editSection(section)"
+              class="icon-pencil mr-2 cursor-pointer"
+              container="body"
+              ngbTooltip="Edit section"
+              placement="bottom" tooltipClass="utm-tooltip-bottom"></i>
+           <i (click)="deleteSection(section)"
+              class="icon-cross2 cursor-pointer"
+              container="body"
+              ngbTooltip="Delete section"
+              placement="bottom" tooltipClass="utm-tooltip-bottom"></i>
+        </span>
+      </div>
+    </div>
+    <div *ngIf="loadingMore && !noMoreResult"
+         class="d-flex justify-content-center align-items-center p-3 loading">
+      <app-utm-spinner [height]="'35px'" [loading]="true"
+                       [width]="'35px'" label="Loading more events"></app-utm-spinner>
+    </div>
+  </div>
+</div>

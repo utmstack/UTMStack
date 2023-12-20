@@ -1,0 +1,54 @@
+<app-utm-modal-header [name]="edit?'Edit group ':'Add new group'" class="w-100"></app-utm-modal-header>
+<div class="d-flex flex-column p-3">
+  <div class="form-group">
+    <label for="obs">Group name</label>
+    <input #groupInput (input)="checkName()" [(ngModel)]="group.groupName"
+           class="border-1 border-grey-600 form-control mb-2"
+           id="obs" name="">
+    <span *ngIf="!groupInput.checkValidity()" class="text-danger-300 mt-3">
+      Group name cant not start with special characters
+    </span>
+    <div *ngIf="typing"
+         class="checking-group-name d-flex justify-content-start align-items-center span-small-icon">
+      <i class="icon-spinner2 spinner mr-2"></i>
+      <span>Searching groups...</span>
+    </div>
+    <div *ngIf="exist && !typing"
+         class="checking-group-name d-flex justify-content-start align-items-center text-danger-300 span-small-icon">
+      <i class="icon-copy4 mr-2"></i>
+      <span>Group already exist</span>
+    </div>
+    <div *ngIf="!exist && !typing && group.groupName!==''"
+         class="checking-group-name d-flex justify-content-start align-items-center text-blue-800 span-small-icon">
+      <i class="icon-checkmark-circle mr-2"></i>
+      <span>Group is valid</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="areaa">Group description({{255 - group.groupDescription.length}})</label>
+    <textarea [(ngModel)]="group.groupDescription" class="border-1 border-grey-600 form-control"
+              id="areaa"
+              name="" rows="4"></textarea>
+    <span *ngIf="group.groupDescription.length>255" class="text-danger-300 mt-3">
+      Description must be less than 255 characteres
+    </span>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createGroup()" *ngIf="!edit"
+            [disabled]=" !groupInput.checkValidity() || exist || creating" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner spinner':'icon-grid-alt'"></i>&nbsp;
+      Save
+    </button>
+    <button (click)="editGroup()" *ngIf="edit"
+            [disabled]="!groupInput.checkValidity() || exist || creating" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner spinner':'icon-grid-alt'"></i>&nbsp;
+      Edit
+    </button>
+  </div>
+</div>

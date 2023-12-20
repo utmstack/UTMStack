@@ -1,0 +1,46 @@
+<div class="container-fluid pr-2 pl-2 pt-2">
+  <div *ngIf="dashboard" class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 label-header">{{dashboard.name}}
+    </h5>
+    <div class="header-elements d-flex justify-content-end align-items-center">
+      <app-dashboard-filter-view [filters]="filters"></app-dashboard-filter-view>
+      <app-elastic-filter-time [invertContent]="true"
+                               [isEmitter]="true"
+                               class="ml-3"
+                               container="body"></app-elastic-filter-time>
+      <button (click)="exportToPdf()" [disabled]="pdfExport || !visualizationRender || loadingVisualizations"
+              class="btn utm-button utm-button-primary ml-2">
+        <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+</div>
+<div class="w-100 h-100 mb-3">
+  <gridster *ngIf="layout.length>0 && !loadingVisualizations"
+            [options]="options" style="background-color: #f1f1f1;z-index: 0; margin-bottom: 15px">
+    <gridster-item #gridsterItem
+                   *ngFor="let item of layout; let index = index" [item]="item.grid"
+                   (mouseenter)="activeTimeGridster=item.visualization.id"
+                   [ngStyle]="{'z-index':(activeTimeGridster===item.visualization.id?100:0)+''}">
+      <app-utm-viewer [building]="false"
+                      style="z-index: 10"
+                      [chart]="item.visualization.chartType"
+                      [chartId]="item.visualization.id"
+                      [height]="(gridsterItem.height-38)+'px'"
+                      [showTime]="timeEnable.includes(item.visualization.id)"
+                      [visualization]="item.visualization"
+                      [width]="gridsterItem.width+'px'">
+      </app-utm-viewer>
+    </gridster-item>
+  </gridster>
+  <div style="height: 15px"></div>
+</div>
+
+<div *ngIf="!loadingVisualizations"
+     class="dashboard-loader d-flex justify-content-start align-content-center w-100 h-100">
+  <app-utm-spinner [height]="'110px'" [loading]="!loadingVisualizations" [width]="'110px'"
+                   label="Loading dashboard"
+                   style="width: 100%;margin-top: 15%">
+  </app-utm-spinner>
+</div>

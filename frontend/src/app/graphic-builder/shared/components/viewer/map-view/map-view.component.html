@@ -1,0 +1,33 @@
+<div [ngClass]="{'card':!building}"
+     [ngStyle]="{'width':width}" class="m-0">
+  <div *ngIf="!building" class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-light">
+    <label *ngIf="visualization" [ngbTooltip]="visualization.name"
+           [openDelay]="3000" class="card-title label-header text-blue-800" container="body">
+      {{visualization.name}}
+    </label>
+    <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)" *ngIf="showTime"
+                             [container]="building?'body':'body'"
+                             [defaultTime]="defaultTime"
+                             [invertContent]="true">
+    </app-elastic-filter-time>
+  </div>
+  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-0">
+    <div *ngIf="loadingOption"
+         class="loading-chart w-100 h-100
+                 d-flex justify-content-center
+                 align-items-center">
+      <app-utm-spinner [height]="'35px'" [loading]="loadingOption" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="data && data.length===0 && !loadingOption"
+         class="h-100 w-100">
+      <app-no-data-chart [error]="error" [typeChart]="chart"></app-no-data-chart>
+    </div>
+    <div [hidden]="(data && data.length===0) || loadingOption"
+         [ngStyle]="{'height':height,'width':width}">
+      <div [id]="mapId" [ngStyle]="{'height':height,'width':width}"></div>
+    </div>
+  </div>
+</div>

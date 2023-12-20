@@ -1,0 +1,57 @@
+<div #colorPopober=ngbPopover
+     [ngbPopover]="colContent"
+     [popoverTitle]="colTitle"
+     autoClose="outside"
+     class="text-blue-800 cursor-pointer ml-2 d-flex align-items-center justify-content-start"
+     container="body"
+     placement="auto"
+     popoverClass="utm-popover"
+     triggers="click">
+  <div *ngFor="let color of colors |slice:0:8"
+       [ngStyle]="{'background':color}"
+       class="span-color">
+  </div>&nbsp;Order colors
+</div>
+
+<ng-template #colContent>
+  <div class="colors-container">
+    <div class="d-flex justify-content-start align-items-start flex-wrap w-100 mt-1 mb-2">
+      <div (click)="activeSortingColors(color)"
+           *ngFor="let color of colors"
+           [ngStyle]="{'background':color}" class="card-color cursor-pointer m-1">
+          <span *ngIf="color === colorSelect" class="span card-selected">
+            <i class="icon-check2"></i>
+          </span>
+      </div>
+    </div>
+    <div *ngIf="colorSelect" class="d-flex justify-content-center align-items-center p-2 mb-3">
+    <span (click)="moveColorElement(1)" class="">
+          <i class="icon-arrow-left32 cursor-pointer"
+             ngbTooltip="Move color to left"
+             placement="left"
+             tooltipClass="utm-tooltip-left"></i>
+     </span>
+
+      <!--      <span (click)="deleteColor()" class="color-delete mr-3 ml-3">-->
+      <!--          <i class="icon-cross2"></i>-->
+      <!--     </span>-->
+
+      <span (click)="moveColorElement(-1)" *ngIf="!isLastIndex()" class="">
+          <i class="icon-arrow-right32 cursor-pointer"
+             ngbTooltip="Move color to right"
+             placement="right"
+             tooltipClass="utm-tooltip-right"></i>
+     </span>
+    </div>
+    <div class="button-container d-flex justify-content-center mt-2">
+      <button (click)="orderColorChange.emit(colors);colorPopober.close()"
+              [disabled]="!colors" class="btn utm-button utm-button-primary">
+        <i class="color-new"></i>&nbsp;
+        Done
+      </button>
+    </div>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Order colors</h6>
+</ng-template>

@@ -1,0 +1,35 @@
+<div class="row" *ngIf="!hostname">
+  <div class="col-lg-6 col-md-12 col-sm-12">
+    <div class="d-flex flex-column flex-grow-1">
+      <label class="pb-1">Execute Incident Response command</label>
+      <app-utm-agent-select (agentSelect)="onAgentSelect($event)"></app-utm-agent-select>
+    </div>
+  </div>
+</div>
+
+<div class="w-100" [ngClass]="{'mt-3': !hostname}" *ngIf="agent">
+  <app-utm-agent-detail
+          [agent]="agent"
+          [asset]="asset">
+  </app-utm-agent-detail>
+  <div class="form-group mt-3" *ngIf="hasNoReason">
+    <label for="reportDesc">Provide the reason to run a command in the agent</label>
+    <textarea class="form-control" [(ngModel)]="websocketCommand.reason" id="reportDesc"
+              rows="3"></textarea>
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <button class="btn utm-button utm-button-primary" (click)="connectToAgent = true"
+            [disabled]="!websocketCommand.reason && websocketCommand.reason === ''">
+      <i class="icon-terminal mr-1"></i>
+      Connect to console
+    </button>
+  </div>
+</div>
+<div class="alert alert-warning alert-styled-right mt-3 alert-dismissible">
+  <span class="font-weight-semibold">Warning! </span>
+  <span>You can cause damage to the infrastructure and services of your organization</span>
+</div>
+<app-utm-agent-console *ngIf="agent && connectToAgent" [websocketCommand]="websocketCommand"
+                       (close)="connectToAgent = false"
+                       [hostname]="agent.hostname"></app-utm-agent-console>

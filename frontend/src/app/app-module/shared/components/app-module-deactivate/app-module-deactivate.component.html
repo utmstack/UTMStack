@@ -1,0 +1,15 @@
+<app-utm-modal-header [name]="'Disable ' + module.moduleName+ ' module'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+
+  <h6 class="font-weight-thin mt-3">Features of this module cannot longer accessible.
+    Are you sure that you want disable this module?</h6>
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-2">
+      Cancel
+    </button>
+    <button (click)="continue()" class="btn utm-button utm-button-primary">
+      Continue
+    </button>
+  </div>
+</div>

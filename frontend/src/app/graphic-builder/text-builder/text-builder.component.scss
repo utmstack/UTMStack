@@ -1,0 +1,21 @@
+.visualization-text-builder {
+  max-height: calc(75vh - 0px);
+  height: calc(75vh - 0px);
+
+  angular-editor {
+    height: 100%;
+
+    ::ng-deep {
+      .angular-editor-toolbar {
+        background-color: #FFFFFF !important;
+        border: 0 solid transparent !important;
+
+        .angular-editor-toolbar-set {
+          #insertImage-, #insertVideo- {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <div class="form-group">
+    <label class="pb-1" for="name">Name</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['name.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="name"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="host">Host</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['hosts.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="host"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="port">Port list</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['portListName.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="port"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="credentialssh">SSH Credential</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['sshCredentialName.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="credentialssh"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="credentialsmb">SMB Credential</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['smbCredentialName.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="credentialsmb"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="name">Created at</label>
+    <app-filter-time (timeFilterChange)="searchByCreation($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+
+</div>

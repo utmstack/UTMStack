@@ -1,0 +1,147 @@
+<div class="card card-bucket">
+  <div class="card-header p-2 d-flex justify-content-between">
+    <h6 class="metric-label text-blue-800 font-weight-light">Buckets</h6>
+    <span *ngIf="countErrors()>0 && bucketAdded"
+          class="text-danger-800">
+          <i class="icon-warning"></i>
+      {{countErrors()}}
+    </span>
+  </div>
+  <div class="card-body">
+    <div *ngIf="shouldApplyAxis()" class="add-bucket-button d-flex justify-content-center mt-3">
+      <span (click)="viewSplice('AXIS')"
+            class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer type-axis">
+        Split axis
+      </span>
+    </div>
+    <div *ngIf="!bucketAdded && !shouldApplyAxis()"
+         class="add-bucket-button d-flex justify-content-center mt-3">
+      <span (click)="viewSplice('BUCKET')"
+            class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer type-axis">
+        Split series
+      </span>
+    </div>
+    <div *ngIf="bucketAdded">
+      <form [formGroup]="bucketForm">
+        <ng-container *ngFor="let item of buckets.controls; let index=index">
+          <ng-container formArrayName="buckets">
+            <ng-container [formGroupName]="index">
+              <div class="mb-2 d-flex align-items-center justify-content-between">
+                <div class="d-flex justify-content-start align-items-center">
+                   <span (click)="viewBucketDetail(index)"
+                         class="text-center cursor-pointer">
+                    <i [ngClass]="viewBucket===index?'icon-arrow-up32':'icon-arrow-down32'"></i>
+                   </span>&nbsp;
+                  <span [ngClass]="{'text-danger-300':!buckets.at(index).valid}"
+                        class="font-weight-bold">
+                    {{buckets.at(index).get('type').value === 'AXIS' ? 'Split axis' : 'Split series'}}
+                  </span>&nbsp;
+                  <span [ngbTooltip]="
+                    buckets.at(index).get('customLabel').value === '' ?
+                    buckets.at(index).get('field').value :
+                    buckets.at(index).get('customLabel').value" class="text-blue-800 field-buckets-label"
+                        tooltipClass="utm-tooltip-top">
+                    {{buckets.at(index).get('customLabel').value === '' ?
+                    buckets.at(index).get('field').value :
+                    buckets.at(index).get('customLabel').value  }}
+                  </span>
+                </div>
+                <div class="d-flex ml-2">
+                  <!--                   <span class="cursor-pointer mr-2" *ngIf="buckets.length>1">-->
+                  <!--                       <i (click)="move(-1,index)" *ngIf="(index+1)!==buckets.length"-->
+                  <!--                          class="icon-arrow-down8 icon-small"></i>-->
+                  <!--                      <i (click)="move(1,index)" *ngIf="index>0" class="icon-arrow-up8"></i>-->
+                  <!--                  </span>-->
+
+                  <!--                  <app-utm-toggle ngbTooltip="{{buckets.at(index).get('enable').value?'Disable':'Enable'}} aggregation"-->
+                  <!--                                  tooltipClass="utm-tooltip-top"-->
+                  <!--                                  (toggleChange)="buckets.at(index).get('enable').setValue($event)"-->
+                  <!--                                  [active]="buckets.at(index).get('enable').value">-->
+                  <!--                  </app-utm-toggle>-->
+                  <span (click)="deleteBucket(index)" class="cursor-pointer text-danger-300">
+                      <i class="icon-cross3"></i>
+                  </span>
+                </div>
+              </div>
+              <div *ngIf="viewBucket ===index">
+                <div class="d-flex flex-column flex-grow-1 mt-3">
+                  <label [ngClass]="{'text-danger-800':!buckets.at(index).get('aggregation').valid}"
+                         class="pb-1 font-weight-semibold"
+                         for="agg">Aggregation</label>
+                  <ng-select (change)="changeFieldType($event,index)"
+                             [clearable]="false"
+                             [items]="aggregations"
+                             [searchable]="true"
+                             bindLabel="agg"
+                             bindValue="value"
+                             formControlName="aggregation"
+                             id="agg">
+                  </ng-select>
+                </div>
+                <div class="d-flex flex-column flex-grow-1 mt-3">
+                  <label [ngClass]="{'text-danger-800':!buckets.at(index).get('field').valid}"
+                         class="pb-1 font-weight-semibold"
+                         for="field">Field</label>
+                  <ng-select [clearable]="false"
+                             [groupBy]="'type'"
+                             [items]="fields"
+                             [searchable]="true"
+                             [virtualScroll]="true"
+                             bindLabel="name"
+                             bindValue="name"
+                             formControlName="field"
+                             id="field"
+                             loadingText="Loading fields...">
+                  </ng-select>
+                </div>
+                <div [ngSwitch]="buckets.at(index).get('aggregation').value" class="mt-3">
+                  <app-bucket-date-histogram
+                    (dateHistogramChange)="buckets.at(index).get('dateHistogram').setValue($event)"
+                    (errorsCount)="errorCountDateHistogramChange($event)"
+                    *ngSwitchCase="bucketAggregationEnum.DATE_HISTOGRAM"
+                    [dateHistogram]="buckets.at(index).get('dateHistogram').value"
+                    [mode]="mode">
+                  </app-bucket-date-histogram>
+                  <app-bucket-terms (errorsCount)="errorCountAggTermsChange($event)"
+                                    (termBucketChange)="onTermBucketChange($event,index)"
+                                    *ngSwitchCase="bucketAggregationEnum.TERMS"
+                                    [mode]="mode"
+                                    [terms]="buckets.at(index).get('terms').value">
+                  </app-bucket-terms>
+                  <app-bucket-significant-terms (errorsCount)="errorCountAggSigTermsChange($event)"
+                                                (termSigBucketChange)="buckets.at(index).get('significantTerms').setValue($event)"
+                                                *ngSwitchCase="bucketAggregationEnum.SIGNIFICANT_TERMS">
+                  </app-bucket-significant-terms>
+                </div>
+                <div class="form-group mt-3">
+                  <label class="pb-1 font-weight-semibold" for="name">Custom label</label>
+                  <input class="border-1 border-grey-600 form-control" formControlName="customLabel" id="name"
+                         name="">
+                </div>
+
+                <div class="add-bucket-button d-flex justify-content-around mt-3 mb-3">
+                   <span (click)="deleteBucket(index)"
+                         class="p-1 border-1 text-danger-800 border-danger-800 text-center rounded cursor-pointer">
+                    Cancel
+                  </span>
+                  <!--                  {{multipleBuckets.includes(chart)}}-->
+                  <!--                  {{(visualization.chartType === chartTypeEnum.HEATMAP_CHART && buckets.length<2)}}-->
+                  <span (click)="addBucket('BUCKET')"
+                        *ngIf="multipleBuckets.includes(chart)"
+                        class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+                    Add sub-buckets
+                 </span>
+                  <span (click)="addBucket('AXIS')" *ngIf="shouldApplyAxis()"
+                        class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+                       Split axis
+                 </span>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </form>
+    </div>
+  </div>
+</div>
+

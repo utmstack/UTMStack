@@ -1,0 +1,24 @@
+<div class="container-fluid p-2">
+  <app-ir-command-select (actionSelect)="onActionSelect($event)"></app-ir-command-select>
+  <div class="d-flex w-50 flex-column p-2">
+    <label class="pb-1" for="assetList">Agents</label>
+    <ng-select (change)="onSelectChange($event)"
+               [(ngModel)]="asset"
+               [clearable]="false"
+               [items]="utmAssets"
+               [loadingText]="'Loading agents....'"
+               [loading]="!utmAssets"
+               bindLabel="assetName"
+               bindValue="assetName"
+               id="assetList">
+    </ng-select>
+  </div>
+  <div class="d-flex justify-content-end align-items-center">
+    <button (click)="addJob()"
+            [disabled]="!isValid()"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-terminal'"></i>&nbsp;Run command
+    </button>
+  </div>
+</div>
+<app-utm-agent-console></app-utm-agent-console>

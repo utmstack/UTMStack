@@ -1,0 +1,16 @@
+<span *ngIf="canConnect" (click)="connectConsole()"
+      class="d-flex w-100 justify-content-start align-items-center cursor-pointer">
+  <i class="icon-terminal cursor-pointer mr-2"></i>
+  Run command in  <span *ngIf="agent"
+                        [ngClass]="agent.status === agentStatusEnum.ONLINE?'text-success-800':'text-warning-800'"
+                        class="span-small-icon d-flex justify-content-start align-items-center ml-2">
+                  <i
+                    [ngClass]="'icon-circle2'"
+                    class="mr-2"></i>
+  {{agent.hostname}} ({{agent.os}})
+    </span>
+</span>
+
+<app-utm-agent-console *ngIf="connect && websocketCommand" [hostname]="hostname"
+                       [websocketCommand]="websocketCommand"
+                       (close)="connect=false"></app-utm-agent-console>

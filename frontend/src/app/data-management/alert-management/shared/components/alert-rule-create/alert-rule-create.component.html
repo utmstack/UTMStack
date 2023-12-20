@@ -1,0 +1,119 @@
+<app-utm-modal-header [name]="'Add new tag rule'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3" style="z-index: 99999999">
+  <div class="w-100" *ngIf="!isForComplete">
+    <div *ngIf="!tags"
+         class="mb-3 d-flex justify-content-center align-items-center text-blue-800">
+      <app-utm-spinner [height]="'15px'"
+                       [label]="'Loading tags...'"
+                       [loading]="!tags"
+                       [width]="'15px'">
+      </app-utm-spinner>
+    </div>
+    <div class="d-flex justify-content-start align-items-center flex-wrap" *ngIf="tags">
+      <div *ngFor="let tag of tags" class="mb-3 mr-3">
+        <div class="cursor-pointer" [ngStyle]="{'color':tag.tagColor}">
+          <input (change)="selectValue(tag)"
+                 [attr.id]="'g-check-box-alert-tag-' + tag.id +'-'+ uuid"
+                 [checked]="isSelected(tag)"
+                 [name]="'g-check-box-alert-tag-'+  + tag.id +'-'+ uuid"
+                 [value]="tag.tagName"
+                 class="form-check-input magic-checkbox"
+                 type="checkbox">
+          <label [for]="'g-check-box-alert-tag-'+ tag.id +'-'+ uuid" class="mb-0"> {{tag.tagName }}
+          </label>
+        </div>
+      </div>
+      <span (click)="addNewTag()"
+            class="mb-3 badge badge-flat border-primary text-blue-800 cursor-pointer span-small-icon">
+         <i class="icon-plus3"></i>&nbsp;New tag
+    </span>
+    </div>
+  </div>
+
+  <form [formGroup]="formRule">
+    <div class="form-group">
+      <label class="pb-1" for="name">Rule name</label>
+      <input [ngClass]="inputClass.resolveClassInput(formRule.get('name'))"
+             class="border-1 border-grey-600 form-control" formControlName="name"
+             id="name"
+             name="">
+      <app-formcontrol-error [formcontrol]="formRule.get('name')" class="mb-2"></app-formcontrol-error>
+      <div *ngIf="typing"
+           class="checking-tag-name d-flex justify-content-start align-items-center mt-3 span-small-icon">
+        <i class="icon-spinner2 spinner mr-2"></i>
+        <span>Checking rule name...</span>
+      </div>
+      <div *ngIf="exist && !typing"
+           class="checking-tag-name d-flex justify-content-start align-items-center text-danger-300 mt-3 span-small-icon">
+        <i class="icon-copy4 mr-2"></i>
+        <span>Rule name already exist</span>
+      </div>
+      <div *ngIf="!exist && !typing && formRule.get('name').value!==''"
+           class="checking-tag-name d-flex justify-content-start align-items-center text-blue-800 mt-3 span-small-icon">
+        <i class="icon-checkmark-circle mr-2"></i>
+        <span>Rule name is valid</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="pb-1" for="description">Description
+        ({{512 - formRule.get('description').value.length}})</label>
+      <textarea [ngClass]="inputClass.resolveClassInput(formRule.get('description'))"
+                class="border-1 border-grey-600 form-control" formControlName="description"
+                id="description"
+                name=""
+                rows="2"></textarea>
+      <app-formcontrol-error [formcontrol]="formRule.get('description')"></app-formcontrol-error>
+    </div>
+  </form>
+
+  <div *ngIf="isFalsePositive()" class="w-100">
+    <div class="alert bg-info-400 text-white alert-styled-right mt-3">
+      <span>By creating a False Positive rule, future alerts where the fields
+        and values match the operator defined will be tagged as <b>False positive</b>.
+        The alerts that match with this rule will be marked as <b>Completed</b>.</span>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-start align-items-center mt-3">
+        <span (click)="viewFieldDetail=!viewFieldDetail"
+              class="text-center cursor-pointer">
+                <i [ngClass]="viewFieldDetail?'icon-arrow-up32':'icon-arrow-down32'"></i>
+        <span class="font-weight-semibold">View rule fields</span>&nbsp;
+    </span>&nbsp;
+  </div>
+  <div *ngIf="viewFieldDetail" class="alert-history mt-2">
+    <div class="d-flex justify-content-between align-items-center pb-2" *ngFor="let filter of filters">
+      <span class="text-blue-800 rule-label">{{getFieldName(filter.field)}}:&nbsp;</span>
+      <ng-select
+        [clearable]="false"
+        [items]="operators"
+        [(ngModel)]="filter.operator"
+        [loadingText]="'Loading operators....'"
+        [loading]="!operators"
+        [searchable]="true"
+        bindLabel="name"
+        class="rule-operator"
+        dropdownPosition="top"
+        bindValue="operator"
+        id="operators">
+      </ng-select>
+      <input [(ngModel)]="filter.value" class="form-control">
+      <i class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete filter field"
+         placement="left"
+         (click)="deleteFilter(filter)"></i>
+    </div>
+  </div>
+
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createRule()" class="btn utm-button utm-button-primary"
+            [disabled]="!formRule.valid || exist || selected.length === 0">
+      <i class="icon-stack-text"></i>&nbsp;
+      Add rule & Tag
+    </button>
+  </div>
+</div>

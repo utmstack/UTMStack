@@ -1,0 +1,186 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title label-header mb-0 text-uppercase label-header">
+      Data Processing
+    </h5>
+  </div>
+
+  <!-- in a wrapping section include different containers for each step of the flow: data sources, build, deploy -->
+  <div class="container-pipeline w-100 pb-5" *ngIf="logstashPipelines;else loadingPipelines">
+    <div class="container__sources tooltip-{{logstashPipelines.general.status}}">
+      <div class="sources--data card-source cursor-pointer position-relative d-flex
+       flex-column align-items-center justify-content-between"
+           *ngFor="let pipeline of logstashPipelines.pipelines"
+           [ngClass]="{'card-pipeline-selected':pipelineDetail && pipeline.pipelineId === pipelineDetail.pipelineId}"
+           (click)="viewPipeline(pipeline)">
+        <h6 class="text-blue-800 d-flex justify-content-start w-100">
+          <span
+            [ngClass]="pipeline.pipelineStatus==='up'?'text-success':'text-danger'"
+            class="span-small-icon d-flex justify-content-start align-items-center">
+                  <i
+                    [ngClass]="'icon-circle2'"
+                    class="mr-2"></i></span>
+          {{ pipeline.pipelineName }}
+        </h6>
+        <img class="p-3 mt-2 mt-1"
+             [alt]="pipeline.moduleName"
+             [src]="'/assets/img/guides/logos/' + getModuleSvg(pipeline.moduleName)">
+
+        <div class="d-flex justify-content-between align-items-center mt-2 w-100">
+          <span class="font-size-lg"><i
+            class="icon-database-insert mr-1"></i><strong>{{pipeline.events.in | thousandSuff}}</strong></span>
+          <span class="font-size-lg"><i
+            class="icon-database-refresh mr-1"></i><strong>{{pipeline.events.filtered | thousandSuff}}</strong></span>
+          <span class="font-size-lg"><i
+            class="icon-database-export mr-1"></i><strong>{{pipeline.events.out | thousandSuff}}</strong></span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="pipeline-line pipeline-{{logstashPipelines.general.status}}">
+      <svg viewbox="0 0 10 100" style="width: 15px">
+        <line x1="5" x2="5" y1="0" y2="100"/>
+      </svg>
+    </div>
+
+    <div class="container__build tooltip-{{logstashPipelines.general.status}}">
+      <div class="p-3">
+        <app-logstash-stats [logstashPipelines]="logstashPipelines"></app-logstash-stats>
+      </div>
+    </div>
+
+    <div class="pipeline-line pipeline-{{logstashPipelines.general.status}}">
+      <svg viewbox="0 0 10 100" style="width: 15px">
+        <line x1="5" x2="5" y1="0" y2="100"/>
+      </svg>
+    </div>
+
+
+    <!-- in the deploy container show simply text, without a wrapping card -->
+    <div class="container__deploy tooltip-green">
+      <div class="p-3 h-100 position-relative">
+        <h6 class="text-blue-800 d-flex align-content-center justify-content-start mb-3">
+         <span class="span-small-icon">
+        <i [ngClass]="'icon-circle2 text-success-800'" class="mr-2"></i>
+      </span>
+          Correlation Engine</h6>
+
+        <div class="wrap mt-3">
+          <div class="modules">
+            <div class="module">
+              <img class=""
+                   alt="Data Ingestion"
+                   [src]="'/assets/img/guides/logos/' + img1">
+            </div>
+            <div class="module">
+              <img class=""
+                   alt="Data Ingestion"
+                   [src]="'/assets/img/guides/logos/' + img2">
+            </div>
+            <div class="module">
+              <img class=""
+                   alt="Data Ingestion"
+                   [src]="'/assets/img/guides/logos/' + img3">
+            </div>
+            <div class="module">
+              <img class=""
+                   alt="Data Ingestion"
+                   [src]="'/assets/img/guides/logos/' + img4">
+            </div>
+            <div class="module">
+              <img class=""
+                   alt="Data Ingestion"
+                   [src]="'/assets/img/guides/logos/' + img5">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="pipeline-line pipeline-green"
+         [ngClass]="getClusterHealth() === 'UP'?
+                  'pipeline-green':
+                  getClusterHealth() === 'MEDIUM'?'pipeline-yellow':'pipeline-red'">
+      <svg viewbox="0 0 10 100" style="width: 15px">
+        <line x1="5" x2="5" y1="0" y2="100"/>
+      </svg>
+    </div>
+
+    <!-- in the deploy container show simply text, without a wrapping card -->
+    <div class="container__data_engine"
+         [ngClass]="getClusterHealth() === 'UP'?
+                  'tooltip-green':
+                  getClusterHealth() === 'MEDIUM'?'tooltip-yellow':'tooltip-red'">
+      <div class="p-3">
+        <app-elastic-metric-health [clusterHealth]="clusterHealth" [status]="getClusterHealth()"></app-elastic-metric-health>
+      </div>
+    </div>
+
+
+  </div>
+  <ng-template #loadingPipelines>
+    <div *ngIf="!logstashPipelines"
+         class="d-flex justify-content-start align-content-center w-100 h-100 has-fixed-height">
+      <app-utm-spinner [height]="'110px'" [loading]="!logstashPipelines" [width]="'110px'"
+                       label="Loading pipelines"
+                       style="width: 100%;margin-top: 15%">
+      </app-utm-spinner>
+    </div>
+  </ng-template>
+</div>
+
+
+<!--ASSET DETAIL-->
+<div *ngIf="pipelineDetail" class="utm-right-container">
+  <div (click)="closeDetail()" class="overlay overlay-lg col-md-6"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Pipeline {{pipelineDetail.pipelineName}} detail
+      </h6>
+      <button (click)="closeDetail()" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="p-3">
+
+      <div class="w-100 d-flex justify-content-start align-items-center mb-2">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Status:</span>&nbsp;
+        <span
+          [ngClass]="pipelineDetail.pipelineStatus==='up'?'text-success':'text-danger'"
+          class="span-small-icon d-flex justify-content-start align-items-center">
+                  <i
+                    [ngClass]="'icon-circle2'"
+                    class="mr-2"></i>{{pipelineDetail.pipelineStatus}}</span>
+
+      </div>
+      <div class="w-100 d-flex justify-content-start align-items-center mb-2">
+        <span class="text-blue-800 font-weight-light has-minimum-width">ID:</span>&nbsp;
+        <app-utm-code-view [allowCopy]="true" [code]="pipelineDetail.pipelineId"></app-utm-code-view>
+      </div>
+      <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative flex-grow-1 mb-3">
+       <span class="p-1 utm-box-label">
+            Events
+       </span>
+        <ng-container
+          *ngTemplateOutlet="pipelineEventTemplate; context: { pipeline: pipelineDetail, showColum:false }"></ng-container>
+      </div>
+
+      <app-logstash-filters *ngIf="pipelineDetail" [pipeline]="pipelineDetail"></app-logstash-filters>
+    </div>
+  </div>
+</div>
+
+<ng-template #pipelineEventTemplate let-detail="pipeline" let-showColum="showColum">
+  <div class="d-flex "
+       [ngClass]="showColum?'flex-column align-items-start justify-content-center': 'justify-content-between align-items-center'">
+    <span class="span-small-icon"><i class="icon-database-insert mr-1"></i>Input: {{detail.events.in}}</span>
+    <span class="span-small-icon"><i class="icon-database-refresh mr-1"></i>Processed: {{detail.events.filtered}}</span>
+    <span class="span-small-icon"><i class="icon-database-export mr-1"></i>Output: {{detail.events.out}}</span>
+  </div>
+</ng-template>

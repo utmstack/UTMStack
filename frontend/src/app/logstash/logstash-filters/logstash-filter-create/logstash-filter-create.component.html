@@ -1,0 +1,31 @@
+<div class="w-100 h-100 p-2">
+  <div *ngIf="show"
+       class="alert alert-info alert-styled-right">
+
+    Read the logs filter documentation at
+    <a class="text-blue-800 font-size-base font-weight-semibold"
+       href="https://www.elastic.co/guide/en/logstash/current/filter-plugins.html" target="_blank">
+      Logstash filter plugins
+    </a>
+  </div>
+  <div class="form-group w-25">
+    <label class="form-control-label" for="filterName">Filter name</label>
+    <input [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="filterName">
+  </div>
+  <div class="form-group">
+    <label class="form-control-label" for="filterName">Filter definition</label>
+    <textarea [(ngModel)]="filter.logstashFilter" class="form-control w-100" rows="25"></textarea>
+  </div>
+  <div class="d-flex justify-content-end align-items-center mt-3">
+    <button (click)="close.emit('close')" class="btn utm-button utm-button-grey">
+      Cancel
+    </button>
+    <button (click)="save()"
+            [disabled]="error"
+            class="btn utm-button utm-button-primary mx-3">
+      <i [ngClass]="saving?'icon-spinner2 spinner':'icon-database-edit2'"></i>
+      Save
+    </button>
+  </div>
+</div>
+

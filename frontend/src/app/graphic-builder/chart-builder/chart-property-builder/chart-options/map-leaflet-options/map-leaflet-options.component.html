@@ -1,0 +1,66 @@
+<form [formGroup]="formLeaflet">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between">
+    <div (click)="viewLeafletOptionProperties()"
+         class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewLeafletOptions?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Map options</span>&nbsp;
+    </div>
+  </div>
+  <div [hidden]="!viewLeafletOptions" class="properties-options">
+    <div class="row m-0">
+      <div class="col-lg-6 pl-0">
+        <div class="form-group">
+          <label class="pb-1 font-weight-semibold" for="latitude">Latitude</label>
+          <input (input)="setCenter()"
+                 [ngClass]="inputClass.resolveClassInput(formLeaflet.get('center'))"
+                 class="border-1 border-grey-600 form-control"
+                 formControlName="lat"
+                 id="latitude"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+      <div class="col-lg-6 pr-0">
+        <div class="form-group">
+          <label class="pb-1 font-weight-semibold" for="longitude">Longitude</label>
+          <input (input)="setCenter()"
+                 [ngClass]="inputClass.resolveClassInput(formLeaflet.get('center'))"
+                 class="border-1 border-grey-600 form-control"
+                 formControlName="lon"
+                 id="longitude"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+    </div>
+    <div class="row m-0">
+      <div class="col-lg-6 pl-0">
+        <div class="form-group">
+          <label class="pb-1 font-weight-semibold" for="zoom">Zoom</label>
+          <input [ngClass]="inputClass.resolveClassInput(formLeaflet.get('zoom'))"
+                 class="border-1 border-grey-600 form-control" formControlName="zoom"
+                 id="zoom"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+      <div class="col-lg-6 pr-0">
+        <div class="d-flex flex-column flex-grow-1" formGroupName="layerControl">
+          <label class="pb-1 font-weight-semibold" for="position">Control Position</label>
+          <ng-select [clearable]="false"
+                     [items]="layerControlPositions"
+                     [searchable]="false"
+                     bindLabel="label"
+                     bindValue="value"
+                     formControlName="position"
+                     id="position">
+          </ng-select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-chart-map-tiles-option (mapTilesOption)="formLeaflet.get('tiles').setValue($event)"></app-chart-map-tiles-option>
+</form>
+

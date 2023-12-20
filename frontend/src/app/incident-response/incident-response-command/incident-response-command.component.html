@@ -1,0 +1,81 @@
+<div class="container-fluid p-2">
+  <div class="card h-100">
+    <div class="card bg-light border-0 m-0">
+      <div class="d-flex p-1 m-1 justify-content-between align-items-center">
+        <!--        <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>-->
+        <app-utm-search-input (searchFor)="searchAction($event)"
+                              [searching]="searching"
+                              placeholder="Search command">
+        </app-utm-search-input>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table text-nowrap table-borderless">
+        <tbody *ngIf="actions && actions.length>0">
+        <tr *ngFor="let action of actions">
+          <!--          #p="ngbPopover"-->
+          <!--          [ngbPopover]="popPreview"-->
+          <!--          autoClose="outside"-->
+          <!--          container="body"-->
+          <!--          placement="left"-->
+          <!--          triggers="mouseenter:mouseleave"-->
+          <!--          <ng-template #popPreview let-visualization="vis">-->
+          <!--            <div class="tooltip-fixed-height w-100 h-100">-->
+          <!--              <p class="font-weight-thin" [innerHTML]="action.actionDescription"></p>-->
+          <!--            </div>-->
+          <!--          </ng-template>-->
+          <td class="" colspan="8">
+            <div class="text-blue-800 d-flex align-items-start justify-content-start">
+              <code class="text-blue-800 font-weight-bolder">{{action.actionCommand}}</code>
+              <p class="font-weight-thin ml-2 comand-help" [innerHTML]="action.actionDescription"></p>
+              <!--              <div class="d-flex justify-content-center align-items-center" *ngIf="action.actionEditable">-->
+              <!--                <i (click)="editAction(action)" class="icon-pencil3 mr-2 cursor-pointer"></i>-->
+              <!--                <i (click)="openDeleteConfirmation(action)" class="icon-cross2 cursor-pointer"></i>-->
+              <!--              </div>-->
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(actions.length===0 && !loading)">
+        <tr>
+          <td colspan="5">
+            <app-no-data-found [padding]="'p-5'"></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading commands'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <!--    <div *ngIf="actions && actions.length>0" class="mb-4">-->
+    <!--      <div class="row justify-content-center">-->
+    <!--        <ngb-pagination-->
+    <!--          (pageChange)="loadPage($event)"-->
+    <!--          [(page)]="page"-->
+    <!--          [boundaryLinks]="true"-->
+    <!--          [collectionSize]="totalItems"-->
+    <!--          [maxSize]="5"-->
+    <!--          [pageSize]="itemsPerPage"-->
+    <!--          [rotate]="true"-->
+    <!--          [size]="'sm'"></ngb-pagination>-->
+    <!--      </div>-->
+    <!--    </div>-->
+  </div>
+  <!--  <div class="button-container d-flex justify-content-end mt-3">-->
+  <!--    <button (click)="newCommand()" class="btn utm-button utm-button-primary">-->
+  <!--      <i class="icon-plus3 mr-2"></i> New action-->
+  <!--    </button>-->
+  <!--  </div>-->
+</div>
+

@@ -1,0 +1,36 @@
+<div class="w-100 p-3">
+  <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+    <span class="text-blue-800 font-weight-light mr-2">Description:</span>&nbsp;
+    <p class="font-size-base">{{rule.description}}</p>
+  </div>
+
+  <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+    <span class="text-blue-800 font-weight-light mr-2">Created by:</span>&nbsp;
+    <p class="font-size-base">{{rule.createdBy}}</p>
+  </div>
+
+  <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+    <span class="text-blue-800 font-weight-light mr-2">Modified at:</span>&nbsp;
+    <p class="font-size-base">{{rule.lastModifiedDate | date:'short'}}</p>
+  </div>
+
+  <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+       <span class="p-1 utm-box-label">
+            Tags
+       </span>
+    <app-alert-tag-label [tags]="rule.tags"></app-alert-tag-label>
+  </div>
+
+  <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+       <span class="p-1 utm-box-label">
+            Rule conditions
+       </span>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2"
+         *ngFor="let condition of rule.conditions">
+      <span class="text-blue-800 font-weight-light has-minimum-width">{{getFieldName(condition.field)}}</span>&nbsp;
+      <span class="font-weight-light  font-weight-semibold mr-2">{{getFilterName(condition.operator)}}</span>&nbsp;
+      <span class="">{{condition.value}}</span>&nbsp;
+    </div>
+
+  </div>
+</div>

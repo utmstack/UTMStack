@@ -1,0 +1,32 @@
+.metric-property-container {
+  max-height: calc(75vh - 50px);
+  height: calc(75vh - 50px);
+  overflow-y: auto;
+}
+
+.metric-data-container {
+  background-color: #F5F7FA;
+}
+
+.type-axis {
+  min-width: 70px;
+}
+
+.property {
+  .span-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
+  }
+}
+
+.card-bucket {
+  position: inherit !important;
+}
+
+.field-buckets-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}

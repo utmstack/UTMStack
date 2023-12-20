@@ -1,0 +1,28 @@
+<div *ngIf="localGroups"
+     class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+                  <span class="p-1 utm-box-label">
+                  <i class="icon-make-group"></i>
+                  Local groups</span>
+  <div *ngFor="let group of localGroups;let index = index" class="local-groups mb-2">
+    <div (click)="toggleViewMembers(group.members.length,index)"
+         class="d-flex justify-content-start align-items-start cursor-pointer">
+      <i *ngIf="group.members.length>0"
+         [ngClass]="isCollapsed===index?'icon-arrow-up32':'icon-arrow-down32'"
+         class="text-blue-800 mr-2"
+         container="body"
+         ngbTooltip="View members"
+         placement="top"
+         tooltipClass="utm-tooltip-top"></i>
+      <span>{{group.name}}</span>&nbsp;
+      <span>({{group.description}})</span>
+    </div>
+    <div *ngIf="isCollapsed===index" class="w-100">
+      <div class="card p-2">
+        <app-ad-member-of
+          *ngIf="group.members.length>0"
+          [members]="getMembersOfGroup(group.members)"></app-ad-member-of>
+      </div>
+    </div>
+  </div>
+</div>
+

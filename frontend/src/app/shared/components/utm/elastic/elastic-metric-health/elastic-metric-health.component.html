@@ -1,0 +1,54 @@
+<div *ngIf="!clusterHealth"
+     class="loading d-flex justify-content-center align-items-center" style="height: 150px">
+  <app-utm-spinner [loading]="!clusterHealth"></app-utm-spinner>
+</div>
+<div *ngIf="clusterHealth" class="w-100">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="text-blue-800 d-flex align-content-center justify-content-start">
+      <span class="span-small-icon mr-2">
+        <i [ngClass]="status === 'UP'?
+                  'icon-circle2 text-success-800':
+                  status === 'MEDIUM'?'icon-circle2 text-warning-800':'icon-circle2 text-danger-800'"></i>
+      </span>
+      Data Engine</h6>
+  </div>
+
+  <div class="w-100 d-inline-block">
+    <div class="d-flex justify-content-start align-items-center mb-2">
+         <span class="svg-icon svg-icon-primary svg-icon-sm mr-1"
+               inlineSVG="assets/icons/header/hardisk.svg"></span>
+      <span>Disk usage ({{clusterHealth.diskUsed + 'GB'
+      + ' used of ' + clusterHealth.diskTotal + 'GB'}})</span>
+    </div>
+    <app-utm-progressbar [value]="clusterHealth.diskUsedPercent"></app-utm-progressbar>
+  </div>
+
+  <div class="w-100 d-inline-block mt-3">
+    <div class="d-flex justify-content-start align-items-center mb-2">
+         <span class="svg-icon svg-icon-primary svg-icon-sm mr-1"
+               inlineSVG="assets/icons/header/RAM.svg"></span>
+      <span>RAM usage ({{clusterHealth.ramCurrent + 'GB'
+      + ' used of ' + clusterHealth.ramMax + 'GB'  }})</span>
+    </div>
+    <app-utm-progressbar [value]="clusterHealth.ramPercent"></app-utm-progressbar>
+  </div>
+
+  <div class="w-100 d-inline-block mt-3">
+    <div class="d-flex justify-content-start align-items-center mb-2">
+         <span class="svg-icon svg-icon-primary svg-icon-sm mr-1"
+               inlineSVG="assets/icons/header/heap.svg"></span>
+      <span>Heap usage ({{clusterHealth.heapCurrent + 'GB'
+      + ' used of ' + clusterHealth.heapMax + 'GB'}})</span>
+    </div>
+    <app-utm-progressbar [value]="clusterHealth.heapPercent"></app-utm-progressbar>
+  </div>
+
+  <div class="w-100 d-inline-block mt-3">
+    <div class="d-flex justify-content-start align-items-center mb-2">
+         <span class="svg-icon svg-icon-primary svg-icon-sm mr-1"
+               inlineSVG="assets/icons/header/CPU.svg"></span>
+      <span>CPU usage</span>
+    </div>
+    <app-utm-progressbar [value]="clusterHealth.cpuPercent"></app-utm-progressbar>
+  </div>
+</div>

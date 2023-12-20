@@ -1,0 +1,43 @@
+<div class="fixed-top">
+
+  <!-- Main navbar -->
+  <div class="navbar navbar-expand-md navbar-dark utm-navbar">
+
+    <div class="container-fluid  utm-navbar-container d-flex w-100  justify-content-between align-items-center">
+      <div class="navbar-img mr-3 d-flex justify-content-start align-items-center">
+        <img *ngIf="logoImage" [alt]="altImage" [src]="sanitizer.bypassSecurityTrustUrl(logoImage)"
+             class="cursor-pointer" routerLink="/dashboard/overview">
+        <app-utm-version-info></app-utm-version-info>
+
+        <app-utm-license-info class="ml-4"></app-utm-license-info>
+        <app-utm-vault-status class="ml-4"></app-utm-vault-status>
+        <app-utm-date-format-info class="ml-4"></app-utm-date-format-info>
+        <app-utm-getting-started *appHasAnyAuthority="roleAdmin" class="ml-2"></app-utm-getting-started>
+      </div>
+      <ul class="navbar-nav navbar-nav-right flex-nowrap desktop-notifications">
+
+        <li class="nav-item ml-4 text-center">
+          <app-utm-notification-alert></app-utm-notification-alert>
+        </li>
+
+        <li *ngIf="user" class="nav-item ml-4 text-center">
+          <app-utm-notification-user-setting></app-utm-notification-user-setting>
+        </li>
+
+        <li *appHasAnyAuthority="roleAdmin" class="nav-item ml-4 text-center">
+          <app-utm-menu-burger></app-utm-menu-burger>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+  <!-- /main navbar -->
+
+
+  <!-- Alternative navbar -->
+  <div class="navbar navbar-expand-md navbar-light utm-navbar-secondary p-0 utmstack-header-menu">
+    <app-header-menu-navigation></app-header-menu-navigation>
+  </div>
+  <!-- /alternative navbar -->
+
+</div>

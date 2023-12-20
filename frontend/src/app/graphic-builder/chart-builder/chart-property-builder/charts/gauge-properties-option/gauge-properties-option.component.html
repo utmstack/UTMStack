@@ -1,0 +1,321 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-gauge utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Gauge option</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formGaugeSerie">
+      <div *ngFor="let item of series.controls; let index=index"
+           class="metric d-flex flex-column"
+           formArrayName="series">
+        <ng-container [formGroupName]="index">
+          <div class="view-colors d-flex align-items-center justify-content-between">
+            <div class="d-flex justify-content-start align-items-center">
+              <span (click)="viewGaugeProperties()"
+                    class="text-center cursor-pointer">
+                <i [ngClass]="viewGauge?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+              <span class="font-weight-bold">Gauge properties</span>&nbsp;
+            </div>
+          </div>
+          <div *ngIf="viewGauge" class="properties-options">
+            <div class="row m-0 mt-3 p-0">
+              <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                <div class="form-group  m-0">
+                  <label class="pb-1" for="startAngle">Start angle</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="startAngle"
+                         id="startAngle"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                <div class="form-group  m-0">
+                  <label class="pb-1" for="max">End angle</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="endAngle"
+                         id="max"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+            </div>
+            <div class="row m-0 mt-3 p-0">
+              <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                <div class="form-group m-0">
+                  <label class="pb-1" for="min">Min</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="min"
+                         id="min"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                <div class="form-group  m-0">
+                  <label class="pb-1" for="endAngle">Max</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="max"
+                         id="endAngle"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+            </div>
+            <div class="row m-0 mt-3 p-0">
+              <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                <div class="form-group m-0">
+                  <label class="pb-1" for="radius">Radius
+                    <span class="text-blue-800" ngbTooltip="Expressed in % or px"
+                          placement="bottom"
+                          tooltipClass="utm-tooltip-bottom">
+                      <i class="icon-question3"></i>
+                   </span>
+                  </label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="radius"
+                         id="radius"
+                         name=""
+                         type="text">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                <div class="form-group  m-0">
+                  <label class="pb-1" for="splitNumber">Split number</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="splitNumber"
+                         id="splitNumber"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--          axisTick-->
+          <div class="view-colors d-flex align-items-center justify-content-between mt-3">
+            <div class="d-flex justify-content-start align-items-center">
+              <span (click)="viewAxisTickProperties()"
+                    class="text-center cursor-pointer">
+                <i [ngClass]="viewAxisTick?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+              <span class="font-weight-bold">Axis tick</span>&nbsp;
+            </div>
+          </div>
+          <div *ngIf="viewAxisTick" class="properties-options mt-3">
+            <ng-container formGroupName="axisTick">
+              <app-utm-toggle (toggleChange)="series.at(index).get('axisTick').get('show').setValue($event)"
+                              [active]="true" label="Show axis tick"></app-utm-toggle>
+
+              <div class="row m-0 mt-3 p-0">
+                <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="splitNumberStick">Stick split Number</label>
+                    <input class="border-1 border-grey-600 form-control"
+                           formControlName="splitNumber"
+                           id="splitNumberStick"
+                           name=""
+                           type="number">
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="length">Length</label>
+                    <input class="border-1 border-grey-600 form-control"
+                           formControlName="length"
+                           id="length"
+                           name=""
+                           type="number">
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <ng-container class="mt-3" formGroupName="lineStyle">
+                  <app-utm-single-color-select
+                    [color]="series.at(index).get('axisTick').get('lineStyle').get('color').value"
+                    (singleColorChange)="series.at(index).get('axisTick').get('lineStyle').get('color').setValue($event)">
+                  </app-utm-single-color-select>
+                  <div class="row m-0 mt-3 p-0">
+                    <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                      <div class="form-group  m-0">
+                        <label class="pb-1" for="splitNumberStick">LineBar style width</label>
+                        <input class="border-1 border-grey-600 form-control"
+                               formControlName="width"
+                               id="width"
+                               name=""
+                               type="number">
+                      </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                      <div class="d-flex flex-column flex-grow-1">
+                        <label class="pb-1" for="visType">Type</label>
+                        <ng-select [clearable]="false"
+                                   [items]="lineStyle"
+                                   [loadingText]="'Loading type....'"
+                                   [loading]="!lineStyle"
+                                   bindLabel="name"
+                                   formControlName="type"
+                                   id="visType">
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </ng-container>
+          </div>
+
+          <!--          pointer-->
+          <div class="view-colors d-flex align-items-center justify-content-between mt-3">
+            <div class="d-flex justify-content-start align-items-center">
+              <span (click)="viewPointerProperties()"
+                    class="text-center cursor-pointer">
+                <i [ngClass]="viewPointer?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+              <span class="font-weight-bold">Pointer</span>&nbsp;
+            </div>
+          </div>
+          <div *ngIf="viewPointer" class="properties-options mt-3">
+            <ng-container formGroupName="pointer">
+              <app-utm-toggle (toggleChange)="series.at(index).get('pointer').get('show').setValue($event)"
+                              [active]="true" label="Show pointer"></app-utm-toggle>
+
+              <div class="row m-0 mt-3 p-0">
+                <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="pointerWidth">Pointer width</label>
+                    <input class="border-1 border-grey-600 form-control"
+                           formControlName="width"
+                           id="pointerWidth"
+                           name=""
+                           type="number">
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="pointerLength">Pointer length</label>
+                    <input class="border-1 border-grey-600 form-control"
+                           formControlName="length"
+                           id="pointerLength"
+                           name=""
+                           type="text">
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <!--          detail-->
+          <div class="view-colors d-flex align-items-center justify-content-between mt-3">
+            <div class="d-flex justify-content-start align-items-center">
+              <span (click)="viewDetailProperties()"
+                    class="text-center cursor-pointer">
+                <i [ngClass]="viewDetail?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+              <span class="font-weight-bold">Gauge detail</span>&nbsp;
+            </div>
+          </div>
+          <div *ngIf="viewDetail" class="properties-options">
+            <ng-container formGroupName="detail">
+              <div class="row m-0 mt-3 p-0">
+                <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="fontWeight">Font weight</label>
+                    <input class="border-1 border-grey-600 form-control"
+                           formControlName="fontWeight"
+                           id="fontWeight"
+                           name=""
+                           type="text">
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="formatter">Formatter</label>
+                    <input class="border-1 border-grey-600 form-control"
+                           formControlName="formatter"
+                           id="formatter"
+                           name=""
+                           type="text">
+                  </div>
+                </div>
+              </div>
+              <div class="row m-0 mt-3 p-0">
+                <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="offsetCenter">Offset left</label>
+                    <input (input)="setOffset($event,'left',index)"
+                           class="border-1 border-grey-600 form-control"
+                           id="offsetCenter"
+                           name=""
+                           type="number"
+                           value="0">
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                  <div class="form-group  m-0">
+                    <label class="pb-1" for="offsetCenterTop">Offset left</label>
+                    <input (input)="setOffset($event,'top',index)"
+                           class="border-1 border-grey-600 form-control"
+                           id="offsetCenterTop"
+                           name=""
+                           type="number"
+                           value="30">
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <!--          axis-->
+          <div class="view-colors d-flex align-items-center justify-content-between mt-3">
+            <div class="d-flex justify-content-start align-items-center">
+              <span (click)="viewAxisLineProperties()"
+                    class="text-center cursor-pointer">
+                <i [ngClass]="viewAxisLine?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+              <span class="font-weight-bold">Axis line</span>&nbsp;
+            </div>
+          </div>
+          <div *ngIf="viewAxisLine" class="properties-options">
+            <ng-container formGroupName="axisLine">
+              <div class="mt-3">
+                <app-utm-toggle (toggleChange)="series.at(index).get('axisLine').get('show').setValue($event)"
+                                [active]="true" label="Show axis line"></app-utm-toggle>
+              </div>
+              <ng-container formGroupName="lineStyle">
+                <div class="row m-0 mt-3 p-0">
+                  <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                    <div class="form-group  m-0">
+                      <label class="pb-1" for="axisLineWidth">Axis line width</label>
+                      <input class="border-1 border-grey-600 form-control"
+                             formControlName="width"
+                             id="axisLineWidth"
+                             name=""
+                             type="number">
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+
+          <app-gauge-range-color
+            (rangeColorChange)="series.at(index).get('axisLine').get('lineStyle').get('color').setValue($event)"
+            [ranges]="series.at(index).get('axisLine').get('lineStyle').get('color').value">
+          </app-gauge-range-color>
+        </ng-container>
+      </div>
+
+
+      <app-chart-toolbox-option (toolboxOptionChange)="onToolboxOptionChange($event)"
+                                [chartType]="chartEnum.GAUGE_CHART">
+      </app-chart-toolbox-option>
+
+      <app-chart-grid-option (gridOptionChange)="onGridOptionChange($event)"
+                             [gridOption]="options.grid">
+      </app-chart-grid-option>
+    </form>
+
+  </div>
+</div>

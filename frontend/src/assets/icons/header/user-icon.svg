@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  height="19.728813"
+  id="svg12"
+  version="1.1"
+  viewBox="0 0 20.542374 19.728813"
+  width="20.542374"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:cc="http://creativecommons.org/ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+  <metadata
+    id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+        rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+          rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+    bordercolor="#666666"
+    borderopacity="1"
+    gridtolerance="10"
+    guidetolerance="10"
+    id="namedview14"
+    inkscape:current-layer="svg12"
+    inkscape:cx="9.6610169"
+    inkscape:cy="10.271186"
+    inkscape:pageopacity="0"
+    inkscape:pageshadow="2"
+    inkscape:window-height="1001"
+    inkscape:window-maximized="1"
+    inkscape:window-width="1920"
+    inkscape:window-x="-9"
+    inkscape:window-y="-9"
+    inkscape:zoom="9.8333333"
+    objecttolerance="10"
+    pagecolor="#ffffff"
+    showgrid="false"/>
+  <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+  <defs
+    id="defs6"/>
+  <g
+    id="Stockholm-icons-/-General-/-User"
+    style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1"
+    transform="matrix(1.0762712,0,0,1.0042373,-2.3389831,-2.5423729)">
+    <polygon
+      id="Shape"
+      points="0,0 24,0 24,24 0,24 "/>
+    <path
+      d="M 12,11 C 9.790861,11 8,9.209139 8,7 8,4.790861 9.790861,3 12,3 c 2.209139,0 4,1.790861 4,4 0,2.209139 -1.790861,4 -4,4 z"
+      id="Mask"
+      style="opacity:1;fill:#ffffff;fill-rule:nonzero"/>
+    <path
+      d="M 3.0006517,20.199206 C 3.3882585,15.426516 7.2619123,13 11.983341,13 c 4.787875,0 8.721543,2.293193 9.014573,7.2 0.01167,0.195474 0,0.8 -0.751214,0.8 -3.705576,0 -9.211975,0 -16.5191978,0 -0.25079,0 -0.7479639,-0.54082 -0.7268505,-0.800794 z"
+      id="Mask-Copy"
+      style="fill:#ffffff;fill-rule:nonzero"/>
+  </g>
+</svg>

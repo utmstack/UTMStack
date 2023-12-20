@@ -1,0 +1,45 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div [ngClass]="visualization.chartType === chartEnum.AREA_LINE_CHART ||
+    visualization.chartType === chartEnum.LINE_CHART?'utm-icon-line':'utm-icon-bar'"
+         class=" utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">
+      {{visualization.chartType === chartEnum.AREA_LINE_CHART ||
+    visualization.chartType === chartEnum.LINE_CHART ? 'Line' : 'Bar'}} option
+    </h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formLineBar">
+      <app-chart-series-line-bar-option
+        (seriesOptions)="formLineBar.get('seriesOption').setValue($event)"
+        [chartType]="visualization.chartType">
+      </app-chart-series-line-bar-option>
+
+      <app-chart-axis-option (axisOptionChange)="formLineBar.get('yAxis').setValue($event)"
+                             [axis]="'yAxis'"
+                             [chartType]="visualization.chartType">
+      </app-chart-axis-option>
+
+      <app-chart-axis-option (axisOptionChange)="formLineBar.get('xAxis').setValue($event)"
+                             [axis]="'xAxis'"
+                             [chartType]="visualization.chartType">
+      </app-chart-axis-option>
+
+      <app-chart-legend-option (legendOptionChange)="formLineBar.get('legend').setValue($event)">
+      </app-chart-legend-option>
+
+      <app-chart-toolbox-option (toolboxOptionChange)="formLineBar.get('toolbox').setValue($event)"
+                                [chartType]="visualization.chartType">
+      </app-chart-toolbox-option>
+
+      <app-chart-color-option (colorOptionChange)="formLineBar.get('color').setValue($event)">
+      </app-chart-color-option>
+
+      <app-chart-grid-option (gridOptionChange)="formLineBar.get('grid').setValue($event)">
+      </app-chart-grid-option>
+
+      <app-chart-data-zoom (dataZoomOption)="formLineBar.get('dataZoom').setValue($event)">
+      </app-chart-data-zoom>
+    </form>
+  </div>
+</div>

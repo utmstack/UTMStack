@@ -1,0 +1,95 @@
+<form [formGroup]="markForm">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewMarkProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewMark?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">{{markType === 'line' ? 'Mark line' : 'Mark point'}}</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewMark" class="properties-options">
+    <div *ngIf="markType==='point'" class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold"
+             for="symbol">Symbol</label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'type'"
+                 [items]="symbols"
+                 [searchable]="true"
+                 formControlName="symbol"
+                 id="symbol"
+                 loadingText="Loading symbol...">
+      </ng-select>
+    </div>
+    <div class="row m-0 mt-3">
+      <div *ngIf="markType==='point'" class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="form-group">
+          <label class="pb-1 font-weight-semibold" for="symbolSize">
+            Symbol size
+          </label>
+          <input class="border-1 border-grey-600 form-control"
+                 formControlName="symbolSize" id="symbolSize"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12 pr-0" formGroupName="label">
+        <div class="form-group">
+          <label class="pb-1 font-weight-semibold" for="fontSize">
+            Font size
+          </label>
+          <input [min]="8"
+                 class="border-1 border-grey-600 form-control" formControlName="fontSize"
+                 id="fontSize"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+    </div>
+
+    <div *ngFor="let item of data.controls; let index=index"
+         class="metric d-flex flex-column mt-4"
+         formArrayName="data">
+      <ng-container [formGroupName]="index">
+        <div class="utm-box p-3 border-1 border-blue-800 position-relative">
+          <span class="p-1 utm-box-label">
+          <i class="icon-pin"></i>
+            {{data.at(index).get('type').value}}
+         </span>
+          <div class="d-flex flex-column flex-grow-1 mt-1">
+            <label class="pb-1 font-weight-semibold"
+                   for="types{{index}}">Type</label>
+            <ng-select [clearable]="false"
+                       [items]="pointTypes"
+                       [searchable]="true"
+                       formControlName="type"
+                       id="types{{index}}"
+                       loadingText="Loading types...">
+            </ng-select>
+          </div>
+          <div class="form-group mt-3">
+            <label class="pb-1 font-weight-semibold" for="name{{index}}">
+              Name
+            </label>
+            <input class="border-1 border-grey-600 form-control"
+                   formControlName="name" id="name{{index}}"
+                   name=""
+                   type="text">
+          </div>
+          <div class="delete-metric-button d-flex justify-content-center mt-3">
+             <span (click)="delete(index)"
+                   class="p-1 border-1 text-danger-600 border-danger-600
+               text-center rounded cursor-pointer">
+                Delete {{markType}}
+             </span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <div class="add-metric-button d-flex justify-content-center mt-3">
+        <span (click)="addData()"
+              class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+          Add {{markType}}
+        </span>
+    </div>
+  </div>
+</form>

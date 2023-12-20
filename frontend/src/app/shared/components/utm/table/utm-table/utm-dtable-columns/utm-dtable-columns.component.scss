@@ -1,0 +1,102 @@
+@import "../../../../../../../assets/styles/theme";
+@import "../../../../../../../assets/styles/var";
+
+.d-columns-container {
+  min-width: 300px;
+
+  .sortable-list-item {
+    .field-name {
+      max-width: 250px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  .operation {
+    min-width: 30px;
+  }
+
+  .card-not-visible {
+    width: 300px;
+
+    .card-header-inactive {
+      background: white !important;
+      color: $primary-color !important;
+      font-weight: 400;
+      padding: 4px 10px 0 10px !important;
+      height: 28px !important;
+      border-bottom: 1px solid #d9d9d9;
+      box-sizing: border-box;
+      font-size: 12px;
+    }
+
+    .ul-container {
+      height: 250px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+  }
+}
+
+
+::ng-deep {
+  .card-column-text {
+    font-size: 12px;
+  }
+
+  .sortable-container .sortable-header {
+    padding: 0 10px !important;
+    height: 28px !important;
+  }
+
+  .sortable-container .sortable-list {
+    overflow-y: scroll;
+    //
+    //li {
+    //  padding: 2% 5% !important;
+    //  height: 30px;
+    //  font-size: 12px;
+    //}
+  }
+
+  .sortable-container .sortable-list .sortable-list-item {
+    font-size: 12px;
+  }
+
+  .sortable-container .sortable-list .active {
+    background-color: #1a6a81 !important;
+  }
+
+  .sortable-header {
+    background: white !important;
+    color: $primary-color !important;
+    font-weight: 300;
+  }
+
+  .sortable-container .sortable-header .sortable-buttons {
+    button {
+      display: none !important;
+      background: $primary-color !important;
+      border: 0 solid $primary-color !important;
+    }
+  }
+
+  .sortable-container .sortable-header .sortable-buttons button {
+    display: none !important;
+    background: $primary-color !important;
+    border: 0 solid $primary-color !important;
+  }
+
+  .sortable-container .sortable-list .active {
+    background: #309faa !important;
+    color: white;
+    border-left: 3px solid $primary-color !important;
+  }
+}
+
+.active {
+  background-color: #3f94e9 !important;
+  color: #ffffff;
+  border-left: 3px solid $primary-color !important;
+}

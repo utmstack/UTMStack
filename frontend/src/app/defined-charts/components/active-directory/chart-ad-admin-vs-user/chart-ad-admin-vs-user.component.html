@@ -1,0 +1,29 @@
+<div class="card">
+  <div
+    class="card-header card-header-chart p-2 pl-2
+                   d-flex justify-content-between align-items-center bg-light">
+    <label class="card-title label-header text-blue-800">Administrator VS standard users</label>
+<!--    <app-elastic-filter-time (timeFilterChange)="onChangeAdminsVsUserDateChange($event)"-->
+<!--                             [invertContent]="true"-->
+<!--                             [timeDefault]="defaultTime"></app-elastic-filter-time>-->
+  </div>
+
+  <div class="card-body p-0 pr-3 pl-3">
+    <div *ngIf="loadingAdminVsUser"
+         class="loading-chart w-100 h-100
+                 host-chart chart has-fixed-height
+                 d-flex justify-content-center
+                 align-items-center demo-chart">
+      <app-utm-spinner [height]="'110px'" [loading]="loadingAdminVsUser" [width]="'110px'">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="!pieAdminVsUser && !loadingAdminVsUser"
+         class="host-chart chart has-fixed-height demo-chart">
+      <app-no-data-chart [typeChart]="echartEnum.PIE_CHART"></app-no-data-chart>
+    </div>
+    <div (chartClick)="navigateToUserDetailChart($event)" *ngIf="pieAdminVsUser && !loadingAdminVsUser"
+         [autoResize]="true"
+         [options]="pieAdminVsUser" class="demo-chart"
+         echarts theme="macarons"></div>
+  </div>
+</div>

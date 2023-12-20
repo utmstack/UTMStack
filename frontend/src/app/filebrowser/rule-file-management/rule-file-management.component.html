@@ -1,0 +1,16 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Correlation rules</h5>
+  </div>
+</div>
+<div class="d-flex justify-content-start">
+  <div style="min-width:350px;width: 350px;">
+    <app-rule-field-browser style="height: 100%"></app-rule-field-browser>
+  </div>
+  <div class="flex-grow-1">
+    <iframe [ngStyle]="{'height':height+'px'}" [src]="iframeSrc | safe:'resourceUrl'" frameborder="0"
+            width="100%"></iframe>
+  </div>
+
+</div>
+

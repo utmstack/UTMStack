@@ -1,0 +1,27 @@
+<app-utm-modal-header [name]="'Delete notification config'" class="w-100" type="delete"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <button (click)="activeModal.dismiss('closed')" aria-label="Close" class="close button-close" data-dismiss="modal"
+          type="button">
+    <span class="close-modal-icon"></span>
+  </button>
+  <h5 class="card-title">Delete notification config</h5>
+
+  <div class="category-container d-flex flex-column p-3 w-100">
+    <div class="modal-body">
+      <h6>
+        Are you sure that you want to delete config <strong>{{notification.name}}</strong>.?
+      </h6>
+    </div>
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="deleteConfig()"
+              class="btn utm-button utm-button-danger">
+        <i class="icon-database-remove"></i>&nbsp;
+        Delete
+      </button>
+    </div>
+  </div>
+</div>

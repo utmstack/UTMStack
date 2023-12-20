@@ -1,0 +1,9 @@
+<div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+        <span class="p-1 utm-box-label">
+          <i class="icon-pagebreak"></i>
+          Limit</span>
+  <div class="limits d-flex justify-content-between align-items-center pt-1">
+          <span (click)="applyLimit(lim)" *ngFor="let lim of limitRange"
+                [ngClass]="lim===limit?'bg-blue-800':'bg-blue-600'" class="badge cursor-pointer">{{lim}}</span>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+@import "../../../../../assets/styles/theme";
+@import "../../../../../assets/styles/var";
+@import "../../../../../assets/styles/custom-elements";
+
+.add-action-form {
+  font-size: 15px;
+  color: $primary-color;
+  text-transform: uppercase;
+
+  &:hover {
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,28 @@
+<div *ngIf="group" class="p-2">
+  <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label">
+          Detail
+     </span>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Name:</span>&nbsp;
+      <span>{{group.groupName}}</span>
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Description:</span>&nbsp;
+      <span>{{group.groupDescription}}</span>
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Date:</span>&nbsp;
+      <span>{{group.createdDate | date:'short'}}</span>
+    </div>
+  </div>
+  <div *ngIf="group.metrics" class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label">
+          Metrics
+     </span>
+    <app-asset-group-metrics [detailed]="false" [group]="group"></app-asset-group-metrics>
+  </div>
+  <div class="w-100 mt-3">
+    <app-asset-by-group [group]="group"></app-asset-by-group>
+  </div>
+</div>

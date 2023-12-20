@@ -1,0 +1,19 @@
+<div class="d-flex justify-content-start align-items-center w-100">
+  <ng-select (change)="onSelectChange($event)"
+             [(ngModel)]="standardId"
+             [clearable]="true"
+             [items]="standards"
+             [loadingText]="'Loading standards...'"
+             [loading]="!standards"
+             [searchable]="true"
+             bindLabel="standardName"
+             bindValue="id"
+             class="w-50">
+  </ng-select>
+  <div class="text-blue-800 ml-3 cursor-pointer">
+           <span (click)="newStandard()">
+             <i class="icon-plus3"></i>
+             Add standard
+           </span>
+  </div>
+</div>

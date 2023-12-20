@@ -1,0 +1,70 @@
+.print-logo-img {
+  img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.alert-full-detail-card {
+  width: 45%;
+}
+
+.alert-not-found {
+  i {
+    font-size: 90px;
+    color: rgba(0, 75, 139, 0.30) !important;
+  }
+
+  h6 {
+    font-size: 14px;
+    color: rgba(0, 75, 139, 0.30) !important;
+  }
+}
+
+
+.has-minimum-width {
+  min-width: 90px;
+}
+
+.w-45 {
+  width: 48%;
+}
+
+.alert-details {
+  align-items: center;
+}
+
+
+a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: .75rem !important;
+}
+
+.alert-status-change {
+  padding-left: 90px;
+}
+
+.min-h-500px {
+  min-height: 500px;
+}
+
+
+.vis-container-print {
+  margin-top: 20px;
+}
+
+.body-front-page {
+  width: 1100px !important;
+}
+
+//.w-1000 {
+//  min-width: 1100px !important;
+//  width: 1100px !important;
+//  padding: 0 15px;
+//}
+
+@media print {
+  .page-break { page-break-inside: avoid; page-break-before: always; }
+}

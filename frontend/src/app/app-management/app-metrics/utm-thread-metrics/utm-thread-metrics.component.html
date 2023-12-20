@@ -1,0 +1,76 @@
+<div class="m-0 card h-100">
+  <div class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label class="card-title text-blue-800">
+      Threads
+    </label>
+
+  </div>
+  <div class="card-body p-3">
+    <div class="mt-3">
+    <span class="mb-1">
+      <span>Runnable</span>
+      ({{ threadStats.threadDumpRunnable }})
+    </span>
+      <ngb-progressbar
+        [animated]="true"
+        [max]="threadStats.threadDumpAll"
+        [striped]="false"
+        [value]="threadStats.threadDumpRunnable"
+        height="3px"
+        type="success">
+      </ngb-progressbar>
+      <div class="d-flex justify-content-center align-items-center">
+        <span>{{ (threadStats.threadDumpRunnable * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+    <div class="mt-3">
+    <span class="mb-1">
+       <span>Timed Waiting</span> ({{ threadStats.threadDumpTimedWaiting }})
+    </span>
+      <ngb-progressbar
+        [animated]="true"
+        [max]="threadStats.threadDumpAll"
+        [striped]="false"
+        [value]="threadStats.threadDumpTimedWaiting"
+        height="3px"
+        type="warning">
+      </ngb-progressbar>
+      <div class="d-flex justify-content-center align-items-center">
+        <span>{{ (threadStats.threadDumpTimedWaiting * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+    <div class="mt-3">
+    <span class="mb-1">
+      <span>Waiting</span>
+     ({{ threadStats.threadDumpWaiting }})
+    </span>
+      <ngb-progressbar
+        [animated]="true"
+        [max]="threadStats.threadDumpAll"
+        [striped]="false"
+        [value]="threadStats.threadDumpWaiting"
+        height="3px"
+        type="warning">
+      </ngb-progressbar>
+      <div class="d-flex justify-content-center align-items-center">
+        <span>{{ (threadStats.threadDumpWaiting * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+    <div class="mt-3">
+      <span class="mb-1"><span>Blocked</span> ({{ threadStats.threadDumpBlocked }})</span>
+      <ngb-progressbar
+        [animated]="true"
+        [max]="threadStats.threadDumpAll"
+        [striped]="false"
+        [value]="threadStats.threadDumpBlocked"
+        height="3px"
+        type="success">
+      </ngb-progressbar>
+      <div class="d-flex justify-content-center align-items-center">
+        <span>{{ (threadStats.threadDumpBlocked * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+    <div class="mt-3 font-weight-semibold">Total: {{ threadStats.threadDumpAll }}</div>
+  </div>
+</div>

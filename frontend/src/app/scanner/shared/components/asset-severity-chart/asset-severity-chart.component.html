@@ -1,0 +1,11 @@
+<div [ngStyle]="{'width':type==='card'?'100%':'133px' }" class="asset-chart-body">
+  <div [ngStyle]="{'height':type==='card'?'120px':'35px' }" [options]="pieOption" class="demo-chart" echarts>
+  </div>
+  <span [ngClass]="type==='card'?'severity-number-card':'severity-number-row'"
+        [ngStyle]="{'color':severityResolverService.resolveColor(severity)}"
+        class="severity-number font-weight-bold">
+       {{severity !== null ?
+    severityResolverService.resolveSeverityFixed(severity.includes('-99') ? null : severity) :
+    null}}
+  </span>
+</div>

@@ -1,0 +1,40 @@
+<div class="container-fluid dashboard-container pr-3 pl-3 pt-2">
+  <div *ngIf="!pdfExport" class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title label-header mb-0 text-uppercase label-header">Log Sources</h5>
+    <div class="header-elements d-flex justify-content-end align-items-center">
+      <app-elastic-filter-time [invertContent]="true"
+                               [isEmitter]="true"
+                               container="body"></app-elastic-filter-time>
+      <button (click)="exportToPdf()"
+              [disabled]="pdfExport" class="btn utm-button utm-button-primary ml-2">
+        <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+  <app-utm-report-header *ngIf="pdfExport" [reportName]="'UTMSTACK Log Sources'"></app-utm-report-header>
+</div>
+<div class="row m-0">
+  <div class="col-lg-12 col-sm-12 col-md-12">
+    <app-data-source-input></app-data-source-input>
+  </div>
+</div>
+
+<div *ngIf="visualizations&& !loading"
+     class="row m-0">
+  <div #container
+       *ngFor="let vis of visualizations"
+       class="col-lg-12 col-sm-12 col-md-12 mb-3">
+    <app-utm-viewer [building]="false"
+                    [chartId]="vis.visualization.id"
+                    [chart]="vis.visualization.chartType"
+                    [exportFormat]="true"
+                    [height]="(vis.visualization.chartType === chartTypeEnum.TABLE_CHART
+                       || vis.visualization.chartType === chartTypeEnum.LIST_CHART
+                       || vis.visualization.chartType === chartTypeEnum.TEXT_CHART)?'100%':'370px'"
+                    [showTime]="true"
+                    [visualization]="vis.visualization"
+                    [width]="'100%'">
+    </app-utm-viewer>
+  </div>
+</div>

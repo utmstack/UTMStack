@@ -1,0 +1,76 @@
+<div class="card w-100">
+  <div class="header-elements p-2 d-flex justify-content-between align-items-center">
+    <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                             [changeOnInit]="'YES'"
+                             [container]="'body'"
+                             [defaultTime]="defaultTime"
+                             [formatInstant]="true"
+                             [invertContent]="true">
+    </app-elastic-filter-time>
+    <app-utm-search-input (searchFor)="onSearch($event)" placeholder="Search asset"></app-utm-search-input>
+  </div>
+  <div
+    class="table-responsive resizable-table-responsive h-100">
+    <table class="table text-nowrap">
+      <thead>
+      <tr>
+        <th (sort)="onSortBy($event)"
+            *ngFor="let item of assetsFields; let i=index"
+            [hidden]="!item.visible"
+            [isSortable]="item.field!==assetFieldEnum.ASSET_METRICS"
+            [sortable]="item.field"
+            appColumnSortable
+            class="font-weight-semibold cursor-pointer">
+          {{item.label}}
+        </th>
+      </tr>
+      </thead>
+      <tbody *ngIf="assets && assets.length>0">
+      <tr *ngFor="let asset of assets" class="cursor-pointer">
+        <ng-container *ngFor="let td of assetsFields">
+          <td
+            *ngIf="(td.visible)">
+            <app-asset-field-render [data]="asset" [field]="td"></app-asset-field-render>
+          </td>
+        </ng-container>
+      </tr>
+      </tbody>
+      <tbody *ngIf="(assets && assets.length===0)  && !loading">
+      <tr>
+        <td [attr.colspan]="assetsFields.length +1">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td [attr.colspan]="assetsFields.length +1">
+          <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading...'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="assets && assets.length>0" class="mb-3 mt-3">
+    <div class="row justify-content-center">
+      <ngb-pagination (pageChange)="loadPage($event)"
+                      [(page)]="page"
+                      [boundaryLinks]="true"
+                      [collectionSize]="totalItems"
+                      [maxSize]="10"
+                      [pageSize]="itemsPerPage"
+                      [rotate]="true"
+                      [size]="'sm'"></ngb-pagination>
+      <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                              class="ml-3">
+      </app-utm-items-per-page>
+    </div>
+    <!-- TABLE END-->
+  </div>
+</div>

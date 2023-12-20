@@ -1,0 +1,21 @@
+<div *ngIf="file" class="p-2">
+  <div class="utm-box mt-3 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label">
+          Summary
+     </span>
+    <p [innerHTML]="getEventMessage()" class=""></p>
+  </div>
+  <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label">
+       Detail
+     </span>
+    <!--    created-->
+    <div *ngFor="let fileField of fileFields"
+         class="file-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">{{fileField.label}}:</span>&nbsp;
+      <app-file-data-render [field]="getFieldByName(fileField.field)" [file]="file">
+      </app-file-data-render>
+    </div>
+
+  </div>
+</div>

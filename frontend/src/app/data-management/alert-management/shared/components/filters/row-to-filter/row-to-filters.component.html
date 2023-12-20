@@ -1,0 +1,49 @@
+<app-utm-modal-header [name]="'Row to filters'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form *ngIf="filters.length>0" [formGroup]="formRowFilters">
+    <div *ngFor="let item of filters.controls; let index=index"
+         class="d-flex flex-column"
+         formArrayName="filters">
+      <div [formGroupName]="index">
+        <div class="d-flex flex-row justify-content-start align-items-center mb-2 span-small-icon">
+          <i (click)="filters.at(index).get('status').value==='ACTIVE'?
+          filters.at(index).get('status').setValue('INACTIVE'):
+          filters.at(index).get('status').setValue('ACTIVE')"
+             [ngClass]="filters.at(index).get('status').value==='ACTIVE'?
+             'icon-checkbox-checked':'icon-checkbox-unchecked'"
+             class="cursor-pointer" style="font-size: small"></i>
+          <span class="text-blue-800 p-2 w-25">{{filters.at(index).get('label').value}}</span>
+          <!--          <span class="mr-3 ml-3">-->
+          <!--            <span class="border-blue-800 border-1 text-blue-800 p-1 mr-1 cursor-pointer"-->
+          <!--                  (click)="filters.at(index).get('operator').setValue(operatorEnum.IS)"-->
+          <!--                  [ngClass]="{'bg-blue-800 text-white':filters.at(index).get('operator').value ===operatorEnum.IS}">-->
+          <!--              Equal-->
+          <!--            </span>-->
+          <!--                <span class="border-danger-300 border-1 text-danger-300 p-1 cursor-pointer"-->
+          <!--                      (click)="filters.at(index).get('operator').setValue(operatorEnum.IS_NOT)"-->
+          <!--                      [ngClass]="{'bg-danger-300 text-white':filters.at(index).get('operator').value ===operatorEnum.IS_NOT}">-->
+          <!--              Not equal-->
+          <!--            </span>-->
+          <!--                    </span>-->
+          <div class="flex-grow-1">
+            <app-data-field-render [data]="alert"
+                                   [field]="getFieldToRender(filters.at(index).get('field').value)">
+            </app-data-field-render>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button (click)="cancelDelete()" class="btn utm-button utm-button-grey mt-2 mb-0" data-dismiss="modal"
+          type="button">
+    Cancel
+  </button>
+  <button (click)="applyFilter()"
+          class="btn utm-button utm-button-primary mt-2 mb-0">
+    <i class="icon-checkmark-circle"></i>
+    Apply filters
+  </button>
+</div>
+

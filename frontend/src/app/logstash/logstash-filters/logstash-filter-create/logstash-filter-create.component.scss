@@ -1,0 +1,21 @@
+:host ::ng-deep json-editor,
+:host ::ng-deep json-editor .jsoneditor,
+:host ::ng-deep json-editor > div,
+:host ::ng-deep json-editor jsoneditor-outer {
+  height: 90% !important;
+  border: none !important;
+}
+
+
+::ng-deep {
+  .jsoneditor {
+    .jsoneditor-menu {
+      background-color: #232f3e !important;
+      border-bottom: 0 solid transparent !important;
+    }
+  }
+
+  .pico-modal-header {
+    background-color: #232f3e !important;
+  }
+}

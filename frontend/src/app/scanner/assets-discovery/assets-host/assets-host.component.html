@@ -1,0 +1,97 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Asset discovery</h5>
+    <div class="header-elements">
+      <button (click)="saveReport()" [disabled]="assets===null" class="btn utm-button utm-button-primary">
+        <i class="icon-stack-text mr-2"></i> Save report
+      </button>
+      <button (click)="newScan()" class="btn utm-button utm-button-primary ml-2">
+        <i class="icon-lan mr-2"></i> New scan
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-2 pr-0">
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+        </div>
+        <app-assets-host-filter (filterHostChange)="onFilterHostChange($event)"
+                                [hostSo]="hostSo"
+                                [hostname]="hostname"
+                                [severityFilter]="severityFilter">
+        </app-assets-host-filter>
+      </div>
+    </div>
+    <div class="col-lg-10">
+      <div class="card h-100">
+        <div class="card bg-light border-0">
+          <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+            <div class="d-flex">
+              <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+              <div class="change-layout ml-4 d-flex align-items-center">
+              <span class="font-weight-bold text-blue-800 border-left-1 border-left-blue-800 pr-1 pl-1">
+                Layout
+              </span>
+                <div class="host-header-action ml-2" ngbDropdown>
+                <span
+                  aria-expanded="true"
+                  class="cursor-pointer font-weight-bold text-blue-800 cursor-pointer span-small-icon"
+                  data-toggle="dropdown"
+                  ngbDropdownToggle>
+                <i [ngClass]="view==='Card'?'icon-grid4':'icon-list2'" class="mr-1"></i>
+                  {{view}}
+                </span>
+                  <div class="dropdown-menu dropdown-menu-left" ngbDropdownMenu>
+                    <ul>
+                      <li (click)="view='Card'" class="dropdown-item cursor-pointer text-blue-800">
+                        <span>Card</span>
+                      </li>
+                      <li (click)="view='List'" class="dropdown-item cursor-pointer text-blue-800">
+                        <span>List</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span (click)="viewSeverityHelp()" class="text-blue-800 cursor-pointer"
+                  ngbTooltip="View severity info"
+                  placement="left" tooltipClass="utm-tooltip">
+             <i class="icon-info22"></i>
+           </span>
+          </div>
+        </div>
+        <div *ngIf="view==='Card'"
+             class="card-view w-100 p-2  animated fadeIn">
+          <div *ngIf="!loading && assets.length===0" class="w-100 empty p-5 animated fadeIn">
+            <app-no-data-found></app-no-data-found>
+          </div>
+          <div *ngIf="!loading && assets.length>0" class="w-100 d-flex justify-content-around
+             align-items-center flex-wrap">
+            <app-asset-host-card (click)="navigateTo(asset)" *ngFor="let asset of assets"
+                                 [asset]="asset"
+                                 class="cursor-pointer"></app-asset-host-card>
+          </div>
+        </div>
+        <div *ngIf="view==='List'">
+          <app-asset-host-table [assets]="assets" [loading]="loading"></app-asset-host-table>
+        </div>
+
+        <div *ngIf="assets && assets.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage($event)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

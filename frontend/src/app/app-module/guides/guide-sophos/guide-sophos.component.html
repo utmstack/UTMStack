@@ -1,0 +1,75 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Sophos
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <p class="font-size-base">
+      Sophos Central has secured APIs available for customers. These allow the retrieval of event and alert data from
+      Sophos Central, for use in other systems.<br><br>
+
+    <h6 class="font-weight-semibold mt-3 mb-3">
+      How to send alert and event data to UTMStack:
+    </h6>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          You require a token to access event data via the API. In Sophos Central Admin, go to <strong>Global&nbsp;Settings</strong>
+          &gt; <strong>API Token Management</strong>.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          To create a new token, click <strong>Add token</strong> from the top-right corner of the screen.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Select a <strong>token name</strong> and click <strong>Save</strong>. The <strong>API Token Summary</strong>
+          for this token is displayed.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Click ont the <strong>Copy</strong> button to copy your <strong>API Access URL + Headers</strong> from the <strong>API Token
+          Summary</strong> section into your clipboard.
+          <img alt=""
+               class="step-img"
+               src="../../../../assets/img/guides/sophos/sophos-step-5.png"
+               style="height: 400px!important; width: auto">
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Insert information in the following inputs.You can add more than one Sophos
+          configuration by clicking on Add tenant button.
+        </p>
+        <div class="row mt-3">
+          <div class="col-lg-12 col-md-12 col-sm-12">
+            <app-int-generic-group-config [moduleId]="integrationId"
+                                          (configValidChange)="configValidChange($event)"
+                                          [serverId]="serverId"></app-int-generic-group-config>
+          </div>
+        </div>
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">6</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.SOPHOS" [type]="'integration'"
+                                        [disabled]="configValidity"
+                                        [serverId]="serverId"
+                                        class="mt-3">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<app-utm-modal-header [name]="baseName(currentHealth.name)"
+                      class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <h6 *ngIf="subSystemName(currentHealth.name)!==''"
+      class="text-capitalize text-blue-800">{{subSystemName(currentHealth.name)}}</h6>
+
+  <div *ngIf="currentHealth && currentHealth.name === 'diskSpace'" class="w-100 mb-3">
+    <app-utm-progressbar [value]="getProgressValue()"></app-utm-progressbar>
+  </div>
+
+  <div *ngIf="currentHealth.details">
+    <h6 class="font-weight-light">Properties</h6>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+        <tr>
+          <th class="text-left font-weight-semibold text-uppercase">Name</th>
+          <th class="text-left font-weight-semibold text-uppercase">Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let entry of extractHealth()">
+          <td class="text-left">{{entry.name}}</td>
+          <td class="text-left">{{readableValue(entry.value)}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div *ngIf="currentHealth.error">
+    <h4>Error</h4>
+    <pre>{{currentHealth.error}}</pre>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button bg-danger-400 mr-3">
+      <i class="icon-close2"></i>&nbsp;
+      Close
+    </button>
+  </div>
+</div>

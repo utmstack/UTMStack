@@ -1,0 +1,19 @@
+
+.status-health {
+  position: relative;
+
+  span {
+    position: absolute;
+    right: -7px;
+    top: -3px;
+  }
+
+}
+
+.key-icon {
+  font-size: 1rem;
+
+  :first-child {
+    font-size: 13px;
+  }
+}

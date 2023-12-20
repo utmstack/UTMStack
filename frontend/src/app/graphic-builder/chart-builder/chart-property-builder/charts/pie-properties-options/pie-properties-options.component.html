@@ -1,0 +1,33 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-pie utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Pie option</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formPieOptions">
+      <div class="mt-3">
+        <app-utm-toggle
+          (toggleChange)="formPieOptions.get('pieType').setValue($event?'donut':'pie')"
+          [active]="formPieOptions.get('pieType').value==='donut'"
+          [emitAtStart]="false"
+          label="Pie chart is a donut?">
+        </app-utm-toggle>
+      </div>
+
+      <app-chart-legend-option (legendOptionChange)="formPieOptions.get('legend').setValue($event)"
+                               [legend]="formPieOptions.get('legend').value"
+                               [mode]="mode">
+      </app-chart-legend-option>
+
+      <app-chart-color-option (colorOptionChange)="formPieOptions.get('color').setValue($event)">
+      </app-chart-color-option>
+
+      <app-chart-toolbox-option (toolboxOptionChange)="formPieOptions.get('toolbox').setValue($event)"
+                                [chartType]="chartTypeEnum.PIE_CHART">
+      </app-chart-toolbox-option>
+
+      <app-chart-grid-option (gridOptionChange)="formPieOptions.get('grid').setValue($event)">
+      </app-chart-grid-option>
+    </form>
+  </div>
+</div>

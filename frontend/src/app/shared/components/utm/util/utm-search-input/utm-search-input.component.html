@@ -1,0 +1,7 @@
+<div class="form-group form-group-feedback form-group-feedback-left m-0">
+  <input #searcherInput (input)="search($event)" [(ngModel)]="valueSearch" [placeholder]="placeholder"
+         class="form-control" style="font-size: 12px !important;border-radius: 0;" [type]="type">
+  <div class="form-control-feedback">
+    <i [ngClass]="(searching || typing)?'icon-spinner2 spinner':'icon-search4'"></i>
+  </div>
+</div>

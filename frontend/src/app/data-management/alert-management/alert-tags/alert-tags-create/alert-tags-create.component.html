@@ -1,0 +1,47 @@
+<app-utm-modal-header [name]="edit?'Edit tag ':'Add new tag'" class="w-100"></app-utm-modal-header>
+<div class="category-container d-flex flex-column p-3">
+  <div class="form-group">
+    <label for="obs">Tag</label>
+    <input #tag (input)="checkName()" [(ngModel)]="name" class="border-1 border-grey-600 form-control"
+           id="obs" name="">
+    <span *ngIf="!tag.checkValidity()" class="text-danger-300 mt-3">
+      Tag name cant not start with special characters
+    </span>
+  </div>
+  <div *ngIf="typing"
+       class="checking-tag-name d-flex justify-content-start align-items-center">
+    <i class="icon-spinner2 spinner mr-2"></i>
+    <span>Searching tags...</span>
+  </div>
+  <div *ngIf="exist && !typing"
+       class="checking-tag-name d-flex justify-content-start align-items-center text-danger-300">
+    <i class="icon-copy4 mr-2"></i>
+    <span>Tag already exist</span>
+  </div>
+  <div *ngIf="!exist && !typing && name!==''"
+       class="checking-tag-name d-flex justify-content-start align-items-center text-blue-800">
+    <i class="icon-checkmark-circle mr-2"></i>
+    <span>Tag is valid</span>
+  </div>
+  <div class="form-group mt-2">
+    <app-color-select [multiple]="false" [label]="'Select tag color'"
+                      [color]="tagColor"
+                      (singleColor)="tagColor=$event"></app-color-select>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createTag()" *ngIf="!edit"
+            [disabled]="name==='' || !tag.checkValidity() || exist" class="btn utm-button utm-button-primary">
+      <i class="icon-price-tag2"></i>&nbsp;
+      Save
+    </button>
+    <button (click)="editTag()" *ngIf="edit"
+            [disabled]="name==='' || !tag.checkValidity() || exist" class="btn utm-button utm-button-primary">
+      <i class="icon-price-tag2"></i>&nbsp;
+      Edit
+    </button>
+  </div>
+</div>

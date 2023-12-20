@@ -1,0 +1,46 @@
+<div #colorPopober=ngbPopover
+     [ngbPopover]="colContent"
+     [popoverTitle]="colTitle"
+     autoClose="outside"
+     class="text-blue-800 cursor-pointer ml-2 d-flex align-items-center justify-content-start"
+     container="body"
+     placement="auto"
+     popoverClass="utm-popover"
+     triggers="click">
+  <div [ngStyle]="{'background':color}"
+       class="span-color">
+  </div>&nbsp;{{label ? label : 'Select color'}}
+</div>
+
+<ng-template #colContent>
+  <app-utm-search-input (searchFor)="searchColor($event)" placeholder="Search color"></app-utm-search-input>
+  <div class="card-color-container w-100 mt-2">
+    <div *ngFor="let group of colors;let index = index" class="d-flex flex-column w-100 mt-2">
+      <span class="font-weight-bold">{{group.group}}</span>
+      <div class="d-flex justify-content-start align-items-start  flex-wrap w-100 mt-1">
+        <div (click)="selectColor(color)" *ngFor="let color of group.colors"
+             [ngStyle]="{'background':color}"
+             class="card-color cursor-pointer m-1">
+          <span *ngIf="color===colorSelect" class="span card-selected">
+            <i class="icon-check2"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-center mt-2">
+    <button (click)="colorPopober.close()"
+            [disabled]="!colors" class="btn utm-button utm-button-grey">
+      <i class="color-new"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="singleColorChange.emit(colorSelect);colorPopober.close()"
+            [disabled]="!colors" class="btn utm-button utm-button-primary ml-2">
+      <i class="color-new"></i>&nbsp;
+      Select
+    </button>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Select</h6>
+</ng-template>

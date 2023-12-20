@@ -1,0 +1,44 @@
+@import "/theme";
+
+.uploadfilecontainer {
+  height: 180px;
+  width: 100%;
+  margin: 10px auto;
+  border: 1px dashed $primary-color;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  i {
+    font-size: 70px;
+    color: rgba(0, 75, 139, 0.30);
+  }
+
+  h6 {
+    margin-top: 15px;
+    color: rgba(0, 75, 139, 0.30);
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: #e8e7ec !important;
+    opacity: 0.8;
+  }
+}
+
+.files-list {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 10px auto;
+  padding: 5px;
+  color: #1c8adb;
+}
+
+.files-list .delete-file {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

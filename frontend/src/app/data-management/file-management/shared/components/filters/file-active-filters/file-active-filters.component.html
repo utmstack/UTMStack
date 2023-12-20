@@ -1,0 +1,45 @@
+<div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+  <span class="p-1 utm-box-label">
+          <i class="icon-filter4"></i>
+          Active filters
+ </span>
+  <div *ngFor="let filter of filters" class="status mb-1">
+    <div *ngIf="filter.field !== FILE_EVENT_ID_FIELD
+          && filter.field !== FILE_OBJECT_TYPE_FIELD">
+      <ng-container
+        *ngIf="filter.operator===operatorsEnum.IS ||filter.operator===operatorsEnum.IS_NOT">
+      <span class="text-blue-800">
+           {{resolveFieldName(filter)}}&nbsp;
+        {{filter.operator === operatorsEnum.IS ? 'is:' : 'is not:'}}
+      </span>
+        <span class="font-weight-light">
+           {{filter.value}}
+        </span>
+      </ng-container>
+      <ng-container
+        *ngIf="filter.operator===operatorsEnum.IS_BETWEEN ||filter.operator===operatorsEnum.IS_NOT_BETWEEN">
+      <span class="text-blue-800">
+           {{resolveFieldName(filter)}}:&nbsp;
+      </span>
+        <span class="font-weight-light">
+        {{filter.operator === operatorsEnum.IS_BETWEEN ? 'Is' : 'Is not'}} between {{filter.value[1]}}
+          and {{filter.value[0]}}
+      </span>
+      </ng-container>
+      <ng-container
+        *ngIf="filter.operator===operatorsEnum.IS_ONE_OF ||filter.operator===operatorsEnum.IS_NOT_ONE_OF">
+        <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+           <span class="p-1 utm-box-label font-weight-light text-blue-800">
+           {{resolveFieldName(filter)}}
+             {{filter.operator === operatorsEnum.IS_ONE_OF ? 'is one of' : 'is not one of'}}
+          </span>
+          <div *ngFor="let val of filter.value" class="d-flex flex-column">
+            <span class="font-weight-light">
+              {{val}}
+            </span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

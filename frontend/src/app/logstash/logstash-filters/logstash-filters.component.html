@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-between w-100 align-items-center" >
+  <h6 class="font-weight-semibold  m-0">Pipeline filters</h6>
+  <button (click)="filterEdit = null;openEditJson = true"
+          class="btn utm-button utm-button-primary">
+    <i class="icon-database-add mr-2"></i> Add filter
+  </button>
+</div>
+
+<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus!=='up'">
+  Pipeline start failing at <b>{{pipeline.reloads.lastFailureTimestamp | date}}</b> with error message:<br>
+  <code [innerHTML]="pipeline.reloads.lastError.message | safe:'html'"></code>
+</div>
+
+<div class="row w-100 m-0 mt-3 d-flex justify-content-center align-items-center container-pipeline flex-column"
+     *ngIf="filters.length>0 && !loading">
+  <span inlineSVG="assets/icons/system/DATA-FILTER.svg"
+        class="svg-icon svg-icon-4x svg-icon-grey text-grey-300"></span>
+  <div class="pipeline-line pipeline-{{lineColor}}">
+    <svg viewbox="0 0 10 100" style="width: 15px">
+      <line x1="5" x2="5" y1="0" y2="100"/>
+    </svg>
+  </div>
+  <ng-container *ngFor="let filter of filters">
+    <div class="card m-0 p-3 cursor-pointer">
+      <div class="text-blue-800 d-flex align-content-center justify-content-between">
+        <h6 class="d-flex justify-content-start align-items-center">
+            <span inlineSVG="assets/icons/system/MARKET_RESEARCH.svg"
+                  [ngClass]="{'svg-spinner': pipeline.pipelineStatus === 'up'}"
+                  class="svg-icon svg-icon-2x svg-icon-grey text-grey-300 mr-2"></span>
+          {{filter.filterName}}</h6>
+        <div
+          class="d-flex justify-content-end align-items-center medium-icon" *appHasAnyAuthority="roleAdmin">
+          <span class="badge badge-success font-size-sm mr-3"
+                *ngIf="filter.filterVersion">{{filter.filterVersion}}</span>
+
+          <i (click)="editFilter(filter)"
+             class="icon-pencil3 cursor-pointer mr-3"
+             ngbTooltip="Edit filter" tooltipClass="utm-tooltip-top"></i>
+
+          <i (click)="deleteFilter(filter)" class="icon-cross2 cursor-pointer"
+             ngbTooltip="Delete filter"
+             placement="left"
+             tooltipClass="utm-tooltip"></i>
+        </div>
+      </div>
+    </div>
+    <div class="pipeline-line pipeline-{{lineColor}}">
+      <svg viewbox="0 0 10 100" style="width: 15px">
+        <line x1="5" x2="5" y1="0" y2="100"/>
+      </svg>
+    </div>
+  </ng-container>
+  <span inlineSVG="assets/icons/system/LOGS_FILTER_2.svg"
+        class="svg-icon svg-icon-4x svg-icon-grey text-grey-300"></span>
+
+</div>
+
+
+<div *ngIf="openEditJson" class="utm-right-container">
+  <div (click)="openEditJson= undefined" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Log filter editor
+      </h6>
+      <button (click)="openEditJson= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-logstash-filter-create (filterEditClose)="onFilterEditClose()"
+                                (close)="openEditJson= undefined"
+                                [filter]="filterEdit" [pipeline]="pipeline"></app-logstash-filter-create>
+  </div>
+</div>

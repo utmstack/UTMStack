@@ -1,0 +1,99 @@
+pre {
+  padding: 0 !important;
+}
+
+.copy-button {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  z-index: 15;
+}
+
+.swagger-request {
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: rgba(73, 204, 144, .1);
+  border: 1px solid #49cc90;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.request-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.http-method {
+  background-color: #49cc90;
+  padding: 5px 10px;
+  color: #fff;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.request-url {
+  flex: 1;
+  font-weight: 400;
+  font-size: 14px !important;
+  word-break: break-all;
+}
+
+.request-headers {
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 16px 0;
+  margin: 16px 0;
+}
+
+.request-header-item {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.header-name {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.request-body {
+  border: 1px solid #ddd;
+  padding: 16px;
+  margin: 16px 0;
+  background-color: #fff;
+}
+
+code {
+  white-space: pre;
+}
+
+
+.response, .errors {
+  border: 1px solid #ddd;
+  padding: 16px;
+  margin: 16px 0;
+  background-color: #fff;
+}
+
+.response h2, .errors h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.error-code {
+  border-top: 1px solid #ddd;
+  margin: 16px 0;
+  padding-top: 16px;
+}
+
+.error-code code {
+  color: red;
+}
+
+.error-description {
+  margin-top: 8px;
+}
+
+

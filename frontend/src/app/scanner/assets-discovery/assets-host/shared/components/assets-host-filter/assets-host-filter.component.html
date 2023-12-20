@@ -1,0 +1,42 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <div class="form-group">
+    <label class="pb-1" for="hostHostName">Host name</label>
+    <input (input)="searchByHostProperty()" [(ngModel)]="filter['name.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="hostHostName"
+           name="">
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="hostIp">Host IP</label>
+    <input (input)="searchByHostProperty()" [(ngModel)]="filter['hostIp.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="hostIp"
+           name="">
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="hostOs">Host OS</label>
+    <input (input)="searchByHostProperty()" [(ngModel)]="filter['hostOs.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="hostOs"
+           name="">
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1">Severity</label>
+    <div *ngFor="let sev of severities" class="check pt-2 pb-1">
+      <input (change)="searchBySeverity($event)" [(ngModel)]="severity" class="form-check-input magic-radio"
+             id="{{sev}}"
+             name="status.equals" type="radio"
+             value="{{sev}}">
+      <label class="mb-0" for="{{sev}}">{{sev}}</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="time">Discovered</label>
+    <app-filter-time (timeFilterChange)="onChangeTime($event)" [emitAtStart]="false" [hasAll]="true"
+                     id="time"></app-filter-time>
+  </div>
+</div>

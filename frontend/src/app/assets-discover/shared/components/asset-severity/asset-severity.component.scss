@@ -1,0 +1,32 @@
+
+.asset-chart-body {
+  position: relative;
+
+  .host-chart {
+    max-height: 30px;
+  }
+
+  .severity-number {
+    height: 30px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    position: absolute;
+    font-size: 12px !important;
+  }
+
+
+  .severity-number-card {
+    top: 65px;
+    font-size: 15px !important;
+    right: 60px;
+  }
+
+  .severity-number-row {
+    top: 3px;
+    right: 52px;
+  }
+
+}

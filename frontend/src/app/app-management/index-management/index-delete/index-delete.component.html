@@ -1,0 +1,21 @@
+<app-utm-modal-header [name]="'Delete index'" class="w-100" type="delete"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="alert alert-warning alert-styled-right mb-2 alert-dismissible">
+    <span class="font-weight-semibold">Warning! </span>
+    <span>You can cause damage to the infrastructure and services of your organization</span>
+  </div>
+  <h6 class="font-weight-light mt-3">
+    Are you sure that you want to delete this {{indexes.length === 1 ? 'index' : 'indexes'}}?
+  </h6>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="deleteIndex()"
+            class="btn utm-button utm-button-danger">
+      <i [ngClass]="deleting?'icon-spinner2 spinner':'icon-database-remove'"></i>&nbsp;
+      Delete
+    </button>
+  </div>
+</div>

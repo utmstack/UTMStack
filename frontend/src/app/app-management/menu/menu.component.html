@@ -1,0 +1,96 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Menu management
+    </h6>
+    <div class="header-elements">
+      <button (click)="addMenu()"
+              class="btn utm-button utm-button-primary">
+        <i class="icon-menu mr-2"></i> Add menu
+      </button>
+      <button (click)="saveMenuStructure()"
+              class="btn utm-button utm-button-primary ml-2">
+        <i class="icon-tree7 mr-2"></i> Save
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body w-100">
+    <div
+      *ngIf="menus && menus.length>0 && !loading"
+      class="d-flex justify-content-around align-items-start w-100 h-100 flex-column">
+      <ng-template #recursiveList let-list>
+        <div class="dndPlaceholder"
+             dndPlaceholderRef>
+        </div>
+        <div (dndMoved)="onDragged(item, list, 'move')" *ngFor="let item of list" [hidden]="item.type ===1"
+             [dndDisableIf]="item.disable"
+             [dndDraggable]="item"
+             class="w-100 mt-2"
+             dndEffectAllowed="move">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center cursor-pointer">
+              <label (click)="addToView(item)"
+                     [ngClass]="{'text-blue-800':!item.url}"
+                     class="field-name span-small-icon">
+                <i *ngIf="item.menuIcon" [class]="item.menuIcon + ' mr-1'"></i>
+                {{item.name}}
+              </label>
+              <span *ngIf="item.url" class="text-black-50 ml-5">{{item.url}}</span>
+            </div>
+            <div>
+              <span class="span-small-icon">
+                  <i (click)="updateSubmenu(item)" class="icon-pencil3 cursor-pointer"
+                     ngbTooltip="Edit menu" placement="top" tooltipClass="utm-tooltip-top"></i>
+                  <i (click)="deleteSubmenu(item)" *ngIf="item.type !== 1"
+                     class="icon-cross2 cursor-pointer ml-2"
+                     ngbTooltip="Delete menu" placement="top" tooltipClass="utm-tooltip-top"></i>
+                  <i (click)="toggleActiveMenu(item)" [ngClass]="item.menuActive?'icon-eye':'icon-eye-blocked'"
+                     class="cursor-pointer ml-2"
+                     ngbTooltip="Change menu visibility" placement="top" tooltipClass="utm-tooltip-top"></i>
+              </span>
+              <span *ngIf="!item.url" class="text-blue-800 ml-2">
+                  <span class="span-small-icon">
+                    <i (click)="addSubmenu(item)" class="icon-plus3 cursor-pointer"
+                       ngbTooltip="Add submenu" placement="top" tooltipClass="utm-tooltip-top"></i>
+                  </span>
+                  <i (click)="addToView(item)" class="icon-arrow-down32 ml-2 cursor-pointer"
+                     ngbTooltip="View submenus" placement="top" tooltipClass="utm-tooltip-top"></i>
+                </span>
+            </div>
+          </div>
+          <div (dndDrop)="onDrop($event, item.childrens,item)"
+               *ngIf="item.childrens && deployed.includes(item.id)"
+               class="ml-4 mt-2"
+               dndDropzone>
+            <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.childrens }">
+            </ng-container>
+          </div>
+          <div (dndDrop)="onDrop($event, item.childrens,item)"
+               *ngIf="!item.childrens && deployed.includes(item.id)"
+               class="ml-4 mt-2"
+               dndDropzone>
+            <app-no-data-found padding="p-1" size="sm"></app-no-data-found>
+          </div>
+
+        </div>
+
+      </ng-template>
+      <div (dndDrop)="onDrop($event, menus)"
+           class="layout-padding w-75"
+           dndDropzone>
+        <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: menus }"></ng-container>
+      </div>
+    </div>
+    <div *ngIf="menus && menus.length===0 && !loading"
+         class="f-flex justify-content-center align-items-center has-fixed-height">
+      <app-no-data-found [padding]="'p-5'" size="lg"></app-no-data-found>
+    </div>
+    <div *ngIf="loading"
+         class="f-flex justify-content-center align-items-center has-fixed-height">
+      <app-utm-spinner label="Loading menus"></app-utm-spinner>
+    </div>
+  </div>
+</div>
+
+

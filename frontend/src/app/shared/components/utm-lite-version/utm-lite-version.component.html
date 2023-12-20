@@ -1,0 +1,15 @@
+<app-header *ngIf="isLogged"></app-header>
+<div class="not-found-container">
+  <div class="d-flex align-items-center justify-content-center">
+    <div class="card p-3">
+      <div class="d-flex align-items-center justify-content-center">
+        <img *ngIf="logo" [src]="sanitizer.bypassSecurityTrustUrl(logo)" alt="UTM" class="">
+      </div>
+      <div class="d-flex align-items-center justify-content-center pt-3 not-found-text flex-column">
+        <h4 class="font-weight-semibold mb-3">UTMStack Lite</h4>
+        <h5 class="font-weight-semibold mb-3">Feature is inactive</h5>
+        <h6 class="font-weight-light">You are trying to activate a route that is not included in the LITE version of UTMStack</h6>
+      </div>
+    </div>
+  </div>
+</div>

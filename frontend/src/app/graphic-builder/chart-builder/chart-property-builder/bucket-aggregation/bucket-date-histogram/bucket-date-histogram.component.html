@@ -1,0 +1,103 @@
+<div class="date-histogram-container w-100">
+  <form [formGroup]="formDateHistogram">
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="showCustom=$event" [active]="false"
+                      label="Custom interval?"></app-utm-toggle>
+    </div>
+    <div *ngIf="!showCustom" class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="field">Minimum interval</label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="intervals"
+                 [ngClass]="inputClass.resolveClassInput(formDateHistogram.get('interval'))"
+                 [searchable]="true"
+                 bindLabel="label"
+                 bindValue="interval"
+                 formControlName="interval"
+                 id="field">
+      </ng-select>
+    </div>
+    <div *ngIf="showCustom" class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="custom">Fixed interval</label>
+      <input [ngClass]="inputClass.resolveClassInput(formDateHistogram.get('interval'))" class="form-control"
+             formControlName="interval"
+             id="custom">
+      <span [ngbPopover]="helpContent"
+            [popoverTitle]="helpTitle"
+            autoClose="outside"
+            class="text-blue-800 medium-icon mt-2 cursor-pointer"
+            container="body"
+            placement="auto"
+            popoverClass="utm-popover"
+            triggers="click">
+       Show fixed interval help <i class="icon-question3"></i>
+      </span>
+    </div>
+
+    <!--    <div class="mt-3">-->
+    <!--      <app-utm-toggle label="Drop partial buckets"></app-utm-toggle>-->
+    <!--    </div>-->
+  </form>
+</div>
+
+<ng-template #helpContent>
+  <div class="section">
+    <p>Fixed intervals are configured with the <code class="literal">fixed_interval</code> parameter.</p>
+    <p>In contrast to calendar-aware intervals, fixed intervals are a fixed number of SI
+      units and never deviate, regardless of where they fall on the calendar. One second
+      is always composed of 1000ms. This allows fixed intervals to be specified in
+      any multiple of the supported units.</p>
+    <p>However, it means fixed intervals cannot express other units such as months,
+      since the duration of a month is not a fixed quantity. Attempting to specify
+      a calendar interval like month or quarter will throw an exception.</p>
+    <p>The accepted units for fixed intervals are:</p>
+    <div class="variablelist">
+      <dl class="variablelist">
+        <dt>
+<span class="term">
+milliseconds (ms)
+</span>
+        </dt>
+        <dt>
+<span class="term">
+seconds (s)
+</span>
+        </dt>
+        <dd>
+          Defined as 1000 milliseconds each
+        </dd>
+        <dt>
+<span class="term">
+minutes (m)
+</span>
+        </dt>
+        <dd>
+          All minutes begin at 00 seconds.
+          Defined as 60 seconds each (60,000 milliseconds)
+        </dd>
+        <dt>
+<span class="term">
+hours (h)
+</span>
+        </dt>
+        <dd>
+          All hours begin at 00 minutes and 00 seconds.
+          Defined as 60 minutes each (3,600,000 milliseconds)
+        </dd>
+        <dt>
+<span class="term">
+days (d)
+</span>
+        </dt>
+        <dd>
+          All days begin at the earliest possible time, which is usually 00:00:00
+          (midnight).
+          Defined as 24 hours (86,400,000 milliseconds)
+        </dd>
+      </dl>
+    </div>
+  </div>
+</ng-template>
+<ng-template #helpTitle>
+  <h6 class="font-weight-light">Fixed intervals</h6>
+</ng-template>

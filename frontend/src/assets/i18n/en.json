@@ -1,0 +1,57 @@
+{
+  "login": {
+    "email": "Email",
+    "forgot": "Forgot",
+    "password": "Password",
+    "recover": "username / password?"
+  },
+  "alert": {
+    "filter": {
+      "time": {
+        "day": "Today",
+        "week": "7 days",
+        "month": "30 days",
+        "year": "1 year",
+        "all": "All time",
+        "rangeLabel": "Custom range",
+        "button": "Apply date",
+        "range": {
+          "choose": "Choose range",
+          "from": "Date from",
+          "to": "Date to",
+          "error": "Date from must be less than Date to",
+          "button": "Apply range"
+        }
+      },
+      "severity": {
+        "filterName": "Severity",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "button": "Apply filter"
+      },
+      "category": {
+        "filterName": "Categories",
+        "button": "Apply filter",
+        "addNew": "Add new category",
+        "empty": "Nothing to show"
+      }
+    },
+    "management": {
+      "title": "Alert management"
+    }
+  },
+  "alertStatus": {
+    "open": "Open",
+    "all": "All",
+    "inReview": "In review",
+    "ignored": "Ignored",
+    "ignore": "Ignore",
+    "close": "Complete",
+    "closed": "Completed",
+    "pending": "pending"
+  },
+  "toast": {
+    "changeAlertStatus": "Status changed to"
+  }
+}

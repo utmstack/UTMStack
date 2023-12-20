@@ -1,0 +1,32 @@
+<app-utm-modal-header [name]="standard?'Edit standard':'New standard'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="formStandard">
+    <div class="form-group">
+      <label class="pb-1" for="name">Name</label>
+      <input [ngClass]="inputClass.resolveClassInput(formStandard.get('standardName'))" class="border-1 border-grey-600 form-control" formControlName="standardName"
+             id="name"
+             name="">
+      <app-formcontrol-error [formcontrol]="formStandard.get('standardName')"
+                             label="Standard name is required"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label for="reportDesc">Description ({{1000 - formStandard.get('standardDescription').value.length}})</label>
+      <textarea [ngClass]="inputClass.resolveClassInput(formStandard.get('standardDescription'))" class="form-control" formControlName="standardDescription"
+                id="reportDesc"
+                rows="4"></textarea>
+      <app-formcontrol-error [formcontrol]="formStandard.get('standardDescription')"
+                             label="Standard description is required"></app-formcontrol-error>
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createStandard()"
+            [disabled]="creating || !formStandard.valid" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-shield-check'"></i>&nbsp;
+      Save
+    </button>
+  </div>
+</div>

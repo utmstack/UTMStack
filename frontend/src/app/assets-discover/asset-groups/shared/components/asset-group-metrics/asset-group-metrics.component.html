@@ -1,0 +1,14 @@
+<div *ngIf="group.metrics" class="d-flex justify-content-around align-items-center flex-nowrap">
+  <div *ngFor="let metric of group.metrics | keys" [ngbTooltip]="'Click to view '+ metric.value +' '+metric.key"
+       class="metric d-flex justify-content-center align-items-center flex-column text-center cursor-pointer mr-3"
+       container="body">
+    <div [ngClass]="classByMetric(metric)"
+         class="metric-number">
+      {{metric.value | thousandSuff}}
+    </div>
+    <span>{{metric.key | titlecase}}</span>
+  </div>
+</div>
+<ng-template #noMetrics>
+  <span class="span"> <i class="icon-seven-segment-0 mr-2"></i>No metrics found</span>
+</ng-template>

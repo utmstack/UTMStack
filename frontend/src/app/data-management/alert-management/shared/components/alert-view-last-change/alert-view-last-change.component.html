@@ -1,0 +1,8 @@
+<div class="d-flex justify-content-start align-items-center">
+  <div *ngIf="loadingChange"
+       class="loading-change d-flex justify-content-start align-items-center text-blue-800">
+    <i class="icon-spinner2 spinner mr-2"></i>
+    <span>Loading last change</span>
+  </div>
+  <p *ngIf="lastChange && !loadingChange" [innerHTML]="lastChange.logMessage"></p>
+</div>

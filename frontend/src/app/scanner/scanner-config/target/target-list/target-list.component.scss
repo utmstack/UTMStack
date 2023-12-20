@@ -1,0 +1,7 @@
+@import "~src/assets/styles/theme";
+@import "~src/assets/styles/var";
+@import "~src/assets/styles/custom-elements";
+
+.target-detail {
+  border-bottom: 2px solid $primary-color;
+}

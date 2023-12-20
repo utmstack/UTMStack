@@ -1,0 +1,29 @@
+<div *ngIf="filtersActive.length>0"
+     class="filters-applied d-flex justify-content-start align-items-center flex-wrap">
+  <span class="mb-0 mr-2">
+      <i class="icon-filter4"></i>&nbsp;Filters applied:
+  </span>
+  <!--  [hidden]="hiddenFilter( filter)"-->
+  <div *ngFor="let filter of filtersActive" class="list-icons">
+    <div *ngIf="(filter.operator===operatorEnum.IS_ONE_OF ||
+          filter.operator===operatorEnum.IS_NOT_ONE_OF) && filter.value.length >0"
+         autoClose="outside" class="list-icons-item dropdown cursor-pointer"
+         ngbDropdown
+         placement="bottom">
+      <button [ngClass]="operatorEnum.IS_ONE_OF ? 'text-blue-800' : 'text-danger-300'" class="p-2 font-weight-light"
+              id="statusId"
+              ngbDropdownToggle>
+        <span>{{resolveFilterName(filter)}}</span>
+      </button>
+      <div aria-labelledby="statusId" class="dropdown-menu" ngbDropdownMenu x-placement="top-start">
+        <div class="d-flex flex-column p-2">
+           <span (click)="deleteFilter(filter,value)" *ngFor="let value of filter.value"
+                 class="d-inline mb-2 flex-nowrap text-nowrap">
+             <i class="icon-cross3"></i>
+             {{value}}
+           </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

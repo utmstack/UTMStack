@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 pl-2
+                   d-flex justify-content-between align-items-center bg-light">
+    <label class="card-title label-header text-blue-800">
+      {{change === 'made' ? 'User most active user making changes' : 'Users with more changes to it\'s permissions'}}
+    </label>
+    <app-elastic-filter-time (timeFilterChange)="topUserMostChangedDateChange($event)"
+                             [invertContent]="true"
+                             [timeDefault]="defaultTime"></app-elastic-filter-time>
+  </div>
+
+  <div class="card-body">
+    <div *ngIf="loadingTopUserChange"
+         class="loading-chart w-100 h-100
+                 host-chart chart has-fixed-height
+                 d-flex justify-content-center
+                 align-items-center demo-chart">
+      <app-utm-spinner [height]="'110px'" [loading]="loadingTopUserChange" [width]="'110px'">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="!topUserMoreChange && !loadingTopUserChange"
+         class="host-chart chart has-fixed-height demo-chart">
+      <app-no-data-chart [typeChart]="echartEnum.BAR_CHART"></app-no-data-chart>
+    </div>
+    <div (chartClick)="navigateToUsersChanges($event)"
+         *ngIf="topUserMoreChange && !loadingTopUserChange"
+         [autoResize]="true"
+         [options]="topUserMoreChange" class="demo-chart"
+         echarts></div>
+  </div>
+</div>

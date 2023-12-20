@@ -1,0 +1,5 @@
+<div class="card p-2 d-flex flex-row justify-content-between w-100 align-items-center">
+    <code *ngIf="code" [innerHTML]="code" style="width: 95%"></code>
+    <i (click)="copyCode()" *ngIf="allowCopy" class="icon-copy cursor-pointer"
+       ngbTooltip="Copy"></i>
+</div>

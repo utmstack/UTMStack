@@ -1,0 +1,144 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      JSON Input
+    </h4>
+  </div>
+  <div class="card-body">
+    <p class="font-size-base">
+      Utmstack can process custom logs that are not defined within system modules.
+      Send the logs in JSON format to port <b>8080 (TLS)</b>
+    </p>
+
+    <div class="swagger-request mt-3">
+      <div class="request-header">
+        <span class="http-method">POST</span>
+        <span class="request-url">https://{{instance}}:8080/v1/logs</span>
+      </div>
+      <div class="request-headers">
+        <div class="request-header-item">
+          <span class="header-name"><span class="text-danger-300">*</span> Utm-Connection-Key:</span>
+          <span class="header-value">{{mask}}</span>
+        </div>
+        <div class="request-header-item">
+          <span class="header-name"><span class="text-danger-300">*</span> Utm-Log-Source:</span>
+          <span class="header-value">your log source (mandatory header)</span>
+        </div>
+        <div class="request-header-item">
+          <span class="header-name"><span class="text-danger-300">*</span> Content-Type:</span>
+          <span class="header-value">application/json</span>
+        </div>
+      </div>
+      <div class="request-body">
+        <h6 class="font-weight-semibold mb-2">Body (any valid object array)</h6>
+        <label class="font-weight-semibold mb-2">Body Example: </label>
+        <code>{{exampleCode}}</code>
+      </div>
+      <div class="response">
+        <h6 class="font-weight-semibold mb-2">Response</h6>
+        <code>200 OK</code>
+        <div class="response-body mt-2">
+          <code>{{responseBody}}</code>
+        </div>
+      </div>
+      <div class="errors">
+        <h6 class="font-weight-semibold mb-2">Errors</h6>
+        <div class="error-code">
+          <code>HTTP 404 Not Found</code>
+          <div class="error-description ml-2">
+            Route not found
+          </div>
+        </div>
+        <div class="error-code">
+          <code>HTTP 401 Unauthorized</code>
+          <div class="error-description ml-2">
+            Invalid connection key
+          </div>
+        </div>
+        <div class="error-code">
+          <code>HTTP 400 Bad Request</code>
+          <div class="error-description ml-2">
+            <ul class="">
+              <li>- Header Utm-Connection-Key not found</li>
+              <li>- Header Utm-Log-Source not found</li>
+              <li>- Invalid body</li>
+            </ul>
+          </div>
+        </div>
+        <div class="error-code">
+          <code>HTTP 500 Internal Server Error</code>
+          <div class="error-description ml-2">
+            Internal server error
+          </div>
+        </div>
+        <!-- Add more error codes and descriptions as needed -->
+      </div>
+    </div>
+
+
+    <h6 class="font-weight-semibold mb-2 mt-3"> Code examples</h6>
+    <ul class="nav nav-tabs justify-content-start mt-1">
+      <li (click)="view='python'" class="nav-item cursor-pointer">
+        <a [ngClass]="{'active': view==='python'}" class="nav-link d-flex align-items-center justify-content-start">
+          <span inlineSVG="assets/icons/code/python.svg" class="svg-icon svg-icon-1x mr-1"></span>
+          Python
+        </a>
+      </li>
+      <li (click)="view='java'" class="nav-item cursor-pointer">
+        <a [ngClass]="{'active': view==='java'}" class="nav-link d-flex align-items-center justify-content-start">
+          <span inlineSVG="assets/icons/code/java.svg" class="svg-icon svg-icon-1x mr-1"></span> Java
+        </a>
+      </li>
+      <li (click)="view='javascript'" class="nav-item cursor-pointer">
+        <a [ngClass]="{'active': view==='javascript'}" class="nav-link d-flex align-items-center justify-content-start">
+          <span inlineSVG="assets/icons/code/nodejs.svg" class="svg-icon svg-icon-1x mr-1"></span> Node.js
+        </a>
+      </li>
+      <li (click)="view='golang'" class="nav-item cursor-pointer">
+        <a [ngClass]="{'active': view==='golang'}" class="nav-link d-flex align-items-center justify-content-start">
+          <span inlineSVG="assets/icons/code/golang.svg" class="svg-icon svg-icon-1x mr-1"></span> Golang
+        </a>
+      </li>
+      <li (click)="view='bash'" class="nav-item cursor-pointer">
+        <a [ngClass]="{'active': view==='bash'}" class="nav-link d-flex align-items-center justify-content-start">
+          <span inlineSVG="assets/icons/code/bash.svg" class="svg-icon svg-icon-1x mr-1"></span> CURL
+        </a>
+      </li>
+      <li (click)="view='powershell'" class="nav-item cursor-pointer">
+        <a [ngClass]="{'active': view==='powershell'}" class="nav-link d-flex align-items-center justify-content-start">
+          <span inlineSVG="assets/icons/code/powershell.svg" class="svg-icon svg-icon-1x mr-1"></span> PowerShell
+        </a>
+      </li>
+    </ul>
+    <div class="w-100" *ngIf="view === 'python'">
+      <!-- Content for Python -->
+      <app-utm-code-highlight [code]="pythonCode" codeType="python" [maskSecret]="mask"
+                              [unmaskedSecret]="token"></app-utm-code-highlight>
+    </div>
+    <div class="w-100" *ngIf="view === 'java'">
+      <!-- Content for Java -->
+      <app-utm-code-highlight [code]="javaCode" codeType="java" [maskSecret]="mask"
+                              [unmaskedSecret]="token"></app-utm-code-highlight>
+    </div>
+    <div class="w-100" *ngIf="view === 'javascript'">
+      <!-- Content for Node.js -->
+      <app-utm-code-highlight [code]="nodeJsCode" codeType="javascript" [maskSecret]="mask"
+                              [unmaskedSecret]="token"></app-utm-code-highlight>
+    </div>
+    <div class="w-100" *ngIf="view === 'golang'">
+      <!-- Content for Golang -->
+      <app-utm-code-highlight [code]="golangCode" codeType="golang" [maskSecret]="mask"
+                              [unmaskedSecret]="token"></app-utm-code-highlight>
+    </div>
+    <div class="w-100" *ngIf="view === 'bash'">
+      <!-- Content for Bash -->
+      <app-utm-code-highlight [code]="curlCode" codeType="bash" [maskSecret]="mask"
+                              [unmaskedSecret]="token"></app-utm-code-highlight>
+    </div>
+    <div class="w-100" *ngIf="view === 'powershell'">
+      <!-- Content for PowerShell -->
+      <app-utm-code-highlight [code]="powershellCode" codeType="powershell" [maskSecret]="mask"
+                              [unmaskedSecret]="token"></app-utm-code-highlight>
+    </div>
+  </div>
+</div>

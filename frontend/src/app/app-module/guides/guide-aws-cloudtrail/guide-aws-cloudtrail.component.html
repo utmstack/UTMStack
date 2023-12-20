@@ -1,0 +1,89 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      AWS Cloudwatch
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      For this integration to work properly, first you need to configure the IAM user for UTMStack.
+    </div>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          In the CloudTrail panel, select “Create trail”.
+        </p>
+        <img alt="Welcome page" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/welcome-page.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Fill in the "Trail name" field.
+        </p>
+        <img alt="Trial name" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/trail-name.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Mark "Select all S3 buckets in your account".
+        </p>
+        <img alt="Buckets" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/s3-buckets.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Fill in the "S3 bucket" field. The name of the bucket must be unique in S3. Then click on “Create”.
+        </p>
+        <img alt="Bucket name" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/bucket-name.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Click on the name of the trail to edit.
+        </p>
+        <img alt="Edit trial" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/edit-trail.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          Configure CloudWatch Logs.
+        </p>
+        <img alt="Cloud Watch config" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/cloud-watch-config.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          Fill the group name and continue.
+        </p>
+        <img alt="Cloud Watch config" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/trial-group.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          Click on “Allow” to grant CloudTrail permissions.
+        </p>
+        <img alt="CloudTrail permissions." class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/trial-permissions.png">
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">9</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.AWS_CLOUDTRAIL"
+                                        [type]="'integration'" class="mt-3"
+                                        [serverId]="serverId">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>

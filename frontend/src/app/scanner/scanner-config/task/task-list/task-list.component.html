@@ -1,0 +1,196 @@
+<div class="pt-2">
+  <div class="row m-0">
+    <div class="col-lg-2 pl-0">
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+        </div>
+        <app-task-filter (taskFilterChange)="onTaskFilterChange($event)"></app-task-filter>
+      </div>
+    </div>
+    <div class="col-lg-10 pr-0 pl-0">
+      <div class="card h-100">
+        <div class="card-header p-2 w-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields" default="Created"></app-sort-by>
+            <div class="d-flex justify-content-end align-items-center">
+              <button (click)="newTask()" class="btn utm-button utm-button-primary mr-2">
+                <i class="icon-task mr-1"></i> New task
+              </button>
+              <span (click)="viewSeverityHelp()" class="text-blue-800 cursor-pointer"
+                    ngbTooltip="View severity info"
+                    placement="left" tooltipClass="utm-tooltip">
+                 <i class="icon-info22"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive resizable-table-responsive h-100">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="font-weight-semibold"
+                  style="width: 20%">
+                Name&nbsp;
+              </th>
+              <th class="font-weight-semibold" style="width: 8%">
+                Type&nbsp;
+              </th>
+              <th class="font-weight-semibold text-center" style="width: 12%">
+                Status&nbsp;
+              </th>
+              <th class="font-weight-semibold">
+                Last run&nbsp;
+              </th>
+              <th class="font-weight-semibold text-center"
+                  style="width: 50px">
+                Severity&nbsp;
+              </th>
+              <th class="font-weight-semibold text-center"
+                  style="width: 50px">
+                Trend&nbsp;
+              </th>
+              <th class="font-weight-semibold text-center"
+                  style="width: 50px">
+                Details&nbsp;
+              </th>
+
+              <th class="font-weight-semibold" style="width:8%">
+                Action&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody [hidden]="!(tasks && (tasks.length>0 && !loading))">
+            <tr *ngFor="let task of tasks">
+              <td (click)="viewTaskResult(task)" class="cursor-pointer" style="width: 15%">
+                <span class="text-blue-800">
+                   {{task.name}}
+                </span>
+              </td>
+              <td (click)="viewTaskResult(task)" class="cursor-pointer">
+                <span>
+                   {{task.config.name}}
+                </span>
+              </td>
+              <td (click)="viewTaskResult(task)" class="text-center cursor-pointer" style="width: 15%">
+                <app-task-status [task]="task"></app-task-status>
+              </td>
+              <td (click)="viewTaskResult(task)" class="cursor-pointer" style="width: 5%">
+                <span *ngIf="task.lastReport">
+                   {{task.lastReport['report'].scanEnd|date:'short':'UTC'}}
+                </span>
+              </td>
+              <td (click)="viewTaskResult(task)" class="text-center cursor-pointer">
+                <app-asset-severity-chart *ngIf="task.lastReport"
+                                          [severity]="task.lastReport['report'].severity"
+                                          [type]="'row'"></app-asset-severity-chart>
+              </td>
+              <td (click)="viewTaskResult(task)" class="text-center cursor-pointer">
+                <span [ngClass]="resolveTrendClass(task.trend)"
+                      [ngbTooltip]="resolveTrendTooltip(task.trend)"
+                      class="badge span-small-icon text-center" placement="left"
+                      tooltipClass="utm-tooltip">
+                  <i [ngClass]="resolveTrendIcon(task.trend)"></i>
+                </span>
+              </td>
+              <td class="cursor-pointer" style="width: 5%">
+                <!--                (click)="toggleShowDetail(task)"-->
+                <span (click)="viewDetail=true;taskShow = task"
+                      *ngIf="task.lastReport" class="text-blue-800">
+                 View details
+                </span>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center medium-icon">
+                  <i (click)="runTask(task)"
+                     *ngIf="(task.status.includes('Done') || task.status.includes('New')) &&
+                        (task.schedule.nextTime==='over')"
+                     class="icon-play4 cursor-pointer text-success-800"
+                     ngbTooltip="Run task"
+                     tooltipClass="utm-tooltip-top">
+                  </i>
+
+                  <i *ngIf="(task.status.includes('Done') || task.status.includes('New')) &&
+                        (task.schedule.nextTime!=='over')"
+                     [ngbTooltip]="'Next run on '+ scheduleNextRun(task)"
+                     class="icon-alarm-check cursor-pointer text-success-800"
+                     tooltipClass="utm-tooltip-top">
+                  </i>
+
+                  <i *ngIf="task.status.includes('Requested')" class="icon-spinner2 spinner text-blue-800">
+                  </i>
+
+                  <i (click)="stopTask(task)"
+                     *ngIf="task.status==='Running'"
+                     class="icon-stop2 cursor-pointer text-danger-800" ngbTooltip="Stop task"
+                     tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="resumeTask(task)"
+                     *ngIf="task.status==='Stopped'"
+                     class="icon-eject cursor-pointer rotate-90-inverse text-warning-800" ngbTooltip="Resume Task"
+                     tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="editTask(task)" class="icon-pencil3 cursor-pointer"
+                     ngbTooltip="Edit task" tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="deleteTask(task)" class="icon-cross2 cursor-pointer"
+                     ngbTooltip="Delete task" tooltipClass="utm-tooltip-top"></i>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="(tasks===null && !loading)">
+            <tr>
+              <td colspan="8">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td colspan="8">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading tasks'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="tasks && tasks.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage(page)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="viewDetail" class="utm-right-container">
+  <div (click)="viewDetail= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        {{taskShow.name}}
+      </h6>
+      <button (click)="viewDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-task-detail [task]="taskShow"></app-task-detail>
+  </div>
+</div>

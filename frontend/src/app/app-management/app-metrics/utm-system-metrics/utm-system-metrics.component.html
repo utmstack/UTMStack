@@ -1,0 +1,78 @@
+<div class="m-0 card h-100">
+  <div class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label class="card-title text-blue-800">
+      System
+    </label>
+
+  </div>
+  <div class="card-body p-3">
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-4 pl-0"><span>Uptime</span></div>
+      <div class="col-md-8 pr-0 text-right">
+        <span>{{ convertMillisecondsToDuration(systemMetrics['process.uptime']) }}</span>
+      </div>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-4 pl-0"><span>Start time</span></div>
+      <div class="col-md-8 pr-0 text-right">
+        <span>{{ systemMetrics['process.start.time'] | date: utmFormatDateEnum.UTM_SHORT :'UTC'}}</span></div>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-9 pl-0"><span>Process CPU usage</span></div>
+      <div class="col-md-3 pr-0 text-right">
+        <span>{{ 100 * systemMetrics['process.cpu.usage'] | number: '1.0-2' }} %</span>
+      </div>
+    </div>
+    <ngb-progressbar
+      *ngIf="!updating"
+      [animated]="true"
+      [striped]="false"
+      [value]="100 * systemMetrics['process.cpu.usage']"
+      height="3px"
+      type="success">
+    </ngb-progressbar>
+    <div class="d-flex justify-content-center align-items-center">
+      <span>{{ 100 * systemMetrics['process.cpu.usage'] | number: '1.0-2' }} %</span>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-9 pl-0"><span>System CPU usage</span></div>
+      <div class="col-md-3 pr-0 text-right">
+        <span>{{ 100 * systemMetrics['system.cpu.usage'] | number: '1.0-2' }} %</span>
+      </div>
+    </div>
+    <ngb-progressbar
+      *ngIf="!updating"
+      [animated]="true"
+      [striped]="false"
+      [value]="100 * systemMetrics['system.cpu.usage']"
+      height="3px"
+      type="success">
+    </ngb-progressbar>
+    <div class="d-flex justify-content-center align-items-center">
+      <span>{{ 100 * systemMetrics['system.cpu.usage'] | number: '1.0-2' }} %</span>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-9 pl-0"><span>System CPU count</span></div>
+      <div class="col-md-3 pr-0 text-right"><span>{{ systemMetrics['system.cpu.count'] }}</span></div>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-9 pl-0"><span>System 1m Load average</span></div>
+      <div class="col-md-3 pr-0 text-right">
+        <span>{{ systemMetrics['system.load.average.1m'] | number: '1.0-2' }}</span>
+      </div>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-9 pl-0"><span>Process files max</span></div>
+      <div class="col-md-3 pr-0 text-right">
+        <span>{{ systemMetrics['process.files.max'] | number: '1.0-0' }}</span>
+      </div>
+    </div>
+    <div *ngIf="!updating" class="row m-0 mt-3">
+      <div class="col-md-9 pl-0"><span>Process files open</span></div>
+      <div class="col-md-3 pr-0 text-right">
+        <span>{{ systemMetrics['process.files.open'] | number: '1.0-0' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

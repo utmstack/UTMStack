@@ -1,0 +1,104 @@
+<form [formGroup]="formAxisOption">
+  <div class="view-colors mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewAxisProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewAxis?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">{{axis}}</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewAxis" class="properties-options">
+    <div class="form-group">
+      <label class="pb-1" for="itemWidth">Name</label>
+      <input class="border-1 border-grey-600 form-control" formControlName="name"
+             id="itemWidth"
+             name=""
+             type="text">
+    </div>
+    <div *ngIf="!onlyCategory" class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="type">
+        Axis type
+      </label>
+      <ng-select [clearable]="false"
+                 [items]="axisType"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="type"
+                 id="type">
+      </ng-select>
+    </div>
+    <div class="axis-label-color" formGroupName="axisLabel">
+      <div class="d-flex flex-column flex-grow-1 mt-3">
+        <label class="pb-1 font-weight-semibold" for="type">
+          Axis label color
+        </label>
+        <app-utm-single-color-select
+          (singleColorChange)="formAxisOption.get(['axisLabel','color']).setValue($event)"
+          [color]="formAxisOption.get(['axisLabel','color']).value">
+        </app-utm-single-color-select>
+      </div>
+    </div>
+    <div class="axis-label-color" formGroupName="axisLabel">
+      <div class="form-group mt-3">
+        <label class="pb-1" for="itemWidth">
+          Axis label formatter
+          <span class="text-blue-800 cursor-pointer" ngbTooltip="Formatter of axis label,
+           which supports string template. Use string template; template
+           variable is the default label of axis {value}. Example: {value} kg"
+                placement="top"
+                tooltipClass="utm-tooltip-top">
+             <i class="icon-question3"></i>
+           </span>
+        </label>
+        <input class="border-1 border-grey-600 form-control" formControlName="formatter"
+               id="formatter"
+               name=""
+               type="text">
+      </div>
+    </div>
+
+    <div class="axis-label-color" formGroupName="axisLine">
+      <div class="d-flex flex-column flex-grow-1 mt-3" formGroupName="lineStyle">
+        <label class="pb-1 font-weight-semibold" for="type">
+          Axis line color
+        </label>
+        <app-utm-single-color-select
+          (singleColorChange)="formAxisOption.get(['axisLine','lineStyle','color']).setValue($event)"
+          [color]="formAxisOption.get(['axisLine','lineStyle','color']).value">
+        </app-utm-single-color-select>
+      </div>
+    </div>
+
+    <div class="axis-label-color" formGroupName="splitLine">
+      <div class="mt-3">
+        <app-utm-toggle (toggleChange)="formAxisOption.get(['splitLine','show']).setValue($event)"
+                        [active]="true"
+                        label="Show split line?">
+        </app-utm-toggle>
+      </div>
+      <div class="d-flex flex-column flex-grow-1 mt-3" formGroupName="lineStyle">
+        <label class="pb-1 font-weight-semibold" for="type">
+          Axis split line color
+        </label>
+        <app-utm-single-color-select
+          (singleColorChange)="formAxisOption.get(['splitLine','lineStyle','color']).setValue($event)"
+          [color]="formAxisOption.get(['splitLine','lineStyle','color']).value">
+        </app-utm-single-color-select>
+        <div class="d-flex flex-column flex-grow-1 mt-1">
+          <label class="pb-1 font-weight-semibold" for="type">
+            Split line type
+          </label>
+          <ng-select [clearable]="true"
+                     [items]="axisLineStyle"
+                     [searchable]="true"
+                     bindLabel="agg"
+                     bindValue="agg"
+                     formControlName="type"
+                     id="split">
+          </ng-select>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

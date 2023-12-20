@@ -1,0 +1,7 @@
+<span class="text-wrap tags-container text-break w-100">
+  <span class="badge badge-flat rule-tags-list mr-2 my-1 font-size-sm"
+        *ngFor="let tag of tags"
+        [ngStyle]="{'color':tag.tagColor, 'border':'1px solid', 'border-color':tag.tagColor}">
+              {{tag.tagName}}
+  </span>
+</span>

@@ -1,0 +1,106 @@
+<span #notePopober=ngbPopover
+      *ngIf="version==='mobile';else desktop"
+      [ngbPopover]="colContent"
+      autoClose="outside"
+      class="position-relative cursor-pointer small-md-icon"
+      container="body"
+      placement="bottom"
+      popoverClass="utm-popover"
+      triggers="click">
+  <i [ngClass]="updatingHealth?'icon-spinner2 spinner':appStatus()?
+          'icon-checkmark-circle text-success-800':'icon-circle2 text-danger-800'"></i>
+</span>
+
+<ng-template #colContent>
+  <div *ngIf="healthData" class="d-flex justify-content-start align-items-start flex-column">
+    <div *ngFor="let health of healthData"
+         class="d-flex justify-content-start align-items-start">
+      <!--      <i [class]="'status-icon ' + resolveIcon(health)"></i>-->
+      <span class="status-health span-small-icon">
+         <i [ngClass]="health.status === 'UP'?
+          'icon-circle2 text-success-800':'icon-circle2 text-danger-800'"></i>
+        {{baseName(health.name) + ' ' + subSystemName(health.name) + ' is ' + (health.status === 'UP' ? 'OK' : health.status) }}
+      </span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #desktop>
+  <div *ngIf="health" class="d-flex justify-content-center align-items-center ml-2">
+    <div [ngbPopover]="popDiskContent"
+         popoverClass="popover-350"
+         placement="auto"
+         class="status-health ml-4"
+         container="body">
+      <span class="svg-icon svg-icon-md svg-icon-white status-icon text-white"
+            [inlineSVG]="resolveIcon('diskSpace')"></span>
+      <span class="span-small-icon">
+        <i [ngClass]="health.components.diskSpace.status  === 'UP'?
+          'icon-circle2 text-success-800':'icon-circle2 text-danger-800'"></i>
+      </span>
+    </div>
+    <ng-template #popDiskContent>
+      <div class="w-100 pb-2 pt-2" style="min-width: 250px !important;">
+        <div class="w-100 d-inline-block">
+          <div class="d-flex justify-content-start align-items-center mb-2">
+         <span class="svg-icon svg-icon-primary svg-icon-sm mr-1"
+               inlineSVG="assets/icons/header/hardisk.svg"></span>
+            <span>Disk usage ({{convertToGb(calcDiskUsed())
+            + ' used of ' + convertToGb(health.components.diskSpace.details.total)}})</span>
+          </div>
+          <app-utm-progressbar [value]="calcPercentDiskSpace()"></app-utm-progressbar>
+        </div>
+      </div>
+    </ng-template>
+    <div [ngbTooltip]="'Application Database is '+
+          (health.components.db.status === 'UP' ? 'OK' : health.components.db.status) "
+         class="status-health ml-4"
+         container="body">
+      <span class="svg-icon svg-icon-md svg-icon-white status-icon text-white"
+            [inlineSVG]="resolveIcon('db')"></span>
+      <span class="span-small-icon">
+        <i [ngClass]="health.components.diskSpace.status  === 'UP'?
+          'icon-circle2 text-success-800':'icon-circle2 text-danger-800'"></i>
+      </span>
+    </div>
+
+    <div [ngbPopover]="popContent"
+         *ngIf="clusterHealth"
+         class="status-health ml-4 cursor-pointer"
+         container="body"
+         popoverClass="popover-350"
+         placement="auto">
+      <span [inlineSVG]="'/assets/icons/header/database_performance.svg'"
+            class="svg-icon svg-icon-md svg-icon-white status-icon text-white"></span>
+      <span class="span-small-icon">
+        <i [ngClass]="getClusterHealth() === 'UP'?
+                  'icon-circle2 text-success-800':
+                  getClusterHealth() === 'MEDIUM'?'icon-circle2 text-warning-800':'icon-circle2 text-danger-800'"></i>
+      </span>
+    </div>
+    <ng-template #popContent>
+      <div class="w-100 pb-2 pt-2" style="min-width: 250px !important;">
+        <app-elastic-metric-health [clusterHealth]="clusterHealth"  [status]="getClusterHealth()"></app-elastic-metric-health>
+      </div>
+    </ng-template>
+
+    <div [ngbPopover]="dataProcessor"
+         *ngIf="logstashPipelines"
+         class="status-health status-logstash ml-4 cursor-pointer"
+         container="body"
+         popoverClass="popover-350"
+         placement="auto">
+      <span [inlineSVG]="'/assets/icons/header/data-processing.svg'"
+            class="svg-icon svg-icon-md svg-icon-white status-icon text-white"></span>
+      <span class="span-small-icon">
+        <i class="icon-circle2" [ngClass]="logstashPipelines.general.status==='green'?'text-success-800':
+              (logstashPipelines.general.status==='red'?'text-danger-800':'text-warning-800')"></i>
+      </span>
+    </div>
+    <ng-template #dataProcessor>
+      <div class="w-100 pb-2 pt-2">
+        <app-logstash-stats [logstashPipelines]="logstashPipelines"></app-logstash-stats>
+      </div>
+    </ng-template>
+  </div>
+</ng-template>

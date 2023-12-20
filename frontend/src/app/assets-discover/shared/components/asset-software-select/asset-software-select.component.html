@@ -1,0 +1,77 @@
+<div class="card">
+  <div *ngIf="selected.length>0" class="p-2">
+    <span class="text-primary">{{selected.length}} software selected</span>
+  </div>
+  <div class="d-flex justify-content-between align-items-center p-2">
+    <app-utm-search-input (searchFor)="onSearchSoftware($event)" placeholder="Search software"></app-utm-search-input>
+    <button (click)="addSoftware()" class="btn utm-button utm-button-primary">
+      <i class="icon-plus2"></i>
+      Add & select
+    </button>
+  </div>
+  <div class="table-responsive">
+    <table class="table text-nowrap">
+      <thead>
+      <tr>
+        <th style="width: 10px"></th>
+        <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 40%">
+          Software&nbsp;
+        </th>
+        <th class="font-weight-semibold text-uppercase  cursor-pointer text-center">
+          Version&nbsp;
+        </th>
+        <th class="font-weight-semibold text-uppercase  cursor-pointer">
+          Developer&nbsp;
+        </th>
+      </tr>
+      </thead>
+      <tbody *ngIf="softwares && softwares.length>0">
+      <tr *ngFor="let software of softwares">
+        <td class="text-center span-small-icon">
+          <i (click)="addToSelected(software)"
+             [ngClass]="isSelected(software)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+             [ngbTooltip]="'Add to selected'"
+             class="cursor-pointer"
+             container="body"
+             tooltipClass="utm-tooltip-top"></i>
+        </td>
+        <td class="w-25">
+         <span class="text-blue-800">
+           {{software.softName}}
+        </span>
+        </td>
+        <td class="text-center">
+        <span class="text-blue-800">
+           {{software.softVersion}}
+        </span>
+        </td>
+        <td>
+        <span class="text-blue-800">
+           {{software.softDeveloper}}
+        </span>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="!softwares || softwares.length===0">
+      <tr>
+        <td colspan="3">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="softwares && softwares.length>0" class="mb-2">
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        (pageChange)="loadPage($event)"
+        [(page)]="page"
+        [boundaryLinks]="true"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+    </div>
+  </div>
+</div>

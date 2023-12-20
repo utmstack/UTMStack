@@ -1,0 +1,151 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Index management
+    </h6>
+    <div class="d-flex">
+      <app-utm-search-input (searchFor)="searchIndex($event)"
+                            [searching]="searching"
+                            placeholder="Search index">
+      </app-utm-search-input>
+      <button (click)="bulkDelete()" *ngIf="selected.length>0"
+              class="btn utm-button utm-button-danger ml-3">
+        <span><i class="icon-cross"></i> Delete selected ({{selected.length}})</span>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div>
+      <label *ngIf="req?.pattern!=='*' && indexes.length===0 && !loading" class="text-danger-800">
+        <i class="icon-cross"></i>&nbsp;
+        Your search does not match any of your
+        <strong>indices</strong>
+      </label>
+      <label *ngIf="req?.pattern!=='*' && indexes.length>0 && !loading" class="text-green-800">
+        <i class="icon-checkmark5"></i>&nbsp;
+        Your search match with
+        <strong>{{indexes.length}} indices</strong>.&nbsp;
+      </label>
+    </div>
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'index'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer w-25"
+              scope="col">
+            Index&nbsp;
+          </th>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'creationDate'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer w-25"
+              scope="col">
+            Created&nbsp;
+          </th>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'status'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer w-25"
+              scope="col">
+            status&nbsp;
+          </th>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'docsCount'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer w-25"
+              scope="col">
+            Docs count&nbsp;
+          </th>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'size'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer w-25"
+              scope="col">
+            Size&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Action&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="indexes && indexes.length>0">
+        <tr *ngFor="let index of indexes">
+          <td>
+            <div class="d-flex justify-content-start align-items-center span-small-icon">
+              <i (click)="addToSelected(index)"
+                 [ngClass]="isSelected(index.index)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                 class="cursor-pointer"></i>
+              <div [ngStyle]="{'background-color':index.health}"
+                   [ngbTooltip]="'Health is '+ index.health"
+                   class="index-health ml-2">
+              </div>
+              <span class="text-blue-800">
+                 {{index.index}}
+               </span>
+            </div>
+          </td>
+          <td>
+            <span>
+              {{index.creationDate | date:'short':'UTC'}}
+            </span>
+          </td>
+          <td>
+            <span>
+              {{index.status}}
+            </span>
+          </td>
+          <td>
+            <span>
+              {{index.docsCount}}
+            </span>
+          </td>
+          <td>
+            <span>
+              {{index.size}}
+            </span>
+          </td>
+          <td class="td-action">
+            <div class="d-flex justify-content-end align-items-center medium-icon">
+              <i (click)="deleteIndex(index)" class="icon-cross2 cursor-pointer"
+                 ngbTooltip="Delete index"
+                 placement="left"
+                 tooltipClass="utm-tooltip"></i>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(indexes.length===0 && !loading)">
+        <tr>
+          <td colspan="5">
+            <app-no-data-found [padding]="'p-2'"></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading matching index'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="indexes && indexes.length>0" class="mb-3">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+</div>

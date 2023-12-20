@@ -1,0 +1,71 @@
+@import "../../../assets/styles/theme";
+@import "../../../assets/styles/var";
+
+.main {
+  width: 100%;
+  height: 80vh;
+  min-height: 400px;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  position: relative;
+}
+
+.list-group {
+  padding-right: 5px;
+  border: 0;
+
+  a.list-group-item {
+    border: 0;
+    color: $primary-color;
+    text-decoration: none;
+    position: relative;
+    padding: 5px 15px;
+
+    span {
+      margin-left: 0;
+      display: inline-block;
+      font-size: 18px;
+      font-weight: 400;
+      white-space: pre-line;
+    }
+  }
+
+  a:hover {
+    color: $primary-color-hover;
+    cursor: pointer;
+  }
+
+
+  a.router-link-active {
+    color: $blue-scroll;
+  }
+
+  .header-fields {
+    padding-top: 10px;
+
+    > .list-group-item:first-child {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+.report-hover {
+  &:hover {
+    p {
+      color: $blue-scroll;
+    }
+
+    color: $blue-scroll;
+  }
+}
+
+
+.min-vh-75 {
+  min-height: 75vh;
+}
+
+::ng-deep {
+  .popover-solution {
+    min-width: 600px;
+  }
+}

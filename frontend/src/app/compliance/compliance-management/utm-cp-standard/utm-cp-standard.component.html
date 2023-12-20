@@ -1,0 +1,39 @@
+<div class="standard-container h-100">
+  <div class="list-group">
+    <a *ngFor="let st of standards"
+       [ngClass]="{'router-link-active':st.id === standardId}"
+       class="list-group-item">
+       <span (click)="changeStandard(st)"
+             class="font-weight-semibold d-flex justify-content-between align-items-center">
+        <span>
+          <i class="icon-shield2 font-size-sm"></i>&nbsp;
+          {{st.standardName}}&nbsp;
+        </span>
+        <span *ngIf="manage" class="d-flex span-small-icon">
+           <i (click)="editStandard(st)"
+              class="icon-pencil mr-2"
+              container="body"
+              ngbTooltip="Edit standard"
+              placement="auto" tooltipClass="utm-tooltip-bottom"></i>
+             <i (click)="exportStandard(st)"
+                class="icon-download10 mr-2"
+                container="body"
+                ngbTooltip="Export standard"
+                placement="auto" tooltipClass="utm-tooltip-bottom"></i>
+           <i (click)="deleteStandard(st)"
+              class="icon-cross2"
+              container="body"
+              ngbTooltip="Delete standard"
+              placement="auto" tooltipClass="utm-tooltip-bottom"></i>
+        </span>
+      </span>
+    </a>
+  </div>
+  <div *ngIf="manage" class="d-flex justify-content-center">
+       <span (click)="createStandard()"
+             class="p-1 text-blue-800 text-center cursor-pointer">
+          <i class="icon-plus2"></i> add standard
+        </span>
+  </div>
+</div>
+

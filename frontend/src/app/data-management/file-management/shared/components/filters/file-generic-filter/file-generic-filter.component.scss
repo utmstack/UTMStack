@@ -1,0 +1,32 @@
+.search-group {
+  display: flex;
+  width: 100%;
+  margin-top: 5px;
+
+}
+
+.search-i {
+  color: #0d47a1;
+}
+
+.text-filter {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.filter-value-field-container {
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+app-utm-search-input {
+  width: 100% !important;
+}
+
+
+::ng-deep {
+  .form-group-feedback-left {
+    margin: 0 -1px -1px -1px !important;
+  }
+}

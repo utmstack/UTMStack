@@ -1,0 +1,80 @@
+<div *ngIf="!printFormat" class="header-elements p-2 d-flex justify-content-between align-items-center">
+  <div>
+  <span *ngIf="preparingPrint" class="text-primary">
+    <i class="spinner icon-spinner2"></i> Loading content, please wait</span>
+  </div>
+  <div class="d-flex justify-content-end align-items-center">
+    <app-elastic-filter-time [invertContent]="true"
+                             [isEmitter]="true"
+                             container="body"></app-elastic-filter-time>
+    <button (click)="print()"
+            *ngIf="!printFormat"
+            [disabled]="printFormat || preparingPrint"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="printFormat?'icon-download10':'icon-printer'" class="mr-1"></i>
+      {{printFormat ? 'Generating...' : 'Print'}}
+    </button>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center align-items-start w-100 m-0 d-print-block">
+  <div class="compliance-front-page">
+
+    <div *ngIf="account" class="prepared print-front-align">
+      <h6 class="font-weight-semibold text-uppercase">Prepared by</h6>
+      <h5 class="mt-1">{{account.email}}</h5>
+      <div class="line-large"></div>
+    </div>
+
+    <div *ngIf="account" class="report-name print-front-align">
+      <h3 *ngIf="report" class="">{{report.associatedDashboard.name}}</h3>
+      <div class="line"></div>
+      <h5 class="mt-5 ">Generated on {{date | date:'short':'UTC'}}</h5>
+    </div>
+
+
+    <img [src]="sanitizer.bypassSecurityTrustUrl(cover)"
+         *ngIf="cover;else loadImage"
+         class="img-front-page"
+         alt="Login" data-loading="lazy">
+    <ng-template #loadImage>
+      <i class="icon-image4" style="font-size: 100px;opacity: 0.1"></i>
+    </ng-template>
+  </div>
+</div>
+<div *ngIf="report" class="d-flex justify-content-center align-items-start w-100 d-print-block">
+  <div class="compliance-second-page position-relative">
+    <h1 class="standard-prev text-white">
+      Compliance report
+    </h1>
+
+    <div class="compliance p-5 pt-0">
+      <div class="compliance-info compliance-standard">
+        <h4 class="mb-2 w-50">Compliance report scope</h4>
+        <h6 class="mb-2 font-weight-semibold">{{report.section.standard.standardName}}</h6>
+        <p class="">{{report.section.standard.standardDescription}}</p>
+      </div>
+
+      <div class="compliance-info compliance-section mt-5">
+        <h4 class="mb-2 w-50">Compliance section</h4>
+        <h6 class="mb-2 font-weight-semibold" [innerHTML]="report.section.standardSectionName | safe:'html'"></h6>
+        <p class="" [innerHTML]="report.section.standardSectionDescription | safe:'html'"></p>
+      </div>
+
+
+      <div class="compliance-info compliance-section mt-5">
+        <h5 class="mb-2 w-50">Compliance report</h5>
+        <p class="" [innerHTML]="report.configSolution | safe:'html'"></p>
+      </div>
+    </div>
+
+    <img class="img-second-page" src="/assets/img/report/A4_compliance_second.png">
+  </div>
+</div>
+
+<div [ngClass]="printFormat?'vis-container-print':'mt-4'" class="w-100">
+
+  <app-render-visualization-print [loadingVisualizations]="loadingVisualizations"
+                                  (visualizationLoaded)="onVisualizationLoaded()"
+                                  [visualizationRender]="visualizationRender"></app-render-visualization-print>
+</div>

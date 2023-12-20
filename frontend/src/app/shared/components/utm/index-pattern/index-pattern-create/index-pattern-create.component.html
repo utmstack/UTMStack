@@ -1,0 +1,109 @@
+<app-utm-modal-header [name]="(!id ? 'Create' : 'Edit')+ ' index pattern'"></app-utm-modal-header>
+<div class="container-fluid p-3 create-task-container">
+  <div class=" alert alert-info alert-styled-right">
+    UTMStack requires an index pattern to access the data that you want to explore. An index pattern selects
+    the data to use and allows you to define properties of the fields. An index pattern can point to a specific index,
+    for example, your log data from yesterday, or all indices that contain your data.
+  </div>
+
+  <div class="regex-step mt-3">
+    <div class="form-group">
+      <label class="pb-1 font-weight-semibold span-small-icon" for="name">
+        Index pattern
+        <span class="ml-1 text-blue-800 cursor-pointer"
+              ngbTooltip="You can use a * as a wildcard in your index pattern.
+                          You can't use spaces or the characters \, /, ?, ', <, >, |."
+              placement="right"
+              tooltipClass="utm-tooltip-right">
+        <i class="icon-question3"></i>
+        </span>
+      </label>
+      <input (input)="searchMatchingRegex()" [(ngModel)]="regex"
+             class="form-control"
+             id="name"
+             name="">
+    </div>
+    <div *ngIf="indexExist"
+         class="alert alert-warning alert-styled-right mt-3 mb-3
+      alert-dismissible">
+      <span>This index pattern already exist</span>
+    </div>
+    <div class="indexes-container index-pattern mt-2">
+      <div class="table-responsive">
+        <table class="table text-nowrap">
+          <thead>
+          <tr>
+            <th colspan="2">
+              <label *ngIf="regex!=='' && indexes.length===0 && !loading" class="text-danger-800">
+                <i class="icon-cross"></i>&nbsp;
+                Your index pattern can match any of your
+                <strong>indices</strong>
+              </label>
+              <label *ngIf="regex!=='' && indexes.length>0 && !loading" class="text-green-800">
+                <i class="icon-checkmark5"></i>&nbsp;
+                Success! Your index pattern matches
+                <strong>{{indexes.length}} indices</strong>.&nbsp;
+              </label>
+            </th>
+          </tr>
+          </thead>
+          <tbody *ngIf="indexes && indexes.length>0">
+          <tr *ngFor="let index of indexes">
+            <td>
+              <div class="d-flex justify-content-start align-items-center">
+                <div [ngStyle]="{'background-color':index.health}"
+                     class="index-health ml-2">
+                </div>
+                <span class="text-blue-800">
+                 {{index.index}}
+               </span>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+          <tbody *ngIf="(indexes.length===0 && !loading)">
+          <tr>
+            <td colspan="5">
+              <app-no-data-found [padding]="'p-2'"></app-no-data-found>
+            </td>
+          </tr>
+          </tbody>
+          <tbody *ngIf="loading">
+          <tr>
+            <td colspan="5">
+              <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                <app-utm-spinner [height]="'35px'"
+                                 [label]="'Loading matching index'"
+                                 [loading]="loading"
+                                 [width]="'35px'">
+                </app-utm-spinner>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="indexes && indexes.length>0" class="mb-3">
+        <div class="row justify-content-center">
+          <ngb-pagination
+            (pageChange)="loadPage(page)"
+            [(page)]="page"
+            [boundaryLinks]="true"
+            [collectionSize]="totalItems"
+            [maxSize]="5"
+            [pageSize]="itemsPerPage"
+            [rotate]="true"
+            [size]="'sm'"></ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="createIndexPattern()"
+            [disabled]="regex==='' || indexes.length===0 || loading || indexExist"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-regexp2'"></i>
+      {{!id ? 'Create' : 'Edit'}} index pattern&nbsp;
+    </button>
+  </div>
+</div>

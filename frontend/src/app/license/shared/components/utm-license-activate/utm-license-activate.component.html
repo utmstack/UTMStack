@@ -1,0 +1,54 @@
+<app-utm-modal-header [name]="'Activate'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+
+  <form [formGroup]="licenseForm" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1" for="licence">Licence key
+
+      </label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(licenseForm.get('licenceKey'))"
+             class="border-1 border-grey-600 form-control" formControlName="licenceKey"
+             id="licence"
+             name="licence">
+      <app-formcontrol-error [formcontrol]="licenseForm.get('licenceKey')"
+                             label="License key"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label class="pb-1 d-flex justify-content-between align-items-center span-small-icon" for="email">Email
+        <i class="ml-2 text-primary icon-question3" container="body"
+           ngbTooltip="Email to notify the license expiration"
+           placement="auto"></i>
+      </label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(licenseForm.get('email'))"
+             class="border-1 border-grey-600 form-control" formControlName="email"
+             id="email"
+             name="email">
+      <app-formcontrol-error [formcontrol]="licenseForm.get('email')"></app-formcontrol-error>
+    </div>
+
+  </form>
+  <div *ngIf="validating" class="d-flex justify-content-start align-items-start flex-column mt-3">
+    <div class="d-flex justify-content-start align-items-center">
+      <i [ngClass]="!checked?'text-blue-800 icon-spinner2 spinner':'text-success-400 icon-checkmark-circle'"></i>
+      <h6 class="text-blue-800 font-weight-light ml-2">
+        {{!checked ? 'Validating licence' : 'License validated'}}
+      </h6>
+    </div>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="activate()"
+            [disabled]="!licenseForm.valid || validating"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i [ngClass]="validating?'icon-spinner2 spinner':'icon-checkmark-circle'" class="mr-1"></i>&nbsp;
+      Activate
+    </button>
+  </div>
+</div>
+

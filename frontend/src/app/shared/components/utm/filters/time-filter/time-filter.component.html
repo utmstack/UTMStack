@@ -1,0 +1,62 @@
+<div class="d-flex justify-content-start align-items-center cursor-pointer">
+  <span class="font-weight-semibold"> {{label|translate}}</span>
+  <span #popover="ngbPopover"
+        [ngbPopover]="popContent"
+        autoClose="outside"
+        class="setting-filter
+    cursor-pointer text-blue-800 border-grey-100 ml-2"
+        placement="auto"
+        popoverClass="utm-popover-xs">
+    <i class="icon-calendar52"></i>
+    <i class="icon-arrow-down32 ml-2"></i>
+   </span>
+</div>
+<ng-template #popContent>
+  <div class="d-flex flex-column">
+    <div class="text-blue-800">
+            <span (click)="time='day'">
+              <i [ngClass]="time==='day'?'icon-radio-checked':'icon-radio-unchecked'"></i>
+              &nbsp;{{'alert.filter.time.day'|translate}}
+            </span>
+    </div>
+    <div class="text-blue-800">
+            <span (click)="time='week'">
+              <i [ngClass]="time==='week'?'icon-radio-checked':'icon-radio-unchecked'"></i>
+              &nbsp;{{'alert.filter.time.week'|translate}}
+            </span>
+    </div>
+    <div class="text-blue-800">
+            <span (click)="time='month'">
+              <i [ngClass]="time==='month'?'icon-radio-checked':'icon-radio-unchecked'"></i>
+              &nbsp;{{'alert.filter.time.month'|translate}}
+            </span>
+    </div>
+    <div class="text-blue-800">
+            <span (click)="time='year'">
+              <i [ngClass]="time==='year'?'icon-radio-checked':'icon-radio-unchecked'"></i>
+              &nbsp;{{'alert.filter.time.year'|translate}}
+            </span>
+    </div>
+    <div *ngIf="hasAll" class="text-blue-800">
+            <span (click)="time='all'">
+              <i [ngClass]="time==='all'?'icon-radio-checked':'icon-radio-unchecked'"></i>
+              &nbsp;{{'alert.filter.time.all'|translate}}
+            </span>
+    </div>
+    <div class="dropdown-divider"></div>
+    <div class="d-flex justify-content-center align-items-center p-1">
+               <span (click)="openCustomRangeModal()" class="text-blue-800 cursor-pointer">
+                 <i class="icon-calendar22"></i>
+                 {{'alert.filter.time.rangeLabel'|translate}}
+              </span>
+    </div>
+    <div class="dropdown-divider"></div>
+    <div class="d-flex justify-content-center mt-2 mb-2">
+      <button (click)="applyFilter();$event.stopPropagation();popover.close()"
+              class="btn utm-button utm-button-primary mt-2 mb-2">
+        <i class="icon-checkmark-circle"></i>
+        {{'alert.filter.time.button'|translate}}
+      </button>
+    </div>
+  </div>
+</ng-template>

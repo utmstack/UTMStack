@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  height="15.152542"
+  id="svg13"
+  inkscape:version="0.92.1 r15371"
+  sodipodi:docname="burguer.svg"
+  version="1.1"
+  viewBox="0 0 17.186441 15.152542"
+  width="17.186441"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:cc="http://creativecommons.org/ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+  <metadata
+    id="metadata17">
+    <rdf:RDF>
+      <cc:Work
+        rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+          rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+    bordercolor="#666666"
+    borderopacity="1"
+    gridtolerance="10"
+    guidetolerance="10"
+    id="namedview15"
+    inkscape:current-layer="svg13"
+    inkscape:cx="8.3389831"
+    inkscape:cy="7.5254235"
+    inkscape:pageopacity="0"
+    inkscape:pageshadow="2"
+    inkscape:window-height="1001"
+    inkscape:window-maximized="1"
+    inkscape:window-width="1920"
+    inkscape:window-x="-9"
+    inkscape:window-y="-9"
+    inkscape:zoom="9.8333333"
+    objecttolerance="10"
+    pagecolor="#ffffff"
+    showgrid="false"/>
+  <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+  <defs
+    id="defs6"/>
+  <g
+    id="Stockholm-icons-/-Text-/-Align-justify"
+    style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1"
+    transform="translate(-3.6610169,-4.3728814)">
+    <rect
+      height="24"
+      id="bound"
+      width="24"
+      x="0"
+      y="0"/>
+    <path
+      d="m 5,5 h 14 c 0.552285,0 1,0.4477152 1,1 0,0.5522847 -0.447715,1 -1,1 H 5 C 4.4477152,7 4,6.5522847 4,6 4,5.4477152 4.4477152,5 5,5 Z m 0,8 h 14 c 0.552285,0 1,0.447715 1,1 0,0.552285 -0.447715,1 -1,1 H 5 C 4.4477152,15 4,14.552285 4,14 4,13.447715 4.4477152,13 5,13 Z"
+      id="Combined-Shape"
+      inkscape:connector-curvature="0"
+      style="opacity:1;fill:#ffffff"/>
+    <path
+      d="m 5,9 h 14 c 0.552285,0 1,0.4477153 1,1 0,0.552285 -0.447715,1 -1,1 H 5 C 4.4477152,11 4,10.552285 4,10 4,9.4477153 4.4477152,9 5,9 Z m 0,8 h 14 c 0.552285,0 1,0.447715 1,1 0,0.552285 -0.447715,1 -1,1 H 5 C 4.4477152,19 4,18.552285 4,18 4,17.447715 4.4477152,17 5,17 Z"
+      id="path10"
+      inkscape:connector-curvature="0"
+      style="fill:#ffffff"/>
+  </g>
+</svg>

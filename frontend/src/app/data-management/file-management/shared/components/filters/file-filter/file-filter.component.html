@@ -1,0 +1,47 @@
+<div class="card h-100">
+  <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+
+    <label class="card-title">
+      <app-utm-dtable-columns [fields]="fieldFilters"
+                              [label]="'filters'"
+                              [showInactive]="true"
+                              icon="icon-cog3">
+      </app-utm-dtable-columns> &nbsp;Filters</label>
+
+    <div class="d-flex">
+      <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
+            ngbTooltip="Reset filters"
+            placement="top" tooltipClass="utm-tooltip-top">
+        <i class="icon-filter4"></i>
+      </span>
+    </div>
+  </div>
+
+  <div class="p-2 w-100">
+    <app-utm-search-input (searchFor)="onFileSearch($event)"
+                          [placeholder]="'Search'"></app-utm-search-input>
+
+
+    <ng-select (change)="onAccessChange($event)"
+               [(ngModel)]="access"
+               [clearable]="true"
+               [items]="accesses"
+               [multiple]="true"
+               [searchable]="true"
+               bindLabel="access"
+               bindValue="hex"
+               class="mt-3"
+               id="access" placeholder="Action"></ng-select>
+  </div>
+
+
+  <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
+    <div *ngFor="let filter of fieldFilters" class="w-100">
+      <div *ngIf="filter.visible" class="w-100 mb-2">
+        <app-file-generic-filter (filterGenericChange)="onFilterGenericChange($event)"
+                                 [fieldFilter]="filter">
+        </app-file-generic-filter>
+      </div>
+    </div>
+  </div>
+</div>

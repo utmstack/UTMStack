@@ -1,0 +1,30 @@
+<div class="view-colors mb-2 d-flex align-items-center justify-content-between mt-3">
+  <div (click)="viewGaugeColorRangeProperties()"
+       class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewGaugeColor?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+    <span class="font-weight-bold">Gauge color range</span>&nbsp;
+  </div>
+</div>
+<div *ngIf="viewGaugeColor" class="properties-options">
+  <span class="font-weight-light text-blue-800 mt-2 mb-2">Gauge max range value is 1</span>
+  <div *ngFor="let range of ranges;let index = index"
+       class="gauge-range d-flex justify-content-between align-items-center mt-2">
+    <input (change)="onRangeChange($event,index)" [maxLength]="1" [value]="range[0]" class="form-control w-25" max="1"
+           type="number">
+    <app-utm-single-color-select
+      (singleColorChange)="ranges[index][1]=$event;rangeColorChange.emit(ranges)"
+      [color]="range[1]">
+    </app-utm-single-color-select>
+    <span (click)="deleteRange(index)" class="cursor-pointer">
+      <i class="icon-cross2"></i>
+    </span>
+  </div>
+  <div class="add-metric-button d-flex justify-content-center mt-3">
+        <span (click)="addRange()"
+              class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+          Add range color
+        </span>
+  </div>
+</div>

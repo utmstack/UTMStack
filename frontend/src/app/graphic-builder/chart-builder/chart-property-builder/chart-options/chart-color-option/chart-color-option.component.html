@@ -1,0 +1,14 @@
+<form [formGroup]="formColorOption">
+  <div class="view-colors mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewColorsProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewColors?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Colors</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewColors" class="properties-options">
+    <app-utm-colors-order (orderColorChange)="formColorOption.get('color').setValue($event)"
+                          [colors]="formColorOption.get('color').value"></app-utm-colors-order>
+  </div>
+</form>

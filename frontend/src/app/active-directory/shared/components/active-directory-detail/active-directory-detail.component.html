@@ -1,0 +1,139 @@
+<div class="container-fluid pr-2 pl-2 pt-2 h-100">
+  <div *ngIf="!user"
+       class="no-object-selected d-flex flex-column align-items-center justify-content-center">
+    <app-no-data-found></app-no-data-found>
+  </div>
+  <div *ngIf="user">
+    <div class="d-flex justify-content-start align-items-start flex-wrap">
+      <div *ngFor="let attribute of user.attributes" class="reverse m-3 d-flex">
+        <span style="white-space: nowrap;" class="font-weight-bold">{{ attribute.attributeKey+': ' }}</span>
+        <span class="username">
+            {{ attribute.attributeValue ? attribute.attributeValue : '-'}}
+           </span>
+      </div>
+    </div>
+    <!--<div class="d-flex justify-content-start align-items-start flex-wrap">
+      <div class="reverse m-3 d-flex">
+        <span class="font-weight-bold">SAM Account Name:&nbsp;</span>
+        <span class="">
+            {{adInfo.sAMAccountName ? adInfo.sAMAccountName : '-'}}
+           </span>
+      </div>
+      <div (click)="viewAcl=true" *ngIf="adInfo.userACLs"
+           class="reverse m-3 d-flex cursor-pointer">
+        <span class="font-weight-bold">ACL:&nbsp;</span>
+        <span class="text-blue-800">
+             View {{adInfo.userACLs.length}} object ACL
+        </span>
+      </div>
+      <div class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Disabled:&nbsp;</span>
+        <span
+          [ngClass]="adInfo.disabled === true ? 'badge-info' : adInfo.disabled === false ? 'badge-success' : 'badge-warning'"
+          class="badge">
+            {{adInfo.disabled === true ? 'Yes' : adInfo.disabled === false ? 'No' : 'Unknown'}}
+        </span>
+      </div>
+      <div class="reverse m-3 d-flex">
+        <span class="font-weight-bold">ObjectSID:&nbsp;</span>
+        <span class="">
+        {{adInfo.objectSid}}
+      </span>
+      </div>
+      <div class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Object type:&nbsp;</span>
+        <span class="badge badge-info text-uppercase">
+        {{adInfo.type}}
+      </span>
+      </div>
+      <div *ngIf="adInfo.type!=='computer'" class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Is admin:&nbsp;</span>
+        <span [ngClass]="!adInfo.adminCount?'badge-info':'badge-success'" class="badge">
+        {{!adInfo.adminCount ? 'No' : 'Yes'}}
+      </span>
+      </div>
+      <div class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Created at:&nbsp;</span>
+        <span class="">
+        {{adInfo.whenCreated | date:formatDateEnum.UTM_SHORT:'UTC'}}
+      </span>
+      </div>
+      <div *ngIf="adInfo.realLastLogon" class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Last logon:&nbsp;</span>
+        <span [ngClass]="{'text-danger':adInfo.realLastLogon === '0' }">
+                      {{adInfo.realLastLogon === '0' ? 'Never' :
+          (adInfo.realLastLogon | date:formatDateEnum.UTM_SHORT:'UTC')}}
+                     </span>
+      </div>
+      <div *ngIf="adInfo.distinguishedName" class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Location:&nbsp;</span>
+        <span class="">
+        {{resolvePath()}}
+      </span>
+      </div>
+      <div *ngIf="adInfo.type==='user'" class="reverse m-3 d-flex">
+        <span class="font-weight-bold">Account expire:&nbsp;</span>
+        <span class="">
+        {{!adInfo.accountExpires ?
+          (adInfo.accountExpires|date:formatDateEnum.UTM_SHORT:'UTC') : 'Never'}}
+        </span>
+      </div>
+      <div *ngIf="adInfo.type==='computer' && adInfo.operatingSystem" class="reverse m-3 d-flex">
+        <span class="font-weight-bold">OS:&nbsp;</span>
+        <span class="span-small-icon">
+          <i [ngClass]="resolveSoIcon(adInfo.operatingSystem)"></i>&nbsp;
+          {{adInfo.operatingSystem}}
+        </span>
+      </div>
+    </div>-->
+    <div *ngIf="adInfo.memberOf"
+         class="email-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+          <span class="p-1 utm-box-label">
+          <i class="icon-make-group"></i>
+          Member of LDAP groups</span>
+      <app-ad-member-of [members]="adInfo.memberOfClean"></app-ad-member-of>
+    </div>
+
+    <app-ad-user-computer *ngIf="adInfo.computerInformation && adInfo.computerInformation.length>0"
+                          [adInfo]="adInfo" class="mt-3">
+    </app-ad-user-computer>
+
+    <div *ngIf="adInfo.member && adInfo.type==='group'"
+         class="email-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+          <span class="p-1 utm-box-label">
+          <i class="icon-make-group"></i>
+          Members of group</span>
+      <app-ad-member-of [members]="resolveObjectMembers()"></app-ad-member-of>
+    </div>
+
+    <div *ngIf="adInfo.type==='computer'" class="w-100">
+      <app-ad-computer-local-group *ngIf="adInfo.localGroups"
+                                   [localGroups]="adInfo.localGroups">
+      </app-ad-computer-local-group>
+      <app-ad-computer-local-users *ngIf="adInfo.localUsers" [adInfo]="adInfo"></app-ad-computer-local-users>
+      <app-ad-computer-ips *ngIf="adInfo.ips" [adInfo]="adInfo"></app-ad-computer-ips>
+      <app-ad-folder-list *ngIf="adInfo.localFolders" [folders]="adInfo.localFolders"></app-ad-folder-list>
+    </div>
+  </div>
+  <app-active-directory-event [objectId]="user"></app-active-directory-event>
+</div>
+
+<div *ngIf="viewAcl" class="utm-right-container">
+  <div (click)="viewAcl= undefined" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        ACLs of {{ adInfo.cn}}
+      </h6>
+      <button (click)="viewAcl= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="content-rigth p-3">
+      <app-active-directory-acl [adInfo]="adInfo"></app-active-directory-acl>
+    </div>
+  </div>
+</div>
+

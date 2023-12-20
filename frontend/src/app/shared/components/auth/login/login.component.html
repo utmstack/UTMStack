@@ -1,0 +1,73 @@
+<div class="bg-image-utmstack"></div>
+<div *ngIf="!logged" class="content d-flex justify-content-center
+align-items-center h-100 w-100 mt-auto utm-login-cover">
+  <!-- Login form -->
+
+  <div *ngIf="!loadingAuth;else loading" class="card mb-0">
+    <div class="card-body pr-4 pl-4">
+      <div class="text-center mb-3 d-flex justify-content-center">
+        <div class="login-pic">
+          <img [src]="sanitizer.bypassSecurityTrustUrl(loginImage)"
+               *ngIf="loginImage;else loadImage"
+               alt="Login" data-loading="lazy">
+          <ng-template #loadImage>
+            <i class="icon-image4" style="font-size: 100px;opacity: 0.1"></i>
+          </ng-template>
+        </div>
+      </div>
+      <form (keydown)="keyDownFunction($event)" [formGroup]="formLogin">
+        <div class="form-group form-group-feedback form-group-feedback-right">
+          <div class="form-control-feedback">
+            <i class="icon-user text-muted"></i>
+          </div>
+          <input placeholder="User"
+                 class="form-control"
+                 formControlName="username"
+                 type="email">
+        </div>
+
+        <div class="form-group form-group-feedback form-group-feedback-right">
+          <div class="form-control-feedback">
+            <i class="icon-lock2 text-muted"></i>
+          </div>
+          <input [placeholder]="'login.password' | translate" class="form-control"
+                 formControlName="password"
+                 type="password">
+        </div>
+      </form>
+      <div class="form-group">
+        <button (click)="login()" [disabled]="startLogin || !formLogin.valid"
+                class="btn btn-block utm-button utm-button-primary ful" type="submit">
+          <i *ngIf="startLogin" class="icon-spinner2 spinner"></i>&nbsp;
+          Sign in
+        </button>
+      </div>
+      <div (click)="resetPassword()" class="text-center pt-2 cursor-pointer">
+        						<span class="txt1">
+        							{{'login.forgot' | translate}}
+        						</span>
+        <a class="txt2">
+          {{'login.recover' | translate}}
+        </a>
+
+      </div>
+    </div>
+
+    <div *ngIf="isInDemo" class="d-flex justify-content-center align-items-center text-danger
+     font-weight-semibold p-3">
+      <i class="icon-mail5 mr-2"></i>
+      Credentials were sent to your email
+    </div>
+  </div>
+  <!-- /login form -->
+  <ng-template #loading>
+    <app-utm-spinner [loading]="true" label="Loading"></app-utm-spinner>
+  </ng-template>
+
+</div>
+
+<!-- /content area -->
+<div *ngIf="logged" class="content d-flex justify-content-center align-items-center h-100 w-100">
+  <app-utm-spinner [height]="'35px'" [label]="'Loading modules...'" [loading]="true"
+                   [width]="'35px'"></app-utm-spinner>
+</div>

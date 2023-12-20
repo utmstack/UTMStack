@@ -1,0 +1,40 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <app-utm-search-input (searchFor)="onSearchFor($event)"
+                        placeholder="Visualization name"></app-utm-search-input>
+
+  <div class="d-flex flex-column flex-grow-1 mt-3">
+    <label class="pb-1" for="id">Chart type</label>
+    <ng-select (change)="visFilterChange.emit(filter)"
+               [(ngModel)]="filter['chartType.equals']"
+               [clearable]="true"
+               [items]="charts"
+               [loadingText]="'Loading chart type...'"
+               [loading]="!charts"
+               bindLabel="name"
+               bindValue="type"
+               id="id">
+    </ng-select>
+  </div>
+  <div class="d-flex flex-column flex-grow-1 mt-3">
+    <label class="pb-1" for="id">Source</label>
+    <ng-select (change)="visFilterChange.emit(filter)"
+               [(ngModel)]="filter['idPattern.equals']"
+               [clearable]="true"
+               [items]="patterns"
+               bindLabel="pattern"
+               bindValue="id"
+               id="indexPatters">
+    </ng-select>
+  </div>
+  <div class="form-group mt-3">
+    <label class="pb-1">Created at</label>
+    <app-filter-time (timeFilterChange)="searchByCreation($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1">Modified at</label>
+    <app-filter-time (timeFilterChange)="searchByLastModification($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+</div>

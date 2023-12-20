@@ -1,0 +1,22 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Application theme
+    </h6>
+    <button (click)="setDefault()"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-color-sampler mr-2"></i> Reset theme
+    </button>
+  </div>
+
+  <div class="card-body w-100">
+    <div *ngIf="loading" class="d-flex justify-content-center align-items-center has-fixed-height">
+      <app-utm-spinner [label]="'Loading theme...'" [loading]="true"></app-utm-spinner>
+    </div>
+    <div *ngIf="!loading" class="w-100">
+      <div *ngFor="let theme of themeImages" class="w-100 mb-3 card p-3">
+        <app-app-theme-config [theme]="theme"></app-app-theme-config>
+      </div>
+    </div>
+  </div>
+</div>

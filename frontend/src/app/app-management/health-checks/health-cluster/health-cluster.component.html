@@ -1,0 +1,15 @@
+<app-utm-modal-header [name]="'Data engine health'"
+                      class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div *ngIf="!clusterHealth"
+       class="loading has-fixed-height d-flex justify-content-center align-items-center">
+    <app-utm-spinner [loading]="clusterHealth" label="Loading modules"></app-utm-spinner>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button bg-danger-400 mr-3">
+      <i class="icon-close2"></i>&nbsp;
+      Close
+    </button>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+$navbar-primary-height: 50px;
+$navbar-primary-mobile-height: 100px;
+$navbar-secondary-height: 45px;
+
+// SVG Icon Sizes
+$svg-icon-sizes: (
+  mini:0.75rem,
+  sm: 1rem,
+  smx: 1.20rem,
+  md: 1.35rem,
+  lg: 1.75rem,
+  xl: 2rem,
+  xxl: 2.25rem,
+  1x: 1rem,
+  2x: 2rem,
+  3x: 3rem,
+  4x: 4rem,
+  5x: 5rem,
+  6x: 6rem,
+  7x: 7rem,
+  8x: 8rem,
+  9x: 9rem,
+  10x: 10rem,
+
+  full: 100%
+);
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px // custom breakpoint
+) !default;
+

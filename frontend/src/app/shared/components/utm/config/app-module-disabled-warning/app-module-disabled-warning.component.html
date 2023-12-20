@@ -1,0 +1,11 @@
+<div *ngIf="!isModuleEnable && show && !isLite"
+     class="alert alert-info bg-info text-white alert-styled-right alert-dismissible">
+  <button (click)="show=false" aria-label="Close" class="close button-close pr-0 mt-0" data-dismiss="alert"
+          type="button">
+    <div class="close-modal-icon"></div>
+  </button>
+  Asset management has a dependency with {{moduleName}} module, that is
+  currently disabled,
+  <a [queryParams]="{setUp:module}" class="alert-link"
+     routerLink="/integrations/explore">set it up</a>, to activate all features
+</div>

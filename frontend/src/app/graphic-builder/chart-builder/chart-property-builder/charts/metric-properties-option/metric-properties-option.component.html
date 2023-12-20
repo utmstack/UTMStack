@@ -1,0 +1,44 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-metric utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Metric option</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formMetricOption">
+      <div *ngFor="let metric of options.controls; let index =index">
+        <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative"
+             formArrayName="options">
+        <span class="p-1 utm-box-label">
+          <i class="icon-list-numbered"></i>
+          {{extractMetricLabel(metric.get('metricId').value, visualization)}}
+         </span>
+          <div [formGroupName]="index" class="d-flex flex-column flex-grow-1">
+            <div (click)="selectIcon(index)"
+                 class="mt-2 property d-flex justify-content-start align-items-center">
+              <i *ngIf="options.at(index).get('icon').value"
+                 [class]="options.at(index).get('icon').value"
+                 [ngStyle]="{'color':options.at(index).get('color').value}"></i>&nbsp;
+              <span class="text-blue-800 cursor-pointer">
+              Select icon
+            </span>
+            </div>
+            <app-utm-single-color-select
+              (singleColorChange)="options.at(index).get('color').setValue($event)"
+              [color]="options.at(index).get('color').value"
+              class="mt-3">
+            </app-utm-single-color-select>
+            <div class="form-group mt-3">
+              <label class="pb-1 font-weight-semibold"
+                     for="decimal">Decimal</label>
+              <input class="border-1 border-grey-600 form-control"
+                     formControlName="decimal" id="decimal"
+                     name=""
+                     type="number">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

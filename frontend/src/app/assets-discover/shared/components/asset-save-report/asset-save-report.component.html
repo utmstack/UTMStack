@@ -1,0 +1,19 @@
+<app-utm-modal-header [name]="'Save report'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 ">
+  <div class="form w-100 save-report-container">
+    <app-asset-active-filter [assetFilters]="assetFilters"></app-asset-active-filter>
+    <app-utm-data-limit (limitChange)="limit=$event"></app-utm-data-limit>
+  </div>
+  <div class="buttom-container pt-3 d-flex justify-content-end">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="export()"
+            [disabled]="generateReport"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="generateReport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+      {{generateReport ? 'Generating...' : 'Export to PDF'}}
+    </button>
+  </div>
+</div>
