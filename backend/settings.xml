@@ -18,23 +18,14 @@
                     <id>utmstack</id>
                     <url>https://maven.pkg.github.com/utmstack/**</url>
                 </repository>
-                <repository>
-                    <id>atlasinside</id>
-                    <url>https://maven.pkg.github.com/AtlasInsideCorp/**</url>
-                </repository>
             </repositories>
         </profile>
     </profiles>
 
     <servers>
         <server>
-            <id>atlasinside</id>
-            <username>leonardomoralopez89</username>
-            <password>${env.MAVEN_TOKEN}</password>
-        </server>
-        <server>
             <id>utmstack</id>
-            <username>leonardomoralopez89</username>
+            <username>utmstack</username>
             <password>${env.MAVEN_TOKEN}</password>
         </server>
     </servers>
