@@ -1,0 +1,13 @@
+<form [formGroup]="formBucketSigTerms">
+  <div class="form-group mt-3">
+    <label [ngClass]="{'text-danger-800':!formBucketSigTerms.get('size').valid}"
+           class="pb-1 font-weight-semibold"
+           for="name">Size</label>
+    <input [ngClass]="inputClass.resolveClassInput(formBucketSigTerms.get('size'))"
+           class="border-1 border-grey-600 form-control"
+           formControlName="size"
+           id="name"
+           name=""
+           type="number">
+  </div>
+</form>

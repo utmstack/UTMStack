@@ -1,0 +1,34 @@
+<app-utm-modal-header [name]="'Save report'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="d-flex p-3">
+    <div class="form w-100">
+      <app-asset-report-active-filter [filterActive]="filter"></app-asset-report-active-filter>
+
+      <app-utm-data-limit (limitChange)="applyLimit($event)"></app-utm-data-limit>
+
+      <div class="buttom-container pt-3 d-flex justify-content-end">
+        <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+          <i class="icon-cancel-circle2"></i>&nbsp;
+          Cancel
+        </button>
+        <button (click)="viewReportAssets()" *ngIf="type==='asset'"
+                [disabled]="generateReport" class="btn utm-button utm-button-primary">
+          <i [ngClass]="generateReport?'icon-spinner2 spinner':'icon-file-pdf'" class="mr-1"></i>
+          {{saving ? 'Generating...' : 'View report'}}
+        </button>
+        <button (click)="viewReportAssetsDetail()" *ngIf="type==='detail'"
+                [disabled]="generateReport" class="btn utm-button utm-button-primary">
+          <i [ngClass]="generateReport?'icon-spinner2 spinner':'icon-file-pdf'" class="mr-1"></i>
+          {{saving ? 'Generating...' : 'View report'}}
+        </button>
+
+        <button (click)="viewReportTaskDetail()" *ngIf="type==='task'"
+                [disabled]="generateReport" class="btn utm-button utm-button-primary">
+          <i [ngClass]="generateReport?'icon-spinner2 spinner':'icon-file-pdf'" class="mr-1"></i>
+          {{saving ? 'Generating...' : 'View report'}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

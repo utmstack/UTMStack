@@ -1,0 +1,145 @@
+<div class="w-100 p-2">
+
+    <div *ngIf="module;else loading" [ngSwitch]="module.moduleName" class="activated-route w-100 h-100">
+        <app-guide-winlogbeat [serverId]="serverId" *ngSwitchCase="moduleEnum.WINDOWS_AGENT"
+                              [integrationId]="module.id"></app-guide-winlogbeat>
+        <app-guide-asset-scanner [serverId]="serverId" *ngSwitchCase="moduleEnum.ASSET_MANAGEMENT"
+                                 [integrationId]="module.id"></app-guide-asset-scanner>
+        <app-guide-file-clasification [serverId]="serverId" *ngSwitchCase="moduleEnum.FILE_INTEGRITY"
+                                      [integrationId]="module.id"></app-guide-file-clasification>
+        <app-guide-vulnerabilities [serverId]="serverId" *ngSwitchCase="moduleEnum.VULNERABILITIES"
+                                   [integrationId]="module.id"></app-guide-vulnerabilities>
+        <app-guide-google-pubsub [serverId]="serverId" *ngSwitchCase="moduleEnum.GOOGLE_PUBSUB"
+                                 [integrationId]="module.id"></app-guide-google-pubsub>
+        <app-guide-aws-beanstalk [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_BEANSTALK"
+                                 [integrationId]="module.id"></app-guide-aws-beanstalk>
+        <app-guide-aws-cloudtrail [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_CLOUDTRAIL"
+                                  [integrationId]="module.id"></app-guide-aws-cloudtrail>
+        <app-guide-aws-iam-user [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_IAM_USER"
+                                [integrationId]="module.id"></app-guide-aws-iam-user>
+        <app-guide-aws-ecs-fargate [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_FARGATE"
+                                   [integrationId]="module.id"></app-guide-aws-ecs-fargate>
+        <app-guide-aws-rds-ms-sql [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_SQL_SERVER"
+                                  [integrationId]="module.id"></app-guide-aws-rds-ms-sql>
+        <app-guide-aws-lambda [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_LAMBDA"
+                              [integrationId]="module.id"></app-guide-aws-lambda>
+        <app-guide-aws-rds-postgres [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_POSTGRESQL"
+                                    [integrationId]="module.id"></app-guide-aws-rds-postgres>
+        <app-guide-aws-traffic-mirror [serverId]="serverId" *ngSwitchCase="moduleEnum.AWS_TRAFFIC_MIRROR"
+                                      [integrationId]="module.id"></app-guide-aws-traffic-mirror>
+        <app-guide-azure [serverId]="serverId" *ngSwitchCase="moduleEnum.AZURE"
+                         [integrationId]="module.id"></app-guide-azure>
+        <app-guide-filebeat [serverId]="serverId" *ngSwitchCase="moduleEnum.LINUX_LOGS"
+                            [integrationId]="module.id"></app-guide-filebeat>
+        <app-guide-iis [serverId]="serverId" *ngSwitchCase="moduleEnum.IIS" [integrationId]="module.id"></app-guide-iis>
+        <app-guide-ldap [serverId]="serverId" *ngSwitchCase="moduleEnum.AD_AUDIT"
+                        [integrationId]="module.id"></app-guide-ldap>
+        <app-guide-office365 [serverId]="serverId" *ngSwitchCase="moduleEnum.O365"
+                             [integrationId]="module.id"></app-guide-office365>
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SYSLOG"
+                          [moduleEnum]="moduleEnum.SYSLOG"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+        <app-guide-vmware-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.VMWARE"
+                                 [integrationId]="module.id"></app-guide-vmware-syslog>
+        <app-guide-webroot [serverId]="serverId" *ngSwitchCase="moduleEnum.WEBROOT"
+                           [integrationId]="module.id"></app-guide-webroot>
+        <app-guide-window-faa [serverId]="serverId" *ngSwitchCase="moduleEnum.WINDOWS_FAA"
+                              [integrationId]="module.id"></app-guide-window-faa>
+        <app-guide-netflow [serverId]="serverId" *ngSwitchCase="moduleEnum.NETFLOW"
+                           [integrationId]="module.id"></app-guide-netflow>
+        <app-guide-sophos [serverId]="serverId" *ngSwitchCase="moduleEnum.SOPHOS"
+                          [integrationId]="module.id"></app-guide-sophos>
+        <app-guide-json *ngSwitchCase="moduleEnum.JSON"></app-guide-json>
+        <app-guide-macos-agent *ngSwitchCase="moduleEnum.MACOS"
+                               [serverId]="serverId"
+                               [filebeatModuleName]="module.prettyName"
+                               [filebeatModule]="module.moduleName">
+        </app-guide-macos-agent>
+        <app-guide-linux-agent *ngSwitchCase="moduleEnum.LINUX_AGENT" [serverId]="serverId"
+                               [integrationId]="module.id"></app-guide-linux-agent>
+
+        <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO" [serverId]="serverId"
+                         [filebeatModuleName]="module.prettyName"
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+
+        <app-guide-cisco *ngSwitchCase="moduleEnum.MERAKI" [serverId]="serverId"
+                         [filebeatModuleName]="module.prettyName"
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+
+        <app-guide-cisco *ngSwitchCase="moduleEnum.FIRE_POWER" [serverId]="serverId"
+                         [filebeatModuleName]="module.prettyName"
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+
+        <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO_SWITCH" [serverId]="serverId"
+                         [filebeatModuleName]="module.prettyName"
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+
+        <app-guide-eset *ngSwitchCase="moduleEnum.ESET" [serverId]="serverId"
+                        [filebeatModuleName]="module.prettyName"
+                        [filebeatModule]="module.moduleName"></app-guide-eset>
+
+        <app-guide-sentinel-one *ngSwitchCase="moduleEnum.SENTINEL_ONE" [serverId]="serverId"></app-guide-sentinel-one>
+
+        <app-guide-kaspersky *ngSwitchCase="moduleEnum.KASPERSKY" [serverId]="serverId"></app-guide-kaspersky>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FORTIGATE"
+                          [moduleEnum]="moduleEnum.FORTIGATE"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.UFW"
+                          [moduleEnum]="moduleEnum.UFW"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.MIKROTIK"
+                          [moduleEnum]="moduleEnum.MIKROTIK"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.PALO_ALTO"
+                          [moduleEnum]="moduleEnum.PALO_ALTO"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SONIC_WALL"
+                          [moduleEnum]="moduleEnum.SONIC_WALL"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.DECEPTIVE_BYTES"
+                          [moduleEnum]="moduleEnum.DECEPTIVE_BYTES"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SOPHOS_XG"
+                          [moduleEnum]="moduleEnum.SOPHOS_XG"
+                          [guideName]="module.prettyName"
+                          [integrationId]="module.id"></app-guide-syslog>
+
+        <app-guide-github *ngSwitchCase="moduleEnum.GITHUB" [serverId]="serverId"></app-guide-github>
+
+        <app-guide-filebeat-generic *ngSwitchDefault [serverId]="serverId"
+                                    [filebeatModuleName]="module.prettyName"
+                                    [filebeatModule]="module.moduleName"></app-guide-filebeat-generic>
+
+        <app-guide-salesforce *ngSwitchCase="moduleEnum.SALESFORCE" [serverId]="serverId"
+                              [integrationId]="module.id"></app-guide-salesforce>
+
+        <app-guide-bitdefender *ngSwitchCase="moduleEnum.BITDEFENDER" [serverId]="serverId"
+                               [integrationId]="module.id"></app-guide-bitdefender>
+
+        <app-guide-as400 *ngSwitchCase="moduleEnum.IBM_AS_400" [serverId]="serverId"
+                               [integrationId]="module.id"></app-guide-as400>
+
+        <app-guide-soc-ai *ngSwitchCase="moduleEnum.SOC_AI" [serverId]="serverId"
+                          [integrationId]="module.id"></app-guide-soc-ai>
+
+  </div>
+  <ng-template #loading>
+    <div class="activated-route w-100 h-100 d-flex justify-content-center align-items-center">
+      <app-utm-spinner [loading]="true" label="Loading integration"></app-utm-spinner>
+    </div>
+  </ng-template>
+</div>

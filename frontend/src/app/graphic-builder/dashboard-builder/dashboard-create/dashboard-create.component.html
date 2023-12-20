@@ -1,0 +1,122 @@
+<div class="container-fluid pr-0 pl-0 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2 pr-2 pl-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      {{(editMode && dashboard) ? dashboard.name : 'Dashboard Builder'}}
+    </h5>
+    <div class="header-elements d-flex justify-content-end">
+      <button (click)="saveDashboard()" [disabled]="layout.length===0"
+              class="btn utm-button utm-button-primary mr-2">
+        <i class="icon-pie-chart8 mr-2"></i> Save dashboard
+      </button>
+
+      <button (click)="addNewVisualization=true" class="btn utm-button utm-button-primary">
+        <i class="icon-pie-chart5 mr-2"></i> Add Visualization
+      </button>
+
+      <button (click)="cancelCreation()" class="btn utm-button utm-button-grey d-flex ml-2">
+        Cancel
+      </button>
+    </div>
+  </div>
+  <div class="w-100 d-flex justify-content-start align-items-center mb-2 pr-2 pl-2">
+    <app-dashboard-filter-view [filters]="filters" position="left"
+                               (filterAction)="onAction($event)"
+                               [building]="true"></app-dashboard-filter-view>
+    <span class="text-blue-800 cursor-pointer" (click)="createFilter()">
+       <i class="icon-plus22" [ngClass]="{'ml-4':filters && filters.length>0}"></i>&nbsp;Add filter
+    </span>
+  </div>
+  <div *ngIf="layout.length===0 && !loadingDashboard"
+       class="warning-empty-visualization w-100 p-5 d-flex
+  justify-content-center align-items-center flex-column">
+    <div class="utm-icon-light utm-icon-lg utm-icon-wordcloud"></div>
+    <h6 (click)="addVisualization()"
+        class="text-blue-800 mt-3 cursor-pointer">Add visualizations</h6>
+  </div>
+  <div *ngIf="loadingDashboard"
+       class="warning-empty-visualization p-5 d-flex justify-content-center align-items-center">
+    <app-utm-spinner [height]="'35px'"
+                     [label]="'Loading dashboard...'"
+                     [loading]="loadingDashboard"
+                     [width]="'35px'">
+    </app-utm-spinner>
+  </div>
+
+  <gridster *ngIf="layout.length>0 && !loadingDashboard"
+            [options]="options" style="background-color: #f1f1f1;z-index: 0;">
+    <gridster-item #gridsterItem
+                   *ngFor="let item of layout; let index = index" [item]="item.grid"
+                   (mouseenter)="activeTimeGridster=item.visualization.id"
+                   [ngStyle]="{'z-index':(activeTimeGridster===item.visualization.id?100:0)+''}">
+      <app-utm-viewer [building]="false"
+                      style="z-index: 10"
+                      [chart]="item.visualization.chartType"
+                      [chartId]="item.visualization.id"
+                      [height]="(gridsterItem.height-38)+'px'"
+                      [showTime]="timeEnable.includes(item.visualization.id)"
+                      [visualization]="item.visualization"
+                      [width]="gridsterItem.width+'px'">
+      </app-utm-viewer>
+      <i (click)="deleteVisualization(item)"
+         class="icon-cross2 text-danger-800 cursor-pointer icon-item-delete"></i>
+      <i #popover="ngbPopover"
+         (click)="togglePopover(popover,item.visualization)"
+         [ngbPopover]="popContent"
+         [popoverTitle]="popTitle"
+         autoClose="outside"
+         class="icon-cog3 cursor-pointer icon-item-cog"
+         container="body"
+         placement="auto"
+         popoverClass="utm-popover-bottom"
+         triggers="manual"></i>
+      <ng-template #popContent let-visualization="visualization">
+        <div class="visualization--options">
+          <ul class="nav flex-column p-0">
+            <li class="nav-item p-0">
+              <a (click)="editVisualization(visualization)" class="nav-link p-2">
+                <i class="icon-pencil"> </i>&nbsp;Edit visualization
+              </a>
+            </li>
+            <li class="nav-item p-0">
+              <a (click)="openChangeNameModal(visualization)" class="nav-link p-2">
+                <i class="icon-pencil"> </i>&nbsp;Edit panel
+              </a>
+            </li>
+            <li *ngIf="visualization.chartType !== chartType.TEXT_CHART" class="nav-item p-0">
+              <a (click)="enableTimeFilter(visualization);popover.close()" class="nav-link p-2">
+                <i class="icon-calendar52 text-blue-800"> </i>&nbsp;
+                {{timeEnable.includes(visualization.id) ? 'Disable time filter' : 'Enable time filter'}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+      <ng-template #popTitle>
+        <h6 class="font-weight-light">Visualization options</h6>
+      </ng-template>
+    </gridster-item>
+  </gridster>
+</div>
+
+<div *ngIf="addNewVisualization" class="utm-right-container">
+  <div (click)="addNewVisualization= undefined" class="overlay overlay-md"></div>
+  <div class="card utm-right-action utm-right-action-md">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Visualizations
+      </h6>
+      <button (click)="addNewVisualization= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="w-100 p-2">
+      <app-visualization-select (visClose)="addNewVisualization = false;"
+                                (createNewVisualization)="onCreateNewVisualization()"
+                                [callback]="routeCallbackEnum.DASHBOARD"
+                                (visSelected)="onVisSelected($event)"></app-visualization-select>
+    </div>
+  </div>
+</div>
+

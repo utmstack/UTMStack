@@ -1,0 +1,35 @@
+<div class="w-100 d-flex justify-content-between align-items-center">
+  <h6 class="font-weight-semibold mb-2">{{theme.shortName.replace("_", " ") | titlecase}}
+    <span class="ml-2 text-blue-800 cursor-pointer medium-icon"
+          [ngbTooltip]="logoHelp"
+          placement="bottom"
+          tooltipClass="utm-tooltip-bottom">
+        <i class="icon-question3"></i>
+      </span>
+    <ng-template #logoHelp>
+      <span [innerHTML]="getDescription()"></span>
+    </ng-template>
+  </h6>
+  <div class="header-elements">
+    <button (click)="saveImage()"
+            [disabled]="saving || !changed"
+            class="btn utm-button utm-button-primary font-size-base span-small-icon">
+      <i [ngClass]="saving?'icon-spinner2 spinner':'icon-file-check'"></i>
+      {{saving ? 'Saving changes' : 'Save changes'}}
+    </button>
+  </div>
+</div>
+<div class="w-100">
+  <div *ngIf="changed"
+       class="w-100 alert alert-info alert-styled-right mb-3">
+       <span class="font-weight-semibold">
+          Detect unsaved changes in configuration, do not forget save changes when you finish!
+       </span>
+  </div>
+
+  <app-utm-input-file-upload (fileEmit)="onImageChange($event)"
+                             [acceptTypes]="'.png,.svg,.jpg'"
+                             [img]="theme.userImg"></app-utm-input-file-upload>
+
+</div>
+

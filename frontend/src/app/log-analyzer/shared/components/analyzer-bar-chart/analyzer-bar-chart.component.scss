@@ -1,0 +1,15 @@
+.card {
+  height: 100%;
+  width: 100%;
+
+  .card-header {
+    span {
+      color: rgba(51, 51, 51, .85);
+      font-weight: 500;
+    }
+  }
+
+  .has-fixed-height {
+    height: 350px !important;
+  }
+}

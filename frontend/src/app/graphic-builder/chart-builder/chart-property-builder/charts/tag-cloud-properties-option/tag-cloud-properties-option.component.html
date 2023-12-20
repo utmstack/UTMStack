@@ -1,0 +1,54 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-wordcloud utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Tag cloud option</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formTagCloud">
+      <div class="d-flex flex-column flex-grow-1 mt-3">
+        <label class="pb-1" for="cap">Tag cloud shape</label>
+        <ng-select [clearable]="false"
+                   [items]="tagShapes"
+                   [loadingText]="'Loading shapes....'"
+                   [loading]="!tagShapes"
+                   bindLabel="name"
+                   formControlName="shape"
+                   id="cap">
+        </ng-select>
+      </div>
+      <div class="row m-0 mt-3 p-0">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+          <ng-container formGroupName="autoSize">
+            <div class="form-group">
+              <label class="pb-1" for="minSize">Min word size</label>
+              <input [min]="5"
+                     class="border-1 border-grey-600 form-control"
+                     formControlName="minSize"
+                     id="minSize"
+                     name=""
+                     type="number">
+            </div>
+          </ng-container>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+          <div class="form-group">
+            <label class="pb-1" for="textPadding">Text padding</label>
+            <input [min]="0"
+                   class="border-1 border-grey-600 form-control"
+                   formControlName="textPadding"
+                   id="textPadding"
+                   name=""
+                   type="number">
+          </div>
+        </div>
+      </div>
+
+      <app-chart-color-option (colorOptionChange)="onColorOptionChange($event)">
+      </app-chart-color-option>
+
+      <app-chart-toolbox-option (toolboxOptionChange)="onToolboxOptionChange($event)"
+                                chartType="PIE_CHART">
+      </app-chart-toolbox-option>
+    </form>
+  </div>
+</div>

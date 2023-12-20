@@ -1,0 +1,55 @@
+<div class="table-responsive">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 40%">
+        Software&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer text-center">
+        Version&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer">
+        Developer&nbsp;
+      </th>
+    </tr>
+    </thead>
+    <tbody *ngIf="softwares && softwares.length>0">
+    <tr *ngFor="let software of softwares | slice:pageStart:pageEnd">
+      <td class="w-25">
+         <span class="text-blue-800">
+           {{software.softName}}
+        </span>
+      </td>
+      <td class="text-center">
+        <span class="text-blue-800">
+           {{software.softVersion}}
+        </span>
+      </td>
+      <td>
+        <span class="text-blue-800">
+           {{software.softDeveloper}}
+        </span>
+      </td>
+    </tr>
+    </tbody>
+    <tbody *ngIf="!softwares || softwares.length===0">
+    <tr>
+      <td colspan="3">
+        <app-no-data-found></app-no-data-found>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div *ngIf="softwares.length>0" class="mb-2">
+  <div class="d-flex justify-content-center">
+    <ngb-pagination
+      (pageChange)="loadPage($event)"
+      [(page)]="page"
+      [collectionSize]="totalItems"
+      [maxSize]="5"
+      [pageSize]="itemsPerPage"
+      [rotate]="true"
+      [size]="'sm'"></ngb-pagination>
+  </div>
+</div>

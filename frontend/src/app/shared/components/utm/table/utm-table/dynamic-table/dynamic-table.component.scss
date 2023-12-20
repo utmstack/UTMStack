@@ -1,0 +1,20 @@
+.popover {
+  width: 320px !important;
+  max-width: 800px !important;
+}
+
+table {
+  tbody {
+    border: 0 !important;
+
+    td {
+      .source {
+        margin-bottom: 0;
+        line-height: 2em;
+        word-break: break-word;
+        white-space: normal;
+      }
+    }
+  }
+}
+

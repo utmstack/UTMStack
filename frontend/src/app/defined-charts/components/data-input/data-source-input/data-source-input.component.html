@@ -1,0 +1,97 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label class="card-title label-header text-blue-800">
+      Log source status
+    </label>
+    <app-utm-search-input placeholder="Search by Host/IP" (searchFor)="onSearch($event)"></app-utm-search-input>
+  </div>
+
+  <div class="card-body p-0 w-100">
+    <div *ngIf="loadingOption"
+         class="loading-chart w-100 h-100
+                 chart chart-fixed-height
+                 d-flex justify-content-center
+                 align-items-center">
+      <app-utm-spinner [loading]="loadingOption"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="!loadingOption" class="table-responsive w-100">
+      <table class="table text-nowrap">
+        <thead *ngIf="data && data.length>0">
+        <tr>
+          <th (sort)="onSort($event)"
+              [sortable]="'down'"
+              appColumnSortable class="font-weight-semibold text-uppercase cursor-pointer" scope="col">
+            Status
+          </th>
+          <th (sort)="onSort($event)"
+              [sortable]="'source'"
+              appColumnSortable class="font-weight-semibold text-uppercase cursor-pointer" scope="col">
+            Host/IP
+          </th>
+          <th (sort)="onSort($event)"
+              [sortable]="'dataType'"
+              appColumnSortable class="font-weight-semibold text-uppercase cursor-pointer" scope="col">
+            Data type
+          </th>
+
+          <th (sort)="onSort($event)"
+              [sortable]="'timestamp'"
+              appColumnSortable class="font-weight-semibold text-uppercase cursor-pointer" scope="col">
+            Last input
+          </th>
+
+        </tr>
+        </thead>
+        <tbody *ngIf="data && data.length>0 && !loadingOption">
+        <tr *ngFor="let row of data; let index = index" class="">
+          <td>
+            <span [ngClass]="row.hostIsDown === false?'text-success':row.hostIsDown === true?'text-danger':'text-muted'"
+                  class="span-small-icon">
+              <i
+                [ngClass]="row.hostIsDown === false?'icon-circle2':row.hostIsDown === true?'icon-circle2':'icon-circle2'"
+                class="mr-2"></i>
+              {{row.hostIsDown === false ? 'All connected' : row.hostIsDown === true ?
+              (getDisconnected(row.dataType) + ' disconnected') : 'Unknown'}}
+            </span>
+          </td>
+          <td>
+            <span>
+              {{row.host}}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex justify-content-start align-items-start flex-wrap w-100 h-100">
+              <span *ngFor="let dat of row.dataType;"
+                    [ngClass]="!dat.isDown?'bg-success-300':'bg-danger-300'"
+                    [ngbTooltip]="dat.type + ' is ' + (!dat.isDown?'up':'down')"
+                    class="badge p-1 border-1 m-1">
+                {{dat.type}}
+                <i class="ml-2 text-white cursor-pointer" (click)="delete(row,dat)"
+                   *ngIf="dat.isDown"
+                   [ngClass]="deleting.includes(dat.id)?'icon-spinner2 spinner':'icon-cross'"></i>
+             </span>
+            </div>
+          </td>
+
+          <td>
+            <span>
+              {{convertToDate(row) | date:'short':'UTC'}}
+            </span>
+          </td>
+
+        </tr>
+        </tbody>
+        <tbody *ngIf="data && data.length===0 && !loadingOption">
+        <tr>
+          <td [attr.colspan]="4" style="padding-top: 75px !important;">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

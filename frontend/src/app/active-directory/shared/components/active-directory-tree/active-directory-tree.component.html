@@ -1,0 +1,81 @@
+<div class="card h-100 add-tree-container">
+  <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+    <label class="card-title">Directory</label>
+    <!--<div class="header-icons">
+      <i (click)="toggleCheck()" [ngClass]="check?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+         class="mr-2"
+         ngbTooltip="Select objects"
+         placement="left" tooltipClass="utm-tooltip"></i>
+      <i (click)="addToTracking()"
+         *ngIf="marked.length>0"
+         class="icon-target cursor-pointer ml-3"
+         ngbTooltip="Track selected" placement="left"
+         tooltipClass="utm-tooltip"></i>
+      <i (click)="downloadReport()"
+         *ngIf="marked.length>0"
+         class="icon-download ml-3 cursor-pointer"
+         ngbTooltip="Download report"
+         placement="left"
+         tooltipClass="utm-tooltip"></i>
+    </div>-->
+  </div>
+  <div class="w-100 h-100 p-1 ad-container">
+    <app-utm-search-input (searchFor)="searchInTree($event)"
+                          *ngIf="tree && tree.length>0"
+                          [searching]="searching"
+                          placeholder="Search"></app-utm-search-input>
+    <div *ngIf="tree.length===0" class="loading-tree pt-5">
+      <app-utm-spinner [height]="'35px'"
+                       [label]="'Loading tree'"
+                       [loading]="loading"
+                       [width]="'35px'">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="noDataFound" class="w-100 d-flex justify-content-center align-items-center">
+      <app-no-data-found [padding]="'p-5'" [size]="'sm'"></app-no-data-found>
+    </div>
+    <ul *ngIf="tree.length > 0 && !noDataFound" class="mt-1">
+      <ng-template #treeView let-treeItems>
+        <li *ngFor="let item of treeItems;let index = index" class="p-1 pl-4">
+          <span (click)="deploy(item)"
+                *ngIf="item.children.length>0"
+                class="text-blue-800 cursor-pointer d-flex justify-content-start align-items-center node-name">
+                   <i (click)="addToSelect(item)"
+                      *ngIf="check"
+                      [ngClass]="isSelected(item)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                      class="mr-2 font-size-sm cursor-pointer">
+                   </i>
+                   <i [ngClass]="deployed.includes(item.id)?'icon-arrow-up32':'icon-arrow-down32'"
+                      class="font-size-sm"></i>
+                   <i class="font-size-sm ml-2 icon-folder4"></i>&nbsp;
+            <!--            {{item.name | highlight:search}}-->
+           <span [innerHTML]="item.name | highlight:search"></span>
+          </span>
+          <span (click)="select(item)"
+                *ngIf="item.children.length===0"
+                class="text-blue-800 pl-1 cursor-pointer d-flex justify-content-start align-items-center node-name">
+                              <i (click)="addToSelect(item)"
+                                 *ngIf="check"
+                                 [ngClass]="isSelected(item)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                                 class="mr-2 font-size-sm cursor-pointer">
+                              </i>
+                              <i [ngClass]="resolveTreeIcon(item)" class="font-size-sm"></i>&nbsp;
+                     <span [innerHTML]="item.name | highlight:search"
+                           [ngClass]="{'node-leaft-name-selected':itemView===item.id}"
+                           class="node-leaft-name">
+                      </span>
+                  </span>
+          <ul *ngIf="item.children?.length > 0 && deployed.includes(item.id)">
+            <ng-container
+              *ngTemplateOutlet="treeView; context:{ $implicit: item.children }">
+            </ng-container>
+          </ul>
+        </li>
+      </ng-template>
+      <ng-container *ngTemplateOutlet="treeView; context:{ $implicit: tree }"></ng-container>
+    </ul>
+
+
+  </div>
+
+</div>

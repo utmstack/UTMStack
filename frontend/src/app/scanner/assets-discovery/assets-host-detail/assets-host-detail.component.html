@@ -1,0 +1,195 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex justify-content-start align-items-center">
+      <h5 class="card-title mb-0 text-uppercase label-header">Asset vulnerabilities for</h5>
+      <h4 *ngIf="asset" class="text-blue-800 label-header">&nbsp;{{asset.name}}</h4>
+    </div>
+
+    <div class="header-elements">
+      <button class="btn utm-button utm-button-primary" routerLink="/assets-discover/assets">
+        <i class="icon-display mr-2"></i>View assets
+      </button>
+
+      <button (click)="saveReport()" [disabled]="details===null" class="btn utm-button utm-button-primary ml-2">
+        <i class="icon-stack-text mr-2"></i> Save report
+      </button>
+    </div>
+  </div>
+  <div *ngIf="asset" class="row mt-4">
+    <div class="col-lg-3 col-md-12 col-sm-12">
+      <app-asset-card-detail [asset]="asset"></app-asset-card-detail>
+    </div>
+    <div class="col-lg-4 col-md-12 col-sm-12">
+      <div class="card">
+        <div
+          class="card-header card-header-chart pb-0 pr-2 pt-2 d-flex justify-content-between align-items-center bg-light">
+          <label class="card-title label-header mb-1">Vulnerabilities by Severity Class</label>
+        </div>
+        <div class="card-body pt-0" style="height: 278px">
+          <div *ngIf="loadingPieOption"
+               class="loading-chart w-100 h-100
+                 d-flex justify-content-center align-items-center">
+            <app-utm-spinner [height]="'110px'" [loading]="loadingPieOption" [width]="'110px'">
+            </app-utm-spinner>
+          </div>
+          <div *ngIf="pieOption===null && !loadingPieOption"
+               class="host-chart chart has-fixed-height demo-chart">
+            <app-no-data-chart [typeChart]="chartTypeEnum.PIE_CHART"></app-no-data-chart>
+          </div>
+          <div *ngIf="pieOption!==null && !loadingPieOption"
+               [options]="pieOption" class="host-chart chart has-fixed-height" echarts
+               style="height: 278px">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5 col-md-12 col-sm-12">
+      <div class="card">
+        <div
+          class="card-header card-header-chart pb-0 pr-2 pt-2 d-flex justify-content-between align-items-center bg-light">
+          <label class="card-title label-header mb-1">Vulnerabilities word cloud</label>
+        </div>
+        <div class="card-body p-0" style="height: 278px">
+          <div *ngIf="loadingWordCloudOption"
+               class="loading-chart w-100 h-100
+                 d-flex justify-content-center align-items-center">
+            <app-utm-spinner [height]="'110px'" [loading]="loadingWordCloudOption" [width]="'110px'">
+            </app-utm-spinner>
+          </div>
+          <div *ngIf="pieOption===null && !loadingWordCloudOption"
+               class="host-chart chart has-fixed-height demo-chart">
+            <app-no-data-chart [typeChart]="chartTypeEnum.TAG_CLOUD_CHART"></app-no-data-chart>
+          </div>
+          <div *ngIf="wordCloudOption!==null && !loadingWordCloudOption"
+               [options]="wordCloudOption" class="host-chart chart has-fixed-height" echarts
+               style="height: 278px">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card h-100">
+        <div class="card bg-light border-0 m-0">
+          <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+            <div class="d-flex">
+              <app-sort-by (sortBy)="onSortBy($event)" [default]="'Severity'" [fields]="fields"></app-sort-by>
+            </div>
+            <span (click)="viewSeverityHelp()" class="text-blue-800 cursor-pointer"
+                  ngbTooltip="View severity info"
+                  placement="left" tooltipClass="utm-tooltip">
+             <i class="icon-info22"></i>
+           </span>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="font-weight-semibold text-uppercase" style="width: 35%">
+                Vulnerability&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase text-center" style="width: 150px">
+                Severity&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase text-center"
+                  style="width: 50px">
+                QoD&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase" style="width: 150px">
+                Location&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase" style="width: 150px">
+                Date&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase" style="width: 15%">
+                Task&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody [hidden]="loading">
+            <tr (click)="viewDetail=detail" *ngFor="let detail of details" class="cursor-pointer">
+              <td>
+                <span (click)="viewDetail=detail"
+                      class="text-blue-800 cursor-pointer">{{detail.name}}</span>
+              </td>
+              <td class="text-center">
+                <app-asset-severity-chart [severity]="detail.severity"
+                                          [type]="'row'"></app-asset-severity-chart>
+              </td>
+
+              <td class="text-center">
+                <span>{{detail.qod.value / 100 | percent}}</span>
+              </td>
+              <td>
+                <span>{{detail.port}}</span>
+              </td>
+              <td>
+                <span>{{detail.creationTime|date:'short':'UTC'}}</span>
+              </td>
+              <td>
+                <span>{{detail.task.name}}</span>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="details===null && !loading">
+            <tr>
+              <td colspan="7">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td colspan="7">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading asset detail'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="details && details.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage($event)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="viewDetail" class="utm-right-container">
+  <div (click)="viewDetail= undefined" class="overlay overlay-md"></div>
+  <div class="card utm-right-action utm-right-action-md">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Events of {{viewDetail.name}}
+      </h6>
+      <button (click)="viewDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <!--    -->
+    <app-vulnerabilities-detail (close)="viewDetail= undefined" [detail]="viewDetail"></app-vulnerabilities-detail>
+  </div>
+</div>

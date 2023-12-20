@@ -1,0 +1,11 @@
+<app-utm-modal-header [name]="report.repName" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 save-report-container">
+  <div class="w-100">
+    <app-active-filters [filters]="report.filters"></app-active-filters>
+    <div class="buttom-container pt-3 d-flex justify-content-end">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-primary">
+        Ok
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="container-fluid pr-3 pl-0 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2 pl-3 position-static header-settings">
+    <h5 class="card-title label-header mb-0 text-uppercase label-header">
+      Application management
+    </h5>
+  </div>
+  <div class="row m-0 content-settings">
+    <div class="col-lg-2 col-md-12 col-sm-12 pr-0 sidebar-settings">
+      <app-management-builder-sidebar></app-management-builder-sidebar>
+    </div>
+    <div class="col-lg-10 col-md-12 col-sm-12 pr-0">
+      <div class="activated-route w-100 h-100">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>

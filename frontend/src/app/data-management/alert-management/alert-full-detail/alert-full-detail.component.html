@@ -1,0 +1,214 @@
+
+  <div class="d-flex justify-content-end align-items-center header-elements p-2 d-flex" *ngIf="!printFormat">
+    <button (click)="navigateToManagement()"
+            *ngIf="!printFormat"
+            class="btn utm-button utm-button-primary mr-2">
+      <i class="mr-1 icon-warning"></i>
+      View Alerts
+    </button>
+    <button (click)="print()"
+            *ngIf="!printFormat"
+            [disabled]="!alert || loadingAlert"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="printFormat?'icon-download10':'icon-printer'" class="mr-1"></i>
+      {{printFormat ? 'Generating...' : 'Print'}}
+    </button>
+  </div>
+
+<div class="d-flex justify-content-center align-items-start w-100 m-0 d-print-block">
+  <div class="compliance-front-page">
+    <div *ngIf="account" class="prepared print-front-align">
+      <h6 class="font-weight-semibold text-uppercase">Prepared by</h6>
+      <h5 class="mt-1">{{account.email}}</h5>
+      <div class="line-large"></div>
+    </div>
+
+    <div *ngIf="account && alert" class="report-name print-front-align">
+      <h3 class="">{{getAlertName()}}</h3>
+      <div class="line"></div>
+      <h5 class="mt-5 ">Generated on {{date | date:'short':'UTC'}}</h5>
+    </div>
+    <img [src]="sanitizer.bypassSecurityTrustUrl(cover)"
+         *ngIf="cover;else loadImage"
+         class="img-front-page"
+         alt="Login" data-loading="lazy">
+    <ng-template #loadImage>
+      <i class="icon-image4" style="font-size: 100px;opacity: 0.1"></i>
+    </ng-template>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center align-items-start w-100 m-0">
+  <div [ngClass]="{'card':!printFormat}" class="body-front-page ">
+    <div *ngIf="alert" [ngClass]="{'p-2':!printFormat}">
+      <div class="w-100">
+        <app-alert-description [alert]="alert"></app-alert-description>
+        <app-alert-severity-description [alert]="alert"></app-alert-severity-description>
+        <app-alert-category *ngIf="alert" [alert]="alert"></app-alert-category>
+        <app-alert-proposed-solution [alert]="alert"
+                                     class="w-100">
+        </app-alert-proposed-solution>
+
+        <div *ngIf="reference.length>0" class="w-100 mt-2 d-flex flex-column">
+          <span class="font-weight-semibold">{{reference.length > 1 ? 'References' : 'Reference'}}:</span>
+          <a *ngFor="let ref of reference, let index=index;" [href]="ref" class="font-weight-light text-blue-800"
+             target="_blank">{{(index + 1) + '. ' + ref}}</a>
+        </div>
+
+        <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative flex-grow-1">
+     <span class="p-1 utm-box-label">
+          Detail
+     </span>
+          <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Rule:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(ALERT_NAME)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2">
+            <span class="text-blue-800 font-weight-light has-minimum-width">ID:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(CASE_ID_FIELD)"></app-data-field-render>
+            <span (click)="navigateToEvents()" *ngIf="countRelatedEvents>0 && printFormat" class="text-blue-800 cursor-pointer ml-2">
+        (view <strong>{{countRelatedEvents < 100 ? countRelatedEvents : ' last 100 ' }}</strong> {{countRelatedEvents > 1 ? 'logs' : 'log'}}
+              related)
+      </span>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start  align-items-center mb-2">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Status:</span>&nbsp;
+            <app-alert-status
+              [alert]="alert"
+              [dataType]="dataType"
+              [showDrop]="false"
+              [statusField]="STATUS_FIELD">
+            </app-alert-status>
+
+          </div>
+          <div class="w-100 alert-status-change">
+            <app-alert-view-last-change [action]="alertActionEnum.STATUS"
+                                        [alert]="alert"></app-alert-view-last-change>
+          </div>
+
+          <div class="alert-details w-100 d-flex justify-content-start align-items-start mb-2 mt-2">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Severity:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(SEVERITY_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Comment:</span>&nbsp;
+            <app-alert-apply-note [alert]="alert"
+                                  [showNote]="true"></app-alert-apply-note>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Tags:</span>&nbsp;
+            <app-alert-tags-apply
+              [alert]="alert"
+              [tags]="tags"
+              [showTagsLabel]="false"></app-alert-tags-apply>
+          </div>
+          <div *ngIf="isIgnoredAlert()" class="alert-details w-100 d-flex justify-content-start mb-2">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Observation:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(OBSERVATION_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Category:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(CATEGORY_FIELD)"></app-data-field-render>
+          </div>
+          <!--    <div class="alert-details w-100 d-flex justify-content-start mb-2 ">-->
+          <!--      <span class="text-blue-800 font-weight-light has-minimum-width">Method:</span>&nbsp;-->
+          <!--      <app-data-field-render [field]="getFieldByName(METHOD_FIELD)" [data]="alert"></app-data-field-render>-->
+          <!--    </div>-->
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Sensor:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(SENSOR_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Protocol:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(PROTOCOL_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Date:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(TIMESTAMP_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Generated by:</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(GENERATED_BY_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Tactic :</span>&nbsp;
+            <app-data-field-render [data]="alert" [field]="getFieldByName(ALERT_TACTIC_FIELD)"></app-data-field-render>
+          </div>
+          <div class="alert-details w-100 d-flex justify-content-start mb-2 align-items-start">
+            <span class="text-blue-800 font-weight-light has-minimum-width">Last change:</span>&nbsp;
+            <app-alert-view-last-change [action]="null"
+                                        [alert]="alert"
+                                        class=""></app-alert-view-last-change>
+          </div>
+
+        </div>
+
+        <div class="d-flex w-100 justify-content-between mb-3">
+          <app-alert-host-detail [alert]="alert" type="source" class="w-45"></app-alert-host-detail>
+          <app-alert-host-detail [alert]="alert" type="destination" class="w-45"></app-alert-host-detail>
+        </div>
+      </div>
+
+
+
+      <div class="mt-3" *ngIf="isIncident()">
+
+        <app-alert-incident-detail [alert]="alert"></app-alert-incident-detail>
+      </div>
+
+      <div class="w-100 mt-3" *ngIf="relatedTagsRules">
+        <h5 class="card-title mb-2 mt-4">Tags</h5>
+        <app-alert-rule-tag-related [tagsId]="relatedTagsRules"></app-alert-rule-tag-related>
+      </div>
+
+        <div *ngIf="countRelatedEvents>0" class="w-100 mt-3 page-break">
+          <h5 class="card-title mb-2  mt-4">Last log</h5>
+          <div class="full-log mt-2">
+            <app-alert-full-log [alert]="log" *ngIf="log; else loadingLastLog"></app-alert-full-log>
+            <ng-template #loadingLastLog>
+              <div class="d-flex has-fixed-height w-100 justify-content-center align-items-center">
+            <span class="m-4 text-blue-800">
+              <i class="icon-spinner2 spinner"></i>
+              Loading last log
+            </span>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+
+
+
+      <div class="w-100 page-break" *ngIf="rows && rows.length>0">
+        <h5 class="card-title mb-2 mt-4">Related events</h5>
+        <div class="border-bottom-1 border-grey-100 pb-2" *ngFor="let row of rows">
+          <app-analyzer-table-view [rowDocument]="row" [showControl]=" false"></app-analyzer-table-view>
+        </div>
+      </div>
+
+
+      <div class="w-100 mt-3 page-break" *ngIf="showMap()">
+        <h5 class="card-title mb-2 mt-4">Map</h5>
+        <app-alert-map-location [alert]="alert"></app-alert-map-location>
+      </div>
+      <div class="w-100 mt-3 page-break">
+        <h5 class="card-title mb-2  mt-4">Alert History</h5>
+        <app-alert-history [alert]="alert"></app-alert-history>
+      </div>
+    </div>
+
+    <div *ngIf="noAlertFound" class="d-flex justify-content-center
+  align-items-center w-100 h-100 alert-not-found flex-column">
+      <i class="icon-warning"></i>
+      <h6 class="mt-2">Something ware happen, contact with support team</h6>
+    </div>
+
+    <div *ngIf="loadingAlert"
+         class="d-flex justify-content-center align-items-center w-100 h-100">
+      <app-utm-spinner [height]="'110px'" [loading]="loadingAlert" [width]="'110px'"
+                       label="Loading alert"
+                       style="width: 100%;margin-top: 15%">
+      </app-utm-spinner>
+    </div>
+  </div>
+</div>

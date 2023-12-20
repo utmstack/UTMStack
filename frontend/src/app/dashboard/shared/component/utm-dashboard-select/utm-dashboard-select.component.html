@@ -1,0 +1,72 @@
+<div class="card h-100">
+  <div class="card border-0 m-0 p-2">
+    <span *ngIf="dashboard" class="mb-2">
+      Selected:&nbsp;
+      <span class="text-primary">
+        {{dashboard.name}}
+      </span>
+    </span>
+    <div class="d-flex justify-content-between align-items-center w-100">
+      <app-utm-search-input (searchFor)="onSearchDashboard($event)"
+                            [searching]="searching"
+                            class="w-100"
+                            placeholder="Search dashboard">
+      </app-utm-search-input>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table text-nowrap">
+      <tbody *ngIf="dashboards && dashboards.length>0">
+      <tr *ngFor="let dashboard of dashboards">
+        <td colspan="1">
+          <div (click)="selectDashboard(dashboard)"
+               class="cursor-pointer text-blue-800 d-flex justify-content-between align-items-center">
+           <span class="span-small-icon">
+              <i [ngClass]="idDashboard === dashboard.id?'icon-radio-checked':'icon-radio-unchecked'"></i>
+             <span class="text-blue-800 ml-2">{{dashboard.name}}</span>
+           </span>
+            <span class="span-small-icon">
+            <i *ngIf="dashboard.description" [ngbTooltip]="dashboard.description"
+               class="icon-question3"
+               placement="left" tooltipClass="utm-tooltip-left"></i>
+              </span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="(dashboards.length === 0 && !loading)">
+      <tr>
+        <td colspan="5">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td colspan="5">
+          <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading ports'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="dashboards && dashboards.length>0" class="mb-4 mt-2">
+    <div class="row justify-content-center">
+      <ngb-pagination
+        (pageChange)="loadPage($event)"
+        [(page)]="page"
+        [boundaryLinks]="true"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+    </div>
+  </div>
+</div>

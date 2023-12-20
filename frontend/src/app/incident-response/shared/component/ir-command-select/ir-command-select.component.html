@@ -1,0 +1,49 @@
+<div *ngIf="loading"
+     class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+  <app-utm-spinner [height]="'35px'"
+                   [label]="'Loading commands...'"
+                   [loading]="loading"
+                   [width]="'35px'">
+  </app-utm-spinner>
+</div>
+<div *ngIf="!loading"
+     class="d-flex justify-content-start align-items-start flex-column action-container p-2">
+  <div class="alert alert-warning alert-styled-right mb-2 alert-dismissible">
+    <span class="font-weight-semibold">Warning! </span>
+    <span>You can cause damage to the infrastructure and services of your organization</span>
+  </div>
+  <div *ngFor="let command of actions" class="w-100 d-flex flex-nowrap mt-2">
+      <span (click)="select(command)"
+            [ngClass]="{'text-blue-800':actionApply && command.id===actionApply.id}"
+            class="mb-0 cursor-pointer medium-icon flex-grow-1">
+      <i [ngClass]="actionApply && command.id===actionApply.id?'icon-radio-checked':'icon-circle'"></i>&nbsp;
+      <span
+        class=""><code
+        class="text-blue-800 font-weight-bolder">{{command.actionCommand + ' ' + (command.actionParams ? command.actionParams : '')}}</code></span>
+    </span>
+    <span class="span-small-icon">
+      <i [ngbTooltip]="command.actionDescription"
+         class="text-blue-800 icon-question3"
+         placement="bottom"
+         tooltipClass="utm-tooltip-bottom"></i>
+    </span>
+  </div>
+</div>
+
+<div *ngIf="actionApply  && actionApply.actionType !== irActionsEnum.RUN_CMD
+         && actionApply.actionType !== irActionsEnum.ISOLATE_HOST
+         && actionApply.actionType !== irActionsEnum.SHUTDOWN_SERVER
+          && actionApply.actionType !== irActionsEnum.RESTART_SERVER"
+     class="pr-2 pl-2 w-100">
+  <div class="form-group">
+    <label for="param">{{getLabelParam()}}</label>
+    <input (ngModelChange)="actionSelect.emit({action:actionApply,param:param})" [(ngModel)]="param"
+           class="form-control" id="param"
+           type="text">
+  </div>
+</div>
+
+<div *ngIf="actionApply && actionApply.actionType === irActionsEnum.RUN_CMD" class="p-2 mb-2 w-100">
+  <app-utm-terminal-input (paramChange)="actionSelect.emit({action:actionApply,param:$event})"
+                          terminal="UTMSTACK incident response command"></app-utm-terminal-input>
+</div>

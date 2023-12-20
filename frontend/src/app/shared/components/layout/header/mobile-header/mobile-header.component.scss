@@ -1,0 +1,15 @@
+@import "src/assets/styles/theme";
+@import "src/assets/styles/var";
+
+.mobile-header-navbar {
+  background-color: $primary-color;
+  height: $navbar-primary-height;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+  position: fixed;
+
+  .utm-mobile-notifications {
+    background-color: $primary-color;
+  }
+}

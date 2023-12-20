@@ -1,0 +1,21 @@
+<div *ngIf="statusValue"
+     class="filter-container d-flex justify-content-start align-items-center">
+       <span class="font-weight-bold font-size-xs"><i class="icon-meter-slow"></i>
+        &nbsp;Status:
+    </span>
+  <span (click)="filterByStatus({ key: allStatusValue, value: autoReview })"
+        [ngClass]="{'text-blue-800':statusFilter===allStatusValue}" class="mb-0 cursor-pointer  ml-3 medium-icon">
+      <i [ngClass]="statusFilter===allStatusValue?'icon-radio-checked':'icon-circle'"></i>&nbsp;
+      <span class="">{{resolveStatusLabel(0)|translate}} ({{getTotalStatusTotal()}})</span>
+    </span>
+  <div *ngFor="let status of statusValueArray ;let i = index">
+    <div *ngIf="showStatus(status.key)"
+         class="d-flex justify-content-start align-items-center ml-3 alert-radio-container">
+          <span (click)="filterByStatus(status)"
+                [ngClass]="{'text-blue-800':statusFilter==status.key}" class="mb-0 cursor-pointer medium-icon">
+      <i [ngClass]="statusFilter==status.key?'icon-radio-checked':'icon-circle'"></i>&nbsp;
+      <span class="">{{resolveStatusLabel(status.key)|translate}} ({{status.value}})</span>
+    </span>
+    </div>
+  </div>
+</div>

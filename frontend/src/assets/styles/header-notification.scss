@@ -1,0 +1,57 @@
+.container_notify {
+  .svg-icon {
+    ::ng-deep {
+      svg {
+        fill: #ffffff !important;
+        width: 1.50rem !important;
+        height: 1.50rem !important;
+      }
+    }
+  }
+
+  position: relative;
+
+  .notification_number {
+    position: absolute;
+    line-height: 100%;
+    border: 0;
+    border-radius: 65px;
+    background: #ef5350 !important;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+    top: -11px !important;
+    left: inherit !important;
+    right: 7px !important;
+    font-size: 9px !important;
+    padding: 3px 3px;
+    text-align: center;
+    vertical-align: middle;
+  }
+}
+
+@keyframes ring {
+  0% {
+    transform: rotate(35deg);
+  }
+  12.5% {
+    transform: rotate(-30deg);
+  }
+  25% {
+    transform: rotate(25deg);
+  }
+  37.5% {
+    transform: rotate(-20deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+  62.5% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}

@@ -1,0 +1,56 @@
+@import "../../../../../../assets/styles/theme";
+
+.switchery {
+  width: 24px;
+  height: 12px;
+
+  small {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.toggle-active {
+  background-color: $success-color;
+  border-color: $success-color;
+  box-shadow: $success-color 0 0 0 10px inset;
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+
+  &::after {
+    position: absolute;
+    content: '\e601';
+    font-family: 'icomoon', serif !important;
+    color: #ffffff;
+    top: 0;
+    left: 1px;
+  }
+
+  small {
+    right: 0;
+    transition: background-color 0.4s ease 0s, left 0.2s ease 0s;
+    background-color: rgb(255, 255, 255);
+  }
+}
+
+.toggle-inactive {
+  background-color: rgb(255, 255, 255);
+  border-color: rgb(223, 223, 223);
+  box-shadow: rgb(223, 223, 223) 0 0 0 0 inset;
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+
+  &::after {
+    position: absolute;
+    content: '\ed6b';
+    font-family: 'icomoon', serif !important;
+    color: $danger-color;
+    top: 0;
+    right: 1px;
+  }
+
+  small {
+    left: 0;
+    transition: background-color 0.4s ease 0s, left 0.2s ease 0s;
+  }
+
+}
+

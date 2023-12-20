@@ -1,0 +1,80 @@
+<div class="p-3">
+  <div class="d-flex flex-column lockup">
+    <div class="reverse d-flex">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Name:&nbsp;</span>
+      <span class="">
+        {{target.name}}
+      </span>
+    </div>
+    <div class="reverse d-flex mt-3">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Hosts:&nbsp;</span>
+      <span class="">
+        {{target.hosts}}
+      </span>
+    </div>
+    <div class="reverse d-flex mt-3">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Ports:&nbsp;</span>
+      <span class="">
+        {{target.portList.name}}
+      </span>
+    </div>
+    <div class="reverse mt-3 d-flex">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Exclude Hosts:&nbsp;</span>
+      <span class="">
+                        {{target.excludeHosts}}
+                      </span>
+    </div>
+    <div class="reverse mt-3 d-flex">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Maximum number of hosts:&nbsp;</span>
+      <span class="">
+                        {{target.maxHosts}}
+                      </span>
+    </div>
+  </div>
+  <div class="d-flex flex-column lockup mt-3">
+    <div class="reverse d-flex">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Reverse Lookup Unify:&nbsp;</span>
+      <span [ngClass]="target.reverseLookupUnify==='0'?'badge-info':'badge-success'"
+            class="badge badge">
+                        {{target.reverseLookupUnify === '0' ? 'No' : 'Yes'}}
+                      </span>
+    </div>
+    <div class="reverse mt-3 d-flex">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Reverse Lookup Only:&nbsp;</span>
+      <span [ngClass]="target.reverseLookupOnly==='0'?'badge-info':'badge-success'"
+            class="badge badge">
+                        {{target.reverseLookupOnly === '0' ? 'No' : 'Yes'}}
+                      </span>
+    </div>
+    <div class="reverse mt-3 d-flex">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Alive Tests:&nbsp;</span>
+      <span class="">
+                        {{target.aliveTests}}
+      </span>
+    </div>
+  </div>
+  <div class="d-flex flex-column credentials mt-3">
+    <div class="utm-box p-3 border-1 border-blue-800 position-relative"
+         style="min-width: 130px">
+                      <span class="p-1 utm-box-label span-small-icon">
+                       <i class="icon-lock2"></i>Credentials</span>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">SSH:&nbsp;</span>
+        <span class="">
+                        {{resolveSshCredential()}}
+        </span>
+      </div>
+      <div class="smb mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">SMB:&nbsp;</span>
+        <span class="">
+                        {{target.smbCredential.name}}
+        </span>
+      </div>
+
+    </div>
+  </div>
+  <div class="d-flex justify-content-start align-items-start comment mt-3">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Comment:</span>
+    <p>{{target.comment}}</p>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+.utm-popover-xs {
+  min-width: 300px !important;
+  max-width: 300px !important;
+}
+
+.filter-label {
+  max-width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.filter-time-container {
+  min-width: 300px;
+}
+
+app-elastic-filter-add {
+  width: 400px;
+  min-width: 400px;
+}

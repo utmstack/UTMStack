@@ -1,0 +1,56 @@
+<div class="utm-box mt-4 pt-3 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-100 min-height-host-detail">
+     <span class="p-1 utm-box-label">
+       {{type | titlecase}} detail
+     </span>
+  <div *ngIf="!hideEmptyField || !hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.host !== '') || (type==='source' && alert.destination && alert.destination.host !== '')" class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Hostname:</span>&nbsp;
+
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_HOSTNAME_FIELD:DESTINATION_HOSTNAME_FIELD)"></app-data-field-render>
+  </div>
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.ip !== '') || (type==='source' && alert.destination && alert.destination.ip !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_IP_FIELD:DESTINATION_IP_FIELD)"></app-data-field-render>
+  </div>
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.port > 0) || (type==='source' && alert.destination && alert.destination.port > 0)" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Port:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_PORT_FIELD:DESTINATION_PORT_FIELD)"></app-data-field-render>
+  </div>
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.user !== '') || (type==='source' && alert.destination && alert.destination.user !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">User:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_USER_FIELD:DESTINATION_USER_FIELD)"></app-data-field-render>
+  </div>
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.asn > 0) || (type==='source' && alert.destination && alert.destination.asn > 0)" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">ASN:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_ASN:DESTINATION_ASN)"></app-data-field-render>
+  </div>
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.aso !== '') || (type==='source' && alert.destination && alert.destination.aso !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">ASO:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_ASO:DESTINATION_ASO)"></app-data-field-render>
+  </div>
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.country !== '') || (type==='source' && alert.destination && alert.destination.country !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Country:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_COUNTRY:DESTINATION_COUNTRY)"></app-data-field-render>
+  </div>
+  <div *ngIf="(type==='source' && alert.source && alert.source.city !== '') || (type==='source' && alert.destination && alert.destination.city !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">City:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_CITY:DESTINATION_CITY)"></app-data-field-render>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Proxy:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_IS_AN_PROXY:DESTINATION_IS_AN_PROXY)"></app-data-field-render>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Satellite provider:</span>&nbsp;
+    <app-data-field-render [data]="alert"
+                           [field]="getFieldByName(type==='source'?SOURCE_IS_SATELLITE:DESTINATION_IS_SATELLITE)"></app-data-field-render>
+  </div>
+</div>

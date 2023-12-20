@@ -1,0 +1,140 @@
+<app-utm-modal-header [name]="'Create incident'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <div class="dashboard-import-step">
+      <div class="step">
+         <span class="text-blue-800 font-weight-bold">
+          Incident details
+        </span>
+        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-make-group'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          Review {{alertList && alertList.length > 1 ? 'alerts' : 'alert'}}
+        </span>
+        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-stack'"></i>
+        </div>
+      </div>
+      <!--      <div class="step-link">-->
+      <!--        <div class="line w-100"></div>-->
+      <!--      </div>-->
+      <!--      <div class="step">-->
+      <!--          <span class="text-blue-800 font-weight-bold">-->
+      <!--          Assign to users-->
+      <!--        </span>-->
+      <!--        <div [ngClass]="isCompleted(3)?'step-success':step===3?'step-active':'step-inactive'"-->
+      <!--             class="round-indicator">-->
+      <!--          <i [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-users4'"></i>-->
+      <!--        </div>-->
+      <!--      </div>-->
+    </div>
+  </div>
+  <div *ngIf="step===1" class="regex-step mt-3">
+    <form [formGroup]="formIncident" action="" class="form">
+      <div class="form-group">
+        <label class="pb-1" for="name">Incident Name</label>
+        <div class="input-group">
+          <span class="input-group-text">{{irPrefix}}</span>
+          <input [ngClass]="inputClassResolve.resolveClassInput(formIncident.get('incidentName'))"
+                 class="border-1 border-grey-600 form-control" formControlName="incidentName"
+                 id="name"
+                 name="name">
+        </div>
+        <app-formcontrol-error [formcontrol]="formIncident.get('incidentName')"></app-formcontrol-error>
+      </div>
+      <div class="form-group">
+        <label class="pb-1" for="incidentDescription">Description
+          ({{(500 - formIncident.get('incidentDescription').value.length)}})</label>
+        <textarea class="border-1 border-grey-600 form-control"
+                  [ngClass]="inputClassResolve.resolveClassInput(formIncident.get('incidentName'))"
+                  formControlName="incidentDescription" id="incidentDescription"
+                  rows="5"
+                  name="incidentDescription">
+      </textarea>
+        <app-formcontrol-error [formcontrol]="formIncident.get('incidentDescription')"></app-formcontrol-error>
+      </div>
+    </form>
+  </div>
+  <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+    <div class="table-responsive-sm mb-3">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer">
+            Name&nbsp;
+          </th>
+          <th style="width: 10px">
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngFor="let alertIncident of alertList |slice:pageStart:pageEnd;let index=index">
+        <tr>
+          <td class="cursor-pointer">
+            <div class="d-flex justify-content-start align-items-center">
+              <app-alert-severity [severity]="alertIncident.alertSeverity"></app-alert-severity>
+              <span class="text-blue-800 ml-2">
+              {{alertIncident.alertName}}
+            </span>
+            </div>
+
+          </td>
+          <td>
+             <span (click)="deleteAlert(alertIncident)" class="span-small-icon cursor-pointer"
+                   container="body"
+                   ngbTooltip="Delete alert"
+                   placement="auto">
+                <i class="icon-cross2"></i>
+             </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+  <!--  <div *ngIf="step===3" class="configure-step mt-3 mb-3">-->
+  <!--    <app-utm-user-select (userChange)="setUsersAssignments($event)"></app-utm-user-select>-->
+  <!--  </div>-->
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="backStep()" *ngIf="step >1"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-arrow-left22"></i>&nbsp;
+      Back
+    </button>
+    <button (click)="nextStep()" *ngIf="step === 1"
+            [disabled]="!formIncident.valid"
+            class="btn utm-button utm-button-primary ml-2">
+      Next&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+    <!--    <button (click)="nextStep()" *ngIf="step === 2"-->
+    <!--            class="btn utm-button utm-button-primary ml-2">-->
+    <!--      Continue&nbsp;-->
+    <!--      <i class="icon-arrow-right22"></i>-->
+    <!--    </button>-->
+    <button (click)="createIncident()" *ngIf="step===2"
+            [disabled]="creating"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-make-group'"></i>
+      Create Incident&nbsp;
+    </button>
+  </div>
+</div>

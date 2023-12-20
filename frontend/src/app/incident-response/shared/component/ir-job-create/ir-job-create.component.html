@@ -1,0 +1,33 @@
+<div [ngbTooltip]="isIcon?('Run command in ' +hostname):null">
+<span #commandPopober="ngbPopover"
+      *ngIf="cantExecute"
+      [ngbPopover]="colContent"
+      [popoverTitle]="colTitle"
+      autoClose="outside"
+      class="position-relative cursor-pointer small-md-icon"
+      container="body"
+      placement="auto"
+      popoverClass="utm-popover response-popover"
+      triggers="click">
+  <i [ngClass]="creating?'icon-spinner2 spinner': 'icon-terminal'"></i>
+     <span *ngIf="!isIcon">Run command in {{hostname}}</span>
+</span>
+<ng-template #colContent>
+  <app-ir-command-select (actionSelect)="onActionSelect($event)"
+                         [action]="action">
+  </app-ir-command-select>
+
+  <div class="d-flex justify-content-end align-items-center p-2">
+    <button (click)="addJob()"
+            [disabled]="!isValid()"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-terminal'"></i>&nbsp;Run command
+    </button>
+  </div>
+</ng-template>
+  <ng-template #colTitle>
+    <div class="d-flex justify-content-between align-items-center">
+      <h6 class="font-weight-light">Available commands</h6>
+    </div>
+  </ng-template>
+</div>

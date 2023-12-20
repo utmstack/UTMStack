@@ -1,0 +1,51 @@
+<div class="utm-box mt-4 pt-3 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-100">
+     <span class="p-1 utm-box-label">
+          Incident
+     </span>
+  <div class="w-100" *ngIf="incident && !loading; else loadingIncident">
+
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Incident ID:</span>&nbsp;
+      <span>{{id}}
+        <span class="text-blue-800 cursor-pointer ml-2" (click)="navigateToIncident()"> View incident</span>
+    </span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Name:</span>&nbsp;
+      <span>{{incident.incidentName}}</span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Severity:</span>&nbsp;
+      <app-incident-severity [severity]="incident.incidentSeverity"></app-incident-severity>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Status:</span>&nbsp;
+      <app-incident-status [incident]="incident"></app-incident-status>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Opened date:</span>&nbsp;
+      <span>{{incident.incidentCreatedDate|date:'short':'UTC'}}</span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Created by:</span>&nbsp;
+      <span>{{createdBy}}</span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Description:</span>&nbsp;
+      <p>{{incident.incidentDescription}}</p>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Solution:</span>&nbsp;
+      <p>{{incident.incidentSolution}}</p>
+    </div>
+  </div>
+  <ng-template #loadingIncident>
+    <div class="d-flex has-fixed-height w-100 justify-content-center align-items-center">
+            <span class="m-4 text-blue-800">
+              <i class="icon-spinner2 spinner"></i>
+              Loading incident details
+            </span>
+    </div>
+  </ng-template>
+</div>
+

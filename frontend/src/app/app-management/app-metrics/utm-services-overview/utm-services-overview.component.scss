@@ -1,0 +1,25 @@
+.http-method {
+  width: 70px;
+  padding: 5px 10px;
+  color: #fff;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-right: 10px;
+  text-align: center;
+}
+
+.http-method-post {
+  background-color: #49cc90;
+}
+
+.http-method-get {
+  background-color: #61affe;
+}
+
+.http-method-put {
+  background-color: #fca130;
+}
+
+.http-method-delete {
+  background-color: #f93e3e;
+}

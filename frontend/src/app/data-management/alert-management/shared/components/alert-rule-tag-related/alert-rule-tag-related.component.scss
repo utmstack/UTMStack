@@ -1,0 +1,17 @@
+.utm-popover-rule-detail {
+  max-height: 400px;
+  overflow-y: auto;
+
+}
+
+
+::ng-deep {
+  .utm-popover-related {
+    min-width: 400px !important;
+    min-height: 400px !important;
+
+    .popover-body {
+      padding: 0 !important;
+    }
+  }
+}

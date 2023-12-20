@@ -1,0 +1,53 @@
+<div *ngIf="fieldValues" class="card p-0 m-0 ">
+  <div class="card-header header-elements-sm-inline bg-white card-header-title p-2 pb-1 w-100">
+        <span class="font-weight-light span-small-icon">
+          {{fieldFilter.label ? fieldFilter.label : fieldFilter.field}}
+        </span>
+    <app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>
+  </div>
+  <div *ngIf="loading" class="category-list w-100 p-5">
+    <app-utm-spinner [height]="'5px'" [loading]="loading"
+                     [width]="'5px'"></app-utm-spinner>
+  </div>
+  <div *ngIf="!valueHasData() && !loading"
+       class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
+    <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
+  </div>
+  <div *ngIf="valueHasData() && !loading" class="w-100">
+    <div (scrolled)="onScroll()"
+         [fromRoot]="true"
+         [infiniteScrollDistance]="1"
+         [infiniteScrollThrottle]="50"
+         [scrollWindow]="false"
+         class="filter-value-field-container"
+         infiniteScroll>
+      <div *ngFor="let value of fieldValues|keys ;let i=index "
+           class="d-flex justify-content-start align-items-center p-2 ">
+        <input (change)="selectValue(value.key)"
+               [attr.id]="'g-check-box-'+fieldFilter.field+'-'+i"
+               [checked]="selected.includes(value.key)"
+               [name]="'g-check-box-'+fieldFilter.field+'-'+i"
+               [value]="value.key"
+               class="form-check-input magic-checkbox"
+               style="font-size: smaller"
+               type="checkbox">
+        <label [for]="'g-check-box-'+fieldFilter.field+'-'+i" [ngbTooltip]="value.key +': '+(value.value)"
+               [openDelay]="1000"
+               class="mb-0 text-filter"
+               placement="bottom"
+               tooltipClass="utm-tooltip-bottom">
+          {{'(' + value.value + ') ' + value.key}}
+        </label>
+      </div>
+      <div *ngIf="loadingMore"
+           class="d-flex justify-content-center align-items-center p-3 loading">
+        <app-utm-spinner [height]="'35px'" [loading]="true"
+                         [width]="'35px'" label="Loading more"></app-utm-spinner>
+      </div>
+    </div>
+  </div>
+  <app-utm-search-input (searchFor)="searchInValues($event)"
+                        [searching]="searching"
+                        class="w-100"
+                        placeholder="Search in values"></app-utm-search-input>
+</div>

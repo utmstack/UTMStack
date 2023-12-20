@@ -1,0 +1,17 @@
+<div class="w-100">
+  <div (click)="fileInput.click()" (onFileDropped)="uploadFile($event)"
+       appUtmFileDragDrop class="uploadfilecontainer">
+    <i *ngIf="!img" class="icon-upload10"></i>
+    <div *ngIf="img" class="img-selected">
+      <img [src]="sanitizer.bypassSecurityTrustUrl(img)" alt="" class="" height="70px"
+           style="max-height: 70px"
+           width="auto">
+    </div>
+    <h6 class="font-weight-light text-blue-800">
+      {{'Drag file or click here to ' + (!img ? 'select' : 'change') + ' image'}}
+    </h6>
+    <input #fileInput (change)="uploadFile($event.target['files'])" [accept]="acceptTypes" [multiple]="false"
+           hidden
+           type="file">
+  </div>
+</div>

@@ -1,0 +1,23 @@
+.log-analyzer-container {
+  .tab-header {
+
+  }
+
+  .nav-tabs {
+    .nav-item {
+      .nav-link {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .warning-empty-discovery {
+    i {
+      font-size: 100px;
+      color: rgba(0, 75, 139, 0.30) !important;
+    }
+  }
+}

@@ -1,0 +1,45 @@
+.visualization-builder {
+  max-height: calc(75vh - 50px);
+  height: calc(75vh - 50px);
+
+  .visualization-chart-view {
+    max-height: 400px;
+    height: 400px;
+    width: 600px;
+    max-width: 600px;
+  }
+
+}
+
+.metric-property-container {
+  //max-height: calc(85vh - 50px);
+  //height: calc(85vh - 50px);
+  //overflow-y: auto;
+}
+
+.metric-data-container {
+  background-color: #F5F7FA;
+}
+
+.data-visualization {
+  //padding-left: 18%;
+}
+
+.property {
+  .span-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
+  }
+}
+
+.builder-notifications {
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  z-index: 3;
+}
+
+app-utm-viewer {
+  width: 100%;
+}

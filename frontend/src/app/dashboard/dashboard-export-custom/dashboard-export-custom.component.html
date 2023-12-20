@@ -1,0 +1,51 @@
+<div class="container-fluid pr-2 pl-2 pt-2">
+  <div *ngIf="showNotice" class="alert alert-info border-0 d-flex justify-content-start align-items-center">
+    <span class="font-weight-semibold flex-grow-1">
+      You are currently viewing the dashboard in item edit mode. In this mode you can
+      change the size and position of the visualizations within it.
+      This way you can get a report according to your needs
+    </span>
+    <div (click)="showNotice=false" class="close-icon cursor-pointer"></div>
+  </div>
+  <div *ngIf="dashboard" class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 label-header">{{dashboard.name}}
+    </h5>
+    <div class="header-elements">
+      <button (click)="buildPdf()"
+              class="btn utm-button utm-button-primary">
+        <i [ngClass]="build?'icon-spinner2 spinner':'icon-file-pdf'" class="mr-1"></i>
+        {{build ? 'Building preview...' : 'Preview'}}
+      </button>
+      <button (click)="exportToPdf()" [disabled]="pdfExport"
+              class="btn utm-button utm-button-primary ml-2">
+        <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-utm-dashboard-grid [UUID]="UUID"
+                        [loading]="loadingDashboard"
+                        [mode]="'edit'"
+                        [options]="gridsterOptions"
+                        [visualization]="visualization"></app-utm-dashboard-grid>
+
+<div *ngIf="preview" class="utm-right-container">
+  <div (click)="preview= false" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Preview
+      </h6>
+      <button (click)="preview= false" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="w-100 p-2">
+      <app-utm-pdf-preview [height]="'900px'" [pdf]="pdf" [width]="'100%'"></app-utm-pdf-preview>
+    </div>
+  </div>
+</div>

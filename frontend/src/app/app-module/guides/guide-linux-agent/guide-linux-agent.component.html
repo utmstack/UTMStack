@@ -1,0 +1,46 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Installing Linux agent
+    </h4>
+  </div>
+  <div class="card-body">
+    <p class="font-size-base text-justify">
+      The Linux agent captures system and application logs and sends them to a UTMStack master server or probe/proxy,
+      monitors system activity, and executes incident response commands. The UTMStack agents communicate over ports 9000 and 50051.
+      Please make sure these ports are open.
+    </p>
+
+    <ol class="setup_list mt-3">
+      <li>
+        <div>
+          <p class="step-guide">
+            <span class="step_number">1</span>
+            Install according to your operating system:
+          </p>
+          <div class="alert alert-warning alert-styled-right">
+          The following commands contains sensitive information, don't share it.
+        </div>
+          <h6 class="font-weight-semibold mt-3 mb-3">Ubuntu 16/18/20+</h6>
+
+          <app-utm-code-view [code]="getCommandUbuntu()"></app-utm-code-view>
+
+          <h6 class="font-weight-semibold mt-3 mb-3">Centos 7/Red Hat Enterprise Linux</h6>
+          <app-utm-code-view [code]="getCommandCentos7RedHat()"></app-utm-code-view>
+
+
+          <h6 class="font-weight-semibold mt-3 mb-3">Centos 8/AlmaLinux</h6>
+
+          <app-utm-code-view [code]="getCommandCentos8Almalinux()"></app-utm-code-view>
+        </div>
+      </li>
+    </ol>
+    <div class="alert alert-warning alert-styled-right">
+      The next information is not part of the installation process, is just in case you need to uninstall the agent
+    </div>
+    <p>
+      To uninstall linux agent, run the following command:
+      <app-utm-code-view [code]="getUninstallCommand()"></app-utm-code-view>
+    </p>
+  </div>
+</div>

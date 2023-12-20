@@ -1,0 +1,146 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Configuring IAM User
+    </h4>
+  </div>
+  <div class="card-body">
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Go to IAM configuration panel and click on "Users".
+        </p>
+        <img alt="IAM configuration" class="step-img"
+             src="../../../../assets/img/guides/aws/beantalk/iam_config.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Add a new user filling the name and marking the access type "Programmatic access". Then click on Next.
+        </p>
+        <img alt="Programmatic access" class="step-img"
+             src="../../../../assets/img/guides/aws/beantalk/programmatic_access.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Click on Attach existing policies directly. Find CloudWatchReadOnlyAccess and mark it. Then click on next.
+        </p>
+        <img alt="CloudWatchReadOnlyAccess" class="step-img"
+             src="../../../../assets/img/guides/aws/beantalk/policies_directly.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          In the tags page click on next.
+        </p>
+        <img alt="Tags" class="step-img"
+             src="../../../../assets/img/guides/aws/beantalk/tags.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Create user and then download the csv file with the access and secret keys.
+        </p>
+        <img alt="Tags" class="step-img"
+             src="../../../../assets/img/guides/aws/beantalk/user_secret.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          Fill the following inputs with the info obtained in previous steps.
+        </p>
+        <div class="row mt-3">
+          <div class="col-lg-12 col-md-12 col-sm-12">
+            <app-int-generic-group-config [moduleId]="integrationId"
+                                          (configValidChange)="configValidChange($event)"
+                                          [serverId]="serverId"></app-int-generic-group-config>
+          </div>
+        </div>
+      </li>
+    </ol>
+    <div class="card-header pl-0 d-flex justify-content-between align-items-center">
+      <h4 class="card-title mb-0 text-primary">
+        Configuring AWS Cloudwatch
+      </h4>
+    </div>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          In the CloudTrail panel, select “Create trail”.
+        </p>
+        <img alt="Welcome page" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/welcome-page.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          Fill in the "Trail name" field.
+        </p>
+        <img alt="Trial name" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/trail-name.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Mark "Select all S3 buckets in your account".
+        </p>
+        <img alt="Buckets" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/s3-buckets.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Fill in the "S3 bucket" field. The name of the bucket must be unique in S3. Then click on “Create”.
+        </p>
+        <img alt="Bucket name" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/bucket-name.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">11</span>
+          Click on the name of the trail to edit.
+        </p>
+        <img alt="Edit trial" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/edit-trail.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">12</span>
+          Configure CloudWatch Logs.
+        </p>
+        <img alt="Cloud Watch config" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/cloud-watch-config.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">13</span>
+          Fill the group name and continue.
+        </p>
+        <img alt="Cloud Watch config" class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/trial-group.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">14</span>
+          Click on “Allow” to grant CloudTrail permissions.
+        </p>
+        <img alt="CloudTrail permissions." class="step-img"
+             src="../../../../assets/img/guides/aws/cloudtrail/trial-permissions.png">
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">15</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.AWS_IAM_USER"
+                                        [disabled]="configValidity"
+                                        [type]="'integration'" [serverId]="serverId"
+                                        class="mt-3">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>

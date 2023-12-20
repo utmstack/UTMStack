@@ -1,0 +1,14 @@
+<div [formGroup]="form" class="input-group d-flex flex-column tag-container">
+  <div (click)="focusTagInput()" class="bootstrap-tagsinput w-100">
+      <span *ngFor="let tag of tags" class="tag label label-info">
+       <i (click)="removeTag(tag)" class="icon-cross cursor-pointer"></i>
+        {{tag}}
+    </span>
+    <input
+      #tagInput
+      (keyup)="onKeyUp($event)" class="input-tag"
+      formControlName="tag"
+      placeholder="ENTER to add"
+      type="text">
+  </div>
+</div>

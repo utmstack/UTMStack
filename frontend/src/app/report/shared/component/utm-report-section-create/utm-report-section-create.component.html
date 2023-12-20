@@ -1,0 +1,34 @@
+<app-utm-modal-header [name]="section?'Edit section':'New section'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="formReportSection">
+    <div class="form-group">
+      <label class="pb-1" for="name">Section name</label>
+      <input [ngClass]="inputClass.resolveClassInput(formReportSection.get('repSecName'))"
+             class="border-1 border-grey-600 form-control" formControlName="repSecName"
+             id="name"
+             name="">
+      <app-formcontrol-error [formcontrol]="formReportSection.get('repSecName')"
+                             label="Section name is required"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label for="reportDesc">Description ({{512 - formReportSection.get('repSecDescription').value.length}})</label>
+      <textarea [ngClass]="inputClass.resolveClassInput(formReportSection.get('repSecDescription'))"
+                class="form-control" formControlName="repSecDescription"
+                id="reportDesc"
+                rows="4"></textarea>
+      <app-formcontrol-error [formcontrol]="formReportSection.get('repSecDescription')"
+                             label="Section description is required"></app-formcontrol-error>
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createStandard()"
+            [disabled]="creating || !formReportSection.valid" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-make-group'"></i>&nbsp;
+      Save
+    </button>
+  </div>
+</div>

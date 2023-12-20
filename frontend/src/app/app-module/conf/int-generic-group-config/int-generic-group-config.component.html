@@ -1,0 +1,111 @@
+<div class="w-100" *ngIf="!loading;else loadingGroups">
+  <div class="utm-box mt-4 pt-3 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-100"
+       *ngFor="let group of groups">
+     <span class="p-1 utm-box-label">
+           {{group.groupName}}
+
+       <span class="span-small-icon ml-3" *ngIf="editable">
+         <i class="icon-pencil  cursor-pointer"
+            (click)="editGroup(group)"
+            ngbTooltip="Edit tenant">
+         </i>
+            <i class="icon-cross2 ml-2 cursor-pointer"
+               (click)="deleteGroup(group)"
+               ngbTooltip="Delete tenant">
+         </i>
+       </span>
+     </span>
+    <p class="mb-2 mt-2" *ngIf="group.groupDescription">{{group.groupDescription}}</p>
+    <div class="row mt-3">
+      <div class="col-md-12 col-sm-12" *ngFor="let integrationConfig of group.moduleGroupConfigurations"
+           [ngClass]="integrationConfig.confDataType === 'file' || integrationConfig.confDataType === 'list'  ?'col-lg-12 ':'col-lg-6'">
+        <div class="form-group w-100 mb-4">
+          <label [for]="'sectionParam'+integrationConfig.id"
+                 class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+      <span>
+        <i [ngbTooltip]="'This param is required'"
+           [ngClass]="!checkConfigValue(integrationConfig.confValue)?'text-danger':'text-success'"
+           class="icon-circle2 mr-1"
+           placement="auto"></i>
+        {{integrationConfig.confName}}
+      </span>
+            <span>
+          <i *ngIf="integrationConfig.confDescription"
+             [ngbTooltip]="integrationConfig.confDescription"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+      </span>
+          </label>
+
+          <input (input)="addChange(integrationConfig)"
+                 *ngIf="integrationConfig.confDataType !== 'bool'
+                 && integrationConfig.confDataType !== 'list'
+                 && integrationConfig.confDataType !== 'file'"
+                 [(ngModel)]="integrationConfig.confValue"
+                 [attr.autocomplete]="'disabled'"
+                 [id]="'sectionParam'+integrationConfig.id"
+                 [name]="integrationConfig.confName"
+                 [type]="integrationConfig.confDataType"
+                 class="form-control" [required]="integrationConfig.confRequired">
+
+          <app-utm-toggle (toggleChange)="integrationConfig.confValue = $event.toString();addChange(integrationConfig)"
+                          *ngIf="integrationConfig.confDataType === 'bool'"
+                          [active]="integrationConfig.confValue === 'true'"
+                          [label]="'Enable/Disable param configuration'"></app-utm-toggle>
+
+          <textarea (input)="addChange(integrationConfig)"
+                    *ngIf="integrationConfig.confDataType === 'list'"
+                    [(ngModel)]="integrationConfig.confValue"
+                    [id]="'sectionParam'+integrationConfig.id"
+                    [required]="integrationConfig.confRequired"
+                    class="form-control"
+                    rows="4"></textarea>
+
+          <app-utm-file-upload
+            *ngIf="integrationConfig.confDataType === 'file'"
+            (fileEmit)="onFileUpload($event,group,integrationConfig)"
+            [acceptTypes]="'.json'" msg="Google Service account key">
+          </app-utm-file-upload>
+
+          <small
+            *ngIf="integrationConfig.confValue === '' || integrationConfig.confValue === null || integrationConfig.confValue=== undefined"
+            class="text-danger">
+            Param {{integrationConfig.confName}} is required
+          </small>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="pendingChangesForGroup(group) && changes && changes.keys.length>0"
+         class="w-100 alert alert-info alert-styled-right mb-3">
+       <span class="font-weight-semibold">
+          Detect unsaved changes in configuration, do not forget save changes when you finish!
+       </span>
+    </div>
+    <div *ngIf="!tenantIsConfigValid(group) && !loading"
+         class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
+      <span class="font-weight-semibold">Warning! </span>
+      <span>Required param configuration must be set to save this section</span>
+    </div>
+    <div class="d-flex justify-content-end align-items-center mb-2">
+      <button class="btn utm-button utm-button-danger mr-3" (click)="cancelConfig(group)" *ngIf="changes.keys.length>0">
+        Cancel changes
+      </button>
+      <button class="btn utm-button utm-button-primary" (click)="saveConfig()"
+              [disabled]="!tenantIsConfigValid(group) || (changes && changes.keys.length===0) || savingConfig">
+        <i class="icon-cog5 mr-1"></i>
+        Save configuration
+      </button>
+    </div>
+  </div>
+
+  <div class="pt-3 d-flex justify-content-center align-items-center" *ngIf="allowAdd">
+    <button class="btn utm-button utm-button-primary" (click)="createGroup()">
+      <i class="icon-plus2 mr-1"></i>
+      Add tenant
+    </button>
+  </div>
+</div>
+<ng-template #loadingGroups>
+  <div class="w-100 d-flex justify-content-center align-items-center">
+    <app-utm-spinner [loading]="true" label="Loading module configuration"></app-utm-spinner>
+  </div>
+</ng-template>

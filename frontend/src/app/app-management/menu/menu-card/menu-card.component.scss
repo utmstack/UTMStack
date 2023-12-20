@@ -1,0 +1,29 @@
+.utm-menu-card-action {
+  width: 20%;
+
+  i {
+    margin: 0 5px;
+  }
+}
+
+.utm-menu-card-text {
+  width: 80%;
+
+  h6 {
+    padding-right: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.utm-menu-card-action-cursor-pointer {
+  cursor: pointer;
+}
+
+.utm-menu-card-form {
+  margin-top: 5px;
+}
+
+
+

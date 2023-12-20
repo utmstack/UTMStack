@@ -1,0 +1,26 @@
+<app-utm-modal-header [name]="'Delete visualization'" class="w-100" type="delete"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <h6 *ngIf="!multiple" class="font-weight-light">
+    Are you sure that you want to delete this visualization <strong>{{visualization.name}}</strong>.?
+  </h6>
+  <div class="d-flex flex-column align-items-start">
+    <h6 *ngIf="multiple" class="font-weight-light mb-2">
+      Are you sure that you want to delete this visualizations:
+    </h6>
+    <div *ngFor="let vis of selected" class="vis-delete">
+      <strong>{{vis.name}}</strong>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="deleteVisualization()"
+            class="btn utm-button utm-button-danger">
+      <i class="icon-database-remove"></i>&nbsp;
+      Delete
+    </button>
+  </div>
+</div>
+

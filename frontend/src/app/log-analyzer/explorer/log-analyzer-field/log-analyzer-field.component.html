@@ -1,0 +1,48 @@
+<div class="card">
+  <div *ngIf="fieldSelected.length>0" class="selected-fields mb-2">
+    <div class="d-flex justify-content-between pl-2 pt-2 pb-0">
+      <span class="font-weight-semibold">Selected fields</span>
+    </div>
+    <div class="sel-fields p-2">
+      <app-log-analyzer-field-card (addFieldToColumn)="addToColumns($event)" *ngFor="let field of fieldSelected"
+                                   [pattern]="pattern"
+                                   [fieldSelected]="fieldSelected"
+                                   [field]="field"
+                                   [filters]="filters">
+      </app-log-analyzer-field-card>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between pl-2 pb-0">
+    <span class="font-weight-semibold">Available fields</span>
+  </div>
+  <div class="mb-2 pr-2 pl-2 w-100">
+    <app-utm-search-input (searchFor)="onSearch($event)" [placeholder]="'Search field'"
+                          [searching]="searching"></app-utm-search-input>
+  </div>
+  <div *ngIf="loadingFields"
+       class="content d-flex justify-content-center align-items-center h-100 w-100 analyzer-fields">
+    <app-utm-spinner [height]="'35px'" [label]="'Loading fields...'" [loading]="true"
+                     [width]="'35px'"></app-utm-spinner>
+  </div>
+  <div *ngIf="fields.length===0 && !loadingFields"
+       class="content d-flex justify-content-center align-items-center h-100 w-100 pt-5">
+    <app-no-data-found></app-no-data-found>
+  </div>
+  <div (scrolled)="onScroll()" *ngIf="fields.length>0 && !loadingFields"
+       [fromRoot]="true"
+       [infiniteScrollDistance]="1"
+       [infiniteScrollThrottle]="50"
+       [scrollWindow]="false"
+       class="analyzer-fields p-2"
+       infiniteScroll>
+    <div *ngFor="let field of fields | slice:pageStart:pageEnd">
+      <app-log-analyzer-field-card (addFieldToColumn)="addToColumns($event)"
+                                   *ngIf="!isInColumns(field)"
+                                   [pattern]="pattern"
+                                   [fieldSelected]="fieldSelected"
+                                   [field]="field"
+                                   [hidden]="field.name.includes('.keyword')">
+      </app-log-analyzer-field-card>
+    </div>
+  </div>
+</div>

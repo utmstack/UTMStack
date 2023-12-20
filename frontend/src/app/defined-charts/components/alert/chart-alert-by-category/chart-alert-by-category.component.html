@@ -1,0 +1,33 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label class="card-title label-header text-blue-800">
+      Top alerts by category
+    </label>
+    <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                             [invertContent]="true"
+                             [timeDefault]="defaultTime">
+    </app-elastic-filter-time>
+  </div>
+  <div class="card-body p-2">
+    <div *ngIf="loadingBarOption"
+         class="loading-chart w-100 h-100
+                 chart chart-fixed-height
+                 d-flex justify-content-center
+                 align-items-center">
+      <app-utm-spinner [height]="'35px'" [loading]="loadingBarOption" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="!loadingBarOption && noData"
+         class="chart chart-fixed-height">
+      <app-no-data-chart [typeChart]="chartEnumType.BAR_CHART"></app-no-data-chart>
+    </div>
+    <div (chartClick)="chartClick($event)"
+         *ngIf="!loadingBarOption && !noData"
+         [autoResize]="true"
+         [options]="barOption"
+         class="chart-fixed-height"
+         echarts></div>
+  </div>
+</div>

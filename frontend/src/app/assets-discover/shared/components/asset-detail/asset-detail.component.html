@@ -1,0 +1,54 @@
+<app-utm-modal-header [name]="'Agent detail'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div *ngIf="asset">
+    <div class="asset-details w-100 d-flex justify-content-start mb-2"
+         *ngIf="asset.assetIp">
+      <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
+      {{asset.assetIp}}
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2" *ngIf="asset.assetName">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Name:</span>&nbsp;
+      {{asset.assetName}}
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2" *ngIf="asset.assetMac">
+      <span class="text-blue-800 font-weight-light has-minimum-width">MAC:</span>&nbsp;
+      {{asset.assetMac}}
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Status:</span>&nbsp;
+      <app-asset-status [asset]="asset"></app-asset-status>
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2">
+      <span class="text-blue-800 font-weight-light has-minimum-width">OS:</span>&nbsp;
+      <app-asset-os [assetOS]="asset.assetOs"></app-asset-os>
+    </div>
+    <div class="asset-details w-100 d-flex justify-content-start mb-2 ">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Type:</span>&nbsp;
+      <app-assets-apply-type (applyTypeEvent)="refreshData.emit(true)" [assets]="[asset.id]" [showTypeLabel]="true"
+                             [typeFormat]="'icon'" [type]="asset.assetType">
+      </app-assets-apply-type>
+    </div>
+
+    <div class="asset-details w-100 d-flex justify-content-start mb-2 ">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Group:</span>&nbsp;
+      <app-asset-group-add (applyGroupEvent)="refreshData.emit(true)" [assets]="[asset.id]"
+                           [group]="asset.group"
+                           [showTypeLabel]="true" [typeFormat]="'icon'">
+      </app-asset-group-add>
+    </div>
+
+
+    <div class="asset-details w-100 d-flex justify-content-start mb-2 ">
+      <span class="text-blue-800 font-weight-light has-minimum-width">Note:</span>&nbsp;
+      <app-assets-apply-note (applyNote)="refreshData.emit(true);" [asset]="asset"
+                             [showNote]="true"></app-assets-apply-note>
+    </div>
+
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()"
+            class="btn utm-button utm-button-primary ml-2">
+      Close
+    </button>
+  </div>
+</div>

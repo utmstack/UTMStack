@@ -1,0 +1,158 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Google Pub/Sub
+    </h4>
+  </div>
+  <div class="card-body">
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Go to the
+          <a class="font-weight-semibold text-primary cursor-pointer"
+             href="https://console.cloud.google.com/projectselector2/cloudpubsub/topic/list?_ga=2.26902461.1097687309.1633079255-1671403559.1629178517&supportedpurview=project"
+             target="_blank">Pub/Sub topics page</a>
+          in the Cloud Console
+        </p>
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Click on "Create a topic" button.
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/quickstart-console-topic.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          In the Topic ID field, provide a unique topic name and save.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Display the menu for the topic you just created, and click on "Create subscription".
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/quickstart-console-newsub.png"
+             width="400">
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Type a name for the subscription. Leave the Delivery type as Pull, leave the Expiry period as Never expire  and click create button
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/quickstart-console-editsub.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          Go to the Logs router section; you can access this section quickly using the search box
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/logRouter.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          Click on the "Create SINK" button
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/create_shirnk.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          After providing a name and description for logs routing sink, in the Sink destination step, select the Cloud
+          Pub/Sub topic service and then choose the topic that you created in step 3. Then click on Next
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/sink_destination.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Build inclusion and exclusion <a class="font-weight-semibold text-primary cursor-pointer"
+                                           href="https://cloud.google.com/logging/docs/view/logging-query-language"
+                                           target="_blank">filter
+          expression</a> that matches the log entries you want to include or exclude in steps 3 and 4 of creating sink
+          wizard. If you don't set a filter, all logs from your Cloud project are routed to the destination. Click Next,
+          and Create sink
+
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Go to
+          <a class="font-weight-semibold text-primary cursor-pointer"
+             href="https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts?supportedpurview=project"
+             target="_blank">service accounts page</a>,select the project where you create topics and sink in the
+          previous steps, and click CREATE SERVICE ACCOUNT. UTMStack will be using this service account to
+          retrieve logs from the Google PubSub
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/create_service_account.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">11</span>
+          Fill in the data asked in the form and give your service account Pub/Sub Editor permissions for the service account.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">12</span>
+          Select the created service account then go to the Keys tab and create new key.
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/newkey.png"
+             width="400">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">13</span>
+          Download key in JSON format
+        </p>
+        <img alt="Google portal" class="step-img"
+             height="auto" src="../../../../assets/img/guides/google/downloadkey.png"
+             width="400">
+      </li>
+
+      <li>
+        <p class="step-guide">
+          <span class="step_number">14</span>
+          Enter Google Pub/Sub info
+        </p>
+        <div class="w-100 mt-3">
+          <app-int-generic-group-config [moduleId]="integrationId"
+                                        (configValidChange)="configValidChange($event)"
+                                        [serverId]="serverId"></app-int-generic-group-config>
+        </div>
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">15</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.GOOGLE_PUBSUB"
+                                        [disabled]="configValidity"
+                                        [type]="'integration'" [serverId]="serverId"
+                                        class="mt-3">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>
+

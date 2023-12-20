@@ -1,0 +1,203 @@
+<div class="w-100 h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0 text-primary">
+            IBM AS400
+        </h4>
+    </div>
+
+    <div class="card-body">
+        <ol class="setup_list">
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">1</span>
+                    Fill in the form with the data from your AS400 instance and download the generated JSON
+                    configuration
+                </p>
+
+                <form [formGroup]="serverAS400FormArray" *ngIf="serverAS400FormArray">
+
+                    <ng-container *ngFor="let server of serverAS400Controls.controls; let i=index" class="mb-3">
+                        <ng-container formArrayName="serversAS400">
+                            <ng-container [formGroupName]="i">
+                                <div class="utm-box mt-4 pt-3 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-100">
+                                         <span class="p-1 utm-box-label">
+                                               AS400 instance {{i + 1}}
+
+                                             <span class="span-small-icon ml-3">
+                                                <i class="icon-cross2 ml-2 cursor-pointer"
+                                                   (click)="removeServer(i)"
+                                                   ngbTooltip="Delete Instance">
+                                             </i>
+                                           </span>
+                                         </span>
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 mb-3" [ngClass]="'col-lg-6'">
+                                            <label [for]="'hostname'+i"
+                                                   class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+                                  <span>
+                                    <i [ngbTooltip]="'This param is required'"
+                                       [ngClass]="!server.get('hostname').valid?'text-danger':'text-success'"
+                                       class="icon-circle2 mr-1"
+                                       placement="auto"></i>
+                                      Hostname
+                                  </span>
+                                                <span>
+                                    <i [ngbTooltip]="'IBM System DNS'"
+                                       class="ml-2 text-primary icon-question3" placement="auto"></i>
+                                </span>
+                                            </label>
+                                            <input [attr.autocomplete]="'disabled'"
+                                                   [id]="'hostname'+i"
+                                                   name="hostname"
+                                                   type="text"
+                                                   class="form-control"
+                                                   formControlName="hostname">
+                                            <small *ngIf="server.get('hostname').dirty && server.get('hostname').invalid"
+                                                   class="text-danger">
+                                                Hostname is invalid
+                                            </small>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 mb-3" [ngClass]="'col-lg-6'">
+                                            <label [for]="'userId'+i"
+                                                   class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+                                      <span>
+                                        <i [ngbTooltip]="'This param is required'"
+                                           [ngClass]="!server.get('userId').valid?'text-danger':'text-success'"
+                                           class="icon-circle2 mr-1"
+                                           placement="auto"></i>
+                                          User ID
+                                      </span>
+                                                <span>
+                                        <i [ngbTooltip]="'User to access to your IBM system'"
+                                           class="ml-2 text-primary icon-question3" placement="auto"></i>
+                                </span>
+                                            </label>
+                                            <input [attr.autocomplete]="'disabled'"
+                                                   [id]="'userId'+i"
+                                                   name="userId"
+                                                   type="text"
+                                                   class="form-control"
+                                                   formControlName="userId">
+                                            <small *ngIf="server.get('userId').dirty && server.get('userId').invalid"
+                                                   class="text-danger">
+                                                User ID is invalid
+                                            </small>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 mb-3" [ngClass]="'col-lg-6'">
+                                            <label [for]="'user_password'+i"
+                                                   class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+                                  <span>
+                                    <i [ngbTooltip]="'This param is required'"
+                                       [ngClass]="!server.get('user_password').valid?'text-danger':'text-success'"
+                                       class="icon-circle2 mr-1"
+                                       placement="auto"></i>
+                                      Password
+                                  </span>
+                                                <span>
+                                    <i [ngbTooltip]="'Password of the user above'"
+                                       class="ml-2 text-primary icon-question3" placement="auto"></i>
+                                  </span>
+                                            </label>
+                                            <input [attr.autocomplete]="'disabled'"
+                                                   [id]="'user_password'+i"
+                                                   name="user_password"
+                                                   type="password"
+                                                   class="form-control"
+                                                   formControlName="user_password">
+                                            <small *ngIf="server.get('user_password').dirty && server.get('user_password').invalid"
+                                                   class="text-danger">
+                                                Password is invalid
+                                            </small>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 mb-3" [ngClass]="'col-lg-6'">
+                                            <label [for]="'tenant'+i"
+                                                   class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+                                  <span>
+                                    <i [ngbTooltip]="'This param is required'"
+                                       [ngClass]="!server.get('tenant').valid?'text-danger':'text-success'"
+                                       class="icon-circle2 mr-1"
+                                       placement="auto"></i>
+                                      Tenant
+                                  </span>
+                                                <span>
+                                    <i [ngbTooltip]="'Tenant'"
+                                       class="ml-2 text-primary icon-question3" placement="auto"></i>
+                                  </span>
+                                            </label>
+                                            <input [attr.autocomplete]="'disabled'"
+                                                   [id]="'tenant'+i"
+                                                   name="tenant"
+                                                   type="text"
+                                                   class="form-control"
+                                                   formControlName="tenant">
+                                            <small *ngIf="server.get('tenant').dirty && server.get('tenant').invalid"
+                                                   class="text-danger">
+                                                Tenant is invalid
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <div class="pt-3 d-flex justify-content-center align-items-center">
+                        <button class="btn utm-button utm-button-primary" (click)="addServer()">
+                            <i class="icon-plus2 mr-1"></i>
+                            Add Instance
+                        </button>
+                        <button class="btn utm-button utm-button-primary ml-3" (click)="downloadConfig()"
+                                [disabled]="!serverAS400FormArray.valid">
+                            <i class="icon-download10 mr-1"></i>
+                            Download configuration
+                        </button>
+                    </div>
+                </form>
+            </li>
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">2</span>
+                    Connect to the master via SSH using a <strong>root</strong> account
+                </p>
+            </li>
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">3</span>
+                    Create the integration configuration folder.
+                </p>
+                <app-utm-code-view [allowCopy]="serverAS400FormArray.valid"
+                                   [code]="'mkdir -p /utmstack/as400jds/'"></app-utm-code-view>
+            </li>
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">4</span>
+                    Copy the JSON configuration file to "/utmstack/as400jds/"
+                </p>
+            </li>
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">5</span>
+                    Run the command shown below to run the integration.
+                </p>
+                <div class="alert alert-warning alert-styled-right mb-3" *ngIf="!serverAS400FormArray.valid">
+                    To obtain the command, please fill out the previous form and ensure all required fields are
+                    completed. Once completed, you will be able to copy the command.
+                </div>
+
+                <app-utm-code-view [allowCopy]="serverAS400FormArray.valid"
+                                   [code]="generateDockerCommand()"></app-utm-code-view>
+            </li>
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">6</span>
+                    Click on the button shown below, to activate the UTMStack features related to this integration
+                </p>
+                <app-app-module-activate-button [module]="module.IBM_AS_400"
+                                                [type]="'integration'" class="mt-3"
+                                                [serverId]="serverId">
+                </app-app-module-activate-button>
+            </li>
+        </ol>
+    </div>
+</div>
+
+

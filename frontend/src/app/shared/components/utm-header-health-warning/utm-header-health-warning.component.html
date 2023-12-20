@@ -1,0 +1,18 @@
+<div *ngIf="(clusterHealth && clusterHealth.diskUsedPercent>=75) && show"
+     class="card alpha-danger border-danger card-health-warning shadow" style="opacity: 1; max-width: none;">
+  <div class="card-body p-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <h6 class="modal-title">System health</h6>
+      <button (click)="hide()" aria-label="Close"
+              class="close button-close" data-dismiss="modal"
+              type="button">
+        <div class="close-modal-icon"></div>
+      </button>
+    </div>
+    <p> The system has detected lack of space. Currently, you are using
+      <b>{{clusterHealth.diskUsedPercent}}% ({{clusterHealth.diskUsed + 'GB'
+      + ' used of ' + clusterHealth.diskTotal + 'GB'}})</b> of the total
+      space. After 85% of disk usage, the system will delete the oldest logs to prevent system failovers.
+      Increase the disk capacity to continue storing incoming logs and prevent data loss.</p>
+  </div>
+</div>

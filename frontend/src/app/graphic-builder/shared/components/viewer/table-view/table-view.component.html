@@ -1,0 +1,125 @@
+<div [ngClass]="{'card':!building}" [ngStyle]="{'width':width}" class="m-0 utm-panel-chart">
+  <div *ngIf="!building" class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label *ngIf="visualization" [ngbTooltip]="visualization.name"
+           [openDelay]="3000" class="card-title label-header text-blue-800" container="body">
+      {{visualization.name}}
+    </label>
+    <div class="action-table-right d-flex align-items-center">
+      <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                               *ngIf="showTime"
+                               [defaultTime]="defaultTime"
+                               [container]="building?'body':'body'"
+                               [invertContent]="true">
+      </app-elastic-filter-time>
+
+      <i (click)="exportToCSV()"
+         *ngIf="tableOptions && tableOptions.exportCsv"
+         [ngClass]="exporting?'icon-spinner2 spinner':'icon-download10'"
+         class="ml-2 text-blue-800 cursor-pointer"
+         ngbTooltip="Download data as CSV"
+         placement="left"
+         tooltipClass="utm-tooltip-left"></i>
+
+      <!--      <i [ngClass]="searching?'icon-spinner2 spinner':'icon-search4'"-->
+      <!--         #notePopober=ngbPopover-->
+      <!--         [ngbPopover]="colContent"-->
+      <!--         autoClose="outside"-->
+      <!--         class="text-blue-800 position-relative cursor-pointer ml-2"-->
+      <!--         container="body"-->
+      <!--         placement="auto"-->
+      <!--         popoverClass="utm-popover"-->
+      <!--         triggers="click"></i>-->
+      <!--      <ng-template #colContent>-->
+      <!--        <app-utm-search-input style="min-width: 100px;width: 100px"-->
+      <!--                              placeholder="Search"></app-utm-search-input>-->
+      <!--      </ng-template>-->
+
+    </div>
+  </div>
+
+  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-0 overflow-auto bg-white">
+    <div *ngIf="loadingOption"
+         class="loading-chart w-100 h-100
+                 chart-fixed-height
+                 d-flex justify-content-center
+                 align-items-center">
+      <app-utm-spinner [height]="'35px'" [loading]="loadingOption" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="data && data.columns && !loadingOption" class="h-100 w-100 table-responsive">
+      <table [ngClass]="{'text-nowrap':!exportFormat}" class="table ">
+        <thead>
+        <tr>
+          <th (sort)="onSort($event)"
+              *ngFor="let column of data.columns"
+              [sortable]="column.split('->')[0]"
+              appColumnSortable class="font-weight-semibold cursor-pointer" scope="col">
+            {{column.split('->')[1]}}
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="data && data.rows && data.rows.length>0 && !loadingOption">
+        <tr *ngFor="let row of data.rows |slice:pageStart:pageEnd; let index = index">
+          <td (click)="chartEvent(row)" *ngFor="let td of row"
+              [class]="{'text-center':td.metric}"
+              [ngClass]="{'cursor-pointer':visualization.chartAction.active}">
+            <span *ngIf="td.metric;else normal" class="text-nowrap">
+              {{td.value | number}}
+            </span>
+            <ng-template #normal class="cursor-default">
+              <span>{{td.value}}</span>
+            </ng-template>
+          </td>
+        </tr>
+        <tr *ngIf="tableOptions.showTotal" class="total-row">
+          <td [attr.colspan]="getFirstMetric()"
+              class="text-right text-capitalize font-weight-bold text-center">
+            {{tableOptions.totalFunction}}
+          </td>
+          <td *ngFor="let oper of getMapMetric()" class="font-weight-bold text-center">
+            {{oper| number}}
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loadingOption">
+        <tr>
+          <td [attr.colspan]="data && data.columns && data.columns.length">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading data'"
+                               [loading]="loadingOption"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="!loadingOption">
+        <tr *ngIf="(data && !data.rows || data.rows.length ==0) && !loadingOption">
+          <td [attr.colspan]="data.columns.length">
+            <div class="h-100 w-100 p-5 d-flex justify-content-center align-items-center">
+              <app-no-data-chart [error]="false" [typeChart]="chart"></app-no-data-chart>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!exportFormat && data.rows.length>0" class="row justify-content-center m-0">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+    <div *ngIf="!data  || !data.rows" class="h-100 w-100 p-5 d-flex justify-content-center align-items-center">
+      <app-no-data-chart [error]="false" [typeChart]="chart"></app-no-data-chart>
+    </div>
+  </div>
+</div>

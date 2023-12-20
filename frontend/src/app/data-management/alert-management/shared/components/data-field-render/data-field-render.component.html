@@ -1,0 +1,28 @@
+<div [ngSwitch]="field.field">
+  <app-alert-status (statusChange)="onStatusChange($event)"
+                    *ngSwitchCase="STATUS_FIELD"
+                    [alert]="data"
+                    [dataType]="dataType"
+                    [showDrop]="showStatusChange"
+                    [statusField]="STATUS_FIELD">
+  </app-alert-status>
+  <app-alert-ip *ngSwitchCase="SOURCE_IP_FIELD" [alert]="data" [type]="'source'"></app-alert-ip>
+  <app-alert-ip *ngSwitchCase="DESTINATION_IP_FIELD" [alert]="data" [type]="'destination'"></app-alert-ip>
+  <app-alert-severity *ngSwitchCase="SEVERITY_LABEL_FIELD"
+                      [severity]="resolveSeverity(data)"></app-alert-severity>
+  <app-alert-tags-apply *ngSwitchCase="TAGS_FIELD"
+                        [alert]="data"
+                        [showTagsLabel]="true"></app-alert-tags-apply>
+  <app-alert-apply-note *ngSwitchCase="NOTE_FIELD" [alert]="data" [showNote]="true"></app-alert-apply-note>
+  <span *ngSwitchDefault [ngClass]="field.customStyle">
+    <span *ngIf="field.type!=='date';else dateValue"
+          [openDelay]="3000" ngbTooltip="{{resolveValue(data, field)}}">
+      {{resolveValue(data, field)}}
+    </span>
+    <ng-template #dateValue>
+      <span>
+        {{resolveValue(data, field)|date:utmFormatDate:'UTC'}}
+      </span>
+    </ng-template>
+  </span>
+</div>

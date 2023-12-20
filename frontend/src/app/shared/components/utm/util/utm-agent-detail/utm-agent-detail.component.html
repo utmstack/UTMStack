@@ -1,0 +1,80 @@
+<div class="w-100" *ngIf="agent">
+  <div class="agent-details w-100 d-flex justify-content-start mb-2"
+       *ngIf="agent.ip">
+    <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
+    {{agent.ip}}
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.hostname">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Name:</span>&nbsp;
+    {{agent.hostname}}
+  </div>
+  <div class="agent-details w-100 mb-2" *ngIf="agent.mac!== ''">
+    <span class="text-blue-800 font-weight-light has-minimum-width">MAC:</span>&nbsp;
+    <div class="d-flex justify-content-start align-items-center flex-wrap">
+     <span *ngFor="let card of agent.mac.split(',')" class="badge border-blue-800 border-1 mr-1 mb-1 p-1 text-blue-800">
+       {{card}}
+     </span>
+    </div>
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Status:</span>&nbsp;
+    <span [ngClass]="agent.status === agentStatusEnum.ONLINE?'text-success-800':'text-warning-800'"
+          class="span-small-icon d-flex justify-content-start align-items-center">
+      <i [ngClass]="'icon-circle2'" class="mr-2"></i>
+      {{agent.status}}
+    </span>
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start align-items-center mb-2 span-small-icon">
+    <span class="text-blue-800 font-weight-light has-minimum-width">OS:</span>&nbsp;
+    <i [ngClass]="getAgentIcon()" class="mx-1"></i>
+    {{agent.os}}
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Type:</span>&nbsp;
+    <app-assets-apply-type [assets]="[agent.id]" [typeFormat]="'icon'"
+                           [type]="asset.assetType" class="ml-2">
+    </app-assets-apply-type>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Group Source:</span>&nbsp;
+    <app-asset-group-add [assets]="[asset.id]"
+                         [group]="asset.group"
+                         [typeFormat]="'icon'" class="ml-2">
+    </app-asset-group-add>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Comment:</span>&nbsp;
+    <app-assets-apply-note [asset]="asset" class="ml-2"></app-assets-apply-note>
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.version">
+    <span class="text-blue-800 font-weight-light has-minimum-width">OS Version:</span>&nbsp;
+    {{agent.version}}
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.lastSeen">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Last seen:</span>&nbsp;
+    {{agent.lastSeen}}
+  </div>
+
+  <div class="agent-details w-100 mb-2" *ngIf="agent.addresses !== ''">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Addresses:</span>&nbsp;
+    <div class="d-flex justify-content-start align-items-center flex-wrap">
+     <span *ngFor="let address of agent.addresses.split(',')"
+           class="badge border-blue-800 border-1 mr-1 mb-1 p-1 text-blue-800">
+       {{address}}
+     </span>
+    </div>
+  </div>
+
+  <div class="agent-details w-100 mb-2" *ngIf="agent.aliases!== ''">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Alias:</span>&nbsp;
+    <div class="d-flex justify-content-start align-items-center flex-wrap">
+     <span *ngFor="let alias of agent.aliases.split(',')"
+           class="badge border-blue-800 border-1 mr-1 mb-1 p-1 text-blue-800">
+       {{alias}}
+     </span>
+    </div>
+  </div>
+
+</div>
+
+

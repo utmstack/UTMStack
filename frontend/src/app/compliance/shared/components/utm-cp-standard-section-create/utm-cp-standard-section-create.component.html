@@ -1,0 +1,43 @@
+<app-utm-modal-header [name]="standardSection?'Edit standard section':'New standard section'"
+                      class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="formStandardSection">
+    <div class="d-flex flex-column w-50 mb-2">
+      <label class="pb-1" for="name">Standard</label>
+      <app-utm-cp-standard-select
+        (standardSelect)="formStandardSection.get('standardId').setValue($event)"
+        [standardId]="formStandardSection.get('standardId').value">
+      </app-utm-cp-standard-select>
+      <app-formcontrol-error [formcontrol]="formStandardSection.get('standardId')"
+                             label="Standard is required"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label class="pb-1" for="name">Name</label>
+      <input [ngClass]="inputClass.resolveClassInput(formStandardSection.get('standardSectionName'))" class="border-1 border-grey-600 form-control" formControlName="standardSectionName"
+             id="name"
+             name="">
+      <app-formcontrol-error [formcontrol]="formStandardSection.get('standardSectionName')"
+                             label="Standard name is required"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label for="reportDesc">Description ({{1000 - formStandardSection.get('standardSectionDescription').value.length}}
+        )</label>
+      <textarea [ngClass]="inputClass.resolveClassInput(formStandardSection.get('standardSectionDescription'))" class="form-control" formControlName="standardSectionDescription"
+                id="reportDesc"
+                rows="4"></textarea>
+      <app-formcontrol-error [formcontrol]="formStandardSection.get('standardSectionDescription')"
+                             label="Standard description is required"></app-formcontrol-error>
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createStandard()"
+            [disabled]="creating || !formStandardSection.valid" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-shield-check'"></i>&nbsp;
+      Save
+    </button>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+<div *ngIf="localUsers"
+     class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+                  <span class="p-1 utm-box-label">
+                  <i class="icon-users2"></i>
+                  Local users</span>
+  <div class="w-25">
+    <app-utm-search-input (searchFor)="onSearchUser($event)"
+                          placeholder="Search user"></app-utm-search-input>
+  </div>
+  <div class="local-users-container mt-2">
+    <div *ngFor="let user of localUsers;let index = index" class="local-user mb-2">
+      <div class="d-flex justify-content-start align-items-center">
+        <i [ngClass]="user.enabledAsBoolean?'text-success-800':'text-danger-800'"
+           [ngbTooltip]="'User is ' + (user.enabledAsBoolean?'enabled':'disabled')"
+           class="mr-1 icon-circle-small"
+           container="body"
+           placement="top"
+           tooltipClass="utm-tooltip-top"></i>
+        <span [innerHTML]="user.name | highlight:userSearch"></span>&nbsp;
+        <span>{{user.description ? ' (' + user.description + ')' : ''}}</span>
+      </div>
+    </div>
+  </div>
+</div>

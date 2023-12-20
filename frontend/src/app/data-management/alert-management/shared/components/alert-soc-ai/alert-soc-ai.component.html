@@ -1,0 +1,48 @@
+<div class="has-fixed-height d-flex justify-content-center align-items-center w-100 flex-column"
+     *ngIf="!socAiResponse && !loading">
+  <span inlineSVG="assets/icons/system/SEARCH_PROCESS.svg" class="svg-icon svg-icon-grey svg-icon-10x"></span>
+  <p class="text-justify font-size-lg mt-3 w-50">
+    <i class="icon-spinner2 spinner"></i> The analysis of this alert is currently in progress.
+  </p>
+</div>
+
+<ng-container *ngIf="loading">
+  <div class="d-flex has-fixed-height w-100 justify-content-center align-items-center">
+            <span class="m-4 text-blue-800">
+              <i class="icon-spinner2 spinner"></i>
+              Loading analysis
+            </span>
+  </div>
+</ng-container>
+
+<div *ngIf="socAiResponse && !loading" class="w-100">
+  <div class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
+    <span class="font-weight-semibold">Warning! </span>
+    <span>This evaluation has been made by an Artificial Intelligence beta that is still in training mode. Use this information carefully and at your own risk.</span>
+  </div>
+
+  <div class="d-flex mb-2">
+    <span class="font-weight-semibold">Classification:</span>
+    <span
+      class="badge badge-flat border-info-800 text-info-800 ml-2">{{socAiResponse.classification | capitalize}}</span>
+  </div>
+
+  <span class="font-weight-semibold mt-3">Reasoning:</span>
+  <ul>
+    <li class="font-weight-thin font-size-base mt-2 d-flex justify-content-start align-items-start"
+        *ngFor="let reason of socAiResponse.reasoning;let index = index" style="list-style: circle">
+      <i class="icon-radio-unchecked" [ngStyle]="{'padding-top':'9px','font-size':'5px','margin-right':'5px'}"></i>
+      <p class="font-size-base text-justify">{{reason}}</p>
+    </li>
+  </ul>
+
+  <div *ngIf="socAiResponse.nextSteps.length>0" class="w-100 mt-3 d-flex flex-column">
+    <span class="font-weight-semibold">{{socAiResponse.nextSteps.length > 1 ? 'Next steps' : 'Next step'}}:</span>
+    <div class="w-100 my-1" *ngFor="let step of socAiResponse.nextSteps, let index=index;">
+      <span class="font-weight-semibold font-size-base"><i class="icon-radio-unchecked"
+                                                           [ngStyle]="{'padding-top':'0px','font-size':'5px','margin-right':'5px'}"></i> {{step.action}}</span>
+
+      <p class="font-weight-light ml-3 mt-1 text-justify font-size-base" [innerHTML]="step.details"></p>
+    </div>
+  </div>
+</div>

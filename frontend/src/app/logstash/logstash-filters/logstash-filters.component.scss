@@ -1,0 +1,98 @@
+app-logstash-filter-create {
+  height: 100%;
+}
+
+$green: #28a745;
+$red: #dc3545;
+$yellow: #ffb238;
+.container-pipeline {
+  .card {
+    width: 50%;
+  }
+
+  img {
+    height: auto;
+    width: 100px;
+  }
+}
+
+.pipeline-line {
+  height: 50px;
+}
+
+.container-pipeline svg {
+  height: 50px;
+}
+
+.container-pipeline svg line {
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-dasharray: 2px 10px;
+  animation: animateline 5s linear both infinite;
+}
+
+.pipeline-green svg line {
+  stroke: #28a745;
+}
+
+.pipeline-red svg line {
+  stroke: #dc3545;
+}
+
+.pipeline-yellow svg line {
+  stroke: #ffb238;
+}
+
+@-moz-keyframes animateline {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -5rem;
+  }
+}
+
+@-webkit-keyframes animateline {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -5rem;
+  }
+}
+
+@-o-keyframes animateline {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -5rem;
+  }
+}
+
+@keyframes animateline {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -5rem;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+::ng-deep {
+  .svg-spinner {
+    .infinite-spinner {
+      animation: rotate 2s linear infinite;
+      transform-origin: 50% 65%; /* Adjust as needed */
+    }
+  }
+}

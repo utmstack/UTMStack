@@ -1,0 +1,31 @@
+<div [ngbTooltip]="'Sorted by ' + sortSelected.label"
+     placement="top"
+     tooltipClass="utm-tooltip-top">
+<span #sortPopober=ngbPopover
+      [ngbPopover]="colContent"
+      [popoverTitle]="colTitle"
+      autoClose="outside"
+      class="text-blue-800 position-relative cursor-pointer small-md-icon"
+      container="body"
+      placement="auto"
+      popoverClass="utm-popover"
+      triggers="click">
+  <i [ngClass]="sortSelected && sortSelected.icon?sortSelected.icon:'icon-arrow-down32'"></i>
+</span>
+</div>
+<ng-template #colContent>
+  <div class="d-flex justify-content-center
+   flex-column align-items-start p-1">
+     <span (click)="sortBy(sort)"
+           *ngFor="let sort of valuesSorts"
+           [ngClass]="{'text-blue-800':sort.icon === sortSelected.icon}"
+           class="cursor-pointer span-small-icon mb-1">
+         <i [class]="sort.icon"></i>&nbsp;{{sort.label}}
+    </span>
+
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Sort values</h6>
+</ng-template>
+

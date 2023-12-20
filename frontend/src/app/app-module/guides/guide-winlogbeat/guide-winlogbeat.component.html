@@ -1,0 +1,51 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Installing Windows agent
+    </h4>
+  </div>
+  <div class="card-body">
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Check pre-installation requirements
+        </p>
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li>Compatible with Windows Server version 2016 R2 or higher</li>
+          <li>The UTMStack agents communicate over ports 9000 and 50051. Please make sure these ports are open.</li>
+        </ul>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          To install windows agent, open a Windows powershell terminal as "<b>Administrator</b>" and run the following
+          command:
+        </p>
+        <div class="alert alert-warning alert-styled-right">
+          The following command contains sensitive information, don't share it.
+        </div>
+        <app-utm-code-view [code]="getCommand()"></app-utm-code-view>
+      </li>
+      <!--      <li>-->
+      <!--        <p class="step-guide mb-3">-->
+      <!--          <span class="step_number">7</span>-->
+      <!--          Click on the button shown below, to activate the UTMStack features related to this integration-->
+      <!--        </p>-->
+      <!--        <app-app-module-activate-button [module]="module.WINDOWS_AGENT" [type]="'integration'"-->
+      <!--                                        [disabled]="false"-->
+      <!--                                        [serverId]="serverId"-->
+      <!--                                        class="mt-3">-->
+      <!--        </app-app-module-activate-button>-->
+      <!--      </li>-->
+    </ol>
+    <div class="alert alert-warning alert-styled-right">
+      The next information is not part of the installation process, is just in case you need to uninstall the agent
+    </div>
+    <p>
+      To uninstall windows agent, open a Windows powershell terminal as "<b>Administrator</b>" and run the following
+      command:
+      <app-utm-code-view [code]="getUninstallCommand()"></app-utm-code-view>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="table-responsive utm-table-tree table-sm scroll">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <th class="font-weight-semibold text-uppercase cursor-pointer" style="width: 25px;">
+        Type
+      </th>
+      <th class="font-weight-semibold text-uppercase cursor-pointer" style="width: 75%;">
+        Account
+      </th>
+      <th class="font-weight-semibold text-uppercase cursor-pointer text-center">
+        Action
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let row of rows |slice:pageStart:pageEnd; let index = index">
+      <td class="text-center">
+        <span class="text-blue-800">
+              <i [ngClass]="resolveIcon(row)"></i>
+            </span>
+      </td>
+      <td>
+        <span class="text-blue-800">
+          {{row.name}}
+        </span>
+      </td>
+      <td *ngIf="rows.length>1" class="td-action text-center">
+        <div class="d-flex justify-content-center align-items-center medium-icon">
+          <i (click)="deleteTracker(index)"
+             class="icon-cross2 cursor-pointer"
+             ngbTooltip="Delete tracker"
+             placement="left"
+             tooltipClass="utm-tooltip"></i>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="row justify-content-center">
+    <ngb-pagination
+      (pageChange)="loadPage($event)"
+      [(page)]="page"
+      [boundaryLinks]="true"
+      [collectionSize]="totalItems"
+      [maxSize]="5"
+      [pageSize]="itemsPerPage"
+      [rotate]="true"
+      [size]="'sm'"></ngb-pagination>
+  </div>
+</div>

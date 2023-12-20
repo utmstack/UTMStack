@@ -1,0 +1,35 @@
+<div class="p-2 h-10">
+  <div class="w-100 d-flex justify-content-start align-content-between flex-column">
+    <div *ngIf="incidentRulesHistory.length>0 && !loading"
+         class="event-timeline-container h-100 pt-2" id="eventsTimeline">
+      <div class="main">
+        <ul class="utm_tmtimeline p-2">
+          <li *ngFor="let item of incidentRulesHistory" class="">
+            <time [attr.datetime]="item.previousState.lastModifiedDate" class="utm_tmtime">
+              <span class="text-wrap">{{item.previousState.lastModifiedDate | date}}</span>
+            </time>
+            <div
+              class="utm_tmlabel utm_tmlabel_note cursor-pointer text-wrap">
+              <p [innerHTML]="describeChange(item)"></p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+  <div *ngIf="loading"
+       class=" h-100 d-flex justify-content-center align-items-center p-3 loading">
+    <app-utm-spinner [height]="'35px'" [loading]="true"
+                     [width]="'35px'" label="Loading events"></app-utm-spinner>
+  </div>
+  <div *ngIf="incidentRulesHistory.length===0 && !loading"
+       class="card-body message-container p-2 event-timeline-container h-100">
+    <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+      <div class="event-icon utm-icon-lg utm-icon-light"></div>
+      <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+        No changes found
+      </h6>
+    </div>
+  </div>
+</div>

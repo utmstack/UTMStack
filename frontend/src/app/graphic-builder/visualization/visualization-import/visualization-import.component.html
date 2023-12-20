@@ -1,0 +1,211 @@
+<app-utm-modal-header [name]="'Import visualizations'"></app-utm-modal-header>
+<div class="container-fluid p-3 create-task-container">
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <div class="visualization-import-step">
+      <div class="step">
+         <span class="text-blue-800 font-weight-bold">
+          Upload
+        </span>
+        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-upload'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          Review
+        </span>
+        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-pie-chart5'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          Import
+        </span>
+        <div [ngClass]="isCompleted(3)?'step-success':step===3?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-upload10'"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="step===1" class="regex-step mt-3">
+    <app-utm-file-upload (fileEmit)="onFileImportLoad($event)" [acceptTypes]="'.json'"></app-utm-file-upload>
+  </div>
+  <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+    <div class="table-responsive-sm mb-3">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="text-center font-weight-semibold text-uppercase" style="width: 25px;"></th>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer">
+            Name&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase" style="width:8%">
+            Action&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tr *ngFor="let vis of visImport |slice:pageStart:pageEnd;let index=index">
+          <td class="text-center">
+            <div class="d-flex">
+              <div [ngClass]="chartIconResolver(vis.chartType)"
+                   class="utm-icon-xs utm-icon-primary"></div>
+            </div>
+
+          </td>
+          <td class="">
+             <span class="text-blue-800">
+                   {{vis.name}}
+             </span>
+          </td>
+          <td class="td-action text-center medium-icon">
+            <i (click)="openResolverModal(vis)"
+               *ngIf="haveNameProblems(vis) || havePatternProblems(vis)"
+               class="icon-notification2 text-danger-300 cursor-pointer"
+               ngbTooltip="Resolve visualization problem"
+               placement="left"
+               tooltipClass="utm-tooltip"></i>
+            &nbsp;
+            <i (click)="deleteVisualization(index)" class="icon-cross2 cursor-pointer"
+               ngbTooltip="Delete visualization"
+               placement="left"
+               tooltipClass="utm-tooltip"></i>
+          </td>
+        </tr>
+      </table>
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+    <!--    <span class="text-danger-300 mt-3" *ngIf="validPatterns">-->
+    <!--        <i class="icon-notification2 text-danger-300"></i>-->
+    <!--         &nbsp;There are index in visualization that are not present in the application,-->
+    <!--      ensure that your index patterns from source imported are present-->
+    <!--    </span><br>-->
+    <!--    <span class="text-danger-300 mt-3" *ngIf="validNames">-->
+    <!--        <i class="icon-notification2 text-danger-300"></i>-->
+    <!--         &nbsp;There are visualization that already exist in the application, rename to continue-->
+    <!--    </span>-->
+  </div>
+  <div *ngIf="step===3" class="configure-step mt-3 mb-3">
+    <div class="icon-container">
+      <div class="icon-up">
+        <i class="icon-upload10"></i>
+      </div>
+    </div>
+    <div class="d-flex justify-content-start mt-3">
+      <app-utm-toggle (toggleChange)="override=$event"
+                      [active]="override" label="Override duplicated visualizations?"></app-utm-toggle>
+    </div>
+    <div *ngIf="override" class="alert alert-info alert-styled-right mb-2 mt-2">
+      <span>Executing this action will overwrite all the elements and configurations of the visualizations that are duplicated</span>
+    </div>
+    <div *ngIf="importing" class="d-flex justify-content-start align-items-center">
+      <i class="text-blue-800 icon-spinner2 spinner"></i>
+      <h6 class="text-blue-800 font-weight-light ml-2">Uploading visualizations</h6>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="backStep()" *ngIf="step >1"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-arrow-left22"></i>&nbsp;
+      Back
+    </button>
+    <button (click)="nextStep()" *ngIf="step === 1"
+            [disabled]="visImport.length===0"
+            class="btn utm-button utm-button-primary ml-2">
+      Next&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+    <button (click)="nextStep()" *ngIf="step === 2"
+            [disabled]="validNames || validPatterns"
+            class="btn utm-button utm-button-primary ml-2">
+      Continue&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+    <button (click)="import()" *ngIf="step===3"
+            [disabled]="importing"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="importing?'icon-spinner2 spinner':'icon-upload10'"></i>
+      Import&nbsp;
+    </button>
+  </div>
+</div>
+
+<!-- modal -->
+<ng-template #content let-modal>
+  <app-utm-modal-header [name]="'Resolve problem'"></app-utm-modal-header>
+  <div class="modal-body">
+
+    <h6 *ngIf="!havePatternProblems(visResolve) && !haveNameProblems(visResolve)">
+      <i class="icon-checkmark-circle text-success-300"></i>
+      &nbsp;Problem resolved
+    </h6>
+    <div *ngIf="haveNameProblems(visResolve)" class="content-resolve flex-column">
+        <span>
+        <i [ngClass]="haveNameProblems(visResolve)?'icon-notification2 text-danger-300'
+        :'icon-checkmark-circle text-success-300'"></i>
+        &nbsp;Exist visualizations whit this name
+      </span>
+      <div class="name-problem mt-2">
+        <div class="form-group">
+          <label class="pb-1 font-weight-semibold"
+                 for="name">Change name</label>
+          <input #newName
+                 [value]="visResolve.name"
+                 class="border-1 border-grey-600 form-control"
+                 id="name"
+                 name="" type="text">
+          <button (click)="changeVisName(visResolve,newName.value)"
+                  [disabled]="visResolve.name === newName.value"
+                  class="btn utm-button utm-button-primary mt-2">
+            Change name
+          </button>
+        </div>
+      </div>
+    </div>
+    <!--    <div *ngIf="havePatternProblems(visResolve)" class="pattern-resolve mt-2">-->
+    <!--       <span>-->
+    <!--        <i [ngClass]="havePatternProblems(visResolve)?'icon-notification2 text-danger-300'-->
+    <!--        :'icon-checkmark-circle text-success-300'"></i>-->
+    <!--         &nbsp;Index pattern <span class="font-weight-bold">{{visResolve.pattern.pattern}}</span> not found-->
+    <!--      </span>-->
+    <!--      <div class="d-flex flex-column flex-grow-1 mt-2">-->
+    <!--        <label class="pb-1 font-weight-semibold"-->
+    <!--               for="name">Change name</label>-->
+    <!--        <ng-select (change)="setPattern($event)"-->
+    <!--                   [clearable]="false"-->
+    <!--                   [items]="patterns"-->
+    <!--                   [loadingText]="'Loading patterns...'"-->
+    <!--                   [loading]="patterns.length===0"-->
+    <!--                   [searchable]="true"-->
+    <!--                   bindLabel="pattern">-->
+    <!--        </ng-select>-->
+    <!--      </div>-->
+    <!--    </div>-->
+  </div>
+  <div class="modal-footer">
+    <button (click)="modal.close()" class="btn btn-secondary utm-button utm-button-danger"
+            type="button">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      <span>Close</span>
+    </button>
+  </div>
+</ng-template>

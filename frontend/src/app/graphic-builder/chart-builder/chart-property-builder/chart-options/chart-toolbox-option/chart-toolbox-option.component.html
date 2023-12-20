@@ -1,0 +1,172 @@
+<form [formGroup]="formToolboxOption">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewToolboxProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewToolbox?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Toolbox</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewToolbox" class="properties-options">
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="formToolboxOption.get('show').setValue($event)"
+                      [active]="true"
+                      label="Show toolbox?">
+      </app-utm-toggle>
+    </div>
+    <div class="features" formGroupName="feature">
+      <div *ngIf="chartType!=='PIE_CHART'" class="magic-type" formGroupName="magicType">
+        <div class="mt-3">
+          <app-utm-toggle
+            (toggleChange)="formToolboxOption.get(['feature','magicType','show']).setValue($event)"
+            [active]="true"
+            label="Show magic type feature?">
+          </app-utm-toggle>
+        </div>
+        <div *ngIf="formToolboxOption.get(['feature','magicType','show']).value"
+             class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+        <span class="p-1 utm-box-label">
+          <i class="icon-magic-wand"></i>
+          Magic feature</span>
+          <div class="d-flex flex-column flex-grow-1">
+            <label class="pb-1 font-weight-semibold" for="magicTypes">
+              Magic types
+            </label>
+            <ng-select [clearable]="false"
+                       [groupBy]="'group'"
+                       [items]="toolboxMagicType"
+                       [multiple]="true"
+                       [searchable]="true"
+                       bindLabel="agg"
+                       bindValue="agg"
+                       formControlName="type"
+                       id="magicTypes">
+            </ng-select>
+          </div>
+
+        </div>
+      </div>
+      <div class="save-as-image" formGroupName="saveAsImage">
+        <div class="mt-3">
+          <app-utm-toggle
+            (toggleChange)="formToolboxOption.get(['feature','saveAsImage','show']).setValue($event)"
+            [active]="true"
+            label="Show save as image feature?">
+          </app-utm-toggle>
+        </div>
+      </div>
+      <div class="restore" formGroupName="restore">
+        <div class="mt-3">
+          <app-utm-toggle
+            (toggleChange)="formToolboxOption.get(['feature','restore','show']).setValue($event)"
+            [active]="true"
+            label="Show restore chart feature?">
+          </app-utm-toggle>
+        </div>
+      </div>
+      <div class="dataView" formGroupName="dataView">
+        <div class="mt-3">
+          <app-utm-toggle
+            (toggleChange)="formToolboxOption.get(['feature','dataView','show']).setValue($event)"
+            [active]="true"
+            label="Show data view feature?">
+          </app-utm-toggle>
+        </div>
+      </div>
+      <div *ngIf="chartType!==chartEnum.PIE_CHART || chartType!==chartEnum.GAUGE_CHART" class="dataZoom"
+           formGroupName="dataZoom">
+        <div class="mt-3">
+          <app-utm-toggle
+            (toggleChange)="formToolboxOption.get(['feature','dataZoom','show']).setValue($event)"
+            [active]="true"
+            label="Show data zoom feature?">
+          </app-utm-toggle>
+        </div>
+      </div>
+      <div *ngIf="chartType!==chartEnum.PIE_CHART || chartType!==chartEnum.GAUGE_CHART" class="mark-feature"
+           formGroupName="mark">
+        <div class="mt-3">
+          <app-utm-toggle
+            (toggleChange)="formToolboxOption.get(['feature','mark','show']).setValue($event)"
+            [active]="true"
+            label="Show mark feature?">
+          </app-utm-toggle>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendPosition">
+        Toolbox vertical position
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="toolboxPositionsTop"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="top"
+                 id="legendPosition">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendPosition">
+        Toolbox horizontal position
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="toolboxPositionsLeft"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="left"
+                 id="legendPositionLeft">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendOrientation">
+        Toolbox orientation
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="toolboxOrientations"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="orient"
+                 id="legendOrientation">
+      </ng-select>
+    </div>
+    <div class="row m-0 mt-3 p-0">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="form-group">
+          <label class="pb-1" for="itemWidth">Width</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="width"
+                 id="itemWidth"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+        <div class="form-group">
+          <label class="pb-1" for="itemHeight">Height</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="height"
+                 id="itemHeight"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+    </div>
+    <div class="row m-0 p-0">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="form-group">
+          <label class="pb-1" for="itemWidth">Icon size</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="itemSize"
+                 id="itemSize"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

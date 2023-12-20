@@ -1,0 +1,16 @@
+.incident-history-container {
+  min-height: 65vh;
+  overflow: auto;
+}
+
+
+.utm_tmtimeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  position: relative;
+
+  &:before {
+    left: 110px;
+  }
+}

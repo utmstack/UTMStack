@@ -1,0 +1,14 @@
+<div *ngIf="asset.metrics" class="d-flex justify-content-around align-items-center flex-nowrap">
+  <div (click)="navigateToDataManagement(asset.assetIp)"
+       class="metric d-flex justify-content-center align-items-center flex-column text-center cursor-pointer mr-3"
+       container="body">
+    <div [ngClass]="'text-danger-800'"
+         class="metric-number">
+      {{asset.metrics.alerts | thousandSuff}}
+    </div>
+    <span>Alerts</span>
+  </div>
+</div>
+<ng-template #noMetrics>
+  <span class="span"> <i class="icon-seven-segment-0 mr-2"></i>No metrics found</span>
+</ng-template>

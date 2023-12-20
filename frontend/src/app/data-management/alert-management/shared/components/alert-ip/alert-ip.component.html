@@ -1,0 +1,6 @@
+<div *ngIf="alert" class="d-flex justify-content-start align-items-center">
+  <app-utm-country-flag *ngIf="countryCode"
+                        [countryCode]="countryCode"
+                        [country]="country"></app-utm-country-flag>
+  <span class="ml-2">{{ip}}</span>
+</div>

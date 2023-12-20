@@ -1,0 +1,29 @@
+<app-utm-modal-header [name]="'Generate report'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <h6 class="font-weight-light mb-2">{{report.repName}}</h6>
+  <p [innerHTML]="report.repDescription" class="font-size-base mb-3"></p>
+
+  <div *ngIf="report.repShortName === reportShortNameEnum.RISK
+       || report.repShortName ===reportShortNameEnum.VULNERABILITY"
+       class="w-100 d-flex justify-content-start align-items-center mb-2">
+    <label class="mr-3">Select range to export</label>
+    <app-report-param-date-range (rangeChange)="params = $event;"
+                                 [formatInstant]="true"></app-report-param-date-range>
+  </div>
+  <app-report-param-date-limit (filterChange)="params=$event"
+                               *ngIf="report.repShortName === reportShortNameEnum.THREAT_ACTIVITY_ALERT
+                                    ||report.repShortName === reportShortNameEnum.THREAT_ACTIVITY_INCIDENT
+                                    ||report.repShortName === reportShortNameEnum.ASSET">
+  </app-report-param-date-limit>
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      Cancel
+    </button>
+    <button (click)="generateReport()" [disabled]="pdfExport || !paramsIsValid()"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+      {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+    </button>
+  </div>
+</div>

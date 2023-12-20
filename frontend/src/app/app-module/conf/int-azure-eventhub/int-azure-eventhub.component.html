@@ -1,0 +1,140 @@
+<div class="w-100">
+  <form [formGroup]="azureForm" autocomplete="off">
+    <ng-container *ngFor="let item of group.controls; let index=index">
+      <ng-container formArrayName="group">
+        <ng-container [formGroupName]="index">
+          <div class="card mr-2 mb-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              Azure EventHub
+              <span (click)="deleteAzureGroup(index)" class="cursor-pointer text-danger-300">
+                <i class="icon-cross3"></i>
+            </span>
+            </div>
+            <div class="card-body row m-0">
+              <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="">
+            <span>
+                <i [ngClass]="!group.at(index).get('eventHubConnection').valid?'text-danger':'text-success'"
+                   [ngbTooltip]="'This param is required'"
+                   class="icon-circle2 mr-1"
+                   placement="auto"></i>
+                Event Hub URL connection
+              </span>
+                    <span>
+          <i [ngbTooltip]="'Azure  Event Hub URL connection'"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+      </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="eventHubConnection"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('eventHubConnection').valid"
+                    class="text-danger">
+                    Azure Event Hub URL is invalid
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="conModule">
+                  <span>
+                      <i [ngClass]="!group.at(index).get('storageConnection').valid?'text-danger':'text-success'"
+                         [ngbTooltip]="'This param is required'"
+                         class="icon-circle2 mr-1"
+                         placement="auto"></i>
+                      Account Storage URL connection
+                    </span>
+                    <span>
+          <i [ngbTooltip]="'Account Storage URL connection'"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+              </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="storageConnection"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('storageConnection').valid"
+                    class="text-danger">
+                    Account Storage URL is invalid
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="">
+            <span>
+                <i [ngClass]="!group.at(index).get('consumerGroup').valid?'text-danger':'text-success'"
+                   [ngbTooltip]="'This param is required'"
+                   class="icon-circle2 mr-1"
+                   placement="auto"></i>
+                EventHub Consumer group
+              </span>
+                    <span>
+                     <i [ngbTooltip]="'Azure EventHub Consumer group'"
+                        class="ml-2 text-primary icon-question3" placement="auto"></i>
+               </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="consumerGroup"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('consumerGroup').valid"
+                    class="text-danger">
+                    Azure EventHub Consumer group is invalid
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="">
+            <span>
+                <i [ngClass]="!group.at(index).get('storageContainer').valid?'text-danger':'text-success'"
+                   [ngbTooltip]="'This param is required'"
+                   class="icon-circle2 mr-1"
+                   placement="auto"></i>
+                Storage container
+              </span>
+                    <span>
+                     <i [ngbTooltip]="'Azure Storage container'"
+                        class="ml-2 text-primary icon-question3" placement="auto"></i>
+               </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="storageContainer"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('storageContainer').valid"
+                    class="text-danger">
+                    Azure Storage container is invalid
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </form>
+  <div class="add-bucket-button d-flex justify-content-center mt-3 mb-3">
+          <span (click)="addAzureGroup()"
+                class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+                       Add EventHub
+          </span>
+    <button (click)="saveConfig()"
+            [disabled]="!azureForm.valid"
+            class="btn utm-button utm-button-primary ml-3">
+      <i *ngIf="saving" [ngClass]="'icon-spinner2 spinner'" class="mr-1"></i>
+      {{saving ? 'Saving...' : 'Save'}}
+    </button>
+  </div>
+</div>

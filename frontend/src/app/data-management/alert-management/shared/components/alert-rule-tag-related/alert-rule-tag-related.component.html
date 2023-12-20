@@ -1,0 +1,31 @@
+<div class="w-100" *ngIf="!loading;else loadingRules">
+  <div class="d-flex flex-column justify-content-center align-items-start card p-2">
+    <span class="text-blue-800 cursor-pointer my-1" *ngFor="let rule of relatedRules"
+          #rulePopober=ngbPopover
+          [ngbPopover]="colContent"
+          [popoverTitle]="colTitle"
+          autoClose="outside"
+          container="body"
+          placement="auto"
+          popoverClass="utm-popover-related"
+          triggers="click" (click)="viewDetail=rule">{{rule.name}}</span>
+  </div>
+</div>
+<ng-template #loadingRules>
+  <div class="w-100 d-flex  justify-content-center align-items-center text-blue-800">
+    <app-utm-spinner [height]="'35px'"
+                     [label]="'Loading related rules'"
+                     [loading]="loading"
+                     [width]="'35px'">
+    </app-utm-spinner>
+  </div>
+</ng-template>
+
+<ng-template #colContent>
+  <div class="w-100 utm-popover-rule-detail">
+    <app-alert-rule-detail [rule]="viewDetail"></app-alert-rule-detail>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Rule detail</h6>
+</ng-template>

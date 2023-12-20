@@ -1,0 +1,52 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <div class="form-group">
+    <label class="pb-1" for="name">Name</label>
+    <input (input)="searchByName()" [(ngModel)]="filter['name.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="name"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="name">Last modification</label>
+    <app-filter-time (timeFilterChange)="changeFilterTime($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+
+  <div class="d-flex flex-column mt-4">
+    <label class="pb-1" for="name">TCP ports count between</label>
+    <div class="d-flex justify-content-between align-items-center">
+      <input (input)="searchByTcp()" [(ngModel)]="filter['tcp.greaterThan']" class="border-1 border-grey-600 form-control"
+             id="tcpless"
+             min="0"
+             name=""
+             type="number">
+      <span class="mr-2 ml-2">and</span>
+      <input (input)="searchByTcp()" [(ngModel)]="filter['tcp.lessThan']" class="border-1 border-grey-600 form-control"
+             id="tcpgreater"
+             min="0"
+             name=""
+             type="number">
+    </div>
+  </div>
+
+  <div class="d-flex flex-column mt-4">
+    <label class="pb-1" for="name">UDP ports count between</label>
+    <div class="d-flex justify-content-between align-items-center">
+      <input (input)="searchByUdp()" [(ngModel)]="filter['udp.greaterThan']" class="border-1 border-grey-600 form-control"
+             id="udpless"
+             min="0"
+             name=""
+             type="number">
+      <span class="mr-2 ml-2">and</span>
+      <input (input)="searchByUdp()" [(ngModel)]="filter['udp.lessThan']" class="border-1 border-grey-600 form-control"
+             id="udpgreater"
+             min="0"
+             name=""
+             type="number">
+    </div>
+    <span *ngIf="filter && filter['udp.greaterThan'] > filter['udp.lessThan']"
+          class="text-danger mt-1">
+          Type max greater than min
+        </span>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<app-utm-modal-header [name]="'Delete configuration'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="alert alert-warning alert-styled-right mb-3 alert-dismissible">
+    <span class="font-weight-semibold">Warning! </span>
+    <span>By deleting this configuration you can introduce errors in internal behavior of UTMStack </span>
+  </div>
+  <h6>
+    Are you sure that you want to delete <strong>{{section.section}}</strong> configuration.?
+  </h6>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="deleteSection()"
+            class="btn utm-button utm-button-danger">
+      <i class="icon-cog3"></i>&nbsp;
+      Delete
+    </button>
+  </div>
+</div>

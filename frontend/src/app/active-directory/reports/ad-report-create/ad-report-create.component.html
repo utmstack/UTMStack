@@ -1,0 +1,128 @@
+<app-utm-modal-header [name]="'Save report'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 pt-0 save-report-container">
+  <form [formGroup]="formAdReport">
+    <div class="row m-0 mt-3">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="d-flex flex-column flex-grow-1">
+          <label class="pb-1" for="id">Report type</label>
+          <ng-select [clearable]="false"
+                     [items]="reportType"
+                     [loadingText]="'Loading report type....'"
+                     [loading]="!reportType"
+                     [ngClass]="inputClass.resolveClassInput(formAdReport.get('type'))"
+                     bindLabel="value"
+                     bindValue="key"
+                     formControlName="type"
+                     id="id">
+          </ng-select>
+          <app-formcontrol-error [formcontrol]="formAdReport.get('type')"></app-formcontrol-error>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+        <div class="d-flex justify-content-start align-items-center w-100 h-100">
+          <app-utm-toggle (toggleChange)="setSchedule($event)"
+                          [emitAtStart]="true"
+                          label="Schedule report?"></app-utm-toggle>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="formAdReport.get('schedule').value" class="mt-3">
+      <div class="form-group">
+        <label class="pb-1" for="name">Name</label>
+        <input [ngClass]="inputClass.resolveClassInput(formAdReport.get('name'))"
+               class="border-1 border-grey-600 form-control" formControlName="name"
+               id="name"
+               name="">
+        <app-formcontrol-error [formcontrol]="formAdReport.get('name')"></app-formcontrol-error>
+      </div>
+      <div class="form-group">
+        <label for="reportDesc">Description</label>
+        <textarea class="form-control" formControlName="description" id="reportDesc"
+                  rows="2"></textarea>
+      </div>
+
+      <div class="row m-0 justify-content-start align-items-center">
+        <label class="pb-1 mr-2" for="id">Execute each</label>
+        <ng-select [clearable]="false"
+                   [items]="range"
+                   [loadingText]="'Loading report type....'"
+                   [loading]="!range"
+                   bindLabel="key"
+                   bindValue="value"
+                   formControlName="scheduleRange"
+                   id="time">
+        </ng-select>
+        <label class="pb-1 ml-2 mr-2" for="id">approximately at</label>
+        <ngb-timepicker
+          [ngClass]="inputClass.resolveClassInput(formAdReport.get('startTime'))" [seconds]="false" [spinners]="false"
+          formControlName="startTime"
+          size="small"></ngb-timepicker>
+      </div>
+
+
+      <div class="email-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+          <span class="p-1 utm-box-label">
+          <i class="icon-mail5"></i>
+          Emails</span>
+        <app-utm-mail-list (emailChange)="onEmailChange($event)"></app-utm-mail-list>
+      </div>
+    </div>
+
+    <div *ngIf="formAdReport.get('type').value === adReportTypeEnum.ACTIVITY" class="row m-0 mt-3">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0 justify-content-center">
+        <div class="d-flex flex-column flex-grow-1">
+          <label class="pb-1" for="id">Limit report output</label>
+          <ng-select [items]="limitRange"
+                     [loadingText]="'Loading limit....'"
+                     [loading]="!limitRange"
+                     [ngClass]="inputClass.resolveClassInput(formAdReport.get('limit'))"
+                     formControlName="limit">
+          </ng-select>
+          <app-formcontrol-error [formcontrol]="formAdReport.get('limit')"></app-formcontrol-error>
+        </div>
+      </div>
+      <div *ngIf="!formAdReport.get('schedule').value"
+           class="col-lg-6 col-md-12 col-sm-12 pl-0 justify-content-center">
+        <div *ngIf="formAdReport.get('type').value === adReportTypeEnum.ACTIVITY"
+             class="d-flex flex-column pl-3 align-items-start justify-content-start">
+          <label class="mb-2" for="id">Filter date</label>
+          <app-elastic-filter-time (timeFilterChange)="timeFilterChange($event)"
+                                   [timeDefault]="defaultTime"
+                                   [formatInstant]="true"
+                                   [invertContent]="true"
+                                   container="modal"
+          ></app-elastic-filter-time>
+          <!--          <app-filter-time -->
+          <!--            (timeFilterChange)="timeFilterChange($event)"-->
+          <!--            [emitAtStart]="true"></app-filter-time>-->
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <app-ad-table-tree-selected (tableChange)="onTableChange($event)"
+                                  [response]="'array'"
+                                  [rows]="data"></app-ad-table-tree-selected>
+    </div>
+
+  </form>
+  <div class="buttom-container pt-3 d-flex justify-content-end">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="saveReport()" *ngIf="formAdReport.get('schedule').value"
+            [disabled]="!formAdReport.valid || saving"
+            class="btn utm-button utm-button-primary mr-3">
+      <i [ngClass]="saving?'icon-spinner2 spinner':'icon-database-insert'" class="mr-1"></i>
+      {{saving ? 'Saving...' : 'Save report'}}
+    </button>
+    <button (click)="viewReport()" *ngIf="!formAdReport.get('schedule').value"
+            [disabled]="!formAdReport.valid || generateReport"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="generateReport?'icon-spinner2 spinner':'icon-file-pdf'" class="mr-1"></i>
+      {{saving ? 'Generating...' : 'View report'}}
+    </button>
+  </div>
+</div>
+

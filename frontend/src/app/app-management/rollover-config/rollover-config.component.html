@@ -1,0 +1,50 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Rollover
+    </h6>
+    <div class="header-elements">
+      <button (click)="saveRollover()"
+              [disabled]="days==null"
+              class="btn utm-button utm-button-primary">
+        <i [ngClass]="saving?'icon-spinner2 spinner':'icon-database-time2'" class="ml-2"></i>
+        {{saving ? 'Saving' : 'Save'}} rollover
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div *ngIf="rollover" class="w-100">
+      <app-utm-toggle (toggleChange)="rollover.snapshotActive = $event"
+                      [active]="rollover.snapshotActive"
+                      label="Active snapshot "></app-utm-toggle>
+
+      <div class="alert alert-info alert-styled-right mb-2 mt-4">
+        This property defines the number of days in which the information will remain in the data engine while it has
+        available space; if the disk reaches a capacity of <b>85%</b>, the system will take action.
+      </div>
+
+      <div class="form-group w-25 mb-4">
+        <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+               for="delete">
+          Delete days
+        </label>
+        <div class="input-group">
+          <input #deleteModel="ngModel"
+                 [(ngModel)]="days"
+                 class="form-control"
+                 id="delete"
+                 required type="number">
+          <span class="input-group-append">
+												<span class="input-group-text">days</span>
+          </span>
+        </div>
+        <span *ngIf="!deleteModel.valid" class="text-danger font-size-sm mt-2">Days time is required</span>
+      </div>
+    </div>
+    <div *ngIf="loading" class="w-100 h-100 d-flex justify-content-center align-items-center">
+      <app-utm-spinner [label]="'Loading policies'" [loading]="loading"></app-utm-spinner>
+    </div>
+
+  </div>
+</div>
+

@@ -1,0 +1,13 @@
+<div class="w-100 d-flex justify-content-start align-items-center mb-2">
+  <label class="mr-3">Select range to export</label>
+  <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                           [changeOnInit]="'YES'"
+                           [container]="'body'"
+                           [defaultTime]="defaultTime"
+                           [formatInstant]="formatInstant"
+                           [invertContent]="true">
+  </app-elastic-filter-time>
+</div>
+<div class="w-100 d-flex justify-content-start align-items-center mb-2">
+  <app-utm-data-limit (limitChange)="onLimitChange($event)" class="w-100"></app-utm-data-limit>
+</div>

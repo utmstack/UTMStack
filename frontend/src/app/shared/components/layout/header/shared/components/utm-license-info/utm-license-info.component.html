@@ -1,0 +1,7 @@
+<span (click)="goToLicense()"
+      [ngClass]="license === 'FREE'?'bg-orange-300':'bg-success-800'"
+      [ngStyle]="{'padding-top':'4px'}"
+      class="badge text-center cursor-pointer">
+  <span *ngIf="license">{{license}}</span>
+    <i *ngIf="!license" class="icon-spinner2 spinner"></i>
+</span>

@@ -1,0 +1,114 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div *ngIf="report"
+       class="d-flex align-items-center justify-content-between">
+    <app-utm-report-header [reportName]="report.repName"></app-utm-report-header>
+    <div *ngIf="!printFormat" class="header-elements">
+      <button class="btn utm-button utm-button-primary mr-3"
+              routerLink="/data/alert/reports/list">
+        <i class="icon-stack mr-2"></i> Reports
+      </button>
+      <button (click)="exportToCsv()"
+              [disabled]="csvExport"
+              class="btn utm-button utm-button-primary mr-3">
+        <i [ngClass]="csvExport?'icon-download10':'icon-table2'" class="mr-1"></i>
+        {{csvExport ? 'Generating...' : 'Export to CSV'}}
+      </button>
+      <button (click)="print()"
+              class="btn utm-button utm-button-primary">
+        <i class="icon-printer mr-2"></i> Print
+      </button>
+    </div>
+    <div *ngIf="printFormat">
+      Date: <span class="font">{{dateGenerated()}}</span>
+    </div>
+  </div>
+  <div *ngIf="loading"
+       class="dashboard-loader d-flex justify-content-start align-content-center w-100 h-100">
+    <app-utm-spinner [height]="'110px'" [loading]="loading" [width]="'110px'"
+                     label="Loading report"
+                     style="margin-top: 15%;width: 100%">
+    </app-utm-spinner>
+  </div>
+  <div *ngIf="report && report.columns && data" class="h-100 card m-0 mt-3 mb-3">
+    <div class="d-flex p-2 justify-content-between align-items-center">
+      <div class="span-small-icon d-flex justify-content-start align-items-end">
+            <span (click)="view='table'"
+                  [ngClass]="{'text-blue-800':view==='table'}" class="mr-3 font-weight-light cursor-pointer">
+              <i class="icon-table2"></i>&nbsp;TABLE
+            </span>
+        <span (click)="view='grid'"
+              [ngClass]="{'text-blue-800':view==='grid'}" class="font-weight-light cursor-pointer">
+              <i class="icon-list2"></i>&nbsp;LIST
+            </span>
+      </div>
+    </div>
+    <div *ngIf="view==='table'" class="table-responsive ">
+      <table class="table text-nowrap table-hover ">
+        <thead>
+        <th (sort)="onSortBy($event)"
+            *ngFor="let item of report.columns; let i=index"
+            [hidden]="!item.visible"
+            [isSortable]="true"
+            [sortable]="item.type!=='string'?item.field:item.field+'.keyword'"
+            appColumnSortable
+            class="font-weight-semibold cursor-pointer">
+          {{item.label}}
+        </th>
+        </thead>
+        <tbody *ngIf="data && data.length>0">
+        <tr *ngFor="let alert of data" class="cursor-pointer">
+          <ng-container *ngFor="let td of report.columns">
+            <td *ngIf="(td.visible)"
+                style="word-break: break-all;white-space: pre-wrap">
+              <app-data-field-render [data]="alert" [field]="td" [showStatusChange]="false">
+              </app-data-field-render>
+            </td>
+          </ng-container>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(data && data.length===0)  && !loading">
+        <tr>
+          <td [attr.colspan]="report.columns.length">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td [attr.colspan]="report.columns.length">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading...'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="view==='grid'" class="w-100">
+      <div *ngIf="data && data.length===0"
+           class="p-5 w-100 justify-content-center align-items-center">
+        <app-no-data-found></app-no-data-found>
+      </div>
+      <div *ngIf="data && data.length>0" class="w-100 h-100">
+        <div *ngFor="let dat of data"
+             class="table-view-container p-2 border-bottom-1 border-grey-100">
+          <div *ngFor="let column of report.columns"
+               class="d-flex justify-content-start align-items-center table-view-item m-1">
+            <div class="row-field-name ml-2">
+        <span class="font-weight-semibold grid-field-name">
+            {{column.label ? column.label : column.field}}:&nbsp;
+        </span>
+            </div>
+            <div class="row-field-data flex-grow-1">
+              <app-data-field-render [data]="dat" [field]="column"></app-data-field-render>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

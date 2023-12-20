@@ -1,0 +1,21 @@
+<div class="module-card card text-center p-2 m-0 d-flex flex-column align-items-center justify-content-between">
+  <div class="w-100">
+    <img class="p-3 mb-3 mt-1"
+         [alt]="module.prettyName"
+         [src]="'/assets/img/guides/logos/' + module.moduleIcon |safe:'resourceUrl'">
+
+    <h6 class="card-title font-weight-semibold">{{module.prettyName}}</h6>
+    <p class="mb-3 text-justify">{{module.moduleDescription | slice:0:230}}
+      <span *ngIf="module.moduleDescription.length>230"
+            class="text-blue-800 font-weight-bold cursor-pointer"
+            [ngbTooltip]="module.moduleDescription"
+      > ...</span>
+    </p>
+  </div>
+  <button class="btn utm-button mb-3 " (click)="showIntegration()"
+          [ngClass]="module.moduleActive?'utm-button-success':'utm-button-primary'">
+    <i class="mr-1 icon-puzzle2"></i>
+    {{module.moduleActive ? 'Enabled' : 'View integration'}}
+
+  </button>
+</div>

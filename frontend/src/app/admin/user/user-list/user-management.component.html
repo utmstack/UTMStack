@@ -1,0 +1,95 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Manage users</h5>
+    <div class="header-elements">
+      <button (click)="createUser()"
+              class="btn utm-button utm-button-primary">
+        <i class="icon-user-plus mr-2"></i> Create user
+      </button>
+    </div>
+  </div>
+  <div class="card w-100 h-100">
+    <div class="card-body p-0">
+      <div class="card bg-light border-0 m-0">
+        <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+          <app-sort-by (sortBy)="onSort($event)" [fields]="fields"></app-sort-by>
+          <app-utm-search-input (searchFor)="searchUser($event)"
+                                [searching]="searchingUser"
+                                placeholder="Search user">
+          </app-utm-search-input>
+        </div>
+      </div>
+      <div *ngIf="users" class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th><span>Login</span>
+            </th>
+            <th><span>Email</span>
+            </th>
+            <th></th>
+            <th><span>Profiles</span></th>
+            <th><span>Created Date</span>
+            </th>
+            <th><span>Modified By</span>
+            </th>
+            <th><span>Modified Date</span>
+            </th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody *ngIf="users">
+          <tr *ngFor="let user of users; trackBy: trackIdentity">
+            <td>{{user.login}}</td>
+            <td>{{user.email}}</td>
+            <td>
+              <button (click)="setActive(user, true)" *ngIf="!user.activated"
+                      class="btn btn-danger btn-sm font-size-base"
+                      ngbTooltip="Click to activate user">
+                Deactivated
+              </button>
+              <button (click)="setActive(user, false)" *ngIf="user.activated"
+                      [disabled]="currentAccount.login === user.login"
+                      class="btn btn-success btn-sm font-size-base"
+                      ngbTooltip="Click to deactivate user">Activated
+              </button>
+            </td>
+
+            <td>
+          <span *ngFor="let authority of user.authorities"
+                class="badge badge-flat border-info text-info-600 font-weight-light m-1">
+          {{authority}}
+          </span>
+            </td>
+            <td>{{user.createdDate | date:'dd/MM/yy HH:mm':'UTC'}}</td>
+            <td>{{user.lastModifiedBy}}</td>
+            <td>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm':'UTC'}}</td>
+            <td class="text-center">
+              <div class="btn-group flex-btn-group-container medium-icon">
+                <button (click)="editUser(user)"
+                        class="btn bg-light m-0 p-1 cursor-pointer medium-icon"
+                        queryParamsHandling="merge">
+                  <i class="icon-pencil3"></i>
+                </button>
+                <button (click)="deleteUser(user)" [disabled]="currentAccount.login === user.login"
+                        class="btn bg-light  m-0 p-1 cursor-pointer medium-icon"
+                        type="button">
+                  <i class="icon-cross2"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="users" class="mb-3">
+        <div class="row justify-content-center">
+          <ngb-pagination (pageChange)="loadPage(page)" [(page)]="page" [boundaryLinks]="true"
+                          [collectionSize]="totalItems"
+                          [maxSize]="5"
+                          [pageSize]="itemsPerPage" [rotate]="true" [size]="'sm'"></ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

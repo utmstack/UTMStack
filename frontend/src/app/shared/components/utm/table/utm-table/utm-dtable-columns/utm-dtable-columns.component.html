@@ -1,0 +1,72 @@
+<i [ngClass]="icon?icon:'icon-menu rotate-90'"
+   [ngbPopover]="colContent"
+   [popoverTitle]="colTitle"
+   autoClose="outside"
+   class="text-blue-800 cursor-pointer"
+   container="body"
+   placement="auto"
+   popoverClass="utm-popover"></i>
+<ng-template #colContent>
+  <div class="d-columns-container d-flex">
+    <div *ngIf="showInactive" class="card m-0 card-not-visible">
+      <div class="card-header card-header-inactive">
+        {{'Inactive ' + (label ? label : 'columns')}}
+      </div>
+      <div class="ul-container">
+        <ul class="list-group list-group-flush list-unstyled available-columns p-0">
+          <ng-container *ngFor="let field of fields">
+            <li (click)="selectInactive(field)"
+                *ngIf="!field.visible"
+                [ngClass]="{'active':isInactiveSelected(field)}"
+                [ngStyle]="{'display':field.visible?'none':'inherit'}"
+                class="sortable-list-item p-1 d-flex
+                justify-content-between align-items-center cursor-pointer">
+              <label class="field-name">{{field.label ? field.label : field.field}}</label>
+              <i (click)="setVisibleItem(field)"
+                 [ngbTooltip]="'Active ' + (field.label ? field.label : 'column')"
+                 class="icon-eye cursor-pointer"
+                 placement="auto"></i>
+            </li>
+          </ng-container>
+        </ul>
+      </div>
+    </div>
+    <div *ngIf="showInactive" class="operation d-flex
+     justify-content-center mr-2 ml-2
+    align-items-center flex-column">
+      <i (click)="setVisibleItem(inactiveSelected)"
+         *ngIf="inactiveSelected"
+         [ngbTooltip]="'Active ' + (label ? label : 'column')"
+         class="icon-arrow-right8 mb-3 cursor-pointer"
+         placement="auto"></i>
+      <i (click)="removeItem(activeSelected)"
+         *ngIf="activeSelected"
+         [ngbTooltip]="'Inactive ' + (label ? label : 'column')"
+         class="icon-arrow-left8 cursor-pointer"
+         placement="auto"></i>
+    </div>
+    <ngx-sortable [items]="fields"
+                  [name]="'Visible '+(label ? label : 'columns')">
+      <ng-template let-item>
+        <div (click)="activeSelected = item"
+             *ngIf="item.visible"
+             class="sortable-list-item p-1 d-flex justify-content-between align-items-center">
+          <label class="field-name">{{item.label ? item.label : item.field}}</label>
+          <i (click)="removeItem(item)"
+             [ngbTooltip]="'Inactive ' +(item.label ? item.label : 'column')"
+             class="icon-eye-blocked cursor-pointer"
+             placement="auto"
+          ></i>
+        </div>
+      </ng-template>
+    </ngx-sortable>
+  </div>
+  <div class="note mt-2 mb-2">
+    <span><i class="icon-drag-left-right text-blue-800 rotate-90-inverse"></i>&nbsp;
+      Drag and drop visible columns to change order</span>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Manage {{label ? label : 'columns'}}</h6>
+</ng-template>
+

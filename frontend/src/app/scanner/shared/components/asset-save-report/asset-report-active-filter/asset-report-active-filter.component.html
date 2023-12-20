@@ -1,0 +1,72 @@
+<div class="utm-box p-3 border-1 border-blue-800 position-relative">
+        <span class="p-1 utm-box-label">
+          <i class="icon-filter4"></i>
+          Active filters
+        </span>
+  <div *ngIf="filterActive.task" class="time mt-3">
+          <span class="font-weight-bold text-blue-800">
+            <i class="icon-task"></i>
+            Task equal:&nbsp;
+          </span>
+    <span class="font-weight-bold">
+      {{filterActive.task}}
+    </span>
+  </div>
+  <div *ngIf="filterActive.host" class="time mt-3">
+          <span class="font-weight-bold text-blue-800">
+            <i class="icon-target"></i>
+            Host equal:&nbsp;
+          </span>
+    <span class="font-weight-bold">
+      {{filterActive.host}}
+    </span>
+  </div>
+  <div *ngIf="filterActive['name.contains']" class="time mt-3">
+          <span class="font-weight-bold text-blue-800">
+            <i class="icon-target"></i>
+            Hostname contains:&nbsp;
+          </span>
+    <span class="font-weight-bold">
+      {{filterActive['name.contains']}}
+    </span>
+  </div>
+  <div *ngIf="filterActive['hostIp.contains']" class="time mt-3">
+          <span class="font-weight-bold text-blue-800">
+            <i class="icon-lan"></i>
+            IP contains:&nbsp;
+          </span>
+    <span class="font-weight-bold">
+      {{filterActive['hostIp.contains']}}
+    </span>
+  </div>
+  <div *ngIf="filterActive['hostOs.contains']" class="time mt-3">
+          <span class="font-weight-bold text-blue-800">
+            <i class="icon-display"></i>
+            OS contains:&nbsp;
+          </span>
+    <span class="font-weight-bold">
+      {{filterActive['hostOs.contains']}}
+    </span>
+  </div>
+  <div *ngIf="filterActive['hostSeverity.greaterThan'] ||
+        (filterActive['hostSeverity.equals']===0 || filterActive['hostSeverity.equals'] === '&quot;&quot;')"
+       class="status d-flex justify-content-start align-items-center mt-3">
+    <span class="font-weight-bold text-blue-800">
+      <i class="icon-meter-fast"></i>Severity:&nbsp;
+    </span>
+    <span [ngStyle]="{'color':severityResolverService.resolveColor(resolveSeverity())}"
+          class="severity-number font-weight-bold">
+       {{severityResolverService.resolveSeverityLabel(resolveSeverity())}}
+    </span>
+  </div>
+  <div *ngIf="filterActive['created.greaterThan']" class="time mt-3">
+          <span class="font-weight-bold text-blue-800">
+            <i class="icon-watch2"></i>
+            Time:
+          </span>
+    <span class="font-weight-bold">
+      {{filterActive['created.greaterThan']| date:'short':'UTC'}} to
+      {{filterActive['created.lessThan']| date:'short':'UTC'}}
+    </span>
+  </div>
+</div>

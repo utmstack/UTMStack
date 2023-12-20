@@ -1,0 +1,88 @@
+<app-utm-modal-header [name]="'Import compliance'"></app-utm-modal-header>
+<div class="container-fluid p-3 create-task-container">
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <div class="compliance-import-step">
+      <div class="step">
+         <span class="text-blue-800 font-weight-bold">
+          Upload
+        </span>
+        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-upload'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          Review
+        </span>
+        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-eye'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          Import
+        </span>
+        <div [ngClass]="isCompleted(3)?'step-success':step===3?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-upload10'"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="step===1" class="regex-step mt-3">
+    <app-utm-file-upload (fileEmit)="onFileImportLoad($event)" [acceptTypes]="'.json'"></app-utm-file-upload>
+  </div>
+  <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+    <app-utm-report-info-view [(complianceReports)]="complianceReports"></app-utm-report-info-view>
+  </div>
+  <div *ngIf="step===3" class="configure-step mt-3 mb-3">
+    <div class="icon-container">
+      <div class="icon-up">
+        <i class="icon-upload10"></i>
+      </div>
+    </div>
+    <div class="d-flex justify-content-start mt-3">
+      <app-utm-toggle (toggleChange)="override=$event"
+                      [active]="override" label="Override duplicated visualizations?"></app-utm-toggle>
+    </div>
+    <div *ngIf="override" class="alert alert-info alert-styled-right mb-2 mt-2">
+      <span>Executing this action will overwrite all the elements and configurations of the compliances that are duplicated</span>
+    </div>
+    <div *ngIf="importing" class="text-blue-800 d-flex justify-content-start align-items-center">
+      <i class="icon-spinner2 spinner mr-2"></i>
+      <h6 class="text-blue-800 font-weight-light">Uploading compliance</h6>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="backStep()" *ngIf="step >1"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-arrow-left22"></i>&nbsp;
+      Back
+    </button>
+    <button (click)="nextStep()" *ngIf="step === 1"
+            [disabled]="complianceReports.length===0"
+            class="btn utm-button utm-button-primary ml-2">
+      Next&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+    <button (click)="nextStep()" *ngIf="step === 2"
+            class="btn utm-button utm-button-primary ml-2">
+      Continue&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+    <button (click)="import()" *ngIf="step===3"
+            [disabled]="importing"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="importing?'icon-spinner2 spinner':'icon-upload10'"></i>
+      Import&nbsp;
+    </button>
+  </div>
+</div>

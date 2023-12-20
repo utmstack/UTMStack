@@ -1,0 +1,24 @@
+//
+// SVG
+//
+
+@import "mixins/svg-icon";
+@import "functions/get";
+@import "theme";
+@import "var";
+
+// Base
+.svg {
+    @each $name, $color in $theme-text-colors  {
+        &.svg-fill-#{$name} {
+            fill: $color !important;
+        }
+        &.svg-fill-light-#{$name} {
+            fill: theme-light-color($name) !important;
+        }
+    }
+}
+
+@function theme-light-color($key: "primary") {
+  @return get($theme-light-colors, $key);
+}

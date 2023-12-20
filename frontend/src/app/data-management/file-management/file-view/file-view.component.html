@@ -1,0 +1,158 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      {{fileTitle}}
+    </h5>
+    <div class="header-elements">
+      <button (click)="saveReport()"
+              [disabled]="files.length===0" class="btn utm-button utm-button-primary">
+        <i class="icon-stack-text mr-1"></i> Save report
+      </button>
+    </div>
+  </div>
+
+  <!--TABLE-->
+  <div class="d-flex flex-nowrap m-0 align-items-start">
+    <div (resizeEnd)="onResize($event)"
+         (resizing)="onResize($event)"
+         [enableGhostResize]="true"
+         [ngStyle]="{'width':filterWidth+'px'}"
+         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+         class="resizable-filter-container mr-2"
+         mwlResizable>
+      <app-file-filter (filterChange)="onFilterChange($event)"
+                       (filterReset)="onFilterReset($event)"></app-file-filter>
+
+    </div>
+    <div class="flex-grow-1">
+      <div class="card h-100">
+        <div class="card-header p-2 w-100">
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                                     [changeOnInit]="'NO'"
+                                     [container]="'body'"
+                                     [defaultTime]="defaultTime"
+                                     [invertContent]="true">
+            </app-elastic-filter-time>
+            <app-file-filter-applied (filterAppliedChange)="onFilterAppliedChange($event)">
+            </app-file-filter-applied>
+          </div>
+        </div>
+        <div [ngStyle]="{'max-width':tableWidth+'px'}"
+             class="table-responsive resizable-table-responsive h-100">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="text-left" style="width: 10px;padding-left: 10px;}">
+                <!--                <i (click)="toggleCheck()"-->
+                <!--                   [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"-->
+                <!--                   [ngbTooltip]="'Add page to selected'"-->
+                <!--                   class="cursor-pointer mr-3"-->
+                <!--                   container="body"-->
+                <!--                   style="font-size: small"-->
+                <!--                   tooltipClass="utm-tooltip-top"></i>-->
+                <app-utm-dtable-columns [fields]="fields"
+                                        [ngbTooltip]="'Manage columns'"
+                                        [showInactive]="true"
+                                        container="body"
+                                        icon="icon-table"
+                                        tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
+              </th>
+              <th (sort)="onSortBy($event)"
+                  *ngFor="let item of fields; let i=index"
+                  [hidden]="!item.visible"
+                  [isSortable]="true"
+                  [sortEvent]="sortEvent"
+                  [sortable]="item.type!=='string'?item.field:item.field+'.keyword'"
+                  appColumnSortable
+                  class="font-weight-semibold cursor-pointer">
+                {{item.label}}
+              </th>
+            </tr>
+            </thead>
+            <tbody *ngIf="files && files.length>0">
+            <tr *ngFor="let file of files" class="cursor-pointer">
+              <td class="text-center">
+                <!--                <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">-->
+                <!--                  <div class="list-icons span-small-icon">-->
+                <!--                    <i (click)="addToSelected(file)"-->
+                <!--                       [ngClass]="isSelected(file)?'icon-checkbox-checked':'icon-checkbox-unchecked'"-->
+                <!--                       [ngbTooltip]="'Add to selected'"-->
+                <!--                       class="cursor-pointer"-->
+                <!--                       container="body"-->
+                <!--                       tooltipClass="utm-tooltip-top"></i>-->
+                <!--                  </div>-->
+
+                <!--                </div>-->
+
+              </td>
+              <ng-container *ngFor="let td of fields">
+                <td (click)="viewDetail(file,td)"
+                    *ngIf="(td.visible)">
+                  <app-file-data-render (refreshData)="onDataRefresh($event)"
+                                        [field]="td"
+                                        [file]="file"></app-file-data-render>
+                </td>
+              </ng-container>
+            </tr>
+            </tbody>
+            <tbody *ngIf="(files && files.length===0)  && !loading">
+            <tr>
+              <td [attr.colspan]="fields.length +1">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td [attr.colspan]="fields.length + 1">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading...'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="files && files.length>0" class="mb-3 mt-3">
+          <div class="row justify-content-center">
+            <ngb-pagination (pageChange)="loadPage($event)"
+                            [(page)]="page"
+                            [boundaryLinks]="true"
+                            [collectionSize]="totalItems"
+                            [maxSize]="10"
+                            [pageSize]="itemsPerPage"
+                            [rotate]="true"
+                            [size]="'sm'"></ngb-pagination>
+            <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                    class="ml-3">
+            </app-utm-items-per-page>
+          </div>
+          <!-- TABLE END-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--FILE DETAIL-->
+<div *ngIf="viewFileDetail" class="utm-right-container">
+  <div (click)="viewFileDetail= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        File access detail
+      </h6>
+      <button (click)="viewFileDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-file-detail [file]="viewFileDetail"></app-file-detail>
+  </div>
+</div>

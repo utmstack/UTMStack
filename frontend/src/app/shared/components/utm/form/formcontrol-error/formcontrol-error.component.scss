@@ -1,0 +1,11 @@
+@import "../../../../../../assets/styles/theme";
+@import "../../../../../../assets/styles/var";
+
+ul {
+  padding-top: 5px;
+
+  li {
+    font-size: 11px;
+    color: $danger-color;
+  }
+}

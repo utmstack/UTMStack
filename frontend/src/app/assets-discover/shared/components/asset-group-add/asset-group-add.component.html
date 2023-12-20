@@ -1,0 +1,64 @@
+<button #tagPopober=ngbPopover *ngIf="typeFormat==='button';else icon"
+        [ngbPopover]="colContent"
+        [popoverTitle]="colTitle"
+        autoClose="outside"
+        class="p-1 text-blue-800 font-weight-light"
+        container="body"
+        id="statusId"
+        placement="auto"
+        popoverClass="utm-popover"
+        triggers="click">
+  <span>
+    <i *ngIf="creating" class="icon-spinner2 spinner"></i>
+    Group selected <i class="icon-arrow-down32"></i></span>
+</button>
+<ng-template #icon>
+  <div [ngbTooltip]="group?group.groupName:'Group source'"
+       autoClose="outside"
+       container="body"
+       placement="auto"
+       tooltipClass="utm-tooltip-top">
+    <span #tagPopober=ngbPopover
+          (click)="getGroups($event)"
+          [ngClass]="{'text-blue-800':group}"
+          [ngbPopover]="colContent"
+          [popoverTitle]="colTitle"
+          autoClose="outside"
+          class="position-relative cursor-pointer small-md-icon"
+          container="body"
+          placement="auto"
+          popoverClass="utm-popover"
+          triggers="click">
+      <i [ngClass]="creating?'icon-spinner2 spinner':getIcon(group)"></i>
+      <span *ngIf="showTypeLabel" class="ml-2">
+        {{group ? group.groupName : 'Add group'}}
+      </span>
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #colContent>
+  <ng-select
+    [(ngModel)]="group"
+    [clearable]="true"
+    [items]="groups"
+    [loadingText]="'Loading groups....'"
+    [loading]="loading"
+    bindLabel="groupName"
+    class="mt-2 mb-2"
+    id="id" style="min-width: 200px">
+  </ng-select>
+
+  <div class="d-flex justify-content-center align-items-center p-1">
+     <span (click)="addNewGroup()" class="text-blue-800 cursor-pointer span-small-icon">
+         <i class="icon-plus3"></i>&nbsp;New group
+    </span>
+    <span (click)="applyGroup()" class="text-blue-800 cursor-pointer span-small-icon ml-4">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-grid-alt'"></i>&nbsp;
+      Apply group
+    </span>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Groups</h6>
+</ng-template>

@@ -1,0 +1,134 @@
+<div *ngIf="folders"
+     class="email-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+              <span class="p-1 utm-box-label">
+              <i class="icon-folder-check"></i>
+              Folder list</span>
+  <div class="w-100 d-flex justify-content-between align-items-center">
+    <app-utm-search-input (searchFor)="searchFolder($event)" placeholder="Search folder"></app-utm-search-input>
+  </div>
+  <div *ngIf="folders" class="table-responsive">
+    <table class="table text-nowrap">
+      <tbody *ngFor="let folder of foldersList |slice:pageStart:pageEnd"
+             [hidden]="foldersList.length===0">
+      <tr>
+        <td (click)="viewDetail===(folder.folder+folder.owner)?viewDetail=''
+        :viewDetail=(folder.folder+folder.owner)"
+            class="cursor-pointer">
+          <div class="d-flex justify-content-start align-items-center">
+            <span class="text-blue-800">
+            <i [ngClass]="viewDetail===(folder.folder+folder.owner)?'icon-arrow-up32':'icon-arrow-down32'"></i>&nbsp;
+               <span [innerHTML]="folder.folder | highlight:searchFor"></span>
+            </span>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="(folder.folder+folder.owner)=== viewDetail">
+        <td colspan="2">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+              <tr>
+                <th class="font-weight-semibold text-uppercase">
+                  Owner&nbsp;
+                </th>
+                <th class="font-weight-semibold text-uppercase">
+                  File System Rights&nbsp;
+                </th>
+                <th class="font-weight-semibold text-uppercase">
+                  Access ControlType&nbsp;
+                </th>
+                <th class="font-weight-semibold text-uppercase">
+                  Identity Reference&nbsp;
+                </th>
+                <th class="font-weight-semibold text-uppercase">
+                  Inheritance Flags&nbsp;
+                </th>
+                <th class="font-weight-semibold text-uppercase">
+                  Inherited&nbsp;
+                </th>
+                <th class="font-weight-semibold text-uppercase">
+                  Propagation Flags&nbsp;
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let access of folder.access">
+                <td>
+                  <span class="">
+                    {{folder.owner}}
+                  </span>
+                </td>
+                <td>
+                  <span class="">
+                   {{access.fileSystemRights ? access.fileSystemRights : '-'}}
+                  </span>
+                </td>
+                <td class="text-center">
+                 <span [ngClass]="access.accessControlType==='Allow'?'badge-success':'badge-danger'"
+                       class="badge">
+                   {{access.accessControlType}}
+                 </span>
+                </td>
+                <td>
+                  <span class="">
+                    {{access.identityReference ? access.identityReference : '-'}}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span class="">
+                    {{access.inheritanceFlags ? access.inheritanceFlags : '-'}}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span class="">
+                    {{access.isInherited ? access.isInherited : '-'}}
+                  </span>
+                </td>
+                <td class="text-center">
+                 <span class="">
+                  {{access.propagationFlags ? access.propagationFlags : '-'}}
+                </span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="foldersList.length===0">
+      <tr>
+        <td colspan="7">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td colspan="7">
+          <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading...'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="foldersList.length>0" class="mb-3">
+    <div class="row justify-content-center mt-2">
+      <ngb-pagination
+        (pageChange)="loadPage($event)"
+        [(page)]="page"
+        [boundaryLinks]="true"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div [ngClass]="{'card':!building}" [ngStyle]="{'width':width}" class="h-100 w-100 m-0">
+  <div *ngIf="!building" class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label [ngbTooltip]="visualization.name"
+           [openDelay]="3000" class="card-title label-header text-blue-800" container="body">
+      {{visualization.name}}
+    </label>
+    <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)" *ngIf="showTime"
+                             [container]="building?'body':'body'"
+                             [defaultTime]="defaultTime"
+                             [invertContent]="true">
+    </app-elastic-filter-time>
+  </div>
+  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-2 overflow-auto">
+    <div *ngIf="runningChart"
+         class="loading-chart h-100
+                 d-flex justify-content-center
+                 align-items-center">
+      <app-utm-spinner [height]="'35px'" [loading]="runningChart" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="data && data.length===0 && !runningChart"
+         class="h-100 w-100 d-flex justify-content-center align-items-center">
+      <app-no-data-chart [error]="error" [typeChart]="GOAL_CHART"></app-no-data-chart>
+    </div>
+    <div *ngIf="data && data.length>0 && !runningChart"
+         class="d-flex justify-content-center align-items-center flex-wrap h-100 w-100 cursor-pointer">
+      <ngx-gauge (click)="chartEvent(goal)"
+                 *ngFor="let goal of goals"
+                 [animate]="goal.animate"
+                 [append]="goal.append"
+                 [cap]="goal.cap"
+                 [foregroundColor]="goal.foregroundColor"
+                 [label]="goal.label"
+                 [max]="100"
+                 [min]="goal.min"
+                 [thick]="goal.thick"
+                 [type]="goal.type"
+                 [value]="goal.value"
+                 class="m-2">
+      </ngx-gauge>
+    </div>
+  </div>
+</div>

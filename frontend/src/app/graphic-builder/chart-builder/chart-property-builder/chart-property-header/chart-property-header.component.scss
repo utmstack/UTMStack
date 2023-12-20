@@ -1,0 +1,36 @@
+@import "../../../../../assets/styles/theme";
+
+.header-property {
+  height: 35px;
+
+  span {
+    &:hover {
+      cursor: pointer;
+      position: relative;
+
+      &::after {
+        content: '';
+        width: 85%;
+        margin-top: 4px;
+        border-bottom: solid $primary-color 2px;
+        position: absolute;
+        top: 27.5px;
+        left: 8%;
+      }
+    }
+  }
+
+  .active-property {
+    position: relative;
+
+    &::after {
+      content: '';
+      width: 85%;
+      margin-top: 4px;
+      border-bottom: solid $primary-color 2px;
+      position: absolute;
+      top: 27.5px;
+      left: 8%;
+    }
+  }
+}

@@ -1,0 +1,130 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Compliance Templates</h5>
+    <div *appHasAnyAuthority="admin" class="header-elements">
+      <button class="btn utm-button utm-button-primary"
+              routerLink="/compliance/management">
+        <i class="icon-cog3 mr-1"></i> Manage compliance
+      </button>
+    </div>
+  </div>
+  <div class="row m-0">
+    <div class="col-lg-2 col-md-3 col-sm-12 pl-0 pr-0 min-vh-75">
+      <div class="h-100 card m-0">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Standard</label>
+        </div>
+        <div class="card-body p-2">
+          <div *ngFor="let st of standards"
+               [ngClass]="{'router-link-active':st.id === standardId}"
+               class="d-flex justify-content-start align-items-start flex-column mb-2">
+             <span (click)="changeStandard(st)"
+                   [ngClass]="{'text-primary':st.id === standardId}"
+                   class="cursor-pointer">
+                <i class="icon-shield2 font-size-sm"></i>&nbsp;
+               {{st.standardName}}
+             </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-12 col-sm-12 pr-0 min-vh-75">
+      <div class="card h-100 m-0">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Sections</label>
+        </div>
+        <div class="card-body p-2">
+          <app-utm-spinner *ngIf="loading"
+                           [loading]="standard.id === standardId && loading"
+                           class="mt-3 ml-1"></app-utm-spinner>
+          <h6 *ngIf="standard" class="mb-0 text-uppercase text-blue-800 font-weight-light">
+            {{standard.standardName}}
+          </h6>
+          <p *ngIf="standard && standard.standardDescription"
+             class="font-weight-light mb-2 mt-2 text-justify">
+            {{standard.standardDescription}}
+          </p>
+          <div *ngIf="standard && standard.id === standardId && !loading" class="list-group ml-2 pt-2">
+            <a (click)="onStandardSectionSelectChange(standard.id,section)"
+               *ngFor="let section of sections"
+               [ngClass]="{'text-primary':section.id === sectionId}"
+               class="list-group-item text-nowrap pl-0">
+            <span class="font-weight-semibold">
+               {{section.standardSectionName}}
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-12 col-sm-12 pr-0 min-vh-75">
+      <div class="card h-100 m-0">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Reports</label>
+        </div>
+        <div class="card-body p-2">
+          <!--          <div class="w-100  d-flex justify-content-end align-items-center mb-3">-->
+          <!--            <app-utm-search-input (searchFor)="onSearchFor($event)"-->
+          <!--                                  [placeholder]="'Search compliance'"-->
+          <!--                                  class="w-25"-->
+          <!--                                  [searching]="false"></app-utm-search-input>-->
+          <!--          </div>-->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 *ngIf="section" class="mb-0 text-blue-800">
+              {{section.standardSectionName}}
+            </h6>
+
+          </div>
+          <div *ngIf="loadingTemplates"
+               class="w-100 p-5 m-5 d-flex justify-content-center align-items-center">
+            <app-utm-spinner [height]="'110px'" [loading]="loadingTemplates" [width]="'110px'"
+                             label="Loading templates">
+            </app-utm-spinner>
+          </div>
+          <p *ngIf="section" [innerHTML]="section.standardSectionDescription | safe:'html'"
+             class="font-weight-light mb-3 mt-2 text-justify">
+          </p>
+
+          <div *ngIf="!loadingTemplates && reports.length>0">
+            <ng-container
+              *ngFor="let report of reports">
+              <div
+                class="w-100 d-flex justify-content-between align-items-center cursor-pointer mb-3 pl-2 report-hover">
+                <div class="flex-grow-1" (click)="generateReport(report)">
+                  <i class="icon-file-presentation mr-2"></i>
+                  <label [innerHTML]="report.associatedDashboard.name | safe:'html'" class="font-size-base"
+                         *ngIf="report.associatedDashboard"></label>
+                </div>
+                <span class="small-md-icon"
+                      [ngClass]="{'text-blue-800': detail && detail.id === report.id}"
+                      *ngIf="report.configSolution"
+                      (click)="viewSolution(report)">
+                <i class="icon-question3 mr-2"></i>
+              </span>
+                <!--                <ng-template #solutionPopover>-->
+                <!--                  <p [innerHTML]="configSolution | safe:'html'"-->
+                <!--                     class="font-size-base text-justify mt-2">-->
+                <!--                  </p>-->
+                <!--                </ng-template>-->
+
+              </div>
+              <div class="w-100 pl-4 mb-3 pr-3" *ngIf="detail && detail.id === report.id">
+                <p [innerHTML]="detail.configSolution | safe:'html'"
+                   class="font-size-base text-justify mt-2">
+                </p>
+              </div>
+            </ng-container>
+            <div *ngIf="loadingMore && !noMoreResult"
+                 class="d-flex justify-content-center align-items-center p-3 loading">
+              <app-utm-spinner [height]="'35px'" [loading]="true"
+                               [width]="'35px'" label="Loading more events"></app-utm-spinner>
+            </div>
+          </div>
+          <div *ngIf="!loadingTemplates && reports.length===0">
+            <app-no-data-found></app-no-data-found>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

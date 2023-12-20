@@ -1,0 +1,49 @@
+.getting-started-container {
+  position: relative;
+
+  .span-small-icon {
+    position: absolute;
+    right: -7px;
+    top: -3px;
+  }
+
+}
+
+ul#steps {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  margin-left: 15px;
+  padding: 0;
+  vertical-align: 2px;
+}
+
+.point {
+
+  border-radius: 2px;
+  display: inline-block;
+  height: 3px;
+  margin-right: 1px;
+
+
+  &:last-child {
+    margin: 0 !important;
+  }
+
+
+}
+
+.incomplete {
+  background: #ddd;
+}
+
+.complete {
+  background: #2e7d32;
+}
+
+::ng-deep {
+  .popover-getting-started {
+    width: 400px !important;
+    min-width: 400px !important;
+  }
+}

@@ -1,0 +1,20 @@
+<app-utm-modal-header [name]="'Create tracker over objects'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 table-tracker-container">
+  <div class="tracker-container d-flex flex-column">
+    <app-ad-table-tree-selected (tableChange)="onTableChange($event)"
+                                [response]="'array'"
+                                [rows]="targetTracking"></app-ad-table-tree-selected>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="createTracker()"
+              [disabled]="creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-target'"></i>&nbsp;
+        Save
+      </button>
+    </div>
+  </div>
+</div>

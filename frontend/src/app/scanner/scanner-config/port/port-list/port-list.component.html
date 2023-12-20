@@ -1,0 +1,143 @@
+<div class="pt-2">
+  <div class="row m-0">
+    <div class="col-lg-2 pl-0">
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+        </div>
+        <app-port-filter (portFilterChange)="onPortFilterChange($event)"></app-port-filter>
+      </div>
+    </div>
+    <div class="col-lg-10 pr-0 pl-0">
+      <div class="card h-100">
+        <div class="card-header p-2 w-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+            <button (click)="newPort()" class="btn utm-button utm-button-primary">
+              <i class="icon-power-cord mr-2"></i> New port list
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer w-25">
+                Name&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer w-50">
+                Comment&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Last Modification&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Total&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase cursor-pointer">
+                TCP&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                UDP&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase" style="width:10%">
+                Action&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody *ngIf="ports && ports.length>0">
+            <tr *ngFor="let port of ports">
+              <td class="w-50">
+                <span>
+                   {{port.name}}
+                </span>
+              </td>
+              <td class="w-50">
+                <span>
+                   {{port.comment}}
+                </span>
+              </td>
+              <td>
+                <span>
+                   {{port.modificationTime | date:'short':'UTC'}}
+                </span>
+              </td>
+              <td>
+                <span>
+                   {{port.portCount.all}}
+                </span>
+              </td>
+              <td>
+                <span>
+                   {{port.portCount.tcp}}
+                </span>
+              </td>
+              <td>
+                <span>
+                   {{port.portCount.udp}}
+                </span>
+              </td>
+              <td class="td-action">
+                <div class="d-flex justify-content-end align-items-center medium-icon">
+                  <i (click)="showUse(port)"
+                     *ngIf="port.inUse==='1' && port.targets.length>0" class="icon-link2 cursor-pointer mr-3"
+                     ngbTooltip="Target(s) using this port"
+                     placement="left" tooltipClass="utm-tooltip"></i>
+
+                  <i (click)="editPort(port)"
+                     *ngIf="port.writable === '1'"
+                     class="icon-pencil3 cursor-pointer mr-3"
+                     ngbTooltip="Edit port" tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="
+                     deletePort(port)"
+                     *ngIf="port.writable === '1'"
+                     [ngClass]="{'disabled-del':port.inUse==='1'}" [ngbTooltip]="port.inUse==='1'?'Port is in use':'Delete port'"
+                     class="icon-cross2 cursor-pointer"
+                     placement="left"
+                     tooltipClass="utm-tooltip"></i>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="(ports===null && !loading)">
+            <tr>
+              <td colspan="7">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td colspan="7">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading ports'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="ports && ports.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage(page)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

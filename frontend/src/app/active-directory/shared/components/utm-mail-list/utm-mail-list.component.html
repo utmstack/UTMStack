@@ -1,0 +1,28 @@
+<div class="d-flex align-items-center justify-content-between mt-3">
+  <div class="w-75">
+    <input #email (input)="validEmail(email.value)" class="border-1 border-grey-600 form-control"
+           id="email" name="" pattern="" type="email">
+  </div>
+  <button (click)="addEmail(email.value);email.value=''"
+          [disabled]="!emailValid || mailHasAdded(email.value)"
+          class="btn utm-button utm-button-primary">
+    Add email
+  </button>
+</div>
+<span *ngIf="mailHasAdded(email.value)" class="text-danger-800">
+            Email already added
+          </span>
+<span *ngIf="emailValid === false" class="text-danger-800">
+            Email is invalid
+          </span>
+<div class="emails d-flex justify-content-start align-items-start flex-wrap mt-3">
+  <div *ngFor="let email of mailList; let index=index">
+    <div class="email-list d-flex justify-content-start
+                align-items-center p-1 bg-success-300 m-1 rounded">
+      <span class="pl-2">{{email}}</span>
+      <span (click)="deleteEmail(index)" class="ml-2 cursor-pointer">
+                  <i class="icon-cross"></i>
+                </span>
+    </div>
+  </div>
+</div>

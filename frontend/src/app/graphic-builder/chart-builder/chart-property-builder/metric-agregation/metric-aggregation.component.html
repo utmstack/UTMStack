@@ -1,0 +1,87 @@
+<div class="card mb-2">
+  <div class="card-header p-2 d-flex justify-content-between">
+    <h6 class="metric-label text-blue-800 font-weight-light">Metrics</h6>
+    <span *ngIf="!formMetric.valid"
+          class="text-danger-800">
+          <i class="icon-warning"></i>
+      {{countErrors()}}
+    </span>
+  </div>
+  <div class="card-body">
+    <form *ngIf="metrics.length>0" [formGroup]="formMetric">
+      <div *ngFor="let item of metrics.controls; let index=index"
+           class="metric d-flex flex-column"
+           formArrayName="metrics">
+        <div #list [formGroupName]="index">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <div class="d-flex justify-content-start align-items-center">
+              <span (click)="viewAggregationDetail(index)"
+                    class="text-center cursor-pointer">
+                <i [ngClass]="viewAgg===index?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+              <span [ngClass]="{'text-danger-300':!metrics.at(index).valid}"
+                    class="font-weight-bold">Metric</span>&nbsp;
+              <span class="text-blue-800 field-metric-label">
+                {{
+                (metrics.at(index).get('aggregation').value +
+                  ' ' + (metrics.at(index).get('aggregation').value === 'COUNT' ?
+                    '(' + metrics.at(index).get('id').value + ')' :
+                    '(' + metrics.at(index).get('field').value + ')'))
+                }}
+              </span>
+            </div>
+            <span (click)="deleteMetric(index)" *ngIf="metrics.length!==1"
+                  class="cursor-pointer text-danger-300">
+                  <i class="icon-cross3"></i>
+            </span>
+
+          </div>
+          <div *ngIf="viewAgg===index" class="animated fadeIn">
+            <div class="d-flex flex-column flex-grow-1 mt-3">
+              <label class="pb-1 font-weight-semibold" for="agg">Aggregation</label>
+              <ng-select (change)="changeFieldsAllowed($event,index)"
+                         [clearable]="false"
+                         [groupBy]="'group'"
+                         [items]="aggregations"
+                         [ngClass]="inputClass.resolveClassInput(metrics.at(index).get('aggregation'))"
+                         [searchable]="true"
+                         bindLabel="agg"
+                         bindValue="value"
+                         formControlName="aggregation"
+                         id="agg">
+              </ng-select>
+            </div>
+            <div *ngIf="metrics.at(index).get('aggregation').value !=='COUNT'"
+                 class="d-flex flex-column flex-grow-1 mt-3">
+              <label [ngClass]="{'text-danger-800':!metrics.at(index).get('field').valid}"
+                     class="pb-1 font-weight-semibold"
+                     for="field">Field</label>
+              <ng-select [clearable]="false"
+                         [groupBy]="'type'"
+                         [items]="fields"
+                         [ngClass]="inputClass.resolveClassInput(metrics.at(index).get('field'))"
+                         [searchable]="true"
+                         bindLabel="name"
+                         bindValue="name"
+                         formControlName="field"
+                         id="field"
+                         loadingText="Loading fields...">
+              </ng-select>
+            </div>
+            <div class="form-group mt-3">
+              <label class="pb-1 font-weight-semibold" for="name">Custom label</label>
+              <input class="border-1 border-grey-600 form-control" formControlName="customLabel" id="name"
+                     name="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div *ngIf="allowMultiMetric" class="add-metric-button d-flex justify-content-center mt-3">
+        <span (click)="addMetric()"
+              class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+          Add metrics
+        </span>
+    </div>
+  </div>
+</div>

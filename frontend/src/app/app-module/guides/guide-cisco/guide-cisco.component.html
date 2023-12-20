@@ -1,0 +1,55 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary" *ngIf="filebeatModuleName">
+      {{filebeatModuleName}}
+    </h4>
+
+  </div>
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you
+      continue.
+    </div>
+    <p class="font-size-base mb-3">
+      This integration relies on Syslog.
+      Logs received via Syslog are parsed and correlated by UTMStack automatically.
+    </p>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Configure your device to send logs to a UTMStack agent on ports:
+        </p>
+        <div class="w-100">
+          <ul class="mt-3 pl-5" *ngFor="let ports of getPorts()">
+            <li>{{ ports.port }}</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Enable log collector and this integration in the configuration file which 
+          you can find where your UTMStack Agent is located, in the path:
+        </p>
+        <div class="w-75 mt-3" *ngFor="let paths of ciscoPaths">
+          <span class="font-weight-semibold mb-2">{{paths.os}}</span>
+          <app-utm-code-view [code]=paths.path></app-utm-code-view>
+        </div>
+        <img alt="Module configuration" class="step-img"
+             [src]="'../../../../assets/img/guides/cisco/cisco.png'">
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">3</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="filebeatModule" [type]="'integration'"
+                                        [disabled]="false"
+                                        [serverId]="serverId"
+                                        class="mt-3">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>

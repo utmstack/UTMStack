@@ -1,0 +1,91 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div *ngIf="reportConfig && !printFormat"
+       class="d-flex align-items-center justify-content-between">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      {{reportConfig.repName}}
+    </h5>
+    <div class="header-elements d-flex justify-content-end align-items-center">
+      <button class="btn utm-button utm-button-primary ml-2 mr-2"
+              routerLink="/reports/templates">
+        <i class="icon-insert-template mr-2"></i> Templates
+      </button>
+
+      <button (click)="print()"
+              class="btn utm-button utm-button-primary">
+        <i [ngClass]="printFormat?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{printFormat ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="printFormat" class="p-3 dashboard-content">
+    <app-utm-report-header [reportName]="reportConfig.repName"></app-utm-report-header>
+  </div>
+
+  <div *ngIf="loading"
+       class="w-100 p-5 m-5 d-flex justify-content-center align-items-center min-vh-100">
+    <app-utm-spinner [height]="'110px'" [loading]="loading" [width]="'110px'"
+                     label="Loading report">
+    </app-utm-spinner>
+  </div>
+
+  <div class="w-100 mt-3">
+    <!--    <div *ngIf="reportConfig && !loading" class="text-blue-800 mt-2 mb-3">-->
+    <!--      <p [innerHTML]="reportConfig.configSolution" class="font-size-base"></p>-->
+    <!--    </div>-->
+    <div *ngIf="data && !loading" class="card h-100 w-100 table-responsive">
+      <div class="card-header card-header-chart p-2 d-flex justify-content-between align-items-center bg-white">
+        <div *ngIf="reportConfig && !loading" class="text-blue-800">
+          <p [innerHTML]="reportConfig.repDescription" class="font-size-base"></p>
+        </div>
+      </div>
+      <table class="table ">
+        <thead>
+        <tr>
+          <th (sort)="onSort($event)"
+              *ngFor="let column of data.columns"
+              [sortable]="column.split('->')[0]"
+              appColumnSortable class="font-weight-semibold cursor-pointer" scope="col">
+            {{column.split('->')[1]}}
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="data && data.rows && data.rows.length>0 && !loading">
+        <tr *ngFor="let row of data.rows; let index = index">
+          <td *ngFor="let td of row"
+              [class]="{'text-center':td.metric}">
+            <span *ngIf="td.metric;else normal" class="text-nowrap">
+              {{td.value | number}}
+            </span>
+            <ng-template #normal class="cursor-default">
+              <span>{{td.value}}</span>
+            </ng-template>
+          </td>
+        </tr>
+
+        </tbody>
+        <tbody *ngIf="data && data.rows && data.rows.length===0 && !loading">
+        <tr>
+          <td [attr.colspan]="data.columns.length" class="p-5">
+            <app-no-data-chart [typeChart]="chartTypeEnum.TABLE_CHART"></app-no-data-chart>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td [attr.colspan]="data && data.columns && data.columns.length">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading data'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<ng-container [ngSwitch]="field.field">
+  <app-asset-severity *ngSwitchCase="assetFieldEnum.ASSET_SEVERITY"
+                      [asset]="data"></app-asset-severity>
+  <app-asset-status *ngSwitchCase="assetFieldEnum.ASSET_STATUS" [assetStatus]="data[field.field]"></app-asset-status>
+  <app-asset-os *ngSwitchCase="assetFieldEnum.ASSET_OS" [assetOS]="data[field.field]"></app-asset-os>
+  <app-asset-ip *ngSwitchCase="assetFieldEnum.ASSET_IP" [asset]="data"></app-asset-ip>
+  <app-asset-metrics *ngSwitchCase="assetFieldEnum.ASSET_METRICS" [asset]="data"></app-asset-metrics>
+  <span *ngSwitchDefault [ngClass]="field.customStyle">
+    <span *ngIf="field.type!=='date';else dateValue">
+      {{data[field.field] === "any" ? "Unknown" : data[field.field]}}
+    </span>
+    <ng-template #dateValue>
+      <span>
+        {{data[field.field]|date:utmFormatDate:'UTC'}}
+      </span>
+    </ng-template>
+  </span>
+
+</ng-container>

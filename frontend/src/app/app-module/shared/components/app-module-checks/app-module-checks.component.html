@@ -1,0 +1,48 @@
+<app-utm-modal-header [name]="'Check module configuration'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div *ngIf="loading" class="w-100">
+    <div class="alert alert-info alert-styled-right mb-2 mt-2">
+       <span class="font-weight-semibold">
+      Before enabling the module, it is necessary to carry out checks on the configurations,
+      this process may take a few minutes
+    </span>
+    </div>
+    <div class="loading p-5 d-flex justify-content-center align-items-center">
+      <app-utm-spinner [loading]="loading" label="Running checks"></app-utm-spinner>
+    </div>
+  </div>
+  <div *ngIf="!loading && checks" class="w-100">
+    <div class="d-flex justify-content-center align-items-center mb-3 flex-column">
+      <div class="icons position-relative">
+        <i
+          [ngClass]="checks.status === 'OK'?'icon-checkmark-circle text-success':'icon-cancel-circle2 text-danger'"
+          class="icon-status-module"></i>
+        <img class="p-3 mb-0 mt-1"
+             [alt]="module.prettyName"
+             [src]="'/assets/img/guides/logos/' + module.moduleIcon |safe:'resourceUrl'">
+      </div>
+
+      <h5 class="card-title font-size-lg mt-2">{{module.prettyName}}</h5>
+    </div>
+
+    <div *ngFor="let check of checks.checks"
+         class="d-flex flex-column justify-content-start align-items-start mt-3">
+      <div class="d-flex check align-items-start align-items-center span-small-icon">
+        <i [ngClass]="check.checkStatus === 'OK'
+         ?'icon-checkmark-circle text-success':'icon-cancel-circle2 text-danger'" class="mr-1"></i>
+        <h6 class="font-weight-light font-size-base">{{check.checkName}}</h6>
+      </div>
+      <p *ngIf="check.failMessage" class="text-danger pl-3 mt-2">{{check.failMessage}}</p>
+    </div>
+    <div *ngIf="!loading && checks.status !== 'OK'"
+         class="alert alert-warning alert-styled-right mb-2 alert-dismissible mt-3">
+      <span class="font-weight-semibold">Warning! </span>
+      <span>This module cannot be activated due to errors found in the configuration</span>
+    </div>
+  </div>
+  <div *ngIf="!loading" class="button-container d-flex justify-content-end mt-3">
+    <button (click)="continue()" class="btn utm-button utm-button-primary">
+      {{checks.status === 'OK' ? 'Continue' : 'Review configuration'}}
+    </button>
+  </div>
+</div>

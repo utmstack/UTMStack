@@ -1,0 +1,13 @@
+<div *ngIf="asset" class="so d-flex align-items-center justify-content-start">
+  <!--  rounded-round border-2-->
+  <span [ngClass]="assetSoResolverService.resolveAssetSoClass(asset)"
+        [ngbTooltip]="assetSoResolverService.resolveAssetSoName(asset)"
+        [placement]="position" class="btn bg-transparent so-name
+      btn-icon span-small-icon"
+        tooltipClass="utm-tooltip">
+       <i [ngClass]="assetSoResolverService.resolveAssetSoIcon(asset)"></i>
+        <span class="pl-1">
+          {{assetSoResolverService.resolveAssetSoName(asset)}}
+        </span>
+      </span>
+</div>

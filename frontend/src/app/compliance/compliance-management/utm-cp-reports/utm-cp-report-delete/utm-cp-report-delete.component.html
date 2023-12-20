@@ -1,0 +1,23 @@
+<app-utm-modal-header [name]="'Delete report'" class="w-100" type="delete"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="alert alert-warning alert-styled-right mt-2 alert-dismissible">
+    <span class="font-weight-semibold">Warning!</span>
+    <span> This action cant not be undone</span>
+  </div>
+  <h6>
+    Are you sure that you want to delete standard section:
+    <strong>{{report.configSolution|slice:0:50}}</strong>.?
+  </h6>
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="deleteStandard()"
+            class="btn utm-button utm-button-danger">
+      <i class="icon-database-remove"></i>&nbsp;
+      Delete
+    </button>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-region-map utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">Map region</h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formScatterOption">
+      <!--      <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">-->
+      <!--        <div (click)="viewScatterOptionProperties()"-->
+      <!--             class="d-flex justify-content-start align-items-center cursor-pointer">-->
+      <!--              <span class="text-center">-->
+      <!--                <i [ngClass]="viewScatterOptions?'icon-arrow-up32':'icon-arrow-down32'"></i>-->
+      <!--              </span>&nbsp;-->
+      <!--          <span class="font-weight-bold">Scatter options</span>&nbsp;-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <!--      <div [hidden]="!viewScatterOptions" class="properties-options">-->
+      <!--        <div class="row m-0">-->
+      <!--          <div class="col-lg-6 pl-0">-->
+      <!--            <div class="form-group">-->
+      <!--              <label class="pb-1 font-weight-semibold" for="top">Highlight top </label>-->
+      <!--              <input class="border-1 border-grey-600 form-control"-->
+      <!--                     formControlName="top"-->
+      <!--                     id="top"-->
+      <!--                     name=""-->
+      <!--                     type="number">-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <app-map-leaflet-options (mapLeafletOptions)="formScatterOption.get('leaflet').setValue($event)">
+      </app-map-leaflet-options>
+      <!--      <app-chart-visual-map-option (visualMapOptionChange)="formScatterOption.get('visualMap').setValue($event)">-->
+      <!--      </app-chart-visual-map-option>-->
+    </form>
+  </div>
+</div>

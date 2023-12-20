@@ -1,0 +1,47 @@
+<div class="row justify-content-center">
+  <div class="col-8">
+    <div *ngIf="user">
+      <h5 class="card-title label-header mb-0 label-header">Manage alerts
+        User [<b>{{user.login}}</b>]
+      </h5>
+      <dl class="row-md jh-entity-details">
+        <dt><span>Login</span></dt>
+        <dd>
+          <span>{{user.login}}</span>
+          <jhi-boolean
+            [value]="user.activated"
+            textFalse="Deactivated"
+            textTrue="Activated">
+          </jhi-boolean>
+        </dd>
+        <dt><span>First Name</span></dt>
+        <dd>{{user.firstName}}</dd>
+        <dt><span>Last Name</span></dt>
+        <dd>{{user.lastName}}</dd>
+        <dt><span>Email</span></dt>
+        <dd>{{user.email}}</dd>
+        <dt><span>Created By</span></dt>
+        <dd>{{user.createdBy}}</dd>
+        <dt><span>Created Date</span></dt>
+        <dd>{{user.createdDate | date:'dd/MM/yy HH:mm' :'UTC'}}</dd>
+        <dt><span>Last Modified By</span></dt>
+        <dd>{{user.lastModifiedBy}}</dd>
+        <dt><span>Last Modified Date</span></dt>
+        <dd>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm':'UTC'}}</dd>
+        <dt><span>Profiles</span></dt>
+        <dd>
+          <ul class="list-unstyled">
+            <li *ngFor="let authority of user.authorities">
+              <span class="badge badge-info">{{authority}}</span>
+            </li>
+          </ul>
+        </dd>
+      </dl>
+      <button class="btn btn-info"
+              routerLink="../../"
+              type="submit">
+        <!--        <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span> Back</span>-->
+      </button>
+    </div>
+  </div>
+</div>

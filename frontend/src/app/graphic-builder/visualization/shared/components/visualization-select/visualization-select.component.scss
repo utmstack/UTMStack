@@ -1,0 +1,27 @@
+.search-vis-container {
+  .input-group {
+    .input-group-text {
+      color: #777777;
+      background-color: #ffffff;
+      border-radius: 25px 0 0 25px;
+      border-right: 0 transparent solid;
+
+      + input:focus {
+        border-color: #0d47a1 !important;
+        outline: 1px !important;
+        box-shadow: 0 0 0 0 transparent !important;
+      }
+    }
+
+    input {
+      border-left: 0 transparent solid;
+      border-radius: 0 25px 25px 0;
+      padding-left: 0;
+    }
+  }
+}
+
+.list-visualization {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}

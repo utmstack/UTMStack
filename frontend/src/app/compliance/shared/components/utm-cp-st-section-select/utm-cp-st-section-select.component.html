@@ -1,0 +1,18 @@
+<div class="d-flex justify-content-start align-items-center w-100">
+  <ng-select (change)="onSelectChange($event)"
+             [(ngModel)]="standardSectionId"
+             [clearable]="true"
+             [items]="standardsSection"
+             [loadingText]="'Loading standards section...'"
+             [loading]="!standardsSection"
+             [searchable]="true"
+             bindLabel="standardSectionName"
+             bindValue="id">
+  </ng-select>
+  <div class="text-blue-800 ml-3 cursor-pointer">
+           <span (click)="newStandardSection()">
+             <i class="icon-plus3"></i>
+             Add section
+           </span>
+  </div>
+</div>

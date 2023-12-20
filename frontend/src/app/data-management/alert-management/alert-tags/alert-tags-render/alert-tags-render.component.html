@@ -1,0 +1,31 @@
+<span #tagPopober=ngbPopover
+      [ngbPopover]="colContent"
+      [popoverTitle]="colTitle"
+      autoClose="outside"
+      class="text-blue-800 position-relative cursor-pointer"
+      container="body"
+      placement="auto"
+      popoverClass="utm-popover"
+      triggers="click">
+  <i [ngClass]="tags.length <= 1 ? 'icon-price-tag3' : 'icon-price-tags2'"></i>
+  <span *ngIf="tags.length>0" class="tag-count badge badge-danger">
+    {{tags.length}}
+  </span>
+</span>
+
+<ng-template #colContent>
+  <div class="p-2">
+    <app-utm-tag-input (tagsChange)="tags=$event" [tags]="tags"></app-utm-tag-input>
+    <div class="mt-2 d-flex justify-content-end">
+      <button (click)="alertTagChange.emit(tags);tagPopober.close()"
+              [disabled]="tags.length===0"
+              class="btn utm-button utm-button-primary">
+        <i class="icon-price-tag3"></i>&nbsp;Apply tags
+      </button>
+    </div>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Tags</h6>
+</ng-template>
+

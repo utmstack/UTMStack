@@ -1,0 +1,29 @@
+<div class="container-fluid container-export">
+  <div *ngIf="visualizationRender&& !loadingVisualizations"
+       class="d-flex flex-column justify-content-center align-items-center">
+    <div #container
+         *ngFor="let vis of visualizationRender"
+         [ngClass]="setGridColumn(vis)"
+         class="visualization-container mt-3">
+      <app-utm-viewer [building]="false"
+                      [chartId]="vis.visualization.id"
+                      [chart]="vis.visualization.chartType"
+                      [exportFormat]="true"
+                      [height]="(vis.visualization.chartType === chartTypeEnum.TABLE_CHART
+                       || vis.visualization.chartType === chartTypeEnum.LIST_CHART
+                       || vis.visualization.chartType === chartTypeEnum.TEXT_CHART)?'100%':'370px'"
+                      [showTime]="true"
+                      [visualization]="vis.visualization"
+                      (runned)="onRun($event)"
+                      [width]="'100%'">
+      </app-utm-viewer>
+    </div>
+  </div>
+</div>
+<div *ngIf="loadingVisualizations"
+     class="dashboard-loader d-flex justify-content-center align-content-center">
+  <app-utm-spinner [height]="'110px'" [loading]="loadingVisualizations" [width]="'110px'"
+                   label="Loading dashboard"
+                   style="margin-top: 15%">
+  </app-utm-spinner>
+</div>

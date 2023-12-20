@@ -1,0 +1,64 @@
+<div class="table-responsive">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <!--      <th class="font-weight-semibold text-uppercase"-->
+      <!--          style="width: 15px">-->
+      <!--      </th>-->
+      <th class="font-weight-semibold text-uppercase">
+        Name&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase text-center">
+        Severity&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase">
+        System&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase">
+        Discovered&nbsp;
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr (click)="viewDetail(asset)" *ngFor="let asset of assets" class="cursor-pointer">
+      <!--      <td>-->
+      <!--        <i (click)="addToSelected(asset)"-->
+      <!--           [ngClass]="isSelected(asset)?'icon-checkbox-checked':'icon-checkbox-unchecked'"-->
+      <!--           class="cursor-pointer"></i>-->
+      <!--      </td>-->
+      <td>
+        <span>{{asset.name}}</span>
+      </td>
+      <td>
+        <app-asset-severity-chart [severity]="asset.host.severity.value" [type]="'row'"></app-asset-severity-chart>
+      </td>
+      <td>
+        <app-asset-os [asset]="asset"></app-asset-os>
+      </td>
+      <td>
+        <span>{{asset.creationTime|date:'short':'UTC'}}</span>
+      </td>
+    </tr>
+    </tbody>
+    <tbody *ngIf="(assets===null && !loading)">
+    <tr>
+      <td colspan="6">
+        <app-no-data-found></app-no-data-found>
+      </td>
+    </tr>
+    </tbody>
+    <tbody *ngIf="loading">
+    <tr>
+      <td colspan="6">
+        <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+          <app-utm-spinner [height]="'35px'"
+                           [label]="'Loading assets'"
+                           [loading]="loading"
+                           [width]="'35px'">
+          </app-utm-spinner>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

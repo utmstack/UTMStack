@@ -1,0 +1,17 @@
+<app-utm-modal-header (closeModal)="onCloseModal($event)" [name]="dashboardName +' preview'"
+                      class="w-100"></app-utm-modal-header>
+<app-utm-pdf-preview [pdf]="pdf"></app-utm-pdf-preview>
+<div class="p-3 d-flex justify-content-end align-items-center">
+  <button (click)="activeModal.close(); closePreview.emit(true)" class="btn utm-button utm-button-grey mr-3">
+    <i class="icon-cancel-circle2"></i>&nbsp;
+    Cancel
+  </button>
+  <button (click)="navigateToCustom()"
+          class="btn utm-button utm-button-primary span-small-icon">
+    <i class="icon-wrench2 text-white"></i>&nbsp;Customize export
+  </button>
+  <button (click)="save()"
+          class="btn utm-button utm-button-primary span-small-icon ml-3">
+    <i class="icon-file-pdf"></i>&nbsp;Save
+  </button>
+</div>

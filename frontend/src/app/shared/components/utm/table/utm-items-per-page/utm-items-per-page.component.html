@@ -1,0 +1,16 @@
+<div class="d-flex justify-content-start align-items-center items-page-select">
+  <ng-select (change)="onSelectChange($event)"
+             [(ngModel)]="itemsAmount"
+             [addTagText]="''"
+             [addTag]="true"
+             [clearable]="false"
+             [items]="itemsPerPage"
+             [loadingText]="'Loading amounts....'"
+             [loading]="!itemsPerPage"
+             bindLabel="value"
+             bindValue="key"
+             id="id"
+             style="width: 60px">
+  </ng-select>
+  <span class="font-weight-light">&nbsp;items per page</span>
+</div>

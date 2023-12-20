@@ -1,0 +1,97 @@
+<div [ngStyle]="{'max-width':tableWidth?(tableWidth-15)+'px':'100%'}" class="card p-0 h-100 w-100">
+  <div class="table-responsive text-nowrap mb-2">
+    <table class="table table-fixed" id="table">
+      <thead>
+      <tr *ngIf="fields && fields.length>0">
+        <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 15px;">
+          <app-utm-dtable-columns *ngIf="editableColumn" [fields]="fields" [showInactive]="showInactiveColumns"
+                                  icon="icon-table"></app-utm-dtable-columns>
+        </th>
+        <ng-container *ngFor="let column of fields; let index = index">
+          <th (sort)="onSort($event)"
+              *ngIf="column.visible"
+              [isSortable]="isSortableColumn(column)"
+              [sortable]="column.field"
+              appColumnSortable
+              class="font-weight-semibold cursor-pointer handle"
+              scope="col">
+            <i (click)="removeColumn.emit(column)"
+               *ngIf="viewDeleteAction"
+               class="icon-cross3 cursor-pointer"
+               container="body"
+               ngbTooltip="Delete column"
+               placement="top"
+               tooltipClass="utm-tooltip-top"></i>
+            {{resolveTableHeaderName(column)}}
+          </th>
+        </ng-container>
+      </tr>
+      </thead>
+      <tbody *ngIf="loading">
+      <tr>
+        <td [attr.colspan]="fields?fields.length + 1:5">
+          <div class="p-3 d-flex justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading...'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngFor="let row of rows; let index = index"
+             [hidden]="!(rows || rows.length>0) && !loading" class="tbody-dynamic">
+      <tr (click)="viewDetail===index?viewDetail=-1:viewDetail=index" class="cursor-pointer">
+        <td class="cursor-pointer pr-0"
+            style="width:15px">
+          <span *ngIf="showDetail" class="text-blue-800">
+            <i [ngClass]="viewDetail===index?'icon-arrow-up32':'icon-arrow-down32'"></i>
+          </span>
+        </td>
+        <ng-container *ngFor="let td of fields">
+          <td *ngIf="td.visible && td.type!==dataTypeEnum.DATE;else date"
+              [innerHTML]="resolveTdValue(row, td)"
+              style="word-break: break-all;white-space: pre-wrap">
+          </td>
+
+          <ng-template #date>
+            <td>
+              <span>{{resolveTdValue(row, td)|date:utmDateFormat.MEDIUM:'UTC'}}</span>
+            </td>
+          </ng-template>
+        </ng-container>
+      </tr>
+      <tr *ngIf="index=== viewDetail && showDetail">
+        <td [attr.colspan]="fields?fields.length+1:5">
+          <app-utm-dtable-detail-resolver [component]="componentDetail" [row]="row"></app-utm-dtable-detail-resolver>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="(rows && rows.length===0)  && !loading">
+      <tr>
+        <td [attr.colspan]="fields?fields.length +1:5">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+  <div *ngIf="rows && rows.length>0 && pageable" class="mb-4">
+    <div class="row justify-content-center">
+      <ngb-pagination
+        (pageChange)="pageChange.emit($event)"
+        [(page)]="page"
+        [boundaryLinks]="true"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+      <div class="ml-3">
+        <app-utm-items-per-page (itemsInPage)="sizeChange.emit($event)"></app-utm-items-per-page>
+      </div>
+    </div>
+  </div>
+</div>

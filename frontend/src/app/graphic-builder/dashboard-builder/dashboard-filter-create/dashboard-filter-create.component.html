@@ -1,0 +1,117 @@
+<app-utm-modal-header [name]="(filter?'Edit':'Create') +' dashboard filter'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="filterForm">
+    <div class="form-group">
+      <label class="pb-1" for="maxSelectedItems">Label</label>
+      <input class="border-1 border-grey-600 form-control" formControlName="filterLabel"
+             type="text"
+             id="filterLabel"
+             name="">
+      <small
+        *ngIf="filterForm.get('filterLabel').invalid"
+        class="text-danger mt-1">
+        Filter name is required
+      </small>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1" for="visType">Source</label>
+      <ng-select (change)="selectPattern($event)"
+                 [closeOnSelect]="true"
+                 [clearable]="false"
+                 [items]="patterns"
+                 [loadingText]="'Loading sources....'"
+                 [markFirst]="true"
+                 [loading]="!patterns"
+                 bindValue="pattern"
+                 bindLabel="pattern"
+                 formControlName="indexPattern"
+                 id="id"
+                 style="min-width: 200px">
+      </ng-select>
+      <small
+        *ngIf="filterForm.get('indexPattern').invalid"
+        class="text-danger mt-1">
+        Filter source is required
+      </small>
+    </div>
+
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1" for="visType">Field</label>
+      <ng-select [clearable]="false"
+                 [items]="fields"
+                 [loadingText]="'Loading fields....'"
+                 [loading]="!fields"
+                 [virtualScroll]="true"
+                 [searchable]="true"
+                 id="visType"
+                 bindLabel="name"
+                 bindValue="name"
+                 formControlName="field"
+                 placeholder="Select field">
+        <ng-template let-item="item" ng-option-tmp>
+              <span class="span-small-icon" title="{{item.name}}"><i [ngClass]="resolveIcon(item)"
+                                                                     class="mr-1"></i>{{item.name}}</span>
+        </ng-template>
+      </ng-select>
+      <small
+        *ngIf="filterForm.get('field').invalid"
+        class="text-danger mt-1">
+        Filter field is required
+      </small>
+    </div>
+    <!--    <div class="mt-3">-->
+    <!--      <app-utm-toggle [active]="filterForm.get('multiple').value"-->
+    <!--                      class="mt-3"-->
+    <!--                      label="Allow select multiple values"-->
+    <!--                      (toggleChange)="filterForm.get('multiple').setValue($event)"-->
+    <!--      ></app-utm-toggle>-->
+    <!--    </div>-->
+    <!--    <div class="form-group mt-3" *ngIf="filterForm.get('multiple').value">-->
+    <!--      <label class="pb-1" for="maxSelectedItems">Max selected items</label>-->
+    <!--      <input class="border-1 border-grey-600 form-control" formControlName="maxSelectedItems"-->
+    <!--             type="number"-->
+    <!--             id="maxSelectedItems"-->
+    <!--             name="">-->
+    <!--    </div>-->
+    <div class="mt-3">
+      <app-utm-toggle [active]="filterForm.get('searchable').value"
+                      class="mt-3"
+                      label="Allow search values"
+                      (toggleChange)="filterForm.get('searchable').setValue($event)"
+      ></app-utm-toggle>
+    </div>
+    <div class="mt-3">
+      <app-utm-toggle [active]="filterForm.get('clearable').value"
+                      class="mt-3"
+                      label="Allow clear values"
+                      (toggleChange)="filterForm.get('clearable').setValue($event)"
+      ></app-utm-toggle>
+    </div>
+
+    <div class="form-group mt-3">
+      <label class="pb-1" for="placeholder">Placeholder</label>
+      <input class="border-1 border-grey-600 form-control" formControlName="placeholder"
+             id="placeholder"
+             name="">
+    </div>
+    <div class="form-group mt-3">
+      <label class="pb-1" for="loadingText">Loading text</label>
+      <input class="border-1 border-grey-600 form-control" formControlName="loadingText"
+             id="loadingText"
+             name="">
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="saveFilter()"
+            [disabled]="!filterForm.valid"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      {{filter ? 'Edit' : 'Create'}}  filter
+    </button>
+  </div>
+</div>

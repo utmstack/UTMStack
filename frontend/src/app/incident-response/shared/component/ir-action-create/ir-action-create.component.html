@@ -1,0 +1,46 @@
+<app-utm-modal-header [name]="action?'Edit action':'Create action'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="command-container d-flex flex-column">
+    <form [formGroup]="formCommand" action="" class="form">
+      <div class="form-group">
+        <label class="pb-1" for="actionCommand">Action</label>
+        <input [ngClass]="inputClass.resolveClassInput(formCommand.get('actionCommand'))"
+               class="border-1 border-grey-600 form-control" formControlName="actionCommand"
+               id="actionCommand"
+               name="actionCommand">
+        <app-formcontrol-error [formcontrol]="formCommand.get('actionCommand')"></app-formcontrol-error>
+      </div>
+
+      <div class="form-group">
+        <label class="pb-1" for="actionDescription">Description</label>
+        <textarea [ngClass]="inputClass.resolveClassInput(formCommand.get('actionDescription'))"
+                  class="border-1 border-grey-600 form-control" formControlName="actionDescription"
+                  id="actionDescription"
+                  name="actionDescription"
+                  rows="2">
+        </textarea>
+        <app-formcontrol-error [formcontrol]="formCommand.get('actionDescription')"></app-formcontrol-error>
+      </div>
+      <div class="form-group">
+        <label class="pb-1" for="actionCommand">Params</label>
+        <input [ngClass]="inputClass.resolveClassInput(formCommand.get('actionParams'))"
+               class="border-1 border-grey-600 form-control" formControlName="actionParams"
+               id="actionParams"
+               name="actionParams">
+        <app-formcontrol-error [formcontrol]="formCommand.get('actionParams')"></app-formcontrol-error>
+      </div>
+    </form>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="createCommand()"
+              [disabled]="creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-terminal'"></i>&nbsp;
+        Save
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,251 @@
+<div class="w-100 h-100" xmlns="http://www.w3.org/1999/html">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0 text-primary">
+            LDAPS on Windows Server
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning alert-styled-right mt-3">
+            AD Auditor requires a direct connection with a Domain controller to work properly. Follow the instructions
+            below to obtain the information required to complete the configuration.
+        </div>
+
+        <h6 class="font-weight-semibold mt-3 mb-3">
+            Install "Active Directory Certificate Services" role through Server Manager roles.
+        </h6>
+        <ol class="setup_list mt-3">
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">1</span>
+                    On your Windows Server Machine, click on <strong> Start -> Server Manager -> Add Roles, and
+                    Features</strong>.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture1.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">2</span>
+                    After selecting <strong>Add Roles and Features</strong>, and Click on "Next".
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture2.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">3</span>
+                    Choose the <strong>Role-based or feature-based installation</strong> option and Click on the "Next"
+                    button
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture3.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">4</span>
+                    Choose the <strong>Select a server from the server pool</strong> option & Select ldap server from
+                    the
+                    server pool, and click on the "Next" button
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture4.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">5</span>
+                    Choose <strong>Active Directory Certificate Services</strong> option from the list of roles, and
+                    click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture5.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">6</span>
+                    Leave the features list as is, and click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture6.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">7</span>
+                    In Active Directory Certificate Services (AD CS) choose nothing, and Click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture7.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">8</span>
+                    Select <strong>Certification Authority</strong> from the list of roles, and click on the "Next"
+                    button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture8.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">9</span>
+                    Click on the "Install" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture9.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">10</span>
+                    Click on "Configure Active Directory Certificate Services on Destination Server" option, and click
+                    on
+                    the "Close" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture9.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">11</span>
+                    Specify the credentials in the AD CS Configuration
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture11.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">12</span>
+                    Select <strong>Certification Authority</strong>, and click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture12.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">13</span>
+                    Choose the <strong>Enterprise CA</strong> option, and click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture13.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">14</span>
+                    Choose the <strong>Root CA</strong> option, and click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture14.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">15</span>
+                    Choose the <strong> Create a new private key</strong> option and click on "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture15.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">16</span>
+                    Choose the <strong> SHA256</strong> option as the hash algorithm and click on "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture16.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">17</span>
+                    Review the data generated, and click on the "Next" button
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture17.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">18</span>
+                    Specify the certificate's validity, and click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture18.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">19</span>
+                    Select the database location and click on the "Next" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture19.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">20</span>
+                    Click on the "Configure" button to confirm.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture20.png">
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">21</span>
+                    Once the configuration succeeded and click on the "Close" button.
+                </p>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/Picture21.png">
+            </li>
+
+
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">22</span>
+                    Open a Windows command prompt.
+                </p>
+            </li>
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">23</span>
+                    Run the command:
+                </p>
+                <div class="w-75 mt-3">
+                    <app-utm-code-view
+                            code="dsquery user -name {know username}">
+                    </app-utm-code-view>
+                </div>
+                <p>The result will look like:</p>
+                <div class="w-75 mt-3">
+                    <app-utm-code-view
+                            [allowCopy]="false" code="CN=John.Smith,CN=Users,DC=MyDomain,DC=com">
+                    </app-utm-code-view>
+                </div>
+                <img alt="Logstash output" class="step-img"
+                     src="../../../../assets/img/guides/ldap/ldap.png">
+            </li>
+
+            <li>
+                <p class="step-guide">
+                    <span class="step_number">24</span>
+                    Enter AD Auditor connection info
+                </p>
+                <div class="w-100 mt-3">
+                    <div class="alert alert-info alert-styled-right mt-2 w-75">
+                        Search base example:"DC=example,DC=local".
+                    </div>
+                    <app-int-generic-group-config [moduleId]="integrationId"
+                                                  (configValidChange)="configValidChange($event)"
+                                                  [serverId]="serverId"></app-int-generic-group-config>
+                </div>
+            </li>
+            <li>
+                <p class="step-guide mb-3">
+                    <span class="step_number">25</span>
+                    Click on the button shown below, to activate the UTMStack features related to this integration
+                </p>
+                <app-app-module-activate-button [module]="module.AD_AUDIT"
+                                                [disabled]="configValidity"
+                                                [type]="'integration'" class="mt-3"
+                                                [serverId]="serverId">
+                </app-app-module-activate-button>
+            </li>
+        </ol>
+
+    </div>
+
+
+</div>

@@ -1,0 +1,14 @@
+<div (click)="fileInput.click()" (onFileDropped)="uploadFile($event)"
+     appUtmFileDragDrop class="uploadfilecontainer">
+  <i class="icon-upload10"></i>
+  <h6 class="font-weight-light text-blue-800">Drag file or click here to select {{msg}}</h6>
+  <input #fileInput (change)="uploadFile($event.target['files'])" [accept]="acceptTypes" [multiple]="true"
+         hidden
+         type="file">
+</div>
+<div *ngFor="let file of files;let i=index" class="files-list">
+  <span>{{ file.name }}</span>
+  <span (click)="deleteAttachment(i)" class="delete-file cursor-pointer">
+    <i class="icon-cross2"></i>
+  </span>
+</div>

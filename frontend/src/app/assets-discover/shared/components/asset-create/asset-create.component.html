@@ -1,0 +1,216 @@
+<app-utm-modal-header [name]="'Create new asset'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <div class="wizard-step">
+      <div class="step">
+         <span class="text-blue-800 font-weight-bold">
+          Asset
+        </span>
+        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-display'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          Ports
+        </span>
+        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-sphere'"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form [formGroup]="formAsset" action="" class="form">
+    <div *ngIf="step===1" class="regex-step mt-3">
+      <div class="row">
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1 span-small-icon" for="ip">
+              <i
+                [ngClass]="formAsset.get('assetIp').valid?'icon-checkmark-circle text-success'
+                 :'text-danger icon-circle2'"
+                [ngbTooltip]="'This param is required'"
+                class="mr-1"
+                container="body"
+                placement="auto"></i>
+              Asset IP</label>
+            <input [ngClass]="inputClassResolve.resolveClassInput(formAsset.get('assetIp'))"
+                   class="border-1 border-grey-600 form-control" formControlName="assetIp"
+                   id="ip"
+                   name="ip">
+            <app-formcontrol-error [formcontrol]="formAsset.get('assetIp')"></app-formcontrol-error>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1 span-small-icon" for="name">
+              <i
+                [ngClass]="formAsset.get('assetName').valid?'icon-checkmark-circle text-success'
+                 :'text-danger icon-circle2'"
+                [ngbTooltip]="'This param is required'"
+                class="mr-1"
+                container="body"
+                placement="auto"></i>Asset Name</label>
+            <input [ngClass]="inputClassResolve.resolveClassInput(formAsset.get('assetName'))"
+                   class="border-1 border-grey-600 form-control" formControlName="assetName"
+                   id="name"
+                   name="name">
+            <app-formcontrol-error [formcontrol]="formAsset.get('assetName')"></app-formcontrol-error>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1 span-small-icon" for="alias">
+              Asset alias
+            </label>
+            <input [ngClass]="inputClassResolve.resolveClassInput(formAsset.get('assetAlias'))"
+                   class="border-1 border-grey-600 form-control" formControlName="assetAlias"
+                   id="alias"
+                   name="name">
+            <app-formcontrol-error [formcontrol]="formAsset.get('assetAlias')"></app-formcontrol-error>
+          </div>
+        </div>
+
+      </div>
+      <div class="row">
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1" for="mac">Asset MAC</label>
+            <input [ngClass]="inputClassResolve.resolveClassInput(formAsset.get('assetMac'))"
+                   class="border-1 border-grey-600 form-control" formControlName="assetMac"
+                   id="mac"
+                   name="mac">
+            <app-formcontrol-error [formcontrol]="formAsset.get('assetMac')"></app-formcontrol-error>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1" for="assetOs">Asset OS</label>
+            <input [ngClass]="inputClassResolve.resolveClassInput(formAsset.get('assetOs'))"
+                   class="border-1 border-grey-600 form-control" formControlName="assetOs"
+                   id="assetOs"
+                   name="assetOs">
+            <app-formcontrol-error [formcontrol]="formAsset.get('assetOs')"></app-formcontrol-error>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-3 col-md-12 col-sm-12">
+          <div class="d-flex flex-column flex-grow-1">
+            <label class="pb-1" for="types">Asset Type</label>
+            <ng-select [clearable]="true"
+                       [items]="types"
+                       [loadingText]="'Loading types....'"
+                       [loading]="!types"
+                       bindLabel="typeName"
+                       class="mt-2 mb-2"
+                       formControlName="assetType"
+                       id="types"
+                       style="min-width: 150px;margin: 0 !important;">
+            </ng-select>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="d-flex justify-content-center align-items-center">
+            <div class="d-flex flex-column">
+              <label class="pb-1" for="name">Asset group</label>
+              <ng-select [clearable]="false"
+                         [items]="groups"
+                         [loadingText]="'Loading groups...'"
+                         [loading]="!groups"
+                         [searchable]="true"
+                         bindLabel="groupName"
+                         formControlName="group"
+                         style="width: 200px">
+              </ng-select>
+            </div>
+            <div class="add-action-form cursor-pointer ml-3 mt-3">
+                 <span (click)="newGroup()">
+             <i class="icon-plus3"></i>
+             Add Group
+           </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-12 col-sm-12">
+          <div class="d-flex flex-column flex-grow-1">
+            <label class="pb-2 " for="types">Asset alive</label>
+            <app-utm-toggle (toggleChange)="formAsset.get('assetAlive').setValue($event)"
+                            [active]="formAsset.get('assetAlive').value"
+                            [emitAtStart]="false"
+                            [label]="'Set asset alive status'">
+            </app-utm-toggle>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1 span-small-icon" for="assetAddresses">Asset addresses
+              <span container="'body'"
+                    ngbTooltip="Add alias separates with , . Example: a , b"
+                    placement="auto">
+             <i class="icon-question3"></i>
+           </span>
+            </label>
+            <textarea class="border-1 border-grey-600 form-control" formControlName="assetAddresses" id="assetAddresses"
+                      name="name"></textarea>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1" for="assetNotes">Note</label>
+            <textarea class="border-1 border-grey-600 form-control" formControlName="assetNotes" id="assetNotes"
+                      name="assetNotes">
+           </textarea>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+    <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+      <app-asset-port-create (portCreated)="formAsset.get('ports').setValue($event)"
+                             (portValid)="portValid = $event"
+                             [ports]="formAsset.get('ports').value"></app-asset-port-create>
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="backStep()" *ngIf="step >1"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-arrow-left22"></i>&nbsp;
+      Back
+    </button>
+    <button (click)="nextStep()" *ngIf="step === 1"
+            [disabled]="!formAsset.valid"
+            class="btn utm-button utm-button-primary ml-2">
+      Next&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+    <button (click)="create()" *ngIf="step === 1"
+            [disabled]="!formAsset.valid"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-display'"></i>
+      {{asset ? 'Edit' : 'Create'}}&nbsp;
+    </button>
+
+    <button (click)="create()" *ngIf="step===2"
+            [disabled]="creating || !portValid"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-display'"></i>
+      {{asset ? 'Edit' : 'Create'}}&nbsp;
+    </button>
+  </div>
+</div>
+

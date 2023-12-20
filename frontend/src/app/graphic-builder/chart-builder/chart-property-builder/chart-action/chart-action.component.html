@@ -1,0 +1,57 @@
+<div class="card card-bucket">
+  <div class="card-header p-2 d-flex justify-content-between">
+    <h6 class="click-label text-blue-800 font-weight-light">
+      On click action</h6>
+  </div>
+  <div class="card-body mb-3">
+    <form [formGroup]="formAction">
+      <div class="mt-3">
+        <app-utm-toggle
+          (toggleChange)="formAction.get('active').setValue($event)"
+          [active]="formAction.get('active').value"
+          [emitAtStart]="false"
+          label="Active click action?">
+        </app-utm-toggle>
+      </div>
+      <!--      <div class="mt-3">-->
+      <!--        <app-utm-toggle-->
+      <!--          (toggleChange)="formAction.get('customUrl').setValue($event)"-->
+      <!--          [active]="formAction.get('customUrl').value"-->
+      <!--          [emitAtStart]="false"-->
+      <!--          label="Custom url navigation?">-->
+      <!--        </app-utm-toggle>-->
+      <!--      </div>-->
+      <!--      <div *ngIf="!formAction.get('customUrl').value;else custom"-->
+      <!--           class="d-flex flex-column flex-grow-1 mt-3">-->
+      <!--        <label class="pb-1" for="id">Navigate to</label>-->
+      <!--        <ng-select [clearable]="true"-->
+      <!--                   [items]="navigations"-->
+      <!--                   [loadingText]="'Loading navigation options....'"-->
+      <!--                   [loading]="!navigations"-->
+      <!--                   formControlName="navigate"-->
+      <!--                   id="id">-->
+      <!--        </ng-select>-->
+      <!--      </div>-->
+      <!--      <ng-template #custom>-->
+      <!--        <div class="form-group mt-3">-->
+      <!--          <label class="pb-1 font-weight-semibold"-->
+      <!--                 for="name">Custom URL-->
+      <!--          </label>-->
+      <!--          <input class="border-1 border-grey-600 form-control"-->
+      <!--                 formControlName="customNavigate"-->
+      <!--                 id="name"-->
+      <!--                 name=""-->
+      <!--                 type="text">-->
+      <!--        </div>-->
+      <!--      </ng-template>-->
+    </form>
+    <div class="note mt-3 d-flex justify-content-start align-items-start flex-wrap">
+      <i class="text-blue-800 icon-info22"></i>&nbsp;
+      <p class="text-justify">
+        At least one bucket is needed to navigate. In the click action, you will
+        be redirected to the type you have chosen when creating the chart
+        (ALERTS, EVENTS or VULNERABILITIES) filtered by the series where you are
+        clicked</p>
+    </div>
+  </div>
+</div>

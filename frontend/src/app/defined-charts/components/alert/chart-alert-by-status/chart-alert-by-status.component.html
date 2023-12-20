@@ -1,0 +1,40 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 pl-2
+                   d-flex justify-content-between align-items-center bg-light">
+    <label class="card-title label-header text-blue-800">Alert by status</label>
+    <app-elastic-filter-time (timeFilterChange)="onChangeAlertByStatus($event)"
+                             [invertContent]="true"
+                             [timeDefault]="defaultTime"></app-elastic-filter-time>
+  </div>
+  <div class="card-body p-0">
+    <div *ngIf="loadingStatusAlert"
+         class="loading-chart h-100 w-100
+                 d-flex justify-content-center
+                 align-items-center p-5">
+      <app-utm-spinner [height]="'35px'" [loading]="loadingStatusAlert" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="!loadingStatusAlert && status.length>0"
+         class="d-flex justify-content-around align-items-center h-100 p-4">
+      <app-kpi (click)="chartEvent(OPEN)"
+               [color]="'#28a745'"
+               [decimal]="0" [icon]="OPEN_ICON"
+               [label]="'Open'"
+               [value]="status[0].value"
+               class="cursor-pointer"></app-kpi>
+      <app-kpi (click)="chartEvent(REVIEW)"
+               [color]="'#26c6da'"
+               [decimal]="0" [icon]="REVIEW_ICON"
+               [label]="'In review'"
+               [value]="status[1].value"
+               class="cursor-pointer"></app-kpi>
+      <app-kpi (click)="chartEvent(CLOSED)"
+               [color]="'#0277bd'"
+               [decimal]="0"
+               [icon]="CLOSED_ICON"
+               [label]="'Complete'"
+               [value]="status[2].value" class="cursor-pointer"></app-kpi>
+    </div>
+  </div>
+</div>

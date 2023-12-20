@@ -1,0 +1,46 @@
+<div class="card h-100 w-100">
+  <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+    <label class="card-title">Filters</label>
+  </div>
+
+  <div class="p-2 w-100">
+    <app-utm-search-input (searchFor)="onFilter($event)"
+                          placeholder="Search host"></app-utm-search-input>
+    <div class="d-flex flex-column flex-grow-1 mt-2">
+      <label class="pb-1" for="action">Action</label>
+      <ng-select (change)="irFilterChange.emit(filter)"
+                 [(ngModel)]="filter['actionId.equals']"
+                 [clearable]="true"
+                 [items]="actions"
+                 [searchable]="true"
+                 [loadingText]="'Loading actions...'"
+                 [loading]="!actions"
+                 bindLabel="actionCommand"
+                 bindValue="id"
+                 id="action">
+      </ng-select>
+    </div>
+
+    <div class="d-flex flex-column flex-grow-1 mt-2">
+      <label class="pb-1" for="status">Status</label>
+      <ng-select (change)="irFilterChange.emit(filter)"
+                 [(ngModel)]="filter['status.equals']"
+                 [clearable]="true"
+                 [items]="status"
+                 [loadingText]="'Loading status...'"
+                 [loading]="!status"
+                 bindLabel="label"
+                 bindValue="status"
+                 id="status">
+      </ng-select>
+    </div>
+
+    <div class="form-group mt-2">
+      <label class="pb-1">Created at</label>
+      <app-filter-time (timeFilterChange)="searchByCreation($event)" [emitAtStart]="false"
+                       [hasAll]="true"></app-filter-time>
+    </div>
+  </div>
+
+
+</div>

@@ -1,0 +1,29 @@
+.getting-started {
+  padding: 3%;
+  min-height: 95vh;
+  height: 95vh;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: url('src/assets/img/welcome_integration.webp') no-repeat center center;
+    background-size: cover;
+    opacity: 0.6;
+    z-index: -1;
+  }
+}
+
+
+.setup-card {
+  width: 290px;
+  min-width: 290px;
+
+  .svg-icon {
+
+  }
+}

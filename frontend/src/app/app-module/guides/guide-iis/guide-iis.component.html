@@ -1,0 +1,66 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Configuring IIS module in Filebeat
+    </h4>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      This integration requires the UTMStack Windows agent to work properly. Please, make sure you have installed it before you continue.
+    </div>
+    <p class="font-size-base">
+      The IIS module parses access and error logs created by the Internet Information Services (IIS) HTTP server.
+    </p>
+    <h6 class="font-weight-semibold mt-3 mb-3">
+      Compatibility
+    </h6>
+    <p class="mt-2 font-size-base">
+      The IIS module parses access and error logs created by the Internet Information Services (IIS) HTTP server.
+      <b>This module works only on Windows</b>.
+    </p>
+
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Enable IIS module:
+        </p>
+        <div class="w-75 mt-3">
+          <app-utm-code-view code='cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable iis'></app-utm-code-view>
+        </div>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Configure IIS module:
+        </p>
+        <p class="font-size-base">
+          Configure the module configuration file according to the image below. You can find it in the path:
+        </p>
+        <div class="w-75 mt-3">
+          <app-utm-code-view code='C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\iis.yml'></app-utm-code-view>
+        </div>
+        <img alt="Filebeat configuration" class="step-img"
+             src="../../../../assets/img/guides/filebeat/config-iis-windows.png">
+        <div class="alert alert-info alert-styled-right mt-3">
+          <strong>Important!!</strong> After a Filebeat module is enabled, the service needs to be restarted using the
+          following command:
+        </div>
+        <div class="w-75 mt-3">
+          <app-utm-code-view code='sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'></app-utm-code-view>
+        </div>
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">3</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.IIS"
+                                        [type]="'integration'" class="mt-3"
+                                        [serverId]="serverId">
+        </app-app-module-activate-button>
+      </li>
+
+    </ol>
+  </div>
+</div>

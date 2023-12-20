@@ -1,0 +1,20 @@
+<div *ngIf="showUp" [ngClass]="{'animated fadeOut delay-2s hidden':updateDocSolStatus}"
+     [ngSwitch]="updateDocSolStatus"
+     class="doc-update-in-progress w-100">
+  <div *ngSwitchCase="'init'" class="text-blue-800 pt-2 pr-2 pl-2">
+    <span class="span-small-icon"><i class="icon-spinner2 spinner"></i>
+      &nbsp;Updating alert proposed solution, maybe you can able to see changes
+      in alerts until this process finish</span>
+  </div>
+  <div *ngSwitchCase="'error'" class="text-danger-300 pt-2 pr-2 pl-2">
+    <span class="span-small-icon"><i class="icon-warning2"></i>&nbsp;
+      Error updating alert proposed solution
+    </span>
+  </div>
+  <div *ngSwitchCase="'done'" class="text-success-800 pt-2 pr-2 pl-2">
+    <span class="span-small-icon"><i class="icon-checkmark-circle"></i>&nbsp;
+      Alert proposed solution updated successfully
+    </span>
+  </div>
+</div>
+<!---->

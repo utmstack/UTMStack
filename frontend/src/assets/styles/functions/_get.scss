@@ -1,0 +1,83 @@
+//
+// Get
+//
+
+@function get($map, $keys...) {
+    @if length($keys) == 1 {
+        $keys: nth($keys, 1);
+    }
+
+    @if type-of($map) != 'map' or $map == null {
+        //@return false;
+    }
+
+    $warn: "#{nth($keys, 1)}";
+    $length: length($keys);
+    $get: map-get($map, nth($keys, 1));
+
+    @if $length > 1 {
+        @for $i from 2 through $length {
+            @if $get != null and type-of($get) == 'map' {
+                $warn: $warn + "->#{nth($keys, $i)}";
+                $get: map-get($get, nth($keys, $i));
+
+                @if $get == null {
+                    @return null;
+                }
+            }
+            @else {
+                @return get-warning($warn, $get, nth($keys, $i));
+            }
+        }
+    }
+
+    @return $get;
+}
+
+@function has($map, $keys...) {
+    @if length($keys) == 1 {
+        $keys: nth($keys, 1);
+    }
+
+    @if type-of($map) != 'map' or $map == null {
+        //@return false;
+    }
+
+    $warn: "#{nth($keys, 1)}";
+    $length: length($keys);
+    $get: map-get($map, nth($keys, 1));
+
+    @if $length > 1 {
+        @for $i from 2 through $length {
+            @if $get != null and type-of($get) == 'map' {
+                $warn: $warn + "->#{nth($keys, $i)}";
+                $get: map-get($get, nth($keys, $i));
+
+                @if $get == null {
+                    @return false;
+                }
+            }
+            @else {
+                 @return false;
+            }
+        }
+    }
+
+    @if $get != null {
+        @return true;
+    }
+    @else {
+        @return false;
+    }
+}
+
+@function get-warning($warn, $get, $key) {
+    @if $get == null {
+        @warn "Map has no value for key search `#{$warn}`";
+    }
+    @else if type-of($get) != 'map' {
+        @warn "Non-map value found for key search `#{$warn}`, cannot search for key `#{$key}`";
+    }
+    @return null;
+}
+

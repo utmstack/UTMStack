@@ -1,0 +1,87 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      User access audit
+    </h6>
+    <app-filter-time (timeFilterChange)="onFilterChange($event)"
+                     [timeDefault]="eventDate"></app-filter-time>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Date&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            User&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            State&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Extra&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="audits && !loading">
+        <tr *ngFor="let audit of audits">
+          <td><span>{{audit.timestamp| date:'medium':'UTC'}}</span></td>
+          <td>
+            <span>{{audit.principal}}</span>
+          </td>
+          <td>
+            <span [ngClass]="audit.type.includes('SUCCESS')?'border-success-600 text-success-600':
+                  'border-danger-600 text-danger-600'"
+                  class="p-1 border-1 rounded">
+              {{audit.type}}</span>
+          </td>
+          <td>
+            <span *ngIf="audit.data">
+              {{audit.data.message}}
+            </span>
+            <span *ngIf="audit.data">
+              <span>Remote Address</span>
+              {{audit.data.remoteAddress}}
+            </span>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(audits.length===0 && !loading)">
+        <tr>
+          <td colspan="5">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading audits'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="audits && audits.length>0" class="mb-4">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+</div>

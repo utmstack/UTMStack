@@ -1,0 +1,133 @@
+<div [ngClass]="{'flex-row-reverse':invertContent}"
+     #popover="ngbPopover"
+     [container]="container?container:''"
+     [ngbPopover]="popContent"
+     autoClose="outside"
+     class="d-flex justify-content-start align-items-center cursor-pointer pr-2"
+     placement="auto"
+     popoverClass="utm-popover-xs" style="white-space: nowrap">
+    <span [ngClass]="invertContent?'ml-2':' p-2 mr-2 border-left-1 '"
+          class="setting-filter cursor-pointer text-blue-800 border-grey-100">
+    <i class="icon-calendar52"></i>
+    <i [ngClass]="popover.isOpen()?'icon-arrow-right32':'icon-arrow-down32'" class="ml-2"></i>
+   </span>
+  <div *ngIf="dateFrom && dateTo"
+       class="d-flex justify-content-between align-items-center span-small-icon">
+    <span class="font-weight-semibold">{{dateFrom}}</span>
+    <i class="icon-arrow-right8 mr-2 ml-2 mt-1"></i>
+    <span class="font-weight-semibold">{{dateTo}}</span>
+  </div>
+</div>
+<ng-template #popContent>
+  <div *ngIf="!isCollapsed" class="w-100">
+    <div class="d-flex justify-content-between align-items-center p-2 mb-2
+  border-bottom-1 border-grey-100 pb-3">
+      <input [(ngModel)]="lastTime" class="form-control mr-2 w-50"
+             min="1"
+             placeholder="Last" type="number">
+      <ng-select [(ngModel)]="timeUnit" [clearable]="true"
+                 [items]="times"
+                 [searchable]="false"
+                 autofocus
+                 bindLabel="label"
+                 class="mr-2 w-100">
+      </ng-select>
+      <button (click)="applyDate();popover.close()"
+              [disabled]="!lastTime || !timeUnit" class="btn utm-button-primary utm-button">
+        Apply
+      </button>
+    </div>
+    <span (click)="isCollapsedCommon = !isCollapsedCommon"
+          class="font-weight-semibold p-2 cursor-pointer">
+    <i [ngClass]="isCollapsedCommon?'icon-arrow-up32':'icon-arrow-right32'"></i>
+        Commonly used
+  </span>
+    <div class="d-flex justify-content-start align-items-center flex-wrap pr-2 pl-2 pb-3
+  border-bottom-1 border-grey-100" *ngIf="isCollapsedCommon" id="commonlyUsed">
+      <div *ngFor="let common of commonlyUsed" class="text-blue-800 w-50">
+      <span (click)="applyCommonDate(common);popover.close()"
+            class="cursor-pointer label-time">{{common.label}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="mt-2">
+  <span (click)="isCollapsed = !isCollapsed" class="font-weight-semibold p-2 cursor-pointer">
+    <i [ngClass]="isCollapsed?'icon-arrow-up32':'icon-arrow-right32'"></i>
+        Custom range
+  </span>
+  </div>
+  <div *ngIf="isCollapsed" class="pr-2 pl-2" id="customRange">
+    <div class="d-flex justify-content-start flex-column align-items-center mb-2">
+      <div class="form-group w-100">
+        <label class="pb-1" for="timeFrom">Time from</label>
+        <div class="input-group">
+          <input #timeFromRange="ngModel" #ttf="ngbDatepicker"
+                 [(ngModel)]="rangeTimeFrom" [maxDate]="maxDate" [ngClass]="{'input-field-has-error':!isValidDate()}"
+                 class="form-control " id="timeFrom"
+                 name="d2"
+                 ngbDatepicker
+                 placeholder="yyyy-mm-dd">
+          <div class="input-group-append">
+            <button (click)="ttf.toggle()" class="btn utm-button utm-button-primary" type="button">
+              <i class="icon-calendar22"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <ngb-timepicker [size]="'small'" [seconds]="true" [(ngModel)]="timeFrom"></ngb-timepicker>
+    </div>
+    <div class="d-flex justify-content-start flex-column align-items-center">
+      <div class="form-group w-100">
+        <label class="pb-1" for="timeTo">Time to</label>
+        <div class="input-group">
+          <input #timeToRange="ngModel" #ttr="ngbDatepicker"
+                 [(ngModel)]="rangeTimeTo" [maxDate]="maxDate"
+                 [ngClass]="{'input-field-has-error':!isValidDate()}"
+                 class="form-control" id="timeTo"
+                 name="d2"
+                 ngbDatepicker
+                 placeholder="yyyy-mm-dd">
+          <div class="input-group-append">
+            <button (click)="ttr.toggle()" class="btn utm-button utm-button-primary" type="button">
+              <i class="icon-calendar22"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <ngb-timepicker [size]="'small'" [seconds]="true" [(ngModel)]="timeTo"></ngb-timepicker>
+    </div>
+    <div class="pt-2 d-flex justify-content-between">
+      <ul>
+        <li *ngIf="!isValidDate()">
+           <span class="text-danger-400">
+             Date range is invalid
+           </span>
+        </li>
+      </ul>
+      <button (click)="applyRange();popover.close()"
+              [disabled]="!isValidDate()"
+              class="btn utm-button utm-button-primary">
+        <i class="icon-checkmark-circle"></i>
+        {{'alert.filter.time.range.button' | translate}}
+      </button>
+    </div>
+  </div>
+  <span [ngbPopover]="htmlContent"
+        class="text-blue-800 p-2 mt-1 cursor-pointer float-right"
+        container="body"
+        placement="auto">
+     <i class="icon-question3"></i>&nbsp;Time help
+  </span>
+  <ng-template #htmlContent>
+    <span>
+      <strong>now:</strong> Current date<br>
+      <strong>y: </strong> Year<br>
+      <strong>M: </strong>Month<br>
+      <strong>w: </strong>Week<br>
+      <strong>d: </strong> Day<br>
+      <strong>h: </strong> Hour<br>
+      <strong>m: </strong> Minutes<br>
+      <strong>s: </strong> Second
+    </span>
+  </ng-template>
+</ng-template>

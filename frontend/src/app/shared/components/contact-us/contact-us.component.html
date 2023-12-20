@@ -1,0 +1,24 @@
+<div class="d-flex justify-content-center align-items-center">
+  <button (click)="activeModal.dismiss('closed')" aria-label="Close" class="close button-close" data-dismiss="modal"
+          type="button">
+    <div class="close-modal-icon"></div>
+  </button>
+  <div class="card m-0 pt-2">
+    <div class="card-header bg-light bg-transparent d-flex justify-content-center align-items-center">
+      <img alt="" height="45" src="/assets/img/logo_UTMStack.svg" width="auto">
+    </div>
+    <div class="card-body  p-4 text-demo">
+      <p>
+        Sorry, this action is not allowed. At this moment you are viewing a demo version of this product
+        , if you have any questions do not hesitate to contact us at:
+      </p>
+      <a class="mt-3" href="https://www.utmstack.com/contact-us-advanced" target="_blank">
+        https://www.utmstack.com/contact-us-advanced</a>
+      <div class="d-flex justify-content-end pt-3">
+        <button (click)="activeModal.close()" class="btn utm-button utm-button-primary">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

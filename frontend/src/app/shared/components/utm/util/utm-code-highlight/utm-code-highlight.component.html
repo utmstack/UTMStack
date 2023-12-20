@@ -1,0 +1,11 @@
+<div class="w-100 position-relative" *ngIf="codeType">
+        <span class="copy-button" *ngIf="showCopyCode">
+               <i (click)="copyCode()" class="icon-copy cursor-pointer"
+                  ngbTooltip="Copy"></i>
+          </span>
+  <pre>
+            <code [class]="'language-' + codeType" #codeElement>
+                {{code}}
+            </code>
+          </pre>
+</div>

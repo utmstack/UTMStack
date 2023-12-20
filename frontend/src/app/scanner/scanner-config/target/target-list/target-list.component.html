@@ -1,0 +1,133 @@
+<div class="pt-2">
+  <div class="row m-0">
+    <div class="col-lg-2 pl-0">
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+        </div>
+        <app-target-filter (targetFilterChange)="onTargetFilterChange($event)"></app-target-filter>
+      </div>
+    </div>
+    <div class="col-lg-10 pr-0 pl-0">
+      <div class="card h-100">
+        <div class="card-header p-2 w-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+            <button (click)="newTarget()" class="btn utm-button utm-button-primary">
+              <i class="icon-target2 mr-2"></i> New target
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Name&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Hosts&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Port list&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width:10%">
+                Action&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody [hidden]="targets && targets.length===0">
+            <tr *ngFor="let target of targets">
+              <td (click)="targetDetail = target" class="cursor-pointer">
+                <span>
+                   {{target.name}}
+                </span>
+              </td>
+              <td (click)="targetDetail = target" class="cursor-pointer">
+                <span>
+                   {{target.hosts}}
+                </span>
+              </td>
+              <td (click)="targetDetail = target" class="cursor-pointer">
+                <span>
+                   {{target.portList.name.toLowerCase().includes('openvas') ? 'UTMStack Default' : target.portList.name}}
+                </span>
+              </td>
+              <td class="td-action">
+                <div class="d-flex justify-content-end align-items-center medium-icon">
+                  <i (click)="showUse(target)"
+                     *ngIf="target.inUse!=='0'" class="icon-link2 cursor-pointer mr-3"
+                     ngbTooltip="Task(s) using this target" tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="editTarget(target)" class="icon-pencil3 cursor-pointer mr-3"
+                     ngbTooltip="Edit schedule" tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="
+                     deleteTarget(target)"
+                     [ngClass]="{'disabled-del':target.inUse==='1'}"
+                     [ngbTooltip]="target.inUse==='1'?'Target is in use':'Delete Target'"
+                     class="icon-cross2 cursor-pointer"
+                     placement="left"
+                     tooltipClass="utm-tooltip"></i>
+                </div>
+              </td>
+            </tr>
+
+            </tbody>
+            <tbody *ngIf="(targets===null && !loading)">
+            <tr>
+              <td colspan="5">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td colspan="5">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading targets'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="targets && targets.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage(page)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="targetDetail" class="utm-right-container">
+  <div (click)="targetDetail= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        {{targetDetail.name}}
+      </h6>
+      <button (click)="targetDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-target-detail [target]="targetDetail"></app-target-detail>
+  </div>
+</div>

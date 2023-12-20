@@ -1,0 +1,134 @@
+<div class="p-3">
+  <div class="d-flex flex-column lockup mb-4">
+    <div class="utm-box p-3 border-1 border-blue-800 position-relative"
+         style="min-width: 150px">
+                      <span class="p-1 utm-box-label span-small-icon">
+                       <i class="icon-target"></i> Details</span>
+      <div class="reverse d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Name:&nbsp;</span>
+        <span class="">
+          {{task.name}}
+        </span>
+      </div>
+      <div class="reverse mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Type:&nbsp;</span>
+        <span class="">
+          {{task.config.name}}
+        </span>
+      </div>
+      <div class="reverse mt-3 d-flex align-items-center justify-content-start">
+        <span class="text-blue-800 font-weight-light has-minimum-width mr-3">Status:&nbsp;</span>
+        <app-task-status [task]="task"></app-task-status>
+      </div>
+      <div class="reverse mt-3 d-flex d-flex align-items-center justify-content-start">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Severity:&nbsp;</span>
+        <app-asset-severity-chart *ngIf="task.lastReport"
+                                  [severity]="task.lastReport['report'].severity"
+                                  [type]="'row'"></app-asset-severity-chart>
+      </div>
+      <div class="reverse mt-3 d-flex align-items-center justify-content-start">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Trend:&nbsp;</span>
+        <span class="">
+          {{taskElementViewResolverService.resolveTrendTooltip(task.trend)}}
+        </span>
+      </div>
+      <div class="reverse mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Creation Date:&nbsp;</span>
+        <span class="">
+                        {{task.creationTime | date:'short':'UTC'}}
+                      </span>
+      </div>
+      <div class="reverse mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Target:&nbsp;</span>
+        <span class="">
+                        {{task.target ? task.target.name : '-'}}
+                      </span>
+      </div>
+      <div class="reverse mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Scanner:&nbsp;</span>
+        <span class="">
+                        {{task.scanner ? task.scanner.name : '-'}}
+                      </span>
+      </div>
+      <div class="reverse mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Comment:&nbsp;</span>
+        <p>{{task.comment}}</p>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="task.preferences && task.preferences.length>0"
+       class="d-flex flex-column preferences mb-4">
+    <div class="utm-box p-3 border-1 border-blue-800 position-relative">
+                      <span class="p-1 utm-box-label span-small-icon">
+                       <i class="icon-cog"></i> Preferences</span>
+      <div *ngFor="let p of task.preferences" class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">{{p.name}}:&nbsp;</span>
+        <span *ngIf="['yes','no'].includes(p.value)"
+              [ngClass]="p.value === 'yes' ? 'badge-success' : 'badge-warning'"
+              class="badge text-white">
+                               {{p.value === 'yes' ? 'Yes' : 'No'}}
+                         </span>
+        <span *ngIf="!['yes','no'].includes(p.value)" class="">
+                           {{p.value ? p.value : '-'}}
+                         </span>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="task.lastReport"
+       class="d-flex flex-column preferences mb-4">
+    <div class="utm-box p-3 border-1 border-blue-800 position-relative"
+         style="min-width: 130px">
+                      <span class="p-1 utm-box-label span-small-icon">
+                       <i class="icon-calendar5"></i> Last report</span>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">False positive:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.resultCount.falsePositive === null ? '-' :
+          task.lastReport.report.resultCount.falsePositive}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Hole:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.resultCount.hole}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Warning:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.resultCount.warning}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Log:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.resultCount.log}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Debug:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.resultCount.debug}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Info:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.resultCount.info}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Scan start:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.scanStart | date:'short':'UTC'}}
+                         </span>
+      </div>
+      <div class="ssh mt-3 d-flex">
+        <span class="text-blue-800 font-weight-light has-minimum-width">Scan end:&nbsp;</span>
+        <span class="">
+                           {{task.lastReport.report.scanEnd | date:'short':'UTC'}}
+                         </span>
+      </div>
+    </div>
+  </div>
+</div>

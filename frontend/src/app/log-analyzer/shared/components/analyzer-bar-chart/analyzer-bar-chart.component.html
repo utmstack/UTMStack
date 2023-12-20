@@ -1,0 +1,65 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 d-flex
+   justify-content-between align-items-center bg-white">
+    <label *ngIf="field" class="card-title label-header text-blue-800">
+      Top values of field {{field.name}}
+    </label>
+    <div *ngIf="field" class="d-flex">
+      <ng-select (change)="changeField($event)"
+                 [(ngModel)]="field"
+                 [clearable]="false"
+                 [items]="fields"
+                 [groupBy]="'type'"
+                 [loadingText]="'Loading fields....'"
+                 [loading]="loading"
+                 bindLabel="name"
+                 class="mr-2"
+                 id="id"
+                 style="min-width: 250px">
+      </ng-select>
+      <ng-select (change)="changeInterval()"
+                 *ngIf="field.type && field.type === elasticDataTypeEnum.DATE"
+                 [(ngModel)]="interval"
+                 [clearable]="false"
+                 [items]="intervals"
+                 [loadingText]="'Loading interval....'"
+                 [searchable]="true"
+                 class="mr-2"
+                 id="interval"
+                 placeholder="Select interval"
+                 style="min-width: 100px">
+      </ng-select>
+      <ng-select (change)="buildCharTopFieldValue(data)"
+                 [(ngModel)]="chartType"
+                 [clearable]="false"
+                 [items]="seriesTypes"
+                 [loadingText]="'Loading series....'"
+                 [searchable]="false"
+                 bindLabel="name"
+                 id="series"
+                 style="min-width: 70px">
+      </ng-select>
+    </div>
+  </div>
+  <div class="card-body p-2">
+    <div *ngIf="loadingOption"
+         class="loading-chart w-100 h-100
+                 host-chart chart has-fixed-height
+                 d-flex justify-content-center
+                 align-items-center">
+      <app-utm-spinner [height]="'35px'" [loading]="loadingOption" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="data && data.values.length===0 && !loadingOption"
+         class="chart has-fixed-height">
+      <app-no-data-chart [typeChart]="chart"></app-no-data-chart>
+    </div>
+    <div (chartClick)="chartEvent($event)"
+         *ngIf="echartOption && !loadingOption"
+         [autoResize]="true"
+         [ngStyle]="{'height':height}"
+         [options]="echartOption"
+         echarts></div>
+  </div>
+</div>

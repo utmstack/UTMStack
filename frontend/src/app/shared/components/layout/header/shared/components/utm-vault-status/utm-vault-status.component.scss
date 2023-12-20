@@ -1,0 +1,39 @@
+
+.status-health {
+  position: relative;
+
+  .span-small-icon {
+    position: absolute;
+    right: -7px;
+    top: -3px;
+  }
+
+}
+
+.status-icon {
+  font-size: 1rem;
+
+  ::ng-deep {
+    svg {
+      fill: #ffffff !important;
+      width: 1.1rem !important;
+      height: 1.1rem !important;
+    }
+  }
+
+  :first-child {
+    font-size: 13px;
+  }
+}
+
+.status-logstash {
+  font-size: 1rem;
+
+  ::ng-deep {
+    svg {
+      fill: #ffffff !important;
+      width: 1.4rem !important;
+      height: 1.4rem !important;
+    }
+  }
+}

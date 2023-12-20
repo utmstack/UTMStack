@@ -1,0 +1,98 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-start align-items-center bg-light">
+    <label class="card-title label-header mr-2" for="inactiveAdmins">
+      Administrators with more than
+    </label>
+    <input (input)="loadInactiveLastDaysAdmin()" [(ngModel)]="daysInactiveAdmin" [min]="1"
+           [required]="true" class="form-control input-days mr-2"
+           id="inactiveAdmins"
+           style="max-width: 50px"
+           type="number">
+    <label class="card-title label-header ml-2">inactive days</label>
+  </div>
+
+  <div class="card-body">
+    <div *ngIf="loadingInactiveAdmins"
+         class="loading-chart w-100 h-100
+                 host-chart chart has-fixed-height
+                 d-flex justify-content-center
+                 align-items-center demo-chart">
+      <app-utm-spinner [height]="'110px'" [loading]="loadingInactiveAdmins" [width]="'110px'">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="inactiveAdmins.length===0 && !loadingInactiveAdmins"
+         class="host-chart chart has-fixed-height demo-chart">
+      <app-no-data-chart [typeChart]="echartEnum.TABLE_CHART"></app-no-data-chart>
+    </div>
+    <div *ngIf="inactiveAdmins.length>0 && !loadingInactiveAdmins" class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase cursor-pointer" style="width: 25%;">
+            Name
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer" style="width: 10%;">
+            Account name
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer text-center">
+            Last logon
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer text-center" style="width: 65%;">
+            Member of
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer text-center">
+            Created
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let admin of inactiveAdmins">
+          <td (click)="viewEvent=admin" class="cursor-pointer">
+                   <span class="text-blue-800">
+                     {{admin.cn}}
+                   </span>
+          </td>
+          <td>
+                   <span class="">
+                     {{admin.sAMAccountName}}
+                   </span>
+          </td>
+          <td class="text-center">
+                     <span [ngClass]="{'text-danger':admin.realLastLogon.includes('160') }">
+                      {{admin.realLastLogon.includes('160') ? 'Never' :
+                       (admin.realLastLogon | date:formatDateEnum.UTM_SHORT:'UTC')}}
+                     </span>
+          </td>
+          <td class="text-center">
+            <app-ad-member-of [members]="admin.memberOfClean"></app-ad-member-of>
+          </td>
+          <td class="text-center">
+                     <span class="">
+                      {{admin.whenCreated | date:formatDateEnum.UTM_SHORT:'UTC'}}
+                     </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="viewEvent" class="utm-right-container">
+  <div (click)="viewEvent= undefined" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Events of {{viewEvent.cn}}
+      </h6>
+      <button (click)="viewEvent= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <span class="close-icon"></span>
+      </button>
+    </div>
+    <app-active-directory-event [objectId]="viewEvent.objectSid"></app-active-directory-event>
+  </div>
+</div>
+

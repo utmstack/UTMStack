@@ -1,0 +1,89 @@
+@import "src/assets/styles/theme";
+@import "src/assets/styles/var";
+
+.navbar {
+  .nav-item {
+    .utm-nav-link {
+      font-weight: 400;
+      padding: 0.62rem 0;
+      font-size: .76rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #000;
+      transition: opacity ease-in-out .15s;
+      margin-left: 1.25rem;
+
+      &:after {
+        margin-left: 8px;
+        padding-top: 2px;
+        margin-right: 0;
+      }
+
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    i {
+      margin-top: 2px;
+      font-size: .75rem;
+    }
+  }
+}
+
+.dropdown-item {
+
+  &:active {
+    background-color: #f5f5f5 !important;
+  }
+}
+
+.navbar-nav ul:first-child li a {
+  padding-left: 0 !important;
+}
+
+.dropdown-item, .nav-item {
+  font-size: 12px;
+}
+
+.dropdown-item {
+}
+
+.navbar-nav {
+  li {
+    display: inline-block; // stops menu items from stacking
+  }
+}
+
+.inline-menu {
+  white-space: nowrap;
+}
+
+.dropdown {
+  z-index: 2000;
+
+  .first {
+    margin-left: 70px !important;
+  }
+
+  .last {
+    margin-right: 70px !important;
+  }
+}
+
+a.active-menu {
+  color: #0a6ebd !important;
+
+  ::ng-deep {
+    svg {
+      fill: #0a6ebd !important;
+    }
+  }
+}
+
+.scroll-menu-y{
+  max-height: 75vh;
+  overflow-y: auto;
+}

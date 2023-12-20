@@ -1,0 +1,23 @@
+<div class="report-header-container d-flex align-items-center justify-content-between">
+  <div class="navbar-img d-flex justify-content-start align-items-center">
+    <div class="text-header d-flex flex-column justify-content-center align-items-center"
+         routerLink="/dashboard/overview">
+      <img [src]="sanitizer.bypassSecurityTrustUrl(reportIcon)" alt="">
+    </div>
+    <div class="d-flex flex-grow-1 flex-column">
+      <h4 class="font-weight-thin font-weight-black ml-5">
+        {{reportName}}
+      </h4>
+      <div *ngIf="subheader" class="subheader">
+        <h6 class="font-weight-thin font-weight-black ml-5">
+          {{subheader}}
+        </h6>
+      </div>
+    </div>
+  </div>
+  <span class="">
+    {{date}}
+  </span>
+</div>
+
+

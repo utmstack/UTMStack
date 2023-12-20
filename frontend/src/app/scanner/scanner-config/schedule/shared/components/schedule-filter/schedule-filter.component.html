@@ -1,0 +1,141 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <div class="form-group">
+    <label class="pb-1" for="name">Name</label>
+    <input (input)="searchByName()" [(ngModel)]="filter['name.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="name"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="name">First run</label>
+    <app-filter-time (timeFilterChange)="firstFilterTime($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="name">Next run</label>
+    <app-filter-time (timeFilterChange)="nextFilterTime($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+
+  <div class="d-flex flex-column mt-4">
+    <label class="pb-1" for="name">Period between</label>
+    <div class="d-flex flex-column align-items-center">
+      <div class="d-flex justify-content-between">
+        <input (input)="searchByPeriod()" [(ngModel)]="filter['period.greaterThan']" class="border-1 border-grey-600 form-control"
+               id="periodless"
+               min="0"
+               name=""
+               type="number">
+        <div class="list-icons ml-2">
+          <div #periodDropMin="ngbDropdown" autoClose="outside" class="list-icons-item dropdown cursor-pointer"
+               ngbDropdown>
+            <button class=" badge p-2 border-0 badge-flat text-blue-800" id="statusId"
+                    ngbDropdownToggle>
+              {{periodMin}}
+            </button>
+            <div aria-labelledby="statusId" class="dropdown-menu" ngbDropdownMenu x-placement="top-start">
+              <div (click)="periodMin=time;periodDropMin.close();setMaxPeriodTime(time)" *ngFor="let time of periodTimeFilterMin"
+                   class="dropdown-item text-blue-800">
+                 <span>
+                   <i [ngClass]="periodMin===time?'icon-radio-checked':'icon-radio-unchecked'"></i>
+                    &nbsp;{{time}}
+                 </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-2">
+        <input (input)="searchByPeriod()" [(ngModel)]="filter['period.lessThan']" class="border-1 border-grey-600 form-control"
+               id="period"
+               min="0"
+               name=""
+               type="number">
+        <div class="list-icons ml-2">
+          <div #durationDropMax="ngbDropdown" autoClose="outside" class="list-icons-item dropdown cursor-pointer"
+               ngbDropdown>
+            <button class=" badge p-2 border-0 badge-flat text-blue-800" id="durationMax"
+                    ngbDropdownToggle>
+              {{periodMax}}
+            </button>
+            <div aria-labelledby="statusId" class="dropdown-menu" ngbDropdownMenu x-placement="top-start">
+              <div (click)="periodMax=time;durationDropMax.close()" *ngFor="let time of periodTimeFilterMax"
+                   class="dropdown-item text-blue-800">
+                 <span>
+                   <i [ngClass]="periodMax===time?'icon-radio-checked':'icon-radio-unchecked'"></i>
+                    &nbsp;{{time}}
+                 </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span *ngIf="filter && filter['period.greaterThan'] > filter['period.lessThan']"
+          class="text-danger mt-1">
+          Type max greater than min
+        </span>
+  </div>
+
+  <div class="d-flex flex-column mt-4">
+    <label class="pb-1" for="name">Duration between</label>
+    <div class="d-flex flex-column align-items-center">
+      <div class="d-flex justify-content-between">
+        <input (input)="searchByDuration()" [(ngModel)]="filter['duration.greaterThan']" class="border-1 border-grey-600 form-control"
+               id="durationMin"
+               min="0"
+               name=""
+               type="number">
+        <div class="list-icons ml-2">
+          <div #durationDrop="ngbDropdown" autoClose="outside" class="list-icons-item dropdown cursor-pointer"
+               ngbDropdown>
+            <button class=" badge p-2 border-0 badge-flat text-blue-800" id="butt"
+                    ngbDropdownToggle>
+              {{durationMin}}
+            </button>
+            <div aria-labelledby="statusId" class="dropdown-menu" ngbDropdownMenu x-placement="top-start">
+              <div (click)="durationMin=time;durationDrop.close();setMaxDurationTime(time)"
+                   *ngFor="let time of durationTimeFilterMin"
+                   class="dropdown-item text-blue-800">
+                 <span>
+                   <i [ngClass]="durationMin===time?'icon-radio-checked':'icon-radio-unchecked'"></i>
+                    &nbsp;{{time}}
+                 </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-2">
+        <input (input)="searchByDuration()" [(ngModel)]="filter['tcp.lessThan']" class="border-1 border-grey-600 form-control"
+               id="durationMax1"
+               min="0"
+               name=""
+               type="number">
+        <div class="list-icons ml-2">
+          <div #durationMaxDrop="ngbDropdown" autoClose="outside" class="list-icons-item dropdown cursor-pointer"
+               ngbDropdown>
+            <button class=" badge p-2 border-0 badge-flat text-blue-800" id="but"
+                    ngbDropdownToggle>
+              {{durationMax}}
+            </button>
+            <div aria-labelledby="statusId" class="dropdown-menu" ngbDropdownMenu x-placement="top-start">
+              <div (click)="durationMax=time;durationMaxDrop.close()" *ngFor="let time of durationTimeFilterMax"
+                   class="dropdown-item text-blue-800">
+                 <span>
+                   <i [ngClass]="durationMax===time?'icon-radio-checked':'icon-radio-unchecked'"></i>
+                    &nbsp;{{time}}
+                 </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span *ngIf="filter && filter['tcp.greaterThan'] > filter['tcp.lessThan']"
+          class="text-danger mt-1">
+          Type max greater than min
+        </span>
+  </div>
+</div>

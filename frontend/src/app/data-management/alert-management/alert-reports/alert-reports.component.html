@@ -1,0 +1,114 @@
+<div class="pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title label-header mb-0 text-uppercase label-header">Report list</h5>
+  </div>
+
+  <div class="card h-100">
+    <div class="card bg-light border-0 m-0">
+      <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+        <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+        <app-utm-search-input (searchFor)="onSearch($event)" [placeholder]="'Search by name'"
+                              [searching]="searching"></app-utm-search-input>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table text-nowrap mb-0">
+        <thead>
+        <tr>
+          <th (sort)="onSortBy($event)" [isSortable]="true"
+              [sortEvent]="sortEvent"
+              [sortable]="'repName'"
+              appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer w-25" id="thName">
+            Name
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-50" id="Linked">
+            Descriptions
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer text-center" id="limit">
+            Limit
+          </th>
+          <th (sort)="onSortBy($event)" [isSortable]="true"
+              [sortEvent]="sortEvent"
+              [sortable]="'repDate'"
+              appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer text-center" id="date">
+            Creation Date
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer" id="thActions">
+            Actions
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="(reports.length>0 && !loading)">
+        <tr *ngFor="let report of reports">
+          <td (click)="viewReport(report)"
+              class="text-blue-800 cursor-pointer">
+            {{report.repName}}
+          </td>
+          <td (click)="viewReport(report)"
+              class="cursor-pointer">
+            {{report.repDescription}}
+          </td>
+          <td (click)="viewReport(report)"
+              class="text-center cursor-pointer">
+            {{report.repLimit}}
+          </td>
+          <td (click)="viewReport(report)"
+              class="text-center cursor-pointer">
+            {{report.repDate | date:'short':'UTC'}}
+          </td>
+          <td>
+            <div class="d-flex justify-content-center align-items-center">
+              <i (click)="viewFilter(report)"
+                 class="icon-filter4 mr-2 cursor-pointer"
+                 ngbTooltip="View filters" tooltipClass="utm-tooltip-top"></i>
+              <i (click)="downloadToCsv(report)" class="icon-download4 mr-2 cursor-pointer"
+                 ngbTooltip="Download report" tooltipClass="utm-tooltip-top"></i>
+              <i (click)="openDeleteConfirmation(report)" class="icon-cross2 cursor-pointer"
+                 ngbTooltip="Delete report" tooltipClass="utm-tooltip-top"></i>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(reports.length===0 && !loading)">
+        <tr>
+          <td colspan="5">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading...'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="reports && reports.length>0" class="mb-3 mt-3">
+      <div class="row justify-content-center">
+        <ngb-pagination (pageChange)="loadPage(page)"
+                        [(page)]="page"
+                        [boundaryLinks]="true"
+                        [collectionSize]="totalItems"
+                        [maxSize]="10"
+                        [pageSize]="itemsPerPage"
+                        [rotate]="true"
+                        [size]="'sm'"></ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+      <!-- TABLE END-->
+    </div>
+  </div>
+</div>
+

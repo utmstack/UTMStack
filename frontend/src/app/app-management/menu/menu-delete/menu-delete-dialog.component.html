@@ -1,0 +1,16 @@
+<app-utm-modal-header [name]="'Delete menu'" class="w-100" type="delete"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <h6>
+    Are you sure that you want to delete this menu.
+  </h6>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="cancelDelete()" class="btn utm-button utm-button-grey" data-dismiss="modal"
+            type="button">
+      Cancel
+    </button>
+    <button (click)="deleteConfirmation()" class="btn utm-button utm-button-danger ml-3">
+      <i class="icon-database-remove"></i>&nbsp;
+      Delete
+    </button>
+  </div>
+</div>

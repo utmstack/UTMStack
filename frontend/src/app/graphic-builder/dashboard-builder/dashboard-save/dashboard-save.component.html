@@ -1,0 +1,118 @@
+<app-utm-modal-header [name]="'Save dashboard'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="dashSaveForm" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1" for="name">Name</label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(dashSaveForm.get('name'))"
+             class="border-1 border-grey-600 form-control" formControlName="name"
+             id="name"
+             name="name">
+      <app-formcontrol-error [formcontrol]="dashSaveForm.get('name')"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label class="pb-1" for="description">Description</label>
+      <textarea class="border-1 border-grey-600 form-control" formControlName="description" id="description"
+                name="name">
+      </textarea>
+    </div>
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="dashSaveForm.get('autoRefresh').setValue($event)"
+                      [active]="dashSaveForm.get('autoRefresh').value"
+                      label="Auto refresh dashboard">
+      </app-utm-toggle>
+    </div>
+    <div *ngIf="dashSaveForm.get('autoRefresh').value" class="mt-3">
+      <div class="d-flex flex-column flex-grow-1 w-50">
+        <label class="pb-1" for="name">Auto refresh time</label>
+        <ng-select [clearable]="false"
+                   [items]="refreshTime"
+                   [loadingText]="'Loading refresh time...'"
+                   [loading]="!refreshTime"
+                   [searchable]="false"
+                   bindLabel="time"
+                   bindValue="milliseconds"
+                   formControlName="refreshTime">
+        </ng-select>
+      </div>
+    </div>
+  </form>
+  <div class="mt-3">
+    <app-utm-toggle (toggleChange)="saveToMenuToggle($event)" [active]="saveToMenu"
+                    label="Add dashboard to menu?">
+    </app-utm-toggle>
+  </div>
+
+  <div *ngIf="saveToMenu">
+    <div class="d-flex align-items-center justify-content-center w-75 mt-3">
+      <div class="d-flex flex-column flex-grow-1">
+        <label class="pb-1" for="menu">Menu list</label>
+        <ng-select [(ngModel)]="menuId"
+                   [items]="menuList"
+                   [loadingText]="'Loading menus....'"
+                   [loading]="!menuList"
+                   [searchable]="true"
+                   bindLabel="name"
+                   bindValue="id"
+                   id="menu">
+        </ng-select>
+      </div>
+      <div class="add-action-form ml-3 pt-3">
+           <span (click)="addMenu()" class="text-blue-800">
+             <i class="icon-plus3"></i>
+             Add menu
+           </span>
+      </div>
+    </div>
+
+    <div class="form-group w-75 mt-3">
+      <label class="pb-1" for="submenuName">Name in menu</label>
+      <input [(ngModel)]="subMenuName" class="border-1 border-grey-600 form-control" id="submenuName"
+             name="name">
+    </div>
+    <div class="mb-3">
+      <app-utm-toggle (toggleChange)="menuActive = $event" [active]="menuActive"
+                      [emitAtStart]="true"
+                      [label]="'Is this menu active?'" class="mb-3"></app-utm-toggle>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 w-75">
+      <label class="pb-1" for="menu">Authorities</label>
+      <ng-select [(ngModel)]="authority"
+                 [items]="authorities"
+                 [loadingText]="'Loading authorities....'"
+                 [loading]="!authorities"
+                 [multiple]="true"
+                 [searchable]="true"
+                 bindValue="value"
+                 id="authorities">
+      </ng-select>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <app-utm-toggle (toggleChange)="saveAsNew($event)" *ngIf="dashboard" [active]="false"
+                    label="Save as new dashboard?">
+    </app-utm-toggle>
+  </div>
+
+
+  <div *ngIf="visualizationToSave!==''" class="d-flex mt-3">
+    <span class="text-blue-800">
+    <i class="icon-spinner2  spinner"></i>&nbsp;
+     Saving visualization {{visualizationToSave}} ...
+    </span>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="saveDashboard()"
+            [disabled]="!dashSaveForm.valid || creating"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i *ngIf="creating" class="icon-spinner2 spinner"></i>&nbsp;
+      Save dashboard
+    </button>
+  </div>
+</div>

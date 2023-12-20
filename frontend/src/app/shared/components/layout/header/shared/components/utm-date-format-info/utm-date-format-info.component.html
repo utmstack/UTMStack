@@ -1,0 +1,38 @@
+<div [ngbPopover]="dateContent"
+     placement="auto"
+     *ngIf="dateFormat"
+     class="cursor-pointer"
+     [popoverClass]="'date-format-popover'"
+     container="body">
+      <span class="svg-icon svg-icon-md svg-icon-white status-icon text-white"
+            [inlineSVG]="'/assets/icons/system/LAUNCH.svg'"></span>
+</div>
+<ng-template #dateContent>
+  <div class="d-flex flex-column align-items-start" style="width:320px">
+    <span class="d-flex justify-content-start align-items-center">
+      <span class="span-small-icon font-size-sm">
+        <i class="icon-earth mr-1"></i><b>Timezone:</b>
+      </span>
+      <span class="ml-1 font-size-sm">{{dateFormat.timezone}}</span>
+    </span>
+    <span class="d-flex justify-content-start align-items-center mt-2 flex-nowrap">
+      <span class="span-small-icon font-size-sm">
+        <i class="icon-calendar mr-1"></i> <b>Date format:</b>
+      </span>
+      <span class="ml-1 font-size-sm">{{date.label}} ({{date.equivalentTo}})</span>
+    </span>
+
+    <span class="text-primary-800 font-weight-semibold my-2 font-size-base cursor-pointer span-small-icon"
+          routerLink="/app-management/settings/application-config">
+      <i class="icon-cog3 font-size-sm mr-1"></i>Change date settings</span>
+
+    <p class="text-warning-800 span-small-icon flex-wrap font-size-sm text-justify date-notice"><i
+      class="icon-notification2"></i>
+      The time zone setting has been applied. The system logs continue to be stored in Coordinated Universal Time (UTC)
+      internally and shown in your selected timezone.</p>
+
+  </div>
+
+
+</ng-template>
+

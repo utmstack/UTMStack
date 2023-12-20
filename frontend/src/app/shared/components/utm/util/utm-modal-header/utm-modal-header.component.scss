@@ -1,0 +1,16 @@
+@import "../../../../../../assets/styles/theme";
+@import "../../../../../../assets/styles/var";
+@import "../../../../../../assets/styles/custom-elements";
+
+.utm-modal-header {
+  h6 {
+    font-size: 18px;
+  }
+
+  border-radius: 0;
+  background-color: $utm-header-color;
+}
+
+.utm-modal-delete {
+  background-color: $danger-color;
+}

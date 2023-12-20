@@ -1,0 +1,114 @@
+<app-utm-modal-header [name]="'Edit port list'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-schedule-container">
+
+  <form [formGroup]="formPortList" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1" for="name">Name</label>
+      <input [ngClass]="inputClass.resolveClassInput(formPortList.get('name'))" class="border-1 border-grey-600 form-control" formControlName="name" id="name"
+             name="">
+      <app-formcontrol-error [formcontrol]="formPortList.get('name')"></app-formcontrol-error>
+    </div>
+
+    <div class="form-group">
+      <label class="pb-1" for="comment">Comments</label>
+      <textarea [ngClass]="inputClass.resolveClassInput(formPortList.get('comment'))"
+                class="border-1 border-grey-600 form-control" formControlName="comment"
+                id="comment"
+                name=""
+                rows="2">
+        </textarea>
+      <app-formcontrol-error [formcontrol]="formPortList.get('comment')"></app-formcontrol-error>
+    </div>
+  </form>
+  <div class="card h-100 w-100">
+    <div class="card bg-light border-0">
+      <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+        <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+        <span (click)="addPortRange()"
+              class="text-blue-800 cursor-pointer">
+          <i class="icon-plus3"></i>&nbsp;
+          Add port range
+        </span>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer w-25">
+            Type&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer">
+            Start&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer">
+            End&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase" style="width:10%">
+            Action&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="port.portRanges.length>0">
+        <tr *ngFor="let p of port.portRanges">
+          <td class="w-50">
+           <span class="text-uppercase">
+            {{p.type}}
+           </span>
+          </td>
+          <td class="w-50">
+           <span>
+            {{p.start}}
+           </span>
+          </td>
+          <td>
+           <span>
+            {{p.end}}
+           </span>
+          </td>
+
+          <td class="td-action">
+            <div class="d-flex justify-content-end align-items-center medium-icon">
+              <i (click)="
+                     deletePortRange(p)" [ngbTooltip]="'Delete port range'"
+                 class="icon-cross2 cursor-pointer"
+                 placement="left"
+                 tooltipClass="utm-tooltip"></i>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(port.portRanges.length===0 && !loading)">
+        <tr>
+          <td colspan="8">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="port.portRanges.length>0" class="mb-4">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage(page)"
+          [(page)]="page"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="savePortList()" [disabled]="!formPortList.valid"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-database-insert"></i>&nbsp;
+      Save
+    </button>
+  </div>
+</div>

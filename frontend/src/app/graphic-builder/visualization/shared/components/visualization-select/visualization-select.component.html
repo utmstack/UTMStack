@@ -1,0 +1,127 @@
+<div class="container-fluid p-0 list-visualization">
+  <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+    <!--      <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>-->
+    <app-utm-search-input (searchFor)="searchVisualization($event)"
+                          [searching]="searching"
+                          placeholder="Search visualization">
+    </app-utm-search-input>
+    <ng-select (change)="getVisualizationList()"
+               [(ngModel)]="chartType"
+               [clearable]="true"
+               [items]="charts"
+               [loadingText]="'Loading chart type...'"
+               [loading]="!charts"
+               bindLabel="name"
+               bindValue="type"
+               class="ml-2"
+               placeholder="Chart type"
+               id="id"
+               style="width: 180px">
+    </ng-select>
+    <ng-select (change)="filterByIndexPattern($event)"
+               [clearable]="true"
+               [items]="patterns"
+               [loadingText]="'Loading sources....'"
+               [loading]="!patterns"
+               bindValue="id"
+               bindLabel="pattern"
+               placeholder="Source"
+               [ngModel]="dataNature"
+               class="ml-2"
+               id="idPattern"
+               style="min-width: 200px">
+    </ng-select>
+    <i class="icon-info22 text-blue-800"
+       ngbTooltip="Hover visualization to see preview"
+       tooltipClass="utm-tooltip"></i>
+  </div>
+    <div class="table-responsive">
+      <table class="table text-nowrap table-hover table-condensed table-borderless">
+        <tbody *ngIf="visualizations && visualizations.length>0">
+        <tr #p="ngbPopover"
+            *ngFor="let vis of visualizations"
+            [closeDelay]="500"
+            [ngbPopover]="popPreview"
+            [openDelay]="500"
+            autoClose="outside"
+            container="body"
+            placement="left"
+            triggers="mouseenter:mouseleave">
+          <ng-template #popPreview let-visualization="vis">
+            <div class="tooltip-fixed-height w-100 h-100">
+              <app-utm-viewer [building]="true"
+                              [chart]="vis.chartType"
+                              [chartId]="vis.id"
+                              [height]="'250px'"
+                              [visualization]="vis"
+                              [width]="'250px'">
+              </app-utm-viewer>
+            </div>
+          </ng-template>
+          <td class="text-center" style="width:20px;">
+            <div class="list-icons">
+              <i (click)="addToSelected(vis)"
+                 [ngClass]="isSelected(vis)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                 class="cursor-pointer" style="margin-top: 8px"></i>
+            </div>
+          </td>
+          <td (click)="addToSelected(vis)" class="cursor-pointer">
+            <div class="text-blue-800 d-flex">
+              <div [ngClass]="chartIconResolver(vis.chartType)"
+                   class="utm-icon-xs utm-icon-primary mr-2"></div>
+              <span>{{vis.name}}</span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(visualizations.length===0 && !loading)">
+        <tr>
+          <td colspan="5">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading visualizations'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="visualizations && visualizations.length>0" class="mb-4">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!emitOnSelect" class="button-container d-flex justify-content-end mt-3">
+    <button (click)="cancelVisualization()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="addingVisualization()"
+            [disabled]="visualizationSelected.length===0"
+            class="btn utm-button utm-button-primary mr-3">
+      <i class="icon-plus3"></i>&nbsp;
+      Add {{visualizationSelected.length > 1 ? 'visualizations' : 'visualization'}}
+    </button>
+    <button (click)="newVisualization()" class="btn utm-button utm-button-primary">
+      <i class="icon-pie-chart5 mr-2"></i> New visualization
+    </button>
+  </div>

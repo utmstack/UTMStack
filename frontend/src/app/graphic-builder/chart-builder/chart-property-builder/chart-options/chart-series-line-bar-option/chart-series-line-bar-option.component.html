@@ -1,0 +1,43 @@
+<form [formGroup]="formSerie">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewSerieProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewSerie?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Series</span>&nbsp;
+    </div>
+  </div>
+  <div [hidden]="!viewSerie" class="properties-options">
+    <div *ngFor="let item of series.controls; let index=index"
+         class="metric d-flex flex-column mt-4"
+         formArrayName="series">
+      <ng-container [formGroupName]="index">
+        <div class="utm-box p-3 border-1 border-blue-800 position-relative">
+          <span class="p-1 utm-box-label">
+          <i class="icon-list"></i>
+            {{getSerieLabel(index)}}
+         </span>
+          <div class="d-flex flex-column flex-grow-1 mt-1">
+            <label class="pb-1 font-weight-semibold"
+                   for="types{{index}}">Type</label>
+            <ng-select [clearable]="false"
+                       [items]="types"
+                       [searchable]="true"
+                       formControlName="type"
+                       id="types{{index}}"
+                       loadingText="Loading types...">
+            </ng-select>
+          </div>
+          <app-chart-mark-option (markChange)="series.at(index).get('markPoint').setValue($event)"
+                                 [markType]="'point'">
+          </app-chart-mark-option>
+
+          <app-chart-mark-option (markChange)="series.at(index).get('markLine').setValue($event)"
+                                 [markType]="'line'">
+          </app-chart-mark-option>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+</form>

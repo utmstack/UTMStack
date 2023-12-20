@@ -1,0 +1,19 @@
+<span #refreshPopober=ngbPopover
+      [ngbPopover]="colContent"
+      class="text-blue-800 cursor-pointer span-small-icon"
+      container="body"
+      placement="auto"
+      popoverClass="utm-popover"
+      triggers="click">
+  Refresh every {{timeRefresh.time}}
+  <i class="icon-arrow-down32 ml-1"></i>
+</span>
+<ng-template #colContent>
+  <div class="d-flex flex-column justify-content-start align-items-center">
+    <a (click)="timeRefresh = time"
+       *ngFor="let time of times"
+       class="dropdown-item text-blue-800">
+      {{time.time}}
+    </a>
+  </div>
+</ng-template>

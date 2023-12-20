@@ -1,0 +1,181 @@
+<div class="container-fluid dashboard-container pr-3 pl-3 pt-2 mb-5">
+  <div *ngIf="!pdfExport" class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Asset vulnerability dashboard</h5>
+    <div class="header-elements">
+      <button (click)="exportToPdf()" [disabled]="pdfExport" class="btn utm-button utm-button-primary">
+        <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+  <app-utm-report-header *ngIf="pdfExport" [reportName]="'Asset vulnerabilities overview'"></app-utm-report-header>
+  <div [ngClass]="{'mt-3':pdfExport}" id="assetDashboard">
+    <div class="row">
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-between align-items-center bg-light">
+            <label class="card-title label-header">Hosts affected by vulnerability level</label>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <div *ngIf="loadingPieOption"
+                   class="loading-chart host-chart chart has-fixed-height
+                 demo-chart d-flex justify-content-center align-items-center">
+                <app-utm-spinner [height]="'110px'" [loading]="loadingPieOption" [width]="'110px'">
+                </app-utm-spinner>
+              </div>
+              <div *ngIf="!pieOption && !loadingPieOption"
+                   class="host-chart chart has-fixed-height demo-chart">
+                <app-no-data-chart [typeChart]="'PIE_CHART'"></app-no-data-chart>
+              </div>
+              <div (chartClick)="navigateFilteredByStatus($event)" *ngIf="pieOption && !loadingPieOption" [options]="pieOption"
+                   class="host-chart chart has-fixed-height demo-chart"
+                   echarts>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-between align-items-center bg-light">
+            <label class="card-title label-header">Host changes over time</label>
+          </div>
+          <div class="card-body">
+            <div *ngIf="loadingLineOption"
+                 class="loading-chart host-chart chart has-fixed-height
+                 demo-chart d-flex justify-content-center align-items-center">
+              <app-utm-spinner [height]="'110px'" [loading]="loadingLineOption" [width]="'110px'">
+              </app-utm-spinner>
+            </div>
+            <div *ngIf="multilineOption!==null && !loadingPieOption"
+                 class="chart-container">
+              <div [options]="multilineOption" class="host-chart chart has-fixed-height demo-chart"
+                   echarts>
+              </div>
+            </div>
+            <div *ngIf="multilineOption===null && !loadingPieOption"
+                 class="host-chart chart has-fixed-height demo-chart">
+              <app-no-data-chart [typeChart]="'PIE_CHART'"></app-no-data-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-between align-items-center bg-light">
+            <label class="card-title label-header">Operating Systems by Severity Class</label>
+          </div>
+          <div class="card-body">
+            <div *ngIf="loadingPieOsOption"
+                 class="loading-chart host-chart chart has-fixed-height
+                 demo-chart d-flex justify-content-center align-items-center">
+              <app-utm-spinner [height]="'110px'" [loading]="loadingPieOsOption" [width]="'110px'">
+              </app-utm-spinner>
+            </div>
+            <div *ngIf="!pieOsOption && !loadingPieOsOption"
+                 class="host-chart chart has-fixed-height demo-chart">
+              <app-no-data-chart [typeChart]="'PIE_CHART'"></app-no-data-chart>
+            </div>
+            <div *ngIf="pieOsOption && !loadingPieOsOption"
+                 [options]="pieOsOption" class="host-chart chart has-fixed-height demo-chart"
+                 echarts>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-between align-items-center bg-light">
+            <label class="card-title label-header">Top 20 Most vulnerable host</label>
+          </div>
+          <div class="card-body">
+            <div *ngIf="loadingBarHostVulnerabilitiesOption"
+                 class="loading-chart host-chart chart has-fixed-height
+                 demo-chart d-flex justify-content-center align-items-center">
+              <app-utm-spinner [height]="'110px'"
+                               [loading]="loadingBarHostVulnerabilitiesOption"
+                               [width]="'110px'">
+              </app-utm-spinner>
+            </div>
+            <div *ngIf="barHostVulnerabilitiesOption === null && !loadingBarHostVulnerabilitiesOption"
+                 class="host-chart chart has-fixed-height demo-chart">
+              <app-no-data-chart [typeChart]="'BAR_HORIZONTAL_CHART'"></app-no-data-chart>
+            </div>
+            <div (chartClick)="navigateFilteredByHost($event)"
+                 *ngIf="barHostVulnerabilitiesOption !==null && !loadingBarHostVulnerabilitiesOption" [options]="barHostVulnerabilitiesOption"
+                 class="host-chart chart has-fixed-height demo-chart"
+                 echarts>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--      <div class="col-lg-4 col-md-12 col-sm-12">-->
+      <!--        <div class="card">-->
+      <!--          <div class="card-header card-header-chart pb-0 pr-2 pt-2 d-flex justify-content-between align-items-center bg-light">-->
+      <!--            <label class="card-title label-header mb-1">Top 10 Operating Systems By Vulnerability Score</label>-->
+      <!--          </div>-->
+      <!--          <div class="card-body">-->
+      <!--            <div class="loading-chart host-chart chart has-fixed-height-->
+      <!--                 demo-chart d-flex justify-content-center align-items-center"-->
+      <!--                 *ngIf="loadingBarSoVulnerabilitiesOption">-->
+      <!--              <app-utm-spinner [loading]="loadingBarSoVulnerabilitiesOption"-->
+      <!--                               [width]="'110px'"-->
+      <!--                               [height]="'110px'">-->
+      <!--              </app-utm-spinner>-->
+      <!--            </div>-->
+      <!--            <div class="host-chart chart has-fixed-height demo-chart"-->
+      <!--                 *ngIf="barSoVulnerabilitiesOption === null && !loadingBarSoVulnerabilitiesOption">-->
+      <!--              <app-no-data-chart [typeChart]="'bar'"></app-no-data-chart>-->
+      <!--            </div>-->
+      <!--            <div *ngIf="barSoVulnerabilitiesOption !== null && !loadingBarSoVulnerabilitiesOption"-->
+      <!--                 echarts [options]="barSoVulnerabilitiesOption"-->
+      <!--                 (chartClick)="navigateFilteredByHostSo($event)"-->
+      <!--                 class="host-chart chart has-fixed-height demo-chart">-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
+
+
+    </div>
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-between align-items-center bg-light">
+            <label class="card-title label-header">Host topology</label>
+            <span (click)="viewSeverityHelp()" class="text-blue-800 cursor-pointer"
+                  ngbTooltip="View severity info"
+                  placement="left" tooltipClass="utm-tooltip">
+              <i class="icon-info22"></i>
+            </span>
+          </div>
+          <div class="card-body">
+            <div *ngIf="loadingTopologyOption"
+                 class="loading-chart host-chart chart has-fixed-height
+                 demo-chart d-flex justify-content-center align-items-center">
+              <app-utm-spinner [height]="'110px'" [loading]="loadingTopologyOption" [width]="'110px'">
+              </app-utm-spinner>
+            </div>
+            <div *ngIf="topologyOption===null && !loadingTopologyOption"
+                 class="host-chart chart has-fixed-height demo-chart">
+              <app-no-data-chart typeChart="topology"></app-no-data-chart>
+            </div>
+            <div (chartClick)="navigateFilteredByHost($event)"
+                 *ngIf="topologyOption!==null && !loadingTopologyOption" [options]="topologyOption" class="host-chart chart has-fixed-height chart-bar"
+                 echarts
+                 id="topology" style="height: 600px !important; width: 98% !important;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

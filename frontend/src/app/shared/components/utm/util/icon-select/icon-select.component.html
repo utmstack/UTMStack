@@ -1,0 +1,26 @@
+<app-utm-modal-header [name]="'Icon selection'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-2">
+  <app-utm-search-input (searchFor)="searchIcon($event)"
+                        placeholder="Search icon"></app-utm-search-input>
+  <div class="d-flex justify-content-start
+  align-items-start
+  flex-wrap w-100 card-icon-container mt-3">
+    <div (click)="selectIcon(icon)" *ngFor="let icon of icons"
+         [ngClass]="{'card-chart-selected':(iconSelected!==undefined && icon === iconSelected)}"
+         class="card-icon cursor-pointer">
+      <i [class]="icon"></i>
+    </div>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="emitIconSelect()"
+            [disabled]="!iconSelected" class="btn utm-button utm-button-primary">
+      <i class="icon-new"></i>&nbsp;
+      Select icon
+    </button>
+  </div>
+</div>

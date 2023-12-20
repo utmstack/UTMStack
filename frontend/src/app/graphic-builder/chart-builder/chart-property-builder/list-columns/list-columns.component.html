@@ -1,0 +1,83 @@
+<div class="card card-bucket">
+  <div class="card-header p-2 d-flex justify-content-between">
+    <h6 class="metric-label text-blue-800 font-weight-light">Columns</h6>
+    <span *ngIf="countErrors()>0"
+          class="text-danger-800">
+          <i class="icon-warning"></i>
+      {{countErrors()}}
+    </span>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="listForm" class="form w-100">
+      <ng-container *ngFor="let item of columns.controls; let index=index">
+        <ng-container formArrayName="columns">
+          <ng-container [formGroupName]="index">
+            <div class="mb-2 d-flex align-items-center justify-content-between">
+              <div class="d-flex justify-content-start align-items-center">
+                   <span (click)="viewColumnDetail(index)"
+                         class="text-center cursor-pointer">
+                    <i [ngClass]="viewBucket===index?'icon-arrow-up32':'icon-arrow-down32'"></i>
+                   </span>&nbsp;
+                <span [ngClass]="{'text-danger-300':!columns.at(index).valid}"
+                      class="font-weight-bold">
+                    Column
+                  </span>&nbsp;
+                <span [ngbTooltip]="
+                    columns.at(index).get('customLabel').value === '' ?
+                    columns.at(index).get('field').value :
+                    columns.at(index).get('customLabel').value"
+                      class="text-blue-800 field-buckets-label"
+                      tooltipClass="utm-tooltip-top">
+                    {{columns.at(index).get('customLabel').value === '' ?
+                  columns.at(index).get('field').value :
+                  columns.at(index).get('customLabel').value  }}
+                  </span>
+              </div>
+              <div class="d-flex ml-2">
+                  <span (click)="deleteColumn(index)" class="cursor-pointer text-danger-300">
+                      <i class="icon-cross3"></i>
+                  </span>
+              </div>
+            </div>
+            <div *ngIf="viewBucket ===index">
+              <div class="d-flex flex-column flex-grow-1 mt-3">
+                <label [ngClass]="{'text-danger-800':!columns.at(index).get('field').valid}"
+                       class="pb-1 font-weight-semibold"
+                       for="field">Field</label>
+                <ng-select [clearable]="false"
+                           [groupBy]="'type'"
+                           [items]="fields"
+                           [searchable]="true"
+                           bindLabel="name"
+                           bindValue="name"
+                           formControlName="field"
+                           id="field"
+                           loadingText="Loading fields...">
+                </ng-select>
+              </div>
+              <div class="form-group mt-3">
+                <label class="pb-1 font-weight-semibold" for="name">Custom label</label>
+                <input class="border-1 border-grey-600 form-control" formControlName="customLabel" id="name"
+                       name="">
+              </div>
+
+              <div class="add-bucket-button d-flex justify-content-around mt-3 mb-3">
+                   <span (click)="deleteColumn(index)"
+                         class="p-1 border-1 text-danger-800 border-danger-800 text-center rounded cursor-pointer">
+                    Cancel
+                  </span>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </form>
+    <div class="add-bucket-button d-flex justify-content-center mt-3">
+      <span (click)="addColumn('BUCKET')"
+            class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer type-axis">
+        Add column
+      </span>
+    </div>
+  </div>
+</div>
+

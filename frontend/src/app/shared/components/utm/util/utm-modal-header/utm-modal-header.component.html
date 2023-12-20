@@ -1,0 +1,10 @@
+<div class="utm-modal-header card-header header-elements-sm-inline p-2 bg-white card-header-title">
+  <h6 [ngClass]="type==='delete'?'text-danger-300':'text-blue-800'"
+      class="modal-title font-weight-light">{{name}}</h6>
+  <button (click)="closeModal.emit(true);activeModal.dismiss('closed')" aria-label="Close"
+          *ngIf="showCloseButton"
+          class="close button-close" data-dismiss="modal"
+          type="button">
+    <div class="close-modal-icon"></div>
+  </button>
+</div>

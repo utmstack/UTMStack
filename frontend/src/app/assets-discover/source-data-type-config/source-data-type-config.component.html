@@ -1,0 +1,43 @@
+<app-utm-modal-header [name]="'Manage source view'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="w-100 mb-3">
+    <app-utm-search-input (searchFor)="search($event)" [placeholder]="'Search source input'"></app-utm-search-input>
+  </div>
+  <div class="row pr-3 pl-3 data-inputs-container" *ngIf="dataInputs && !loading;else loadingTemplate">
+    <div *ngFor="let sourceDataType of dataInputs ;let i=index "
+         class="col-4 d-flex justify-content-start align-items-center p-2 ">
+      <input (change)="changeStatus(sourceDataType)"
+             [attr.id]="'g-check-box-'+sourceDataType.id+'-'+i"
+             [checked]="sourceDataType.included"
+             [name]="'g-check-box-'+sourceDataType.id+'-'+i"
+             [value]="sourceDataType.dataType"
+             class="form-check-input magic-checkbox"
+             style="font-size: smaller"
+             type="checkbox">
+      <label [for]="'g-check-box-'+sourceDataType.id+'-'+i" [ngbTooltip]="sourceDataType.dataTypeName"
+             [openDelay]="1000"
+             class="mb-0 text-filter"
+             placement="bottom"
+             tooltipClass="utm-tooltip-bottom">
+        {{sourceDataType.dataTypeName}}
+      </label>
+    </div>
+  </div>
+  <ng-template #loadingTemplate>
+    <div class="row pr-3 pl-3 has-fixed-height d-flex justify-content-center align-items-center">
+      <app-utm-spinner [loading]="loading" label="Loading data inputs"></app-utm-spinner>
+    </div>
+  </ng-template>
+  <div class="buttom-container pt-3 d-flex justify-content-end">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      Cancel
+    </button>
+    <button (click)="save()"
+            [disabled]="saving"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="saving?'icon-spinner2 spinner':'icon-cog3'" class="mr-1"></i>
+      Update view
+    </button>
+  </div>
+</div>
+

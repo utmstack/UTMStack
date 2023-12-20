@@ -1,0 +1,23 @@
+<div [ngbTooltip]="selected.length>0?selected.toString():null"
+     placement="auto"
+     container="body"
+     tooltipClass="utm-tooltip-top" (click)="addNewTagRule()" *ngIf="tags;else loadingTag">
+    <span class="text-blue-800 position-relative cursor-pointer small-md-icon text-center d-inline"
+    >
+
+      <i [ngClass]="icon" [ngStyle]="{'color':color}"></i>
+      <span *ngIf="selected.length>1" class="tag-count badge badge-danger">
+        {{selected.length <= 5 ? selected.length : '+5'}}
+      </span>
+      <span *ngIf="showTagsLabel" class="ml-3">
+        {{selected.toString()}}
+      </span>
+
+
+    </span>
+</div>
+<ng-template #loadingTag>
+  <span class="text-blue-800 position-relative cursor-pointer small-md-icon text-center d-inline">
+         <i class="icon-spinner2 spinner"></i>
+    </span>
+</ng-template>

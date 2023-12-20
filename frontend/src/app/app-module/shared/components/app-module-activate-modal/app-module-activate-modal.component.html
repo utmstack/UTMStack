@@ -1,0 +1,30 @@
+<app-utm-modal-header (closeModal)="setModalAsView()" [name]="'UTMStack Modules'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="alert alert-info alert-styled-right mb-2">
+    <span class="font-weight-semibold">
+      You can enable/disable modules later using Module management
+    </span>
+  </div>
+  <div *ngIf="loading"
+       class="loading has-fixed-height d-flex justify-content-center align-items-center">
+    <app-utm-spinner [loading]="loading" label="Loading modules"></app-utm-spinner>
+  </div>
+  <div *ngIf="!loading && modules"
+       class="d-flex justify-content-between align-items-center flex-wrap">
+    <div (click)="setUpModule(module)" (mouseover)="active=module.id"
+         *ngFor="let module of modules" class="card-icon cursor-pointer"
+         style="min-height: 200px; width: 48%">
+      <div class="w-100 h-100 d-flex justify-content-center align-items-center flex-column">
+        <span [inlineSVG]="iconPath+module.moduleIcon"
+              class="svg-icon svg-icon-6x svg-icon-primary"></span>
+        <h5 [ngClass]="{'text-blue-800':active===module.id}"
+            class="card-title font-size-lg mt-3">{{module.moduleName}}</h5>
+      </div>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="setModalAsView()" class="btn utm-button utm-button-primary">
+      Omit
+    </button>
+  </div>
+</div>

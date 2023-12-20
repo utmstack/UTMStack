@@ -1,0 +1,123 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Application logs
+    </h6>
+    <div class="d-flex justify-content-center align-items-center">
+      <ng-select (change)="filterBySelect($event,'source')"
+                 [clearable]="true"
+                 [items]="sources"
+                 [searchable]="false"
+                 class="has-minimum-width mr-3"
+                 placeholder="Source"
+                 style="min-width: 100px"
+      ></ng-select>
+      <ng-select (change)="filterBySelect($event,'type')"
+                 [clearable]="true"
+                 [items]="types"
+                 [searchable]="false"
+                 class="has-minimum-width mr-3"
+                 placeholder="Type"
+                 style="min-width: 100px"
+      ></ng-select>
+      <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                               [changeOnInit]="'NO'"
+                               [container]="'body'"
+                               [defaultTime]="defaultTime"
+                               [invertContent]="true">
+      </app-elastic-filter-time>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Date&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Source&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Type&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Preview&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="logs && !loading">
+        <tr (click)="message = log.message" *ngFor="let log of logs" class="cursor-pointer">
+          <td><span>{{log["@timestamp"]| date:'medium':'UTC'}}</span></td>
+          <td>
+            <span>{{log.source}}</span>
+          </td>
+          <td>
+            <span [ngClass]="getClassByType(log.type)"
+                  class="p-1 border-1 rounded">
+              {{log.type}}
+            </span>
+          </td>
+          <td>
+            <span [ngClass]="getClassByType(log.type)">
+              {{getPreview(log.message)}}
+            </span>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(logs.length===0 && !loading)">
+        <tr>
+          <td colspan="5">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading logs'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="logs && logs.length>0" class="mb-4">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [(page)]="page"
+          [boundaryLinks]="true"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="message" class="utm-right-container">
+  <div (click)="message= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Error detail
+      </h6>
+      <button (click)="message= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-utm-terminal-input [param]="message" [readonly]="true"
+                            terminal="UTMSTACK error log"></app-utm-terminal-input>
+  </div>
+</div>
