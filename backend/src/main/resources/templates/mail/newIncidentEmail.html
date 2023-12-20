@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title th:text="#{email.alert.title}">Utmstack new incident</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}"/>
+</head>
+
+<body>
+<div>
+    <h1 style="font-family:Roboto, sans-serif;">
+        <b style="color: black">UTM</b>
+        <b style="color: #0d47a1; position: absolute">STACK</b>
+    </h1>
+</div>
+<p style="font-family: Roboto, sans-serif; background: #232f3e; padding: 5px 5px; color: #fff;">
+    Incident Detail Summary
+</p>
+<table>
+    <thead>
+    <tr>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+        <td style="font-weight: bold;vertical-align: top;" th:text="'Name:'"></td>
+        <td style="vertical-align: top;"
+            th:text="' ['+  ${incident.getId().toString()} + '] ' + ${incident.getIncidentName()}"></td>
+    </tr>
+
+    <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+        <td style="font-weight: bold;vertical-align: top;" th:text="'Description:'"></td>
+        <td style="vertical-align: top;" th:text="${incident.getIncidentDescription()}"></td>
+    </tr>
+
+    <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+        <td style="font-weight: bold;vertical-align: top;" th:text="'Severity:'"></td>
+        <td style="vertical-align: top;" th:switch="${incident.getIncidentSeverity()}">
+            <span th:case="1">Low</span>
+            <span th:case="2">Medium</span>
+            <span th:case="3">High</span>
+            <span th:case="*">Unknown</span>
+        </td>
+    </tr>
+
+    </tbody>
+</table>
+
+<div style="padding: 0 1%;margin-top: 20px; margin-bottom: 20px">
+    <div style="font-family:Roboto, sans-serif;font-size: 13px">
+        <p th:text="'Please click on the link below to view details of the incident ' +
+            ${incident.getIncidentName()} + ' using the Web UI'"></p>
+        <a target="_blank" style="cursor: pointer; color: #0d47a1"
+           th:href="${baseUrl} + '/incident/view?incidentId=' + ${incident.getId()}">View
+            incident detail</a>
+    </div>
+</div>
+
+<p style="font-family: Roboto, sans-serif; background: #232f3e; padding: 5px 5px; color: #fff;">
+    Related Alerts
+</p>
+
+<div style="padding: 0 1%;" th:each="alert: ${alerts}">
+    <div th:insert="mail/fragments/alert-detail-fragment.html :: alert-detail"></div>
+    <hr>
+</div>
+
+<div style="padding: 0 1%;">
+    <div style="font-family:Roboto, sans-serif;font-size: 13px">
+        <p>Best regards</p>
+        <p>
+            UTMStack team<br>
+            <a th:href="${baseUrl}" th:text="'utmstack.com'"></a>
+        </p>
+    </div>
+</div>
+</body>
+</html>
