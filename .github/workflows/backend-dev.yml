@@ -1,0 +1,15 @@
+name: UTMStack API - DEV
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-java.yml
+    with:
+      image_name: backend
+      environment: v10-dev
+      directory: backend
+      branch: main

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231026001" author="Freddy">
+        <addUniqueConstraint  columnNames="data_type"
+                              constraintName="uk_data_type"
+                              tableName="utm_data_source_config"/>
+        <createProcedure dbms="postgresql">
+            do $$
+            begin
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('syslog','Syslog',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Syslog', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('haproxy','High Availability Proxy',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'High Availability Proxy', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('nats','Nats',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Nats', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('traefik','Traefik',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Traefik', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('json-input','Json Input',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Json Input', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('macos','MacOS',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'MacOS', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('sophos-central','Sophos Central',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Sophos Central', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('firewall-mikrotik','MikroTik',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'MikroTik', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('firewall-paloalto','Palo Alto Firewall',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Palo Alto Firewall', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('cisco-switch','Cisco Switch',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Cisco Switch', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('firewall-sonicwall','SonicWall',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'SonicWall', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('deceptive-bytes','Deceptive Bytes',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'Deceptive Bytes', system_owner = true;
+
+            INSERT INTO utm_data_source_config (data_type,data_type_name,system_owner,included)
+            VALUES ('github','GitHub',true,true) ON CONFLICT (data_type) DO
+            UPDATE SET data_type_name = 'GitHub', system_owner = true;
+            end;
+            $$ language plpgsql;
+        </createProcedure>
+    </changeSet>
+</databaseChangeLog>

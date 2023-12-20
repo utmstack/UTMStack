@@ -1,0 +1,77 @@
+logging:
+    level:
+        ROOT: debug
+        tech.jhipster: DEBUG
+        org.hibernate.SQL: DEBUG
+        com.park.utmstack: debug
+        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+spring:
+    devtools:
+        restart:
+            enabled: true
+            additional-exclude: static/**
+        livereload:
+            enabled: false # we use Webpack dev server + BrowserSync for livereload
+    jackson:
+        serialization:
+            indent-output: true
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+        username: ${DB_USER}
+        password: ${DB_PASS}
+        hikari:
+            poolName: Hikari
+            auto-commit: false
+    jpa:
+        database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
+        database: POSTGRESQL # For Postgresql database
+    elasticsearch: # This configuration is for the elasticsearch health indicator, please do not remove
+        rest:
+            uris: http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+    liquibase:
+        contexts: dev
+    mail:
+        host: localhost
+        port: 25
+        username: test@domain.local
+        password: Admin123.
+        protocol: smtp
+    messages:
+        cache-duration: PT1S # 1 second, see the ISO 8601 standard
+    thymeleaf:
+        cache: false
+
+server:
+    port: 8080
+
+jhipster:
+    # CORS is only enabled by default with the "dev" profile
+    cors:
+        # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
+        allowed-origins: '*'
+        allowed-methods: '*'
+        allowed-headers: '*'
+        exposed-headers: 'Authorization,Link,X-Total-Count,X-UtmStack-alert,X-UtmStack-error,X-UtmStack-params'
+        allow-credentials: false
+        max-age: 1800
+    security:
+        authentication:
+            jwt:
+                token-validity-in-seconds: 86400
+                token-validity-in-seconds-for-remember-me: 2592000
+    mail:
+        from:
+        base-url:
+
+application:
+    chart-builder: # Chart builder configuration
+        ip-info-index-name: .utm-geoip
+    incident-response:
+        asset-verification-interval: 300
+
+grpc:
+    server:
+        address: ${GRPC_AGENT_MANAGER_HOST}
+        port: ${GRPC_AGENT_MANAGER_PORT}

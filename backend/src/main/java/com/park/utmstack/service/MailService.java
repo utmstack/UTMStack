@@ -1,0 +1,376 @@
+package com.park.utmstack.service;
+
+import com.utmstack.opensearch_connector.types.ElasticCluster;
+import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.User;
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.incident.UtmIncident;
+import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.LogType;
+import com.park.utmstack.service.application_events.ApplicationEventService;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import javax.activation.DataHandler;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+/**
+ * Service for sending emails.
+ * <p>
+ * We use the @Async annotation to send emails asynchronously.
+ */
+@Service
+public class MailService {
+
+    private final Logger log = LoggerFactory.getLogger(MailService.class);
+    private static final String CLASS_NAME = "MailService";
+
+    private static final String USER = "user";
+
+    private static final String BASE_URL = "baseUrl";
+
+    private final MessageSource messageSource;
+    private final SpringTemplateEngine templateEngine;
+    private final ApplicationEventService eventService;
+
+    public MailService(MessageSource messageSource,
+                       SpringTemplateEngine templateEngine,
+                       ApplicationEventService eventService) {
+        this.messageSource = messageSource;
+        this.templateEngine = templateEngine;
+        this.eventService = eventService;
+        this.templateEngine.addDialect(new Java8TimeDialect());
+    }
+
+//    private JavaMailSender getJavaMailSender() {
+//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+//        mailSender.setHost(Constants.CFG.get(Constants.PROP_MAIL_HOST));
+//        mailSender.setPort(Integer.parseInt(Constants.CFG.get(Constants.PROP_MAIL_PORT)));
+//        mailSender.setPassword(Constants.CFG.get(Constants.PROP_MAIL_PASSWORD));
+//        mailSender.setUsername(Constants.CFG.get(Constants.PROP_MAIL_USERNAME));
+//        mailSender.setProtocol(Constants.CFG.get(Constants.PROP_MAIL_PROTOCOL));
+//
+//        Properties props = mailSender.getJavaMailProperties();
+//        props.put("mail.smtp.auth", Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH));
+//        props.put("mail.smtp.starttls.enable", Constants.CFG.get(Constants.PROP_MAIL_SMTP_STARTTLS_ENABLE));
+//        props.put("mail.smtp.ssl.trust", Constants.CFG.get(Constants.PROP_MAIL_SMTP_SSL_TRUST));
+//
+//        return mailSender;
+//    }
+
+    private @NotNull JavaMailSender getJavaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        String host = Constants.CFG.get(Constants.PROP_MAIL_HOST);
+        mailSender.setHost(host);
+        mailSender.setPassword(Constants.CFG.get(Constants.PROP_MAIL_PASSWORD));
+        mailSender.setUsername(Constants.CFG.get(Constants.PROP_MAIL_USERNAME));
+        mailSender.setProtocol(Constants.PROP_EMAIL_PROTOCOL_VALUE);
+        Properties props = mailSender.getJavaMailProperties();
+        String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
+        String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
+        switch (authType) {
+            case "TLS":
+                mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_TLS_VALUE);
+                props.put("mail.smtp.auth", "true");
+                props.put("mail.smtp.starttls.enable", "true");
+                break;
+            case "SSL":
+                mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_SSL_VALUE);
+                props.put("mail.smtp.auth", "true");
+                props.put("mail.smtp.ssl.enable", "true");
+                break;
+            default:
+                mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_NONE_VALUE);
+                props.put("mail.smtp.auth", "false");
+                props.put("mail.smtp.ssl.enable", "false");
+                break;
+        }
+        props.put("mail.smtp.ssl.trust", host);
+        return mailSender;
+    }
+
+    /**
+     * Send a test email to the passed address to check if the email configuration is ok
+     *
+     * @param to Address to send the testing email
+     */
+    public void sendCheckEmail(List<String> to) throws Exception {
+        try {
+            JavaMailSender javaMailSender = getJavaMailSender();
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
+            message.setTo(to.toArray(new String[]{}));
+            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            message.setSubject("Testing mail configuration");
+            message.setText("Your email configuration is OK !!!");
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", to), e.getMessage());
+            throw new Exception(msg);
+        }
+    }
+
+    @Async
+    public void sendEmail(List<String> to, String subject, String content, boolean isMultipart, boolean isHtml) {
+        log.debug("Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}", isMultipart, isHtml,
+            to, subject, content);
+        JavaMailSender javaMailSender = getJavaMailSender();
+        // Prepare message using a Spring helper
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
+            message.setTo(to.toArray(new String[]{}));
+            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            message.setSubject(subject);
+            message.setText(content, isHtml);
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", to), e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
+    @Async
+    public void sendEmailWithAttachment(String emailsTo, String subject, String content, InputStream attach) {
+        JavaMailSender javaMailSender = getJavaMailSender();
+        // Prepare message using a Spring helper
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+        try {
+            Multipart mail = new MimeMultipart();
+
+            BodyPart text = new MimeBodyPart();
+            text.setText(content);
+            mail.addBodyPart(text);
+
+            if (attach != null) {
+                BodyPart attachment = new MimeBodyPart();
+                attachment.setDataHandler(new DataHandler(new ByteArrayDataSource(attach, "application/pdf")));
+                mail.addBodyPart(attachment);
+            }
+
+            mimeMessage.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailsTo));
+            mimeMessage.setSubject(subject);
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", emailsTo), e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
+    @Async
+    public void sendEmailFromTemplate(User user, String templateName, String titleKey) {
+        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        Context context = new Context(locale);
+        context.setVariable(USER, user);
+        context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
+        String content = templateEngine.process(templateName, context);
+        String subject = messageSource.getMessage(titleKey, null, locale);
+        sendEmail(Collections.singletonList(user.getEmail()), subject, content, false, true);
+    }
+
+    @Async
+    public void sendActivationEmail(User user) {
+        log.debug("Sending activation email to '{}'", user.getEmail());
+        sendEmailFromTemplate(user, "mail/activationEmail", "email.activation.title");
+    }
+
+    @Async
+    public void sendTfaVerificationCode(User user, String code) {
+        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        Context context = new Context(locale);
+        context.setVariable(USER, user);
+        context.setVariable("tfaCode", code);
+        String content = templateEngine.process("mail/tfaCodeEmail", context);
+        String subject = "Two Factor Authentication Verification Code";
+        sendEmail(Collections.singletonList(user.getEmail()), subject, content, false, true);
+    }
+
+    @Async
+    public void sendLowSpaceEmail(List<User> users, ElasticCluster cluster) {
+        Locale locale = Locale.forLanguageTag("en");
+        Context context = new Context(locale);
+        context.setVariable("cluster", cluster);
+        context.setVariable("server", System.getenv(Constants.ENV_SERVER_NAME));
+        String content = templateEngine.process("mail/elasticClusterStatusEmail", context);
+        String subject = "Low space warning";
+        sendEmail(users.stream().map(User::getEmail).collect(Collectors.toList()), subject, content, false, true);
+    }
+
+    @Async
+    public void sendCreationEmail(User user) {
+        log.debug("Sending creation email to '{}'", user.getEmail());
+        sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title");
+    }
+
+    @Async
+    public void sendPasswordResetMail(User user) {
+        log.debug("Sending password reset email to '{}'", user.getEmail());
+        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
+    }
+
+    @Async
+    public void sendAlertEmail(List<String> emailsTo, AlertType alert, List<LogType> relatedLogs) {
+        final String ctx = CLASS_NAME + ".sendAlertEmail";
+        try {
+            JavaMailSender javaMailSender = getJavaMailSender();
+            if (CollectionUtils.isEmpty(emailsTo) || Objects.isNull(alert))
+                return;
+
+            Context context = new Context(Locale.ENGLISH);
+            context.setVariable("alert", alert);
+            context.setVariable("relatedLogs", relatedLogs);
+            context.setVariable("timestamp", alert.getTimestampFormatted());
+            context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
+
+            final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            message.setSubject(String.format("%1$s[%2$s]: %3$s", alert.getIncident() ? "INFOSEC-" : "", alert.getId().substring(0, 5), alert.getName()));
+            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            message.setTo(emailsTo.toArray(new String[0]));
+
+            final String htmlContent = templateEngine.process("mail/alertEmail", context);
+            message.setText(htmlContent, true);
+
+            ByteArrayResource zip = buildAlertEmailAttachment(context, alert, relatedLogs);
+            message.addAttachment(String.format("Alert_%1$s.zip", alert.getId()), zip);
+
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, emailsTo, e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
+    @Async
+    public void sendIncidentEmail(List<String> emailsTo, List<AlertType> alerts, UtmIncident incident) {
+        final String ctx = CLASS_NAME + ".sendIncidentEmail";
+        try {
+            JavaMailSender javaMailSender = getJavaMailSender();
+            if (CollectionUtils.isEmpty(emailsTo) || CollectionUtils.isEmpty(alerts) || Objects.isNull(incident))
+                return;
+
+            Context context = new Context(Locale.ENGLISH);
+            context.setVariable("alerts", alerts);
+            context.setVariable("incident", incident);
+            context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
+            final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            message.setSubject(String.format("%1$s[%2$s]: %3$s", "INFOSEC- New Incident ", incident.getId().toString(), incident.getIncidentName()));
+            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            message.setTo(emailsTo.toArray(new String[0]));
+
+            final String htmlContent = templateEngine.process("mail/newIncidentEmail", context);
+            message.setText(htmlContent, true);
+
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, emailsTo, e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
+    /**
+     * Build attachment for alert mail
+     *
+     * @param context : Context used by spring template engine
+     * @param alert   : Alert information
+     * @return ByteArrayResource object with attachment to alert mail
+     * @throws Exception In case of any error
+     */
+    private ByteArrayResource buildAlertEmailAttachment(Context context, AlertType alert,
+                                                        List<LogType> relatedLogs) throws Exception {
+        final String ctx = CLASS_NAME + ".buildAlertEmailAttachment";
+        try {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            ZipOutputStream zipOut = new ZipOutputStream(bout);
+            zipOut.putNextEntry(new ZipEntry(String.format("%1$s.html", alert.getId())));
+            zipOut.write(templateEngine.process("mail/alertEmailAttachment", context).getBytes(StandardCharsets.UTF_8));
+            zipOut.closeEntry();
+            buildRelatedEventCsvAttachment(relatedLogs, zipOut);
+            zipOut.close();
+            return new ByteArrayResource(bout.toByteArray());
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    private void buildRelatedEventCsvAttachment(List<LogType> relatedLogs, ZipOutputStream zipOut) {
+        Map<String, List<LogType>> evtTypes = new HashMap<>();
+
+        // Separating event types
+        relatedLogs.forEach(doc -> {
+            Map<String, String> logxFlatted = doc.getLogxFlatted();
+            String logxType = logxFlatted.get("type");
+
+            evtTypes.computeIfAbsent(logxType, k -> new ArrayList<>());
+            evtTypes.computeIfPresent(logxType, (k, v) -> {
+                v.add(doc);
+                return v;
+            });
+        });
+
+        evtTypes.forEach((k, v) -> {
+            // Extracting headers
+            Set<String> set = new LinkedHashSet<>();
+            v.forEach(value -> set.addAll(value.getLogxFlatted().keySet()));
+            List<String> headers = new ArrayList<>(set);
+
+            StringBuilder sb = new StringBuilder();
+            try {
+                CSVPrinter csvPrinter = new CSVPrinter(sb, CSVFormat.DEFAULT.withHeader(headers.toArray(new String[0])));
+                v.forEach(value -> {
+                    String[] cells = new String[headers.size()];
+
+                    for (int i = 0; i < headers.size(); i++)
+                        cells[i] = value.getLogxFlatted().computeIfPresent(headers.get(i), (kk, vv) -> vv);
+
+                    try {
+                        csvPrinter.printRecords((Object) cells);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                zipOut.putNextEntry(new ZipEntry(String.format("%1$s.csv", k)));
+                zipOut.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+                zipOut.closeEntry();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+}

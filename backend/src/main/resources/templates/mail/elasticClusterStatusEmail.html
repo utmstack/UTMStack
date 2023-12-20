@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Two Factor Authentication Verification Code</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<!--/*@thymesVar id="cluster" type="com.park.utmstack.domain.health_check.elasticsearch.ElasticCluster"*/-->
+<p>
+    Disk space utilization exceeded 70% for server <b th:text="${server}"></b>.<br/>
+    <strong>
+        The system will automatically delete the oldest logs once disk utilization surpasses 85%.<br/>
+    </strong>
+    This action is done to guarantee the availability of the system.
+</p>
+<div style="padding: 0 1%;">
+    <table>
+        <thead>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+            <td style="font-weight: bold;vertical-align: top;">Total space:</td>
+            <td style="vertical-align: top;" th:text="${cluster.getResume().getDiskTotal()}"></td>
+        </tr>
+        <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+            <td style="font-weight: bold;vertical-align: top;">Used space</td>
+            <td style="vertical-align: top;" th:text="${cluster.getResume().getDiskUsed()}"></td>
+        </tr>
+        <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+            <td style="font-weight: bold;vertical-align: top;">Available space:</td>
+            <td style="vertical-align: top;" th:text="${cluster.getResume().getDiskAvailable()}"></td>
+        </tr>
+        <tr style="font-family:Roboto, sans-serif;font-size: 13px">
+            <td style="font-weight: bold;vertical-align: top;">Used percent</td>
+            <td style="vertical-align: top;" th:text="${cluster.getResume().getDiskUsedPercent()}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
