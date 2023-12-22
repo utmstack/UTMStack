@@ -26,7 +26,7 @@ func CheckRedlineService(h *holmes.Logger) {
 		if attempts >= 3 {
 			h.Info("Redline service has been stopped")
 			if err := utils.Execute(filepath.Join(path, bin), path, "send-log", fmt.Sprintf("%s service has been stopped", configuration.RedlineServName)); err != nil {
-				h.Error("error checking %s: error sending log : %v", err)
+				h.Error("error checking %s: error sending log : %v", configuration.RedlineServName, err)
 				time.Sleep(time.Second * 5)
 				continue
 			}
