@@ -47,7 +47,8 @@ func main() {
 	// Create a gRPC server with the authInterceptor
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(recoverInterceptor),
 		grpc.ChainUnaryInterceptor(auth.InterceptorAgentService),
-		grpc.ChainUnaryInterceptor(auth.AgentStreamAuthInterceptor))
+		grpc.ChainUnaryInterceptor(auth.AgentStreamAuthInterceptor),
+		grpc.StreamInterceptor(auth.ProcessCommandInterceptor))
 	pb.RegisterAgentServiceServer(grpcServer, s)
 	pb.RegisterPanelServiceServer(grpcServer, s)
 	pb.RegisterAgentGroupServiceServer(grpcServer, s)
