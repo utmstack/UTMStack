@@ -109,6 +109,7 @@ message UtmCommand {
   string origin_type = 5;
   string origin_id = 6;
   string reason = 7;
+  string internal_key = 8;
 }
 
 message CommandResult {
