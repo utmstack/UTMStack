@@ -4,6 +4,7 @@ on:
     tags: [ 'v*' ]
     paths:
       - 'backend/**'
+      - 'version.yml'
 
 jobs:
   docker:
