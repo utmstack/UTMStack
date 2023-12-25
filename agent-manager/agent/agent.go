@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"github.com/utmstack/UTMStack/agent-manager/config"
 	"io"
 	"log"
 	"time"
@@ -35,10 +36,10 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 			delete(s.AgentStreamMap, agentKey)
 			s.mu.Unlock()
 			// Wait for the client to reconnect
-			log.Printf("Waiting for client to reconnect...")
+			log.Printf("waiting for client to reconnect...")
 			err = waitForReconnect(s.AgentStreamMap[agentKey].stream.Context(), s)
 			if err != nil {
-				log.Printf("Failed to reconnect to client: %v", err)
+				log.Printf("failed to reconnect to client: %v", err)
 			}
 
 			// Reauthenticate the client and add it back to the agents map
@@ -56,6 +57,13 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 		}
 
 		switch msg := in.StreamMessage.(type) {
+		case *BidirectionalStream_Command:
+			// Validate the internal key for incoming commands
+			if msg.Command.GetInternalKey() != config.GetInternalKey() {
+				log.Printf("unauthorized command attempt detected")
+				continue // Skip processing this unauthorized command
+			}
+
 		case *BidirectionalStream_Result:
 			// Handle the received command (replace with your logic)
 			log.Printf("Received command: %s", msg.Result.CmdId)
@@ -73,7 +81,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 					},
 				},
 			}); err != nil {
-				log.Fatalf("Failed to send result to server: %v", err)
+				log.Printf("Failed to send result to server: %v", err)
 			}
 			s.resultChannelM.Lock()
 			if resultChan, ok := s.ResultChannel[cmdID]; ok {
@@ -134,9 +142,10 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 		err = agentStream.stream.Send(&BidirectionalStream{
 			StreamMessage: &BidirectionalStream_Command{
 				Command: &UtmCommand{
-					AgentKey: cmd.AgentKey,
-					Command:  cmd.Command,
-					CmdId:    cmdID,
+					AgentKey:    cmd.AgentKey,
+					Command:     cmd.Command,
+					CmdId:       cmdID,
+					InternalKey: config.GetInternalKey(),
 				},
 			},
 		})
