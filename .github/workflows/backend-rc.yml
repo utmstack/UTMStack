@@ -4,6 +4,7 @@ on:
     branches: [ "rc" ]
     paths:
       - 'backend/**'
+      - 'version.yml'
 
 jobs:
   docker:
