@@ -7,8 +7,13 @@ import (
 	"sync"
 
 	aesCrypt "github.com/AtlasInsideCorp/AtlasInsideAES"
+	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
+
+type InstallationUUID struct {
+	UUID string `yaml:"uuid"`
+}
 
 type Config struct {
 	Server             string `yaml:"server"`
@@ -31,12 +36,13 @@ func GetInitialConfig() (*Config, string) {
 }
 
 var (
-	cnf      Config
-	confOnce sync.Once
+	cnf          = Config{}
+	confOnce     sync.Once
+	instuuid     = ""
+	instuuidOnce sync.Once
 )
 
 func GetCurrentConfig() (*Config, error) {
-	cnf = Config{}
 	var errR error
 	confOnce.Do(func() {
 		path, err := utils.GetMyPath()
@@ -51,10 +57,25 @@ func GetCurrentConfig() (*Config, error) {
 		}
 
 		// Get key
-		key, err := utils.GenerateKey(REPLACE_KEY)
-		if err != nil {
-			errR = fmt.Errorf("error geneating key: %v", err)
-			return
+		var key []byte
+		if utils.CheckIfPathExist(filepath.Join(path, UUIDFileName)) {
+			uuid, err := GetUUID()
+			if err != nil {
+				errR = fmt.Errorf("failed to get uuid: %v", err)
+				return
+			}
+
+			key, err = utils.GenerateKeyByUUID(REPLACE_KEY, uuid)
+			if err != nil {
+				errR = fmt.Errorf("error geneating key: %v", err)
+				return
+			}
+		} else {
+			key, err = utils.GenerateKey(REPLACE_KEY)
+			if err != nil {
+				errR = fmt.Errorf("error geneating key: %v", err)
+				return
+			}
 		}
 
 		// Decrypt config
@@ -83,8 +104,13 @@ func SaveConfig(cnf *Config) error {
 		return fmt.Errorf("failed to get current path: %v", err)
 	}
 
+	uuid, err := GenerateNewUUID()
+	if err != nil {
+		return fmt.Errorf("failed to generate uuid: %v", err)
+	}
+
 	// Get key
-	key, err := utils.GenerateKey(REPLACE_KEY)
+	key, err := utils.GenerateKeyByUUID(REPLACE_KEY, uuid)
 	if err != nil {
 		return fmt.Errorf("error geneating key: %v", err)
 	}
@@ -107,4 +133,51 @@ func SaveConfig(cnf *Config) error {
 		return err
 	}
 	return nil
+}
+
+func GenerateNewUUID() (string, error) {
+	uuid, err := uuid.NewRandom()
+	if err != nil {
+		return "", fmt.Errorf("failed to generate uuid: %v", err)
+	}
+
+	InstallationUUID := InstallationUUID{
+		UUID: uuid.String(),
+	}
+
+	path, err := utils.GetMyPath()
+	if err != nil {
+		return "", fmt.Errorf("failed to get current path: %v", err)
+	}
+
+	if err = utils.WriteYAML(filepath.Join(path, UUIDFileName), InstallationUUID); err != nil {
+		return "", fmt.Errorf("error writing uuid file: %v", err)
+	}
+
+	return InstallationUUID.UUID, nil
+}
+
+func GetUUID() (string, error) {
+	var errR error
+	instuuidOnce.Do(func() {
+		path, err := utils.GetMyPath()
+		if err != nil {
+			errR = fmt.Errorf("failed to get current path: %v", err)
+			return
+		}
+
+		var uuid = InstallationUUID{}
+		if err = utils.ReadYAML(filepath.Join(path, UUIDFileName), &uuid); err != nil {
+			errR = fmt.Errorf("error reading uuid file: %v", err)
+			return
+		}
+
+		instuuid = uuid.UUID
+	})
+
+	if errR != nil {
+		return "", errR
+	}
+
+	return instuuid, nil
 }
