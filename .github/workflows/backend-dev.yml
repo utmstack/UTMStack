@@ -1,7 +1,7 @@
 name: Backend - DEV
 on:
   push:
-    branches: [ main ]
+    branches: [ feature/v10/changing-version ]
     paths:
       - 'backend/**'
       - 'version.yml'
@@ -13,4 +13,4 @@ jobs:
       image_name: backend
       environment: v10-dev
       directory: backend
-      branch: main
+      branch: feature/v10/changing-version
