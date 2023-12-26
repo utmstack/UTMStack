@@ -31,9 +31,10 @@ jobs:
           
       - name: Read version from config
         id: read_version
-        run: |
-          echo "::set-output name=version::$(awk -F ': ' '/version/ {print $2}' version.yml | xargs)"
-          
+        uses: CumulusDS/get-yaml-paths-action@v1.0.1
+        with:
+          file: version.yml
+          version: version     
 
       - name: Build with Maven
         working-directory: ./${{inputs.directory}}
