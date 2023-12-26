@@ -56,34 +56,56 @@ func AgentStreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc
 }
 
 func InterceptorAgentService(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	// Check if the current method is RegisterAgent or DeleteAgent
-	routes := config.ConnectionKeyRoutes()
-	if isInRoute(info.FullMethod, routes) {
-		// Get the metadata from the incoming context
+	if isInRoute(info.FullMethod, config.ConnectionKeyRoutes()) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, status.Error(codes.Unauthenticated, "missing metadata")
 		}
-		// Get the authorization token from metadata
-		authHeader := md.Get("connection-key")
-		internalKeyHeader := md.Get("internal-key")
-		if len(authHeader) == 0 && len(internalKeyHeader) == 0 {
-			return nil, status.Error(codes.Unauthenticated, "authorization key must be provided")
-		}
-		if authHeader != nil && authHeader[0] != "" {
-			if !validateToken(authHeader[0]) {
-				return nil, status.Error(codes.Unauthenticated, "unable to connect with the panel to check the connection key")
-			}
-		} else {
-			// check the internal key
-			internalKey := os.Getenv(config.UTMSharedKeyEnv)
-			if internalKeyHeader == nil || internalKeyHeader[0] != internalKey {
-				return nil, status.Error(codes.Unauthenticated, "internal key does not match")
-			}
+		if err := authenticateRequest(md); err != nil {
+			return nil, err
 		}
 	}
-	// If the token is valid or the internal key, call the handler to continue processing the request
+
 	return handler(ctx, req)
+}
+
+func ProcessCommandInterceptor(srv interface{}, ss grpc.ServerStream,
+	info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+
+	if info.FullMethod == "/agent.PanelService/ProcessCommand" {
+		md, ok := metadata.FromIncomingContext(ss.Context())
+		if !ok {
+			return status.Error(codes.Unauthenticated, "missing metadata")
+		}
+
+		if err := authenticateRequest(md); err != nil {
+			return err
+		}
+	}
+
+	return handler(srv, ss)
+}
+
+func authenticateRequest(md metadata.MD) error {
+	authHeader := md.Get("connection-key")
+	internalKeyHeader := md.Get("internal-key")
+
+	if len(authHeader) == 0 && len(internalKeyHeader) == 0 {
+		return status.Error(codes.Unauthenticated, "authorization key must be provided")
+	}
+
+	if len(authHeader) > 0 && authHeader[0] != "" {
+		if !validateToken(authHeader[0]) {
+			return status.Error(codes.Unauthenticated, "unable to connect with the panel to check the connection key")
+		}
+	} else {
+		internalKey := os.Getenv(config.UTMSharedKeyEnv)
+		if internalKeyHeader == nil || len(internalKeyHeader) == 0 || internalKeyHeader[0] != internalKey {
+			return status.Error(codes.Unauthenticated, "internal key does not match")
+		}
+	}
+
+	return nil
 }
 
 func validateToken(token string) bool {
