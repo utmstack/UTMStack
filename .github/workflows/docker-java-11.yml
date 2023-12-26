@@ -31,7 +31,8 @@ jobs:
           
       - name: Read version from config
         id: read_version
-        run: echo "::set-output name=version::$(awk -F ': ' '/version/ {print $2}' version.yml | xargs)"
+        run: |
+          echo "::set-output name=version::$(awk -F ': ' '/version/ {print $2}' version.yml | xargs)"
           
 
       - name: Build with Maven
