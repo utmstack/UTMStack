@@ -26,17 +26,13 @@ public class WebPdfController {
     private final PdfGenerationService pdfGenerationService;
 
     @GetMapping("/generate-pdf")
-    public ResponseEntity<ResponseDto> generatePdf(@RequestParam String url) {
+    public ResponseEntity<ResponseDto> generatePdf(@RequestParam String url, @RequestParam String accessType, @RequestParam String accessKey) {
         try {
-            URI serverUrl = new URL(url).toURI();
-            byte[] pdfBytes = pdfGenerationService.generatePdf(String.valueOf(serverUrl));
+            byte[] pdfBytes = pdfGenerationService.generatePdf(url, accessKey, accessType);
 
             return ResponseEntity.ok().body(ResponseDto.builder().pdfBytes(pdfBytes).build());
 
-        } catch (MalformedURLException | URISyntaxException e) {
-            log.error("Invalid url: {}", url, e);
-            return ResponseEntity.badRequest().body(ResponseDto.builder().message("Invalid url").build());
-        } catch (Exception e) {
+        }  catch (Exception e) {
             log.error("Error generating the PDF for the URL: {}", url, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.builder().message("Error generating the PDF for the URL").build());
         }
