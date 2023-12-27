@@ -199,7 +199,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["frontend"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/utmstack_frontend:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/frontend:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"filebrowser",
@@ -335,7 +335,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["backend"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/utmstack_backend:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
