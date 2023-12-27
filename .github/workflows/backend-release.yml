@@ -1,13 +1,14 @@
-name: UTMStack API - RELEASE
+name: Backend - RELEASE
 on:
   push:
     tags: [ 'v*' ]
     paths:
       - 'backend/**'
+      - 'version.yml'
 
 jobs:
   docker:
-    uses: ./.github/workflows/docker-java.yml
+    uses: ./.github/workflows/docker-java-11.yml
     with:
       image_name: backend
       environment: v10
