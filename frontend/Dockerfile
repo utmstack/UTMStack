@@ -8,4 +8,3 @@ HEALTHCHECK --start-period=120s --interval=60s --timeout=60s \
 
 EXPOSE 80
 CMD ["/bin/sh",  "-c", "exec nginx -g 'daemon off;'"]
-
