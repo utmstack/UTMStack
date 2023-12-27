@@ -1,7 +1,7 @@
 name: Backend - QA
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'backend/**'
       - 'version.yml'
@@ -13,4 +13,4 @@ jobs:
       image_name: backend
       environment: v10-qa
       directory: backend
-      branch: main
+      branch: qa
