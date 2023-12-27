@@ -21,7 +21,12 @@
 
     <include file="config/liquibase/changelog/20231120001_fixing_soc_ai_integration_function.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231120002_add_ad_audit.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231120003_added_entity_UtmComplianceReportSchedule.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20231129001_updating_mikrotik_filter.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231215001_updating_azure_filter.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231218001_add_compliance_schedule_menu.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

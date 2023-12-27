@@ -373,4 +373,33 @@ public class MailService {
             }
         });
     }
+    @Async
+    public void sendComplianceReportEmail(String emailTo, String subject, String content, String filename, byte [] attachment) {
+        final String ctx = CLASS_NAME + ".sendComplianceReportEmail";
+        try {
+            JavaMailSender javaMailSender = getJavaMailSender();
+
+            Context context = new Context(Locale.ENGLISH);
+            context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
+            context.setVariable("subject",subject);
+            context.setVariable("content",content);
+
+            final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            message.setSubject(subject);
+            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            message.setTo(emailTo);
+            final String htmlContent = templateEngine.process("mail/complianceScheduleEmail", context);
+            message.setText(htmlContent, true);
+
+            ByteArrayResource complianceRep = new ByteArrayResource(attachment);
+            message.addAttachment(filename, complianceRep);
+
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, emailTo, e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
 }
