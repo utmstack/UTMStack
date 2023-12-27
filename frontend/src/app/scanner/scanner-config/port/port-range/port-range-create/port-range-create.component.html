@@ -1,0 +1,57 @@
+<app-utm-modal-header [name]="'New port range for port list: ' +port.name" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-task-container">
+  <div class="task-form-container d-flex p-3">
+    <form [formGroup]="portRangeForm" action="" class="form">
+      <div class="row">
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1" for="start">Start</label>
+            <input [ngClass]="inputClass.resolveClassInput(portRangeForm.get('start'))" class="border-1 border-grey-600 form-control" formControlName="start" id="start"
+                   name=""
+                   type="number">
+            <app-formcontrol-error [formcontrol]="portRangeForm.get('start')"></app-formcontrol-error>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <div class="form-group">
+            <label class="pb-1" for="end">End</label>
+            <input [ngClass]="inputClass.resolveClassInput(portRangeForm.get('end'))" class="border-1 border-grey-600 form-control" formControlName="end" id="end" name=""
+                   type="number">
+            <app-formcontrol-error [formcontrol]="portRangeForm.get('end')"></app-formcontrol-error>
+          </div>
+        </div>
+      </div>
+      <!--generate to result-->
+      <div class="d-flex justify-content-start flex-column">
+        <label class="pb-1">Protocol</label>
+        <div class="d-flex justify-content-start align-items-center">
+          <input [value]="'tcp'"
+                 class="form-check-input magic-radio" formControlName="type" id="yes"
+                 name="type"
+                 type="radio">
+          <label class="mb-0" for="yes">
+            TCP
+          </label>
+          <input [value]="'udp'"
+                 class="form-check-input magic-radio" formControlName="type" id="no"
+                 name="type" type="radio">
+          <label class="mb-0 ml-4" for="no">
+            UDP
+          </label>
+        </div>
+      </div>
+    </form>
+
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createPortRange()"
+            [disabled]="!portRangeForm.valid || creating" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-insert'"></i>&nbsp;
+      Save
+    </button>
+  </div>
+</div>

@@ -1,0 +1,158 @@
+<div class="row m-0">
+  <div class="col-lg-12 pr-0 pl-0">
+    <div class="card h-100">
+      <div class="card bg-light border-0 m-0">
+        <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+          <app-sort-by (sortBy)="onSortBy($event)" [fields]="fields"></app-sort-by>
+          <app-utm-search-input (searchFor)="searchReport($event)"
+                                [searching]="searching"
+                                placeholder="Search report"></app-utm-search-input>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table text-nowrap">
+          <thead>
+          <tr>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 1%">
+            </th>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 15%">
+              Name&nbsp;
+            </th>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 5%">
+              Type&nbsp;
+            </th>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 35%">
+              Comment&nbsp;
+            </th>
+            <th class="font-weight-semibold text-uppercase cursor-pointer">
+              Next Run&nbsp;
+            </th>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer">
+              Period&nbsp;
+            </th>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer">
+              Limit row&nbsp;
+            </th>
+            <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width:5%">
+              Action&nbsp;
+            </th>
+          </tr>
+          </thead>
+          <tbody *ngFor="let report of adReports" [hidden]="!(adReports.length>0 && !loading)">
+          <tr>
+            <td (click)="viewDetail===report.id?viewDetail=0:viewDetail=report.id" class="cursor-pointer"
+                style="width:15px">
+                <span class="text-blue-800">
+                  <i [ngClass]="viewDetail===report.id?'icon-arrow-up32':'icon-arrow-down32'"></i>
+                </span>
+            </td>
+            <td>
+                <span class="text-blue-800">
+                   {{report.name}}
+                </span>
+            </td>
+            <td style="width: 5%">
+                <span>
+                   {{report.type}}
+                </span>
+            </td>
+            <td style="width: 25%">
+                <span>
+                  {{report.description}}
+                </span>
+            </td>
+            <td style="width: 3%">
+                <span>
+                   {{report.nextExecution |date:'short':'UTC'}}
+                </span>
+            </td>
+            <td style="width: 5%">
+                <span>
+                   {{resolveTimeRange(report.schedule)}}
+                </span>
+            </td>
+            <td class="text-center" style="width: 5%">
+                <span>
+                   {{report.limit}}
+                </span>
+            </td>
+            <td class="td-action text-center">
+              <div class="d-flex justify-content-center align-items-center medium-icon">
+                <i (click)="deleteReport(report)" [ngbTooltip]="'Delete report'"
+                   class="icon-cross2 cursor-pointer mr-3"
+                   placement="left"
+                   tooltipClass="utm-tooltip"></i>
+                <i (click)="runReport(report)"
+                   [ngbTooltip]="'Download report from last '+resolveTimeRange(report.schedule)"
+                   class="icon-download cursor-pointer text-blue-800"
+                   placement="left"
+                   tooltipClass="utm-tooltip"></i>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="report.id=== viewDetail">
+            <td colspan="8">
+              <div class="utm-box mt-2 p-2 border-1 border-blue-800 position-relative">
+                 <span class="p-1 utm-box-label">
+                 <i class="icon-mail5"></i>
+                  Emails</span>
+                <div *ngFor="let email of report.emails.split(','); let index=index"
+                     class="d-flex justify-content-start align-items-start flex-wrap mt-1">
+                  <div class="email-list p-1 bg-success-300 m-1 rounded">
+                    <span class="p-2">{{email}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="utm-box mt-4 p-2 border-1 border-blue-800 position-relative">
+                                 <span class="p-1 utm-box-label">
+                                 <i class="icon-user-check"></i>
+                                  Objects</span>
+                <div class="d-flex justify-content-start align-items-start flex-wrap mt-1">
+                  <div *ngFor="let object of report.objectsType; let index=index"
+                       class="email-list p-1 bg-success-300 m-1 rounded">
+                    <span class="p-2">{{object.objectName}}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+          <tbody *ngIf="adReports.length===0 && !loading">
+          <tr>
+            <td colspan="8">
+              <app-no-data-found></app-no-data-found>
+            </td>
+          </tr>
+          </tbody>
+          <tbody *ngIf="loading">
+          <tr>
+            <td colspan="6">
+              <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                <app-utm-spinner [height]="'35px'"
+                                 [label]="'Loading active directory reports'"
+                                 [loading]="loading"
+                                 [width]="'35px'">
+                </app-utm-spinner>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="adReports && adReports.length>0" class="mb-4">
+        <div class="row justify-content-center">
+          <ngb-pagination
+            (pageChange)="loadPage($event)"
+            [(page)]="page"
+            [boundaryLinks]="true"
+            [collectionSize]="totalItems"
+            [maxSize]="5"
+            [pageSize]="itemsPerPage"
+            [rotate]="true"
+            [size]="'sm'"></ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

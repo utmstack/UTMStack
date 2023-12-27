@@ -1,0 +1,9 @@
+<div class="p-2 d-flex justify-content-start align-items-start" *ngIf="fullLog">
+  <!--  <p class="font-weight-thin" [innerHTML]="fullLog"></p>-->
+  <app-utm-terminal-input [param]="fullLog" [readonly]="true"
+                          terminal="UTMSTACK Command result"></app-utm-terminal-input>
+</div>
+
+<div class="p-2 d-flex justify-content-start align-items-start h-100 w-100" *ngIf="!fullLog">
+  <app-no-data-found [padding]="'p-5'" [size]="'lg'"></app-no-data-found>
+</div>

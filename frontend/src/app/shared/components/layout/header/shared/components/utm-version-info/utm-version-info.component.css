@@ -1,0 +1,9 @@
+.version-info {
+  font-size: 10px !important;
+  margin-top: 7px;
+  margin-left: 4px;
+}
+
+.badge-success-800 {
+  background-color: #2e7d32 !important;
+}

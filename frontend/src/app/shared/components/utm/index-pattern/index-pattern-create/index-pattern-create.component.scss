@@ -1,0 +1,61 @@
+@import "../../../../../../assets/styles/theme";
+@import "../../../../../../assets/styles/var";
+
+
+.index-pattern-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  position: relative;
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .round-indicator {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+
+      i {
+        font-size: 11px;
+      }
+    }
+
+    .step-active {
+      background-color: $blue-scroll;
+    }
+
+    .step-inactive {
+      background-color: $grey-color;
+    }
+
+    .step-success {
+      background-color: $success-color !important;
+    }
+  }
+
+  .step-link {
+    height: 1px;
+    background-color: #7777;
+    width: 43.5%;
+    top: 33px;
+    position: absolute;
+  }
+
+}
+
+
+.index-health {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 5px;
+}

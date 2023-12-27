@@ -1,0 +1,261 @@
+<app-utm-modal-header [name]="target?'Edit target':'New target'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-target-container">
+  <div class="target-form-container d-flex flex-column p-3">
+    <form [formGroup]="targetForm" action="" class="form">
+      <div class="form-group">
+        <label class="pb-1" for="nameTarget">Name</label>
+        <input [ngClass]="inputClass.resolveClassInput(targetForm.get('name'))" class="border-1 border-grey-600 form-control" formControlName="name"
+               id="nameTarget"
+               name="name">
+        <app-formcontrol-error [formcontrol]="targetForm.get('name')"></app-formcontrol-error>
+      </div>
+
+      <div class="form-group">
+        <label class="pb-1" for="commentTarget">Comments</label>
+        <textarea [ngClass]="inputClass.resolveClassInput(targetForm.get('comment'))" class="border-1 border-grey-600 form-control" formControlName="comment" id="commentTarget"
+                  name="comment"
+                  rows="2">
+        </textarea>
+        <app-formcontrol-error [formcontrol]="targetForm.get('comment')"></app-formcontrol-error>
+      </div>
+
+      <!--      host-->
+      <div class="d-flex align-items-center w-100">
+        <div class="form-group flex-grow-1">
+          <label class="pb-1" for="hosts">Hosts</label>
+          <input [ngClass]="inputClass.resolveClassInput(targetForm.get('hosts'))" class="border-1 border-grey-600 form-control" formControlName="hosts"
+                 id="hosts"
+                 name="">
+          <app-formcontrol-error [formcontrol]="targetForm.get('hosts')"></app-formcontrol-error>
+        </div>
+        <div class="add-action-form ml-3">
+           <span ngbTooltip="Add IPs separates with , . Example: 192.168.1.0/24 , 192.200.1.0/32"
+                 container="'body'"
+                 placement="left"
+                 tooltipClass="utm-tooltip-left">
+             <i class="icon-question3"></i>
+           </span>
+        </div>
+      </div>
+      <!--      exclude host-->
+      <div class="d-flex align-items-center w-100">
+        <div class="form-group flex-grow-1">
+          <label class="pb-1" for="ehosts">Exclude Hosts</label>
+          <input [ngClass]="inputClass.resolveClassInput(targetForm.get('excludeHosts'))" class="border-1 border-grey-600 form-control" formControlName="excludeHosts"
+                 id="ehosts"
+                 name="">
+          <app-formcontrol-error [formcontrol]="targetForm.get('excludeHosts')"></app-formcontrol-error>
+        </div>
+        <div class="add-action-form ml-3">
+           <span ngbTooltip="Add IPs separates with , . Example: 192.168.1.0/24 , 192.200.1.0/32"
+                 container="'body'"
+                 placement="left"
+                 tooltipClass="utm-tooltip-left">
+             <i class="icon-question3"></i>
+           </span>
+        </div>
+      </div>
+      <div class="row m-0 mb-3 mt-3">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+          <!--Reverse lockup-->
+          <div class="d-flex justify-content-start flex-column">
+            <label class="pb-1" for="reverseLookupOnly">Reverse lockup only?</label>
+            <div class="d-flex justify-content-start align-items-center">
+              <input [value]="true"
+                     class="form-check-input magic-radio" formControlName="reverseLookupOnly"
+                     id="reverseLookupOnly"
+                     name="reverseLookupOnly"
+                     type="radio">
+              <label class="mb-0" for="reverseLookupOnly">
+                Yes
+              </label>
+              <input [value]="false"
+                     class="form-check-input magic-radio" formControlName="reverseLookupOnly"
+                     id="reverseLookupOnlyNo"
+                     name="reverseLookupOnly"
+                     type="radio">
+              <label class="mb-0 ml-4" for="reverseLookupOnlyNo">
+                No
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+          <!--      Reverse lockup-->
+          <div class="d-flex justify-content-start flex-column">
+            <label class="pb-1" for="applyOverrideYes">Reverse lockup unify?</label>
+            <div class="d-flex justify-content-start align-items-center">
+              <input [value]="true"
+                     class="form-check-input magic-radio" formControlName="reverseLookupUnify"
+                     id="applyOverrideYes"
+                     name="reverseLookupUnify"
+                     type="radio">
+              <label class="mb-0" for="applyOverrideYes">
+                Yes
+              </label>
+              <input [value]="false"
+                     class="form-check-input magic-radio" formControlName="reverseLookupUnify"
+                     id="applyOverrideNo"
+                     name="reverseLookupUnify"
+                     type="radio">
+              <label class="mb-0 ml-4" for="applyOverrideNo">
+                No
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--targets-->
+      <div class="d-flex align-items-center justify-content-center w-100">
+        <div class="d-flex flex-column flex-grow-1">
+          <label class="pb-1" for="portList">Port list</label>
+          <ng-select (clear)="getPortList({size: ITEMS_PER_PAGE})"
+                     (scroll)="getMorePorts()"
+                     (search)="searchPort($event)"
+                     [items]="portLists"
+                     [loadingText]="'Loading ports....'"
+                     [loading]="!portLists"
+                     [searchable]="true"
+                     bindLabel="name"
+                     bindValue="uuid"
+                     formControlName="portList"
+                     id="portList">
+          </ng-select>
+        </div>
+        <div class="add-action-form ml-3 pt-3">
+           <span (click)="newPort()">
+             <i class="icon-plus3"></i>
+             Add port list
+           </span>
+        </div>
+      </div>
+      <!--Alive-->
+      <div class="d-flex flex-column align-items-start w-50 mt-3">
+        <label class="pb-1" for="aliveTest">Alive test</label>
+        <ng-select [items]="aliveTests"
+                   [searchable]="true"
+                   bindLabel="name"
+                   bindValue="name"
+                   formControlName="aliveTest"
+                   id="aliveTest"
+                   style="width: 100%">
+        </ng-select>
+      </div>
+
+      <div class="utm-box-container mt-5 p-3 border-1 border-blue-800 position-relative">
+        <span class="p-1 utm-box-span">
+          <i class="icon-lock2"></i>
+         Credentials for authenticated checks
+        </span>
+        <div class="credential-container d-flex justify-content-start align-items-center">
+          <span class="mr-2 font-weight-bold name-credential">SSH</span>
+          <ng-select (clear)="getCredentials({size: ITEMS_PER_PAGE})"
+                     (scrollToEnd)="getMoreCredentials()"
+                     (search)="searchCredentials($event)"
+                     [items]="credentials"
+                     [loadingText]="'Loading credentials....'"
+                     [loading]="!credentials"
+                     [searchable]="true"
+                     bindLabel="name"
+                     bindValue="uuid"
+                     class="flex-grow-1"
+                     formControlName="sshCredentialId">
+          </ng-select>
+          <span class="ml-1 mr-1">on port</span>
+          <input class="border-1 border-grey-600 form-control" formControlName="sshCredentialPort" id="port" name=""
+                 style="padding: 5px;width: 70px"
+                 type="number">
+          <div class="add-action-form ml-3">
+           <span (click)="newCredential('SSH')">
+             <i class="icon-plus3"></i>
+             Add
+           </span>
+          </div>
+        </div>
+        <div class="credential-container mt-3 d-flex justify-content-start align-items-center">
+          <span class="mr-2 font-weight-bold name-credential">SMB</span>
+          <ng-select (clear)="getCredentials({size: ITEMS_PER_PAGE})"
+                     (scrollToEnd)="getMoreCredentials()"
+                     (search)="searchCredentials($event)"
+                     [items]="credentials"
+                     [loadingText]="'Loading credentials....'"
+                     [loading]="!credentials"
+                     [searchable]="true"
+                     bindLabel="name"
+                     bindValue="uuid"
+                     class="flex-grow-1"
+                     formControlName="smbCredential">
+          </ng-select>
+          <div class="add-action-form ml-3">
+                   <span (click)="newCredential('SMB')">
+                     <i class="icon-plus3"></i>
+                     Add Credential
+                   </span>
+          </div>
+        </div>
+        <!--        <div class="credential-container mt-3 d-flex justify-content-start align-items-center">-->
+        <!--          <span class="mr-2 font-weight-bold name-credential">ESxi</span>-->
+        <!--          <ng-select [items]="credentials"-->
+        <!--                     class="flex-grow-1"-->
+        <!--                     bindLabel="name"-->
+        <!--                     [loading]="credentials.length===0"-->
+        <!--                     [loadingText]="'Loading credentials....'"-->
+        <!--                     (scrollToEnd)="getMoreCredentials()"-->
+        <!--                     (search)="searchCredentials($event)"-->
+        <!--                     (clear)="getCredentials({size: ITEMS_PER_PAGE})"-->
+        <!--                     [searchable]="true"-->
+        <!--                     formControlName="esxiCredential"-->
+        <!--                     bindValue="uuid">-->
+        <!--          </ng-select>-->
+        <!--          <div class="add-action-form ml-3">-->
+        <!--                   <span (click)="newCredential('ESxi')">-->
+        <!--                     <i class="icon-plus3"></i>-->
+        <!--                     Add Credential-->
+        <!--                   </span>-->
+        <!--          </div>-->
+        <!--        </div>-->
+        <!--        <div class="credential-container mt-3 d-flex justify-content-start align-items-center">-->
+        <!--          <span class="mr-2 font-weight-bold name-credential">SNMP</span>-->
+        <!--          <ng-select [items]="credentials"-->
+        <!--                     class="flex-grow-1"-->
+        <!--                     bindLabel="name"-->
+        <!--                     [loading]="credentials.length===0"-->
+        <!--                     [loadingText]="'Loading credentials....'"-->
+        <!--                     (scrollToEnd)="getMoreCredentials()"-->
+        <!--                     (search)="searchCredentials($event)"-->
+        <!--                     (clear)="getCredentials({size: ITEMS_PER_PAGE})"-->
+        <!--                     [searchable]="true"-->
+        <!--                     formControlName="snmpCredential"-->
+        <!--                     bindValue="uuid">-->
+        <!--          </ng-select>-->
+        <!--          <div class="add-action-form ml-3">-->
+        <!--                   <span (click)="newCredential('SNMP')">-->
+        <!--                     <i class="icon-plus3"></i>-->
+        <!--                     Add Credential-->
+        <!--                   </span>-->
+        <!--          </div>-->
+        <!--        </div>-->
+      </div>
+    </form>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="createTarget()"
+              *ngIf="!target" [disabled]="!targetForm.valid || creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-insert'"></i>&nbsp;
+        Save
+      </button>
+      <button (click)="editTarget()"
+              *ngIf="target" [disabled]="!targetForm.valid || creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-edit2'"></i>&nbsp;
+        Edit
+      </button>
+    </div>
+  </div>
+</div>
+
+
+

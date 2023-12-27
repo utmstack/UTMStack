@@ -1,0 +1,13 @@
+.host-card {
+  max-width: 190px;
+  width: 190px;
+  max-height: 220px;
+  height: 220px;
+
+  .host-header-action {
+    .dropdown-menu {
+      left: -140px !important;
+    }
+  }
+
+}

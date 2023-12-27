@@ -1,0 +1,11 @@
+<span *ngIf="access"
+      [ngbTooltip]="tipContent"
+      [openDelay]="2000"
+      class=""
+      container="body"
+      placement="auto">
+  {{access.access}}
+</span>
+<ng-template #tipContent>
+  <div [innerHTML]="convertDescToHtml()" class="tooltip-inner"></div>
+</ng-template>

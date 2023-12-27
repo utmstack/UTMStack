@@ -1,0 +1,40 @@
+<span
+  #statusIncidentPopober=ngbPopover
+  [class]="background"
+  [ngClass]="'cursor-pointer'"
+  [ngbPopover]="colContent"
+  autoClose="outside"
+  class="badge p-1 border-1 span-small-icon
+  badge-flat rounded status-container
+  font-weight-light text-center align-middle"
+  container="body"
+  placement="auto"
+  popoverClass="utm-popover"
+  (close)="changing=false"
+  triggers="click">
+ <i [ngClass]="changing?'icon-spinner2 spinner':icon"></i>&nbsp;
+  <span>{{label}}</span>
+</span>
+
+<ng-template #colContent>
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <a (click)="changeStatus(incidentStatusEnum.OPEN); statusIncidentPopober.close();"
+       *ngIf="incident.incidentStatus !== incidentStatusEnum.OPEN"
+       class="text-success-400 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
+      <i [class]="openIcon"></i>
+      {{open}}
+    </a>
+    <a (click)="changeStatus(incidentStatusEnum.IN_REVIEW); statusIncidentPopober.close();"
+       *ngIf="incident.incidentStatus !== incidentStatusEnum.IN_REVIEW"
+       class="text-info-400 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
+      <i [class]="reviewIcon"></i>
+      {{review}}
+    </a>
+    <a (click)="changeStatus(incidentStatusEnum.COMPLETED); statusIncidentPopober.close();"
+       *ngIf="incident.incidentStatus !== incidentStatusEnum.COMPLETED"
+       class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
+      <i [class]="completeIcon"></i>
+      {{complete}}
+    </a>
+  </div>
+</ng-template>

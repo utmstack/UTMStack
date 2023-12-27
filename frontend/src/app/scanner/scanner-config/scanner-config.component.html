@@ -1,0 +1,30 @@
+<div class="vul-container container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center tab-header">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      Vulnerabilities configuration
+    </h5>
+    <ul class="nav nav-tabs flex-grow-1 justify-content-end">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="task" routerLinkActive="active">
+          <i class="icon-task mr-1"></i> Tasks</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="target" routerLinkActive="active">
+          <i class="icon-target2 mr-1"></i> Targets</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="schedule" routerLinkActive="active">
+          <i class="icon-alarm-check mr-1"></i>Schedules</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="port" routerLinkActive="active">
+          <i class="icon-power-cord mr-1"></i>Ports list</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="credential" routerLinkActive="active">
+          <i class="icon-lock2 mr-1"></i>Credentials</a>
+      </li>
+    </ul>
+  </div>
+  <router-outlet></router-outlet>
+</div>

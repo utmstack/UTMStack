@@ -1,0 +1,25 @@
+<app-utm-modal-header [name]="'Export vulnerabilities report'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="alert alert-info alert-styled-right mb-2 mt-2">
+    <span>
+        A full report includes vulnerabilities with any type of severity, on the other side, a non-full report includes only
+     vulnerabilities with a high, medium, or low level of severity.
+      </span>
+  </div>
+
+  <div class="form w-100 mt-3">
+    <app-utm-toggle (toggleChange)="fullReport = $event" [active]="fullReport"
+                    [label]="'Generate full report?'"></app-utm-toggle>
+    <div class="buttom-container pt-3 d-flex justify-content-end">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="viewReportTaskDetail()"
+              [disabled]="generateReport" class="btn utm-button utm-button-primary">
+        <i [ngClass]="generateReport?'icon-spinner2 spinner':'icon-file-pdf'" class="mr-1"></i>
+        {{generateReport ? 'Generating...' : 'View report'}}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<span #notePopober=ngbPopover
+      *ngIf="sddl;else empty"
+      [ngbPopover]="AclContent"
+      [popoverTitle]="AClTitle"
+      autoClose="outside"
+      class="text-blue-800 position-relative cursor-pointer small-md-icon"
+      container="body"
+      placement="auto"
+      popoverClass="utm-popover" triggers="click">
+  <i class="icon-file-locked"></i>
+  <span class="ml-1">
+    View ACL
+  </span>
+</span>
+
+<ng-template #AclContent>
+  <p [innerHTML]="sddl"></p>
+</ng-template>
+<ng-template #AClTitle>
+  <h6 class="font-weight-light">ACL</h6>
+</ng-template>
+
+<ng-template #empty>
+  <span>
+    -
+  </span>
+</ng-template>

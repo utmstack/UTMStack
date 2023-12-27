@@ -1,0 +1,19 @@
+<app-header *ngIf="isLogged"></app-header>
+<div class="not-found-container">
+  <div class="d-flex align-items-center justify-content-center">
+    <div class="card p-3">
+      <div class="d-flex align-items-center justify-content-center">
+        <img [src]="sanitizer.bypassSecurityTrustUrl(logo)" alt="UTM" class="">
+      </div>
+      <div class="d-flex align-items-center justify-content-center not-found-msg">
+        <span>4</span>
+        <span>0</span>
+        <span>4</span>
+      </div>
+      <div class="d-flex align-items-center justify-content-center pt-3 not-found-text flex-column">
+        <h4 class="font-weight-semibold mb-3">Page not found</h4>
+        <h5 class="font-weight-light">The page that you request do not exist</h5>
+      </div>
+    </div>
+  </div>
+</div>

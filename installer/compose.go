@@ -135,7 +135,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["agentmanager"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/agent-manager:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
 			//stack.Datasources + ":/etc/utmstack",
@@ -199,7 +199,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["frontend"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/utmstack_frontend:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/frontend:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"filebrowser",
@@ -335,7 +335,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["backend"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/utmstack_backend:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -515,7 +515,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["log-auth-proxy"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/log-auth-proxy:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/log-auth-proxy:" + conf.Branch),
 		DependsOn: []string{
 			"logstash",
 		},
@@ -540,6 +540,34 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Resources: &Resources{
 				Limits: &Res{
 					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+				},
+			},
+		},
+	}
+
+	c.Services["user-auditor"] = Service{
+		Image: utils.Str("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
+		DependsOn: []string{
+			"postgres",
+			"node1",
+		},
+		Environment: []string{
+			"SERVER_NAME=" + conf.ServerName,
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"DB_USER=postgres",
+			"DB_HOST=postgres",
+			"DB_PORT=5432",
+			"DB_NAME=userauditor",
+			"DB_PASS=" + conf.Password,
+			"ELASTICSEARCH_HOST=node1",
+			"ELASTICSEARCH_PORT=9200",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
 				},
 			},
 		},

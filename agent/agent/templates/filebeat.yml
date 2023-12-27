@@ -1,0 +1,33 @@
+filebeat.inputs:
+
+- type: log
+  enabled: false
+  paths:
+  - /var/log/*.log
+
+# ============================== Filebeat modules ==============================
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+# ======================= Elasticsearch template setting =======================
+setup.template.settings:
+  index.number_of_shards: 1
+
+# =================================== Kibana ===================================
+setup.kibana:
+
+# ------------------------------ File Output -------------------------------
+output.file:
+  path: '{{.LogsPath}}'
+  filename: '{{.LogFileName}}'
+  rotate_every_kb: 10000
+  number_of_files: 7
+
+# ================================= Processors =================================
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~

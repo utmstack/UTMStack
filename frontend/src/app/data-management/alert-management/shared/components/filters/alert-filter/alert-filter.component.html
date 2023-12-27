@@ -1,0 +1,42 @@
+<div class="card h-100">
+  <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+    <label class="card-title">
+      <app-utm-dtable-columns [fields]="fieldFilters"
+                              [label]="'filters'"
+                              [showInactive]="true"
+                              icon="icon-cog3">
+      </app-utm-dtable-columns>
+      Filters</label>
+    <div class="d-flex">
+
+      <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
+            *ngIf="!isResettingFilters;else reseting"
+            ngbTooltip="Reset filters"
+            placement="auto" tooltipClass="utm-tooltip-top">
+        <i class="icon-filter4"></i>
+      </span>
+      <ng-template #reseting>
+              <span class="ml-2 cursor-pointer text-blue-800 position-relative"
+                    ngbTooltip="Reseting filters"
+                    placement="auto" tooltipClass="utm-tooltip-top">
+        <i class="icon-spinner2 spinner"></i>
+      </span>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="p-2 w-100">
+    <app-utm-search-input (searchFor)="onAlertSearch($event)"
+                          [placeholder]="'Search'"></app-utm-search-input>
+  </div>
+
+  <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
+    <div *ngFor="let filter of fieldFilters" class="w-100">
+      <div *ngIf="filter.visible" class="w-100 mb-2">
+        <app-alert-generic-filter (filterGenericChange)="onFilterGenericChange($event)"
+                                  [fieldFilter]="filter">
+        </app-alert-generic-filter>
+      </div>
+    </div>
+  </div>
+</div>

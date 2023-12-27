@@ -1,0 +1,58 @@
+<div class="d-flex active-directory-tree flex-nowrap">
+  <div [ngStyle]="{'width':treeWidth, 'min-height':treeHeight+'px'}"
+       mwlResizable
+       [enableGhostResize]="true"
+       [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+       (resizeEnd)="onResize($event)"
+       (resizing)="onResize($event)" class="ad-tree-view resizable-filter-container mr-2">
+    <app-active-directory-tree (selected)="objectSelected($event)"></app-active-directory-tree>
+  </div>
+  <div [ngStyle]="{'width':detailWidth}" class="flex-grow-1 card-right-detail resizable-table-responsive">
+    <div class="card h-100 card-detail">
+      <div *ngIf="object && adInfo" class="detail-header tab-header">
+        <div class="pl-2 pt-2">
+          <h6 class="text-blue-800 font-weight-light">{{object.name}}</h6>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 pt-0">
+          <div class="button-container">
+            <button (click)="addToTracking()"
+                    class="btn utm-button utm-button-primary mr-2">
+              <i class="icon-target"></i>
+              Tracking
+            </button>
+            <button (click)="downloadReport()" class="btn utm-button utm-button-primary">
+              <i class="icon-download"></i>
+              Generate report
+            </button>
+          </div>
+          <ul class="nav nav-tabs justify-content-end">
+            <li (click)="view='detail'" class="nav-item cursor-pointer">
+              <a [ngClass]="{'active':view==='detail'}" class="nav-link">
+                <i class="icon-user-lock mr-1"></i> Detail </a>
+            </li>
+            <li (click)="view='event'" class="nav-item cursor-pointer">
+              <a [ngClass]="{'active':view==='event'}" class="nav-link">
+                <i class="icon-list2 mr-1"></i> Events</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div *ngIf="object" class="card-body p-0">
+        <app-active-directory-detail *ngIf="view==='detail'"
+                                     [user]="object"
+                                     [adInfo]="object">
+        </app-active-directory-detail>
+
+      </div>
+      <div *ngIf="showPanel" class="card-body message-container p-2">
+        <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+          <div class="event-icon utm-icon-lg utm-icon-light"></div>
+          <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+            Please select one object from tree to see information
+          </h6>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

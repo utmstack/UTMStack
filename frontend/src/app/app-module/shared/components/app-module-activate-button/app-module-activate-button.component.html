@@ -1,0 +1,14 @@
+<button (click)="enableModule()"
+        *ngIf="moduleDetail && activatable;else loading"
+        [disabled]="loadingDetail || disabled"
+        [ngClass]="moduleDetail.moduleActive ? 'utm-button-danger' : 'utm-button-primary'"
+        class="btn utm-button span-small-icon">
+  <i
+    [ngClass]="changingStatus?'icon-spinner2 spinner':moduleDetail.moduleActive?
+    'icon-radio-unchecked':'icon-checkmark-circle'"></i>
+  {{(moduleDetail.moduleActive ? 'Disable ' : 'Enable ') + 'integration'}}
+</button>
+<ng-template #loading>
+  <app-utm-spinner [loading]="loadingDetail" label="Loading {{type}}"></app-utm-spinner>
+</ng-template>
+

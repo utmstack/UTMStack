@@ -1,0 +1,10 @@
+<div class="d-flex flex-column justify-content-center align-items-center h-100 w-100 chart-no-data">
+  <div class="position-relative">
+    <div *ngIf="!error; else errorIcon" [ngClass]="resolveIcon()" class="icon"></div>
+    <ng-template #errorIcon>
+      <i class="icon-notification2 icon-data-error"></i>
+    </ng-template>
+  </div>
+  <h6 class="pt-1">{{error ? 'Error running chart' : 'No data found'}}</h6>
+</div>
+

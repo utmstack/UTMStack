@@ -1,0 +1,53 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 pl-2
+                   d-flex justify-content-between align-items-center bg-light">
+    <label class="card-title label-header text-blue-800">Top {{top}} most active user</label>
+    <app-elastic-filter-time (timeFilterChange)="onMostActiveUserDateChange($event)"
+                             [invertContent]="true"
+                             [timeDefault]="defaultTime"></app-elastic-filter-time>
+  </div>
+
+  <div class="card-body">
+    <div *ngIf="loadingMostActiveUser"
+         class="loading-chart w-100 h-100
+                 host-chart chart has-fixed-height
+                 d-flex justify-content-center
+                 align-items-center demo-chart">
+      <app-utm-spinner [height]="'110px'" [loading]="loadingMostActiveUser" [width]="'110px'">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="topMostActive.length===0 && !loadingMostActiveUser"
+         class="host-chart chart has-fixed-height demo-chart">
+      <app-no-data-chart [typeChart]="echartEnum.TABLE_CHART"></app-no-data-chart>
+    </div>
+    <div *ngIf="topMostActive.length>0 && !loadingMostActiveUser"
+         class="table-responsive chart demo-chart">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase cursor-pointer" style="width: 75%;">
+            User
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer text-center" style="width: 25%;">
+            Event
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="topMostActive && topMostActive.length>0">
+        <tr *ngFor="let top of topMostActive">
+          <td (click)="navigateToUserMostActiveDetails(top.serie)" class="cursor-pointer">
+                      <span class="text-blue-800">
+                        {{top.serie}}
+                      </span>
+          </td>
+          <td class="text-center">
+                      <span class="font-weight-bold">
+                         {{top.value}}
+                       </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

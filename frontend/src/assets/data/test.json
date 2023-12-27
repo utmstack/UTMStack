@@ -1,0 +1,216 @@
+{
+  "color": [
+    "#2ec7c9",
+    "#b6a2de",
+    "#d87a80",
+    "#8d98b3",
+    "#59678c",
+    "#e5cf0d",
+    "#97b552",
+    "#95706d",
+    "#dc69aa",
+    "#07a2a4",
+    "#9a7fd1",
+    "#588dd5",
+    "#f5994e",
+    "#c05050",
+    "#c9ab00",
+    "#7eb00a",
+    "#6f5553",
+    "#c14089",
+    "#ffb980",
+    "#5ab1ef"
+  ],
+  "legend": {
+    "show": true,
+    "type": "scroll",
+    "top": "bottom",
+    "left": "center",
+    "orient": "horizontal",
+    "itemHeight": 8,
+    "itemWidth": 8,
+    "icon": "roundRect"
+  },
+  "toolbox": {
+    "show": true,
+    "feature": {
+      "saveAsImage": {
+        "show": true,
+        "type": "png",
+        "name": "utm-chart",
+        "title": "Save as image"
+      },
+      "restore": {
+        "show": true,
+        "title": "Restore"
+      },
+      "dataView": {
+        "show": true,
+        "title": "Data view",
+        "readOnly": true,
+        "lang": [
+          "Data view",
+          "Close",
+          "Refresh"
+        ],
+        "backgroundColor": null,
+        "textareaColor": null,
+        "textareaBorderColor": null,
+        "textColor": null,
+        "buttonColor": "#0277bd",
+        "buttonTextColor": "#fff"
+      },
+      "dataZoom": {
+        "show": true,
+        "title": {
+          "zoom": [
+            "Zoom"
+          ],
+          "back": [
+            "Restore"
+          ]
+        }
+      },
+      "magicType": {
+        "show": true,
+        "type": null,
+        "title": {
+          "line": "Line",
+          "bar": "Bar",
+          "stack": "Stack",
+          "tiled": "Tiled"
+        }
+      },
+      "brush": {
+        "type": "rect"
+      },
+      "mark": {
+        "show": true
+      }
+    },
+    "orient": "horizontal",
+    "itemSize": 14,
+    "left": "right",
+    "top": "top"
+  },
+  "yAxis": {
+    "name": "ytest",
+    "type": "value",
+    "axisLabel": {
+      "color": "#d50000",
+      "formatter": "{value}#"
+    },
+    "axisLine": {
+      "lineStyle": {
+        "color": "#999"
+      }
+    },
+    "splitLine": {
+      "show": true,
+      "lineStyle": {
+        "color": "#eee",
+        "type": "dashed"
+      }
+    }
+  },
+  "xAxis": {
+    "name": "xtest",
+    "type": "category",
+    "axisLabel": {
+      "color": "#42a5f5",
+      "formatter": "{value}#"
+    },
+    "axisLine": {
+      "lineStyle": {
+        "color": "#999"
+      }
+    },
+    "splitLine": {
+      "show": true,
+      "lineStyle": {
+        "color": "#eee",
+        "type": "dashed"
+      }
+    },
+    "data": [
+      "hids"
+    ]
+  },
+  "grid": {},
+  "tooltip": {
+    "trigger": "item",
+    "backgroundColor": "rgba(0,75,139,0.85)",
+    "textStyle": {
+      "fontSize": 13,
+      "fontFamily": "Roboto, sans-serif"
+    }
+  },
+  "dataZoom": {
+    "show": false,
+    "orient": "horizontal",
+    "type": "slider",
+    "start": 0,
+    "end": 100,
+    "height": 40,
+    "borderColor": "#ccc",
+    "fillerColor": "rgba(40,54,139,0.21)",
+    "handleStyle": {
+      "color": "#004b8b"
+    }
+  },
+  "seriesOption": [
+    {
+      "metricId": "1",
+      "name": "",
+      "type": "bar",
+      "data": [],
+      "smooth": true,
+      "markPoint": {
+        "symbol": "pin",
+        "symbolSize": 35,
+        "label": {
+          "fontSize": 10
+        },
+        "data": []
+      }
+    }
+  ],
+  "series": [
+    {
+      "name": "alert.status_label.keyword:=Close",
+      "type": "bar",
+      "data": [
+        1
+      ],
+      "markPoint": {
+        "symbol": "pin",
+        "symbolSize": 35,
+        "label": {
+          "fontSize": 10
+        },
+        "data": []
+      },
+      "markLine": null,
+      "smooth": true,
+      "itemStyle": null
+    },
+    {
+      "name": "alert.status_label.keyword:=In review",
+      "type": "bar",
+      "data": [
+        1
+      ],
+      "markPoint": {
+        "symbol": "pin",
+        "symbolSize": 35,
+        "label": {
+          "fontSize": 10
+        },
+        "data": []
+      },
+      "markLine": null,
+      "smooth": true,
+      "itemStyle": null
+    }
+  ]
+}

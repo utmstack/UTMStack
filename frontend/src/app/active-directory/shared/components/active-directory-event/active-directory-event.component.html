@@ -1,0 +1,27 @@
+<div class="container-fluid pr-3 pl-3 pt-2 h-100">
+  <div class="row h-100">
+    <div class="col-lg-7 col-md-12 col-sm-12 p-2">
+      <app-event-timeline (eventChange)="onEventChange($event)"
+                          [events]="eventsFilter"
+                          [time]="time"></app-event-timeline>
+    </div>
+    <div class="col-lg-5 col-md-12 col-sm-12 p-2">
+      <div class="card m-0 card-detail">
+        <div class="card-header header-elements-sm-inline p-2">
+          <h6 class="card-title font-weight-light pb-0 text-blue-800">Event detail</h6>
+        </div>
+        <div *ngIf="event" class="card-body message-container p-2">
+          <p [innerHTML]="message" class=""></p>
+        </div>
+        <div *ngIf="!event" class="card-body message-container p-2 h-100">
+          <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+            <div class="event-icon utm-icon-lg utm-icon-light"></div>
+            <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+              Please select one event to see detail
+            </h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

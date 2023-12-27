@@ -1,0 +1,30 @@
+<div [ngbTooltip]="asset.assetAlias== null ?'Add alias':asset.assetAlias"
+     container="body"
+     placement="auto">
+  <span #aliasPopober=ngbPopover
+        [ngbPopover]="colContent"
+        [popoverTitle]="colTitle"
+        autoClose="outside"
+        class="text-blue-800 position-relative cursor-pointer small-md-icon"
+        container="body"
+        placement="auto"
+        popoverClass="utm-popover"
+        triggers="click">
+  <i [ngClass]="creating?'icon-spinner2 spinner': 'icon-pencil3'"></i>
+</span>
+</div>
+<ng-template #colContent>
+  <div class="w-100">
+    <input [(ngModel)]="asset.assetAlias" class="form-control">
+  </div>
+  <div class="dropdown-divider"></div>
+
+  <div class="d-flex justify-content-around align-items-center p-1">
+     <span (click)="editAlias();aliasPopober.close()" class="text-blue-800 cursor-pointer span-small-icon">
+         <i class="icon-pencil3"></i>&nbsp;Edit alias
+    </span>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Set alias</h6>
+</ng-template>

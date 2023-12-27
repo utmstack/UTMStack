@@ -1,0 +1,127 @@
+<app-utm-modal-header [name]="'Asset view help'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-target-container">
+  <div class="utm-box p-3 border-1 border-blue-800 position-relative">
+     <span class="p-1 utm-box-label">
+          Asset status
+     </span>
+    <div class="d-flex justify-content-start align-items-center">
+         <span class="span-small-icon status-container
+               border-success-400 text-success-400
+               font-weight-light text-center align-middle">
+            <i class="icon-new"></i>&nbsp;
+            <span>New</span>
+          </span>
+      <label class="ml-2">Assets</label>
+    </div>
+    <div class="d-flex justify-content-start align-items-center mt-2">
+         <span class="span-small-icon status-container
+               font-weight-light text-center align-middle">
+            <i class="icon-checkmark-circle"></i>&nbsp;
+            <span>Check</span>
+          </span>
+      <label class="ml-2">Assets found that existed in the previous scan</label>
+    </div>
+    <div class="d-flex justify-content-start align-items-center mt-2">
+         <span class="span-small-icon status-container
+               border-dander-800 text-danger-800
+               font-weight-light text-center align-middle">
+            <i class="icon-transmission"></i>&nbsp;
+            <span>Missing</span>
+          </span>
+      <label class="ml-2">Assets missing compared with previous scan</label>
+    </div>
+  </div>
+
+  <div class="utm-box p-3 border-1 border-blue-800 position-relative mt-4">
+     <span class="p-1 utm-box-label">
+          Asset severity
+     </span>
+    <div class="severity log-severity d-flex justify-content-start align-items-center">
+      <span class="text-brown-800">Log</span>
+      <label class="ml-2">Severities with value equal to</label>
+      <span class="badge badge-flat text-brown-800 ml-2">0</span>
+    </div>
+    <div class="severity low-severity d-flex justify-content-start align-items-center mt-2">
+      <span class="text-info-800">Low</span>
+      <label class="ml-2">Severities with values between</label>
+      <span class="badge badge-flat border-info-800 text-info-800 ml-2">0.1</span>
+      <label class="ml-1">and</label>
+      <span class="badge badge-flat border-info-800 text-info-800 ml-2">3.9</span>
+    </div>
+    <div class="severity medium-severity d-flex justify-content-start align-items-center mt-2">
+      <span class="text-warning-800">Medium</span>
+      <label class="ml-2">Severities with values between</label>
+      <span class="badge badge-flat border-warning-800 text-warning-800 ml-2">4</span>
+      <label class="ml-1">and</label>
+      <span class="badge badge-flat border-warning-800 text-warning-800 ml-2">6.9</span>
+    </div>
+    <div class="severity medium-severity d-flex justify-content-start align-items-center mt-2">
+      <span class="text-danger-800">High</span>
+      <label class="ml-2">Severities with values between</label>
+      <span class="badge badge-flat border-danger-800 text-danger-800 ml-2">7</span>
+      <label class="ml-1">and</label>
+      <span class="badge badge-flat border-danger-800 text-danger-800 ml-2">10</span>
+    </div>
+  </div>
+
+  <div class="utm-box p-3 border-1 border-blue-800 position-relative mt-4">
+     <span class="p-1 utm-box-label">
+          Asset metrics
+     </span>
+    <div class="d-flex justify-content-start align-items-center">
+         <span class="span-small-icon text-danger-800
+               font-weight-light text-center align-middle">
+            <span>Alerts</span>
+          </span>
+      <label class="ml-2">Amount of Alerts related with asset</label>
+    </div>
+    <div class="d-flex justify-content-start align-items-center mt-2">
+         <span class="span-small-icon text-info-800
+               font-weight-light text-center align-middle">
+            <span>Events</span>
+          </span>
+      <label class="ml-2">Amount of Events related with asset</label>
+    </div>
+    <div class="d-flex justify-content-start align-items-center mt-2">
+         <span class="span-small-icon text-warning-800
+               font-weight-light text-center align-middle">
+            <span>Vulnerabilities</span>
+          </span>
+      <label class="ml-2">Amount of Vulnerabilities related with asset</label>
+    </div>
+  </div>
+
+  <div class="utm-box p-3 border-1 border-blue-800 position-relative mt-4">
+     <span class="p-1 utm-box-label">
+          Asset discovery mode
+     </span>
+    <div class="d-flex justify-content-start align-items-center">
+         <span class="span-small-icon
+               font-weight-light text-center align-middle">
+            <span>Discovered</span>
+          </span>
+      <label class="ml-2">Assets discovered by the UTMStack scanner.</label>
+    </div>
+    <div class="d-flex justify-content-start align-items-center mt-2">
+         <span class="span-small-icon
+               font-weight-light text-center align-middle">
+            <span>Custom</span>
+          </span>
+      <label class="ml-2">Assets are added manually by the user.</label>
+    </div>
+    <div class="d-flex justify-content-start align-items-center mt-2">
+         <span class="span-small-icon
+               font-weight-light text-center align-middle">
+            <span>Dynamic</span>
+          </span>
+      <label class="ml-2">Assets used by UTMStack</label>
+    </div>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-2">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-primary">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Close
+    </button>
+  </div>
+</div>

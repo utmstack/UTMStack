@@ -1,0 +1,27 @@
+.user-list-container {
+  padding-top: 30px;
+  margin-bottom: 30px;
+
+  .table-responsive {
+    .table {
+      tbody {
+        tr {
+          td {
+            vertical-align: middle !important;
+
+            .flex-btn-group-container {
+              button {
+                border-radius: 50%;
+                margin: 0 5px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.btn-sm {
+  font-size: 0.75rem !important;
+}

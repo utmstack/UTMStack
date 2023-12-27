@@ -1,0 +1,21 @@
+<ng-select (change)="select($event, filter)"
+           [closeOnSelect]="true"
+           [ngModel]="selected"
+           [clearable]="filter.clearable"
+           [items]="values"
+           [loadingText]="filter.loadingText"
+           [maxSelectedItems]="filter.maxSelectedItems"
+           [multiple]="filter.multiple"
+           [virtualScroll]="true"
+           [loading]="isLoading"
+           [hideSelected]="true"
+           [placeholder]="filter.placeholder"
+           bindLabel="name"
+           bindValue="name"
+           class="ml-2 mr-2"
+           id="id"
+           style="max-width:300px;min-width: 200px">
+  <ng-template let-item="item" ng-option-tmp>
+    <span class="span-small-icon" title="{{item}}">{{item}}</span>
+  </ng-template>
+</ng-select>

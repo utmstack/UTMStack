@@ -1,0 +1,49 @@
+<app-utm-modal-header [name]="'Severity info'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-target-container">
+  <div class="modal-body">
+    <div class="d-flex flex-column w-100">
+      <div class="severity log-severity d-flex justify-content-start align-items-center">
+        <a class="btn bg-transparent border-brown-800 text-brown-800 rounded-round border-2 btn-icon">
+          <span>Log</span>
+        </a>
+        <label class="font-weight-bold ml-2">Severities with value equal to</label>
+        <span class="badge badge-flat border-brown-800 text-brown-800 ml-2">0</span>
+      </div>
+      <div class="severity low-severity d-flex justify-content-start align-items-center mt-3">
+        <a class="btn bg-transparent border-info-800 text-info-800 rounded-round border-2 btn-icon">
+          <span>Low</span>
+        </a>
+        <label class="font-weight-bold ml-2">Severities with values between</label>
+        <span class="badge badge-flat border-info-800 text-info-800 ml-2">0.1</span>
+        <label class="font-weight-bold ml-1">and</label>
+        <span class="badge badge-flat border-info-800 text-info-800 ml-2">3.9</span>
+      </div>
+
+      <div class="severity medium-severity d-flex justify-content-start align-items-center mt-3">
+        <a class="btn bg-transparent border-warning-800 text-warning-800 rounded-round border-2 btn-icon">
+          <span>Medium</span>
+        </a>
+        <label class="font-weight-bold ml-2">Severities with values between</label>
+        <span class="badge badge-flat border-warning-800 text-warning-800 ml-2">4</span>
+        <label class="font-weight-bold ml-1">and</label>
+        <span class="badge badge-flat border-warning-800 text-warning-800 ml-2">6.9</span>
+      </div>
+
+      <div class="severity medium-severity d-flex justify-content-start align-items-center mt-3">
+        <a class="btn bg-transparent border-danger-800 text-danger-800 rounded-round border-2 btn-icon">
+          <span>High</span>
+        </a>
+        <label class="font-weight-bold ml-2">Severities with values between</label>
+        <span class="badge badge-flat border-danger-800 text-danger-800 ml-2">7</span>
+        <label class="font-weight-bold ml-1">and</label>
+        <span class="badge badge-flat border-danger-800 text-danger-800 ml-2">10</span>
+      </div>
+    </div>
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button bg-danger-400">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Close
+      </button>
+    </div>
+  </div>
+</div>

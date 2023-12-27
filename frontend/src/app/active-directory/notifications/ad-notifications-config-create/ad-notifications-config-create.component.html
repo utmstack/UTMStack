@@ -1,0 +1,137 @@
+<div class="container-fluid p-3 create-notify-container">
+  <div class="title d-flex justify-content-between
+  align-items-center border-bottom-1
+  border-bottom-grey-100">
+    <h5 class="card-title text-blue-800 font-weight-light">Tracker notification</h5>
+    <button (click)="notificationCreated.emit('close')" aria-label="Close"
+            class="close button-close" type="button">
+      <div class="close-icon"></div>
+    </button>
+  </div>
+  <div class="h-100 mt-2">
+    <div class="border-0 m-0">
+      <div class="notifyConfig-form-container d-flex flex-column pt-3">
+        <div class="active-notification">
+          <span>Send emails notifications</span>
+          <app-utm-toggle (toggleChange)="adNotification.mailStatus=$event"
+                          [active]="adNotification.mailStatus"
+                          [emitAtStart]="false"
+                          [label]="!adNotification.mailStatus? 'Disabled':'Enabled'">
+          </app-utm-toggle>
+        </div>
+        <div *ngIf="adNotification.mailStatus"
+             class="email-box utm-box mt-2 p-3 border-1 border-blue-800 position-relative mt-4">
+          <span class="p-1 utm-box-label">
+          <i class="icon-mail5"></i>
+          Emails</span>
+          <div class="d-flex align-items-center justify-content-between mt-3">
+            <div class="w-75">
+              <input #email (input)="validEmail(email.value)" class="border-1 border-grey-600 form-control"
+                     id="name" name="" pattern="" type="email">
+            </div>
+            <button (click)="addEmail(email.value);email.value=''"
+                    [disabled]="!emailValid || mailHasAdded(email.value)"
+                    class="btn utm-button utm-button-primary">
+              Add email
+            </button>
+          </div>
+          <span *ngIf="mailHasAdded(email.value)" class="text-danger-800">
+            Email already added
+          </span>
+          <span *ngIf="emailValid === false" class="text-danger-800">
+            Email is invalid
+          </span>
+          <div *ngIf="adNotification.mailList!==null"
+               class="emails d-flex justify-content-start align-items-start flex-wrap mt-3">
+            <div *ngFor="let email of mailList; let index=index">
+              <div class="email-list d-flex justify-content-start
+                align-items-center p-1 bg-success-300 m-1 rounded">
+                <span class="pl-2">{{email}}</span>
+                <span (click)="deleteEmail(index)" class="ml-2 cursor-pointer">
+                  <i class="icon-cross"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="active-notification mt-3">
+          <span>Send SMS notifications</span>
+          <app-utm-toggle (toggleChange)="adNotification.smsStatus=$event"
+                          [active]="adNotification.smsStatus"
+                          [emitAtStart]="false"
+                          [label]="!adNotification.smsStatus?'Disabled':'Enabled'">
+          </app-utm-toggle>
+        </div>
+
+        <div *ngIf="adNotification.smsStatus"
+             class="phone-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+          <span class="p-1 utm-box-label">
+          <i class="icon-phone-plus2"></i>&nbsp;Phones</span>
+          <div class="d-flex align-items-center justify-content-between  mt-3">
+            <div class="w-75">
+              <input #phone
+                     (countryChange)="onCountryChange($event)"
+                     (hasError)="hasErrorPhone($event)"
+                     (intlTelInputObject)="telInputObject($event)"
+                     (ng2TelOutput)="getNumber($event)"
+                     [ng2TelInputOptions]="
+                     {initialCountry: 'US',
+                     autoPlaceholder:'off',
+                     separateDialCode:true
+                     }" class="form-control"
+                     id="mobile" name="mobile"
+                     ng2TelInput required type="text">
+            </div>
+            <button (click)="addPhone();phoneNumber='';phone.value=''"
+                    [disabled]="!(invalidPhone && phoneNumber!=='')"
+                    class="btn utm-button utm-button-primary">
+              Add Phone
+            </button>
+          </div>
+          <span *ngIf="phoneHasAdded()" class="text-danger-800">
+              Phone already added
+            </span>
+          <span *ngIf="!(invalidPhone && phoneNumber!=='')" class="text-danger-800">
+            Phone is invalid
+          </span>
+          <div *ngIf="adNotification.smsList!==null"
+               class="emails d-flex justify-content-start align-items-start flex-wrap mt-3">
+            <div *ngFor="let phone of phoneList; let index=index">
+              <div class="email-list d-flex justify-content-start
+             align-items-center p-1 bg-success-300 m-1 rounded">
+                <span class="pl-2">{{phone}}</span>
+                <span (click)="deletePhone(index)" class="ml-2 cursor-pointer">
+                  <i class="icon-cross"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-container d-flex justify-content-end mt-3">
+          <button (click)="createNotifyConfig()"
+                  *ngIf="!adNotification.id"
+                  [disabled]="!(phoneList.length!==0 || mailList.length!==0) || creating"
+                  class="btn utm-button utm-button-primary">
+            <i [ngClass]="creating?'icon-spinner2 spinner':'icon-target'"></i>&nbsp;
+            Save
+          </button>
+          <button (click)="saveNotifyConfig()"
+                  *ngIf="adNotification.id"
+                  [disabled]="creating"
+                  class="btn utm-button utm-button-primary">
+            <i [ngClass]="creating?'icon-spinner2 spinner':'icon-target'"></i>&nbsp;
+            Save
+          </button>
+          <button (click)="deleteConfig()"
+                  *ngIf="adNotification.id && (phoneList.length===0 && mailList.length===0)"
+                  [disabled]="creating"
+                  class="btn utm-button utm-button-primary">
+            <i [ngClass]="creating?'icon-spinner2 spinner':'icon-target'"></i>&nbsp;
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

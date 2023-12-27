@@ -1,0 +1,8 @@
+<div class="container_notify d-flex justify-content-center align-items-center h-100 cursor-pointer"
+     routerLink="/data-sources/sources">
+    <span class="svg-icon svg-icon-smx svg-icon-white text-white"
+          inlineSVG="assets/icons/header/display.svg"></span>
+  <div #notify *ngIf="totalAssets>0" class="notification_number">
+    {{totalAssets > 20 ? '+20' : totalAssets}}
+  </div>
+</div>

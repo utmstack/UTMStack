@@ -1,0 +1,31 @@
+# Node.js with Angular
+# Build a Node.js project that uses Angular.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- task: AzurePowerShell@3
+  displayName: 'Azure PowerShell script: InlineScript'
+  inputs:
+    azureSubscription: 'NYCSCA Azure Dev/Test (ea91a274-55c6-461c-a11d-758ef02c2698)'
+    ScriptType: InlineScript
+    Inline: '[Environment]::SetEnvironmentVariable("NODE_OPTIONS", "--max_old_space_size=16384", "Machine")'
+    FailOnStandardError: true
+    azurePowerShellVersion: LatestVersion
+
+- script: |
+    npm install -g @angular/cli
+    npm install
+    ng build --prod
+  displayName: 'npm install and build'

@@ -1,0 +1,29 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Vulnerabilities
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <p class="mb-3 font-size-base">
+      A full-featured vulnerability scanner. Its capabilities include unauthenticated testing, authenticated testing,
+      various high level and low level Internet and industrial protocols, performance tuning for large-scale scans and a
+      powerful internal programming language to implement any type of vulnerability test.<br><br>
+      The scanner is accompanied by a vulnerability tests feed with a long history and daily updates. This is powered by
+      the Greenbone Community Feed that includes more than 50,000 vulnerability tests, and reinforced by UTMStack
+      additional AI-powered correlation engine.<br><br>
+      Asset management is fully integrated with other features such as SIEM. Activity from multiple sources is correlated to identify potential threats.
+    </p>
+    <div class="w-100 mb-3">
+      <app-int-generic-group-config [moduleId]="integrationId" [serverId]="serverId"
+                                    (configValidChange)="configValidChange($event)"
+                                    [allowAdd]="false" [editable]="false"></app-int-generic-group-config>
+    </div>
+    <app-app-module-activate-button [serverId]="serverId"
+                                    type="integration"
+                                    [disabled]="configValidity"
+                                    [module]="module.VULNERABILITIES"></app-app-module-activate-button>
+  </div>
+
+</div>

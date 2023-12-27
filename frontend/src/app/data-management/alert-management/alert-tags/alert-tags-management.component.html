@@ -1,0 +1,59 @@
+<div class="pr-3 pl-3 pt-2">
+  <div class="table-responsive">
+    <table class="table text-nowrap table-borderless mb-0">
+      <tbody>
+      <tr *ngFor="let tag of tags">
+        <td class="w-100">
+          <div class="d-flex justify-content-start align-items-center small-md-icon">
+            <i class="icon-price-tag2 mr-2" [ngStyle]="{'color':tag.tagColor}"></i>
+            {{tag.tagName}}
+          </div>
+        </td>
+        <td class="text-right">
+          <div class="d-flex justify-content-center align-items-center small-md-icon"
+               *ngIf="!tag.systemOwner;else system">
+            <i (click)="openDeleteConfirmation(tag)" class="icon-cross2 cursor-pointer"></i>
+          </div>
+
+          <ng-template #system>
+            <div class="d-flex justify-content-end align-items-center medium-icon">
+              <i class="icon-question3 cursor-pointer"
+                 ngbTooltip="Actions cannot be performed on this tag since it is used by the application"
+                 placement="left"
+                 tooltipClass="utm-tooltip"></i>
+            </div>
+          </ng-template>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="(tags && tags.length===0 && !loading)">
+      <tr>
+        <td colspan="2">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td colspan="2">
+          <div class="p-5
+                d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading tags'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+        </table>
+      </div>
+
+  <div class="d-flex justify-content-end mt-3">
+    <button (click)="addTag()" class="btn btn-primary float-right utm-button utm-button-primary">
+      <i class="icon-plus3"></i>&nbsp;
+      <span>Create a new Tag</span>
+    </button>
+  </div>
+</div>

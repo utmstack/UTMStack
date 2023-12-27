@@ -1,0 +1,51 @@
+name: Agent Build
+
+on:
+  workflow_call:
+    inputs:
+      binary:
+        required: true
+        type: string
+      directory:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build
+    runs-on: signing
+    steps:
+    - name: Check out code into the right branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{inputs.branch}}
+        
+    - name: Build for Linux
+      working-directory: ./agent/${{inputs.directory}}
+      env:
+        GOOS: linux
+        GOARCH: amd64
+      run: go build -o ${{inputs.binary}} -v .
+
+    - name: Build and sign for Windows
+      working-directory: ./agent/${{inputs.directory}}
+      env:
+        GOOS: windows
+        GOARCH: amd64
+        SIGN_KEY: ${{ secrets.SIGN_KEY }}
+        SIGN_CERT: ${{ env.SIGN_CERT }}
+        SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
+      run: |
+        go build -o ${{inputs.binary}}.exe -v .
+        signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "${{inputs.binary}}.exe"
+
+    - name: Run Python script for deploy to Google
+      working-directory: ".github/scripts"
+      env:
+        GCP_KEY: ${{ secrets.GCP_KEY }}
+      run: |
+        TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\///g')
+        python agent-deploy.py $TAG ${{inputs.directory}} ${{inputs.binary}}

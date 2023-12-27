@@ -1,0 +1,113 @@
+<div class="card">
+  <div class="card-header p-2 d-flex">
+    <div class="utm-icon-goal utm-icon-xs utm-icon-primary"></div>&nbsp;
+    <h6 class="metric-label text-blue-800 font-weight-light">
+      Goal option
+    </h6>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formGoalOption">
+      <div *ngFor="let metric of options.controls; let index =index">
+        <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative"
+             formArrayName="options">
+        <span class="p-1 utm-box-label">
+          <i class="icon-list-numbered"></i>
+          {{extractMetricLabel(metric.get('metricId').value, visualization)}}
+         </span>
+          <div [formGroupName]="index" class="d-flex flex-column flex-grow-1">
+            <app-utm-single-color-select
+              (singleColorChange)="options.at(index).get('foregroundColor').setValue($event)"
+              [color]="options.at(index).get('foregroundColor').value">
+            </app-utm-single-color-select>
+            <div class="row m-0 p-0 mt-3">
+              <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                <div class="d-flex flex-column flex-grow-1">
+                  <label class="pb-1" for="type">Goal Type</label>
+                  <ng-select [clearable]="false"
+                             [items]="type"
+                             [loadingText]="'Loading type....'"
+                             [loading]="!type"
+                             bindLabel="name"
+                             formControlName="type"
+                             id="type">
+                  </ng-select>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                <div class="d-flex flex-column flex-grow-1">
+                  <label class="pb-1" for="cap">LineBar style</label>
+                  <ng-select [clearable]="false"
+                             [items]="cap"
+                             [loadingText]="'Loading cap....'"
+                             [loading]="!cap"
+                             bindLabel="name"
+                             formControlName="cap"
+                             id="cap">
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+            <div class="row m-0 mt-3 p-0">
+              <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                <div class="form-group m-0">
+                  <label class="pb-1" for="min">Min</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="min"
+                         id="min"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                <div class="form-group  m-0">
+                  <label class="pb-1" for="max">Goal</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="max"
+                         id="max"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+            </div>
+            <div class="row m-0 mt-3 p-0">
+              <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+                <div class="form-group m-0">
+                  <label class="pb-1" for="thick">LineBar width</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="thick"
+                         id="thick"
+                         name=""
+                         type="number">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+                <div class="form-group  m-0">
+                  <label class="pb-1" for="append">Formatter</label>
+                  <input class="border-1 border-grey-600 form-control"
+                         formControlName="append"
+                         id="append"
+                         name=""
+                         type="text">
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <app-utm-toggle (toggleChange)="options.at(index).get('animate').setValue($event)"
+                              [active]="true" label="Animate on load?"></app-utm-toggle>
+            </div>
+            <div class="form-group mt-3">
+              <label class="pb-1 font-weight-semibold"
+                     for="decimal">Decimal</label>
+              <input class="border-1 border-grey-600 form-control"
+                     formControlName="decimal" id="decimal"
+                     name=""
+                     type="number">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+</div>

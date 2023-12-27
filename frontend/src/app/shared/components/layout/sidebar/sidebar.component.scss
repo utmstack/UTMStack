@@ -1,0 +1,69 @@
+@import "src/assets/styles/theme";
+@import "src/assets/styles/var";
+
+.side-menu-container {
+  ul {
+    position: fixed;
+    top: $navbar-secondary-height+$navbar-primary-height;
+    width: 62px !important;
+
+    li {
+      .nav-link {
+        font-size: 16px;
+        color: $primary-color;
+        font-weight: 400;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+
+      &:focus {
+        outline: -webkit-focus-ring-color auto 0;
+      }
+
+      &:hover {
+        cursor: pointer;
+        background-color: #f1f1f1;
+
+        .dropdown-item {
+          color: $primary-color;
+
+          &:hover {
+            background-color: #f1f1f1 !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.active-link-sidebar {
+  background-color: #f1f1f1;
+
+  .dropdown-item {
+    font-weight: 400;
+    color: $primary-color !important;
+  }
+}
+
+a.active-menu {
+  color: #0a6ebd !important;
+
+  ::ng-deep {
+    svg {
+      fill: #0a6ebd !important;
+    }
+  }
+
+
+}
+
+a.nav-link {
+  &:hover {
+    ::ng-deep {
+      svg {
+        fill: #0a6ebd !important;
+      }
+    }
+  }
+}

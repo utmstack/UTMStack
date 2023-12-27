@@ -1,0 +1,144 @@
+<app-utm-modal-header [name]="schedule?'Edit schedule':'New schedule'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-schedule-container">
+  <div class="task-form-container d-flex flex-column p-3">
+    <form [formGroup]="formSchedule" action="" class="form">
+      <div class="form-group">
+        <label class="pb-1" for="name">Name</label>
+        <input [ngClass]="inputClass.resolveClassInput(formSchedule.get('name'))" class="border-1 border-grey-600 form-control" formControlName="name"
+               id="name"
+               name="">
+        <app-formcontrol-error [formcontrol]="formSchedule.get('name')"></app-formcontrol-error>
+      </div>
+
+      <div class="form-group">
+        <label class="pb-1" for="comment">Comments</label>
+        <textarea class="border-1 border-grey-600 form-control" formControlName="comment" id="comment" name=""
+                  rows="2">
+        </textarea>
+      </div>
+      <!--ranges-->
+
+      <div class="form-group">
+        <label>Start date</label>
+        <div class="d-flex m-0">
+          <div class="input-group">
+            <input #d="ngbDatepicker" [minDate]="datepickerToday()"
+                   [ngClass]="inputClass.resolveClassInput(formSchedule.get('startDate'))" class="form-control" formControlName="startDate"
+                   name="dp"
+                   ngbDatepicker
+                   placeholder="yyyy-mm-dd">
+            <div class="input-group-append">
+              <button (click)="d.toggle()" class="btn btn-outline-secondary calendar" type="button">
+                <i class="icon-calendar22"></i>
+              </button>
+            </div>
+          </div>
+          <!--          time-->
+          <div class="time ml-2">
+            <ngb-timepicker
+              [ngClass]="inputClass.resolveClassInput(formSchedule.get('startTime'))" [seconds]="false" [spinners]="false"
+              formControlName="startTime"
+              size="small"></ngb-timepicker>
+          </div>
+        </div>
+        <app-formcontrol-error [formcontrol]="formSchedule.get('startDate')"></app-formcontrol-error>
+        <app-formcontrol-error [formcontrol]="formSchedule.get('startTime')"></app-formcontrol-error>
+      </div>
+
+      <!--      <div class="d-flex align-items-center w-75">-->
+      <!--        <div class="form-group flex-grow-1">-->
+      <!--          <label for="name" class="pb-1">Timezones</label>-->
+      <!--          <ng-select [items]="timezones"-->
+      <!--                     bindLabel="name"-->
+      <!--                     [searchable]="true"-->
+      <!--                     autofocus-->
+      <!--                     bindValue="id">-->
+      <!--          </ng-select>-->
+      <!--        </div>-->
+      <!--      </div>-->
+
+      <div class="d-flex flex-column w-75">
+        <label class="pb-1" for="name">Period</label>
+        <div class="d-flex">
+          <input [ngClass]="inputClass.resolveClassInput(formSchedule.get('period'))" class="border-1 border-grey-600 form-control" formControlName="period"
+                 id="period"
+                 name=""
+                 style="width: 70px"
+                 type="number">
+          <ng-select [items]="duration" [ngClass]="inputClass.resolveClassInput(formSchedule.get('periodTime'))"
+                     [searchable]="true"
+                     autofocus
+                     bindLabel="name"
+                     bindValue="id"
+                     class="ml-2 w-100"
+                     formControlName="periodTime">
+          </ng-select>
+          <div class="add-action-form ml-3">
+           <span ngbTooltip="How often the Manager will repeat the scheduled task."
+                 placement="top"
+                 tooltipClass="utm-tooltip-top">
+             <i class="icon-question3"></i>
+           </span>
+          </div>
+        </div>
+        <app-formcontrol-error [formcontrol]="formSchedule.get('period')" [label]="'Period'">
+        </app-formcontrol-error>
+        <app-formcontrol-error [formcontrol]="formSchedule.get('periodTime')"
+                               [label]="'Period time'"></app-formcontrol-error>
+      </div>
+
+      <div class="d-flex flex-column pt-2 w-75">
+        <label class="pb-1" for="name">Duration</label>
+        <div class="d-flex">
+          <input [ngClass]="inputClass.resolveClassInput(formSchedule.get('duration'))" class="border-1 border-grey-600 form-control" formControlName="duration"
+                 id="duration"
+                 name=""
+                 style="width: 70px"
+                 type="number">
+          <ng-select [items]="duration" [ngClass]="inputClass.resolveClassInput(formSchedule.get('durationTime'))"
+                     [searchable]="true"
+                     autofocus
+                     bindLabel="name"
+                     bindValue="id"
+                     class="ml-2 w-100"
+                     formControlName="durationTime">
+          </ng-select>
+          <div class="add-action-form ml-3">
+           <span ngbTooltip="How long the Manager will run the scheduled task for."
+                 placement="top"
+                 tooltipClass="utm-tooltip-top">
+             <i class="icon-question3"></i>
+           </span>
+          </div>
+        </div>
+        <app-formcontrol-error [formcontrol]="formSchedule.get('duration')"
+                               [label]="'Duration'"></app-formcontrol-error>
+        <app-formcontrol-error [formcontrol]="formSchedule.get('durationTime')"
+                               [label]="'Duration time'"></app-formcontrol-error>
+      </div>
+
+      <div *ngIf="formSchedule.get('time').errors!==null" class="alert alert-danger border-0 mt-3 mb-3">
+        <span class="font-weight-semibold">PERIOD must be greater tan DURATION</span>
+      </div>
+    </form>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button bg-danger-400 mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="createSchedule()"
+              *ngIf="!schedule" [disabled]="!formSchedule.valid || creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-insert'"></i>&nbsp;
+        Save
+      </button>
+      <button (click)="editSchedule()"
+              *ngIf="schedule" [disabled]="!formSchedule.valid || creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-edit2'"></i>&nbsp;
+        Edit
+      </button>
+    </div>
+  </div>
+</div>
+
+

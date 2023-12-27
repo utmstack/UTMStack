@@ -1,0 +1,51 @@
+
+.window {
+  border-radius: 3px;
+  background: #222;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+
+  &:before {
+    content: ' ';
+    display: block;
+    height: 28px;
+    background: #C6C6C6;
+  }
+
+  &:after {
+    content: '. . .';
+    position: absolute;
+    left: 12px;
+    right: 0;
+    top: -13px;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 96px;
+    color: #fff;
+    line-height: 0;
+    letter-spacing: -12px;
+  }
+}
+
+.terminal {
+  margin: 10px;
+  font-family: monospace;
+  font-size: 16px;
+  color: #22da26;
+
+  .console-info {
+    font-size: 16px;
+    color: #22da26;
+  }
+
+  .command {
+    width: 100%;
+    color: #22da26;
+    font-size: 12px;
+    white-space: pre-line;
+    overflow: hidden;
+    background: #222;
+  }
+}

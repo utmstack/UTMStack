@@ -1,0 +1,25 @@
+<app-utm-modal-header [name]="'Export compliance'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <app-utm-report-info-view (complianceReportsChange)="complianceReports=$event"
+                            [complianceReports]="complianceReports"
+                            [standardId]="standardId"
+                            *ngIf="!loadingCompliance"></app-utm-report-info-view>
+  <div *ngIf="loadingCompliance"
+       class="pt-5 pb-5 d-flex justify-content-center align-items-center">
+    <app-utm-spinner [loading]="loadingCompliance" label="Loading.."></app-utm-spinner>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="export()"
+            [disabled]="creating || loadingCompliance"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i *ngIf="creating" class="icon-spinner2 spinner"></i>
+      Export
+    </button>
+  </div>
+</div>

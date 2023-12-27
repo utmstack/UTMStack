@@ -1,0 +1,37 @@
+<app-utm-modal-header [name]="(group?'Edit':'Create') +' tenant'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="formGroupConfig">
+    <div class="form-group">
+      <label class="pb-1" for="groupName">Tenant Name</label>
+      <input [ngClass]="inputClass.resolveClassInput(formGroupConfig.get('groupName'))"
+             class="border-1 border-grey-600 form-control" formControlName="groupName"
+             id="groupName"
+             name="">
+      <app-formcontrol-error [formcontrol]="formGroupConfig.get('groupName')"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label for="groupDescription">Group description({{255 - formGroupConfig.get('groupDescription').value.length}})</label>
+      <textarea formControlName="groupDescription" class="border-1 border-grey-600 form-control"
+                id="groupDescription"
+                name="" rows="4"></textarea>
+      <span *ngIf="formGroupConfig.get('groupDescription').value.length>255" class="text-danger-300 mt-3">
+      Description must be less than 255 characteres
+    </span>
+    </div>
+
+  </form>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="saveGroup()"
+            [disabled]="!formGroupConfig.valid"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      {{group ? 'Edit' : 'Create'}}  group
+    </button>
+  </div>
+</div>

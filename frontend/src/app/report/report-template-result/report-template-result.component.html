@@ -1,0 +1,42 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div *ngIf="report"
+       class="d-flex align-items-center justify-content-between">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      {{report.repName}}
+    </h5>
+    <div class="header-elements d-flex justify-content-end align-items-center">
+      <app-elastic-filter-time [invertContent]="true"
+                               [isEmitter]="true"
+                               container="body"></app-elastic-filter-time>
+
+      <button class="btn utm-button utm-button-primary ml-2 mr-2"
+              routerLink="/reports/templates">
+        <i class="icon-insert-template mr-2"></i> Templates
+      </button>
+
+      <button (click)="exportToPdf()" [disabled]="pdfExport || !visualizationRender || loadingVisualizations"
+              class="btn utm-button utm-button-primary">
+        <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+
+</div>
+<div [id]="UUID" class="w-100">
+  <div *ngIf="report" class="text-blue-800 mt-2 pl-3">
+    <p [innerHTML]="report.repDescription" class="font-size-base">
+    </p>
+  </div>
+  <app-utm-dashboard-grid *ngIf="visualizationRender" [UUID]="'complianceId'"
+                          [loading]="loadingVisualizations"
+                          [options]="options"
+                          [visualization]="visualizationRender"></app-utm-dashboard-grid>
+</div>
+<div *ngIf="!visualizationRender"
+     class="dashboard-loader d-flex justify-content-start align-content-center w-100 h-100">
+  <app-utm-spinner [height]="'110px'" [loading]="!visualizationRender" [width]="'110px'"
+                   label="Loading dashboard"
+                   style="width: 100%;margin-top: 15%">
+  </app-utm-spinner>
+</div>

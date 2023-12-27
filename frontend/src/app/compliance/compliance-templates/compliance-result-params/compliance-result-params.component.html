@@ -1,0 +1,27 @@
+<app-utm-modal-header [name]="template.section.standardSectionName" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 pt-0 save-report-container">
+  <div *ngIf="hasTimeFilter()" class="d-flex align-items-center">
+    <label class="font-weight-semibold">Select filter time</label>
+    <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                             [timeDefault]="defaultTime"
+                             container="body"></app-elastic-filter-time>
+  </div>
+  <div *ngIf="hasLimitFilter()" class="mt-3 mb-3">
+    <app-utm-data-limit (limitChange)="queryParams[complianceParamsEnum.TOP]=$event"></app-utm-data-limit>
+  </div>
+  <label class="font-weight-semibold mt-2">Choose visualization</label>
+  <app-visualization-select
+    (visSelected)="onVisSelected($event)"
+    [dataNature]="template.configReportDataOrigin"
+    [emitOnSelect]="true"></app-visualization-select>
+  <div class="buttom-container pt-3 d-flex justify-content-end">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="generateReports()" class="btn utm-button utm-button-primary mr-3">
+      <i class="icon-shield-check"></i>&nbsp;
+      Generate
+    </button>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<app-utm-modal-header [name]="'New port list'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-2 create-task-container">
+  <div class="task-form-container d-flex flex-column p-3">
+    <form [formGroup]="formPortList" action="" class="form">
+      <div class="form-group">
+        <label class="pb-1" for="name">Name</label>
+        <input [ngClass]="inputClass.resolveClassInput(formPortList.get('name'))" class="border-1 border-grey-600 form-control" formControlName="name" id="name"
+               name="">
+        <app-formcontrol-error [formcontrol]="formPortList.get('name')"></app-formcontrol-error>
+      </div>
+
+      <div class="form-group">
+        <label class="pb-1" for="comment">Comments</label>
+        <textarea [ngClass]="inputClass.resolveClassInput(formPortList.get('comment'))"
+                  class="border-1 border-grey-600 form-control" formControlName="comment"
+                  id="comment"
+                  name=""
+                  rows="2">
+        </textarea>
+        <app-formcontrol-error [formcontrol]="formPortList.get('comment')"></app-formcontrol-error>
+      </div>
+      <!--ranges-->
+      <div class="utm-box-container mt-4 p-3 border-1 border-blue-800 position-relative">
+        <span class="p-1 utm-box-span">
+          <i class="icon-list-numbered"></i>
+         TCP
+        </span>
+        <div class="d-flex justify-content-start align-items-center">
+          <span class="ml-3 mr-1">Ports</span>
+          <input [ngClass]="inputClass.resolveClassInput(formPortList.get('tcpSingle'))"
+                 class="border-1 border-grey-600 form-control" formControlName="tcpSingle" id="port1" name=""
+                 style="padding: 5px;"
+                 type="text">
+          <div class="add-action-form ml-3">
+           <span ngbTooltip="Add numbers separates with ,
+            .If you want include a range type - between numbers . Example: 1,2,3,8-9,4" placement="bottom"
+                 tooltipClass="utm-tooltip">
+             <i class="icon-question3"></i>
+           </span>
+          </div>
+        </div>
+        <div class="error-container pl-3">
+          <app-formcontrol-error [formcontrol]="formPortList.get('tcpSingle')"></app-formcontrol-error>
+        </div>
+      </div>
+      <div class="utm-box-container mt-4 p-3 border-1 border-blue-800 position-relative">
+        <span class="p-1 utm-box-span">
+          <i class="icon-list-numbered"></i>
+         UDP
+        </span>
+        <div class="d-flex justify-content-start align-items-center">
+          <span class="ml-3 mr-1">Ports</span>
+          <input [ngClass]="inputClass.resolveClassInput(formPortList.get('udpSingle'))"
+                 class="border-1 border-grey-600 form-control" formControlName="udpSingle" id="port" name=""
+                 style="padding: 5px;"
+                 type="text">
+          <div class="add-action-form ml-3">
+            <span ngbTooltip="Add numbers separates with ,
+            .If you want include a range type - between numbers . Example: 1,2,3,8-9,4" placement="bottom"
+                  tooltipClass="utm-tooltip">
+             <i class="icon-question3"></i>
+           </span>
+          </div>
+        </div>
+        <div class="error-container pl-3">
+          <app-formcontrol-error [formcontrol]="formPortList.get('udpSingle')"></app-formcontrol-error>
+        </div>
+      </div>
+    </form>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="createPort()"
+              *ngIf="!edit" [disabled]="!formPortList.valid || creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-insert'"></i>&nbsp;
+        Save
+      </button>
+      <button (click)="editPort()"
+              *ngIf="edit" [disabled]="!formPortList.valid || creating" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-database-edit2'"></i>&nbsp;
+        Edit
+      </button>
+    </div>
+  </div>
+</div>
+
+

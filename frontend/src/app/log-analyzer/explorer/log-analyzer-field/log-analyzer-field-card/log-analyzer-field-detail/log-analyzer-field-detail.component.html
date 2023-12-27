@@ -1,0 +1,52 @@
+<div *ngIf="fieldTopValues" class="field-detail d-flex flex-column">
+  <label>Top 5 values in {{fieldTopValues.total}}/{{total}}</label>
+  <div *ngIf="fieldTopValues.top.length>0 && !loading" class="w-100">
+    <div *ngFor="let top of fieldTopValues.top" class="field-value d-flex flex-column mt-2">
+      <div class="d-flex justify-content-between align-items-center">
+      <span [ngbTooltip]="top.value+': ' + top.count"
+            [openDelay]="500"
+            class="font-weight-light field-detail-name"
+            placement="bottom"
+            tooltipClass="utm-tooltip-bottom">
+         {{top.value}}
+      </span>
+        <span>
+        <i (click)="toggleFilter(top.value)" [openDelay]="500"
+           class="icon-zoomin3 mr-2 cursor-pointer"
+           ngbTooltip="Add to filter"
+           placement="bottom"
+           style="font-size: 11px"
+           tooltipClass="utm-tooltip-bottom"></i>
+        <i (click)="toggleFilter(top.value)" [openDelay]="500"
+           class="icon-zoomout3 cursor-pointer"
+           ngbTooltip="Remove from filter"
+           placement="bottom"
+           style="font-size: 11px"
+           tooltipClass="utm-tooltip-bottom"></i>
+      </span>
+      </div>
+      <div>
+        <ngb-progressbar
+          [animated]="true"
+          [striped]="false"
+          [value]="top.percent"
+          height="3px"
+          type="success">
+        </ngb-progressbar>
+        <div class="d-flex justify-content-center align-items-center">
+          <span>{{top.percent | number: '1.0-0' }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="fieldTopValues.top.length===0 && !loading" class="w-100 p-2">
+    <span>No details found on this field</span>
+  </div>
+</div>
+<div *ngIf="loading" class="w-100 p-5 d-flex  justify-content-center align-items-center">
+  <app-utm-spinner [height]="'10px'"
+                   [label]="'Loading...'"
+                   [loading]="loading"
+                   [width]="'10px'">
+  </app-utm-spinner>
+</div>

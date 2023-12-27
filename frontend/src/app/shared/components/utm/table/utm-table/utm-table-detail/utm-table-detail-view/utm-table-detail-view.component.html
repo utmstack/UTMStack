@@ -1,0 +1,33 @@
+<div class="table-view-container p-2">
+  <div *ngFor="let row of tableData"
+       class="d-flex justify-content-start
+  align-items-center table-view-item m-1">
+    <div class="" *ngIf="showControl">
+      <div class="d-flex justify-content-start span-small-icon pr-0" style="width: 30px">
+        <i (click)="filterByValue(row)"
+           [ngbTooltip]="'Filter '+ row.key+' is '+row.value"
+           class="icon-filter4 mr-2 cursor-pointer" placement="bottom"
+           tooltipClass="utm-tooltip-bottom"></i>
+        <i (click)="addFieldToColumn(row)" class="icon-table mr-2 cursor-pointer"
+           *ngIf="!fieldIsArray(row.key)"
+           ngbTooltip="Add to columns" placement="auto"
+           tooltipClass="utm-tooltip-bottom"></i>
+      </div>
+    </div>
+    <div class="row-field-name ml-2">
+      <span [ngbTooltip]="row.key"
+            [openDelay]="1000"
+            class="font-weight-light text-blue-800"
+            placement="bottom"
+            tooltipClass="utm-tooltip-bottom">
+        {{row.key}}
+      </span>
+    </div>
+    <div class="row-field-data flex-grow-1">
+      <p *ngIf="!isDate(row.key,row.value);else date">{{row.value}}</p>
+      <ng-template #date>
+        <p>{{row.value | date}}</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

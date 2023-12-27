@@ -1,0 +1,45 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <div class="form-group">
+    <label class="pb-1" for="name">Name</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['name.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="name"
+           name="">
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="name">Severity</label>
+    <div *ngFor="let sev of severities" class="check pt-2 pb-1">
+      <input (change)="searchBySeverity($event)" [(ngModel)]="severity" class="form-check-input magic-radio"
+             id="{{sev}}"
+             name="severity.equals" type="radio"
+             value="{{sev}}">
+      <label class="mb-0" for="{{sev}}">{{sev}}</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="name">Status</label>
+    <div *ngFor="let stat of status" class="check pt-2 pb-1">
+      <input (change)="searchByStatus($event)" [(ngModel)]="filter['status.equals']"
+             class="form-check-input magic-radio"
+             id="{{stat}}}"
+             name="status.equals"
+             type="radio" value="{{stat}}">
+      <label class="mb-0" for="{{stat}}}">{{stat}}</label>
+    </div>
+    <div class="check pt-2 pb-1">
+      <input (change)="searchByStatus($event)" [(ngModel)]="filter['status.equals']"
+             class="form-check-input magic-radio"
+             id="allStatus"
+             name="status.equals" type="radio"
+             value="All">
+      <label class="mb-0" for="allStatus">All</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="name">Created at</label>
+    <app-filter-time (timeFilterChange)="searchByCreation($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+</div>

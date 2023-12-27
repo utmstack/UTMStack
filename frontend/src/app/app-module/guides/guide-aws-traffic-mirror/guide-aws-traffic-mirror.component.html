@@ -1,0 +1,331 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      AWS Traffic Mirror
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      For this integration to work properly, first you need to configure the IAM user for UTMStack.
+    </div>
+    <h5 class="font-weight-semibold">
+      Instances
+    </h5>
+    <p class="mt-3 font-size-base">
+      The NIDS service on AWS requires mirroring traffic to the probe from EC2 instance powered by the AWS Nitro system
+      (A1, C5, C5d, C5n, I3en, M5, M5a, M5ad, M5d, p3dn.24xlarge, R5, R5a, R5ad, R5d, T3, T3a, and z1d as I write this).
+    </p>
+
+    <h5 class="font-weight-semibold mt-3">
+      Security Group rules
+    </h5>
+    <div class="table-responsive">
+      <table class="table table-condensed">
+        <thead>
+        <tr>
+          <th>From</th>
+          <th>To</th>
+          <th>Port</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>0.0.0.0/0</td>
+          <td>Probe</td>
+          <td>22 TCP</td>
+          <td>Deny</td>
+        </tr>
+        <tr>
+          <td>0.0.0.0/0</td>
+          <td>Probe</td>
+          <td>All TCP and UDP</td>
+          <td>Allow</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-info alert-styled-right">
+      These are the additional rules that are required for traffic mirroring. They must go under existing rules and must
+      have this specific order.
+    </div>
+
+    <h5 class="font-weight-semibold mt-5 mb-3">
+      Step 1 - Create a traffic mirror target
+    </h5>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Open the Amazon VPC console at
+          <a href="https://console.aws.amazon.com/vpc/" target="_blank">
+            https://console.aws.amazon.com/vpc/
+          </a>
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          In the Region selector, choose the AWS Region that you used when you created the VPCs.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          On the navigation pane, choose Traffic Mirroring, Mirror Targets.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Choose Create Traffic Mirror Target.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          For Name tag, enter a name for the traffic mirror target.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          (Optional) For Description, enter a description for the traffic mirror target.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          For Target type, choose the traffic mirror target type: Elastic Network Interface
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          For Target, choose the traffic mirror target: The network interface of the probe appliance
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          (Optional) Add or remove a tag.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Choose Create.
+        </p>
+      </li>
+    </ol>
+
+    <h5 class="font-weight-semibold mt-5 mb-3">
+      Step 2 - Create a traffic mirror filter
+    </h5>
+    <p class="mt-3 mb-3">A traffic mirror filter contains one or more traffic mirror rules,
+      and a set of network services. The filters and
+      rules that you add define the traffic that is mirrored.
+    </p>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Open the Amazon VPC console at
+          <a href="https://console.aws.amazon.com/vpc/" target="_blank">
+            https://console.aws.amazon.com/vpc/
+          </a>
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          In the Region selector, choose the AWS Region that you used when you created the VPCs.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          On the navigation pane, choose Traffic Mirroring, Mirror Filters.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Choose Create traffic mirror filter.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          For Name tag, enter a name for the traffic mirror filter.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          (Optional) For Description, enter a description for the traffic mirror filter.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          Mirror network services and select amazon-dns.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          Under Inbound rules, choose Add, rule, and then specify the following information about the traffic mirror
+          source inbound traffic:
+        </p>
+        <h6 class="font-weight-semibold mt-3 mb-3">
+          TCP rule
+        </h6>
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li><strong>Rule Number:</strong> Enter a priority to assign to the rule.</li>
+          <li><strong>Rule action:</strong> Accept</li>
+          <li><strong>Protocol:</strong> TCP</li>
+          <li><strong>Source port range:</strong> Leave blank</li>
+          <li><strong>Destination port range:</strong> Leave blank</li>
+          <li><strong>Source CIDR block:</strong> 0.0.0.0/0</li>
+          <li><strong>Destination CIDR block:</strong> 0.0.0.0/0</li>
+          <li><strong>Description:</strong> TCP rule</li>
+        </ul>
+        <h6 class="font-weight-semibold mt-3 mb-3">
+          UDP rule
+        </h6>
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li><strong>Rule Number:</strong> Enter a priority to assign to the rule.</li>
+          <li><strong>Rule action:</strong> Accept</li>
+          <li><strong>Protocol:</strong> UDP</li>
+          <li><strong>Source port range:</strong> Leave blank</li>
+          <li><strong>Destination port range:</strong> Leave blank</li>
+          <li><strong>Source CIDR block:</strong> 0.0.0.0/0</li>
+          <li><strong>Destination CIDR block:</strong> 0.0.0.0/0</li>
+          <li><strong>Description:</strong> UDP rule</li>
+        </ul>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Leave blank the outbound rules.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Choose Create.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          (Optional) Add or remove a tag.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">11</span>
+          Choose Create.
+        </p>
+      </li>
+    </ol>
+
+    <h5 class="font-weight-semibold mt-5 mb-3">
+      Step 3 - Create a traffic mirror session
+    </h5>
+    <p class="mt-3 mb-3">
+      Create a traffic mirror session that sends mirrored packets from the source to a target so that you can monitor
+      and analyze traffic.
+    </p>
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Open the Amazon VPC console at
+          <a href="https://console.aws.amazon.com/vpc/" target="_blank">
+            https://console.aws.amazon.com/vpc/
+          </a>
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          In the Region selector, choose the AWS Region that you used when you created the VPCs.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          In the navigation pane, choose Traffic Mirroring, Mirror Sessions.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Choose Create traffic mirror session.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          (Optional) For Name tag, enter a name for the traffic mirror session.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          (Optional) For Description, enter a description for the traffic mirror session.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          For Mirror source, choose the network interface of the instance that you want to monitor.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          For Mirror target, choose the traffic mirror target created in the Step (Create a traffic mirror target).
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Under Additional settings, do the following:
+        </p>
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li><strong>Session number:</strong> 1</li>
+          <li><strong>VNI:</strong> Leave blank or default</li>
+          <li><strong>Packet Length:</strong> Leave blank or default</li>
+          <li><strong>Filter:</strong> choose the traffic mirror filter created in the Step 2 (Create a traffic mirror
+            filter)
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          (Optional) Add or remove a tag.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">11</span>
+          Choose Create.
+        </p>
+      </li>
+    </ol>
+
+    <p class="font-size-base my-3 ">
+      Click on the button shown below, to activate the UTMStack features related to this integration
+    </p>
+    <app-app-module-activate-button [module]="module.AWS_TRAFFIC_MIRROR"
+                                    [type]="'integration'" class="mt-3"
+                                    [serverId]="serverId">
+    </app-app-module-activate-button>
+
+  </div>
+</div>

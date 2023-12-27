@@ -1,0 +1,15 @@
+name: Web PDF Release
+on:
+  push:
+    tags: [ 'v*' ]
+    paths:
+      - 'web-pdf/**'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-java.yml
+    with:
+      image_name: web-pdf
+      environment: v10
+      directory: web-pdf
+      branch: rc

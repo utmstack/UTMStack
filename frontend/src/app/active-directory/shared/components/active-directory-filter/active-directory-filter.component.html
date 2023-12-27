@@ -1,0 +1,36 @@
+<div class="filter-container p-2 d-flex flex-column h-100 justify-content-start">
+  <div class="form-group">
+    <label class="pb-1" for="name">Name</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['cn.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="name"
+           name="">
+  </div>
+  <div class="form-group">
+    <label class="pb-1" for="account">SAM Account Name</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['sAMAccountName.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="account"
+           name="">
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="memberOf">Member Of</label>
+    <input (input)="searchByText()" [(ngModel)]="filter['memberOf.contains']"
+           class="border-1 border-grey-600 form-control"
+           id="memberOf"
+           name="">
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="name">Created at</label>
+    <app-filter-time (timeFilterChange)="searchByCreation($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+
+  <div class="form-group">
+    <label class="pb-1" for="name">Last logon</label>
+    <app-filter-time (timeFilterChange)="searchByLastEvent($event)" [emitAtStart]="false"
+                     [hasAll]="true"></app-filter-time>
+  </div>
+</div>

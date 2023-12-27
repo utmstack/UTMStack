@@ -1,0 +1,18 @@
+<div class="d-flex  w-100"
+     [ngClass]="display==='row'?
+     'justify-content-start align-items-center':'justify-content-start align-items-start flex-column'">
+  <label class="mr-2" for="idServers" [ngClass]="{'mb-2':display==='column'}"
+         *ngIf="showLabel">Instance </label>
+  <ng-select (change)="onServerChange($event)"
+             [(ngModel)]="server"
+             [clearable]="false"
+             [items]="servers"
+             [loadingText]="'Loading instances...'"
+             [loading]="!servers"
+             placeholder="Instance"
+             bindLabel="serverName"
+             id="idServers"
+             class="mr-3"
+             style="min-width: 300px">
+  </ng-select>
+</div>

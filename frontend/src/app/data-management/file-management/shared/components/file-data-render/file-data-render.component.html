@@ -1,0 +1,16 @@
+<div [ngSwitch]="field.field">
+   <span *ngSwitchDefault [ngClass]="field.customStyle">
+    <span *ngIf="field.type!=='date';else dateValue">
+      {{resolveValue(file, field)}}
+    </span>
+    <ng-template #dateValue>
+      <span>
+        {{resolveValue(file, field)|date:utmFormatDate:'UTC'}}
+      </span>
+    </ng-template>
+  </span>
+  <app-file-access-mask *ngSwitchCase="fileFieldEnum.FILE_ACCESS_MASK_FIELD"
+                        [file]="file"></app-file-access-mask>
+  <app-file-sddl-view *ngSwitchCase="fileFieldEnum.FILE_NEW_SDDL_FIELD" [file]="file "></app-file-sddl-view>
+  <app-file-sddl-view *ngSwitchCase="fileFieldEnum.FILE_OLD_SDDL_FIELD" [file]="file "></app-file-sddl-view>
+</div>

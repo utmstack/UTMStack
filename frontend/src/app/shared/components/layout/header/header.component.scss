@@ -1,0 +1,228 @@
+@import "src/assets/styles/theme";
+@import "src/assets/styles/var";
+
+.utm-menu-bar {
+  background-color: #ffffff;
+  height: $navbar-primary-height;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+  position: fixed;
+
+  .navbar-brand {
+    img {
+      width: auto;
+      height: 18px;
+    }
+
+    span {
+      font-size: 24px !important;
+      font-weight: 400;
+
+      &:last-child {
+        color: $utm-header-color;
+      }
+    }
+  }
+}
+
+.text-header {
+  span {
+    color: #ffffff;
+    font-size: 20px !important;
+  }
+}
+
+
+.utm-navbar {
+  min-height: $navbar-primary-height;
+  height: $navbar-primary-height;
+  background-color: $utm-header-color;
+  padding: 0;
+  color: #ffffff !important;
+  z-index: 999;
+
+  .utm-navbar-container {
+    padding: 0 1.25rem;
+
+    .navbar-img {
+      img {
+        width: auto;
+        height: 17px;
+
+        &:focus {
+          border: 0 transparent !important;
+          outline: none;
+        }
+      }
+    }
+
+    ul {
+      list-style: none;
+
+      li {
+        font-weight: 400;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+
+    .nav {
+      flex-grow: 1;
+      text-align: center;
+      margin: 0 10px;
+
+      li:hover {
+        //background: $utm-header-menu-hover-color;
+        background: $primary-color-hover;
+        //color: #777777;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: inline-block;
+        border-radius: 0;
+        color: $utm-header-menu-text-color;
+        //background: $utm-header-color;
+        li {
+          float: left;
+          //width: 120px;
+          height: 45px;
+          font-weight: 400;
+
+          //line-height: 50px;
+          position: relative;
+          font-size: 13px;
+          cursor: pointer;
+          padding: 10px;
+          margin-right: 15px;
+        }
+
+        .drop-menu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          padding: 0;
+
+          li {
+            background: #ffffff;
+            color: rgba(51, 51, 51, .85);
+            font-weight: 400;
+
+            &:hover {
+              background: #f1f1f1;
+              //font-weight: bold;
+
+            }
+
+            &:first-child {
+              border-radius: 0;
+            }
+
+            &:last-child {
+              border-radius: 0;
+            }
+          }
+        }
+      }
+    }
+
+    ul.drop-menu.menu li {
+      display: none;
+      height: 31px;
+      //font-size: 11px !important;
+      letter-spacing: 0;
+    }
+
+    li:hover > ul.drop-menu li {
+      display: block;
+    }
+
+    li:hover > ul.drop-menu.menu {
+      perspective: 1000px;
+      -webkit-box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.13);
+      -moz-box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.13);
+      box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.13);
+      width: max-content;
+      max-height: 620px;
+      //min-width: 210px;
+      overflow-y: auto;
+    }
+
+    ul.drop-menu.menu::-webkit-scrollbar {
+      width: 6px;
+      background-color: #F5F5F5;
+    }
+
+    ul.drop-menu.menu::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      background-color: rgba(85, 85, 85, 0.08);
+    }
+
+    li:hover > ul.drop-menu.menu li {
+      transform-origin: top center;
+      opacity: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
+.utm-navbar-secondary {
+  height: $navbar-secondary-height;
+  overflow-y: hidden;
+  overflow-x: auto;
+  overflow-scrolling: auto;
+}
+
+
+.dropdown-menu-right {
+  z-index: 999;
+}
+
+.navbar-light .show > .navbar-nav-link {
+  color: #333;
+  background-color: transparent;
+}
+
+.navbar-nav-right li a i {
+  font-size: 1rem;
+}
+
+
+.mobile-notifications {
+  display: none;
+}
+
+@media screen and (max-width: 700px) {
+
+}
+
+
+.utmstack-header-menu::-webkit-scrollbar {
+  width: 2px;
+  height: 5px !important;
+}
+
+.utmstack-header-menu::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+.utmstack-header-menu::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  //background-color: $primary-color;
+}
+
+.utmstack-header-menu::-webkit-scrollbar:vertical {
+  display: none;
+}
+
+app-utm-notification-ad, app-utm-notification-alert, app-utm-notification-assets, app-utm-notification-user-setting {
+ height: 100% !important;
+}

@@ -1,0 +1,16 @@
+name: Backend - DEV
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'version.yml'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-java-11.yml
+    with:
+      image_name: backend
+      environment: v10-dev
+      directory: backend
+      branch: main

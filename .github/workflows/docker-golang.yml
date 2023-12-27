@@ -14,12 +14,18 @@ on:
       binary:
         required: true
         type: string
+      branch:
+        required: true
+        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{inputs.branch}}
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v4

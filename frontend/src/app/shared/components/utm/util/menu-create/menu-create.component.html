@@ -1,0 +1,103 @@
+<app-utm-modal-header [name]="level===1?'Create menu':'Create submenu'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form #myForm>
+    <div class="form-group mt-0">
+      <label class="pb-1" for="menuName">Menu name</label>
+      <input #nameInput="ngModel" [(ngModel)]="menu.name" class="form-control" id="menuName"
+             maxlength="30" name="name" pattern="^[ A-Za-z0-9-]*$" placeholder="" required
+             type="text">
+      <div *ngIf="nameInput.dirty || nameInput.touched">
+        <span *ngIf="nameInput.errors && nameInput.errors.required"
+              class="utm-menu-add-input-invalid">
+         Name is required
+        </span>
+        <span *ngIf="nameInput.errors && nameInput.errors.pattern" class="utm-menu-add-input-invalid">
+          Just alphanumeric, spaces and minus characters are allowed
+        </span>
+      </div>
+    </div>
+    <div class="mb-3">
+      <app-utm-toggle (toggleChange)="menu.menuActive = $event"
+                      [active]="menu.menuActive"
+                      [emitAtStart]="false"
+                      [label]="'Is this menu active?'" class="mb-3"></app-utm-toggle>
+    </div>
+    <div class="mb-3">
+      <app-utm-toggle (toggleChange)="toggleMenuActive($event)" [active]="isContainer"
+                      [label]="'Is this menu a container?'"></app-utm-toggle>
+    </div>
+
+    <div (click)="selectIcon()" *ngIf="isContainer || !menu.parentId"
+         class="text-blue-800 mb-3 d-flex align-items-center justify-content-start">
+       <span *ngIf="menu.menuIcon" class="svg-icon svg-icon-2x svg-icon-dark mr-2"
+             [inlineSVG]="iconPath+menu.menuIcon"></span>
+      Choose menu icon
+    </div>
+
+    <div *ngIf="!isContainer">
+      <div class="d-flex flex-column flex-grow-1 w-75 mb-3">
+        <label class="pb-1" for="authorities">Parent menu</label>
+        <ng-select [(ngModel)]="menu.parentId"
+                   [clearable]="false"
+                   [items]="parentsMenu"
+                   [loadingText]="'Loading parents....'"
+                   [loading]="!parentsMenu"
+                   [multiple]="false"
+                   [ngModelOptions]="{standalone: true}"
+                   [searchable]="true"
+                   bindLabel="name"
+                   bindValue="id"
+                   id="parentsMenu">
+        </ng-select>
+        <!--        <div *ngIf="menu && menu.parentId" class="utm-menu-add-input-invalid">-->
+        <!--          <span>Please select at least one role</span>-->
+        <!--        </div>-->
+      </div>
+      <div class="form-group mb-3">
+        <label class="pb-1" for="url">URL</label>
+        <input #urlInput="ngModel" [(ngModel)]="menu.url"
+               [disabled]="menu.type === 1" class="form-control utm-margin-bottom-10"
+               id="url"
+               name="url" placeholder="URL" type="url">
+        <div *ngIf="urlInput.dirty || urlInput.touched">
+        <span *ngIf="urlInput.errors && urlInput.errors.required"
+              class="utm-menu-add-input-invalid">
+         URL is required
+        </span>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 w-75">
+      <label class="pb-1" for="authorities">Authorities</label>
+      <ng-select [(ngModel)]="menu.authorities"
+                 [clearable]="false"
+                 [items]="authorities"
+                 [loadingText]="'Loading authorities....'"
+                 [loading]="!authorities"
+                 [multiple]="true"
+                 [ngModelOptions]="{standalone: true}"
+                 [searchable]="true"
+                 bindValue="authority"
+                 id="authorities">
+      </ng-select>
+      <div *ngIf="menu && menu.authorities && menu.authorities.length < 0" class="utm-menu-add-input-invalid">
+        <span>Please select at least one role</span>
+      </div>
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createMenu()"
+            [disabled]="menu && (menu.authorities && menu.authorities.length==0) || menu.name===''"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i *ngIf="creating" class="icon-spinner2 spinner"></i>&nbsp;
+      Save menu
+    </button>
+  </div>
+</div>
+

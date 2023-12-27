@@ -1,0 +1,32 @@
+<app-utm-modal-header [name]="'Change visualization name'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="visSaveForm" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1" for="name">Name</label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(visSaveForm.get('name'))"
+             class="border-1 border-grey-600 form-control" formControlName="name"
+             id="name"
+             name="name">
+      <app-formcontrol-error [formcontrol]="visSaveForm.get('name')"></app-formcontrol-error>
+    </div>
+
+  </form>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="changeName()"
+            [disabled]="!visSaveForm.valid"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i *ngIf="creating" class="icon-spinner2 spinner"></i>
+      <span *ngIf="!creating"
+            [ngClass]="chartIconResolver(visualization.chartType)"
+            class="image-shadow utm-icon-white utm-icon-xs">
+      </span>&nbsp;
+      Change name
+    </button>
+  </div>
+</div>

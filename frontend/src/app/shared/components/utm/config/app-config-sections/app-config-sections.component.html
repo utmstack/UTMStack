@@ -1,0 +1,150 @@
+<div class="d-flex justify-content-start align-items-start flex-column">
+  <div *ngIf="!checkConfigValid() && !loading"
+       class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
+    <span class="font-weight-semibold">Warning! </span>
+    <span>Required param configuration must be set to save this section</span>
+  </div>
+  <div *ngIf="configToSave.length>0 && checkConfigValid() && !loading"
+       class="w-100 alert alert-info alert-styled-right mb-3">
+       <span class="font-weight-semibold">
+          Detect unsaved changes in configuration, do not forget save changes when you finish!
+       </span>
+  </div>
+
+  <div class="w-100 d-flex justify-content-between align-items-center">
+    <h6 class="font-weight-semibold mb-2">{{section.section | titlecase}}</h6>
+    <div class="header-elements">
+      <button (click)="deleteConfig()"
+              *ngIf="allowDeleteSection"
+              class="btn text-danger btn-link mr-2 font-size-base span-small-icon">
+        <i class="icon-trash-alt"></i>
+        Delete config
+      </button>
+
+      <app-utm-email-conf-check [validConfig]="checkConfigValid()"
+                                class="mr-2"
+                                *ngIf="section.section.toLowerCase() === 'email'"></app-utm-email-conf-check>
+
+      <button (click)="saveConfig()"
+              [disabled]="!checkConfigValid() ||saving || configToSave.length === 0"
+              class="btn utm-button utm-button-primary font-size-base span-small-icon">
+        <i
+          [ngClass]="saving?'icon-spinner2 spinner':'icon-cog3'"></i>
+        Save changes
+      </button>
+    </div>
+
+  </div>
+  <p *ngIf="section.description" class="mb-3 mt-3">{{section.description}}</p>
+  <div *ngIf="configs.length>0 && !loading"
+       class="d-flex justify-content-between align-items-center flex-wrap w-100">
+    <div *ngFor="let conf of configs" [ngClass]="conf.confParamDatatype === 'list'?'w-100 order-8':'w-30'"
+         class="form-group mb-4">
+      <label [for]="'sectionParam'+conf.id"
+             class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+      <span>
+        <i *ngIf="conf.confParamRequired"
+           [ngClass]="!(conf.confParamRequired &&
+             (conf.confParamValue === '' || conf.confParamValue === null || conf.confParamValue === undefined))
+         ?'icon-checkmark-circle text-success' :'text-danger icon-circle2'"
+           [ngbTooltip]="'This param is required'"
+           class="mr-1"
+           placement="auto"></i>
+        {{conf.confParamLarge}}
+      </span>
+        <span>
+          <i *ngIf="conf.confParamDescription"
+             [ngbTooltip]="conf.confParamDescription"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+          <i *ngIf="conf.confParamRestartRequired"
+             class="ml-1 text-danger icon-notification2"
+             ngbTooltip="If you change this config an application reload will be necessary,
+          when we ready to reload a notice show up" placement="auto"></i>
+      </span>
+      </label>
+      <input (input)="save(conf.confParamValue,conf)"
+             *ngIf="conf.confParamDatatype === configDataTypeEnum.Text ||
+             conf.confParamDatatype === configDataTypeEnum.Tel ||
+             conf.confParamDatatype === configDataTypeEnum.Number ||
+             conf.confParamDatatype === configDataTypeEnum.Email ||
+             conf.confParamDatatype === configDataTypeEnum.Password"
+             [(ngModel)]="conf.confParamValue"
+             [id]="'sectionParam'+conf.id"
+             [required]="conf.confParamRequired"
+             [type]="conf.confParamDatatype" class="form-control">
+
+      <app-utm-toggle (toggleChange)="save($event === true?'true':'false',conf)"
+                      *ngIf="conf.confParamDatatype === configDataTypeEnum.Bool"
+                      [active]="conf.confParamValue ==='true'"
+                      [label]="'Enable/Disable param configuration'"></app-utm-toggle>
+
+      <textarea (input)="save(conf.confParamValue,conf)"
+                *ngIf="conf.confParamDatatype === configDataTypeEnum.List"
+                [(ngModel)]="conf.confParamValue"
+                [id]="'sectionParam'+conf.id"
+                [required]="conf.confParamRequired"
+                class="form-control"
+                rows="4"></textarea>
+
+      <ng-select [clearable]="false"
+                 [searchable]="true"
+                 (change)="save(conf.confParamValue,conf)"
+                 *ngIf="conf.confParamDatatype === configDataTypeEnum.TimezoneList"
+                 [items]="timezones"
+                 [loadingText]="'Loading Timezones...'"
+                 [loading]="!timezones"
+                 groupBy="zone"
+                 bindLabel="label"
+                 bindValue="timezone"
+                 [(ngModel)]="conf.confParamValue"
+                 id="timezoneSetting">
+
+      </ng-select>
+
+      <ng-select [clearable]="false"
+                 [searchable]="true"
+                 (change)="save(conf.confParamValue,conf)"
+                 *ngIf="conf.confParamDatatype === configDataTypeEnum.DateFormatList"
+                 [items]="dateFormats"
+                 [loadingText]="'Loading Dates formats...'"
+                 [loading]="!dateFormats"
+                 bindValue="format"
+                 [(ngModel)]="conf.confParamValue"
+                 id="dateFormatSetting">
+        <ng-template let-item="item" ng-option-tmp>
+          <span class="span-small-icon">{{item.label + ' (' + item.equivalentTo + ')'}}</span>
+        </ng-template>
+      </ng-select>
+
+      <ng-container *ngIf="conf.confParamDatatype === configDataTypeEnum.Radio && conf.confParamOption">
+        <div class="d-flex justify-content-start align-items-center">
+          <div *ngFor="let option of conf.confParamOption.split(',');let i = index">
+            <div
+              class="d-flex justify-content-start align-items-center alert-radio-container"
+              [ngClass]="{'ml-3':i !== 0}">
+          <span (click)="save(option, conf)"
+                [ngClass]="{'text-blue-800':option==conf.confParamValue}" class="mb-0 cursor-pointer medium-icon">
+          <i [ngClass]="option==conf.confParamValue?'icon-radio-checked':'icon-circle'"></i>&nbsp;
+          <span class="">{{option}}</span>
+        </span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+
+      <small *ngIf="conf.confParamRequired &&
+             (conf.confParamValue === '' || conf.confParamValue === null || conf.confParamValue === undefined)"
+             class="text-danger">
+        Param {{conf.confParamLarge}} is required
+      </small>
+    </div>
+    <ng-container *ngIf="configs.length<3">
+      <div class="dummy-div w-30"></div>
+    </ng-container>
+  </div>
+  <div *ngIf="loading" class="w-100 d-flex justify-content-center align-items-center p-5 w-100">
+    <app-utm-spinner *ngIf="loading" [label]="'Loading configurations'" [loading]="loading"></app-utm-spinner>
+  </div>
+</div>
+

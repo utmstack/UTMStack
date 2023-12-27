@@ -1,0 +1,72 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      License
+    </h6>
+  </div>
+
+  <div class="card-body w-100">
+    <div *ngIf="!client"
+         class="w-100 h-100 d-flex justify-content-center align-items-center chart-fixed-height">
+      <app-utm-spinner loading="Loading license information"></app-utm-spinner>
+    </div>
+    <div *ngIf="client" class=" w-100 h-100">
+      <div class="d-flex justify-content-start align-items-center w-100 licence-inf">
+        <span class="font-weight-semibold client-field">
+           Name:
+         </span>
+        <p>{{client.clientName}}</p>
+      </div>
+      <div class="d-flex justify-content-start align-items-center w-100 licence-inf">
+        <span class="font-weight-semibold client-field">
+           Email:
+         </span>
+        <p>{{client.clientMail}}</p>
+      </div>
+      <div class="d-flex justify-content-start align-items-center w-100 licence-inf">
+        <span class="font-weight-semibold client-field">
+           License ID:
+         </span>
+        <p>{{client.clientLicenceId}}</p>
+      </div>
+      <div class="d-flex justify-content-start align-items-center w-100 licence-inf">
+        <span class="font-weight-semibold client-field">
+           Activation:
+         </span>
+        <p [innerHTML]="client.clientLicenceVerified ?
+            '<i class=&quot;icon-checkmark-circle text-success&quot;></i> UTMStack is activated; you are using the <strong>ENTERPRISE</strong> version of this product.'
+          : 'UTMStack is not activated; you are using thr <strong>FREE</strong> version of this product'"
+           class="span-small-icon"></p>
+      </div>
+      <div class="d-flex justify-content-start align-items-center w-100 licence-inf">
+        <span class="font-weight-semibold client-field">
+           Expire:
+         </span>
+        <p>{{client.clientLicenceExpire | date:'medium':'UTC'}}</p>
+      </div>
+
+      <div *ngIf="!client.clientLicenceVerified" class="w-100">
+        <h6 class="card-title mt-5 text-uppercase label-header">
+          {{client.clientLicenceVerified ? 'Update license' : 'Buy a license'}}
+        </h6>
+        <p class="mt-2">
+          {{client.clientLicenceVerified ?
+          'To use a new license of this product, choose license at' :
+          'Get a license at '}}
+          <a class="font-size-base text-primary cursor-pointer font-weight-semibold"
+             href="https://utmstack.com/pricing/"
+             target="_blank">https://utmstack.com/pricing/</a>, and click the button below for activation.
+
+        </p>
+        <div (click)="showActivateModal()"
+             class="d-flex justify-content-start align-items-center text-primary mt-2 span-small-icon cursor-pointer">
+          <i class="icon-key mr-2"></i> Activate
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+

@@ -1,0 +1,154 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">dashboards</h5>
+    <div class="header-elements">
+      <button (click)="importDashboard()"
+              class="btn utm-button utm-button-primary mr-2">
+        <i class="icon-upload10 mr-1"></i> Import dashboards
+      </button>
+      <button (click)="exportDashboard()"
+              *ngIf="selected.length>0"
+              class="btn utm-button utm-button-primary mr-2">
+        <i [ngClass]="exporting?'icon-spinner2 spinner':'icon-download10'" class="mr-1"></i>
+        {{exporting ? 'Exporting' : 'Export dashboard (' + selected.length + ')'}}
+      </button>
+      <button class="btn utm-button utm-button-primary" routerLink="/creator/dashboard/builder">
+        <i class="icon-pie-chart8 mr-2"></i> New dashboard
+      </button>
+    </div>
+  </div>
+  <div class="row m-0">
+    <div class="col-lg-12 pr-0 pl-0">
+      <div class="card h-100">
+          <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+            <app-utm-search-input (searchFor)="onSearchDashboard($event)"
+                                  [searching]="searching"
+                                  placeholder="Search dashboard">
+            </app-utm-search-input>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+            <tr>
+              <th class="text-left" style="width: 10px;padding-left: 10px;}">
+                <i (click)="toggleCheck()"
+                   [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                   [ngbTooltip]="'Add page to selected'"
+                   class="cursor-pointer"
+                   container="body"
+                   style="font-size: small"
+                   tooltipClass="utm-tooltip-top"></i>
+              </th>
+              <th (sort)="onSort($event)"
+                  [sortable]="'name'"
+                  appColumnSortable class="font-weight-semibold text-uppercase  cursor-pointer"
+                  scope="col">
+                Name&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                Description&nbsp;
+              </th>
+              <th (sort)="onSort($event)"
+                  [sortable]="'modifiedDate'"
+                  appColumnSortable class="font-weight-semibold text-uppercase  cursor-pointer"
+                  scope="col">
+                Last Modification&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+                URL&nbsp;
+              </th>
+              <th class="font-weight-semibold text-uppercase" style="width:10%">
+                Action&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody *ngIf="dashboards && dashboards.length>0">
+            <tr *ngFor="let dashboard of dashboards">
+              <td class="text-center span-small-icon">
+                <i (click)="addToSelected(dashboard)"
+                   [ngClass]="isSelected(dashboard)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                   [ngbTooltip]="'Add to selected'"
+                   class="cursor-pointer"
+                   container="body"
+                   tooltipClass="utm-tooltip-top"></i>
+              </td>
+              <td class="">
+                <span (click)="viewDashboard(dashboard)"
+                      class="text-blue-800 cursor-pointer">
+                   {{dashboard.name}}
+                </span>
+              </td>
+              <td class="" style="white-space: pre-line">
+                <span>
+                   {{dashboard.description}}
+                </span>
+              </td>
+              <td>
+                <span>
+                   {{dashboard.modifiedDate | date:'short':'UTC'}}
+                </span>
+              </td>
+              <td>
+                <span>
+                   {{getDashboardUrl(dashboard)}}
+                </span>
+              </td>
+              <td class="td-action">
+                <div class="d-flex justify-content-end align-items-center medium-icon">
+                  <i (click)="toClipboard(dashboard)"
+                     class="icon-copy3 cursor-pointer mr-2"
+                     ngbTooltip="Copy dashboard URL" tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="editDashboard(dashboard)"
+                     class="icon-pencil3 cursor-pointer mr-2"
+                     ngbTooltip="Edit dashboard" tooltipClass="utm-tooltip-top"></i>
+
+                  <i (click)="deleteDashboard(dashboard)" class="icon-cross2 cursor-pointer"
+                     ngbTooltip="Delete dashboard"
+                     placement="left"
+                     tooltipClass="utm-tooltip"></i>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="(dashboards.length === 0 && !loading)">
+            <tr>
+              <td colspan="5">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td colspan="5">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading ports'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="dashboards && dashboards.length>0" class="mb-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage($event)"
+              [(page)]="page"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'"></ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

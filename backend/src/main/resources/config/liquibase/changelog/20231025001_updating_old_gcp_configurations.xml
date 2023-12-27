@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231025001" author="Freddy">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+
+            -------------------------------------
+            -- Updating old GCP configurations --
+            -------------------------------------
+            UPDATE utm_module_group_configuration
+            SET conf_name = 'Subscription ID',
+                conf_description='Configure your GCP subscription ID'
+            WHERE conf_key = 'subscription'
+              AND group_id IN
+                (SELECT id FROM utm_module_group g WHERE g.module_id =
+                    (SELECT id FROM utm_module m WHERE m.module_name = 'GCP'));
+
+            UPDATE utm_module_group_configuration
+            SET conf_name = 'Topic ID',
+                conf_description='Configure your GCP topic ID'
+            WHERE conf_key = 'topic'
+              AND group_id IN
+                (SELECT id FROM utm_module_group g WHERE g.module_id =
+                    (SELECT id FROM utm_module m WHERE m.module_name = 'GCP'));
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

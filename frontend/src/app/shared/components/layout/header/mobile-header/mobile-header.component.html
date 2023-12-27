@@ -1,0 +1,36 @@
+<div class="fixed-top">
+  <div class="navbar navbar-expand-md navbar-dark mobile-header-navbar">
+    <div class="pl-2 h-100 d-flex justify-content-start align-content-center">
+      <!--      <img alt="UTMSTACK" class="cursor-pointer" routerLink="/dashboard/overview"-->
+      <!--           src="/assets/img/Logo_UTM_Stack_S_Middle_White.png">-->
+      <h6>S</h6>
+
+      <!--    <app-utm-license-info class="ml-4"></app-utm-license-info>-->
+      <app-utm-vault-status [version]="'mobile'" class="ml-4"></app-utm-vault-status>
+    </div>
+
+    <ul class="navbar-nav navbar-nav-right flex-nowrap flex-row mobile-notifications">
+      <li *ngIf="isAdActive" class="nav-item text-center">
+        <app-utm-notification-ad></app-utm-notification-ad>
+      </li>
+      <li class="nav-item ml-2 text-center">
+        <app-utm-notification-assets></app-utm-notification-assets>
+      </li>
+      <li class="nav-item ml-2 text-center">
+        <app-utm-notification-alert></app-utm-notification-alert>
+      </li>
+
+      <li *ngIf="user" class="nav-item  ml-2 text-center">
+        <app-utm-notification-user-setting></app-utm-notification-user-setting>
+      </li>
+      <li *appHasAnyAuthority="roleAdmin" class="nav-item  ml-2 text-center">
+        <app-utm-menu-burger></app-utm-menu-burger>
+      </li>
+    </ul>
+  </div>
+  <!-- Alternative navbar -->
+  <div class="navbar navbar-expand-md navbar-light utm-navbar-secondary p-0">
+    <app-header-menu-navigation></app-header-menu-navigation>
+  </div>
+  <!-- /alternative navbar -->
+</div>

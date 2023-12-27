@@ -1,0 +1,112 @@
+<div class="bg-white p-2 w-100 m-0 d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center justify-content-start mr-5">
+    <app-index-pattern-select (indexPatternChange)="changeFields($event)"
+                              [pattern]="pattern"></app-index-pattern-select>
+  </div>
+  <app-utm-search-input (searchFor)="onSearchInAll($event)"
+                        [placeholder]="'Search in '+ (pattern?pattern.pattern:'...')"
+                        class="" style="width: 46%"></app-utm-search-input>
+  <div class="log-analyzer-actions d-flex justify-content-end align-items-center ml-5">
+    <div class="actions-log span-small-icon">
+      <button (click)="getData()" class="btn utm-button utm-button-primary mr-2">
+        <i class="icon-reload-alt"></i>&nbsp;Refresh data
+      </button>
+
+      <button (click)="saveQuery()" class="btn utm-button utm-button-primary mr-2">
+        <i class="icon-floppy-disk"></i>&nbsp;Save
+      </button>
+      <button (click)="exportToCsv()"
+              [disabled]="(fields && fields.length===0) || !rows || csvExport"
+              class="btn utm-button utm-button-primary">
+        <i [ngClass]="csvExport?'icon-download10':'icon-table2'" class="mr-1"></i>
+        {{csvExport ? 'Generating...' : 'Export to CSV'}}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--header-->
+<app-utm-elastic-filter (filterChange)="onFilterChange($event)"
+                        [filters]="filters"
+                        *ngIf="defaultTime && pattern;else loadingPattern"
+                        [pattern]="pattern.pattern"
+                        [defaultTime]="defaultTime"
+                        class="flex-grow-1"></app-utm-elastic-filter>
+<ng-template #loadingPattern>
+  <div class="p-3 bg-grey-100 opacity-25">
+
+  </div>
+</ng-template>
+
+<div class="container-elements d-flex log-fields flex-nowrap m-0 align-items-start">
+  <div [ngStyle]="{'width':fieldWidth}"
+       mwlResizable
+       [enableGhostResize]="true"
+       [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+       (resizeEnd)="onResize($event)"
+       (resizing)="onResize($event)" class="field-view resizable-filter-container">
+    <app-log-analyzer-field (columnChange)="onColumnChange($event)"
+                            [fieldSelected]="selectedFields"
+                            [filters]="filters"
+                            [uuid]="uuid"></app-log-analyzer-field>
+  </div>
+  <div class="log-result flex-grow-1">
+    <div class="d-table p-2 w-100">
+      <div class="card bg-light border-0 m-0 p-0">
+
+        <div class="d-flex p-2 justify-content-between align-items-center">
+          <div class="span-small-icon d-flex justify-content-start align-items-end">
+            <span (click)="view='table'"
+                  [ngClass]="{'text-blue-800':view==='table'}" class="mr-3 font-weight-light cursor-pointer">
+              <i class="icon-table2"></i>&nbsp;TABLE
+            </span>
+            <span (click)="view='chart'"
+                  [ngClass]="{'text-blue-800':view==='chart'}" class="font-weight-light cursor-pointer">
+              <i class="icon-bars-alt"></i>&nbsp;CHART
+            </span>
+          </div>
+          <div class="d-flex p-2 justify-content-between align-items-center">
+          <span [ngClass]="!runningQuery && !error?'text-green-800':'text-danger-300'" class="span-small-icon">
+            {{runningQuery ? 'Running...' : !runningQuery && !error ? 'Completed in' : 'Error running query'}}&nbsp;
+          <span class="mr-3 font-weight-light"><i
+            [ngClass]="runningQuery?'icon-spinner4 spinner':'icon-watch2'"></i>
+            &nbsp;<span *ngIf="counter">{{counter}} seconds</span>
+          </span>
+          </span>
+            <div class="d-flex span-small-icon mr-3">
+              <span class="font-weight-light"><i class="icon-list2"></i>&nbsp;{{totalItems}} records</span>
+            </div>
+            <div class="d-flex span-small-icon">
+              <span class="font-weight-light"><i class="icon-earth"></i>&nbsp;Display Time ({{dateFormat.timezone}}
+                )</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!--                           [tableWidth]="tableWidth"-->
+      <ng-container *ngIf="view==='table';else chartView">
+        <app-dynamic-table (pageChange)="onPageChange($event)"
+                           (removeColumn)="onRemoveColumn($event)"
+                           (sizeChange)="onSizeChange($event)"
+                           (sortBy)="onSortBy($event)"
+                           [componentDetail]="componentDetail"
+                           [fields]="fields"
+                           [itemsPerPage]="itemsPerPage"
+                           [loading]="loading"
+                           [page]="page"
+                           [rows]="rows"
+                           [showDetail]="true"
+                           [showInactiveColumns]="false"
+                           [tableWidth]="detailWidth"
+                           [totalItems]="totalItems"
+                           [viewDeleteAction]="true"></app-dynamic-table>
+      </ng-container>
+      <ng-template #chartView>
+        <app-analyzer-bar-chart
+          [pattern]="pattern.pattern"
+          [uuid]="uuid"></app-analyzer-bar-chart>
+      </ng-template>
+    </div>
+  </div>
+</div>

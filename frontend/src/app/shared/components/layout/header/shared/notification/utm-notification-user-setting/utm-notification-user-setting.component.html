@@ -1,0 +1,27 @@
+<div #dropTracker="ngbDropdown"
+     autoClose="outside"
+     class="dropdown h-100 cursor-pointer"
+     container="body"
+     display="dynamic"
+     ngbDropdown placement="auto">
+  <div class="dropdown-toggle h-100 d-flex justify-content-center align-items-center" data-toggle="dropdown"
+       ngbDropdownToggle>
+    <div class="svg-icon svg-icon-sm svg-icon-white text-white"
+         inlineSVG="assets/icons/header/user-icon.svg"></div>
+  </div>
+  <div class="dropdown-menu" ngbDropdownMenu>
+    <a (click)="viewSettings()" class="dropdown-item">
+      <i class="icon-cog5"></i>
+      Profile Settings
+    </a>
+    <a (click)="changePassword()" class="dropdown-item">
+      <i class="icon-lock5"></i>
+      Change password
+    </a>
+    <a (click)=" signOut()" class="dropdown-item">
+      <i class="icon-switch2"></i>
+      Sign Out
+    </a>
+  </div>
+
+</div>

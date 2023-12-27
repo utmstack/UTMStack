@@ -1,0 +1,226 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Incident Response Audit</h5>
+  </div>
+  <div class="card w-100">
+    <div class="card-header p-2 w-100 d-flex justify-content-between">
+      <div class="d-flex flex-grow-1">
+
+        <ng-select (change)="selectType($event)"
+                   [clearable]="true"
+                   [items]="appliedTypes"
+                   [loadingText]="'Loading types....'"
+                   placeholder="Select execution origin"
+                   bindLabel="label"
+                   bindValue="key"
+                   [ngStyle]="{'min-width': '250px'}"
+                   [loading]="!appliedTypes">
+        </ng-select>
+
+        <div class="w-25 ml-3">
+          <app-utm-agent-select (agentSelect)="onAgentSelect($event)" [onlyWithCommands]="true"></app-utm-agent-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase cursor-pointer"
+              scope="col">
+            Hostname&nbsp;
+          </th>
+          <th
+            class="font-weight-semibold text-uppercase cursor-pointer"
+            scope="col">
+            Reason&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25"
+              scope="col">
+            Command&nbsp;
+          </th>
+
+          <th (sort)="onSortBy($event)"
+              [sortable]="'origin_type'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer"
+              scope="col">
+            Applied in&nbsp;
+          </th>
+
+          <th
+            class="font-weight-semibold text-uppercase cursor-pointer"
+            scope="col">
+            Applied to&nbsp;
+          </th>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'created_at'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer"
+              scope="col">
+            Executed at&nbsp;
+          </th>
+          <th (sort)="onSortBy($event)"
+              [sortable]="'executed_by'" appColumnSortable
+              class="font-weight-semibold text-uppercase cursor-pointer"
+              scope="col">
+            Executed by&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer"
+              scope="col">
+            Execution&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="(commands && commands.length>0) && !loading">
+        <tr *ngFor="let command of commands">
+          <td>
+            {{command.agent.hostname}}
+          </td>
+          <td class="text-wrap" style="word-break: break-word">
+            {{command.reason}}
+          </td>
+          <td>
+            <code
+              class="text-blue-800 font-weight-bolder text-wrap">{{command.command}}</code>
+          </td>
+          <td>
+            {{command.originType}}
+          </td>
+          <td>
+            <ng-container [ngSwitch]="command.originType">
+                  <span class="text-blue-800 cursor-pointer"
+                        *ngSwitchCase="incidentOriginTypeEnum.ALERT"
+                        [ngbTooltip]="'Related '+ command.originType + ' id'"
+                        placement="top"
+                        tooltipClass="utm-tooltip-top"
+                        [routerLink]="'/data/alert/detail/'+command.originId">
+                  {{command.originId}}
+                </span>
+              <span class="text-blue-800 cursor-pointer"
+                    *ngSwitchCase="incidentOriginTypeEnum.INCIDENT"
+                    [ngbTooltip]="'Related '+ command.originType + ' id'"
+                    placement="top"
+                    tooltipClass="utm-tooltip-top"
+                    [routerLink]="'/incident/view'"
+                    [queryParams]="{incidentId: command.originId}">
+                  {{command.originId}}
+                </span>
+              <span class="text-blue-800 cursor-pointer"
+                    *ngSwitchCase="incidentOriginTypeEnum.DATA_SOURCE"
+                    [ngbTooltip]="'Related '+ command.originType + ' id'"
+                    placement="top"
+                    tooltipClass="utm-tooltip-top"
+                    [routerLink]="'/data-sources/sources'">
+                  {{command.originId}}
+                </span>
+              <span class="text-blue-800 cursor-pointer"
+                    *ngSwitchCase="incidentOriginTypeEnum.INCIDENT_RESPONSE_AUTOMATION"
+                    [ngbTooltip]="'Related '+ command.originType + ' id'"
+                    placement="top"
+                    tooltipClass="utm-tooltip-top"
+                    [routerLink]="'/incident-response/automation'"
+                    [queryParams]="{id: command.originId}">
+                  {{command.originId}}
+                </span>
+              <span class="cursor-pointer"
+                    *ngSwitchCase="incidentOriginTypeEnum.USER_EXECUTION"
+                    [ngbTooltip]="'Executed by '+ command.executedBy"
+                    placement="top"
+                    tooltipClass="utm-tooltip-top">
+                  {{command.originId}}
+                </span>
+            </ng-container>
+          </td>
+          <td>
+            {{command.createdAt}}
+          </td>
+          <td>
+            {{command.executedBy}}
+          </td>
+          <td>
+                <span *ngIf="command.result" class="cursor-pointer text-blue-800"
+                      (click)="agentExecution=command">View result</span>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="(commands && commands.length===0) && !loading">
+        <tr>
+          <td colspan="8">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="8">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="commands && commands.length>0" class="mb-4">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          (pageChange)="loadPage($event)"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [size]="'sm'"></ngb-pagination>
+        <app-utm-items-per-page class="ml-3" (itemsInPage)="onItemsPerPageChange($event)">
+        </app-utm-items-per-page>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="agentExecution" class="utm-right-container">
+  <div (click)="agentExecution= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Incident response execution result
+      </h6>
+      <button (click)="agentExecution= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="p-2">
+      <app-utm-agent-detail [agent]="agentExecution.agent"></app-utm-agent-detail>
+
+      <app-utm-terminal-input [param]="agentExecution.result" [readonly]="true"
+                              [terminal]="agentExecution.command"></app-utm-terminal-input>
+    </div>
+  </div>
+</div>
+
+<!--Execute command-->
+<div *ngIf="executeCommand" class="utm-right-container">
+  <div (click)="executeCommand= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Execute command
+      </h6>
+      <button (click)="executeCommand= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="w-100 p-3" *ngIf="reasonRun">
+      <app-utm-agent-connect [websocketCommand]="reasonRun"></app-utm-agent-connect>
+    </div>
+
+  </div>
+</div>

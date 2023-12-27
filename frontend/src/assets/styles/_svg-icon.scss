@@ -1,0 +1,33 @@
+//
+// SVG Icon
+//
+@import "mixins/svg-icon";
+@import "functions/get";
+@import "theme";
+@import "var";
+@import "~bootstrap/scss/mixins/breakpoints";
+.svg-icon {
+    @include svg-icon-size(get($svg-icon-sizes, md));
+    @include svg-icon-color($text-muted);
+
+    // Theme colors
+    @each $name, $color in $theme-text-colors  {
+        &.svg-icon-#{$name} {
+            @include svg-icon-color($color, true);
+        }
+    }
+
+    // Responsive icon sizes
+    @each $breakpoint in map-keys($grid-breakpoints) {
+        @include media-breakpoint-up($breakpoint) {
+            $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+            // Sizes
+            @each $name, $value in $svg-icon-sizes  {
+                &.svg-icon#{$infix}-#{$name} {
+                    @include svg-icon-size($value, true);
+                }
+            }
+        }
+    }
+}

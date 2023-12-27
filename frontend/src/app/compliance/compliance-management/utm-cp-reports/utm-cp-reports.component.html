@@ -1,0 +1,62 @@
+<div class="p-2 report-container">
+  <h6 *ngIf="section"
+      class="card-title mb-0 text-uppercase label-header text-blue-800 mb-2">
+    {{section.standardSectionName}}
+  </h6>
+  <app-utm-search-input (searchFor)="onSearchFor($event)"
+                        [placeholder]="'Search report by solution'"
+                        [searching]="false"></app-utm-search-input>
+  <div *ngIf="loadingTemplates"
+       class="w-100 d-flex justify-content-center align-items-center mt-2">
+    <app-utm-spinner [height]="'110px'" [loading]="loadingTemplates" [width]="'110px'"
+                     label="Loading templates">
+    </app-utm-spinner>
+  </div>
+  <div (scrolled)="onScroll()"
+       *ngIf="!loadingTemplates && complianceReports.length>0"
+       [fromRoot]="true"
+       [infiniteScrollDistance]="1"
+       [infiniteScrollThrottle]="50"
+       [scrollWindow]="false"
+       class="mt-2"
+       infiniteScroll>
+    <div *ngFor="let report of complianceReports"
+         class="w-100 card p-2 d-flex  flex-column flex-grow-1">
+            <span class="align-self-end span-small-icon">
+              <i (click)="editReport(report)"
+                 *ngIf="report.configReportEditable"
+                 class="icon-pencil cursor-pointer mr-2"
+                 container="body"
+                 ngbTooltip="Edit report"
+                 placement="bottom"
+                 tooltipClass="utm-tooltip-bottom"></i>
+           <i (click)="deleteSection(report)"
+              *ngIf="report.configReportEditable"
+              class="icon-cross2 cursor-pointer"
+              container="body"
+              ngbTooltip="Delete report"
+              placement="bottom"
+              tooltipClass="utm-tooltip-bottom"></i>
+        </span>
+      <a (click)="toggleDetail(report.id)"
+         [attr.aria-expanded]="showDetailFor===report.id"
+         aria-controls="collapse"
+         class="font-size-base text-justify text-blue-800 cursor-pointer">
+        {{report.associatedDashboard.name}}
+      </a>
+      <div *ngIf="report.id===showDetailFor">
+        <p [innerHTML]="report.configSolution | safe:'html'"
+           class="font-size-base text-justify mt-2">
+        </p>
+      </div>
+    </div>
+    <div *ngIf="loadingMore && !noMoreResult"
+         class="d-flex justify-content-center align-items-center p-3 loading">
+      <app-utm-spinner [height]="'35px'" [loading]="true"
+                       [width]="'35px'" label="Loading more events"></app-utm-spinner>
+    </div>
+  </div>
+  <div *ngIf="!loadingTemplates && complianceReports.length===0" class="">
+    <app-no-data-found></app-no-data-found>
+  </div>
+</div>

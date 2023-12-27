@@ -1,0 +1,8 @@
+<span *ngIf="assetOS" [ngClass]="color"
+      class="span-small-icon status-container
+      font-weight-light text-center align-middle">
+       <i [ngClass]="icon"></i>
+        <span class="pl-1">
+          {{assetOS | titlecase}}
+        </span>
+</span>

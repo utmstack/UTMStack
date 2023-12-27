@@ -1,0 +1,34 @@
+<div *ngIf="adInfo.ips"
+     class="email-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+              <span class="p-1 utm-box-label">
+              <i class="icon-lan2"></i>
+              IP list</span>
+  <div class="d-flex justify-content-start align-items-center flex-wrap">
+    <div *ngFor="let ip of adInfo.ips" class="d-flex flex-column border-grey-100 border-1 p-3 m-2">
+      <div class="reverse d-flex">
+        <span class="font-weight-bold mb-2">Ip:&nbsp;</span>
+        <span class="">{{ip.ipaddress}}</span>
+      </div>
+      <div class="reverse d-flex mb-2">
+        <span class="font-weight-bold">Address state:&nbsp;</span>
+        <span class="">{{ip.addressState}}</span>
+      </div>
+      <div class="reverse d-flex mb-2">
+        <span class="font-weight-bold">Interface index:&nbsp;</span>
+        <span class="">{{ip.interfaceIndex}}</span>
+      </div>
+      <div class="reverse d-flex mb-2">
+        <span class="font-weight-bold">Prefix length:&nbsp;</span>
+        <span class="">{{ip.prefixLength}}</span>
+      </div>
+      <div class="reverse d-flex mb-2">
+        <span class="font-weight-bold">Prefix origin:&nbsp;</span>
+        <span class="">{{ip.prefixOrigin}}</span>
+      </div>
+      <div class="reverse d-flex">
+        <span class="font-weight-bold">Suffix origin:&nbsp;</span>
+        <span class="">{{ip.suffixOrigin}}</span>
+      </div>
+    </div>
+  </div>
+</div>

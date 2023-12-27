@@ -1,0 +1,49 @@
+.utm-api-doc {
+  //max-height: 800px;
+  //overflow-y: scroll;
+}
+
+span.method {
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+  display: inline-block;
+  width: 50px;
+  font-size: .7em;
+  text-align: center;
+  padding: 7px 0 4px;
+  border-radius: 2px;
+  margin-right: 20px;
+}
+
+span.method-get {
+  background-color: #0f6abc
+}
+
+span.method-post {
+  background-color: #10a54a
+}
+
+span.method-put {
+  background-color: #c5862b
+}
+
+span.method-delete {
+  background-color: #a41e22
+}
+
+.card-body {
+
+  h6 {
+    margin: 10px 0;
+    font-weight: 600;
+  }
+
+  a {
+    color: #0a6ebd;
+
+    &:hover {
+      color: #1a202f;
+    }
+  }
+}

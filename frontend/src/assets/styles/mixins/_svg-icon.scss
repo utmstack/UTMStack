@@ -1,0 +1,40 @@
+//
+// SVG Icon
+//
+
+
+@mixin svg-icon-color($color, $important: true) {
+  svg {
+    g {
+      [fill] {
+        transition: fill 0.3s ease;
+        fill: $color !important
+      }
+    }
+
+    &:hover {
+      g {
+        [fill] {
+          transition: fill 0.3s ease;
+        }
+      }
+    }
+  }
+}
+
+@mixin svg-icon-transition() {
+  svg {
+    g {
+      [fill] {
+        transition: fill 0.3s ease;
+      }
+    }
+  }
+}
+
+@mixin svg-icon-size($size, $important: false) {
+  svg {
+    height: $size !important;
+    width: $size !important;
+  }
+}

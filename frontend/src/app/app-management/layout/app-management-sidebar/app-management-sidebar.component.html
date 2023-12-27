@@ -1,0 +1,128 @@
+<div class="card sidebar-app-management h-100">
+  <div class="list-group">
+
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/connection-key"
+       routerLinkActive="router-link-active">
+      <div class="d-flex justify-content-between align-items-center">
+          <span class="font-weight-semibold">
+        <i class="icon-key font-size-sm"></i>&nbsp;
+       Connection key
+      </span>
+      </div>
+    </a>
+
+    <ng-container *ngIf="!inSass">
+      <a *appHasAnyAuthority="adminAuth"
+
+         class="list-group-item"
+         routerLink="/app-management/settings/rollover"
+         routerLinkActive="router-link-active">
+        <div class="d-flex justify-content-between align-items-center">
+         <span class="font-weight-semibold">
+            <i class="icon-database-time2 font-size-sm"></i>&nbsp;
+           Data retention
+      </span>
+        </div>
+      </a>
+    </ng-container>
+    <ng-container *ngIf="!inSass">
+      <a *appHasAnyAuthority="adminAuth" class="list-group-item"
+
+         routerLink="/app-management/settings/license"
+         routerLinkActive="router-link-active">
+      <span class="font-weight-semibold">
+        <i class="icon-key rotate-90 font-size-sm"></i>&nbsp;
+       License
+      </span>
+      </a>
+    </ng-container>
+
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/application-config"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-cog3 font-size-sm"></i>&nbsp;
+            Application settings
+          </span>
+    </a>
+
+    <a class="list-group-item"
+       *appHasAnyAuthority="adminAuth"
+       routerLink="/app-management/settings/user-access-audit"
+       routerLinkActive="router-link-active">
+      <span class="font-weight-semibold">
+        <i class="icon-user-block font-size-sm"></i>&nbsp;
+       User access audit
+      </span>
+    </a>
+    <ng-container *ngIf="!inSass">
+      <a *appHasAnyAuthority="adminAuth"
+         class="list-group-item"
+         routerLink="/app-management/settings/index-management"
+         routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-server font-size-sm"></i>&nbsp;
+            Index management
+          </span>
+      </a>
+    </ng-container>
+    <ng-container *ngIf="!inSass">
+      <a class="list-group-item"
+         routerLink="/app-management/settings/index-pattern"
+         routerLinkActive="router-link-active">
+              <span class="font-weight-semibold">
+                <i class="icon-regexp font-size-sm"></i>&nbsp;
+               Index patterns
+              </span>
+      </a>
+    </ng-container>
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/health-checks"
+       routerLinkActive="router-link-active">
+      <span class="font-weight-semibold">
+        <i class="icon-heart6 font-size-sm"></i>&nbsp;
+       Health checks
+      </span>
+    </a>
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/app-logs"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-meter-slow font-size-sm"></i>&nbsp;
+           Application logs</span>
+    </a>
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/application-theme"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-color-sampler font-size-sm"></i>&nbsp;
+            Application theme
+          </span>
+    </a>
+
+    <a *appHasAnyAuthority="adminAuth" class="list-group-item"
+       routerLink="/app-management/settings/menu-management"
+       routerLinkActive="router-link-active">
+      <span class="font-weight-semibold">
+        <i class="icon-menu rotate-90 font-size-sm"></i>&nbsp;
+       Menu
+      </span>
+    </a>
+
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/about"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-info22 font-size-sm"></i>&nbsp;
+            About
+          </span>
+    </a>
+  </div>
+</div>

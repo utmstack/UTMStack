@@ -1,0 +1,79 @@
+<app-utm-modal-header [name]="'Add alerts to incident'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="formIncident" action="" class="form">
+    <div class="w-50">
+      <label class="pb-1 font-weight-semibold" for="incidentId">
+        Select incident
+      </label>
+      <ng-select [clearable]="false"
+                 [items]="incidents"
+                 [searchable]="true"
+                 [virtualScroll]="true"
+                 bindLabel="incidentName"
+                 bindValue="id"
+                 formControlName="incidentId"
+                 id="incidentId">
+      </ng-select>
+    </div>
+  </form>
+
+  <div class="table-responsive-sm mb-3 mt-3">
+    <table class="table text-nowrap">
+      <thead>
+      <tr>
+        <th class="font-weight-semibold text-uppercase  cursor-pointer">
+          Name&nbsp;
+        </th>
+        <th style="width: 10px">
+        </th>
+      </tr>
+      </thead>
+      <tbody *ngFor="let alertIncident of alertList |slice:pageStart:pageEnd;let index=index">
+      <tr>
+        <td class="cursor-pointer">
+          <div class="d-flex justify-content-start align-items-center">
+            <app-alert-severity [severity]="alertIncident.alertSeverity"></app-alert-severity>
+            <span class="text-blue-800 ml-2">
+              {{alertIncident.alertName}}
+            </span>
+          </div>
+
+        </td>
+        <td>
+             <span (click)="deleteAlert(alertIncident)" class="span-small-icon cursor-pointer"
+                   container="body"
+                   ngbTooltip="Delete alert"
+                   placement="auto">
+                <i class="icon-cross2"></i>
+             </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="row justify-content-center">
+      <ngb-pagination
+        (pageChange)="loadPage($event)"
+        [(page)]="page"
+        [boundaryLinks]="true"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+    </div>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()"
+            class="btn utm-button utm-button-grey">
+      Cancel
+    </button>
+    <button (click)="addAlertsToIncident()"
+            [disabled]="creating || !formIncident.valid"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-make-group'"></i>
+      Add alerts to Incident&nbsp;
+    </button>
+  </div>
+
+</div>

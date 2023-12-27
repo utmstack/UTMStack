@@ -1,0 +1,16 @@
+name: Frontend RC
+
+on:
+  push:
+    branches: [ "rc" ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-frontend.yml
+    with:
+      image_name: frontend
+      environment: v10-rc
+      directory: frontend
+      branch: rc

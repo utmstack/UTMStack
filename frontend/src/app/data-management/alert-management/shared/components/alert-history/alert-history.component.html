@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-end align-items-center">
+
+  <ng-select (change)="filterByAction($event)"
+             [clearable]="true"
+             [items]="actions"
+             [placeholder]="'Action'"
+             class="mr-3"
+             style="min-width: 150px"></ng-select>
+  <app-elastic-filter-time (timeFilterChange)="onFilterTimeChange($event)"
+                           [formatInstant]="true"
+                           [invertContent]="true"
+                           [timeDefault]="sevenDaysRange"></app-elastic-filter-time>
+
+</div>
+
+<div class="p-2 h-10">
+  <div class="w-100 d-flex justify-content-start align-content-between flex-column">
+    <div *ngIf="items.length>0 && !loading"
+         class="event-timeline-container h-100 pt-2" id="eventsTimeline">
+      <div class="main">
+        <ul class="utm_tmtimeline p-2">
+          <li *ngFor="let item of items" class="">
+            <time [attr.datetime]="item.logDate" class="utm_tmtime">
+              <span class="text-wrap">{{item.logDate | date:formatDateEnum.UTM_SHORT:'UTC'}}</span>
+            </time>
+            <div [ngClass]="resolveClassByAction(item.logAction)"
+                 class="utm_tmlabel cursor-pointer text-wrap">
+              <p [innerHTML]="item.logMessage"></p>
+            </div>
+          </li>
+        </ul>
+        <div *ngIf="loadingMore && !noMoreResult"
+             class="d-flex justify-content-center align-items-center p-3 loading">
+          <app-utm-spinner [height]="'35px'" [loading]="true"
+                           [width]="'35px'" label="Loading more events"></app-utm-spinner>
+        </div>
+        <div *ngIf="noMoreResult"
+             class="d-flex justify-content-center align-items-center p-3 loading">
+          <i class="icon-three-bars font-size-lg text-blue-800"></i>
+          <span class="text-blue-800 mt-2">No more changes</span>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="items && items.length>0" class="mb-3 mt-1">
+      <div class="row justify-content-center">
+        <ngb-pagination (pageChange)="loadPage($event)"
+                        [(page)]="page"
+                        [boundaryLinks]="true"
+                        [collectionSize]="totalItems"
+                        [maxSize]="3"
+                        [pageSize]="itemsPerPage"
+                        [rotate]="true"
+                        [size]="'sm'"></ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+      <!-- TABLE END-->
+    </div>
+  </div>
+  <div *ngIf="loading"
+       class=" h-100 d-flex justify-content-center align-items-center p-3 loading">
+    <app-utm-spinner [height]="'35px'" [loading]="true"
+                     [width]="'35px'" label="Loading events"></app-utm-spinner>
+  </div>
+  <div *ngIf="items.length===0 && !loading"
+       class="card-body message-container p-2 event-timeline-container h-100">
+    <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+      <div class="event-icon utm-icon-lg utm-icon-light"></div>
+      <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+        No changes found
+      </h6>
+    </div>
+  </div>
+</div>
+

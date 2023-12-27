@@ -1,0 +1,52 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      SOC AI
+    </h4>
+  </div>
+  <div class="card-body">
+    <ol class="setup_list">
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">1</span> Access the API key by logging in to your OpenAI account and navigating to
+          the
+          API section
+          <img alt="IAM configuration" class="step-img"
+               src="../../../../assets/img/guides/soc-ai/step1.png">
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">2</span> Create a new API key, and copy the value
+        </p>
+        <img alt="IAM configuration" class="step-img"
+             src="../../../../assets/img/guides/soc-ai/step2.png">
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">3</span> Paste the API Key in the form below:
+        </p>
+        <div class="row mt-3">
+          <div class="col-lg-12 col-md-12 col-sm-12">
+            <app-int-generic-group-config [moduleId]="integrationId"
+                                          [allowAdd]="false"
+                                          [editable]="false"
+                                          (configValidChange)="configValidChange($event)"
+                                          [serverId]="serverId"></app-int-generic-group-config>
+          </div>
+        </div>
+
+      </li>
+      <li>
+        <p class="step-guide mb-3">
+          <span class="step_number">4</span>
+          Click on the button shown below, to activate the UTMStack features related to this integration
+        </p>
+        <app-app-module-activate-button [module]="module.SOC_AI" [type]="'integration'"
+                                        [disabled]="false"
+                                        [serverId]="serverId"
+                                        class="mt-3">
+        </app-app-module-activate-button>
+      </li>
+    </ol>
+  </div>
+</div>

@@ -1,0 +1,255 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 label-header">Incident Response Automation</h5>
+    <div class="header-elements">
+      <button (click)="createRule()"
+              class="btn utm-button utm-button-primary"
+      >
+        Create automation
+      </button>
+    </div>
+  </div>
+  <div class="w-100 h-100 card m-0">
+    <div class="d-flex justify-content-between align-items-center p-2">
+      <div class="d-flex align-items-center mr-3">
+        <i ngbTooltip="Clear filter" class="icon-filter4 text-blue-800 cursor-pointer mr-3"
+           (click)="clearFilters()"></i>
+        <label for="platform">Status </label>
+        <div class="d-flex justify-content-start align-items-center ml-3 alert-radio-container">
+          <span (click)="filterByStatus(null)"
+                [ngClass]="{'text-blue-800':request['active.equals']===null}"
+                class="mb-0 cursor-pointer medium-icon d-flex justify-content-start align-items-center">
+            <i [ngClass]="request['active.equals']===null?'icon-radio-checked':'icon-circle'" class="mr-1"></i>
+            All
+          </span>
+          <span (click)="filterByStatus(true)"
+                [ngClass]="{'text-blue-800':request['active.equals']===true}"
+                class="mb-0 cursor-pointer  ml-3 medium-icon d-flex justify-content-start align-items-center">
+            <i [ngClass]="request['active.equals']===true?'icon-radio-checked':'icon-circle'" class="mr-1"></i>
+            Active
+          </span>
+          <span (click)="filterByStatus(false)"
+                [ngClass]="{'text-blue-800':request['active.equals']===false}"
+                class="mb-0 cursor-pointer  ml-3 medium-icon d-flex justify-content-start align-items-center">
+            <i [ngClass]="request['active.equals']===false?'icon-radio-checked':'icon-circle'" class="mr-1"></i>
+            Inactive
+          </span>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end align-items-center flex-grow-1">
+        <ng-select (change)="onPlatformChange($event)"
+                   placeholder="Select platform"
+                   [clearable]="true"
+                   [items]="platforms"
+                   [loadingText]="'Loading platforms...'"
+                   [loading]="!platforms"
+                   id="platform"
+                   class="mr-3"
+                   style="min-width: 300px">
+        </ng-select>
+
+        <ng-select (change)="onUserChange($event)"
+                   placeholder="Select user"
+                   [clearable]="true"
+                   [items]="users"
+                   [loadingText]="'Loading users...'"
+                   [loading]="!users"
+                   id="user"
+                   class="mr-3"
+                   style="min-width: 300px">
+        </ng-select>
+
+
+        <app-utm-search-input [placeholder]="'Search rule'" (searchFor)="searchByRule($event)"
+                              style="min-width: 300px"></app-utm-search-input>
+      </div>
+    </div>
+    <table class="table mb-0">
+      <thead>
+      <tr>
+
+        <th class="font-weight-semibold cursor-pointer" id="ID"
+            (sort)="onSort($event)"
+            [sortable]="'id'" appColumnSortable style="width: 80px">
+          ID
+        </th>
+        <th class="font-weight-semibold cursor-pointer" id="thRule"
+            (sort)="onSort($event)"
+            [sortable]="'name'" appColumnSortable style="width: 20%">
+          Rule name
+        </th>
+
+        <th>Status</th>
+
+        <th class="font-weight-semibold" id="des"
+            style="width: 20%">
+          Description
+        </th>
+        <th class="font-weight-semibold" id="createdBy">
+          Modified By
+        </th>
+        <th class="font-weight-semibold" id="createdAt">
+          Modified at
+        </th>
+        <th class="font-weight-semibold" id="cond">
+          Trigger condition
+        </th>
+        <th class="font-weight-semibold" id="Command" style="width: 20%">
+          Command
+        </th>
+        <th class="font-weight-semibold" id="created"
+            (sort)="onSort($event)"
+            [sortable]="'last_modified_by'" appColumnSortable>
+          Platform
+        </th>
+        <th class="font-weight-semibold" id="thAction"
+            style="width: 15px">
+          Actions
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let rule of rules">
+
+        <td class="cursor-pointer text-wrap" style="width: 80px" (click)="viewConditions = rule"><p
+          class="text-blue-800 font-size-base">{{rule.id }}</p>
+        </td>
+
+        <td class="text-blue-800 cursor-pointer text-wrap word-break"
+            (click)="viewConditions = rule">{{rule.name }}</td>
+
+        <td>
+          <span (click)="setActive(rule, true)" *ngIf="!rule.active"
+                ngbTooltip="Click to activate the automation rule"
+                class="badge p-1 font-weight-light bg-danger-300 cursor-pointer font-size-sm">Inactive</span>
+          <span (click)="deactivateRuleAction(rule, false)" *ngIf="rule.active"
+                ngbTooltip="Click to deactivate the automation rule"
+                class="badge p-1 font-weight-light bg-success-800 cursor-pointer font-size-sm">Active</span>
+        </td>
+
+
+        <td class="cursor-pointer text-wrap" style="width: 20%" (click)="viewConditions = rule"><p
+          class="font-size-base">{{rule.description }}</p>
+        </td>
+        <td class="cursor-pointer text-wrap" (click)="viewConditions = rule"><p
+          class="font-size-base">{{rule.lastModifiedBy }}</p>
+        </td>
+        <td class="cursor-pointer text-wrap" (click)="viewConditions = rule"><p
+          class="font-size-base">{{rule.lastModifiedDate | date:'short' }}</p>
+        </td>
+        <td
+          class="text-blue-800 cursor-pointer" (click)="viewConditions = rule">
+          <strong>{{rule.conditions.length }}</strong> {{rule.conditions.length > 1 ? 'conditions' : 'condition'}}
+        </td>
+        <td class="text-wrap tags-container text-break cursor-pointer" (click)="viewConditions = rule">
+          <code>{{rule.command}}</code>
+        </td>
+
+        <td (click)="viewConditions=rule" class="cursor-pointer">{{rule.agentPlatform }}</td>
+        <td style="width: 15px" class="text-center">
+          <div class="d-flex justify-content-end align-items-center medium-icon">
+            <i (click)="editRule(rule)" class="icon-pencil3 cursor-pointer mr-3"
+               ngbTooltip="Edit automation rule" tooltipClass="utm-tooltip-top"></i>
+
+          </div>
+        </td>
+
+      </tr>
+      </tbody>
+      <tbody *ngIf="(rules && rules.length===0 && !loading)">
+      <tr>
+        <td colspan="10">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td colspan="10">
+          <div class="p-5
+                d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading rules'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div *ngIf="rules && rules.length" class="mb-4 mt-3">
+      <div class="row justify-content-center">
+        <ngb-pagination (pageChange)="loadPage($event)"
+                        [boundaryLinks]="true"
+                        [collectionSize]="totalItems"
+                        [maxSize]="10"
+                        [pageSize]="itemsPerPage"
+                        [rotate]="true"
+                        [size]="'sm'"></ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div *ngIf="viewConditions" class="utm-right-container">
+  <div (click)="viewConditions= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Rule {{viewConditions.name}}
+      </h6>
+      <button (click)="viewConditions= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="w-100 p-3">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-start flex-column mb-2">
+        <span class="text-blue-800 font-weight-light mr-2">Description:</span>
+        <p class="font-size-base">{{viewConditions.description}}</p>
+      </div>
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+        <span class="text-blue-800 font-weight-light mr-2">Execute on agents with:</span>&nbsp;
+        <p class="font-size-base">{{viewConditions.agentPlatform}}</p>
+      </div>
+      <div class="alert-details w-100 d-flex justify-content-start align-items-start mb-2 flex-column">
+        <span class="text-blue-800 font-weight-light mr-2">Excluding:</span>
+        <div class="d-flex justify-content-start align-items-start">
+          <span class="badge p-1 border-1 badge-flat font-weight-light border-info-800 text-info-800 mr-2 mb-2"
+                *ngFor="let exclusion of viewConditions.excludedAgents">{{exclusion}}</span>
+        </div>
+      </div>
+      <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
+       <span class="p-1 utm-box-label">
+            Trigger when
+       </span>
+        <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2"
+             *ngFor="let condition of viewConditions.conditions">
+          <span class="text-blue-800 font-weight-light has-minimum-width">{{getFieldName(condition.field)}}</span>&nbsp;
+          <span class="font-weight-light  font-weight-semibold mr-2">{{getFilterName(condition.operator)}}</span>&nbsp;
+          <span class="">{{condition.value}}</span>&nbsp;
+        </div>
+      </div>
+
+      <div class="alert-details w-100 d-flex justify-content-start align-items-start mb-2 flex-column mt-3">
+        <span class="text-blue-800 font-weight-light mr-2">Execute command:</span>
+        <app-utm-code-view [code]="viewConditions.command" [allowCopy]="true"></app-utm-code-view>
+      </div>
+
+
+      <h6 class="mr-2 mt-3">Rule History</h6>
+      <app-ira-history [incidentRule]="viewConditions"></app-ira-history>
+
+
+    </div>
+  </div>
+</div>
+

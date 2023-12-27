@@ -1,0 +1,33 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 *ngIf="!mode"
+        class="card-title mb-0 text-uppercase label-header">
+      Text visualization builder
+    </h5>
+    <h5 *ngIf="visualization && mode==='edit'"
+        class="card-title mb-0 text-uppercase label-header">
+      {{visualization.name}}
+    </h5>
+    <div class="header-elements d-flex">
+      <button (click)="saveVisualization()"
+              class="btn utm-button utm-button-primary d-flex">
+        <span class="mr-2 utm-icon-text utm-icon-xs utm-icon-white"></span>
+        Save visualization
+      </button>
+      <button class="btn utm-button utm-button-grey d-flex ml-2"
+              (click)="cancel()">
+        Cancel
+      </button>
+    </div>
+  </div>
+  <div class="card w-100  p-2 visualization-text-builder">
+    <angular-editor *ngIf="visualization;else loading" [(ngModel)]="visualization.chartConfig"
+                    [config]="config"
+                    [placeholder]="'Enter text here...'"></angular-editor>
+    <ng-template #loading>
+      <div class="d-flex justify-content-center align-items-center w-100 h-100">
+        <app-utm-spinner [loading]="true" label="Loading visualization"></app-utm-spinner>
+      </div>
+    </ng-template>
+  </div>
+</div>

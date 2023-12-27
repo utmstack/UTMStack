@@ -1,0 +1,15 @@
+@import "../../../../assets/styles/theme";
+@import "../../../../assets/styles/var";
+
+.text-demo {
+  p {
+    font-size: 17px;
+
+    color: $primary-color;
+  }
+
+  a {
+    font-size: 18px;
+    color: $primary-color;
+  }
+}

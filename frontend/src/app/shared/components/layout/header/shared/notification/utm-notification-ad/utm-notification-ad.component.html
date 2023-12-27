@@ -1,0 +1,129 @@
+<span #adPopober=ngbPopover
+      [ngbPopover]="colContent"
+      [popoverTitle]="colTitle"
+      autoClose="outside"
+      class="position-relative cursor-pointer small-md-icon"
+      container="body"
+      placement="bottom"
+      popoverClass="utm-popover"
+      triggers="click">
+  <div class="h-100 d-flex justify-content-center align-items-center position-relative notf-container">
+     <span class="svg-icon svg-icon-smx svg-icon-white text-white"
+           inlineSVG="assets/icons/header/shield-user.svg"></span>
+    <span class="span-small-icon indicator" *ngIf="newEvents">
+      <i class="icon-circle2 text-danger-300"></i>
+    </span>
+  </div>
+</span>
+
+<ng-template #colContent>
+  <div class="dropdown-scrollable">
+    <ul *ngIf="adEvents.length>0" class="media-list">
+      <li *ngFor="let event of adEvents | slice:0:5" class="media">
+        <div class="media-body">
+          <div class="media-title">
+            <a>
+              <span class="font-weight-semibold">{{event.objectName}}</span>
+              <span class="text-muted float-right font-size-sm">
+                              {{event.timestamp|date:'short':'UTC'}}
+                            </span>
+            </a>
+          </div>
+          <span class="text-muted flex-wrap ad-event">
+              {{resolveMessage(event.eventId)}}
+            </span>
+        </div>
+      </li>
+    </ul>
+    <div *ngIf="adEvents.length===0"
+         class="card-body message-container p-2 event-timeline-container">
+      <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+        <div class="event-icon utm-icon-lg utm-icon-light"></div>
+        <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+          No events found
+        </h6>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="adEvents.length>0"
+       class="d-flex justify-content-around p-2">
+                  <span (click)="adEvents=[];newEvents=false"
+                        class="text-blue-800 cursor-pointer">
+                     <i class="icon-checkmark2"></i>
+                    Mark as read
+                  </span>
+    <span (click)="adPopober.close()"
+          class="text-blue-800 cursor-pointer"
+          routerLink="/active-directory/tracker">
+                    <i class="icon-target"></i>
+                    View trackers
+      </span>
+  </div>
+</ng-template>
+<ng-template #colTitle>
+  <label class="font-weight-semibold">Active directory changes</label>
+</ng-template>
+<!--<div #dropTracker="ngbDropdown"-->
+<!--     (click)="newEvents=false"-->
+<!--     autoClose-->
+<!--     class="dropdown h-100 cursor-pointer"-->
+<!--     container="body"-->
+<!--     display="dynamic"-->
+<!--     ngbDropdown placement="bottom">-->
+<!--  <div class="h-100 d-flex justify-content-center align-items-center position-relative notf-container"-->
+<!--       data-toggle="dropdown" ngbDropdownToggle>-->
+<!--     <span class="svg-icon svg-icon-smx svg-icon-white text-white"-->
+<!--           inlineSVG="assets/icons/header/shield-user.svg"></span>-->
+<!--    <span class="span-small-icon indicator" *ngIf="newEvents">-->
+<!--      <i class="icon-circle2 text-danger-300"></i>-->
+<!--    </span>-->
+<!--  </div>-->
+<!--  <div class="dropdown-menu dropdown-content wmin-md-350" ngbDropdownMenu>-->
+<!--    <div class="dropdown-content-header align-items-center p-2-->
+<!--                border-bottom-1 border-bottom-grey-100 mb-2">-->
+<!--      <label class="font-weight-semibold">Active directory changes</label>-->
+<!--    </div>-->
+<!--    <div class="dropdown-content-body dropdown-scrollable">-->
+<!--      <ul *ngIf="adEvents.length>0" class="media-list">-->
+<!--        <li *ngFor="let event of adEvents | slice:0:5" class="media">-->
+<!--          <div class="media-body">-->
+<!--            <div class="media-title">-->
+<!--              <a>-->
+<!--                <span class="font-weight-semibold">{{event.objectName}}</span>-->
+<!--                <span class="text-muted float-right font-size-sm">-->
+<!--                              {{event.timestamp|date:'short':'UTC'}}-->
+<!--                            </span>-->
+<!--              </a>-->
+<!--            </div>-->
+<!--            <span class="text-muted">-->
+<!--              {{resolveMessage(event.eventId)}}-->
+<!--            </span>-->
+<!--          </div>-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--      <div *ngIf="adEvents.length===0"-->
+<!--           class="card-body message-container p-2 event-timeline-container">-->
+<!--        <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">-->
+<!--          <div class="event-icon utm-icon-lg utm-icon-light"></div>-->
+<!--          <h6 class="text-blue-800 mt-2 text-justify font-weight-light">-->
+<!--            No events found-->
+<!--          </h6>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    <div *ngIf="adEvents.length>0"-->
+<!--         class="dropdown-content-footer justify-content-around p-2">-->
+<!--                  <span (click)="adEvents=[];newEvents=false"-->
+<!--                        class="text-blue-800 cursor-pointer">-->
+<!--                     <i class="icon-checkmark2"></i>-->
+<!--                    Mark as read-->
+<!--                  </span>-->
+<!--      <span (click)="dropTracker.close()"-->
+<!--            class="text-blue-800 cursor-pointer"-->
+<!--            routerLink="/active-directory/tracker">-->
+<!--                    <i class="icon-target"></i>-->
+<!--                    View trackers-->
+<!--      </span>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->

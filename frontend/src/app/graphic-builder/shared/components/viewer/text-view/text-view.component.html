@@ -1,0 +1,20 @@
+<div [ngStyle]="{'height':height,'width':width}" class="bg-white p-0 chart-container">
+  <div *ngIf="loadingOption"
+       class="loading-chart w-100 h-100
+                 d-flex justify-content-center
+                 align-items-center">
+    <app-utm-spinner [height]="'35px'" [loading]="loadingOption" [width]="'35px'"
+                     label="Loading chart">
+    </app-utm-spinner>
+  </div>
+  <div *ngIf="(!visualization.chartConfig || visualization.chartConfig ==='') && !loadingOption  "
+       class="h-100 w-100">
+    <app-no-data-chart [typeChart]="chart"></app-no-data-chart>
+  </div>
+  <div *ngIf="!loadingOption && visualization.chartConfig"
+       [innerHTML]="visualization.chartConfig"
+       [ngClass]="{'mt-3':building}"
+       [ngStyle]="{'height':height,'width':width}"
+       class="p-2 text-chart-content"
+       style="overflow-wrap: break-word;overflow-y: auto"></div>
+</div>

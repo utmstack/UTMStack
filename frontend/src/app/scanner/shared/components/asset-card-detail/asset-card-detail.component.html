@@ -1,0 +1,29 @@
+<div class="card">
+  <div class="card-header card-header-chart pb-0 pr-2 pt-2 d-flex justify-content-between align-items-center bg-light">
+    <label class="card-title label-header mb-1">Asset details</label>
+  </div>
+  <div class="card-body">
+    <div class="d-flex flex-column justify-content-center">
+      <div class="detail d-flex justify-content-start align-items-center">
+        <span>Hostname:&nbsp; </span>
+        <span class="text-blue-800 font-weight-bold">{{asset.name}}</span>
+      </div>
+      <div class="detail mt-2 d-flex justify-content-start align-items-center">
+        <span>IP:&nbsp; </span>
+        <span class="text-blue-800 font-weight-bold">{{resolveAssetIP()}}</span>
+      </div>
+
+      <div class="detail d-flex mt-2 justify-content-start align-items-center">
+        <app-asset-os [asset]="asset" [position]="'right'"></app-asset-os>
+      </div>
+      <div class="detail d-flex mt-2 justify-content-start align-items-center">
+        <span>CPE:&nbsp; </span>
+        <span class="text-blue-800 font-weight-bold">{{resolveAssetSoCpe() }}</span>
+      </div>
+      <div class="detail d-flex mt-2 justify-content-center align-items-center">
+        <app-asset-severity-chart [severity]="asset.host.severity.value" [type]="'card'" style="width: 154px">
+        </app-asset-severity-chart>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+<div class="w-100">
+  <form [formGroup]="googleForm" autocomplete="off">
+    <ng-container *ngFor="let item of group.controls; let index=index">
+      <ng-container formArrayName="group">
+        <ng-container [formGroupName]="index">
+          <div class="card mr-2 mb-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              Google project
+              <span (click)="deleteGoogleGroup(index)" class="cursor-pointer text-danger-300">
+                <i class="icon-cross3"></i>
+            </span>
+            </div>
+            <div class="card-body row m-0">
+              <div class="col-lg-4 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="">
+            <span>
+                <i [ngClass]="!group.at(index).get('projectId').valid?'text-danger':'text-success'"
+                   [ngbTooltip]="'This param is required'"
+                   class="icon-circle2 mr-1"
+                   placement="auto"></i>
+                Project ID
+              </span>
+                    <span>
+          <i [ngbTooltip]="'Google project ID'"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+      </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="projectId"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('projectId').valid"
+                    class="text-danger">
+                    Project ID is invalid
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="conModule">
+                  <span>
+                      <i [ngClass]="!group.at(index).get('topic').valid?'text-danger':'text-success'"
+                         [ngbTooltip]="'This param is required'"
+                         class="icon-circle2 mr-1"
+                         placement="auto"></i>
+                      Topic name
+                    </span>
+                    <span>
+          <i [ngbTooltip]="'Google Pub/Sub topic'"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+              </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="topic"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('topic').valid"
+                    class="text-danger">
+                    Google Pub/Sub topic is invalid
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-12 col-sm-12">
+                <div class="form-group">
+                  <label class="pb-1 span-small-icon d-flex justify-content-between align-items-center"
+                         for="">
+            <span>
+                <i [ngClass]="!group.at(index).get('subscription').valid?'text-danger':'text-success'"
+                   [ngbTooltip]="'This param is required'"
+                   class="icon-circle2 mr-1"
+                   placement="auto"></i>
+                Subscription name
+              </span>
+                    <span>
+                     <i [ngbTooltip]="'Google Pub/Sub topic subscription'"
+                        class="ml-2 text-primary icon-question3" placement="auto"></i>
+               </span>
+                  </label>
+                  <input autocomplete="off"
+                         class="form-control"
+                         formControlName="subscription"
+                         required type="text">
+                  <small
+                    *ngIf="!group.at(index).get('subscription').valid"
+                    class="text-danger">
+                    Google Pub/Sub topic subscription is invalid
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-12 col-md-12 col-sm-12">
+                <app-utm-file-upload (fileEmit)="group.at(index).get('jsonKey').setValue($event[0])"
+                                     [acceptTypes]="'.json'" msg="Google Service account key">
+                </app-utm-file-upload>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </form>
+  <div class="add-bucket-button d-flex justify-content-center mt-3 mb-3">
+          <span (click)="addGoogleGroup()"
+                class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+                       Add project
+          </span>
+    <button (click)="saveConfig()"
+            [disabled]="!googleForm.valid"
+            class="btn utm-button utm-button-primary ml-3">
+      <i *ngIf="saving" [ngClass]="'icon-spinner2 spinner'" class="mr-1"></i>
+      {{saving ? 'Saving...' : 'Save'}}
+    </button>
+  </div>
+</div>

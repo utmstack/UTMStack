@@ -1,0 +1,20 @@
+<div *ngIf="show" class="card card-restart shadow" style="opacity: 1; max-width: none;">
+  <div class="utm-modal-header card-header header-elements-sm-inline p-2 bg-white card-header-title">
+    <h6 class="modal-title font-weight-light">Restart the application</h6>
+    <button (click)="show=false" aria-label="Close"
+            class="close button-close" data-dismiss="modal"
+            type="button">
+      <div class="close-modal-icon"></div>
+    </button>
+  </div>
+  <div class="card-body p-2">
+    <p>UTMStack detected changes in the configuration that were made by {{status.requestedBy}} at
+      {{status.restartSince | date:'short':'UTC'}} . These configuration changes require a system restart to take
+      effect. Restarting the panel will bring the user interface down for a few minutes, but this does not affect any
+      system-critical functionalities such as data ingestion and correlation.
+    </p>
+    <div class="d-flex justify-content-end mt-2">
+      <button (click)="restartNow()" class="btn utm-button utm-button-primary">Restart now</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<div *ngIf="viewModalCondition" class="utm-right-container">
+  <div (click)="viewModalCondition= false" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  p-3">
+      <h5 class="card-title text-blue-800 font-weight-light">Tracker notification</h5>
+      <button (click)="viewModalCondition= false" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <ng-content></ng-content>
+  </div>
+</div>

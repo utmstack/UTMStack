@@ -1,0 +1,59 @@
+<app-utm-modal-header [name]="'New visualization'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <app-index-pattern-select (indexPatternChange)="pattern = $event"></app-index-pattern-select>
+
+  <div class="row mt-4">
+
+    <div class="col-lg-7 col-md-12 col-sm-12">
+      <div class="d-flex justify-content-start align-items-start flex-wrap">
+        <div (click)="chartBlur(chart)"
+             *ngFor="let chart of charts"
+             [ngClass]="{'card-chart-selected':(chartSelected!==undefined && chart.type === chartSelected.type)}"
+             class="card-icon cursor-pointer">
+          <div [ngClass]="chartIconResolver(chart.type)" class="utm-icon-xs utm-icon-primary-opacity"></div>
+          <span>{{chart.name}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5 col-md-12 col-sm-12">
+      <div class="chart-description mt-3">
+        <div *ngIf="chartSelected"
+             class="chart-explain d-flex justify-content-start align-items-start flex-column">
+          <h4 class="font-weight-light">{{chartSelected.name}}</h4>
+          <p class="mt-3">
+            {{chartSelected.description}}
+          </p>
+        </div>
+        <div *ngIf="!chartSelected"
+             class="chart-explain d-flex justify-content-start align-items-start flex-column">
+          <h4 class="font-weight-light">Select a visualization</h4>
+          <p class="mt-3">
+            Please select one of chart on the left to continue
+          </p>
+        </div>
+        <div *ngIf="chartSelected"
+             [ngClass]="chartIconResolver(chartSelected.type)"
+             class="image-shadow utm-icon-primary utm-icon-lg">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="createVisualization()"
+            [disabled]="!(pattern && chartSelected)"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <span *ngIf="chartSelected && !creating" [ngClass]="chartIconResolver(chartSelected.type)"
+            class="image-shadow utm-icon-white utm-icon-xs"></span>
+      <i *ngIf="creating"
+         class="icon-spinner2 spinner">
+      </i>&nbsp;
+      Create visualization
+    </button>
+  </div>
+</div>

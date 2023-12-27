@@ -1,0 +1,68 @@
+<div class="h-100 d-flex align-items-center navbar pl-0 pr-4 flex-nowrap inline-menu">
+  <ng-template #recursiveList let-list>
+    <ng-container *ngFor="let menu of list; let i = index" [id]="i">
+      <ul *appHasAnyAuthority="menu.authorities" [hidden]="!showAdParentMenu(menu)" class="navbar-nav">
+        <li #menuDropdown="ngbDropdown" (close)="searching = undefined"
+            display="dynamic"
+            (click)="active=menu.id"
+            *ngIf="menu.childrens || menu.actions;else link"
+            autoClose="outside"
+            container="body"
+            class="nav-item dropdown mr-1"
+            placement="bottom"
+            id="{{i+'-' + menu.id}}"
+            ngbDropdown>
+          <a class="utm-nav-link dropdown-toggle text-capitalize"
+             [ngClass]="{'active-menu':isActiveChildren(menu.childrens,menu.actions,menu.id)}"
+             data-toggle="dropdown"
+             ngbDropdownToggle>
+             <span *ngIf="menu.menuIcon" class="svg-icon svg-icon-md mr-2"
+                   [ngClass]="isActiveChildren(menu.childrens, menu.actions,menu.id)?'svg-icon-active':'svg-icon-primary'"
+                   [inlineSVG]="iconPath+menu.menuIcon"></span>
+            {{menu.name | titlecase}}
+          </a>
+          <div [ngClass]="i===0?'first':i===list.length-1?'last':''" class="dropdown-menu scroll-menu-y" ngbDropdownMenu
+               aria-labelledby="{{i+ '-' + menu.id}}"
+               id="{{i+'-'+menu.id + '-dropdown'}}"
+               style="width: 235px;">
+            <div *ngIf="menu.actions" class="w-100">
+              <a (click)="showDashboard(action);menuDropdown.close()"
+                 *ngFor="let action of menu.actions"
+                 class="dropdown-item text-capitalize">
+                {{action.name}}
+              </a>
+              <div *ngIf="menu.childrens" class="dropdown-divider mt-1 mb-1"></div>
+            </div>
+            <ng-container *ngFor="let submenu of menu.childrens">
+              <a (click)="showDashboard(submenu);menuDropdown.close()"
+                 *appHasAnyAuthority="submenu.authorities"
+                 [hidden]="!submenu.menuActive"
+                 class="dropdown-item text-capitalize">
+                {{submenu.name}}
+              </a>
+            </ng-container>
+
+            <!--              </ng-template>-->
+            <!--            </div>-->
+          </div>
+        </li>
+        <ng-template #link>
+          <li (click)="showDashboard(menu)" *appHasAnyAuthority="menu.authorities"
+              [hidden]="!menu.menuActive" class="nav-item mr-1">
+            <a class="utm-nav-link breadcrumb-elements-item text-capitalize"
+               [ngClass]="{'active-menu':isActive(menu)}">
+                <span *ngIf="menu.menuIcon" class="svg-icon svg-icon-md  mr-2"
+                      [ngClass]="isActive(menu)?'svg-icon-active':'svg-icon-primary'"
+                      [inlineSVG]="iconPath+menu.menuIcon"></span>
+              {{menu.name | titlecase}}
+            </a>
+          </li>
+        </ng-template>
+      </ul>
+    </ng-container>
+  </ng-template>
+
+  <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: menus}"></ng-container>
+
+</div>
+

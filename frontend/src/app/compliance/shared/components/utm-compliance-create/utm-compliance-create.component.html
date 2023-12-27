@@ -1,0 +1,76 @@
+<app-utm-modal-header [name]="(report?'Edit':'Create') + ' compliance report'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="d-flex flex-column justify-content-start align-items-start">
+    <div class="step-container">
+      <div class="step">
+         <span class="text-blue-800 font-weight-bold">
+          Standard & section
+        </span>
+        <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-shield-check'"></i>
+        </div>
+      </div>
+      <div class="step-link"></div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold">
+          View select
+        </span>
+        <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
+             class="round-indicator">
+          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-pie-chart8'"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="step===1" class="configure-step mt-3">
+    <div class="d-flex flex-column w-75 mb-3">
+      <label class="pb-1" for="standard">Standard</label>
+      <app-utm-cp-standard-select
+        (standardSelect)="onStandardChange($event)"
+        [standardId]="report?report.section.standardId:null"
+        id="standard">
+      </app-utm-cp-standard-select>
+    </div>
+    <div *ngIf="viewSection" class="d-flex flex-column w-100 mb-3">
+      <label class="pb-1" for="standard">Standard section</label>
+      <app-utm-cp-st-section-select
+        (standardSectionSelect)="onStandardSectionChange($event)"
+        [onlyWithReport]="false"
+        [standardSectionEditId]="report?report.standardSectionId:null"
+        id="standardSection">
+      </app-utm-cp-st-section-select>
+    </div>
+    <div class="form-group">
+      <label for="reportDesc">Solution ({{1500 - solution.length}})</label>
+      <textarea [(ngModel)]="solution" class="form-control" id="reportDesc" rows="4"></textarea>
+    </div>
+  </div>
+  <div *ngIf="step===2" class="configure-step mt-3 mb-3">
+    <app-utm-dashboard-select (dashboardSelected)="onDashboardSelected($event)"
+                              [idDashboard]="report?report.dashboardId:null">
+    </app-utm-dashboard-select>
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="backStep()" *ngIf="step > 1"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-arrow-left22"></i>&nbsp;
+      Back
+    </button>
+    <button (click)="nextStep()" *ngIf="step ===1"
+            [disabled]="!standardSectionId || solution===''"
+            class="btn utm-button utm-button-primary ml-2">
+      Next&nbsp;
+      <i class="icon-arrow-right22"></i>
+    </button>
+
+    <button (click)="createCompliance()"
+            *ngIf="step===2"
+            [disabled]="!dashboardId"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="creating?'icon-spinner2 spinner':'icon-shield-check'"></i>
+      {{report ? 'Edit' : 'Create'}} compliance&nbsp;
+    </button>
+  </div>
+</div>
+

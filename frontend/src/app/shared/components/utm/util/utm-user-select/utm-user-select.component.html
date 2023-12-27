@@ -1,0 +1,60 @@
+<div class="container-fluid p-0 list-visualization h-100">
+  <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+    <app-utm-search-input (searchFor)="searchUser($event)"
+                          [searching]="searchingUser"
+                          placeholder="Search User">
+    </app-utm-search-input>
+  </div>
+  <div class="table-responsive">
+    <table class="table text-nowrap table-hover table-condensed table-borderless">
+      <tbody *ngIf="users && users.length>0">
+      <tr *ngFor="let user of users">
+        <td class="text-center" style="width:20px;">
+          <div class="list-icons span-small-icon">
+            <i (click)="addToSelected(user)"
+               [ngClass]="isSelected(user)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+               class="cursor-pointer" style="margin-top: 8px"></i>
+          </div>
+        </td>
+        <td (click)="addToSelected(user)" class="cursor-pointer">
+          <div class="text-blue-800 d-flex">
+            <span>{{user.firstName + ' ' + user.lastName}}</span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="(users && users.length===0 && !loading)">
+      <tr>
+        <td colspan="5">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td colspan="5">
+          <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading users'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="users && users.length>0" class="mb-4">
+    <div class="row justify-content-center">
+      <ngb-pagination
+        (pageChange)="loadPage($event)"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+    </div>
+  </div>
+</div>
+

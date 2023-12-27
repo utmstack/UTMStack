@@ -1,0 +1,29 @@
+.table-view-container {
+  .table-view-item {
+    max-width: 1050px;
+
+    .actions-on-row {
+      min-width: 100px;
+    }
+
+    .row-field-name {
+      max-width: 350px;
+      min-width: 350px;
+      width: 350px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .row-field-data {
+      padding-left: 15px;
+
+      p {
+        word-wrap: break-word;
+        min-width: 0;
+        flex: 1;
+        white-space: normal;
+      }
+    }
+  }
+}

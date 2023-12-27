@@ -1,0 +1,31 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      Asset management
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <p class="mb-3 font-size-base">
+      This integration enables the built-in UTMStack assets management feature. No third-party software is required to
+      enable this integration.<br>
+
+      Asset management facilitates the continuous identification of assets connected to the network using active and
+      passive scanners to detect physical and virtual resources such as servers and switches. Get alerted when
+      suspicious devices are connected to the network or behave in potentially dangerous ways.<br>
+
+      Asset management is fully integrated with other features such as SIEM and Vulnerability management. Activity from
+      multiple sources is correlated to identify potential threats.
+    </p>
+    <div class="w-100 mt-3 mb-3">
+      <app-int-generic-group-config [moduleId]="integrationId" [serverId]="serverId"
+                                    (configValidChange)="configValidChange($event)"
+                                    [allowAdd]="false" [editable]="false"></app-int-generic-group-config>
+    </div>
+    <app-app-module-activate-button [serverId]="serverId"
+                                    type="integration"
+                                    [disabled]="configValidity"
+                                    [module]="module.ASSET_MANAGEMENT"></app-app-module-activate-button>
+  </div>
+
+</div>

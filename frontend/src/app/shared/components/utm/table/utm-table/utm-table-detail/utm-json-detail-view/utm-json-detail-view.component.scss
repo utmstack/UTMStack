@@ -1,0 +1,37 @@
+
+.json-container {
+  //max-width: 1024px;
+  overflow: auto;
+}
+
+::ng-deep {
+  .ngx-json-viewer {
+    overflow: auto !important;
+
+    .segment {
+      .segment-main {
+        .toggler::after {
+          content: '\e9c7' !important;
+          font-size: 18px;
+          font-family: 'icomoon', serif !important;
+        }
+
+        .segment-key, .segment-separator {
+          color: #0277bd !important
+        }
+
+        .segment-value {
+          white-space: normal;
+        }
+      }
+    }
+
+    .segment-type-null {
+      .segment-value {
+        white-space: normal;
+        background-color: #0277bd !important;
+        padding: 2px !important;
+      }
+    }
+  }
+}

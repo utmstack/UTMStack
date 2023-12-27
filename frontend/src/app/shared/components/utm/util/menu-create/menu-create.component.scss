@@ -1,0 +1,37 @@
+@import "../../../../../../assets/styles/theme";
+@import "../../../../../../assets/styles/var";
+
+.utm-menu-add-btn {
+  width: 180px;
+  margin-right: 10px;
+}
+
+.utm-menu-upd-btn {
+  margin-top: 10px;
+}
+
+.utm-submenu-add-btn {
+  margin-top: 10px;
+  width: 150px;
+  background: $primary-color;
+  border-color: $primary-color;
+}
+
+.utm-submenu-add-cancel-btn {
+  margin-top: 10px;
+  width: 150px;
+  margin-left: 10px;
+}
+
+.utm-menu-add-input-invalid {
+  width: 100%;
+  margin-top: .25rem;
+  font-size: 15px;
+  color: #dc3545;
+}
+
+.utm-margin-bottom-10 {
+  margin-bottom: 10px !important;
+}
+
+

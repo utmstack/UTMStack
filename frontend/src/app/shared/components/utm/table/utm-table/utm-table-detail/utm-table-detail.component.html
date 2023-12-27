@@ -1,0 +1,21 @@
+<div class="w-100 p-2 bg-white">
+  <ul class="nav nav-tabs mb-2">
+    <li (click)="viewMode='table'" class="nav-item">
+      <a [ngClass]="{'active':viewMode === 'table'}" class="nav-link">
+        <i class="icon-table2 mr-1"></i> Table
+      </a>
+    </li>
+    <li (click)="viewMode='json'" class="nav-item">
+      <a [ngClass]="{'active':viewMode === 'json'}" class="nav-link">
+        <i class="icon-circle-css mr-1"></i> JSON</a>
+    </li>
+  </ul>
+  <div class="w-100">
+    <app-analyzer-table-view *ngIf="viewMode==='table';else json"
+                             [rowDocument]="row"></app-analyzer-table-view>
+    <ng-template #json>
+      <app-utm-json-detail-view [rowDocument]="row"></app-utm-json-detail-view>
+    </ng-template>
+  </div>
+
+</div>

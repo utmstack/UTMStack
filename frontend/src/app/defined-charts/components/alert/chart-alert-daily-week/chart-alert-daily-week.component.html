@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="card-header card-header-chart p-2 pl-2 text-blue-800
+                   d-flex justify-content-between align-items-center bg-light">
+    <label class="card-title label-header">Alert</label>
+  </div>
+  <div class="card-body p-0">
+    <div *ngIf="loadingChartDailyAlert"
+         class="loading-chart h-100 w-100
+                 d-flex justify-content-center
+                 align-items-center p-5">
+      <app-utm-spinner [height]="'35px'" [loading]="loadingChartDailyAlert" [width]="'35px'"
+                       label="Loading chart">
+      </app-utm-spinner>
+    </div>
+    <div *ngIf="!loadingChartDailyAlert && dailyAlert.length>0"
+         class="d-flex justify-content-around align-items-center h-100 p-4">
+      <app-kpi (metricClick)="chartEvent('today')"
+               [color]="'#000'"
+               [icon]="'icon-watch'"
+               [label]="dailyAlert[0].serie"
+               [value]="dailyAlert[0].value"
+               class="cursor-pointer ml-4 mr-4"></app-kpi>
+      <app-kpi (metricClick)="chartEvent('week')"
+               [color]="'#3949AB'"
+               [icon]="'icon-calendar22'"
+               [label]="dailyAlert[1].serie"
+               [value]="dailyAlert[1].value"
+               class="cursor-pointer ml-4 mr-4"></app-kpi>
+    </div>
+  </div>
+</div>

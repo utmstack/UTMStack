@@ -1,0 +1,352 @@
+<div class="w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0 text-primary">
+      File Classification
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-warning alert-styled-right">
+      This features requires the Windows agent
+    </div>
+
+    <p class="font-size-base mt-3">This integration enables the built-in UTMStack file classification feature. No
+      third-party
+      software is required to enable this integration.<br>
+
+      The file classification feature keeps track of activity performed on your files. This is ideal for file servers
+      that contain confidential or essential information. This integration detects any changes and access attempts to
+      monitor files and captures the following information: </p>
+    <ul class="mt-1 mb-3 pl-5">
+      <li>Event Date</li>
+      <li>Event Name</li>
+      <li> User</li>
+      <li>Object Type</li>
+      <li>Object name (full path)</li>
+      <li>Process name (process interacting with the file)</li>
+      <li>Action performed</li>
+      <li>Server name</li>
+      <li>Handler ID</li>
+      <li>Resource attribute</li>
+      <li>Domain name</li>
+      <li>Logon ID</li>
+      <li>Host ID</li>
+      <li>Host OS</li>
+      <li>Host Architecture</li>
+    </ul>
+
+
+    <h6 class="font-weight-semibold mt-3 mb-3">
+      Auditing Windows Server
+    </h6>
+    <ol class="setup_list ml-3">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Enable the “Audit File System” policy which can be found under Computer Configuration -> Policies -> Windows
+          Settings -> Security Settings -> Advanced Security Policy Configuration -> Audit Policies -> Object Access.
+        </p>
+        <img alt=""
+             class="step-img"
+             height="auto"
+             src="../../../../assets/img/guides/windows-faa/audit-file-system-group-policy.png"
+             width="60%">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Audit user attempts to access objects in the file system can be viewed in the event viewer. From within this
+          policy, we can optionally enable it by selecting the check box shown below. Then, we also have the option of
+          auditing either success events, failure events, or both.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/audit-file-system-properties.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          Enable auditing of the file system to the computer that it has been applied to. We need to enable auditing on
+          a per file or folder basis. It can be done by right clicking a file or folder, selecting properties, and
+          browsing to the security tab.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/folder-properties.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          Click on advanced, and from the advanced security settings window that opens, select the auditing tab.
+        </p>
+        <img alt=""
+             class="step-img"
+             height="auto"
+             src="../../../../assets/img/guides/windows-faa/advanced-security-settings.png"
+             width="60%">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          Define a user or group to audit whenever they attempt to access this specific folder or file for either
+          success, failure, or both event types. We can also specify if the rule applies to just this file or folder,
+          subfolders, files within subfolders, subfolders only, files only, etc.
+        </p>
+        <img alt=""
+             class="step-img"
+             height="auto"
+             src="../../../../assets/img/guides/windows-faa/auditing-entry.png"
+             width="60%">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          The following event has been logged in the security event logs with event ID 4663.
+        </p>
+        <img alt=""
+             class="step-img"
+             height="auto"
+             src="../../../../assets/img/guides/windows-faa/event-viewer-file-access-log.png"
+             width="60%">
+      </li>
+    </ol>
+
+
+    <h6 class="font-weight-semibold mt-3 mb-3">
+      Auditing Windows Desktop
+    </h6>
+    <h6 class="font-size-lg font-weight-semibold mt-3 mb-3">
+      Set “Audit Object Access” audit policy
+    </h6>
+    <ol class="setup_list ml-3">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Launch the “Group Policy Management” console. On the primary “Domain Controller” or on the system where
+          “Administration Tools” is installed type run “gpmc.msc".
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>
+          Create a new GPO, or edit an existing one.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>To edit an existing GPO, in the left-pane, right-click the default or a
+          user-created GPO, and click “Edit” on the contextual menu. This action opens the Editor window of Group Policy
+          Management Editor.<br>
+          <strong>Note:</strong> If you want to track multiple folders, you will have to configure audit for every
+          folder individually.</p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>Navigate to the “Security” tab.
+          Note: It is recommended to create a new GPO, link it to the domain, and edit it.<br>
+          <strong>Note:</strong> It is suggested to create a new GPO, link it to the domain, and edit it.</p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          In the “Group Policy Management Editor” window, you have to set the
+          appropriate audit policy.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          Set “Audit object access” policy. Navigate to “Computer Configuration” → “Windows Settings” → “Security
+          Settings” → “Local Policies” → “Audit Policy”. All the available policies under “Audit Policy” are displayed
+          in the right panel.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/Figure1-1.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          Double click on ”Audit object access” policy to open its “Properties”.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/Figure2-1.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          On this window, click the “Define these policy settings” checkbox. There are two options to audit – “Success”
+          and “Failure”. The former lets you audit successful attempts made to access the objects, whereas the latter
+          lets you audit failed attempts.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Select any one or both the options as per requirement. It is recommended to select both options.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Click on “Apply” and “OK” to close the window.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">11</span>
+          To immediately update the Group Policy instead of waiting for it to auto-update, run the following command in
+          the command prompt:
+        </p>
+        <div class="w-75 mt-3">
+          <app-utm-code-view
+            code="Gpupdate /force">
+          </app-utm-code-view>
+        </div>
+      </li>
+    </ol>
+
+
+    <span class="font-weight-semibold mt-3 mb-3">
+      Set auditing on the files that you want to track
+    </span>
+    <p class="mb-3 font-size-base">After configuring GPO, set auditing on each file individually, or on folders that
+      contain the files.
+      Here are the steps:</p>
+    <ol class="setup_list ml-3">
+      <li>
+        <p class="step-guide">
+          <span class="step_number">1</span>
+          Open “Windows Explorer” and navigate to the file or folder that you want to audit.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">2</span>Right-click the file and select “Properties” from the context menu. The
+          file’s properties window appears on the screen.<br>
+          <strong>Note:</strong> If you want to track multiple files, put them into one, two or more folders to enable
+          their auditing easily. Doing this saves you from repeating these steps for each file.</p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">3</span>
+          By default, “General” tab of “Properties” window appears on the screen. Go to “Security” tab.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/Figure4-1.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">4</span>
+          On “Security” tab, click on “Advanced” to access “Advanced Security Settings for ” window appears on the screen.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">5</span>
+          In “Advanced Security Settings for” window, go to “Auditing” tab.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/Figure5-1.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">6</span>
+          On this tab, you have to create a new audit entry. For that, click on “Add”. The “Auditing Entry for ” window
+          appears on the screen.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">7</span>
+          In “Auditing Entry for ” window, at first, select users whose actions you want to audit. Click “Select a
+          Principal”, to open “Select User, Computer, Service Account, or Group” dialog box.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">8</span>
+          Here, choose users to audit. If you want to audit all users’ activities, enter “Everyone” in the “Enter the
+          object name to select” field, and click on “Check Names”. In our case, we enter “Everyone”.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/Figure6-1.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">9</span>
+          Click “OK” to close the dialog box.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">10</span>
+          Three options are available in the “Type” picklist: “Success”,” Fail”, and “All”. We select “All” option
+          because we want to audit both successful and failed attempts.
+        </p>
+      </li>
+      <li><p class="step-guide">
+        <span class="step_number">11</span>In the “Permissions” section, you can select all activities that you want to
+        audit. In the case to audit file read, select “Traverse Folder/Execute File”, “List Folder/Read data”, “Read
+        attributes”, and “Read extended attributes” permissions.<br>
+        <strong>NOTE:</strong> If you want to audit all the activities, select the “Full Control” checkbox.</p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">12</span>
+          Click “OK” to close the “Auditing Entry for File Access auditing” window.
+        </p>
+        <img alt=""
+             class="step-img"
+             src="../../../../assets/img/guides/windows-faa/Figure7-1.png">
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">13</span>
+          Back in the “Advanced security settings” window, now you see the new audit entry.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">14</span>
+          Click “Apply” and “OK” to close the window.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide">
+          <span class="step_number">15</span>
+          Click “Apply” and “OK” to close file properties.
+        </p>
+      </li>
+    </ol>
+
+
+    <h6 class="font-size-lg font-weight-semibold mt-3 mb-3">
+      Track who reads the file in Windows Event Viewer
+    </h6>
+    <div class="ml-3">
+      <p class="font-size-base">To see who reads the file, open “Windows Event Viewer”, and navigate to “Windows Logs”
+        → “Security”. There is a
+        “Filter Current Log” option in the right pane to find the relevant events.<br>
+        If anyone opens the file, event ID 4656 and 4663 will be logged. For example, in our case, someone opened the
+        file (File access auditing.txt), and as shown in the below image, a file access event (ID 4663) was logged.
+        You can see who accessed the file in “Account Name” field and the access time in “Logged” field.<br>
+        In the below image, you can see file’s name (C:\Users\Administrator\Documents\New Text Document.txt), which is
+        visible after you scroll down the side bar, under the “Object Name” field.</p>
+    </div>
+    <p class="font-size-base my-3">
+      Click on the button shown below, to activate the UTMStack features related to this integration
+    </p>
+    <app-app-module-activate-button [module]="module.FILE_INTEGRITY" [type]="'module'" [serverId]="serverId"
+                                    class="mt-3">
+    </app-app-module-activate-button>
+  </div>
+
+</div>
+
+
+

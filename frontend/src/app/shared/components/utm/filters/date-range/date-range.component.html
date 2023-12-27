@@ -1,0 +1,28 @@
+<app-utm-modal-header [name]="'Choose range'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="row pt-2">
+    <div class="col-6">
+      <span class="mt-2" translate="alert.filter.time.range.from">Date from</span>
+      <ngb-datepicker #c1="ngModel" #d1 [(ngModel)]="fromDate" [maxDate]="maxDate"></ngb-datepicker>
+    </div>
+    <div class="col-6">
+      <span class="mt-2" translate="alert.filter.time.range.to">Date To</span>
+      <ngb-datepicker #c2="ngModel" #d2 [(ngModel)]="toDate" [maxDate]="maxDate"></ngb-datepicker>
+    </div>
+  </div>
+  <div class="pt-3 d-flex justify-content-between">
+    <ul *ngIf="c1.status==='VALID' && c2.status==='VALID'">
+      <li *ngIf="compareDate()">
+          <span class="text-danger-400" translate="alert.filter.time.range.error">
+           Date from must be less than Date to
+          </span>
+      </li>
+    </ul>
+    <button (click)="emitDate()"
+            [disabled]="toDate===undefined || fromDate===undefined"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-checkmark-circle"></i>
+      {{'alert.filter.time.range.button' | translate}}
+    </button>
+  </div>
+</div>

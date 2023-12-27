@@ -1,0 +1,16 @@
+name: Backend - QA
+on:
+  pull_request:
+    branches: [ "rc" ]
+    paths:
+      - 'backend/**'
+      - 'version.yml'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-java-11.yml
+    with:
+      image_name: backend
+      environment: v10-qa
+      directory: backend
+      branch: main

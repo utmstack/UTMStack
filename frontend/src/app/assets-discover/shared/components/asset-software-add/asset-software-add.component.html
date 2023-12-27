@@ -1,0 +1,40 @@
+<app-utm-modal-header [name]="'Create new software'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <form [formGroup]="formSoftware" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1" for="softName">Software name</label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(formSoftware.get('softName'))"
+             class="border-1 border-grey-600 form-control" formControlName="softName"
+             id="softName"
+             name="softName">
+      <app-formcontrol-error [formcontrol]="formSoftware.get('softName')"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label class="pb-1" for="softDeveloper">Software developer</label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(formSoftware.get('softDeveloper'))"
+             class="border-1 border-grey-600 form-control" formControlName="softDeveloper"
+             id="softDeveloper"
+             name="softDeveloper">
+      <app-formcontrol-error [formcontrol]="formSoftware.get('softDeveloper')"></app-formcontrol-error>
+    </div>
+    <div class="form-group">
+      <label class="pb-1" for="softVersion">Software version</label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(formSoftware.get('softVersion'))"
+             class="border-1 border-grey-600 form-control" formControlName="softVersion"
+             id="softVersion"
+             name="softVersion">
+      <app-formcontrol-error [formcontrol]="formSoftware.get('softVersion')"></app-formcontrol-error>
+    </div>
+  </form>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="addSoftware()"
+            [disabled]="!formSoftware.valid || creating" class="btn utm-button utm-button-primary">
+      <i [ngClass]="creating?'icon-spinner spinner':'icon-grid-alt'"></i>&nbsp;
+      Save
+    </button>
+  </div>
+</div>

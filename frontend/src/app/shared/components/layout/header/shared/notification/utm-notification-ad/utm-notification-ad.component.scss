@@ -1,0 +1,21 @@
+.notf-container {
+  .indicator {
+    position: absolute;
+    top: -8px;
+    right: -3px;
+  }
+
+  &:after {
+    display: none;
+  }
+}
+
+.dropdown-scrollable {
+  max-width: 320px;
+  width: 320px;
+
+  .ad-event {
+    white-space: normal;
+    word-wrap: break-word;
+  }
+}

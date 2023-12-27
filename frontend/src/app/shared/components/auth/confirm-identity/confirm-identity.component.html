@@ -1,0 +1,53 @@
+<div class="bg-image-utmstack"></div>
+<div class="d-flex justify-content-center align-items-center w-100 h-100">
+  <div class="card">
+    <div class="header p-2 border-bottom-1 border-grey-100">
+      <h6 class="font-weight-light text-blue-800">Confirm your identity before continue</h6>
+    </div>
+    <div class="card-body">
+      <div class="d-flex flex-column confirm-container w-100 h-100 justify-content-center align-items-center">
+        <img alt="" src="/assets/icons/utm/authentication.svg">
+        <div class="d-flex justify-content-center align-items-center w-100 h-100 pt-4">
+          <div class="login-container">
+            <form [formGroup]="formLogin">
+              <div class="form-group form-group-feedback form-group-feedback-right">
+                <div class="form-control-feedback">
+                  <i class="icon-mail5 text-muted"></i>
+                </div>
+                <input [placeholder]="'login.email' | translate"
+                       class="form-control"
+                       formControlName="username"
+                       type="email">
+              </div>
+
+              <div class="form-group form-group-feedback form-group-feedback-right">
+                <div class="form-control-feedback">
+                  <i class="icon-lock2 text-muted"></i>
+                </div>
+                <input [placeholder]="'login.password' | translate" class="form-control"
+                       formControlName="password"
+                       type="password">
+              </div>
+            </form>
+            <div class="form-group">
+              <button (click)="login()" [disabled]="startLogin || !formLogin.valid"
+                      class="btn btn-block utm-button utm-button-primary ful" type="submit">
+                <i *ngIf="startLogin" class="icon-spinner2 spinner"></i>&nbsp;
+                Continue
+              </button>
+            </div>
+            <div (click)="resetPassword()" class="text-center pt-2 cursor-pointer">
+        						<span class="txt1">
+        							{{'login.forgot' | translate}}
+        						</span>
+              <a class="txt2">
+                {{'login.recover' | translate}}
+              </a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

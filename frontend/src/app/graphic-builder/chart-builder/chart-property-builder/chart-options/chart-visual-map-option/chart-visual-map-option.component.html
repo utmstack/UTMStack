@@ -1,0 +1,96 @@
+<form [formGroup]="formVisualMapOption">
+  <div class="view-visualMap mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewVisualMapProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewVisualMap?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">VisualMap</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewVisualMap" class="properties-options">
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="formVisualMapOption.get('show').setValue($event)" [active]="true"
+                      label="Show visualMap?">
+      </app-utm-toggle>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="visualMapType">
+        Visual Map type
+      </label>
+      <ng-select [clearable]="false"
+                 [items]="visualMapTypes"
+                 formControlName="type"
+                 id="visualMapType">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="visualMapPosition">
+        VisualMap vertical position
+      </label>
+      <ng-select [clearable]="false"
+                 [items]="visualMapTopPositions"
+                 [searchable]="false"
+                 formControlName="top"
+                 id="visualMapPosition">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="visualMapPosition">
+        Visual Map horizontal position
+      </label>
+      <ng-select [clearable]="false"
+                 [items]="visualMapLeftPositions"
+                 [searchable]="false"
+                 formControlName="left"
+                 id="visualMapPositionLeft">
+      </ng-select>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="visualMapOrientation">
+        Visual Map orientation
+      </label>
+      <ng-select [clearable]="false"
+                 [items]="visualMapOrient"
+                 [searchable]="false"
+                 formControlName="orient"
+                 id="visualMapOrientation">
+      </ng-select>
+    </div>
+    <!--    <div class="row m-0 mt-3 p-0">-->
+    <!--      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">-->
+    <!--        <div class="form-group">-->
+    <!--          <label class="pb-1" for="min">Min value</label>-->
+    <!--          <input class="border-1 border-grey-600 form-control" formControlName="min"-->
+    <!--                 id="min"-->
+    <!--                 name=""-->
+    <!--                 type="number">-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <div class="col-lg-6 col-md-12 col-sm-12 pr-0">-->
+    <!--        <div class="form-group">-->
+    <!--          <label class="pb-1" for="max">Max value</label>-->
+    <!--          <input class="border-1 border-grey-600 form-control" formControlName="max"-->
+    <!--                 id="max"-->
+    <!--                 name=""-->
+    <!--                 type="number">-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+    <div class="row m-0 mt-3">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <app-utm-single-color-select
+          (singleColorChange)="setColorStart($event)"
+          [color]="formVisualMapOption.get('colorStart').value"
+          [label]="'Start color'">
+        </app-utm-single-color-select>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <app-utm-single-color-select
+          (singleColorChange)="setColorEnd($event)"
+          [color]="formVisualMapOption.get('colorEnd').value"
+          [label]="'End color'">
+        </app-utm-single-color-select>
+      </div>
+    </div>
+  </div>
+</form>

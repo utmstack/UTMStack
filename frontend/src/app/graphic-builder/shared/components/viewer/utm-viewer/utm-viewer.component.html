@@ -1,0 +1,77 @@
+<div class="data-visualization d-flex
+      justify-content-center align-items-center viewer-container">
+  <div *ngIf="chart!==chartTypeEnum.METRIC_CHART
+                                && chart!==chartTypeEnum.GOAL_CHART
+                                && chart!==chartTypeEnum.TABLE_CHART
+                                && chart!==chartTypeEnum.LIST_CHART
+                                && chart!==chartTypeEnum.MARKER_CHART
+                                && chart!==chartTypeEnum.TEXT_CHART
+                                && visualization" class="viewer-container">
+    <app-chart-view (runned)="onRunVisualization($event)"
+                    [building]="building"
+                    [chartId]="chartId"
+                    [chart]="chart"
+                    [height]="height"
+                    [exportFormat]="exportFormat"
+                    [showTime]="showTime"
+                    [ngStyle]="building?null:{width:'100%'}"
+                    [visualization]="visualization"
+                    [width]="width">
+    </app-chart-view>
+  </div>
+  <div *ngIf="chart===chartTypeEnum.METRIC_CHART && visualization"
+       class="viewer-container">
+    <app-metric-view (runned)="onRunVisualization($event)"
+                     [building]="building"
+                     [chartId]="chartId"
+                     [height]="height"
+                     [showTime]="showTime"
+                     [visualization]="visualization"
+                     [width]="building?'100%':width"
+                     class="cursor-pointer">
+    </app-metric-view>
+  </div>
+  <div *ngIf="chart===chartTypeEnum.GOAL_CHART && visualization"
+       class="viewer-container">
+    <app-goal-view (runned)="onRunVisualization($event)"
+                   [building]="building"
+                   [chartId]="chartId"
+                   [height]="height"
+                   [showTime]="showTime"
+                   [visualization]="visualization"
+                   [width]="building?'100%':width">
+    </app-goal-view>
+  </div>
+  <div *ngIf="(chart===chartTypeEnum.TABLE_CHART || chart===chartTypeEnum.LIST_CHART) && visualization"
+       class="viewer-container">
+    <app-table-view (runned)="onRunVisualization($event)"
+                    [building]="building"
+                    [height]="height"
+                    [chartId]="chartId"
+                    [chart]="chart"
+                    [showTime]="showTime"
+                    [exportFormat]="exportFormat"
+                    [visualization]="visualization"
+                    [width]="width"></app-table-view>
+  </div>
+  <div *ngIf="chart===chartTypeEnum.MARKER_CHART && visualization"
+       class="viewer-container">
+    <app-map-view (runned)="onRunVisualization($event)"
+                  [building]="building"
+                  [chart]="chart"
+                  [height]="height"
+                  [chartId]="chartId"
+                  [showTime]="showTime"
+                  [visualization]="visualization"
+                  [width]="width"></app-map-view>
+  </div>
+  <div *ngIf="chart===chartTypeEnum.TEXT_CHART && visualization"
+       class="viewer-container">
+    <app-text-view [building]="building"
+                   [chartId]="chartId"
+                   [chart]="chart"
+                   [height]="height"
+                   [visualization]="visualization"
+                   [width]="width"></app-text-view>
+  </div>
+</div>

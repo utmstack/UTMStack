@@ -1,0 +1,22 @@
+<div (click)="emitValue()" class="border-0 kpi-card">
+  <div [ngStyle]="{'color':color}" class="p-1">
+    <div class="d-flex justify-content-center align-items-center pt-1">
+      <i [class]="icon"></i>&nbsp;
+      <label>{{label}}</label>
+    </div>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+      <h1 *ngIf="value!==undefined" class="font-weight-semibold m-1">
+        {{(value |number: '0.' + (decimal ? decimal : 0).toString()) }}
+      </h1>
+      <div *ngIf="value===undefined" class="m-1 ">
+        <app-utm-spinner
+          [height]="'40px'"
+          [loading]="true"
+          [width]="'40px'">
+        </app-utm-spinner>
+      </div>
+      <h6 *ngIf="group" [ngStyle]="{'color':color}"
+          class="mt-2 font-weight-light">{{group}}</h6>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,190 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      Sources Groups
+    </h5>
+    <div class="header-elements">
+      <button class="btn utm-button utm-button-primary ml-2"
+              routerLink="/data-sources/sources">
+        <i class="icon-display mr-2"></i> View sources
+      </button>
+      <button (click)="addGroup()"
+              class="btn utm-button utm-button-primary ml-2">
+        <i class="icon-grid-alt"></i> Create group
+      </button>
+    </div>
+  </div>
+
+  <!--TABLE-->
+  <div class="d-flex flex-nowrap m-0 align-items-start">
+    <div (resizeEnd)="onResize($event)"
+         (resizing)="onResize($event)"
+         [enableGhostResize]="true"
+         [ngStyle]="{'width':filterWidth+'px'}"
+         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+         class="resizable-filter-container mr-2"
+         mwlResizable>
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+
+          <label class="card-title">
+            <app-utm-dtable-columns [fields]="fieldFilters"
+                                    [label]="'filters'"
+                                    [showInactive]="true"
+                                    icon="icon-cog3">
+            </app-utm-dtable-columns>
+            &nbsp;Filters</label>
+          <div class="d-flex">
+
+            <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
+                  ngbTooltip="Reset filters"
+                  placement="top" tooltipClass="utm-tooltip-top">
+               <i class="icon-filter4"></i>
+            </span>
+          </div>
+        </div>
+        <div class="p-2 w-100">
+          <app-utm-search-input (searchFor)="onSearch($event)"
+                                [placeholder]="'Search group'"></app-utm-search-input>
+        </div>
+        <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
+          <div *ngFor="let filter of fieldFilters" class="w-100">
+            <div *ngIf="filter.visible" class="w-100 mb-2">
+              <app-asset-generic-filter (filterGenericChange)="onFilterChange($event)"
+                                        [fieldFilter]="filter"
+                                        [forGroups]="true">
+              </app-asset-generic-filter>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="flex-grow-1">
+      <div class="card h-100">
+        <div [ngStyle]="{'max-width':tableWidth+'px'}"
+             class="table-responsive resizable-table-responsive h-100">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="text-left" style="width: 10px;padding-left: 10px; padding-right: 0">
+                <i (click)="toggleCheck()"
+                   [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                   [ngbTooltip]="'Add page to selected'"
+                   class="cursor-pointer"
+                   container="body"
+                   style="font-size: small"
+                   tooltipClass="utm-tooltip-top"></i>
+              </th>
+              <th (sort)="onSortBy($event)"
+                  [sortEvent]="sortEvent"
+                  appColumnSortable
+                  class="font-weight-semibold cursor-pointer"
+                  sortable="group_name">
+                Group name
+              </th>
+              <th class="font-weight-semibold cursor-pointer">
+                Group description
+              </th>
+              <th (sort)="onSortBy($event)"
+                  [sortEvent]="sortEvent"
+                  appColumnSortable
+                  class="font-weight-semibold cursor-pointer"
+                  sortable="created_date">
+                Created at
+              </th>
+              <th class="font-weight-semibold text-uppercase text-center" style="width:8%">
+                Action&nbsp;
+              </th>
+            </tr>
+            </thead>
+            <tbody *ngIf="assetGroups && assetGroups.length>0">
+            <tr *ngFor="let group of assetGroups" class="cursor-pointer">
+              <td class="text-center">
+                <div class="d-flex justify-content-between align-items-center h-100 w-100 medium-icon">
+                  <div class="list-icons span-small-icon">
+                    <i (click)="addToSelected(group)"
+                       [ngClass]="isSelected(group)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                       [ngbTooltip]="'Add to selected'"
+                       class="cursor-pointer"
+                       container="body"
+                       tooltipClass="utm-tooltip-top"></i>
+                  </div>
+                </div>
+              </td>
+              <td (click)="viewGroupDetail = group">
+                {{group.groupName}}
+              </td>
+              <td (click)="viewGroupDetail = group">
+                {{group.groupDescription}}
+              </td>
+              <td (click)="viewGroupDetail = group">
+                {{group.createdDate | date:'short':'UTC'}}
+              </td>
+              <td class="text-right">
+                <div class="d-flex justify-content-center align-items-center medium-icon">
+                  <i (click)="editGroup(group)" class="icon-pencil3 mr-2 cursor-pointer"></i>
+                  <i (click)="openDeleteConfirmation(group)" class="icon-cross2 cursor-pointer"></i>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="(assetGroups && assetGroups.length===0)  && !loading">
+            <tr>
+              <td [attr.colspan]="6">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td [attr.colspan]="6">
+                <div class="p-5 d-flex justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading...'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="assetGroups && assetGroups.length>0" class="mb-3 mt-3">
+          <div class="row justify-content-center">
+            <ngb-pagination (pageChange)="loadPage($event)"
+                            [(page)]="page"
+                            [boundaryLinks]="true"
+                            [collectionSize]="totalItems"
+                            [maxSize]="10"
+                            [pageSize]="itemsPerPage"
+                            [rotate]="true"
+                            [size]="'sm'"></ngb-pagination>
+            <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                    class="ml-3">
+            </app-utm-items-per-page>
+          </div>
+          <!-- TABLE END-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--ASSET DETAIL-->
+<div *ngIf="viewGroupDetail" class="utm-right-container">
+  <div (click)="viewGroupDetail= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Group detail
+      </h6>
+      <button (click)="viewGroupDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-asset-group-detail [group]="viewGroupDetail"></app-asset-group-detail>
+  </div>
+</div>

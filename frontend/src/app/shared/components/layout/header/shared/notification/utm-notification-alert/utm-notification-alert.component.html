@@ -1,0 +1,8 @@
+<div class="container_notify d-flex justify-content-center align-items-center h-100 cursor-pointer"
+     (click)="navigateToAlerts()">
+    <span class="svg-icon svg-icon-smx svg-icon-white text-white"
+          inlineSVG="assets/icons/header/notification_bell.svg"></span>
+  <div #notify *ngIf="prevTotal>0" class="notification_number">
+    {{prevTotal > 20 ? '+20' : prevTotal}}
+  </div>
+</div>

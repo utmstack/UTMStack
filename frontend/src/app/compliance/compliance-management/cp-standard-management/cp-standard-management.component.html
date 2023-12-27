@@ -1,0 +1,45 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Compliance management</h5>
+    <div *appHasAnyAuthority="admin" class="header-elements">
+      <button class="btn utm-button utm-button-primary"
+              routerLink="/compliance/templates">
+        <i class="icon-shield-check mr-1"></i> View compliance
+      </button>
+      <button (click)="importCompliance()"
+              class="btn utm-button utm-button-primary ml-3">
+        <i class="icon-upload10 mr-1"></i> Import
+      </button>
+      <button (click)="exportCompliance()"
+              class="btn utm-button utm-button-primary ml-3">
+        <i class="icon-download10 mr-1"></i> Export all
+      </button>
+      <button (click)="newCompliance()"
+              class="btn utm-button utm-button-primary ml-3">
+        <i class="icon-shield-check mr-1"></i> New compliance
+      </button>
+    </div>
+  </div>
+  <div class="d-flex w-100">
+    <div class="card p-0">
+      <app-utm-cp-standard (standardChange)="onStandardChange($event)" [manage]="true"></app-utm-cp-standard>
+    </div>
+    <div class="flex-grow-1">
+      <div class="row m-0">
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-2 pr-0">
+          <div class="card pt-2">
+            <app-utm-cp-standard-section [manage]="true"></app-utm-cp-standard-section>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 pl-2 pr-0">
+          <div class="card pt-2">
+            <app-utm-cp-reports></app-utm-cp-reports>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

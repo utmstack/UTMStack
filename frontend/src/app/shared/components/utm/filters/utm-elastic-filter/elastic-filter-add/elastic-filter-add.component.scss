@@ -1,0 +1,15 @@
+::ng-deep {
+  .ng-select.auto-grow {
+    display: flex;
+
+    .ng-select-container {
+      min-width: 250px;
+      width: auto;
+    }
+
+    .ng-dropdown-panel {
+      width: auto;
+      z-index: 99 !important;
+    }
+  }
+}

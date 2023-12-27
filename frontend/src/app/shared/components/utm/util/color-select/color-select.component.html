@@ -1,0 +1,19 @@
+<div (click)="selectColor()"
+     class="property d-flex
+     justify-content-start
+     align-items-center flex-wrap cursor-pointer">
+  <span *ngIf="!multiple && color"
+        [ngStyle]="{'background':color}"
+        class="span-color">
+   </span>&nbsp;
+  <span *ngIf="multiple && colors">
+    <span *ngFor="let color of colors"
+          [ngStyle]="{'background':color}"
+          class="span-color">
+      &nbsp;
+    </span>&nbsp;
+  </span>
+  <span class="text-blue-800">
+            {{label ? label : 'Select color'}}
+  </span>
+</div>

@@ -1,0 +1,40 @@
+<app-utm-search-input (searchFor)="onSearchFor($event)"
+                      [placeholder]="'Search report'"
+                      [searching]="false"></app-utm-search-input>
+<div *ngIf="loadingTemplates"
+     class="w-100 d-flex justify-content-center align-items-center mt-4">
+  <app-utm-spinner [height]="'110px'" [loading]="loadingTemplates" [width]="'110px'"
+                   label="Loading templates">
+  </app-utm-spinner>
+</div>
+<div *ngIf="!loadingTemplates && complianceReports &&complianceReports.length>0"
+     class="mt-2 report-compliance-container">
+  <div *ngFor="let report of reports,let index = index"
+       class="w-100 card p-2 d-flex  flex-column flex-grow-1">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="font-weight-light">
+        {{report.section.standard.standardName}}
+      </h6>
+      <span class="align-self-end">
+           <i (click)="deleteSection(index)"
+              *ngIf="report.configReportEditable"
+              class="icon-cross2 cursor-pointer"
+              container="body"
+              ngbTooltip="Delete report"
+              placement="bottom"
+              tooltipClass="utm-tooltip-bottom"></i>
+        </span>
+    </div>
+    <label class="text-blue-800 font-weight-semibold mb-2">
+      {{report.section.standardSectionName}}
+    </label>
+    <p [innerHTML]="report.configSolution"
+       class="font-size-base text-justify">
+    </p>
+  </div>
+  <div *ngIf="loadingMore && !noMoreResult"
+       class="d-flex justify-content-center align-items-center p-3 loading">
+    <app-utm-spinner [height]="'35px'" [loading]="true"
+                     [width]="'35px'" label="Loading more events"></app-utm-spinner>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="table-responsive">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer">
+        Port&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer text-center">
+        TCP&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer text-center">
+        UDP&nbsp;
+      </th>
+    </tr>
+    </thead>
+    <tbody *ngIf="ports.length>0">
+    <tr *ngFor="let port of ports|slice:pageStart:pageEnd">
+      <td class="w-25">
+         <span class="text-blue-800">
+           {{port.port}}
+        </span>
+      </td>
+      <td class="text-center">
+        <span [ngClass]="port.tcp==='Open'?'text-success':port.tcp==='Close'?'text-danger':'text-info'"
+              class="font-weight-thin">
+           {{port.tcp}}
+        </span>
+      </td>
+      <td class="text-center">
+         <span [ngClass]="port.udp==='Open'?'text-success':port.udp==='Close'?'text-danger':'text-info'"
+               class="font-weight-thin">
+           {{port.udp}}
+        </span>
+      </td>
+    </tr>
+    </tbody>
+    <tbody *ngIf="!ports || ports.length===0">
+    <tr>
+      <td colspan="3">
+        <app-no-data-found></app-no-data-found>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div *ngIf="ports.length>0" class="mb-2">
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        (pageChange)="loadPage($event)"
+        [(page)]="page"
+        [boundaryLinks]="true"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [pageSize]="itemsPerPage"
+        [rotate]="true"
+        [size]="'sm'"></ngb-pagination>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,58 @@
+<div *ngIf="configs.length>0 && !loading"
+     class="d-flex justify-content-between align-items-center flex-wrap w-100">
+  <div *ngFor="let conf of configs" [ngClass]="conf.confParamDatatype === 'list'?'w-100 order-8':'w-30'"
+       class="form-group mb-4">
+    <label [for]="'sectionParam'+conf.id"
+           class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
+      <span>
+        <i *ngIf="conf.confParamRequired"
+           [ngClass]="!(conf.confParamRequired &&
+             (conf.confParamValue === '' || conf.confParamValue === null || conf.confParamValue === undefined))
+         ?'icon-checkmark-circle text-success' :'text-danger icon-circle2'"
+           [ngbTooltip]="'This param is required'"
+           class="mr-1"
+           placement="auto"></i>
+        {{conf.confParamLarge}}
+      </span>
+      <span>
+          <i *ngIf="conf.confParamDescription"
+             [ngbTooltip]="conf.confParamDescription"
+             class="ml-2 text-primary icon-question3" placement="auto"></i>
+          <i *ngIf="conf.confParamRestartRequired"
+             class="ml-1 text-danger icon-notification2"
+             ngbTooltip="If you change this config an application reload will be necessary,
+          when we ready to reload a notice show up" placement="auto"></i>
+      </span>
+    </label>
+    <input (input)="save(conf.confParamValue,conf)"
+           *ngIf="conf.confParamDatatype !== 'bool' && conf.confParamDatatype !== 'list'"
+           [(ngModel)]="conf.confParamValue"
+           [id]="'sectionParam'+conf.id"
+           [required]="conf.confParamRequired"
+           [type]="conf.confParamDatatype" class="form-control">
+    <app-utm-toggle (toggleChange)="save($event === true?'true':'false',conf)"
+                    *ngIf="conf.confParamDatatype === 'bool'"
+                    [active]="conf.confParamValue ==='true'"
+                    [label]="'Enable/Disable param configuration'"></app-utm-toggle>
+
+    <textarea (input)="save(conf.confParamValue,conf)"
+              *ngIf="conf.confParamDatatype === 'list'"
+              [(ngModel)]="conf.confParamValue"
+              [id]="'sectionParam'+conf.id"
+              [required]="conf.confParamRequired"
+              class="form-control"
+              rows="4"></textarea>
+
+
+    <small *ngIf="conf.confParamRequired &&
+             (conf.confParamValue === '' || conf.confParamValue === null || conf.confParamValue === undefined)"
+           class="text-danger">
+      Param {{conf.confParamLarge}} is required
+    </small>
+  </div>
+</div>
+<app-utm-spinner *ngIf="loading" [label]="'Loading configurations'" [loading]="loading"></app-utm-spinner>
+<div *ngIf="saving" class="d-flex align-items-center justify-content-end text-primary">
+  <i class="icon-spinner2 spinner mr-2"></i> Saving configuration
+</div>
+

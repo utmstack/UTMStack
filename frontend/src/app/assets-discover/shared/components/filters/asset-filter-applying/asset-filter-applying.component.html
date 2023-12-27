@@ -1,0 +1,28 @@
+<div *ngIf="anyFilterApplied()"
+     class="filters-applied d-flex justify-content-start align-items-center flex-wrap">
+  <span class="mb-0 mr-2">
+      <i class="icon-filter4"></i>&nbsp;Filters applied:
+  </span>
+  <div *ngFor="let filter of filters" class="list-icons">
+    <ng-container *ngIf="!STATIC_FILTERS.includes(filter.key) && filter.value && filter.value.length>0">
+      <div autoClose="outside" class="list-icons-item dropdown cursor-pointer"
+           ngbDropdown
+           placement="bottom">
+        <button class="text-blue-800 p-2 font-weight-light"
+                id="filter"
+                ngbDropdownToggle>
+          <span>{{resolveFilterName(filter.key)}}</span>
+        </button>
+        <div class="dropdown-menu" ngbDropdownMenu>
+          <div class="d-flex flex-column p-2">
+           <span (click)="deleteFilter(filter.key,value)" *ngFor="let value of filter.value"
+                 class="d-inline mb-2 flex-nowrap text-nowrap">
+             <i class="icon-cross3"></i>
+             {{value}}
+           </span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1>Activation</h1>
+      <div *ngIf="success" class="alert alert-success">
+        <span><strong>Your user account has been activated.</strong> Please </span>
+        <a (click)="login()" class="alert-link">sign in</a>.
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">
+        <strong>Your user could not be activated.</strong> Please use the registration form to sign up.
+      </div>
+    </div>
+  </div>
+</div>

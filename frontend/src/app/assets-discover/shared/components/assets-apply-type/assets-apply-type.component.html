@@ -1,0 +1,64 @@
+<button #tagPopober=ngbPopover *ngIf="typeFormat==='button';else icon"
+        [ngbPopover]="colContent"
+        [popoverTitle]="colTitle"
+        autoClose="outside"
+        class="p-1 text-blue-800 font-weight-light"
+        container="body"
+        id="statusId"
+        placement="auto"
+        popoverClass="utm-popover"
+        triggers="click">
+  <span>
+    <i *ngIf="creating" class="icon-spinner2 spinner"></i>
+    Apply type <i class="icon-arrow-down32"></i></span>
+</button>
+<ng-template #icon>
+  <div [ngbTooltip]="type?type.typeName:'Add type'"
+       container="body"
+       placement="auto"
+       autoClose="outside"
+       tooltipClass="utm-tooltip-top">
+    <span #tagPopober=ngbPopover
+          (click)="getTypes($event)"
+          [ngClass]="{'text-blue-800':type}"
+          [ngbPopover]="colContent"
+          [popoverTitle]="colTitle"
+          autoClose="outside"
+          class="position-relative cursor-pointer small-md-icon"
+          container="body"
+          placement="auto"
+          popoverClass="utm-popover"
+          triggers="click">
+      <i [ngClass]="creating?'icon-spinner2 spinner':getIcon(type)"></i>
+      <span *ngIf="showTypeLabel" class="ml-2">
+        {{type ? type.typeName : 'Add type'}}
+      </span>
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #colContent>
+  <ng-select (change)="applyType()"
+             [(ngModel)]="type"
+             [clearable]="true"
+             [items]="types"
+             [loadingText]="'Loading types....'"
+             [loading]="loading"
+             bindLabel="typeName"
+             class="mt-2 mb-2"
+             id="id"
+             style="min-width: 200px">
+  </ng-select>
+
+  <!--  <div class="dropdown-divider"></div>-->
+
+  <!--  <div class="d-flex justify-content-center align-items-center p-1">-->
+  <!--    <span (click)="applyType()" class="text-blue-800 cursor-pointer span-small-icon">-->
+  <!--      <i [ngClass]="creating?'icon-spinner2 spinner':getIcon(type)"></i>&nbsp;-->
+  <!--      Apply type-->
+  <!--    </span>-->
+  <!--  </div>-->
+</ng-template>
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Types</h6>
+</ng-template>

@@ -1,0 +1,43 @@
+<div *ngIf="adInfo.computerInformation"
+     class="utm-box mt-3 p-3 border-1 border-blue-800 position-relative">
+           <span class="p-1 utm-box-label d-flex align-content-center justify-content-start">
+             <i class="icon-display"></i>
+                  &nbsp;Computers&nbsp;
+           </span>
+  <div class="w-25">
+    <app-utm-search-input (searchFor)="onSearchComputer($event)"
+                          placeholder="Search computer">
+    </app-utm-search-input>
+  </div>
+  <div *ngIf="computers.length===0 && search"
+       class="w-100 d-flex justify-content-center align-items-center">
+    <app-no-data-found [padding]="'p-3'" [size]="'sm'"></app-no-data-found>
+  </div>
+  <div class="d-flex justify-content-start align-items-start flex-wrap">
+    <div *ngFor="let computer of computers" class="local-groups m-2">
+           <span (click)="viewComputerDetail(computer)" class="cursor-pointer">
+            <i class="icon-display"></i>&nbsp;
+             <span [innerHTML]="(computer.name + ' (' + computer.objectSid + ')')|highlight:search"></span>
+          </span>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="computerDetail" class="utm-right-container">
+  <div (click)="computerDetail= undefined" class="overlay overlay-lg"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        {{adInfo.cn}} folder permissions in computer {{ computerDetail.name}}
+      </h6>
+      <button (click)="computerDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="content-rigth p-3">
+      <app-active-directory-folder-acl [computer]="computerDetail"></app-active-directory-folder-acl>
+    </div>
+  </div>
+</div>

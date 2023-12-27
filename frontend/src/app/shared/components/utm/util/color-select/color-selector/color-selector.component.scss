@@ -1,0 +1,117 @@
+@import "../../../../../../../assets/styles/theme";
+
+.card-color-container {
+  max-height: 250px;
+  min-height: 250px;
+  overflow-y: scroll;
+}
+
+.color-selected-container {
+  max-height: 100px;
+  min-height: 100px;
+  overflow-y: scroll;
+}
+
+
+.card-color {
+  font-weight: 400;
+  letter-spacing: -.005em;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-font-kerning: normal;
+  font-kerning: normal;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  height: 20px;
+  width: 20px;
+  color: #69707D;
+  border: 1px solid #D3DAE6;
+  border-color: transparent;
+  border-radius: 50%;
+  -webkit-transition: border-color 150ms ease-in, -webkit-box-shadow 150ms ease-in;
+  transition: border-color 150ms ease-in, -webkit-box-shadow 150ms ease-in;
+  transition: border-color 150ms ease-in, box-shadow 150ms ease-in;
+  transition: border-color 150ms ease-in, box-shadow 150ms ease-in, -webkit-box-shadow 150ms ease-in;
+  -webkit-box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+  box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+
+  &:hover, .euiKeyPadMenuItem:focus {
+    -webkit-box-shadow: 0 3px 3px -1px rgba(152, 162, 179, 0.3);
+    box-shadow: 0 3px 3px -1px rgba(152, 162, 179, 0.3);
+    border-color: #D3DAE6;
+  }
+
+  span {
+    margin-top: 10px;
+  }
+
+  .utm-icon-xs {
+    width: 24px;
+    height: 24px;
+  }
+
+  .card-selected {
+    width: 20px;
+    height: 20px;
+    color: white;
+    text-align: center;
+    background-color: $primary-color;
+    border-radius: 50%;
+    margin-top: 0 !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+}
+
+.color-delete {
+  width: 30px;
+  height: 30px;
+  color: white;
+  background-color: $danger-color;
+  border-radius: 50%;
+  margin-top: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  i {
+    font-size: 12px;
+
+    &:before {
+      color: white;
+    }
+  }
+}
+
+.search-color-container {
+  .input-group {
+    .input-group-text {
+      color: #777777;
+      background-color: #ffffff;
+      border-radius: 25px 0 0 25px;
+      border-right: 0 transparent solid;
+
+      + input:focus {
+        border-color: #0d47a1 !important;
+        outline: 1px !important;
+        box-shadow: 0 0 0 0 transparent !important;
+      }
+    }
+
+    input {
+      border-left: 0 transparent solid;
+      border-radius: 0 25px 25px 0;
+      padding-left: 0;
+    }
+  }
+}

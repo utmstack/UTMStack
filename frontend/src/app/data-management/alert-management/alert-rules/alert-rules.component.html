@@ -1,0 +1,140 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 label-header">Alerts rules</h5>
+    <div class="header-elements">
+      <button [queryParams]="{alertType:'ALERT'}"
+              class="btn utm-button utm-button-primary"
+              routerLink="/data/alert/view">
+        Manage alerts
+      </button>
+    </div>
+  </div>
+  <div class="w-100 h-100 card m-0">
+    <div class="d-flex justify-content-end align-items-center p-2">
+      <ng-select (change)="filterByTags($event)"
+                 [clearable]="true"
+                 placeholder="Tag"
+                 [items]="tags"
+                 [loadingText]="'Loading categories...'"
+                 [loading]="!tags"
+                 [multiple]="true"
+                 [searchable]="true"
+                 id="id"
+                 class="mr-3"
+                 bindLabel="tagName"
+                 style="width: 180px">
+      </ng-select>
+      <app-utm-search-input [placeholder]="'Search rule'" (searchFor)="searchByRule($event)"></app-utm-search-input>
+
+    </div>
+    <table class="table mb-0">
+      <thead>
+      <tr>
+        <th class="font-weight-semibold cursor-pointer" id="thRule"
+            (sort)="onSort($event)"
+            [sortable]="'rule_name'" appColumnSortable style="width: 20%">
+          Rule name
+        </th>
+        <th class="font-weight-semibold" id="des"
+            style="width: 35%">
+          Description
+        </th>
+        <th class="font-weight-semibold" id="cond">
+          Conditions
+        </th>
+        <th class="font-weight-semibold" id="tags" style="width: 20%">
+          Tags
+        </th>
+        <th class="font-weight-semibold" id="date"
+            (sort)="onSort($event)"
+            [sortable]="'last_modified_date'" appColumnSortable>
+          Modified at
+        </th>
+        <th class="font-weight-semibold" id="created"
+            (sort)="onSort($event)"
+            [sortable]="'last_modified_by'" appColumnSortable>
+          Modified by
+        </th>
+        <th class="font-weight-semibold" id="thAction"
+            style="width: 15px">
+          Actions
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let rule of rules">
+        <td class="text-blue-800 cursor-pointer" (click)="viewRule=rule">{{rule.name }}</td>
+        <td (click)="viewRule=rule" class="cursor-pointer text-wrap" style="width: 35%"><p class="font-size-base">{{rule.description }}</p></td>
+        <td
+          class="text-blue-800 cursor-pointer" (click)="viewRule=rule">
+          <strong>{{rule.conditions.length }}</strong> {{rule.conditions.length > 1 ? 'conditions' : 'condition'}}</td>
+        <td class="text-wrap tags-container text-break cursor-pointer "
+            (click)="viewRule=rule">
+          <app-alert-tag-label [tags]="rule.tags"></app-alert-tag-label>
+        </td>
+        <td (click)="viewRule=rule" class="cursor-pointer">{{rule.lastModifiedDate | date:'short' }}</td>
+        <td (click)="viewRule=rule" class="cursor-pointer">{{rule.createdBy }}</td>
+        <td style="width: 15px" class="text-center">
+          <i (click)="deleteRuleAction(rule)"
+             class="icon-cross2 utm-submenu-table-actions cursor-pointer"></i>
+        </td>
+
+      </tr>
+      </tbody>
+      <tbody *ngIf="(rules && rules.length===0 && !loading)">
+      <tr>
+        <td colspan="10">
+          <app-no-data-found></app-no-data-found>
+        </td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="loading">
+      <tr>
+        <td colspan="10">
+          <div class="p-5
+                d-flex  justify-content-center align-items-center text-blue-800">
+            <app-utm-spinner [height]="'35px'"
+                             [label]="'Loading rules'"
+                             [loading]="loading"
+                             [width]="'35px'">
+            </app-utm-spinner>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div *ngIf="rules && rules.length" class="mb-4 mt-3">
+      <div class="row justify-content-center">
+        <ngb-pagination (pageChange)="loadPage($event)"
+                        [boundaryLinks]="true"
+                        [collectionSize]="totalItems"
+                        [maxSize]="10"
+                        [pageSize]="itemsPerPage"
+                        [rotate]="true"
+                        [size]="'sm'"></ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div *ngIf="viewRule" class="utm-right-container">
+  <div (click)="viewRule= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Rule {{viewRule.name}}
+      </h6>
+      <button (click)="viewRule= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-alert-rule-detail [rule]="viewRule"></app-alert-rule-detail>
+  </div>
+</div>

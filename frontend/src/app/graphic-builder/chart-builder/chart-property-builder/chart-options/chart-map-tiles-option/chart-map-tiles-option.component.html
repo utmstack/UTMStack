@@ -1,0 +1,65 @@
+<form [formGroup]="formTiles">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewTilesOptionProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center">
+                <i [ngClass]="viewMapTiles?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">Map tiles</span>&nbsp;
+    </div>
+  </div>
+  <div [hidden]="!viewMapTiles" class="properties-options">
+    <div *ngFor="let item of tiles.controls; let index=index"
+         class="metric d-flex flex-column"
+         formArrayName="tiles">
+      <ng-container [formGroupName]="index">
+        <div class="utm-box p-3 border-1 border-blue-800 position-relative mt-3">
+          <span class="p-1 utm-box-label">
+          <i class="icon-map5"></i>
+           Tile
+         </span>
+          <div class="form-group">
+            <label class="pb-1 font-weight-semibold" for="label">Tile label</label>
+            <input [ngClass]="inputClass.resolveClassInput(tiles.at(index).get('label'))"
+                   class="border-1 border-grey-600 form-control" formControlName="label"
+                   id="label"
+                   name="">
+            <app-formcontrol-error
+              [formcontrol]="tiles.at(index).get('label')"
+              [label]="'map tile label'">
+            </app-formcontrol-error>
+          </div>
+          <div class="form-group">
+            <label class="pb-1 font-weight-semibold" for="tileUrl">Tile URL</label>
+            <input [ngClass]="inputClass.resolveClassInput(tiles.at(index).get('urlTemplate'))"
+                   class="border-1 border-grey-600 form-control"
+                   formControlName="urlTemplate" id="tileUrl"
+                   name="">
+            <app-formcontrol-error
+              [formcontrol]="tiles.at(index).get('urlTemplate')">
+            </app-formcontrol-error>
+          </div>
+          <div class="form-group" formGroupName="options">
+            <label class="pb-1 font-weight-semibold" for="tileAttr">Tile Attribution</label>
+            <textarea class="border-1 border-grey-600 form-control"
+                      formControlName="attribution" id="tileAttr"
+                      name=""></textarea>
+          </div>
+          <div *ngIf="tiles.length>1"
+               class="delete-metric-button d-flex justify-content-center mt-3">
+             <span (click)="deleteTiles(index)"
+                   class="p-1 border-1 text-danger-600 border-danger-600
+               text-center rounded cursor-pointer">
+                Delete tile
+             </span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <div class="add-metric-button d-flex justify-content-center mt-3">
+        <span (click)="addTile()"
+              class="p-1 border-1 text-blue-800 border-blue-800 text-center rounded cursor-pointer">
+          Add Tile
+        </span>
+    </div>
+  </div>
+</form>

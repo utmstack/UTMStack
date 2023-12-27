@@ -1,0 +1,111 @@
+<div class="d-flex justify-content-start side-menu-container position-relative">
+  <ul class="nav flex-column">
+
+    <li (click)="closeMenu();navigateTo('/integrations/explore')" *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Integrations"
+         placement="left"
+         tooltipClass="utm-tooltip">
+       <span class="svg-icon svg-icon-md"
+             [ngClass]="isActive('/integrations/guide')?'svg-icon-active':'svg-icon-primary'"
+             [inlineSVG]="iconPath+ 'SOLUTIONS.svg'"></span>
+      </a>
+    </li>
+    <li (click)="closeMenu();navigateTo('/explore/correlation-rules')" *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Manage correlation rules"
+         placement="left"
+         tooltipClass="utm-tooltip">
+          <span class="svg-icon svg-icon-md"
+                [ngClass]="isActive('/explore/correlation-rules')?'svg-icon-active':'svg-icon-primary'"
+                [inlineSVG]="iconPath+ 'CORRELATION_RULES.svg'"></span>
+      </a>
+    </li>
+
+    <li (click)="closeMenu();navigateTo('/data-parsing/pipelines')" *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Data Processing"
+         placement="left"
+         tooltipClass="utm-tooltip">
+          <span class="svg-icon svg-icon-md"
+                [ngClass]="isActive('/filters/logs-filters')?'svg-icon-active':'svg-icon-primary'"
+                [inlineSVG]="iconPath+ 'LOGS_FILTER_2.svg'"></span>
+      </a>
+    </li>
+
+
+    <li (click)="closeMenu();navigateTo('/creator/dashboard/list')"
+        *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Dashboards"
+         placement="left" tooltipClass="utm-tooltip">
+        <span class="svg-icon svg-icon-md"
+              [ngClass]="isActive('/creator/dashboard/list')?'svg-icon-active':'svg-icon-primary'"
+              [inlineSVG]="iconPath+ 'WEBSITE_ANALYSIS.svg'"></span>
+      </a>
+    <li (click)="closeMenu();navigateTo('/creator/visualization/list')"
+        *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Visualizations"
+         placement="left" tooltipClass="utm-tooltip">
+         <span class="svg-icon svg-icon-md"
+               [ngClass]="isActive('/creator/visualization/list')?'svg-icon-active':'svg-icon-primary'"
+               [inlineSVG]="iconPath+ 'LINE_CHART.svg'"></span>
+      </a>
+    </li>
+
+    <li (click)="closeMenu();navigateTo('/compliance/management')"
+        *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Manage compliances"
+         placement="left" tooltipClass="utm-tooltip">
+         <span class="svg-icon svg-icon-md"
+               [ngClass]="isActive('/compliance/management')?'svg-icon-active':'svg-icon-primary'"
+               [inlineSVG]="iconPath+ 'BALANCE.svg'"></span>
+      </a>
+    </li>
+
+    <li (click)="closeMenu();navigateTo('/management/user')" *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link mt-2"
+         container="body" ngbTooltip="Manage users"
+         placement="left" tooltipClass="utm-tooltip">
+        <span class="svg-icon svg-icon-md" [ngClass]="isActive('/management/user')?'svg-icon-active':'svg-icon-primary'"
+              [inlineSVG]="iconPath+ 'USER.svg'"></span>
+      </a>
+    </li>
+
+    <li (click)="closeMenu();navigateTo('/app-management')" *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Settings"
+         placement="left"
+         tooltipClass="utm-tooltip">
+        <span class="svg-icon svg-icon-md" [ngClass]="isActive('/app-management')?'svg-icon-active':'svg-icon-primary'"
+              [inlineSVG]="iconPath+ 'SETTINGS.svg'"></span>
+      </a>
+    </li>
+
+
+    <li class="nav-item p-1">
+      <a (click)=" signOut()" class="nav-link"
+         container="body" ngbTooltip="Sign Out"
+         placement="left"
+         tooltipClass="utm-tooltip">
+           <span class="svg-icon svg-icon-md svg-icon-primary"
+                 [inlineSVG]="iconPath+ 'POWER.svg'"></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+

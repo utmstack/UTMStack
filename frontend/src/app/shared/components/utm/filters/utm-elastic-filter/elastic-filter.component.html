@@ -1,0 +1,112 @@
+<div class="d-flex m-0">
+  <div class="flex-grow-1">
+    <div class="card w-100 d-flex justify-content-between align-items-center flex-row m-0 p-2">
+      <div class="filters d-flex justify-content-start align-items-center flex-wrap">
+      <span [ngbPopover]="popContent"
+            [popoverTitle]="popTitle"
+            class="setting-filter mr-3 text-blue-800 cursor-pointer"
+            placement="right"
+            popoverClass="utm-popover-right">
+    <i class="icon-filter4"></i>
+   </span>
+        <div #popoverField="ngbPopover"
+             *ngFor="let filter of resolveFilters(); let index = index;"
+             (click)="filterSelected=filter;indexEdit=index"
+             [ngbPopover]="popField"
+             autoClose="inside:outside"
+             class="dropdown cursor-pointer d-flex"
+             placement="bottom"
+             popoverClass="utm-popover-bottom">
+          <div class="filter-label">
+             <span [ngClass]="!filter.operator.toLocaleLowerCase().includes('not')?
+              'border-blue-800 text-blue-800':'border-danger-800 text-danger-800'"
+                   [ngbTooltip]="getFilterLabel(filter)"
+                   [openDelay]="1000"
+                   class="text-center pt-1 pb-1 m-1 "
+                   placement="bottom"
+                   tooltipClass="utm-tooltip-bottom">
+             {{getFilterLabel(filter)}}
+             </span>
+          </div>
+          <span>
+              <i (click)="deleteFilter(filter)" class="icon-cross2 ml-2 cursor-pointer"></i>
+          </span>
+        </div>
+      </div>
+      <div class="actions-filters d-flex align-items-center">
+        <span #popoverFilter="ngbPopover"
+              (click)="filterSelected=null;indexEdit=null;editMode=false;"
+              [ngbPopover]="addContent"
+              [popoverTitle]="addTitle"
+              autoClose="outside"
+              class="setting-filter mr-3 text-blue-800 cursor-pointer font-weight-light text-nowrap span-small-icon"
+              placement="bottom"
+              popoverClass="utm-popover-bottom">
+      <i class="icon-plus3"></i>
+      Add filter
+    </span>
+      </div>
+    </div>
+  </div>
+  <div class="filter-time-container">
+    <div class="card p-0 m-0">
+      <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                               [changeOnInit]="'NO'"
+                               [container]="'body'"
+                               [defaultTime]="defaultTime"
+                               [invertContent]="false">
+      </app-elastic-filter-time>
+    </div>
+  </div>
+</div>
+<!--All filtr options-->
+<ng-template #popContent>
+  <div (click)="deleteAll()" class="dropdown-item text-danger-800">
+    <span>
+      <i class="icon-cross2"></i>
+                    &nbsp;Delete all
+    </span>
+  </div>
+  <div class="dropdown-item text-warning-800">
+          <span>
+            <i class="icon-checkbox-unchecked2"></i>
+            &nbsp;Disable all
+          </span>
+  </div>
+</ng-template>
+<ng-template #popTitle>
+  <h6 class="font-weight-light">Filter options</h6>
+</ng-template>
+
+<!--add filter-->
+<ng-template #addContent>
+  <app-elastic-filter-add (filterChange)="addFilter($event)"
+                          [filter]="filterSelected"
+                          [pattern]="pattern">
+  </app-elastic-filter-add>
+</ng-template>
+<ng-template #addTitle>
+  <h6 class="font-weight-light">Add filter</h6>
+</ng-template>
+
+<!--Field popup-->
+<ng-template #popField>
+  <div (click)="popoverFilter.open();editMode=true" class="dropdown-item text-blue-800">
+    <span class="span-small-icon">
+      <i class="icon-pencil"></i>
+      &nbsp;Edit
+    </span>
+  </div>
+  <div (click)="deleteFilter(filterSelected)" class="dropdown-item text-danger-800">
+    <span class="span-small-icon">
+      <i class="icon-cross2"></i>
+      &nbsp;Delete
+    </span>
+  </div>
+  <div (click)="invertAction()" class="dropdown-item text-warning-800">
+     <span class="span-small-icon">
+       <i class="icon-transmission"></i>
+       &nbsp;Invert
+     </span>
+  </div>
+</ng-template>

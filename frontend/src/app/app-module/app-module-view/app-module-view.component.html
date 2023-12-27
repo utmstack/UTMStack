@@ -1,0 +1,47 @@
+<div class="container-fluid pr-2 pl-2 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2 pl-3 pr-3">
+    <h5 class="card-title label-header mb-0 text-uppercase label-header">
+      Application modules
+    </h5>
+    <div class="header-elements d-flex justify-content-end align-items-center">
+      <!--            <app-utm-server-select (serverChange)="filterByServer($event)"-->
+      <!--                                   [selectFirst]="true"></app-utm-server-select>-->
+      <ng-select (change)="filterByCategory($event)"
+                 [(ngModel)]="category"
+                 [clearable]="true"
+                 placeholder="Category"
+                 [items]="categories"
+                 [loadingText]="'Loading categories...'"
+                 [loading]="!categories"
+                 id="id"
+                 class="mr-3"
+                 style="width: 180px">
+      </ng-select>
+      <app-utm-search-input placeholder="Module name"
+                            (searchFor)="onSearch($event)"></app-utm-search-input>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center align-items-center flex-wrap mt-2">
+    <app-app-module-card *ngFor="let mod of modules" [module]="mod"
+                         (showModuleIntegration)="showModule($event)"
+                         class="module-card m-1"></app-app-module-card>
+  </div>
+</div>
+
+<!--ALERT DETAIL-->
+<div *ngIf="module" class="utm-right-container">
+  <div (click)="module= undefined" class="overlay overlay-md"></div>
+  <div class="card utm-right-action utm-right-action-md">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Integration guide for {{module.prettyName}}
+      </h6>
+      <button (click)="module= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-module-integration [module]="module" [serverId]="server.id"></app-module-integration>
+  </div>
+</div>

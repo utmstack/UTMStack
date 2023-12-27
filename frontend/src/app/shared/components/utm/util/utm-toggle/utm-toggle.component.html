@@ -1,0 +1,10 @@
+<label class="form-check-label d-flex align-items-center">
+  <input checked="" class="form-input-switchery" data-fouc="" data-switchery="true"
+         style="display: none;" type="checkbox">
+  <span (click)="toggle()"
+        [ngClass]="active?'toggle-active':'toggle-inactive'"
+        class="switchery switchery-default switchery-sm">
+      <small></small>
+    </span> &nbsp;
+  {{label}}
+</label>

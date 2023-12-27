@@ -1,0 +1,17 @@
+name: Agent Manager Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+    paths:
+      - 'agent-manager/**'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-golang.yml
+    with:
+      image_name: agent-manager
+      environment: v10
+      directory: agent-manager
+      binary: server
+      branch: rc

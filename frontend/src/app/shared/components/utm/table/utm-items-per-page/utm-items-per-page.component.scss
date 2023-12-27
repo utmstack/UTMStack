@@ -1,0 +1,10 @@
+.items-page-select {
+  max-width: 200px;
+}
+
+::ng-deep {
+  .ng-select .ng-select-container {
+    min-height: 30px !important;
+    height: 30px !important;
+  }
+}

@@ -1,0 +1,14 @@
+
+.module-card {
+  height: 350px;
+  border: 1px solid #D3DAE6;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+  box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3);
+
+  img {
+    width: auto;
+    max-width: 200px;
+    height: 110px;
+  }
+}

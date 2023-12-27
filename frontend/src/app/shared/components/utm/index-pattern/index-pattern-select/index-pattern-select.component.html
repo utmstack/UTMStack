@@ -1,0 +1,19 @@
+<div class="d-flex justify-content-start align-items-center w-100">
+  <label class="" for="id">Source: </label>
+  <ng-select (change)="onIndexPatternChange($event)"
+             [closeOnSelect]="true"
+             [(ngModel)]="pattern"
+             [clearable]="false"
+             [items]="patterns"
+             [loadingText]="'Loading sources....'"
+             [markFirst]="true"
+             [loading]="!patterns"
+             bindLabel="pattern"
+             class="ml-2 mr-2"
+             id="id"
+             style="min-width: 200px">
+  </ng-select>
+  <span (click)="newIndexPattern()" class="span-small-icon text-blue-800 cursor-pointer">
+    <i class="icon-plus3"></i> Add source
+  </span>
+</div>

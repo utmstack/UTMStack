@@ -1,0 +1,25 @@
+@import "../../../../../assets/styles/theme";
+@import "../../../../../assets/styles/var";
+@import "../../../../../assets/styles/custom-elements";
+
+.create-target-container {
+  .target-form-container {
+    .form {
+      .add-action-form {
+        font-size: 15px;
+        color: $primary-color;
+        text-transform: uppercase;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      .credential-container {
+        .name-credential {
+          min-width: 35px;
+        }
+      }
+    }
+  }
+}

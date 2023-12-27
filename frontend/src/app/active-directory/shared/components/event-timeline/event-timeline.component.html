@@ -1,0 +1,72 @@
+<div class="card m-0 h-100">
+  <div class="card-header header-elements-sm-inline p-2">
+    <h6 class="card-title font-weight-light pb-0 text-blue-800">Events timeline</h6>
+    <div class="header-elements">
+      <app-elastic-filter-time (timeFilterChange)="onFilterTimeChange($event)"
+                               [changeOnInit]="'YES'"
+                               [container]="'body'"
+                               [formatInstant]="true"
+                               [invertContent]="true"
+                               [timeDefault]="sevenDaysRange"></app-elastic-filter-time>
+    </div>
+  </div>
+  <div class="card-body p-2 h-10">
+    <div *ngIf="items.length>0 && !loading"
+         class="event-timeline-container h-100" id="eventsTimeline">
+      <div class="main">
+        <ul class="utm_tmtimeline">
+          <li (click)="selectEvent(item)" *ngFor="let item of items" class="">
+            <time [attr.datetime]="item['@timestamp']" class="utm_tmtime">
+              <span class="w-75">{{item['@timestamp'] | date:formatDateEnum.UTM_SHORT:'UTC'}}</span>
+            </time>
+            <div [class]=" getUniqueEventId(item)===itemSelected?resolveClassSelected(item.logx.wineventlog['event_id']):''"
+                 [ngClass]="resolveClassByEventType(item.logx.wineventlog['event_id'])"
+                 class="utm_tmlabel cursor-pointer">
+              <p [innerHTML]="item.logx.wineventlog['event_name']"></p>
+            </div>
+          </li>
+        </ul>
+        <div *ngIf="loadingMore && !noMoreResult"
+             class="d-flex justify-content-center align-items-center p-3 loading">
+          <app-utm-spinner [height]="'35px'" [loading]="true"
+                           [width]="'35px'" label="Loading more events"></app-utm-spinner>
+        </div>
+        <div *ngIf="noMoreResult"
+             class="d-flex justify-content-center align-items-center p-3 loading">
+          <i class="icon-three-bars font-size-lg text-blue-800"></i>
+          <span class="text-blue-800 mt-2">No more events</span>
+        </div>
+      </div>
+      <div *ngIf="items && items.length>0" class="mb-3 mt-1">
+        <div class="row justify-content-center">
+          <ngb-pagination (pageChange)="loadPage($event)"
+                          [(page)]="page"
+                          [boundaryLinks]="true"
+                          [collectionSize]="totalItems"
+                          [maxSize]="3"
+                          [pageSize]="itemsPerPage"eastc
+                          [rotate]="true"
+                          [size]="'sm'"></ngb-pagination>
+          <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                  class="ml-3">
+          </app-utm-items-per-page>
+        </div>
+        <!-- TABLE END-->
+      </div>
+    </div>
+    <div *ngIf="loading"
+         class=" h-100 d-flex justify-content-center align-items-center p-3 loading">
+      <app-utm-spinner [height]="'35px'" [loading]="true"
+                       [width]="'35px'" label="Loading events"></app-utm-spinner>
+    </div>
+    <div *ngIf="items.length===0 && !loading"
+         class="card-body message-container p-2 event-timeline-container h-100">
+      <div class="h-100 w-100 d-flex justify-content-center align-items-center flex-column">
+        <div class="event-icon utm-icon-lg utm-icon-light"></div>
+        <h6 class="text-blue-800 mt-2 text-justify font-weight-light">
+          No events found
+        </h6>
+      </div>
+    </div>
+  </div>
+</div>

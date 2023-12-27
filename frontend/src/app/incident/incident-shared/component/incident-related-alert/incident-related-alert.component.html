@@ -1,0 +1,125 @@
+<div class="table-responsive">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <th (sort)="onSortBy($event)"
+          [isSortable]="true"
+          sortable="alertId"
+          appColumnSortable
+          style="width: 300px"
+          class="font-weight-semibold cursor-pointer">
+        ID
+      </th>
+      <th (sort)="onSortBy($event)"
+          [isSortable]="true"
+          sortable="alertName"
+          appColumnSortable
+          style="width: 40%"
+          class="font-weight-semibold cursor-pointer">
+        Alert name
+      </th>
+      <th (sort)="onSortBy($event)"
+          [isSortable]="true"
+          sortable="alertSeverity"
+          appColumnSortable
+          style="width: 120px"
+          class="font-weight-semibold cursor-pointer">
+        Severity
+      </th>
+      <th (sort)="onSortBy($event)"
+          [isSortable]="true"
+          sortable="alertStatus"
+          appColumnSortable
+          style="width: 200px"
+          class="font-weight-semibold cursor-pointer">
+        Status
+      </th>
+      <th style="width: 200px"
+          class="font-weight-semibold cursor-pointer">
+        Detail
+      </th>
+    </tr>
+    </thead>
+    <tbody *ngIf="alerts && alerts.length>0">
+    <tr *ngFor="let alert of alerts" class="cursor-pointer" (click)="showAlertDetail(alert)">
+      <td class="text-blue-800 text-left">
+        {{alert.alertId}}
+      </td>
+      <td class="text-left text-wrap">
+        {{alert.alertName}}
+      </td>
+      <td>
+        <app-alert-severity [severity]="alert.alertSeverity"></app-alert-severity>
+      </td>
+      <td>
+        <app-alert-status-view [status]="alert.alertStatus"></app-alert-status-view>
+      </td>
+      <td class="text-blue-800">View detail</td>
+    </tr>
+    </tbody>
+    <tbody *ngIf="(alerts && alerts.length===0)  && !loading">
+    <tr>
+      <td [attr.colspan]="5">
+        <app-no-data-found></app-no-data-found>
+      </td>
+    </tr>
+    </tbody>
+    <tbody *ngIf="loading">
+    <tr>
+      <td [attr.colspan]="5">
+        <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+          <app-utm-spinner [height]="'35px'"
+                           [label]="'Loading...'"
+                           [loading]="loading"
+                           [width]="'35px'">
+          </app-utm-spinner>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div *ngIf="alerts && alerts.length>0" class="">
+  <div class="row justify-content-center">
+    <ngb-pagination (pageChange)="loadPage($event)"
+                    [boundaryLinks]="true"
+                    [collectionSize]="totalItems"
+                    [maxSize]="10"
+                    [pageSize]="10"
+                    [rotate]="true"
+                    [size]="'sm'"></ngb-pagination>
+  </div>
+  <!-- TABLE END-->
+</div>
+
+<div *ngIf="viewAlertDetail" class="utm-right-container">
+  <div (click)="viewAlertDetail= false" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        {{alertSelected.alertName}}
+      </h6>
+      <button (click)="viewAlertDetail= false" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <ng-container *ngIf="alert && !loadingAlert;else loadAlert">
+      <app-alert-view-detail (refreshData)="onRefreshData($event)"
+                             [alert]="alert"
+                             [tags]="tags"
+                             [dataType]="eventDataTypeEnum.ALERT"></app-alert-view-detail>
+    </ng-container>
+    <ng-template #loadAlert>
+      <div class="p-5 d-flex justify-content-center align-items-center text-blue-800">
+        <app-utm-spinner [height]="'35px'"
+                         [label]="'Loading...'"
+                         [loading]="loadingAlert"
+                         [width]="'35px'">
+        </app-utm-spinner>
+      </div>
+    </ng-template>
+  </div>
+</div>
+

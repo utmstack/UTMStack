@@ -1,0 +1,79 @@
+<div class="card w-100">
+  <div class="d-flex justify-content-end align-items-center p-2">
+    <button (click)="addPort()" class="btn utm-button utm-button-primary">
+      <i class="icon-plus2"></i>
+      Add port
+    </button>
+  </div>
+  <form [formGroup]="formPort">
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 40%">
+            Port number&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer text-center">
+            TCP status&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer">
+            UDP status&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase  cursor-pointer">
+            Action&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="portFormArray.controls || portFormArray.controls.length>0">
+        <tr *ngFor="let item of portFormArray.controls; let index=index">
+          <ng-container formArrayName="portFormArray">
+            <ng-container [formGroupName]="index">
+              <td class="">
+                <input class="form-control" formControlName="port" id="portNumber" name="port" type="number">
+              </td>
+              <td class="">
+                <ng-select [clearable]="false"
+                           [items]="portStatus"
+                           [loadingText]="'Loading status....'"
+                           [loading]="!portStatus"
+                           appendTo="body"
+                           formControlName="tcp"
+                           id="tcp"
+                           style="min-width: 200px;margin: 0 !important;">
+                </ng-select>
+              </td>
+              <td>
+                <ng-select [clearable]="false"
+                           [items]="portStatus"
+                           [loadingText]="'Loading status....'"
+                           [loading]="!portStatus"
+                           appendTo="body"
+                           formControlName="udp"
+
+                           id="udp"
+                           style="min-width: 200px;margin: 0 !important;">
+                </ng-select>
+              </td>
+              <td class="text-center span-small-icon">
+                <i (click)="deletePort(index)" class="icon-cross2 cursor-pointer"
+                   ngbTooltip="Delete port"
+                   placement="left"
+                   tooltipClass="utm-tooltip"></i>
+              </td>
+            </ng-container>
+          </ng-container>
+
+        </tr>
+        </tbody>
+        <tbody *ngIf="!portFormArray.controls ||portFormArray.controls.length===0">
+        <tr>
+          <td colspan="4">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+

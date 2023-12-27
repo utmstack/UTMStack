@@ -1,0 +1,66 @@
+@import "src/assets/styles/theme";
+@import "src/assets/styles/var";
+
+.warning-empty-visualization {
+  min-height: 400px;
+}
+
+:host {
+  gridster {
+    display: flex;
+    height: calc(100vh - 115px);
+    flex-direction: column;
+
+    gridster-item {
+      z-index: 1;
+      overflow: initial !important;
+    }
+
+    // avoid visual split defect on item change size
+    .gridster-item-resizing {
+      overflow: hidden !important;
+    }
+  }
+
+  button {
+  }
+
+  .draggable {
+    padding: 10px;
+    width: 200px;
+    border: solid 2px #000;
+    margin-left: 20px;
+    text-align: center;
+  }
+
+  .icon-item-delete {
+    position: absolute;
+    right: 5px;
+    top: 10px;
+    z-index: 50;
+  }
+
+  .icon-item-cog {
+    position: absolute;
+    right: 25px;
+    top: 10px;
+    z-index: 50;
+  }
+}
+
+.nav {
+  .nav-item {
+    .nav-link {
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+::ng-deep {
+  .card-header {
+    padding-right: 50px !important;
+  }
+}

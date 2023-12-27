@@ -1,0 +1,15 @@
+name: Agent Redline Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+    paths:
+      - 'agent/redline/**'
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/agent-basic.yml
+    with:
+      binary: utmstack_redline_service
+      directory: redline
+      branch: rc

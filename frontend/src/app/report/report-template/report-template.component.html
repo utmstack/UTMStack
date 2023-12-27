@@ -1,0 +1,132 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Reports Templates</h5>
+    <div class="header-elements">
+      <button class="btn utm-button utm-button-primary"
+              (click)="navigateToManage()"
+              *appHasAnyAuthority="admin"
+              [hidden]="manage">
+        <i class="icon-clipboard mr-1"></i> Manage reports
+      </button>
+      <button (click)="navigateToView()"
+              *appHasAnyAuthority="admin"
+              [hidden]="!manage"
+              class="btn utm-button utm-button-primary">
+        <i class="icon-clipboard mr-1"></i> View reports
+      </button>
+      <button (click)="createReport()" *ngIf="manage" class="btn utm-button utm-button-primary ml-3">
+        <i class="icon-clipboard3 mr-1"></i> Create report
+      </button>
+    </div>
+  </div>
+  <div class="row m-0">
+    <div class="col-lg-2 col-md-3 col-sm-12 pl-0 pr-0 min-vh-75">
+      <div class="h-100 card m-0">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Sections</label>
+        </div>
+        <div class="card-body p-2">
+          <div *ngFor="let st of sections"
+               [ngClass]="{'router-link-active':st.id === sectionId}"
+               class="d-flex justify-content-between align-items-start mb-2">
+             <span (click)="changeSection(st)"
+                   style="max-width: 80%"
+                   [ngClass]="{'text-primary':st.id === sectionId}"
+                   class="cursor-pointer flex-wrap">
+                             {{st.repSecName}}
+             </span>
+            <span *ngIf="manage && !st.repSecSystem" class="span-small-icon">
+               <i (click)="editSection(st)"
+                  class="icon-pencil mr-2"
+                  container="body"
+                  ngbTooltip="Edit standard"
+                  placement="bottom" tooltipClass="utm-tooltip-bottom"></i>
+               <i (click)="deleteSection(st)"
+                  class="icon-cross2"
+                  container="body"
+                  ngbTooltip="Delete standard"
+                  placement="bottom" tooltipClass="utm-tooltip-bottom"></i>
+            </span>
+          </div>
+          <div *ngIf="manage" class="d-flex justify-content-center align-items-center mt-3">
+        <span (click)="newSection()" class="span-small-icon text-blue-800 cursor-pointer">
+          <i class="icon-plus3 mr-2"></i>
+          New section
+        </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-10 col-md-12 col-sm-12 pr-0 min-vh-75">
+      <div class="card h-100 m-0">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Reports</label>
+        </div>
+        <div class="card-body p-2">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 *ngIf="section" class="card-title mb-0 label-header text-blue-800">
+              {{section.repSecName}}
+            </h6>
+            <div class="d-flex flex-grow-1 justify-content-end">
+              <app-utm-search-input (searchFor)="onSearchFor($event)"
+                                    [placeholder]="'Search report'"
+                                    [searching]="false"
+                                    class="mr-2"></app-utm-search-input>
+            </div>
+          </div>
+          <p *ngIf="section" class="font-weight-light mb-2 mt-2 text-justify">
+            {{section.repSecDescription}}
+          </p>
+          <div *ngIf="loadingTemplates"
+               class="w-100 p-5 m-5 d-flex justify-content-center align-items-center">
+            <app-utm-spinner [height]="'110px'" [loading]="loadingTemplates" [width]="'110px'"
+                             label="Loading templates">
+            </app-utm-spinner>
+          </div>
+          <div *ngIf="!loadingTemplates && reports.length>0">
+            <div *ngFor="let rp of reports"
+                 class="w-100 card p-2 d-flex flex-column flex-grow-1 report-hover">
+              <div (click)="generateReport(rp)"
+                   class="d-flex flex-column flex-grow-1 cursor-pointer">
+                <div class="mb-2 d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center justify-content-center span-small-icon">
+                    <i [ngClass]="rp.repType===reportTypeEnum.CUSTOM_PDF?'icon-file-pdf':'icon-file-presentation'"
+                       class="mr-2"></i>
+                    <p [innerHTML]="rp.repName |highlight:search" class="font-size-base">
+                    </p>
+                  </div>
+                  <span *ngIf="manage && rp.repType!==reportTypeEnum.CUSTOM_PDF" class="align-self-end span-small-icon">
+                    <i (click)="editReport(rp)"
+                       class="icon-pencil cursor-pointer mr-2"
+                       container="body"
+                       ngbTooltip="Edit report"
+                       placement="bottom"
+                       tooltipClass="utm-tooltip-bottom"></i>
+                    <i (click)="deleteReport(rp)"
+                       class="icon-cross2 cursor-pointer"
+                       container="body"
+                       ngbTooltip="Delete report"
+                       placement="bottom"
+                       tooltipClass="utm-tooltip-bottom"></i>
+                  </span>
+                </div>
+                <div>
+                  <p [innerHTML]="rp.repDescription" class="font-size-base">
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="loadingMore && !noMoreResult"
+                 class="d-flex justify-content-center align-items-center p-3 loading">
+              <app-utm-spinner [height]="'35px'" [loading]="true"
+                               [width]="'35px'" label="Loading more events"></app-utm-spinner>
+            </div>
+          </div>
+          <div *ngIf="!loadingTemplates && reports.length===0">
+            <app-no-data-found></app-no-data-found>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<div
+  class="filter-container d-flex justify-content-start align-items-center">
+       <span class="font-weight-light font-size-xs"><i class="icon-power2"></i>
+        &nbsp;Source is:
+    </span>
+  <span (click)="setAlive(null)"
+        [ngClass]="{'text-blue-800':alive===null}" class="mb-0 cursor-pointer  ml-3 medium-icon">
+      <i [ngClass]="alive===null?'icon-radio-checked':'icon-circle'"></i>&nbsp;
+      <span class="">All </span>
+    </span>
+  <div *ngFor="let ali of alives ;let i = index">
+    <div class="d-flex justify-content-start align-items-center ml-3 alert-radio-container">
+          <span (click)="setAlive(ali[0])"
+                [ngClass]="{'text-blue-800':alive==ali[0]}"
+                class="mb-0 cursor-pointer medium-icon">
+      <i [ngClass]="alive==ali[0]?'icon-radio-checked':'icon-circle'"></i>&nbsp;
+      <span class="">{{ali[0] === false ? 'Down' : 'Up'}} </span>
+    </span>
+    </div>
+  </div>
+  <!--  ({{ali[1]}})-->
+  <!--  ({{getTotal()}})-->
+</div>

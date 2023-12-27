@@ -1,0 +1,31 @@
+<app-utm-modal-header [name]="'Save report'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 save-report-container">
+  <div class="form w-100">
+    <!--    <div class="form-group">-->
+    <!--      <span for="reportName">Name</span>-->
+    <!--      <input [(ngModel)]="name" class="form-control" id="reportName" type="text">-->
+    <!--    </div>-->
+    <!--    <div class="form-group">-->
+    <!--      <span for="reportDesc">Description</span>-->
+    <!--      <textarea [(ngModel)]="description" class="form-control" id="reportDesc" rows="3"></textarea>-->
+    <!--    </div>-->
+    <app-active-filters [dataType]="dataType" [filters]="filters"></app-active-filters>
+    <app-utm-data-limit (limitChange)="limit=$event"></app-utm-data-limit>
+    <div class="buttom-container pt-3 d-flex justify-content-end">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <!--      <button (click)="saveReport()" [disabled]="(name===undefined || description===undefined) || saving"-->
+      <!--              class="btn utm-button utm-button-primary mr-3">-->
+      <!--        <i [ngClass]="saving?'icon-stack-text':'icon-database-insert'" class="mr-1"></i>-->
+      <!--        {{saving ? 'Saving...' : 'Save report'}}-->
+      <!--      </button>-->
+      <button (click)="exportToCsv()"
+              class="btn utm-button utm-button-primary">
+        <i [ngClass]="generateReport?'icon-download10':'icon-table2'" class="mr-1"></i>
+        {{generateReport ? 'Generating...' : 'Export to CSV'}}
+      </button>
+    </div>
+  </div>
+</div>

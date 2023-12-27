@@ -1,0 +1,15 @@
+name: User Auditor QA
+on:
+  pull_request:
+    branches: [ "rc" ]
+    paths:
+      - 'user-auditor/**'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/docker-java.yml
+    with:
+      image_name: user-auditor
+      environment: v10-qa
+      directory: user-auditor
+      branch: main

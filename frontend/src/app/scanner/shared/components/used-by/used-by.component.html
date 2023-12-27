@@ -1,0 +1,23 @@
+<app-utm-modal-header [name]="'Used by'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3 create-task-container">
+  <div class="d-flex flex-column justify-content-start align-items-start mt-2">
+    <h6 class="mb-2">{{dependency}} using this {{type}}: {{name}}</h6>
+    <div *ngIf="using && using.length>0" class="d-flex justify-content-start align-items-center flex-wrap">
+     <span *ngFor="let use of using" class="badge border-blue-800 border-1 m-1 p-1 text-blue-800">
+       {{use.name}}
+     </span>
+    </div>
+    <!--    <h6 class="mb-2 mt-3">Tasks using this {{config}}</h6>-->
+    <!--    <div class="d-flex justify-content-start align-items-center flex-wrap" *ngIf="tasks.length>0">-->
+    <!--    <span class="badge border-blue-800 border-1 m-1 p-1 text-blue-800" *ngFor="let task of tasks">-->
+    <!--       {{task}}-->
+    <!--     </span>-->
+    <!--    </div>-->
+  </div>
+  <div class="button-container d-flex justify-content-end mt-3">
+    <button (click)="activeModal.close()" class="btn utm-button bg-danger-400 mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Close
+    </button>
+  </div>
+</div>

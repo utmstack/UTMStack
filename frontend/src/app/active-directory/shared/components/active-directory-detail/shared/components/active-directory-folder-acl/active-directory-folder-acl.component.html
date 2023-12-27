@@ -1,0 +1,11 @@
+<div class="ad-pc-detail mb-3">
+  <app-ad-computer-local-group
+    *ngIf="computer && computer.localGroups && computer.localGroups.length>0"
+    [localGroups]="computer.localGroups">
+  </app-ad-computer-local-group>
+
+  <div class="w-100">
+    <app-ad-folder-list [folders]="folders"></app-ad-folder-list>
+  </div>
+
+</div>

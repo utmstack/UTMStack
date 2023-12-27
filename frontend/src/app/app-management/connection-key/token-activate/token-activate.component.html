@@ -1,0 +1,48 @@
+<app-utm-modal-header [name]="'Activate connection key'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+
+  <form [formGroup]="tokenForm" action="" class="form">
+    <div class="form-group">
+      <label class="pb-1 d-flex justify-content-between align-items-center span-small-icon" for="email">
+        Instance name
+        <i
+          class="ml-2 text-primary icon-question3"
+          container="body"
+          ngbTooltip="The instance name is the identifier of the master. Each instance must be unique in the case of using the Federation Service to manage multiple clients."
+          placement="auto"></i>
+      </label>
+      <input [ngClass]="inputClassResolve.resolveClassInput(tokenForm.get('name'))"
+             class="border-1 border-grey-600 form-control" formControlName="name"
+             id="name"
+             name="name"
+             required>
+      <app-formcontrol-error [formcontrol]="tokenForm.get('name')"></app-formcontrol-error>
+    </div>
+
+
+  </form>
+  <div *ngIf="validating" class="d-flex justify-content-start align-items-start flex-column mt-3">
+    <div class="d-flex justify-content-start align-items-center">
+      <i [ngClass]="!checked?'text-blue-800 icon-spinner2 spinner':'text-success-400 icon-checkmark-circle'"></i>
+      <h6 class="text-blue-800 font-weight-light ml-2">
+        {{!checked ? 'Validating licence' : 'License validated'}}
+      </h6>
+    </div>
+  </div>
+
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="enableConnection()"
+            [disabled]="!tokenForm.valid"
+            class="btn utm-button utm-button-primary
+             d-flex justify-content-center
+              align-items-center">
+      <i [ngClass]="saving?'icon-spinner2 spinner':'icon-checkmark-circle'" class="mr-1"></i>&nbsp;
+      Activate
+    </button>
+  </div>
+</div>
+

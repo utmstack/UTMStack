@@ -1,0 +1,125 @@
+<app-header *appHasAnyAuthority="roles" [hidden]="isInExportRoute()"></app-header>
+<div [class]="isInExportRoute()?'wrapper wrapper-no-top':'wrapper'" [ngClass]="menu?'menu-open':'menu-close'">
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <div *appHasAnyAuthority="roles" [hidden]="!menu || isInExportRoute()" class="side-menu">
+    <div
+      class="sidebar sidebar-light sidebar-main sidebar-expand-md">
+      <app-sidebar></app-sidebar>
+    </div>
+  </div>
+</div>
+<!--<app-app-restart-api></app-app-restart-api>-->
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'loadingSpinner'"
+  [name]="'loadingSpinner'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Loading</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'restartingApi'"
+  [name]="'restartingApi'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Restarting application, please wait</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'updatingApp'"
+  [name]="'updatingApp'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Updating application, please wait</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'disconnectedSpinner'"
+  [name]="'disconnectedSpinner'"
+  bdColor="rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="fire">
+  <p style="color: #ffffff">Error while trying to connect with UTM services, check if restarting application is
+    planning</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'buildPrint'"
+  [name]="'buildPrint'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Creating print view, please wait</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'licenseSpinner'"
+  [name]="'licenseSpinner'"
+  bdColor="rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-scale-ripple">
+  <p style="color: #ffffff">To change this config we nee check yor license, please wait</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'alertDetail'"
+  [name]="'alertDetail'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Getting alert detail</p>
+</ngx-spinner>
+
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'buildPrintPDF'"
+  [name]="'buildPrintPDF'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Creating pdf, please wait</p>
+</ngx-spinner>
+
+<app-utm-header-health-warning *appHasAnyAuthority="roles" [hidden]="isInExportRoute()"></app-utm-header-health-warning>
+
+<div class="offline" *ngIf="offline">
+  <div
+    class="w-100 p-4 bg-danger-400 d-flex justify-content-center align-items-center">
+    <h6 class="font-weight-semibold">Unable to connect with the server</h6>
+  </div>
+</div>
+<div class="offline" *ngIf="!hideOnline">
+  <div
+    class="w-100 p-4 bg-success-400 d-flex justify-content-center align-items-center">
+    <h6 class="font-weight-semibold">Successfully Established Connection with the Server</h6>
+  </div>
+</div>

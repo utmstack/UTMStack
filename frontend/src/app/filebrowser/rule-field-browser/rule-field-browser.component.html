@@ -1,0 +1,34 @@
+<div class="card">
+  <div class="p-2">
+    <app-index-pattern-select (indexPatternChange)="getFields($event.pattern)"></app-index-pattern-select>
+  </div>
+  <div class="d-flex justify-content-between pl-2 pb-0">
+    <span class="font-weight-semibold">Available fields</span>
+  </div>
+  <div class="mb-2 pr-2 pl-2 w-100">
+    <app-utm-search-input (searchFor)="onSearch($event)" [placeholder]="'Search field'"
+                          [searching]="searching"></app-utm-search-input>
+  </div>
+  <div *ngIf="loadingFields"
+       class="content d-flex justify-content-center align-items-center h-100 w-100 analyzer-fields">
+    <app-utm-spinner [height]="'35px'" [label]="'Loading fields...'" [loading]="true"
+                     [width]="'35px'"></app-utm-spinner>
+  </div>
+  <div *ngIf="fields.length===0 && !loadingFields"
+       class="content d-flex justify-content-center align-items-center h-100 w-100 pt-5">
+    <app-no-data-found></app-no-data-found>
+  </div>
+  <div (scrolled)="onScroll()" *ngIf="fields.length>0 && !loadingFields"
+       [fromRoot]="true"
+       [infiniteScrollDistance]="1"
+       [infiniteScrollThrottle]="50"
+       [scrollWindow]="false"
+       class="analyzer-fields p-2"
+       infiniteScroll>
+    <div *ngFor="let field of fields | slice:pageStart:pageEnd">
+      <app-rule-field-card [field]="field"
+                           [hidden]="field.name.includes('.keyword')">
+      </app-rule-field-card>
+    </div>
+  </div>
+</div>

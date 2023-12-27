@@ -1,0 +1,50 @@
+<div class="table-responsive">
+  <table class="table text-nowrap">
+    <thead>
+    <tr>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer" style="width: 40%">
+        Identity reference&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer text-center">
+        ACL type&nbsp;
+      </th>
+      <th class="font-weight-semibold text-uppercase  cursor-pointer">
+        Directory Rights&nbsp;
+      </th>
+    </tr>
+    </thead>
+    <tbody *ngIf="adInfo.userACLs.length>0">
+    <tr *ngFor="let acl of adInfo.userACLs|slice:pageStart:pageEnd">
+      <td class="w-25">
+         <span class="text-blue-800">
+           {{acl.identityReference}}
+        </span>
+      </td>
+      <td class="text-center">
+        <span [ngClass]="acl.accessControlType==='Allow'?'badge-success':'badge-danger'"
+              class="badge">
+           {{acl.accessControlType}}
+        </span>
+      </td>
+      <td>
+        <span>
+           {{acl.activeDirectoryRights}}
+         </span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div *ngIf="adInfo.userACLs.length>0" class="mb-2">
+  <div class="row justify-content-center">
+    <ngb-pagination
+      (pageChange)="loadPage($event)"
+      [(page)]="page"
+      [boundaryLinks]="true"
+      [collectionSize]="totalItems"
+      [maxSize]="5"
+      [pageSize]="itemsPerPage"
+      [rotate]="true"
+      [size]="'sm'"></ngb-pagination>
+  </div>
+</div>

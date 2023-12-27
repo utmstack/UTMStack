@@ -1,0 +1,22 @@
+@import "../../../../../../assets/styles/theme";
+@import "../../../../../../assets/styles/var";
+
+.report-header-container {
+  min-height: $navbar-primary-height;
+  width: 100% !important;
+  //background-color: $primary-color;
+
+  .text-header {
+    img {
+      width: 30px;
+      height: auto;
+      max-height: 50px;
+    }
+
+    span {
+      //color: #ffffff;
+      font-size: 15px !important;
+    }
+  }
+
+}

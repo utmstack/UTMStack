@@ -1,0 +1,33 @@
+@import "../../../../assets/styles/theme";
+@import "../../../../assets/styles/var";
+
+.not-found-container {
+  padding: 150px;
+
+  .card {
+    max-width: 335px;
+
+    img {
+      height: 140px;
+      width: 130px;
+    }
+  }
+
+  .not-found-msg {
+    span {
+      font-size: 100px !important;
+      color: $primary-color;
+      font-weight: 300;
+    }
+
+  }
+
+  .not-found-text {
+    flex-wrap: wrap;
+
+    h4, h5 {
+      color: $primary-color;
+      text-align: center;
+    }
+  }
+}

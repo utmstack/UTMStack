@@ -1,0 +1,41 @@
+.card {
+  height: 100%;
+  width: 100%;
+
+  .card-header {
+    span {
+      color: rgba(51, 51, 51, .85);
+      font-weight: 500;
+    }
+  }
+
+  .has-fixed-height {
+    height: 350px !important;
+  }
+}
+
+.chart-container {
+  position: relative;
+  float: left;
+  clear: both;
+}
+
+.utm-panel-chart {
+  position: relative;
+  display: inline-block;
+  -moz-column-break-inside: avoid;
+  column-break-inside: avoid;
+}
+
+
+@media print {
+  .utm-panel-chart, .chart-container {
+    overflow: hidden !important;
+  }
+}
+
+@media print {
+  .utm-panel-chart, .chart-container {
+    overflow: hidden !important;
+  }
+}

@@ -1,0 +1,26 @@
+@import "../../assets/styles/theme";
+@import "../../assets/styles/var";
+@import "../../assets/styles/custom-elements";
+
+.vul-container {
+  .tab-header {
+    .nav {
+      border-bottom: 1px solid $primary-color !important;
+
+      .nav-item {
+        .nav-link {
+          color: $primary-color;
+
+          &:hover {
+            border-color: $primary-color $primary-color #fff !important;
+          }
+        }
+
+        .active {
+          font-weight: 500;
+          border-color: $primary-color $primary-color #fff;
+        }
+      }
+    }
+  }
+}

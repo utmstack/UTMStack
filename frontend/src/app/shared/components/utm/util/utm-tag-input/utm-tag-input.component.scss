@@ -1,0 +1,14 @@
+.tag-container {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .bootstrap-tagsinput {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 5px !important;
+
+    .tag {
+      padding: 10px !important;
+    }
+  }
+}

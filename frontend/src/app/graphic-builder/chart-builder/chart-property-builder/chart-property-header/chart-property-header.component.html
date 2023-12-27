@@ -1,0 +1,16 @@
+<div class="header-property bg-white border-bottom-blue-800
+              d-flex justify-content-between align-items-center">
+  <div>
+    <span (click)="viewProperty(header.name)"
+          *ngFor="let header of headers"
+          [ngClass]="{'active-property':property===header.name}"
+          class="p-2 ml-1 text-blue-800">{{header.label}}</span>
+  </div>
+  <div *ngIf="confNotify" class="mr-2">
+    <i [ngClass]="confNotify.class + ' ' + confNotify.icon" [ngbTooltip]="confNotify.label"
+       class="cursor-pointer"
+       placement="bottom"
+       tooltipClass="utm-tooltip-bottom"></i>
+  </div>
+
+</div>

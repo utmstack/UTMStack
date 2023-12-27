@@ -1,0 +1,84 @@
+<div class="container-fluid dashboard-container pr-3 pl-3 pt-2">
+  <div *ngIf="!pdfExport" class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title label-header mb-0 text-uppercase label-header">Overview</h5>
+    <div class="header-elements d-flex justify-content-end align-items-center">
+      <app-elastic-filter-time [invertContent]="true"
+                               [isEmitter]="true"
+                               container="body"></app-elastic-filter-time>
+      <button (click)="exportToPdf()"
+              [disabled]="pdfExport" class="btn utm-button utm-button-primary ml-2">
+        <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+        {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+      </button>
+    </div>
+  </div>
+  <app-utm-report-header *ngIf="pdfExport" [reportName]="'UTMSTACK Overview'"></app-utm-report-header>
+  <div [ngClass]="{'mt-3':pdfExport}" id="utmDashboardAlert">
+    <div class="w-100 border-bottom-grey-100 border-bottom-1 mb-3 pb-2">
+      <label class="font-weight-bold text-uppercase">Alerts</label>
+    </div>
+    <div class="row">
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <app-chart-alert-daily-week [refreshInterval]="refreshInterval"></app-chart-alert-daily-week>
+      </div>
+      <div class="col-lg-8 col-md-12 col-sm-12">
+        <app-chart-alert-by-status [refreshInterval]="refreshInterval"></app-chart-alert-by-status>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-12 col-sm-12">
+        <app-chart-common-pie [colorsMap]="alertSeverityColorMap"
+                              [endpoint]="'count-alerts-by-severity'"
+                              [header]="'Alerts by severity'"
+                              [navigateUrl]="ALERT_ROUTE"
+                              [paramClick]="paramAlertSeverityCLick"
+                              [params]="paramsAlertSeverity"
+                              [refreshInterval]="refreshInterval"></app-chart-common-pie>
+      </div>
+      <div class="col-lg-5 col-md-12 col-sm-12">
+        <app-chart-alert-by-category [refreshInterval]="refreshInterval"></app-chart-alert-by-category>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <app-chart-common-table [endpoint]="'top-alerts'"
+                                [header]="'Top 20 Alerts'"
+                                [navigateUrl]="ALERT_ROUTE"
+                                [paramClick]="tableTopAlertsParamsClick"
+                                [params]="tableTopAlertsParams"
+                                [refreshInterval]="refreshInterval">
+        </app-chart-common-table>
+      </div>
+    </div>
+
+
+    <!--    EVENTS-->
+    <div class="w-100 border-bottom-grey-100 border-bottom-1 mb-3 pb-2">
+      <label class="font-weight-bold text-uppercase">Logx</label>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-12 col-sm-12">
+        <app-chart-common-pie [endpoint]="'count-events-by-type'"
+                              [header]="'Events by type'"
+                              [navigateUrl]="LOG_ANALYZER_ROUTE"
+                              [paramClick]="paramEventByTypeCLick"
+                              [params]="paramsEventByType"
+                              [refreshInterval]="refreshInterval"></app-chart-common-pie>
+      </div>
+      <div class="col-lg-5 col-md-12 col-sm-12">
+        <app-chart-event-in-time [refreshInterval]="refreshInterval"></app-chart-event-in-time>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <app-chart-common-table [endpoint]="'top-windows-events'"
+                                [header]="'Top 20 windows event'"
+                                [navigateUrl]="LOG_ANALYZER_ROUTE"
+                                [paramClick]="paramEvenTopCLick"
+                                [params]="paramsTopEvent"
+                                [refreshInterval]="refreshInterval">
+        </app-chart-common-table>
+      </div>
+    </div>
+
+
+  </div>
+</div>

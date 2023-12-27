@@ -1,0 +1,23 @@
+.health-warning {
+  //height: 45px;
+
+  .alert {
+    //border-color: #dc3545 !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+    font-size: .76rem;
+
+    &:after {
+      color: #856404 !important;
+    }
+  }
+}
+
+.card-health-warning{
+  max-width: 300px;
+  width: 300px;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 9999;
+}

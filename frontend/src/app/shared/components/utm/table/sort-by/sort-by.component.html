@@ -1,0 +1,24 @@
+<div class="list-icons d-flex align-items-center justify-content-center">
+  <span class="font-weight-bold">
+    <i [ngClass]="sort?'icon-sort-amount-desc':'icon-sort-amount-asc'"></i>&nbsp;
+  </span>
+  <div class="list-icons-item dropdown" ngbDropdown>
+    <span aria-expanded="false"
+          class="badge badge-flat status-container text-blue-800 cursor-pointer"
+          data-toggle="dropdown"
+          ngbDropdownToggle>
+      <span>{{label}}</span>
+
+    </span>
+    <div class="dropdown-menu animated fadeIn"
+         ngbDropdownMenu x-placement="top-start">
+      <a (click)="sortByFiled(field)" *ngFor="let field of fields"
+         class="dropdown-item text-blue-800">
+        {{field.fieldName}}
+        <!--        {{'alertStatus.inReview' | translate}}-->
+      </a>
+    </div>
+  </div>
+  <span (click)="changeSort()"
+        class="font-weight-bold text-blue-800 cursor-pointer">{{sort ? 'desc' : 'asc'}}</span>
+</div>

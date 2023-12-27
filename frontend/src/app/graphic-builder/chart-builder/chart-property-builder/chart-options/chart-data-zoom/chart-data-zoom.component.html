@@ -1,0 +1,140 @@
+<form [formGroup]="formDataZoom">
+  <div class="view-legend mb-2 d-flex align-items-center justify-content-between mt-3">
+    <div (click)="viewDataZoomProperties()" class="d-flex justify-content-start align-items-center cursor-pointer">
+              <span class="text-center ">
+                <i [ngClass]="viewDataZoom?'icon-arrow-up32':'icon-arrow-down32'"></i>
+              </span>&nbsp;
+      <span class="font-weight-bold">DataZoom</span>&nbsp;
+    </div>
+  </div>
+  <div *ngIf="viewDataZoom" class="properties-options">
+    <div class="mt-3">
+      <app-utm-toggle (toggleChange)="formDataZoom.get('show').setValue($event)" [active]="false"
+                      label="Show data zoom?">
+      </app-utm-toggle>
+    </div>
+    <div class="d-flex flex-column flex-grow-1 mt-3">
+      <label class="pb-1 font-weight-semibold" for="legendOrientation">
+        Legend orientation
+      </label>
+      <ng-select [clearable]="false"
+                 [groupBy]="'group'"
+                 [items]="orientation"
+                 [searchable]="true"
+                 bindLabel="agg"
+                 bindValue="agg"
+                 formControlName="orient"
+                 id="legendOrientation">
+      </ng-select>
+    </div>
+    <div class="row m-0 mt-3 p-0">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="form-group">
+          <label class="pb-1" for="start">Start</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="start"
+                 id="start"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+        <div class="form-group">
+          <label class="pb-1" for="end">End</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="end"
+                 id="end"
+                 name=""
+                 type="number">
+        </div>
+      </div>
+    </div>
+
+    <div class="row m-0 mt-3 p-0">
+      <div class="col-lg-6 col-md-12 col-sm-12 pl-0">
+        <div class="form-group">
+          <label class="pb-1" for="start">Height</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="height"
+                 id="height"
+                 name=""
+                 type="text">
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12 pr-0">
+        <div class="form-group">
+          <label class="pb-1" for="end">Width</label>
+          <input class="border-1 border-grey-600 form-control" formControlName="width"
+                 id="width"
+                 name=""
+                 type="text">
+        </div>
+      </div>
+    </div>
+
+    <!--    <div class="d-flex flex-column flex-grow-1 mt-3">-->
+    <!--      <label class="pb-1 font-weight-semibold" for="borderColor">-->
+    <!--        Border Color-->
+    <!--      </label>-->
+    <!--      <app-color-select id="borderColor"-->
+    <!--                        (colorChange)="formDataZoom.get('borderColor').setValue($event)"-->
+    <!--                        [color]="formDataZoom.get('borderColor').value"-->
+    <!--                        [multiple]="false">-->
+    <!--      </app-color-select>-->
+    <!--    </div>-->
+
+    <!--    <div class="d-flex flex-column flex-grow-1 mt-3">-->
+    <!--      <label class="pb-1 font-weight-semibold" for="fillerColor">-->
+    <!--        Filler Color-->
+    <!--      </label>-->
+    <!--      <app-color-select id="fillerColor"-->
+    <!--                        (colorChange)="formDataZoom.get('fillerColor').setValue($event)"-->
+    <!--                        [color]="formDataZoom.get('fillerColor').value"-->
+    <!--                        [multiple]="false">-->
+    <!--      </app-color-select>-->
+    <!--    </div>-->
+
+    <!--    <div class="d-flex flex-column flex-grow-1 mt-3" formGroupName="handleStyle">-->
+    <!--      <label class="pb-1 font-weight-semibold" for="handleStyle">-->
+    <!--        Filler Color-->
+    <!--      </label>-->
+    <!--      <app-color-select id="handleStyle"-->
+    <!--                        (colorChange)="formDataZoom.get(['handleStyle','color']).setValue($event)"-->
+    <!--                        [color]="formDataZoom.get(['handleStyle','color']).value"-->
+    <!--                        [multiple]="false">-->
+    <!--      </app-color-select>-->
+    <!--    </div>-->
+
+    <div class="top-grid d-flex justify-content-center align-items-center">
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="top">Top</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="top"
+               id="top"
+               name=""
+               type="text">
+      </div>
+    </div>
+    <div class="right-left-center d-flex align-items-center justify-content-between">
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="left">Left</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="left"
+               id="left"
+               name=""
+               type="text">
+      </div>
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="right">Right</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="right"
+               id="right"
+               name=""
+               type="text">
+      </div>
+    </div>
+    <div class="bottom-grid d-flex justify-content-center align-items-center">
+      <div class="form-group chart-grid">
+        <label class="pb-1" for="top">Bottom</label>
+        <input class="border-1 border-grey-600 form-control" formControlName="bottom"
+               id="bottom"
+               name=""
+               type="text">
+      </div>
+    </div>
+  </div>
+</form>

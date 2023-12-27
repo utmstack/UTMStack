@@ -1,0 +1,75 @@
+<div *ngIf="!printFormat" class="header-elements p-2 d-flex justify-content-between align-items-center">
+  <div>
+  <span *ngIf="preparingPrint" class="text-primary">
+    <i class="spinner icon-spinner2"></i> Loading content, please wait</span>
+  </div>
+  <div class="d-flex justify-content-end align-items-center">
+    <button (click)="print()"
+            *ngIf="!printFormat"
+            [disabled]="printFormat || preparingPrint"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="printFormat?'icon-download10':'icon-printer'" class="mr-1"></i>
+      {{printFormat ? 'Generating...' : 'Print'}}
+    </button>
+  </div>
+</div>
+<div class="d-flex justify-content-center align-items-start w-100 m-0 d-print-block">
+  <div class="compliance-front-page">
+    <div *ngIf="account" class="prepared print-front-align">
+      <h6 class="font-weight-semibold text-uppercase">Prepared by</h6>
+      <h5 class="mt-1">{{account.email}}</h5>
+      <div class="line-large"></div>
+    </div>
+
+    <div *ngIf="account" class="report-name print-front-align">
+      <h3 class="">{{dashboardName}}</h3>
+      <div class="line"></div>
+      <h5 class="mt-5 ">Generated on {{date | date:'short':'UTC'}}</h5>
+    </div>
+
+
+    <!--    <img class="img-front-page" src="/assets/img/report/A4_compliance.png">-->
+    <img [src]="sanitizer.bypassSecurityTrustUrl(cover)"
+         *ngIf="cover;else loadImage"
+         class="img-front-page"
+         alt="Login" data-loading="lazy">
+    <ng-template #loadImage>
+      <i class="icon-image4" style="font-size: 100px;opacity: 0.1"></i>
+    </ng-template>
+  </div>
+</div>
+
+<div [ngClass]="printFormat?'vis-container-print':'mt-4'" class="w-100">
+  <div *ngIf="dashboardDescription != ''" class="report-desc-container w-100 d-flex justify-content-center align-items-center flex-column">
+    <div class="report-description dashboard-info-container d-flex align-items-start w-100">
+      <p class="font-size-lg mb-3">{{dashboardDescription}}</p>
+    </div>
+  </div>
+  <div *ngIf="showFilters()" class="report-desc-container w-100 d-flex justify-content-center align-items-center flex-column">
+    <div class="utm-box mt-3 p-3 border-1 border-blue-800 position-relative w-100 mb-3 dashboard-info-container"
+         *ngIf="filterTime || showFilters()">
+     <span class="p-1 utm-box-label">
+      Dashboard filters
+     </span>
+      <div class="w-100 d-flex justify-content-start align-items-center mt-3" *ngIf="filterTime">
+        <span class="font-weight-semibold text-blue-800 mr-2"> Time:</span>
+        <span>{{filterTime.from | date:'short':'UTC'}}</span>
+        <span class="mx-2 font-weight-semibold">to</span>
+        <span>{{filterTime.to | date:'short':'UTC'}}</span>
+      </div>
+      <div class="w-100" *ngIf="showFilters()">
+        <div class="w-100 d-flex justify-content-start align-items-center mt-3"
+             *ngFor="let filter of dashboardFilters">
+          <span class="font-weight-semibold text-blue-800 mr-2"> {{filter.filterLabel +
+          (filter.multiple ? ' is one of' : ' is')}}:</span>
+          <span class="flex-wrap">{{getFilterValue(filter)}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <app-render-visualization-print [loadingVisualizations]="loadingVisualizations"
+                                  (visualizationLoaded)="onVisualizationLoaded()"
+                                  [visualizationRender]="visualizationRender"></app-render-visualization-print>
+</div>

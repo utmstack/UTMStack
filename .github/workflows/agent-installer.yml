@@ -1,0 +1,15 @@
+name: Agent Installer Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+    paths:
+      - 'agent/installer/**'
+
+jobs:
+  build:
+    uses: ./.github/workflows/agent-basic.yml
+    with:
+      binary: utmstack_agent_installer
+      directory: installer
+      branch: rc

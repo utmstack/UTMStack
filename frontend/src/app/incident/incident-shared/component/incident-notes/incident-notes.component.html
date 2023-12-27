@@ -1,0 +1,41 @@
+<div class="position-relative">
+  <div class="chat-messages p-4" *ngIf="notes.length>0 && !loading">
+    <div class=" pb-4" *ngFor="let note of notes"
+         [ngClass]="note.noteSendBy === account.login?'chat-message-right':'chat-message-left'">
+      <div class="flex-shrink-1 rounded py-2 px-3 mr-3"
+           [ngClass]="note.noteSendBy === account.login?'my-message':'bg-light'">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div class="font-weight-bold">{{note.noteSendBy === account.login ? 'You' : note.noteSendBy}}</div>
+          <div class="text-muted small text-nowrap ml-5"> {{note.noteSendDate | date: 'short'}}</div>
+        </div>
+        {{note.noteText}}
+      </div>
+    </div>
+  </div>
+
+  <div class="vh-75 d-flex justify-content-center align-items-center w-100 flex-column"
+       *ngIf="notes.length===0 && !loading;">
+    <i class="icon-bubbles10 text-muted mb-3" style="font-size: 60px"></i>
+    <h6 class="text-muted">No notes found</h6>
+  </div>
+
+  <div class="d-flex justify-content-center align-items-center w-100 flex-column vh-75" *ngIf="loading">
+    <app-utm-spinner [loading]="loading" label="Loading notes"></app-utm-spinner>
+  </div>
+</div>
+
+<div class="flex-grow-0 py-3 px-4 border-top">
+  <label>Note ({{1000 - noteText.length}})</label>
+  <textarea type="text" class="form-control" placeholder="Type your note"
+            [(ngModel)]="noteText"
+            rows="4"></textarea>
+  <div class="d-flex mt-3 justify-content-end align-items-center w-100">
+    <button class="btn utm-button utm-button-primary"
+
+            (click)="sendNote()"
+            [disabled]="!noteText || noteText === '' || noteText.length>1000">
+      <i class="icon-bubbles10 mr-1"></i>
+      Send note
+    </button>
+  </div>
+</div>

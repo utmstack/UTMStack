@@ -1,0 +1,1 @@
+export const DATA_LIMIT_RANGE = [50, 100, 200, 500, 1000, 2500];

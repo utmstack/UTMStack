@@ -1,0 +1,22 @@
+<div class="d-flex flex-column">
+  <div class="d-flex">
+    <div class="utm-menu-card-text">
+      <label>
+        {{menu.name}}
+      </label>
+    </div>
+    <div class="d-flex justify-content-end align-items-center utm-menu-card-action">
+      <i (click)="addSubmenu()"
+         class="icon-plus3 utm-menu-card-action-cursor-pointer icon-close"></i>
+      <i (click)="updateMenu()"
+         *ngIf="menu.type === 2"
+         [ngClass]="hide ? 'icon-close2 utm-menu-card-action-cursor-pointer' : 'icon-pencil3 utm-menu-card-action-cursor-pointer'"></i>
+      <i (click)="deleteMenu(menu.id)" *ngIf="menu.type === 2"
+         class="icon-cross2 utm-menu-card-action-cursor-pointer"></i>
+    </div>
+  </div>
+  <div *ngIf="hide" class="utm-menu-card-form">
+    <app-menu-create [btnText]="'Update menu'" [isCreate]="false" [level]="1" [menu]="menu"></app-menu-create>
+  </div>
+</div>
+

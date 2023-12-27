@@ -1,0 +1,79 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Health checks
+      <span class="ml-2 text-blue-800 cursor-pointer"
+            ngbTooltip="Service health of utm application"
+            placement="bottom"
+            tooltipClass="utm-tooltip-bottom">
+        <i class="icon-question3"></i>
+      </span>
+    </h6>
+    <button (click)="refresh()"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-reload-alt mr-2"></i> Refresh
+    </button>
+  </div>
+  <div class="card-body min-vh-80">
+    <div class="table-responsive mb-3 ">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase">Service Name</th>
+          <th class="text-center font-weight-semibold text-uppercase">Status</th>
+          <th class="text-center font-weight-semibold text-uppercase">Details</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let health of healthData" [hidden]="health.name.includes('elasticsearch')">
+          <td><span
+            class="text-capitalize text-blue-800">
+            {{ baseName(health.name) }}</span> {{subSystemName(health.name)}}</td>
+          <td class="text-center">
+                        <span [ngClass]="getBadgeClass(health.status)" class="badge">
+                            {{health.status === 'UP' ? 'Healthy' : 'Unhealthy'}}
+                        </span>
+          </td>
+          <td class="text-center">
+            <a (click)="showHealth(health)" *ngIf="health.details || health.error" class="cursor-pointer">
+              <i class="icon-eye"></i>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="updatingHealth">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading  health'"
+                               [loading]="updatingHealth"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h6 class="card-title mb-3 text-uppercase label-header">
+      Data engine health
+    </h6>
+    <div class="row m-0">
+      <div *ngFor="let node of clusterNodes" class="card col-lg-4 col-md-4 col-sm-12 mb-3">
+        <div class="card-header p-2 font-weight-semibold">
+          {{node.name}}
+        </div>
+        <div class="card-body p-2">
+          <app-elastic-metric-health [clusterHealth]="node"></app-elastic-metric-health>
+        </div>
+      </div>
+    </div>
+
+    <h6 class="card-title mb-3 mt-3 text-uppercase label-header">
+      Panel metrics
+    </h6>
+    <app-app-metrics></app-app-metrics>
+  </div>
+</div>
