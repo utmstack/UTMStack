@@ -1,10 +1,8 @@
 name: Installer QA
 
 on:
-  push:
-    branches: [ "qa" ]
   workflow_run:
-    workflows: ["Web PDF QA", "User Auditor QA", "Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
+    workflows: ["Frontend QA", "Backend QA", "User Auditor QA", "Web PDF QA", "Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
     types:
       - completed
 

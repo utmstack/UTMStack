@@ -1,4 +1,4 @@
-name: Backend - QA
+name: Backend QA
 on:
   push:
     branches: [ "qa" ]
