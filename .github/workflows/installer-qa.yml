@@ -1,8 +1,8 @@
 name: Installer QA
 
 on:
-  pull_request:
-    branches: [ 'rc' ]
+  push:
+    branches: [ "qa" ]
   workflow_run:
     workflows: ["Web PDF QA", "User Auditor QA", "Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
     types:
@@ -16,7 +16,7 @@ jobs:
     - name: Check out code into the right branch
       uses: actions/checkout@v4
       with:
-        ref: main
+        ref: qa
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v4

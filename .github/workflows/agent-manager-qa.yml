@@ -1,8 +1,8 @@
 name: Agent Manager QA
 
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'agent-manager/**'
 
@@ -14,4 +14,4 @@ jobs:
       environment: v10-qa
       directory: agent-manager
       binary: server
-      branch: main
+      branch: qa
