@@ -41,28 +41,45 @@ export class AlertApplyIncidentComponent implements OnInit {
     }
   }
 
-
-  createIncident() {
-    const modal = this.modalService.open(CreateIncidentComponent, {size: 'lg', backdrop: 'static', centered: true});
+  checkAlerts() {
     if (this.multiple && this.alerts && this.alerts.length > 0) {
-      modal.componentInstance.alerts = this.alerts;
+      const nonIncidentAlerts = this.alerts.filter(({ isIncident }) => !isIncident);
+      if (nonIncidentAlerts.length > 0) {
+        return nonIncidentAlerts;
+      } else {
+        this.utmToastService.showError(this.alerts && this.alerts.length > 1 ? 'Alerts associated with incident'
+            : 'Alert associated with incident',
+          this.alerts && this.alerts.length > 1 ? 'The selected alerts are associated with an incident.'
+            : 'The selected alert is associated with an incident.');
+        return [];
+      }
     } else {
-      modal.componentInstance.alerts = [this.alert];
+      return [this.alert];
     }
-    modal.componentInstance.incidentAdded.subscribe((incident) => {
-      this.markAsIncident.emit(incident.id.toString());
-    });
   }
 
   addToIncident() {
-    const modal = this.modalService.open(AddAlertToIncidentComponent, {size: 'lg', backdrop: 'static', centered: true});
-    if (this.multiple && this.alerts && this.alerts.length > 0) {
-      modal.componentInstance.alerts = this.alerts;
-    } else {
-      modal.componentInstance.alerts = [this.alert];
+    const alerts = this.checkAlerts();
+    if (alerts.length > 0) {
+      const modal = this.modalService.open(AddAlertToIncidentComponent, {size: 'lg', backdrop: 'static', centered: true});
+      modal.componentInstance.alerts = alerts;
+
+      modal.componentInstance.incidentAdded.subscribe((incident) => {
+        this.markAsIncident.emit(incident.id.toString());
+      });
     }
-    modal.componentInstance.incidentAdded.subscribe((incident) => {
-      this.markAsIncident.emit(incident.id.toString());
-    });
   }
+
+  createIncident() {
+    const alerts = this.checkAlerts();
+    if (alerts.length > 0) {
+      const modal = this.modalService.open(CreateIncidentComponent, {size: 'lg', backdrop: 'static', centered: true});
+      modal.componentInstance.alerts = alerts;
+
+      modal.componentInstance.incidentAdded.subscribe((incident) => {
+        this.markAsIncident.emit(incident.id.toString());
+      });
+    }
+  }
+
 }
