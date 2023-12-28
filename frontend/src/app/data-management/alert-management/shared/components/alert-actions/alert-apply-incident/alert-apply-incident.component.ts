@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
 import {
   AddAlertToIncidentComponent
 } from '../../../../../../incident/incident-shared/component/add-alert-to-incident/add-alert-to-incident.component';
@@ -24,6 +24,8 @@ export class AlertApplyIncidentComponent implements OnInit {
   @Input() multiple = false;
   @Input() eventType: EventDataTypeEnum;
   @Output() markAsIncident = new EventEmitter<string>();
+  @ViewChild('incidentPopoverSpan') incidentPopoverSpan: NgbPopover;
+  @ViewChild('incidentPopoverButton') incidentPopoverButton: NgbPopover;
   creating: any;
   isIncident: boolean;
   incidentName: string;
@@ -79,6 +81,16 @@ export class AlertApplyIncidentComponent implements OnInit {
       modal.componentInstance.incidentAdded.subscribe((incident) => {
         this.markAsIncident.emit(incident.id.toString());
       });
+    }
+  }
+
+  closePopover() {
+    if (this.incidentPopoverSpan) {
+      this.incidentPopoverSpan.close();
+    }
+
+    if (this.incidentPopoverButton) {
+      this.incidentPopoverButton.close();
     }
   }
 
