@@ -1,8 +1,8 @@
 name: Frontend QA
 
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'frontend/**'
 
@@ -13,4 +13,4 @@ jobs:
       image_name: frontend
       environment: v10-qa
       directory: frontend
-      branch: main
+      branch: qa

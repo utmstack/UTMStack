@@ -7,5 +7,5 @@ HEALTHCHECK --start-period=120s --interval=60s --timeout=60s \
   CMD curl --insecure -I -f http://localhost/health && curl --insecure -I -f http://localhost/api/ping || exit 1
 
 EXPOSE 80
-CMD ["/bin/sh",  "-c", "exec nginx -g 'daemon off;'"]
 
+CMD ["/bin/sh",  "-c", "exec nginx -g 'daemon off;'"]

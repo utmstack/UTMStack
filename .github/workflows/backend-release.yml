@@ -1,9 +1,10 @@
-name: Backend - RELEASE
+name: Backend Release
 on:
   push:
     tags: [ 'v*' ]
     paths:
       - 'backend/**'
+      - 'version.yml'
 
 jobs:
   docker:

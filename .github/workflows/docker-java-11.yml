@@ -28,12 +28,20 @@ jobs:
         with:
           java-version: "11"
           distribution: "temurin"
+          
+      - name: Read version from config
+        id: read_version
+        uses: CumulusDS/get-yaml-paths-action@v1.0.1
+        with:
+          file: version.yml
+          version: version     
 
       - name: Build with Maven
         working-directory: ./${{inputs.directory}}
         run: |
           echo "Building with maven"
-          mvn clean install -U -s settings.xml
+          echo "The configured version is: ${{steps.read_version.outputs.version}}"
+          mvn -B -Drevision=${{steps.read_version.outputs.version}} -Pprod clean package -s settings.xml
         env:
           MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
 

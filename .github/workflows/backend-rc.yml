@@ -1,9 +1,10 @@
-name: Backend - RC
+name: Backend RC
 on:
   push:
     branches: [ "rc" ]
     paths:
       - 'backend/**'
+      - 'version.yml'
 
 jobs:
   docker:

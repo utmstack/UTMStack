@@ -1,8 +1,8 @@
 name: Bitdefender QA
 
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'bdgz/**'
 
@@ -14,4 +14,4 @@ jobs:
       environment: v10-qa
       directory: bdgz
       binary: bdgz_integration
-      branch: main
+      branch: qa

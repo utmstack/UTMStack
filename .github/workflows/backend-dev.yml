@@ -1,9 +1,10 @@
-name: Backend - DEV
+name: Backend Dev
 on:
   push:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - 'version.yml'
 
 jobs:
   docker:
