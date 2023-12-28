@@ -5,5 +5,6 @@ export class ActiveDirectoryTreeType {
   isAdmin?: boolean;
   objectSid?: string;
   parentId?: string;
+  indexPattern?: string;
   children?: ActiveDirectoryTreeType[];
 }
