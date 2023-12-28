@@ -1,7 +1,7 @@
 <div class="card h-100 add-tree-container">
   <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
     <label class="card-title">Directory</label>
-    <div class="header-icons">
+    <!--<div class="header-icons">
       <i (click)="toggleCheck()" [ngClass]="check?'icon-checkbox-checked':'icon-checkbox-unchecked'"
          class="mr-2"
          ngbTooltip="Select objects"
@@ -17,24 +17,24 @@
          ngbTooltip="Download report"
          placement="left"
          tooltipClass="utm-tooltip"></i>
-    </div>
+    </div>-->
   </div>
   <div class="w-100 h-100 p-1 ad-container">
     <app-utm-search-input (searchFor)="searchInTree($event)"
-                          *ngIf="tree.length>0"
+                          *ngIf="tree && tree.length>0"
                           [searching]="searching"
                           placeholder="Search"></app-utm-search-input>
     <div *ngIf="tree.length===0" class="loading-tree pt-5">
       <app-utm-spinner [height]="'35px'"
                        [label]="'Loading tree'"
-                       [loading]="tree.length===0"
+                       [loading]="loading"
                        [width]="'35px'">
       </app-utm-spinner>
     </div>
     <div *ngIf="noDataFound" class="w-100 d-flex justify-content-center align-items-center">
       <app-no-data-found [padding]="'p-5'" [size]="'sm'"></app-no-data-found>
     </div>
-    <ul *ngIf="tree.length>0 && !noDataFound" class="mt-1">
+    <ul *ngIf="tree.length > 0 && !noDataFound" class="mt-1">
       <ng-template #treeView let-treeItems>
         <li *ngFor="let item of treeItems;let index = index" class="p-1 pl-4">
           <span (click)="deploy(item)"
@@ -45,7 +45,7 @@
                       [ngClass]="isSelected(item)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
                       class="mr-2 font-size-sm cursor-pointer">
                    </i>
-                   <i [ngClass]="deployed.includes(item.name)?'icon-arrow-up32':'icon-arrow-down32'"
+                   <i [ngClass]="deployed.includes(item.id)?'icon-arrow-up32':'icon-arrow-down32'"
                       class="font-size-sm"></i>
                    <i class="font-size-sm ml-2 icon-folder4"></i>&nbsp;
             <!--            {{item.name | highlight:search}}-->

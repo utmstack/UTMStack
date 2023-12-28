@@ -2,12 +2,15 @@ import {AfterViewChecked, ChangeDetectorRef, Component, OnInit} from '@angular/c
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
+import {Observable} from 'rxjs';
+import {tap} from 'rxjs/operators';
 import {AdReportCreateComponent} from '../../reports/ad-report-create/ad-report-create.component';
 import {TreeObjectBehavior} from '../../shared/behavior/tree-object.behvior';
 import {resolveType} from '../../shared/functions/ad-util.function';
 import {ActiveDirectoryService} from '../../shared/services/active-directory.service';
-import {ActiveDirectoryType} from '../../shared/types/active-directory.type';
+import {ActiveDirectoryUsers} from '../../shared/types/active-directory-users';
 import {AdTrackerCreateComponent} from '../../tracker/ad-tracker-create/ad-tracker-create.component';
+import {ActiveDirectoryTreeType} from "../../shared/types/active-directory-tree.type";
 
 @Component({
   selector: 'app-active-directory-view',
@@ -15,13 +18,15 @@ import {AdTrackerCreateComponent} from '../../tracker/ad-tracker-create/ad-track
   styleUrls: ['./active-directory-view.component.scss']
 })
 export class AdViewComponent implements OnInit, AfterViewChecked {
-  object: string;
+  object: ActiveDirectoryTreeType;
   view = 'detail';
-  adInfo: ActiveDirectoryType;
+  adInfo: any;
+  adInfo$: Observable<any>;
   treeWidth = '290px';
   detailWidth: string;
   pageWidth = window.innerWidth;
   treeHeight = window.innerHeight - 50;
+  showPanel = true;
 
   constructor(private router: Router,
               private activeDirectoryService: ActiveDirectoryService,
@@ -32,9 +37,12 @@ export class AdViewComponent implements OnInit, AfterViewChecked {
 
   ngOnInit() {
     this.detailWidth = (this.pageWidth - 430) + 'px';
-    this.treeObjectBehavior.$objectId.subscribe(id => {
-      this.object = id;
-      this.getInfo();
+    this.treeObjectBehavior.userSelected().subscribe(object => {
+      if (object) {
+        this.object = object;
+        this.showPanel = false;
+        // this.adInfo$ = this.getInfo();
+      }
     });
   }
 
@@ -42,22 +50,38 @@ export class AdViewComponent implements OnInit, AfterViewChecked {
     this.cdr.detectChanges();
   }
 
-  objectSelected($event: string) {
+  objectSelected($event: ActiveDirectoryTreeType) {
     this.object = $event;
   }
 
-  getInfo() {
+  /*getInfo() {
     const req = {
-      'objectSid.equals': this.object,
-      page: 1,
-      size: 50
+      indexPattern: this.object.source.indexPattern,
+      top: 10000,
+      sid: this.object.sid,
     };
-    this.activeDirectoryService.query(req).subscribe(object => {
-      if (object.body) {
-        this.adInfo = object.body[0];
-      }
-    });
-  }
+    return this.activeDirectoryService.queryUser(req, `api/utm-auditor-user-sid`)
+      .pipe(
+        tap(object => {
+          if (object.body) {
+            this.adInfo = this.object;
+          }
+        })
+      );
+  }*/
+
+  /*getInfo() {
+     const req = {
+       'objectSid.equals': this.object,
+       page: 1,
+       size: 50
+     };
+     this.activeDirectoryService.query(req).subscribe(object => {
+       if (object.body) {
+         this.adInfo = object.body[0];
+       }
+     });
+   }*/
 
   addToTracking() {
     const modalAddTracking = this.modalService.open(AdTrackerCreateComponent, {centered: true});

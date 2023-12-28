@@ -7,6 +7,7 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TreeObjectBehavior} from '../../behavior/tree-object.behvior';
 import {WinlogbeatService} from '../../services/winlogbeat.service';
+import {ActiveDirectoryTreeType} from "../../types/active-directory-tree.type";
 import {WinlogbeatEventType} from '../../types/winlogbeat-event.type';
 
 @Component({
@@ -18,7 +19,7 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   @Input() events: string[];
   @Input() time: TimeFilterType;
   @Output() eventChange = new EventEmitter<WinlogbeatEventType>();
-  objectId: string;
+  objectId: ActiveDirectoryTreeType;
   sevenDaysRange: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   items: WinlogbeatEventType[] = [];
   loadingMore = false;
@@ -37,11 +38,11 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.treeObjectBehavior.$objectId.subscribe(id => {
+    this.treeObjectBehavior.userSelected().subscribe(user => {
       this.eventChange.emit(null);
       this.itemSelected = '';
-      if (this.objectId !== '') {
-        this.objectId = id;
+      if (user) {
+        this.objectId = user;
         this.items = [];
         this.page = 1;
         this.getEvents();
@@ -50,25 +51,28 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   }
 
   getEvents() {
-    const req = {
-      page: this.page,
-      size: this.itemsPerPage,
-      sort: 'timestamp,desc',
-      'objectSid.equals': this.objectId,
-      'timestamp.greaterThanOrEqual': this.filterTime.timeFrom,
-      'timestamp.lessThanOrEqual': this.filterTime.timeTo,
-      'eventId.in': this.events ? this.events.toString() : undefined
-    };
-    this.winlogbeatService.query(req).subscribe(response => {
-      this.loadingMore = false;
-      this.loading = false;
-      if (response.body === null || response.body.length === 0) {
-        this.eventChange.emit(null);
-      } else {
-        this.items = response.body;
-        this.totalItems = Number(response.headers.get('X-Total-Count'));
-      }
-    });
+    if(this.filterTime){
+      const req = {
+        page: this.page,
+        size: this.itemsPerPage,
+        sort: '@timestamp,desc',
+        sid: this.objectId.objectSid,
+        indexPattern: this.objectId.indexPattern,
+        from: this.filterTime.timeFrom,
+        to: this.filterTime.timeTo,
+        'eventId.in': this.events ? this.events.toString() : undefined
+      };
+      this.winlogbeatService.query(req).subscribe(response => {
+        this.loadingMore = false;
+        this.loading = false;
+        if (response.body === null || response.body.length === 0) {
+          this.eventChange.emit(null);
+        } else {
+          this.items = response.body;
+          this.totalItems = Number(response.headers.get('X-Total-Count'));
+        }
+      });
+    }
   }
 
   ngAfterViewInit() {

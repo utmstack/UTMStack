@@ -10,7 +10,8 @@ import {ActiveDirectoryType} from '../../types/active-directory.type';
   styleUrls: ['./active-directory-detail.component.scss']
 })
 export class AdDetailComponent implements OnInit {
-  @Input() adInfo: ActiveDirectoryType;
+  @Input() adInfo: any;
+  @Input() user: any;
   formatDateEnum = UtmDateFormatEnum;
   totalItems: number;
   page = 1;
