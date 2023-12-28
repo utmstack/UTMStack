@@ -23,8 +23,6 @@ import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/ela
 import {IndexPatternService} from '../../shared/services/elasticsearch/index-pattern.service';
 import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-value.type';
-import {ActivatedRoute} from "@angular/router";
-import {LoginService} from "../../core/login/login.service";
 
 @Component({
   selector: 'app-dashboard-overview',
@@ -82,8 +80,6 @@ export class DashboardOverviewComponent implements OnInit {
               private localFieldService: LocalFieldService,
               private indexPatternService: IndexPatternService,
               private indexPatternFieldService: ElasticSearchIndexService,
-              private activatedRoute: ActivatedRoute,
-              private loginService: LoginService,
               private accountService: AccountService,
               private modalService: NgbModal) {
   }
@@ -110,6 +106,7 @@ export class DashboardOverviewComponent implements OnInit {
      * END
      */
 
+    this.getDailyAlert();
 
     /**
      * Show activate modules modal on constructor
@@ -120,16 +117,6 @@ export class DashboardOverviewComponent implements OnInit {
     //     const modal = this.modalService.open(AppModuleActivateModalComponent, {centered: true});
     //   }
     // });
-
-   /* this.activatedRoute.queryParams.subscribe(params => {
-      const queryParams = Object.entries(params).length > 0 ? params : null;
-      if (queryParams.token) {
-        this.loginService.loginWithKey(queryParams.token, false);
-      }
-      this.getDailyAlert();
-    });*/
-
-    this.getDailyAlert();
 
     setTimeout(() => {
       this.synchronizeFields();
@@ -146,8 +133,7 @@ export class DashboardOverviewComponent implements OnInit {
     this.overviewAlertDashboardService.getCardAlertTodayWeek().subscribe(response => {
       this.dailyAlert = response.body;
       this.loadingChartDailyAlert = false;
-    },
-      error => console.log(error));
+    });
   }
 
   exportToPdf() {

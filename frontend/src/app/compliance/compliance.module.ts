@@ -18,12 +18,6 @@ import {ComplianceRoutingModule} from './compliance-routing.module';
 import {ComplianceResultParamsComponent} from './compliance-templates/compliance-result-params/compliance-result-params.component';
 import {ComplianceTemplatesComponent} from './compliance-templates/compliance-templates.component';
 import {ComplianceSharedModule} from './shared/compliance-shared.module';
-import {ComplianceScheduleComponent} from "./compliance-schedule/compliance-schedule.component";
-import {
-  DashboardFilterCreateComponent
-} from "../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component";
-import {DashboardBuilderModule} from "../graphic-builder/dashboard-builder/dashboard-builder.module";
-import {AlertManagementSharedModule} from "../data-management/alert-management/shared/alert-management-shared.module";
 
 @NgModule({
   declarations: [
@@ -31,31 +25,27 @@ import {AlertManagementSharedModule} from "../data-management/alert-management/s
     ComplianceTemplatesComponent,
     ComplianceResultParamsComponent,
     ComplianceCustomViewComponent,
-    ComplianceScheduleComponent
   ],
-    imports: [
-        CommonModule,
-        ComplianceRoutingModule,
-        RouterModule,
-        UtmSharedModule,
-        InfiniteScrollModule,
-        NgSelectModule,
-        FormsModule,
-        LogAnalyzerModule,
-        NgbModule,
-        VisualizationSharedModule,
-        GraphicBuilderSharedModule,
-        ComplianceManagementModule,
-        ComplianceSharedModule,
-        UtmDashboardSharedModule,
-        DashboardBuilderModule,
-        NgbCollapseModule,
-        AlertManagementSharedModule
-    ],
+  imports: [
+    CommonModule,
+    ComplianceRoutingModule,
+    RouterModule,
+    UtmSharedModule,
+    InfiniteScrollModule,
+    NgSelectModule,
+    FormsModule,
+    LogAnalyzerModule,
+    NgbModule,
+    VisualizationSharedModule,
+    GraphicBuilderSharedModule,
+    ComplianceManagementModule,
+    ComplianceSharedModule,
+    UtmDashboardSharedModule,
+    NgbCollapseModule
+  ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [
-    ComplianceResultParamsComponent,
-    DashboardFilterCreateComponent],
+    ComplianceResultParamsComponent],
   exports: []
 })
 export class ComplianceModule {
