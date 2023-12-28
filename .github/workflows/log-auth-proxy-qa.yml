@@ -1,8 +1,8 @@
 name: Log Auth Proxy QA
 
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'log-auth-proxy/**'
 
@@ -14,4 +14,4 @@ jobs:
       environment: v10-qa
       directory: log-auth-proxy
       binary: server
-      branch: main
+      branch: qa

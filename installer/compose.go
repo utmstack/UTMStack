@@ -484,7 +484,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["socai"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/soc-ai:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",

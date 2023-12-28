@@ -1,4 +1,4 @@
-name: Backend - RELEASE
+name: Backend Release
 on:
   push:
     tags: [ 'v*' ]

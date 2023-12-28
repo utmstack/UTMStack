@@ -147,7 +147,7 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
     this.setVisFilter().then(() => {
       this.spinner.hide('buildPrint').then(() => {
         this.preparingPrint = false;
-        // this.print();
+        this.print();
       });
     });
   }
