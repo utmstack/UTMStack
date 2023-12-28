@@ -24,4 +24,6 @@
 
     <include file="config/liquibase/changelog/20231129001_updating_mikrotik_filter.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20231215001_updating_azure_filter.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
