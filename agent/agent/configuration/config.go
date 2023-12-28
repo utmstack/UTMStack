@@ -50,6 +50,9 @@ func GetCurrentConfig() (*Config, error) {
 			errR = fmt.Errorf("failed to get current path: %v", err)
 			return
 		}
+
+		uuidExists := utils.CheckIfPathExist(filepath.Join(path, UUIDFileName))
+
 		var encryptConfig Config
 		if err = utils.ReadYAML(filepath.Join(path, "config.yml"), &encryptConfig); err != nil {
 			errR = fmt.Errorf("error reading config file: %v", err)
@@ -58,7 +61,7 @@ func GetCurrentConfig() (*Config, error) {
 
 		// Get key
 		var key []byte
-		if utils.CheckIfPathExist(filepath.Join(path, UUIDFileName)) {
+		if uuidExists {
 			uuid, err := GetUUID()
 			if err != nil {
 				errR = fmt.Errorf("failed to get uuid: %v", err)
@@ -90,6 +93,12 @@ func GetCurrentConfig() (*Config, error) {
 		cnf.AgentKey = agentKey
 		cnf.SkipCertValidation = encryptConfig.SkipCertValidation
 
+		if !uuidExists {
+			if err := SaveConfig(&cnf); err != nil {
+				errR = fmt.Errorf("error writing config file: %v", err)
+				return
+			}
+		}
 	})
 	if errR != nil {
 		return nil, errR
