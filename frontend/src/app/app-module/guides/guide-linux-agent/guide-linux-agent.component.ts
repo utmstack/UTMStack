@@ -49,8 +49,13 @@ export class GuideLinuxAgentComponent implements OnInit {
       `/opt/utmstack-linux-agent/utmstack_agent_installer && sudo /opt/utmstack-linux-agent/utmstack_agent_installer install ` + ip  + ` <secret>` + this.token + `</secret> yes`;
   }
   getUninstallCommand(): string {
-    return `sudo /opt/utmstack-linux-agent/utmstack_agent_installer uninstall && echo "Removing UTMStack Agent dependencies..." ` +
-      `&& sleep 10 && sudo rm -rf "/opt/utmstack-linux-agent" && echo "UTMStack Agent dependencies removed successfully."`;
+    return `sudo /opt/utmstack-linux-agent/utmstack_agent_installer uninstall || true; sudo systemctl stop UTMStackAgent || true; ` +
+    `sudo systemctl disable UTMStackAgent || true; sudo rm /etc/systemd/system/UTMStackAgent.service || true; sudo systemctl stop UTMStackRedline || true; ` +
+    `sudo systemctl disable UTMStackRedline || true; sudo rm /etc/systemd/system/UTMStackRedline.service || true; ` +
+    `sudo systemctl stop UTMStackUpdater || true; sudo systemctl disable UTMStackUpdater || true; ` +
+    `sudo rm /etc/systemd/system/UTMStackUpdater.service || true; sudo systemctl stop UTMStackModulesLogsCollector || true; ` +
+    `sudo systemctl disable UTMStackModulesLogsCollector || true; sudo rm /etc/systemd/system/UTMStackModulesLogsCollector.service || true; ` +
+    `sudo systemctl daemon-reload || true; echo "Removing UTMStack Agent dependencies..." ` +
+    `&& sleep 10 && sudo rm -rf "/opt/utmstack-linux-agent" && echo "UTMStack Agent dependencies removed successfully."`;
   }
-
 }
