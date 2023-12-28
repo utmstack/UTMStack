@@ -7,7 +7,7 @@ import {ACTIVE_DIRECTORY_SIZE} from '../../const/active-directory-index-const';
 import {getTreeIcon, resolveType} from '../../functions/ad-util.function';
 import {ActiveDirectoryService} from '../../services/active-directory.service';
 import {ActiveDirectoryTreeType} from '../../types/active-directory-tree.type';
-import {ActiveDirectoryUsers} from '../../types/active-directory-users';
+import {ActiveDirectoryType} from '../../types/active-directory.type';
 import {arrayToTree, TreeItem} from './shared/functions/array-to-tree.function';
 
 
@@ -25,12 +25,10 @@ export class AdTreeComponent implements OnInit {
   deployed: string[] = [];
   deployedBeforeSearch: string[] = [];
   @Output() selected = new EventEmitter<string>();
-  itemView = '';
+  itemView: string;
   searching = false;
-  loading = true;
   noDataFound: boolean;
   search: string;
-  users: ActiveDirectoryUsers[] = [];
 
   constructor(private activeDirectoryService: ActiveDirectoryService,
               private modalService: NgbModal,
@@ -38,77 +36,58 @@ export class AdTreeComponent implements OnInit {
   }
 
   ngOnInit() {
+    // reset objectId
+    this.treeObjectBehavior.$objectId.next(null);
     this.getAllInfo();
   }
 
-getAllInfo() {
+  getAllInfo() {
     const req = {
-      sourceId: 1,
-      page: 0,
-      size: ACTIVE_DIRECTORY_SIZE
+      page: 1,
+      size: ACTIVE_DIRECTORY_SIZE,
+      // 'objectClass.specified': true,
     };
     this.activeDirectoryService.query(req).subscribe(data => {
       this.searching = false;
-      this.loading = false;
       if (data.body) {
         this.noDataFound = false;
         this.buildTree(data.body).then(temArr => {
           this.tree = arrayToTree(temArr,
             {parentId: 'parentId', id: 'id', dataField: null});
-          this.tree = this.tree.filter( t => t.children.length > 0);
-          console.log('TREE:', this.tree);
         });
       } else {
         this.noDataFound = true;
       }
-    }, error => {
-        this.loading = false;
-        this.noDataFound = false;
-        this.users = [];
     });
   }
 
-  buildTree(activeDirectory: ActiveDirectoryUsers[]): Promise<ActiveDirectoryTreeType[]> {
+  buildTree(activeDirectory: ActiveDirectoryType[]): Promise<ActiveDirectoryTreeType[]> {
     return new Promise<ActiveDirectoryTreeType[]>(resolve => {
-      activeDirectory.unshift({
-        id: 'Users',
-        sid: null,
-        createdDate: null,
-        modifiedDate: null,
-        source: null,
-        name: 'Users'
-      });
-      activeDirectory.unshift({
-        id: 'Workstations',
-        sid: null,
-        createdDate: null,
-        modifiedDate: null,
-        source: null,
-        name: 'Workstations'
-      });
-      const arr: ActiveDirectoryTreeType[] = activeDirectory.reduce((group: any, value: any, currentIndex) => {
-        const name = value.name;
-        const existingGroup = group.find((group: any) => (name.startsWith('WS') && group.name === 'Workstations') ||  (group.name === 'Users'));
-        if (group.length  > 0 && existingGroup) {
-          group.push({
-            parentId: name.startsWith('WS') ? 'Workstations-0' : 'Users-1',
-            name,
-            objectSid: value.sid,
-            id: name + '-' + currentIndex,
-            type: name.startsWith('WS') ? 'COMPUTER' : 'USER',
-            indexPattern: value.source.indexPattern
-          });
-        } else {
-          group.push({
-            id: name + '-' + currentIndex,
-            parentId: null,
-            name,
-            type: 'GROUP'
-          });
+      const arr: ActiveDirectoryTreeType[] = [];
+      for (const ad of activeDirectory) {
+        // tslint:disable-next-line:variable-name
+        if (Object(ad).hasOwnProperty('distinguishedName') && ad.distinguishedName) {
+          const path = ad.distinguishedName.split(',').reverse();
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < path.length; i++) {
+            const nodeName = path[i].substring(3, path[i].length);
+            const parentName = path[i - 1] ? path[i - 1]
+              .substring(3, path[i - 1].length) + '-' + (i - 1) : null;
+            const node = {
+              parentId: parentName,
+              name: nodeName,
+              objectSid: ad.objectSid,
+              id: nodeName + '-' + i,
+              type: resolveType(ad.objectClass),
+              isAdmin: ad.adminCount !== null,
+              // children: []
+            };
+            if (arr.findIndex(value => value.parentId === node.parentId && value.id === node.id) === -1) {
+              arr.push(node);
+            }
+          }
         }
-
-        return group;
-      }, []);
+      }
       resolve(arr);
     });
   }
@@ -171,7 +150,7 @@ getAllInfo() {
     if (item.children.length === 0) {
       this.itemView = item.id;
       this.selected.emit(item.objectSid);
-      this.treeObjectBehavior.changeUser(item);
+      this.treeObjectBehavior.$objectId.next(item.objectSid);
     }
   }
 
@@ -213,18 +192,28 @@ getAllInfo() {
   }
 
   filterAdByCn(cn: string) {
-    const data = this.filterByName(cn);
-    if (data.length > 0) {
+    const req = {
+      page: 1,
+      size: ACTIVE_DIRECTORY_SIZE,
+      // 'cn.contains': cn,
+      'displayName.contains': cn
+    };
+    this.activeDirectoryService.query(req).subscribe(data => {
+      if (data.body) {
         this.noDataFound = false;
-        this.searching = false;
-        this.tree = data;
-        for (const node of this.tree) {
+        this.buildTree(data.body).then(temArr => {
+          this.searching = false;
+          this.tree = arrayToTree(temArr,
+            {parentId: 'parentId', id: 'id', dataField: null});
+          for (const node of this.tree) {
             this.deployAll(node);
           }
+        });
       } else {
         this.searching = false;
         this.noDataFound = true;
       }
+    });
   }
 
   // deploy all children in tree when search
@@ -239,17 +228,6 @@ getAllInfo() {
         this.deployAll(it);
       }
     }
-  }
-
-   filterByName(partialName: string) {
-    return this.tree.filter(item => {
-      if ( item.name.toLowerCase().includes(partialName.toLowerCase()) ||
-          (item.children && item.children.some(child => child.name.toLowerCase().includes(partialName.toLowerCase())))
-      ) {
-        return true;
-      }
-      return false;
-    });
   }
 
 

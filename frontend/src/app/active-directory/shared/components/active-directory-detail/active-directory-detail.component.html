@@ -1,18 +1,10 @@
-<div class="container-fluid pr-2 pl-2 pt-2 h-100">
-  <div *ngIf="!user"
+<div class="container-fluid pr-2 pl-2 pt-2">
+  <div *ngIf="!adInfo"
        class="no-object-selected d-flex flex-column align-items-center justify-content-center">
     <app-no-data-found></app-no-data-found>
   </div>
-  <div *ngIf="user">
+  <div *ngIf="adInfo">
     <div class="d-flex justify-content-start align-items-start flex-wrap">
-      <div *ngFor="let attribute of user.attributes" class="reverse m-3 d-flex">
-        <span style="white-space: nowrap;" class="font-weight-bold">{{ attribute.attributeKey+': ' }}</span>
-        <span class="username">
-            {{ attribute.attributeValue ? attribute.attributeValue : '-'}}
-           </span>
-      </div>
-    </div>
-    <!--<div class="d-flex justify-content-start align-items-start flex-wrap">
       <div class="reverse m-3 d-flex">
         <span class="font-weight-bold">SAM Account Name:&nbsp;</span>
         <span class="">
@@ -85,7 +77,7 @@
           {{adInfo.operatingSystem}}
         </span>
       </div>
-    </div>-->
+    </div>
     <div *ngIf="adInfo.memberOf"
          class="email-box utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
           <span class="p-1 utm-box-label">
@@ -115,7 +107,6 @@
       <app-ad-folder-list *ngIf="adInfo.localFolders" [folders]="adInfo.localFolders"></app-ad-folder-list>
     </div>
   </div>
-  <app-active-directory-event [objectId]="user"></app-active-directory-event>
 </div>
 
 <div *ngIf="viewAcl" class="utm-right-container">

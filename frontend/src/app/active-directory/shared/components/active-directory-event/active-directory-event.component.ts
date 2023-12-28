@@ -19,7 +19,7 @@ export class AdEventComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.treeObjectBehavior.$objectId.next(this.objectId);
+    this.treeObjectBehavior.$objectId.next(this.objectId);
   }
 
   replaceDetail(message: string): string {

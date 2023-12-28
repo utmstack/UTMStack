@@ -10,7 +10,7 @@ import {WinlogbeatEventType} from '../types/winlogbeat-event.type';
   providedIn: 'root'
 })
 export class WinlogbeatService {
-  public resourceUrl = SERVER_API_URL + 'api/winlogbeat-info-by-filter';
+  public resourceUrl = SERVER_API_URL + 'api/ad/winlogbeat-info-by-filter';
 
   constructor(private http: HttpClient) {
   }
