@@ -1,6 +1,7 @@
 package logservice
 
 import (
+	"bufio"
 	context "context"
 	"fmt"
 	"os"
@@ -24,9 +25,11 @@ type LogPipe struct {
 }
 
 var (
-	processor     LogProcessor
-	processorOnce sync.Once
-	LogQueue      = make(chan LogPipe, 1000)
+	processor                   LogProcessor
+	processorOnce               sync.Once
+	LogQueue                    = make(chan LogPipe, 1000)
+	MinutesForCleanLog          = 10080 // 7 days in minutes(7*24*60)
+	MinutesForReportLogsCounted = time.Duration(5 * time.Minute)
 )
 
 func GetLogProcessor() LogProcessor {
@@ -41,17 +44,12 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 	reconnectDelay := configuration.InitialReconnectDelay
 	invalidKeyCounter := 0
 
-	path, err := utils.GetMyPath()
-	if err != nil {
-		h.FatalError("Failed to get current path: %v", err)
-	}
-
-	filePath := filepath.Join(path, "logs_process")
-	utils.CreatePathIfNotExist(filePath)
-	fileNames := map[string]*os.File{}
-	defer func() {
-		for _, file := range fileNames {
-			file.Close()
+	logsProcessCounter := map[string]int{}
+	go func() {
+		for {
+			time.Sleep(MinutesForReportLogsCounted)
+			SaveCountedLogs(h, logsProcessCounter)
+			logsProcessCounter = map[string]int{}
 		}
 	}()
 
@@ -104,38 +102,8 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 			continue
 		}
 
+		logsProcessCounter[newLog.Src] += len(newLog.Logs)
 		invalidKeyCounter = 0
-
-		fileIsOpen := false
-		for name := range fileNames {
-			if name == filepath.Join(filePath, string(newLog.Src)+".txt") {
-				fileIsOpen = true
-			}
-		}
-
-		newFileName := filepath.Join(filePath, string(newLog.Src)+".txt")
-		if !fileIsOpen {
-			file, err := os.OpenFile(newFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				h.Error("error opening file: %s", err)
-				time.Sleep(reconnectDelay)
-				connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
-				reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, configuration.MaxReconnectDelay)
-				continue
-			}
-			fileNames[newFileName] = file
-		}
-
-		for _, mylog := range newLog.Logs {
-			_, err = fileNames[newFileName].WriteString(fmt.Sprintf("%s\n", mylog))
-			if err != nil {
-				h.Info("error writing to file: %s\n", err)
-				time.Sleep(reconnectDelay)
-				connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
-				reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, configuration.MaxReconnectDelay)
-				continue
-			}
-		}
 	}
 }
 
@@ -153,4 +121,62 @@ func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogService
 		return fmt.Errorf("error sending logs to Log Auth Proxy: %s", rcv.Message)
 	}
 	return nil
+}
+
+func SaveCountedLogs(h *holmes.Logger, logsProcessCounter map[string]int) {
+	path, err := utils.GetMyPath()
+	if err != nil {
+		h.FatalError("Failed to get current path: %v", err)
+	}
+
+	filePath := filepath.Join(path, "logs_process")
+	logFile := filepath.Join(filePath, "processed_logs.txt")
+	utils.CreatePathIfNotExist(filePath)
+
+	file, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		h.Error("error opening processed_logs.txt file: %s", err)
+		return
+	}
+	defer file.Close()
+
+	var firstLogTime time.Time
+	var firstLine string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		firstLine = scanner.Text()
+		break
+	}
+
+	if firstLine != "" {
+		firstLogTime, err = time.Parse("2006/01/02 15:04:05.9999999 -0700 MST", strings.Split(firstLine, " - ")[0])
+		if err != nil {
+			h.Error("error parsing first log time: %s", err)
+			return
+		}
+
+		if !firstLogTime.IsZero() && time.Since(firstLogTime).Minutes() >= float64(MinutesForCleanLog) {
+			file.Close()
+			if err := os.Remove(logFile); err != nil {
+				h.Error("error removing processed_logs.txt file: %s", err)
+				return
+			}
+			file, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+			if err != nil {
+				h.Error("error opening processed_logs.txt file: %s", err)
+				return
+			}
+		}
+	}
+
+	for name, counter := range logsProcessCounter {
+		if counter > 0 {
+			_, err = file.WriteString(fmt.Sprintf("%v - %d logs from %s have been processed\n", time.Now().Format("2006/01/02 15:04:05.9999999 -0700 MST"), counter, name))
+			if err != nil {
+				h.Error("error writing to processed_logs.txt file: %s", err)
+				continue
+			}
+		}
+	}
+
 }
