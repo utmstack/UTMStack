@@ -5,6 +5,7 @@ go 1.21.1
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/elastic/go-sysinfo v1.11.1
+	github.com/google/uuid v1.3.1
 	github.com/kardianos/service v1.2.2
 	github.com/quantfall/holmes v1.3.0
 	google.golang.org/grpc v1.59.0
