@@ -62,6 +62,5 @@ func ProtectService(servName, lockName string, h *holmes.Logger) {
 			time.Sleep(time.Second * 5)
 			continue
 		}
-
 	}
 }
