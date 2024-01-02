@@ -12,7 +12,7 @@ export class UtmAgentSelectComponent implements OnInit {
   @Output() agentSelect = new EventEmitter<AgentType>();
   agents: AgentType[];
   agentStatusEnum = AgentStatusEnum;
-  agent: AgentType;
+  agent: any;
 
   constructor(private utmAgentManagerService: UtmAgentManagerService) {
   }
@@ -42,7 +42,7 @@ export class UtmAgentSelectComponent implements OnInit {
 
 
   selectAgent($event: AgentType | any) {
-    this.agent = $event;
+    this.agent = `${$event.hostname} (${$event.os})`;
     this.agentSelect.emit($event);
   }
 }
