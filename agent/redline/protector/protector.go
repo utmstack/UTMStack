@@ -26,7 +26,7 @@ func ProtectService(servName, lockName string, h *holmes.Logger) {
 		if attempts >= 3 {
 			h.Info("%s service has been stopped", servName)
 			if err := utils.Execute(filepath.Join(path, bin), path, "send-log", fmt.Sprintf("%s service has been stopped", servName)); err != nil {
-				h.Error("error checking %s: error sending log : %v", err)
+				h.Error("error checking %s: error sending log : %v", servName, err)
 				time.Sleep(time.Second * 5)
 				continue
 			}
