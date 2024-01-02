@@ -6,7 +6,7 @@ import lombok.*;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "utm_source_scan")
@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class SourceScan extends Base implements Auditable {
 
     @Column(name = "last_execution_date")
-    private LocalDate executionDate;
+    private LocalDateTime executionDate;
 
     @ManyToOne
     @JoinColumn(name = "user_sources_id")
