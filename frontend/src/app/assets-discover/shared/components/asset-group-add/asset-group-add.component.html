@@ -41,6 +41,7 @@
   <ng-select
     [(ngModel)]="group"
     [clearable]="true"
+    (clear)="applyGroup()"
     [items]="groups"
     [loadingText]="'Loading groups....'"
     [loading]="loading"
