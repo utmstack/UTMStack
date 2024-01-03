@@ -4,7 +4,7 @@ import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
 
 import {Observable} from 'rxjs';
 
-import {SERVER_API_URL, SESSION_AUTH_TOKEN} from '../../app.constants';
+import {ACCESS_KEY, SERVER_API_URL, SESSION_AUTH_TOKEN} from '../../app.constants';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -19,12 +19,23 @@ export class AuthInterceptor implements HttpInterceptor {
     const sessionToken = this.sessionStorage.retrieve(SESSION_AUTH_TOKEN);
     const localStorageToken = this.localStorage.retrieve(SESSION_AUTH_TOKEN);
     const token = sessionToken || localStorageToken;
-    // const token = this.localStorage.retrieve(SESSION_AUTH_TOKEN);
-    // console.log(localStorageToken);
+
+    const sessionKey = this.sessionStorage.retrieve(ACCESS_KEY);
+    const localStorageKey = this.localStorage.retrieve(ACCESS_KEY);
+    const key = sessionKey || localStorageKey;
+
     if (!!token) {
       request = request.clone({
         setHeaders: {
           Authorization: 'Bearer ' + token
+        }
+      });
+    }
+
+    if (!!key) {
+      request = request.clone({
+        setHeaders: {
+          'Utm-Internal-Key': key
         }
       });
     }
