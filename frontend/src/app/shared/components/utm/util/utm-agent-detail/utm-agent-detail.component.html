@@ -31,20 +31,20 @@
   </div>
   <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">Type:</span>&nbsp;
-    <app-assets-apply-type [assets]="[agent.id]" [typeFormat]="'icon'"
+    <app-assets-apply-type *ngIf="asset" [assets]="[agent.id]" [typeFormat]="'icon'"
                            [type]="asset.assetType" class="ml-2">
     </app-assets-apply-type>
   </div>
   <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">Group Source:</span>&nbsp;
-    <app-asset-group-add [assets]="[asset.id]"
+    <app-asset-group-add *ngIf="asset" [assets]="[asset.id]"
                          [group]="asset.group"
                          [typeFormat]="'icon'" class="ml-2">
     </app-asset-group-add>
   </div>
   <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">Comment:</span>&nbsp;
-    <app-assets-apply-note [asset]="asset" class="ml-2"></app-assets-apply-note>
+    <app-assets-apply-note *ngIf="asset" [asset]="asset" class="ml-2"></app-assets-apply-note>
   </div>
   <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.version">
     <span class="text-blue-800 font-weight-light has-minimum-width">OS Version:</span>&nbsp;
