@@ -73,7 +73,7 @@ export class IndexPatternCreateComponent implements OnInit {
   }
 
   loadPage(page: any) {
-    this.page = page-1;
+    this.page = page - 1;
     this.getIndexes();
   }
 
