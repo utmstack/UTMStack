@@ -22,7 +22,7 @@ export class IndexPatternCreateComponent implements OnInit {
   indexes: ElasticsearchIndexInfoType[] = [];
   totalItems: any;
   page = 0;
-  itemsPerPage = 5;
+  itemsPerPage = ITEMS_PER_PAGE;
   loading = false;
   step = 1;
   stepCompleted: number[] = [];
@@ -73,7 +73,7 @@ export class IndexPatternCreateComponent implements OnInit {
   }
 
   loadPage(page: any) {
-    this.page = page-1;
+    this.page = page - 1;
     this.getIndexes();
   }
 
