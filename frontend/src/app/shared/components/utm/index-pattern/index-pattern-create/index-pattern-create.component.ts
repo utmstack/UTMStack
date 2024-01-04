@@ -22,7 +22,7 @@ export class IndexPatternCreateComponent implements OnInit {
   indexes: ElasticsearchIndexInfoType[] = [];
   totalItems: any;
   page = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
+  itemsPerPage = 5;
   loading = false;
   step = 1;
   stepCompleted: number[] = [];
@@ -57,7 +57,7 @@ export class IndexPatternCreateComponent implements OnInit {
       includeSystemIndex: this.includeSystemIndex,
       page: this.page,
       pattern: this.regex,
-      size: 5
+      size: this.itemsPerPage
     };
     this.elasticIndexService.getElasticIndex(req).subscribe(
       (res: HttpResponse<any>) => this.onSuccess(res.body, res.headers),
@@ -67,12 +67,13 @@ export class IndexPatternCreateComponent implements OnInit {
 
   searchMatchingRegex() {
     // this.regex = this.regex.replace('*', '') + '*';
+    this.page = 0;
     this.getIndexes();
     this.getIndexPatterns();
   }
 
   loadPage(page: any) {
-    this.page = page;
+    this.page = page-1;
     this.getIndexes();
   }
 
