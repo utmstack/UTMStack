@@ -70,7 +70,6 @@ public class NetworkScanWrapper {
         try {
             asset.assetIp(agent.getIp())
                 .updateLevel(UpdateLevel.AGENT)
-                .assetStatus(AssetStatus.CHECK)
                 .isAgent(true)
                 .registerIp(agent.getIp())
                 .assetAlive(agent.getStatus() == AgentStatusEnum.ONLINE)
