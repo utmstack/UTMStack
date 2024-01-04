@@ -1,5 +1,5 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {NavigationEnd, Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {UtmToastService} from './shared/alert/utm-toast.service';
@@ -12,8 +12,6 @@ import {UtmAppThemeService} from './shared/services/theme/utm-app-theme.service'
 import {retry} from "rxjs/operators";
 import {ApiServiceCheckerService} from "./core/auth/api-checker-service";
 import {TimezoneFormatService} from "./shared/services/utm-timezone.service";
-import {parseQueryParamsToFilter} from "./shared/util/query-params-to-filter.util";
-import {LoginService} from "./core/login/login.service";
 
 @Component({
   selector: 'app-root',
@@ -40,9 +38,7 @@ export class AppComponent implements OnInit {
     private utmToastService: UtmToastService,
     private router: Router, private renderer: Renderer2,
     private apiServiceCheckerService: ApiServiceCheckerService,
-    private timezoneFormatService: TimezoneFormatService,
-    private activatedRoute: ActivatedRoute,
-    private loginService: LoginService) {
+    private timezoneFormatService: TimezoneFormatService) {
     this.translate.setDefaultLang('en');
     this.menuBehavior.$menu.subscribe(men => {
       this.menu = men;

@@ -30,7 +30,8 @@
         <i class="icon-arrow-left8 mr-2"></i> Back
       </button>
 
-      <a (click)="exportToPdf()" [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
+      <a [href]="exportToPdf" [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
+         target="_blank"
          class="btn utm-button utm-button-primary">
         <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
         {{pdfExport ? 'Generating...' : 'Save to PDF'}}

@@ -5,7 +5,7 @@ import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
-import {ACCESS_KEY, COOKIE_AUTH_TOKEN, SERVER_API_URL, SESSION_AUTH_TOKEN} from '../../app.constants';
+import {COOKIE_AUTH_TOKEN, SERVER_API_URL, SESSION_AUTH_TOKEN} from '../../app.constants';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {CSRFService} from './csrf.service';
 
@@ -56,25 +56,10 @@ export class AuthServerProvider {
     }
   }
 
-  loginWithAccessKey(jwt, rememberMe) {
-    if (jwt) {
-      this.storeAccessKey(jwt);
-      return Promise.resolve(jwt);
-    } else {
-      return Promise.reject('auth-jwt-service Promise reject '); // Put appropriate error message here
-    }
-  }
-
   storeAuthenticationToken(jwt) {
     this.$localStorage.store(SESSION_AUTH_TOKEN, jwt);
     this.$sessionStorage.store(SESSION_AUTH_TOKEN, jwt);
     this.$cookie.setCookie(COOKIE_AUTH_TOKEN, jwt);
-  }
-
-  storeAccessKey(key) {
-    this.$localStorage.store(ACCESS_KEY, key);
-    this.$sessionStorage.store(ACCESS_KEY, key);
-    this.$cookie.setCookie(ACCESS_KEY, key);
   }
 
   logout(): Observable<any> {
