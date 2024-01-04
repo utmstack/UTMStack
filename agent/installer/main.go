@@ -63,6 +63,18 @@ func main() {
 				h.FatalError("Error installing the UTMStack Agent: one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
 			}
 
+			err := utils.CreatePathIfNotExist(filepath.Join(path, "locks"))
+			if err != nil {
+				fmt.Printf("error creating locks path: %v", err)
+				h.FatalError("error creating locks path: %v", err)
+			}
+
+			err = utils.SetLock(filepath.Join(path, "locks", "setup.lock"))
+			if err != nil {
+				fmt.Printf("error setting setup.lock: %v", err)
+				h.FatalError("error setting setup.lock: %v", err)
+			}
+
 			err = checkversion.CleanOldVersions(h)
 			if err != nil {
 				fmt.Printf("error cleaning old versions: %v", err)
@@ -70,7 +82,7 @@ func main() {
 			}
 
 			// Download dependencies
-			err := depend.DownloadDependencies(servBins, ip, skip)
+			err = depend.DownloadDependencies(servBins, ip, skip)
 			if err != nil {
 				fmt.Printf("error downloading dependencies: %v", err)
 				h.FatalError("error downloading dependencies: %v", err)
@@ -85,6 +97,13 @@ func main() {
 
 			h.Info("UTMStack Agent services installed correctly.")
 			fmt.Println("UTMStack Agent services installed correctly.")
+
+			err = utils.RemoveLock(filepath.Join(path, "locks", "setup.lock"))
+			if err != nil {
+				fmt.Printf("error removing setup.lock: %v", err)
+				h.FatalError("error removing setup.lock: %v", err)
+			}
+
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 

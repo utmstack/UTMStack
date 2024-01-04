@@ -1,9 +1,7 @@
 package com.park.utmstack.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.park.utmstack.domain.shared_types.DataColumn;
 import com.park.utmstack.util.exceptions.UtmCsvException;
 import io.jsonwebtoken.lang.Assert;
@@ -15,14 +13,13 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class UtilCsv {
     private static final String CLASS_NAME = "UtilCsv";
@@ -36,38 +33,42 @@ public class UtilCsv {
      * @throws UtmCsvException In case of any error
      */
     public static void prepareToDownload(HttpServletResponse response, DataColumn[] columns, List<?> data) throws
-        UtmCsvException {
+            UtmCsvException {
         final String ctx = CLASS_NAME + ".prepareToDownload";
+        final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withLocale(Locale.getDefault()).withZone(TimezoneUtil.getAppTimezone());
         try {
             Assert.notEmpty(columns);
             Assert.notEmpty(data);
 
-            JsonElement parse = JsonParser.parseString(UtilSerializer.jsonSerialize(data));
-            JsonArray elements = parse.getAsJsonArray();
+            // Cleaning column names from .keyword termination
+            Arrays.stream(columns).forEach(column ->
+                    column.setField(column.getField().replace(".keyword", "")));
+
             List<String[]> rows = new ArrayList<>();
 
-            elements.forEach(element -> {
+            data.forEach(d -> {
                 String[] cells = new String[columns.length];
                 for (int i = 0; i < columns.length; i++) {
-                    String field = columns[i].getField();
-                    String type = columns[i].getType();
-                    if (field.endsWith("keyword"))
-                        field = field.replace(".keyword", "");
-                    JsonElement value = getPath(field.split("\\."), (JsonObject) element);
-
+                    String fieldName = columns[i].getField();
+                    String fieldType = columns[i].getType();
                     cells[i] = null;
-                    if (value != null && !value.isJsonNull()) {
-                        if (value.isJsonObject() || value.isJsonPrimitive()) {
-                            if (type.equals("date"))
-                                cells[i] = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.getDefault()).withZone(
-                                    ZoneId.systemDefault()).format(Instant.parse(value.getAsString()));
-                            else
-                                cells[i] = value.getAsString()
-                                    .replace("\n", " ").replace("\t", " ");
-                        } else if (value.isJsonArray()) {
-                            cells[i] = StreamSupport.stream(value.getAsJsonArray().spliterator(), false)
-                                .map(JsonElement::getAsString).collect(Collectors.joining(","));
-                        }
+
+                    Object value;
+                    try {
+                        value = JsonPath.parse(d).read("$." + fieldName);
+                    } catch (PathNotFoundException e) {
+                        continue;
+                    }
+
+                    if (value == null)
+                        continue;
+
+                    if (value instanceof String) {
+                        cells[i] = fieldType.equals("date") ? DATE_FORMATTER.format(Instant.parse(String.valueOf(value))) :
+                                String.valueOf(value).replace("\n", " ").replace("\t", " ");
+                    } else if (value instanceof List) {
+                        cells[i] = ((List<?>) value).stream().map(String::valueOf).collect(Collectors.joining(","));
                     }
                 }
                 rows.add(cells);
@@ -83,7 +84,7 @@ public class UtilCsv {
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data.csv");
 
             CSVPrinter csvPrinter = new CSVPrinter(response.getWriter(), CSVFormat.DEFAULT.withHeader(headers)
-                .withQuoteMode(QuoteMode.ALL));
+                    .withQuoteMode(QuoteMode.ALL));
             for (String[] row : rows)
                 csvPrinter.printRecords((Object) row);
 
@@ -91,17 +92,5 @@ public class UtilCsv {
             String msg = ctx + ": " + e.getMessage();
             throw new UtmCsvException(msg);
         }
-    }
-
-    private static JsonElement getPath(String[] path, JsonObject jsonObject) {
-        if (jsonObject == null)
-            return null;
-        JsonElement obj = jsonObject;
-        for (String component : path) {
-            if (obj == null)
-                break;
-            obj = ((JsonObject) obj).get(component);
-        }
-        return obj;
     }
 }
