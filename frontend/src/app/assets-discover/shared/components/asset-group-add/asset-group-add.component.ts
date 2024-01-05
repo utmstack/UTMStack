@@ -93,6 +93,4 @@ export class AssetGroupAddComponent implements OnInit {
       this.tagPopoverButton.close();
     }
   }
-
-
 }
