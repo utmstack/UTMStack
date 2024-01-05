@@ -7,6 +7,7 @@ import {AssetReloadFilterBehavior} from '../../behavior/asset-reload-filter-beha
 import {AssetFieldFilterEnum} from '../../enums/asset-field-filter.enum';
 import {UtmAssetGroupService} from '../../services/utm-asset-group.service';
 import {UtmNetScanService} from '../../services/utm-net-scan.service';
+import {NgSelectComponent} from "@ng-select/ng-select";
 
 @Component({
   selector: 'app-asset-group-add',
@@ -73,5 +74,10 @@ export class AssetGroupAddComponent implements OnInit {
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
   }
 
-  protected readonly event = event;
+  handleClear(select: NgSelectComponent) {
+    this.group = null;
+    select.close();
+  }
+
+
 }
