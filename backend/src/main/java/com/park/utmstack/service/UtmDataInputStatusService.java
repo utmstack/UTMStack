@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -158,7 +158,7 @@ public class UtmDataInputStatusService {
 
             long currentTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
             List<UtmDataInputStatus> inTime = inputs.stream().filter(row -> (currentTimeInSeconds - row.getTimestamp()) < 3600)
-                .collect(Collectors.toList());
+                    .collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(inTime))
                 return;
 
@@ -193,7 +193,7 @@ public class UtmDataInputStatusService {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
             final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalse().stream()
-                .map(UtmDataSourceConfig::getDataType).collect(Collectors.toList());
+                    .map(UtmDataSourceConfig::getDataType).collect(Collectors.toList());
             excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack"));
 
             List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
@@ -206,17 +206,17 @@ public class UtmDataInputStatusService {
             List<UtmNetworkScan> saveOrUpdate = new ArrayList<>();
             sourcesWithStatus.forEach((key, value) -> {
                 Optional<UtmNetworkScan> assetOpt = assets.stream()
-                    .filter(asset -> ((StringUtils.hasText(asset.getAssetIp()) && asset.getAssetIp().equals(key))
-                        || (StringUtils.hasText(asset.getAssetName()) && asset.getAssetName().equals(key))))
-                    .findFirst();
+                        .filter(asset -> ((StringUtils.hasText(asset.getAssetIp()) && asset.getAssetIp().equals(key))
+                                || (StringUtils.hasText(asset.getAssetName()) && asset.getAssetName().equals(key))))
+                        .findFirst();
                 if (assetOpt.isPresent()) {
                     UtmNetworkScan utmAsset = assetOpt.get();
                     if (Objects.isNull(utmAsset.getUpdateLevel())
-                        || utmAsset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
+                            || utmAsset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
                         utmAsset.assetAlive(value)
-                            .updateLevel(UpdateLevel.DATASOURCE)
-                            .assetStatus(AssetStatus.CHECK)
-                            .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                                .updateLevel(UpdateLevel.DATASOURCE)
+                                .assetStatus(AssetStatus.CHECK)
+                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
                         saveOrUpdate.add(utmAsset);
                     }
                 } else {
@@ -226,9 +226,9 @@ public class UtmDataInputStatusService {
 
             assets.forEach(asset -> {
                 if (!sourcesWithStatus.containsKey(asset.getAssetIp()) && !sourcesWithStatus.containsKey(asset.getAssetName())
-                    && !Objects.isNull(asset.getUpdateLevel()) && asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
+                        && !Objects.isNull(asset.getUpdateLevel()) && asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
                     asset.assetStatus(AssetStatus.MISSING).updateLevel(null)
-                        .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                            .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
                     saveOrUpdate.add(asset);
                 }
             });
@@ -259,14 +259,14 @@ public class UtmDataInputStatusService {
      * if any of them are down then create a new alert. This method is a schedule with a delay
      * of 1 hour
      */
-    @Scheduled(fixedDelay = 43200000, initialDelay = 20000)
+    @Scheduled(fixedDelay = 12, timeUnit = TimeUnit.HOURS)
     public void checkDatasourceDown() {
         final String ctx = CLASSNAME + ".checkDatasourceDown";
         try {
             List<UtmDataInputStatus> sources = dataInputStatusRepository.findDatasourceToCheckIfDown();
             if (CollectionUtils.isEmpty(sources))
                 return;
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy.MM.dd").withZone(ZoneId.systemDefault());
+            DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy.MM.dd").withZone(ZoneOffset.UTC);
             String index = String.format("alert-%1$s", f.format(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
             for (UtmDataInputStatus src : sources) {
                 if (src.isDown())
@@ -285,77 +285,78 @@ public class UtmDataInputStatusService {
      * @param input: Datasource information
      * @return A ${@link AlertType} to index
      */
-    private AlertType createAlertForDatasourceDown(UtmDataInputStatus input) {
+    private Map<String, Object> createAlertForDatasourceDown(UtmDataInputStatus input) {
         List<String> cloudTypes = Arrays.asList("aws", "o365", "office365", "azure", "gcp", "google", "nids", "netflow");
-        AlertType alert = new AlertType();
-        alert.setId(UUID.randomUUID().toString());
-        alert.setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.UTC).toString());
+
+        Map<String, Object> src = new HashMap<>();
+        src.put("country", "");
+        src.put("accuracyRadius", 0);
+        src.put("city", "");
+        src.put("coordinates", new Float[]{});
+        src.put("port", 0);
+        src.put("countryCode", "");
+        src.put("isAnonymousProxy", false);
+        src.put("isSatelliteProvider", false);
+        src.put("aso", "");
+        src.put("asn", 0);
+        src.put("user", "");
+        if (InetAddressUtils.isIPv4Address(input.getSource()) || InetAddressUtils.isIPv6Address(input.getSource()))
+            src.put("ip", input.getSource());
+        else
+            src.put("host", input.getSource());
+
+        Map<String, Object> dst = new HashMap<>();
+        dst.put("country", "");
+        dst.put("accuracyRadius", 0);
+        dst.put("city", "");
+        dst.put("coordinates", new Float[]{});
+        dst.put("port", 0);
+        dst.put("countryCode", "");
+        dst.put("isAnonymousProxy", false);
+        dst.put("isSatelliteProvider", false);
+        dst.put("aso", "");
+        dst.put("asn", 0);
+        dst.put("user", "");
+        src.put("ip", "");
+        src.put("host", "");
+
+        Map<String, Object> incidentDetails = new HashMap<>();
+        incidentDetails.put("createdBy", "");
+        incidentDetails.put("observation", "");
+        incidentDetails.put("source", "");
+        incidentDetails.put("creationDate", "");
+
+        Map<String, Object> alert = new HashMap<>();
+        alert.put("id", UUID.randomUUID().toString());
+        alert.put("@timestamp", Instant.now().toString());
 
         if (cloudTypes.contains(input.getDataType()))
-            alert.setName(String.format("The %1$s datasource is taking longer than usual to send logs", input.getDataType()));
+            alert.put("name", String.format("The %1$s datasource is taking longer than usual to send logs", input.getDataType()));
         else
-            alert.setName(String.format("The %1$s datasource installed in %2$s is taking longer than usual to send logs", input.getDataType(), input.getSource()));
-        alert.setDescription("UTMStack launched this alert because the device exceeded the expected average time in which it can be without sending any log");
-        alert.setTactic("Defense Evasion");
-        alert.setReference(Collections.singletonList("https://attack.mitre.org/tactics/TA0005/"));
-        alert.setStatus(AlertStatus.OPEN.getCode());
-        alert.setStatusLabel(AlertStatus.OPEN);
-        alert.setSeverity(AlertSeverityEnum.LOW.getCode());
-        alert.setSeverityLabel(AlertSeverityEnum.LOW.getName());
-        alert.setDataType(input.getDataType());
-        alert.setDataSource(input.getSource());
-        alert.setNotes("");
-        alert.setTags(Collections.emptyList());
-        alert.setLogs(Collections.emptyList());
-        alert.setProtocol("");
+            alert.put("name", String.format("The %1$s datasource installed in %2$s is taking longer than usual to send logs", input.getDataType(), input.getSource()));
 
-        AlertType.Host src = new AlertType.Host();
-        src.setCountry("");
-        src.setAccuracyRadius(0);
-        src.setCity("");
-        src.setCoordinates(new Float[]{});
-        src.setPort(0);
-        src.setCountryCode("");
-        src.setAnonymousProxy(false);
-        src.setSatelliteProvider(false);
-        src.setAso("");
-        src.setAsn(0);
-        if (InetAddressUtils.isIPv4Address(input.getSource()) || InetAddressUtils.isIPv6Address(input.getSource()))
-            src.setIp(input.getSource());
-        else
-            src.setHost(input.getSource());
+        alert.put("description", "UTMStack launched this alert because the device exceeded the expected average time in which it can be without sending any log");
+        alert.put("tactic", "Defense Evasion");
+        alert.put("reference", Collections.singletonList("https://attack.mitre.org/tactics/TA0005/"));
+        alert.put("status", AlertStatus.OPEN.getCode());
+        alert.put("statusLabel", AlertStatus.OPEN.getName());
+        alert.put("severity", AlertSeverityEnum.LOW.getCode());
+        alert.put("severityLabel", AlertSeverityEnum.LOW.getName());
+        alert.put("dataType", input.getDataType());
+        alert.put("dataSource", input.getSource());
+        alert.put("notes", "");
+        alert.put("tags", Collections.emptyList());
+        alert.put("logs", Collections.emptyList());
+        alert.put("protocol", "");
+        alert.put("source", src);
+        alert.put("destination", dst);
+        alert.put("isIncident", false);
+        alert.put("incidentDetail", incidentDetails);
+        alert.put("solution", "Check the data source configuration, error logs, and if it is an agent; verify if it is installed and the service is running");
+        alert.put("statusObservation", "The system changed the alert status to be analyzed by rule engine");
+        alert.put("category", "Data sources monitoring");
+        alert.put("TagRulesApplied", null);
 
-        alert.setSource(src);
-
-        AlertType.Host dst = new AlertType.Host();
-        dst.setCountry("");
-        dst.setAccuracyRadius(0);
-        dst.setCity("");
-        dst.setCoordinates(new Float[]{});
-        dst.setPort(0);
-        dst.setCountryCode("");
-        dst.setAnonymousProxy(false);
-        dst.setSatelliteProvider(false);
-        dst.setAso("");
-        dst.setAsn(0);
-        dst.setIp("");
-        dst.setHost("");
-        alert.setDestination(dst);
-
-        alert.setIncident(false);
-
-        AlertType.IncidentDetail incident = new AlertType.IncidentDetail();
-        incident.setCreatedBy("");
-        incident.setCreationDate("");
-        incident.setIncidentId(0);
-        incident.setIncidentName("");
-        incident.setSource("");
-
-        alert.setIncidentDetail(incident);
-
-        alert.setSolution("Check the data source configuration, error logs, and if it is an agent; verify if it is installed and the service is running");
-        alert.setStatusObservation("The system changed the alert status to be analyzed by rule engine");
-        alert.setCategory("Data sources monitoring");
         return alert;
     }
 }
