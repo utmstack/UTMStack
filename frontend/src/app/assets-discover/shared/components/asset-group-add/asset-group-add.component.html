@@ -1,4 +1,4 @@
-<button #tagPopober=ngbPopover *ngIf="typeFormat==='button';else icon"
+<button #tagPopoverButton=ngbPopover *ngIf="typeFormat==='button';else icon"
         [ngbPopover]="colContent"
         [popoverTitle]="colTitle"
         autoClose="outside"
@@ -18,7 +18,7 @@
        container="body"
        placement="auto"
        tooltipClass="utm-tooltip-top">
-    <span #tagPopober=ngbPopover
+    <span #tagPopoverSpan=ngbPopover
           (click)="getGroups($event)"
           [ngClass]="{'text-blue-800':group}"
           [ngbPopover]="colContent"

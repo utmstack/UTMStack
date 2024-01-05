@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
+import {NgSelectComponent} from '@ng-select/ng-select';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {AssetGroupCreateComponent} from '../../../asset-groups/asset-group-create/asset-group-create.component';
 import {AssetGroupType} from '../../../asset-groups/shared/type/asset-group.type';
@@ -7,7 +8,6 @@ import {AssetReloadFilterBehavior} from '../../behavior/asset-reload-filter-beha
 import {AssetFieldFilterEnum} from '../../enums/asset-field-filter.enum';
 import {UtmAssetGroupService} from '../../services/utm-asset-group.service';
 import {UtmNetScanService} from '../../services/utm-net-scan.service';
-import {NgSelectComponent} from "@ng-select/ng-select";
 
 @Component({
   selector: 'app-asset-group-add',
@@ -20,6 +20,8 @@ export class AssetGroupAddComponent implements OnInit {
   @Input() assets: number[];
   @Input() group: AssetGroupType;
   @Output() applyGroupEvent = new EventEmitter<AssetGroupType>();
+  @ViewChild('tagPopoverSpan') tagPopoverSpan: NgbPopover;
+  @ViewChild('tagPopoverButton') tagPopoverButton: NgbPopover;
   groups: AssetGroupType[];
   loading = false;
   creating = false;
@@ -59,10 +61,12 @@ export class AssetGroupAddComponent implements OnInit {
         this.applyGroupEvent.emit(response.body);
         this.assetReloadFilterBehavior.$assetReloadFilter.next(AssetFieldFilterEnum.GROUP);
         this.creating = false;
+        this.closePopover();
       }, error => {
         this.utmToastService.showError('Error changing group',
           'Error changing group, please try again');
         this.creating = false;
+        this.closePopover();
       });
   }
 
@@ -71,12 +75,23 @@ export class AssetGroupAddComponent implements OnInit {
   }
 
   addNewGroup() {
+    this.closePopover();
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
   }
 
   handleClear(select: NgSelectComponent) {
     this.group = null;
     select.close();
+  }
+
+  closePopover() {
+    if (this.tagPopoverSpan) {
+      this.tagPopoverSpan.close();
+    }
+
+    if (this.tagPopoverButton) {
+      this.tagPopoverButton.close();
+    }
   }
 
 
