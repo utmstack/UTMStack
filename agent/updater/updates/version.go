@@ -7,20 +7,31 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/utmstack/UTMStack/agent/updater/constants"
+	"github.com/utmstack/UTMStack/agent/updater/configuration"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
+// getLatestVersion returns the latest version of the service
+func getLatestVersion(versions DataVersions, masterVersions string) Version {
+	for _, vers := range versions.Versions {
+		if vers.MasterVersion == masterVersions {
+			return vers
+		}
+	}
+	return Version{}
+}
+
+// getMasterVersion returns the master version of the service
 func getMasterVersion(ip string, skip bool) (string, error) {
 	config := &tls.Config{InsecureSkipVerify: skip}
 	if !skip {
 		var err error
-		config, err = utils.LoadTLSCredentials(constants.GetCertPath())
+		config, err = utils.LoadTLSCredentials(configuration.GetCertPath())
 		if err != nil {
 			return "", fmt.Errorf("error loading tls credentials: %v", err)
 		}
 	}
-	resp, status, err := utils.DoReq[InfoResponse]("https://"+ip+constants.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{}, config)
+	resp, status, err := utils.DoReq[InfoResponse]("https://"+ip+configuration.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{}, config)
 	if err != nil {
 		return "", err
 	} else if status != http.StatusOK {
@@ -29,6 +40,7 @@ func getMasterVersion(ip string, skip bool) (string, error) {
 	return resp.Build.Version, nil
 }
 
+// isVersionGreater returns true if newVersion is greater than oldVersion
 func isVersionGreater(oldVersion, newVersion string) bool {
 	oldParts := strings.Split(oldVersion, ".")
 	newParts := strings.Split(newVersion, ".")
@@ -47,6 +59,7 @@ func isVersionGreater(oldVersion, newVersion string) bool {
 	return false
 }
 
+/*
 func isNewOrEqualVersion(oldVersion, newVersion string) bool {
 	oldParts := strings.Split(oldVersion, ".")
 	newParts := strings.Split(newVersion, ".")
@@ -69,3 +82,4 @@ func isNewOrEqualVersion(oldVersion, newVersion string) bool {
 
 	return len(newParts) >= len(oldParts)
 }
+*/

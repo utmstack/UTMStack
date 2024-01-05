@@ -8,14 +8,23 @@ import (
 
 	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/agent/updater/configuration"
-	"github.com/utmstack/UTMStack/agent/updater/constants"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
 type UTMServices struct {
+	MasterVersion   string
 	CurrentVersions Version
 	LatestVersions  Version
-	ServAttr        map[string]constants.ServiceAttribt
+	ServAttr        map[string]configuration.ServiceAttribt
+}
+
+func (u *UTMServices) UpdateCurrentMasterVersion(cnf configuration.Config) error {
+	masterVersion, err := getMasterVersion(cnf.Server, cnf.SkipCertValidation)
+	if err != nil {
+		return fmt.Errorf("error getting master version: %v", err)
+	}
+	u.MasterVersion = masterVersion
+	return nil
 }
 
 func (u *UTMServices) UpdateCurrentVersions() error {
@@ -24,7 +33,6 @@ func (u *UTMServices) UpdateCurrentVersions() error {
 		return fmt.Errorf("failed to get current path: %v", err)
 	}
 
-	// Save data from versions.json
 	err = utils.ReadJson(filepath.Join(path, "versions.json"), &u.CurrentVersions)
 	if err != nil {
 		return fmt.Errorf("error reading current versions.json: %v", err)
@@ -33,32 +41,24 @@ func (u *UTMServices) UpdateCurrentVersions() error {
 	return nil
 }
 
-func (u *UTMServices) UpdateLatestVersions() error {
-	// Select environment
-	env, err := configuration.ReadEnv()
-	if err != nil {
-		return fmt.Errorf("error reading environment configuration: %v", err)
-	}
-
+func (u *UTMServices) UpdateLatestVersions(env string) error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("failed to get current path: %v", err)
 	}
 
-	err = utils.DownloadFile(constants.Bucket+env.Branch+"/versions.json?time="+utils.GetCurrentTime(), filepath.Join(path, "versions.json"))
+	err = utils.DownloadFile(configuration.Bucket+env+"/versions.json", filepath.Join(path, "versions.json"))
 	if err != nil {
 		return fmt.Errorf("error downloading latest versions.json: %v", err)
 	}
 
-	// Save data from versions.json
 	newData := DataVersions{}
 	err = utils.ReadJson(filepath.Join(path, "versions.json"), &newData)
 	if err != nil {
 		return fmt.Errorf("error reading latest versions.json: %v", err)
 	}
 
-	// Save master versions
-	u.LatestVersions = GetLatestVersion(newData, u.CurrentVersions.MasterVersion)
+	u.LatestVersions = getLatestVersion(newData, u.MasterVersion)
 	err = utils.WriteJSON(filepath.Join(path, "versions.json"), &u.LatestVersions)
 	if err != nil {
 		return fmt.Errorf("error writing versions.json: %v", err)
@@ -67,48 +67,40 @@ func (u *UTMServices) UpdateLatestVersions() error {
 	return nil
 }
 
-func (u *UTMServices) CheckUpdates(masterVersion string, h *holmes.Logger) error {
-	if isNewOrEqualVersion(u.LatestVersions.MasterVersion, masterVersion) {
-		path, err := utils.GetMyPath()
+func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
+	path, err := utils.GetMyPath()
+	if err != nil {
+		return fmt.Errorf("failed to get current path: %v", err)
+	}
+
+	if isVersionGreater(u.CurrentVersions.RedlineVersion, u.LatestVersions.RedlineVersion) {
+		err := u.UpdateService(path, env, "redline", u.LatestVersions.RedlineVersion)
 		if err != nil {
-			return fmt.Errorf("failed to get current path: %v", err)
+			return fmt.Errorf("error updating UTMStackRedline service: %v", err)
 		}
+		utmLogger.Info("UTMStackRedline service updated correctly")
+	}
 
-		// Select environment
-		env, err := configuration.ReadEnv()
+	if isVersionGreater(u.CurrentVersions.AgentVersion, u.LatestVersions.AgentVersion) {
+		err := u.UpdateService(path, env, "agent", u.LatestVersions.AgentVersion)
 		if err != nil {
-			return fmt.Errorf("error reading environment configuration: %v", err)
+			return fmt.Errorf("error updating UTMStackAgent service: %v", err)
 		}
+		utmLogger.Info("UTMStackAgent service updated correctly")
+	}
 
-		if isVersionGreater(u.CurrentVersions.RedlineVersion, u.LatestVersions.RedlineVersion) {
-			err := u.UpdateService(path, env.Branch, "redline")
-			if err != nil {
-				return fmt.Errorf("error updating UTMStackRedline service: %v", err)
-			}
-			h.Info("UTMStackRedline service updated correctly")
+	if isVersionGreater(u.CurrentVersions.UpdaterVersion, u.LatestVersions.UpdaterVersion) {
+		err := u.UpdateService(path, env, "updater", u.LatestVersions.UpdaterVersion)
+		if err != nil {
+			return fmt.Errorf("error updating UTMStackUpdater service: %v", err)
 		}
-
-		if isVersionGreater(u.CurrentVersions.AgentVersion, u.LatestVersions.AgentVersion) {
-			err := u.UpdateService(path, env.Branch, "agent")
-			if err != nil {
-				return fmt.Errorf("error updating UTMStackAgent service: %v", err)
-			}
-			h.Info("UTMStackAgent service updated correctly")
-		}
-
-		if isVersionGreater(u.CurrentVersions.UpdaterVersion, u.LatestVersions.UpdaterVersion) {
-			err := u.UpdateService(path, env.Branch, "updater")
-			if err != nil {
-				return fmt.Errorf("error updating UTMStackUpdater service: %v", err)
-			}
-			h.Info("UTMStackUpdater service updated correctly")
-		}
+		utmLogger.Info("UTMStackUpdater service updated correctly")
 	}
 
 	return nil
 }
 
-func (u *UTMServices) UpdateService(path string, env string, servCode string) error {
+func (u *UTMServices) UpdateService(path string, env string, servCode string, newVers string) error {
 	attr := u.ServAttr[servCode]
 	err := utils.CreatePathIfNotExist(filepath.Join(path, "locks"))
 	if err != nil {
@@ -123,22 +115,12 @@ func (u *UTMServices) UpdateService(path string, env string, servCode string) er
 	if servCode == "updater" {
 		utils.Execute(filepath.Join(path, attr.ServBin), path)
 	} else {
-		// Stop service
 		err = utils.StopService(attr.ServName)
 		if err != nil {
 			return fmt.Errorf("error stoping %s service: %v", attr.ServName, err)
 		}
 
-		// Download new version
-		vers := ""
-		switch servCode {
-		case "agent":
-			vers = u.LatestVersions.AgentVersion
-		case "redline":
-			vers = u.LatestVersions.RedlineVersion
-		}
-
-		url := constants.Bucket + env + "/" + servCode + "_service/v" + vers + "/" + attr.ServBin + "?time=" + utils.GetCurrentTime()
+		url := configuration.Bucket + env + "/" + servCode + "_service/v" + newVers + "/" + attr.ServBin + "?time=" + utils.GetCurrentTime()
 		err = utils.DownloadFile(url, filepath.Join(path, attr.ServBin))
 		if err != nil {
 			return fmt.Errorf("error downloading new %s: %v", attr.ServBin, err)
@@ -150,7 +132,6 @@ func (u *UTMServices) UpdateService(path string, env string, servCode string) er
 			}
 		}
 
-		// Restart service
 		err = utils.RestartService(attr.ServName)
 		if err != nil {
 			return fmt.Errorf("error restarting %s service: %v", attr.ServName, err)
@@ -173,9 +154,10 @@ var (
 func GetUTMServicesInstance() UTMServices {
 	utmServOnce.Do(func() {
 		utmServ = UTMServices{
+			MasterVersion:   "",
 			CurrentVersions: Version{},
 			LatestVersions:  Version{},
-			ServAttr:        constants.GetServAttr(),
+			ServAttr:        configuration.GetServAttr(),
 		}
 	})
 	return utmServ
