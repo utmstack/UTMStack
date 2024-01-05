@@ -22,7 +22,7 @@ export class IndexPatternCreateComponent implements OnInit {
   indexes: ElasticsearchIndexInfoType[] = [];
   totalItems: any;
   page = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
+  itemsPerPage = 5;
   loading = false;
   step = 1;
   stepCompleted: number[] = [];
