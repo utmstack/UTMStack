@@ -5,38 +5,42 @@ import (
 
 	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/agent/updater/configuration"
-	"github.com/utmstack/UTMStack/agent/updater/constants"
 )
 
-func UpdateServices(cnf configuration.Config, h *holmes.Logger) {
+func UpdateServices(cnf configuration.Config, utmLogger *holmes.Logger) {
 	utmServices := GetUTMServicesInstance()
 
-	for {
-		time.Sleep(constants.CheckUpdatesEvery)
+	env, err := configuration.ReadEnv()
+	if err != nil {
+		utmLogger.FatalError("error reading environment configuration: %v", err)
+	}
 
-		masterVersion, err := getMasterVersion(cnf.Server, cnf.SkipCertValidation)
+	utmLogger.Info("enviroment: %v", env)
+
+	for {
+		time.Sleep(configuration.CHECK_EVERY)
+
+		err = utmServices.UpdateCurrentMasterVersion(cnf)
 		if err != nil {
-			h.Error("error getting master version: %v", err)
+			utmLogger.Error("error updating current master version: %v", err)
 			continue
 		}
 
-		// save current versions
 		err = utmServices.UpdateCurrentVersions()
 		if err != nil {
-			h.Error("error updating current versions: %v", err)
+			utmLogger.Error("error updating current versions: %v", err)
 			continue
 		}
 
-		// download new versions and save
-		err = utmServices.UpdateLatestVersions()
+		err = utmServices.UpdateLatestVersions(env)
 		if err != nil {
-			h.Error("error updating latest versions: %v", err)
+			utmLogger.Error("error updating latest versions: %v", err)
 			continue
 		}
 
-		err = utmServices.CheckUpdates(masterVersion, h)
+		err = utmServices.CheckUpdates(env, utmLogger)
 		if err != nil {
-			h.Error("error updating services: %v", err)
+			utmLogger.Error("error updating services: %v", err)
 			continue
 		}
 

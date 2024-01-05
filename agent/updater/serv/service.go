@@ -10,12 +10,11 @@ import (
 	"github.com/kardianos/service"
 	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/agent/updater/configuration"
-	"github.com/utmstack/UTMStack/agent/updater/constants"
 	"github.com/utmstack/UTMStack/agent/updater/updates"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
-var h = holmes.New("debug", constants.SERV_NAME)
+var h = holmes.New("debug", configuration.SERV_NAME)
 
 type program struct{}
 
@@ -30,10 +29,10 @@ func (p *program) Stop(s service.Service) error {
 
 func (p *program) run() {
 	for {
-		isActive, err := utils.CheckIfServiceIsActive(constants.GetServAttr()["agent"].ServName)
+		isActive, err := utils.CheckIfServiceIsActive(configuration.GetServAttr()["agent"].ServName)
 		if err != nil {
 			time.Sleep(time.Second * 5)
-			h.Error("error checking if %s service is active: %v", constants.GetServAttr()["agent"].ServName, err)
+			h.Error("error checking if %s service is active: %v", configuration.GetServAttr()["agent"].ServName, err)
 			continue
 		} else if !isActive {
 			time.Sleep(time.Second * 5)
@@ -47,7 +46,6 @@ func (p *program) run() {
 		h.FatalError("failed to get current path: %v", err)
 	}
 
-	// Read config.yml
 	var cnf configuration.Config
 	err = utils.ReadYAML(filepath.Join(path, "config.yml"), &cnf)
 	if err != nil {

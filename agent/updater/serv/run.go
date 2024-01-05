@@ -5,15 +5,16 @@ import (
 	"github.com/quantfall/holmes"
 )
 
-func RunService(h *holmes.Logger) {
+// RunService runs the service in the system
+func RunService(utmLogger *holmes.Logger) {
 	svcConfig := GetConfigServ()
 	prg := new(program)
 	newService, err := service.New(prg, svcConfig)
 	if err != nil {
-		h.FatalError("error creating new service: %v", err)
+		utmLogger.FatalError("error creating new service: %v", err)
 	}
 	err = newService.Run()
 	if err != nil {
-		h.FatalError("error running new service: %v", err)
+		utmLogger.FatalError("error running new service: %v", err)
 	}
 }
