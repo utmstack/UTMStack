@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class SourceScan extends Base implements Auditable {
 
-    @Column(name = "last_execution_date")
+    @Column(name = "next_execution_date")
     private LocalDateTime executionDate;
 
     @ManyToOne

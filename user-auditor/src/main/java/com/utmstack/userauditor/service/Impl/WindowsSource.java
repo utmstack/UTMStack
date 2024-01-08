@@ -25,7 +25,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -57,17 +60,17 @@ public class WindowsSource implements Source {
     @Override
     public Map<String, List<EventLog>> findUsers(UserSource userSource) throws Exception {
 
-        LocalDate currentDate = LocalDate.now();
+        LocalDateTime currentDateTime = LocalDateTime.now();
         Map<String, List<UserAttribute>> users = new HashMap<>();
-        LocalDate startDate = LocalDate.of( startYear, 1, 1);
+        LocalDateTime startDate = LocalDateTime.of(LocalDate.of( startYear, 1, 1), LocalTime.of(0,0,0));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        final String ctx = "UserService.userlogs";
+        final String ctx = "UserService.winEventlogs";
         List<SourceScan> scans = sourceScanRepository.findBySource_Id(userSource.getId());
 
         if (!scans.isEmpty()) {
             startDate = scans.stream()
                     .map(SourceScan::getExecutionDate)
-                    .max(LocalDate::compareTo)
+                    .max(LocalDateTime::compareTo)
                     .orElse(startDate);
         }
 
@@ -75,7 +78,7 @@ public class WindowsSource implements Source {
             if (!elasticsearchService.indexExist(userSource.getIndexPattern()))
                 return this.userEvents;
 
-            if (currentDate.isAfter(startDate)) {
+            if (currentDateTime.isAfter(startDate)) {
                 for (SourceFilter filter : userSource.getFilters()) {
                     this.executeQuery(startDate.format(formatter), startDate.plusMonths(searchIntervalMonths).format(formatter), 10, filter);
                 }
