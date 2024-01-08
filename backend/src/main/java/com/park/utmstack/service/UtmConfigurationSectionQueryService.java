@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.service.QueryService;
+import tech.jhipster.service.filter.BooleanFilter;
 
 import java.util.List;
 
@@ -78,20 +79,27 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
      */
     private Specification<UtmConfigurationSection> createSpecification(UtmConfigurationSectionCriteria criteria) {
         Specification<UtmConfigurationSection> specification = Specification.where(null);
-        if (criteria != null) {
-            if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), UtmConfigurationSection_.id));
-            }
-            if (criteria.getSection() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getSection(), UtmConfigurationSection_.section));
-            }
-            if (criteria.getDescription() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getDescription(), UtmConfigurationSection_.description));
-            }
-            if (criteria.getModuleNameShort() != null) {
-                specification = specification.and(buildSpecification(criteria.getModuleNameShort(), UtmConfigurationSection_.moduleNameShort));
-            }
+
+        BooleanFilter sectionActiveFilter = new BooleanFilter();
+        sectionActiveFilter.setEquals(true);
+        specification = specification.and(buildSpecification(sectionActiveFilter, UtmConfigurationSection_.sectionActive));
+
+        if (criteria == null)
+            return specification;
+
+        if (criteria.getId() != null) {
+            specification = specification.and(buildSpecification(criteria.getId(), UtmConfigurationSection_.id));
         }
+        if (criteria.getSection() != null) {
+            specification = specification.and(buildStringSpecification(criteria.getSection(), UtmConfigurationSection_.section));
+        }
+        if (criteria.getDescription() != null) {
+            specification = specification.and(buildStringSpecification(criteria.getDescription(), UtmConfigurationSection_.description));
+        }
+        if (criteria.getModuleNameShort() != null) {
+            specification = specification.and(buildSpecification(criteria.getModuleNameShort(), UtmConfigurationSection_.moduleNameShort));
+        }
+
         return specification;
     }
 }
