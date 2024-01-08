@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.service.QueryService;
+import tech.jhipster.service.filter.BooleanFilter;
 
 import java.util.List;
 
@@ -27,23 +28,10 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
 
     private final Logger log = LoggerFactory.getLogger(UtmConfigurationSectionQueryService.class);
 
-    private final UtmConfigurationSectionRepository utmConfigurationSectionRepository;
+    private final UtmConfigurationSectionRepository configurationSectionRepository;
 
-    public UtmConfigurationSectionQueryService(UtmConfigurationSectionRepository utmConfigurationSectionRepository) {
-        this.utmConfigurationSectionRepository = utmConfigurationSectionRepository;
-    }
-
-    /**
-     * Return a {@link List} of {@link UtmConfigurationSection} which matches the criteria from the database
-     *
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching entities.
-     */
-    @Transactional(readOnly = true)
-    public List<UtmConfigurationSection> findByCriteria(UtmConfigurationSectionCriteria criteria) {
-        log.debug("find by criteria : {}", criteria);
-        final Specification<UtmConfigurationSection> specification = createSpecification(criteria);
-        return utmConfigurationSectionRepository.findAll(specification);
+    public UtmConfigurationSectionQueryService(UtmConfigurationSectionRepository configurationSectionRepository) {
+        this.configurationSectionRepository = configurationSectionRepository;
     }
 
     /**
@@ -55,22 +43,8 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
      */
     @Transactional(readOnly = true)
     public Page<UtmConfigurationSection> findByCriteria(UtmConfigurationSectionCriteria criteria, Pageable page) {
-        log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<UtmConfigurationSection> specification = createSpecification(criteria);
-        return utmConfigurationSectionRepository.findAll(specification, page);
-    }
-
-    /**
-     * Return the number of matching entities in the database
-     *
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the number of matching entities.
-     */
-    @Transactional(readOnly = true)
-    public long countByCriteria(UtmConfigurationSectionCriteria criteria) {
-        log.debug("count by criteria : {}", criteria);
-        final Specification<UtmConfigurationSection> specification = createSpecification(criteria);
-        return utmConfigurationSectionRepository.count(specification);
+        return configurationSectionRepository.findAll(specification, page);
     }
 
     /**
@@ -78,6 +52,11 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
      */
     private Specification<UtmConfigurationSection> createSpecification(UtmConfigurationSectionCriteria criteria) {
         Specification<UtmConfigurationSection> specification = Specification.where(null);
+
+        BooleanFilter sectionActiveFilter = new BooleanFilter();
+        sectionActiveFilter.setEquals(true);
+        specification = specification.and(buildSpecification(sectionActiveFilter, UtmConfigurationSection_.sectionActive));
+
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmConfigurationSection_.id));
@@ -85,13 +64,11 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
             if (criteria.getSection() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getSection(), UtmConfigurationSection_.section));
             }
-            if (criteria.getDescription() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getDescription(), UtmConfigurationSection_.description));
-            }
             if (criteria.getModuleNameShort() != null) {
                 specification = specification.and(buildSpecification(criteria.getModuleNameShort(), UtmConfigurationSection_.moduleNameShort));
             }
         }
+
         return specification;
     }
 }
