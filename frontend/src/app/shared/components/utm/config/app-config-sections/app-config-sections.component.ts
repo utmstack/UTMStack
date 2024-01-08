@@ -74,7 +74,6 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   saveConfig() {
     this.saving = true;
     if (this.checkConfigValid()) {
-      console.log(this.configToSave);
       this.utmConfigParamsService.update(this.configToSave).subscribe(response => {
 
           if (this.detectRequiredRestart()) {
