@@ -1,15 +1,18 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.repository.UtmConfigurationParameterRepository;
 import com.park.utmstack.util.CipherUtil;
+import com.park.utmstack.util.exceptions.UtmMailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -33,17 +36,23 @@ public class UtmConfigurationParameterService {
     private static final String CLASSNAME = "UtmConfigurationParameterService";
     private final Logger log = LoggerFactory.getLogger(UtmConfigurationParameterService.class);
 
-    private final UtmConfigurationParameterRepository utmConfigurationParameterRepository;
+    private final UtmConfigurationParameterRepository configParamRepository;
+    private final UserService userService;
+    private final MailService mailService;
 
-    public UtmConfigurationParameterService(UtmConfigurationParameterRepository utmConfigurationParameterRepository) {
-        this.utmConfigurationParameterRepository = utmConfigurationParameterRepository;
+    public UtmConfigurationParameterService(UtmConfigurationParameterRepository configParamRepository,
+                                            UserService userService,
+                                            MailService mailService) {
+        this.configParamRepository = configParamRepository;
+        this.userService = userService;
+        this.mailService = mailService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         final String ctx = CLASSNAME + ".init";
         try {
-            List<UtmConfigurationParameter> params = utmConfigurationParameterRepository.findAll();
+            List<UtmConfigurationParameter> params = configParamRepository.findAll();
             if (CollectionUtils.isEmpty(params))
                 return;
             params.forEach(p -> {
@@ -57,17 +66,25 @@ public class UtmConfigurationParameterService {
         }
     }
 
-    public void saveAll(List<UtmConfigurationParameter> parameters) throws Exception {
+    public void saveAll(List<UtmConfigurationParameter> params) throws UtmMailException {
         final String ctx = CLASSNAME + ".saveAll";
         try {
+            // If the configuration to save is: Enable Two-Factor Authentication then we need to check
+            // if the email configuration is OK
+            params.stream().filter(p -> p.getConfParamShort().equals(Constants.PROP_TFA_ENABLE)
+                            && Boolean.parseBoolean(p.getConfParamValue()))
+                    .findFirst().ifPresent(tfa -> validateMailConfOnMFAActivation());
+
             Map<String, String> cfg = new HashMap<>();
-            parameters.forEach(p -> {
+            for (UtmConfigurationParameter p : params) {
                 cfg.put(p.getConfParamShort(), p.getConfParamValue());
                 if (StringUtils.hasText(p.getConfParamValue()) && p.getConfParamDatatype().equalsIgnoreCase("password"))
                     p.setConfParamValue(CipherUtil.encrypt(p.getConfParamValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
-            });
-            utmConfigurationParameterRepository.saveAll(parameters);
+            }
+            configParamRepository.saveAll(params);
             Constants.CFG.putAll(cfg);
+        } catch (UtmMailException e) {
+            throw new UtmMailException(ctx + ": " + e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -82,7 +99,7 @@ public class UtmConfigurationParameterService {
     @Transactional(readOnly = true)
     public Page<UtmConfigurationParameter> findAll(Pageable pageable) {
         log.debug("Request to get all UtmConfigurationParameters");
-        return utmConfigurationParameterRepository.findAll(pageable);
+        return configParamRepository.findAll(pageable);
     }
 
 
@@ -95,7 +112,7 @@ public class UtmConfigurationParameterService {
     @Transactional(readOnly = true)
     public Optional<UtmConfigurationParameter> findOne(Long id) {
         log.debug("Request to get UtmConfigurationParameter : {}", id);
-        return utmConfigurationParameterRepository.findById(id);
+        return configParamRepository.findById(id);
     }
 
     /**
@@ -105,18 +122,27 @@ public class UtmConfigurationParameterService {
      */
     public void delete(Long id) {
         log.debug("Request to delete UtmConfigurationParameter : {}", id);
-        utmConfigurationParameterRepository.deleteById(id);
+        configParamRepository.deleteById(id);
     }
 
     public Map<String, String> getValueMapForDateSetting() throws Exception {
         final String ctx = CLASSNAME + ".getValueMapForDateSetting";
         try {
-            return utmConfigurationParameterRepository
-                .findAllBySectionId(DATE_FORMAT_SETTING_ID).stream()
-                .collect(Collectors.toMap(UtmConfigurationParameter::getConfParamShort,
-                    UtmConfigurationParameter::getConfParamValue));
+            return configParamRepository
+                    .findAllBySectionId(DATE_FORMAT_SETTING_ID).stream()
+                    .collect(Collectors.toMap(UtmConfigurationParameter::getConfParamShort,
+                            UtmConfigurationParameter::getConfParamValue));
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    private void validateMailConfOnMFAActivation() throws UtmMailException {
+        final String ctx = CLASSNAME + ".validateMailConfOnMFAActivation";
+        try {
+            mailService.sendCheckEmail(List.of(userService.getCurrentUserLogin().getEmail()));
+        } catch (Exception e) {
+            throw new UtmMailException(ctx + ": " + e.getLocalizedMessage());
         }
     }
 }
