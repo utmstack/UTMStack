@@ -90,7 +90,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         },
         error => {
           this.saving = false;
-          if (error.status === 412){
+          if (error.status === 412) {
             this.toastService.showError('Error', 'Before activating Multi-Factor Authentication (MFA), ' +
               'please ensure your email settings are configured correctly');
           } else {
