@@ -19,7 +19,6 @@ import {resolveFieldNameByFilter} from '../../../util/alert-util-function';
 export class ActiveFiltersComponent implements OnInit {
   @Input() filters: ElasticFilterType[] = [];
   @Input() dataType: EventDataTypeEnum;
-  @Input() showHeader = true;
   operatorsEnum = ElasticOperatorsEnum;
   STATUS_FIELD = ALERT_STATUS_FIELD;
   SEVERITY_FIELD = ALERT_SEVERITY_FIELD;

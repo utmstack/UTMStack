@@ -122,7 +122,7 @@ public class ElasticsearchService {
     }
 
     public <T> IndexResponse index(String index, T document) {
-        final String ctx = CLASSNAME + ".indexExist";
+        final String ctx = CLASSNAME + ".index";
         try {
             return client.getClient().index(index, document);
         } catch (Exception e) {

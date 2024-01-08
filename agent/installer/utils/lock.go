@@ -5,7 +5,6 @@ import (
 	"os"
 )
 
-// SetLock creates a lock file
 func SetLock(lockdir string) error {
 	if !CheckIfPathExist(lockdir) {
 		file, err := os.OpenFile(lockdir, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
@@ -17,7 +16,6 @@ func SetLock(lockdir string) error {
 	return nil
 }
 
-// RemoveLock removes a lock file
 func RemoveLock(lockdir string) error {
 	if CheckIfPathExist(lockdir) {
 		err := os.Remove(lockdir)

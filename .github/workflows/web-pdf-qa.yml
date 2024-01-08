@@ -1,7 +1,7 @@
 name: Web PDF QA
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'web-pdf/**'
 
@@ -12,4 +12,4 @@ jobs:
       image_name: web-pdf
       environment: v10-qa
       directory: web-pdf
-      branch: main
+      branch: qa

@@ -65,7 +65,7 @@ export class AlertTagsManagementComponent implements OnInit {
   openDeleteConfirmation(tag: any) {
     const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
     deleteModalRef.componentInstance.header = 'Confirm delete operation';
-    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete the tag: ' + tag.name;
+    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete the tag: ' + tag.tagName;
     deleteModalRef.componentInstance.confirmBtnText = 'Delete';
     deleteModalRef.componentInstance.confirmBtnIcon = 'icon-database-remove';
     deleteModalRef.componentInstance.confirmBtnType = 'delete';

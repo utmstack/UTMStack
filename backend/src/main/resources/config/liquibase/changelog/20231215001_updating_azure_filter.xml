@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231215001" author="Freddy">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            UPDATE utm_logstash_filter
+            SET filter_version='1.0.3',logstash_filter='filter {
+    #Fields where extracted based on https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
+    #https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
+    #Filter version 1.0.3
+
+ if ([type] and [type] == "azure") {
+    #Handling messages comming as an array of json
+    #Only array of json need to be splitted
+
+# Eliminating the scape characters before json transformation
+      mutate {
+        gsub => [
+          "message", ''\"'', ''"''
+        ]
+      }
+
+# Perform json transformation
+      json {
+        source => "message"
+        target => "azroot"
+      }
+# Split fields in case of arrays
+if ([azroot][records]) {
+        split {
+          field => "[azroot][records]"
+          target => "azroot"
+        }
+} else if ([azroot]) {
+        split {
+          field => "azroot"
+        }
+}
+# Generating dataType and dataSource fields
+      if [@metadata][dataSource] {
+        mutate {
+            add_field => {
+                "dataType" => "azure"
+            }
+            #Add based on metadata
+            add_field => {
+                "dataSource" => "%{[@metadata][dataSource]}"
+            }
+            add_field => {
+                "[logx][tenant]" => "%{[@metadata][dataSource]}"
+            }
+        }
+      }
+    #Generating JSON structure of logx.azure
+    mutate {
+            #First, fields without fields inside, from the log example
+            rename => { "[azroot][id]" => "[logx][azure][id]" }
+            rename => { "[azroot][eventType]" => "[logx][azure][eventType]" }
+            rename => { "[azroot][subject]" => "[logx][azure][subject]" }
+            rename => { "[azroot][eventTime]" => "[logx][azure][eventTime]" }
+            rename => { "[azroot][topic]" => "[logx][azure][topic]" }
+
+            #Then, fields inside [data] without fields inside, from the log example
+            rename => { "[azroot][data][tenantId]" => "[logx][azure][tenantId]" }
+            rename => { "[azroot][data][correlationId]" => "[logx][azure][correlationId]" }
+            rename => { "[azroot][data][resourceUri]" => "[logx][azure][resourceUri]" }
+            rename => { "[azroot][data][operationName]" => "[logx][azure][operationName]" }
+            rename => { "[azroot][data][operationVersion]" => "[logx][azure][operationVersion]" }
+            rename => { "[azroot][data][status]" => "[logx][azure][status]" }
+            rename => { "[azroot][data][subscriptionId]" => "[logx][azure][subscriptionId]" }
+            rename => { "[azroot][data][resourceProvider]" => "[logx][azure][resourceProvider]" }
+
+            #Then fields in root level in the docs (first doc url), but not in the log examples, because operationName is inside [data]
+            # and in the docs are root level, we asume that the other must come in the same way
+            rename => { "[azroot][data][resourceId]" => "[logx][azure][resourceId]" }
+            rename => { "[azroot][data][category]" => "[logx][azure][category]" }
+            rename => { "[azroot][data][resultType]" => "[logx][azure][resultType]" }
+            rename => { "[azroot][data][resultSignature]" => "[logx][azure][resultSignature]" }
+            rename => { "[azroot][data][durationMs]" => "[logx][azure][durationMs]" }
+            rename => { "[azroot][data][callerIpAddress]" => "[logx][azure][callerIpAddress]" }
+            rename => { "[azroot][data][level]" => "[logx][azure][level]" }
+            rename => { "[azroot][data][location]" => "[logx][azure][location]" }
+            rename => { "[azroot][data][properties]" => "[logx][azure][properties]" }
+
+            #Then fields in root level in the docs (second doc url), but not in the log examples, because operationName is inside [data]
+            # and in the docs are root level, we asume that the other must come in the same way
+            rename => { "[azroot][data][channels]" => "[logx][azure][channels]" }
+            rename => { "[azroot][data][description]" => "[logx][azure][description]" }
+            rename => { "[azroot][data][eventDataId]" => "[logx][azure][eventDataId]" }
+            rename => { "[azroot][data][eventName]" => "[logx][azure][eventName]" }
+            rename => { "[azroot][data][eventTimestamp]" => "[logx][azure][eventTimestamp]" }
+            rename => { "[azroot][data][operationId]" => "[logx][azure][operationId]" }
+            rename => { "[azroot][data][resourceGroupName]" => "[logx][azure][resourceGroupName]" }
+            rename => { "[azroot][data][resourceProviderName]" => "[logx][azure][resourceProviderName]" }
+            rename => { "[azroot][data][resourceType]" => "[logx][azure][resourceType]" }
+            rename => { "[azroot][data][subStatus]" => "[logx][azure][subStatus]" }
+            rename => { "[azroot][data][submissionTimestamp]" => "[logx][azure][submissionTimestamp]" }
+            rename => { "[azroot][data][relatedEvents]" => "[logx][azure][relatedEvents]" }
+            rename => { "[azroot][data][caller]" => "[logx][azure][caller]" }
+
+            #Then, fields inside [data][authorization] without fields inside, from the log example
+            rename => { "[azroot][data][authorization][scope]" => "[logx][azure][auth_scope]" }
+            rename => { "[azroot][data][authorization][action]" => "[logx][azure][auth_action]" }
+
+            #Then, fields inside [azroot][data][httpRequest] with fields inside, from the log example
+            rename => { "[azroot][data][httpRequest]" => "[logx][azure][httpRequest]" }
+
+            #Then, fields inside [data][authorization][evidence], from the log example
+            rename => { "[azroot][data][authorization][evidence][role]" => "[logx][azure][auth_evidence_role]" }
+            rename => { "[azroot][data][authorization][evidence][roleAssignmentScope]" => "[logx][azure][auth_evidence_roleAssignmentScope]" }
+            rename => { "[azroot][data][authorization][evidence][roleAssignmentId]" => "[logx][azure][auth_evidence_roleAssignmentId]" }
+            rename => { "[azroot][data][authorization][evidence][principalId]" => "[logx][azure][auth_evidence_principalId]" }
+            rename => { "[azroot][data][authorization][evidence][principalType]" => "[logx][azure][auth_evidence_principalType]" }
+            rename => { "[azroot][data][authorization][evidence][roleDefinitionId]" => "[logx][azure][auth_evidence_roleDefinitionId]" }
+
+            #Then, fields inside [data][claims], from the log example and match with docs at root level
+            rename => { "[azroot][data][claims][aud]" => "[logx][azure][claims_aud]" }
+            rename => { "[azroot][data][claims][iss]" => "[logx][azure][claims_iss]" }
+            rename => { "[azroot][data][claims][iat]" => "[logx][azure][claims_iat]" }
+            rename => { "[azroot][data][claims][nbf]" => "[logx][azure][claims_nbf]" }
+            rename => { "[azroot][data][claims][exp]" => "[logx][azure][claims_exp]" }
+            rename => { "[azroot][data][claims][ver]" => "[logx][azure][claims_ver]" }
+            rename => { "[azroot][data][claims][http://schemas.microsoft.com/identity/claims/tenantid]" => "[logx][azure][claims_tenantid]" }
+            rename => { "[azroot][data][claims][http://schemas.microsoft.com/claims/authnmethodsreferences]" => "[logx][azure][claims_authnmethodsreferences]" }
+            rename => { "[azroot][data][claims][http://schemas.microsoft.com/identity/claims/objectidentifier]" => "[logx][azure][claims_objectidentifier]" }
+            rename => { "[azroot][data][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn]" => "[logx][azure][claims_upn]" }
+            rename => { "[azroot][data][claims][puid]" => "[logx][azure][claims_puid]" }
+            rename => { "[azroot][data][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier]" => "[logx][azure][claims_nameidentifier]" }
+            rename => { "[azroot][data][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname]" => "[logx][azure][claims_givenname]" }
+            rename => { "[azroot][data][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname]" => "[logx][azure][claims_surname]" }
+            rename => { "[azroot][data][claims][name]" => "[logx][azure][claims_name]" }
+            rename => { "[azroot][data][claims][groups]" => "[logx][azure][claims_groups]" }
+            rename => { "[azroot][data][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name]" => "[logx][azure][claims_identity_name]" }
+            rename => { "[azroot][data][claims][appid]" => "[logx][azure][claims_appid]" }
+            rename => { "[azroot][data][claims][http://schemas.microsoft.com/identity/claims/scope]" => "[logx][azure][claims_scope]" }
+            rename => { "[azroot][data][claims][appidacr]" => "[logx][azure][claims_appidacr]" }
+            rename => { "[azroot][data][claims][http://schemas.microsoft.com/claims/authnclassreference]" => "[logx][azure][claims_authnclassreference]" }
+
+            #Then, fields inside [data][claims] not in doc but in log examples provided
+            rename => { "[azroot][data][claims][ipaddr]" => "[logx][azure][src_ip]" }
+            rename => { "[azroot][data][claims][xms_tcdt]" => "[logx][azure][claims_xms_tcdt]" }
+            rename => { "[azroot][data][claims][rh]" => "[logx][azure][claims_rh]" }
+            rename => { "[azroot][data][claims][aio]" => "[logx][azure][claims_aio]" }
+            rename => { "[azroot][data][claims][uti]" => "[logx][azure][claims_uti]" }
+    }
+    #Generating JSON structure of logx.azure (Newer version 12-2023)
+    mutate {
+
+            #Then, fields without fields inside, from the log example
+            rename => { "[azroot][properties]" => "[logx][azure][properties]" }
+            rename => { "[azroot][time]" => "[logx][azure][time]" }
+            rename => { "[azroot][identity]" => "[logx][azure][identity]" }
+            rename => { "[azroot][Level]" => "[logx][azure][Level]" }
+            rename => { "[azroot][operationVersion]" => "[logx][azure][operationVersion]" }
+
+            rename => { "[azroot][tenantId]" => "[logx][azure][tenantId]" }
+            rename => { "[azroot][correlationId]" => "[logx][azure][correlationId]" }
+            rename => { "[azroot][resourceUri]" => "[logx][azure][resourceUri]" }
+            rename => { "[azroot][operationName]" => "[logx][azure][operationName]" }
+            rename => { "[azroot][status]" => "[logx][azure][status]" }
+            rename => { "[azroot][subscriptionId]" => "[logx][azure][subscriptionId]" }
+            rename => { "[azroot][resourceProvider]" => "[logx][azure][resourceProvider]" }
+
+            #Then fields in root level in the docs (first doc url), but not in the log examples, because operationName is inside [data]
+            # and in the docs are root level, we asume that the other must come in the same way
+            rename => { "[azroot][resourceId]" => "[logx][azure][resourceId]" }
+            rename => { "[azroot][category]" => "[logx][azure][category]" }
+            rename => { "[azroot][resultType]" => "[logx][azure][resultType]" }
+            rename => { "[azroot][resultSignature]" => "[logx][azure][resultSignature]" }
+            rename => { "[azroot][durationMs]" => "[logx][azure][durationMs]" }
+            rename => { "[azroot][callerIpAddress]" => "[logx][azure][callerIpAddress]" }
+            rename => { "[azroot][level]" => "[logx][azure][level]" }
+            rename => { "[azroot][location]" => "[logx][azure][location]" }
+            rename => { "[azroot][properties]" => "[logx][azure][properties]" }
+
+            #Then fields in root level in the docs (second doc url), but not in the log examples, because operationName is inside the root
+            rename => { "[azroot][channels]" => "[logx][azure][channels]" }
+            rename => { "[azroot][description]" => "[logx][azure][description]" }
+            rename => { "[azroot][eventDataId]" => "[logx][azure][eventDataId]" }
+            rename => { "[azroot][eventName]" => "[logx][azure][eventName]" }
+            rename => { "[azroot][eventTimestamp]" => "[logx][azure][eventTimestamp]" }
+            rename => { "[azroot][operationId]" => "[logx][azure][operationId]" }
+            rename => { "[azroot][resourceGroupName]" => "[logx][azure][resourceGroupName]" }
+            rename => { "[azroot][resourceProviderName]" => "[logx][azure][resourceProviderName]" }
+            rename => { "[azroot][resourceType]" => "[logx][azure][resourceType]" }
+            rename => { "[azroot][subStatus]" => "[logx][azure][subStatus]" }
+            rename => { "[azroot][submissionTimestamp]" => "[logx][azure][submissionTimestamp]" }
+            rename => { "[azroot][relatedEvents]" => "[logx][azure][relatedEvents]" }
+            rename => { "[azroot][caller]" => "[logx][azure][caller]" }
+
+            #Then, fields inside [authorization] without fields inside, from the log example
+            rename => { "[azroot][authorization][scope]" => "[logx][azure][auth_scope]" }
+            rename => { "[azroot][authorization][action]" => "[logx][azure][auth_action]" }
+
+            #Then, fields inside [azroot][httpRequest] with fields inside, from the log example
+            rename => { "[azroot][httpRequest]" => "[logx][azure][httpRequest]" }
+
+            #Then, fields inside [authorization][evidence], from the log example
+            rename => { "[azroot][authorization][evidence][role]" => "[logx][azure][auth_evidence_role]" }
+            rename => { "[azroot][authorization][evidence][roleAssignmentScope]" => "[logx][azure][auth_evidence_roleAssignmentScope]" }
+            rename => { "[azroot][authorization][evidence][roleAssignmentId]" => "[logx][azure][auth_evidence_roleAssignmentId]" }
+            rename => { "[azroot][authorization][evidence][principalId]" => "[logx][azure][auth_evidence_principalId]" }
+            rename => { "[azroot][authorization][evidence][principalType]" => "[logx][azure][auth_evidence_principalType]" }
+            rename => { "[azroot][authorization][evidence][roleDefinitionId]" => "[logx][azure][auth_evidence_roleDefinitionId]" }
+
+            #Then, fields inside [claims], from the log example and match with docs at root level
+            rename => { "[azroot][claims][aud]" => "[logx][azure][claims_aud]" }
+            rename => { "[azroot][claims][iss]" => "[logx][azure][claims_iss]" }
+            rename => { "[azroot][claims][iat]" => "[logx][azure][claims_iat]" }
+            rename => { "[azroot][claims][nbf]" => "[logx][azure][claims_nbf]" }
+            rename => { "[azroot][claims][exp]" => "[logx][azure][claims_exp]" }
+            rename => { "[azroot][claims][ver]" => "[logx][azure][claims_ver]" }
+            rename => { "[azroot][claims][http://schemas.microsoft.com/identity/claims/tenantid]" => "[logx][azure][claims_tenantid]" }
+            rename => { "[azroot][claims][http://schemas.microsoft.com/claims/authnmethodsreferences]" => "[logx][azure][claims_authnmethodsreferences]" }
+            rename => { "[azroot][claims][http://schemas.microsoft.com/identity/claims/objectidentifier]" => "[logx][azure][claims_objectidentifier]" }
+            rename => { "[azroot][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn]" => "[logx][azure][claims_upn]" }
+            rename => { "[azroot][claims][puid]" => "[logx][azure][claims_puid]" }
+            rename => { "[azroot][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier]" => "[logx][azure][claims_nameidentifier]" }
+            rename => { "[azroot][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname]" => "[logx][azure][claims_givenname]" }
+            rename => { "[azroot][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname]" => "[logx][azure][claims_surname]" }
+            rename => { "[azroot][claims][name]" => "[logx][azure][claims_name]" }
+            rename => { "[azroot][claims][groups]" => "[logx][azure][claims_groups]" }
+            rename => { "[azroot][claims][http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name]" => "[logx][azure][claims_identity_name]" }
+            rename => { "[azroot][claims][appid]" => "[logx][azure][claims_appid]" }
+            rename => { "[azroot][claims][http://schemas.microsoft.com/identity/claims/scope]" => "[logx][azure][claims_scope]" }
+            rename => { "[azroot][claims][appidacr]" => "[logx][azure][claims_appidacr]" }
+            rename => { "[azroot][claims][http://schemas.microsoft.com/claims/authnclassreference]" => "[logx][azure][claims_authnclassreference]" }
+
+            #Then, fields inside [claims] not in doc but in log examples provided
+            rename => { "[azroot][claims][ipaddr]" => "[logx][azure][src_ip]" }
+            rename => { "[azroot][claims][xms_tcdt]" => "[logx][azure][claims_xms_tcdt]" }
+            rename => { "[azroot][claims][rh]" => "[logx][azure][claims_rh]" }
+            rename => { "[azroot][claims][aio]" => "[logx][azure][claims_aio]" }
+            rename => { "[azroot][claims][uti]" => "[logx][azure][claims_uti]" }
+    }
+    # Renaming message at the end
+    mutate {
+            rename => { "[message]" => "[logx][azure][message]" }
+    }
+
+    #Finally remove unused fields
+    mutate {
+        remove_field => ["path","@version","dataVersion","[data][time]","metadataVersion","type","data","azroot","headers"]
+    }
+}
+#Also, remove unwanted fields if the message not match with conditions
+   mutate {
+      remove_field => ["@version","path","headers"]
+   }
+}
+'
+            WHERE id=201;
+
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM eclipse-temurin:11
 
 ADD target/utmstack.war ./
 

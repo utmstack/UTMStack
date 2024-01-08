@@ -1,4 +1,4 @@
-name: Backend - RC
+name: Backend RC
 on:
   push:
     branches: [ "rc" ]

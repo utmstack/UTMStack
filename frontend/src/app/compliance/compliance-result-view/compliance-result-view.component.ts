@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridType} from 'angular-gridster2';
@@ -13,21 +13,13 @@ import {ComplianceTemplateService} from '../shared/services/compliance-template.
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {HippaSignaturesType} from '../shared/type/hippa-signatures.type';
-import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
-import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
-import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
-import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
-import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-compliance-result-view',
   templateUrl: './compliance-result-view.component.html',
   styleUrls: ['./compliance-result-view.component.scss']
 })
-export class ComplianceResultViewComponent implements OnInit, OnDestroy {
+export class ComplianceResultViewComponent implements OnInit {
   reportId: number;
   report: ComplianceReportType;
   signatures: HippaSignaturesType[] = [];
@@ -64,8 +56,6 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   standardId: number;
   sectionId: number;
   configSolution: string;
-  filtersValues: ElasticFilterType[] = [];
-  destroy$: Subject<void> = new Subject<void>();
 
   constructor(private activeRoute: ActivatedRoute,
               private cpReportsService: CpReportsService,
@@ -73,10 +63,7 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
               private utmToastService: UtmToastService,
               private modalService: NgbModal,
               private complianceTemplateService: ComplianceTemplateService,
-              private utmRenderVisualization: UtmRenderVisualization,
-              private timeFilterBehavior: TimeFilterBehavior,
-              private spinner: NgxSpinnerService,
-              private exportPdfService: ExportPdfService) {
+              private utmRenderVisualization: UtmRenderVisualization) {
 
     this.activeRoute.queryParams.subscribe((params) => {
       this.reportId = params[ComplianceParamsEnum.TEMPLATE];
@@ -87,16 +74,6 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getTemplate();
-
-    this.timeFilterBehavior.$time
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(time => {
-      if (time) {
-        rebuildVisualizationFilterTime({timeFrom: time.from, timeTo: time.to}, this.filtersValues).then(filters => {
-          this.filtersValues = filters;
-        });
-      }
-    });
   }
 
   /**
@@ -126,27 +103,12 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
       });
     }
   }
-  exportToPdf() {
-    filtersToStringParam(this.filtersValues).then(queryParams => {
-      this.spinner.show('buildPrintPDF');
-      const params = queryParams !== '' ? '?' + queryParams : '';
-      const url = '/dashboard/export-compliance/' + this.reportId +  params;
-      const fileName = this.report.associatedDashboard.name.replace(/ /g, '_');
-      this.exportPdfService.getPdf(url, fileName, 'PDF_TYPE_TOKEN').subscribe(response => {
-        this.spinner.hide('buildPrintPDF').then(() =>
-          this.exportPdfService.handlePdfResponse(response));
-      }, error => {
-        this.spinner.hide('buildPrintPDF').then(() =>
-          this.utmToastService.showError('Error', 'An error occurred while creating a PDF.'));
-      });
-    });
-  }
-  viewSolution(solution: string): void {
-    this.configSolution = solution;
+
+  get exportToPdf() {
+    return '/dashboard/export-compliance/' + this.reportId;
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  viewSolution(solution: string): void {
+    this.configSolution = solution;
   }
 }

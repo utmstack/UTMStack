@@ -1,14 +1,14 @@
 <div class="card w-100 h-100">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h6 class="card-title mb-0 text-uppercase label-header">
-      Rollover
+      Data retention
     </h6>
     <div class="header-elements">
       <button (click)="saveRollover()"
               [disabled]="days==null"
               class="btn utm-button utm-button-primary">
         <i [ngClass]="saving?'icon-spinner2 spinner':'icon-database-time2'" class="ml-2"></i>
-        {{saving ? 'Saving' : 'Save'}} rollover
+        {{saving ? 'Saving' : 'Save'}} data retention
       </button>
     </div>
   </div>

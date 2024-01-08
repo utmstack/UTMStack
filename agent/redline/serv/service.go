@@ -3,6 +3,7 @@ package serv
 import (
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -27,21 +28,19 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func (p *program) run() {
-checkall:
+	path, err := utils.GetMyPath()
+	if err != nil {
+		h.FatalError("Failed to get current path: %v", err)
+	}
+
 	for {
-		for servName := range constants.GetServicesLock() {
-			isActive, err := utils.CheckIfServiceIsActive(servName)
-			if err != nil {
-				time.Sleep(time.Second * 5)
-				h.Error("error checking if %s service is active: %v", servName, err)
-				continue checkall
-			} else if !isActive {
-				time.Sleep(time.Second * 5)
-				continue checkall
-			}
+		if utils.CheckIfPathExist(filepath.Join(path, "locks", "setup.lock")) {
+			time.Sleep(time.Second * 5)
+			continue
 		}
 		break
 	}
+
 	h.Info("UTMStackRedline started correctly")
 	for servName, lockName := range constants.GetServicesLock() {
 		go protector.ProtectService(servName, lockName, h)

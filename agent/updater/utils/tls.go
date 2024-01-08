@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// LoadTLSCredentials loads the TLS credentials from the specified certificate file.
 func LoadTLSCredentials(crtName string) (*tls.Config, error) {
 	// Load the server's certificate
 	serverCert, err := os.ReadFile(crtName)

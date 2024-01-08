@@ -27,5 +27,9 @@ public class UtilResponse {
     public static <T> ResponseEntity<T> buildUnauthorizedResponse(String msg) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, msg);
     }
+
+    public static <T> ResponseEntity<T> buildPreconditionFailedResponse(String msg) {
+        return buildErrorResponse(HttpStatus.PRECONDITION_FAILED, msg);
+    }
 }
 

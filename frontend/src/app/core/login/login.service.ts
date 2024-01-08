@@ -33,10 +33,6 @@ export class LoginService {
     return this.authServerProvider.loginWithToken(jwt, rememberMe);
   }
 
-  loginWithKey(key, rememberMe) {
-    return this.authServerProvider.loginWithAccessKey(key, rememberMe);
-  }
-
   logout() {
     this.authServerProvider.logout().subscribe(() => {
       this.accountService.authenticate(null);

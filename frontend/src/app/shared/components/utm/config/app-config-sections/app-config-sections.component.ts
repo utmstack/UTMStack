@@ -74,7 +74,6 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   saveConfig() {
     this.saving = true;
     if (this.checkConfigValid()) {
-
       this.utmConfigParamsService.update(this.configToSave).subscribe(response => {
 
           if (this.detectRequiredRestart()) {
@@ -90,7 +89,13 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
           this.configToSave = [];
         },
         error => {
-          this.toastService.showError('Error', 'Error saving configuration, go to application logs for more details');
+          this.saving = false;
+          if (error.status === 412) {
+            this.toastService.showError('Error', 'Before activating Multi-Factor Authentication (MFA), ' +
+              'please ensure your email settings are configured correctly');
+          } else {
+            this.toastService.showError('Error', 'Error saving configuration, go to application logs for more details');
+          }
         });
     } else {
       this.toastService.showInfo('Configuration not valid', 'There are required configurations that you need set before save');

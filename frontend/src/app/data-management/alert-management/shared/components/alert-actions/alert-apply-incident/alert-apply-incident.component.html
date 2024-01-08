@@ -3,9 +3,9 @@
      placement="top"
      container="body"
      tooltipClass="utm-tooltip-top">
-<span #incidentPopober=ngbPopover
-      [ngbPopover]="isIncident?incidentDetailTitle:colContent"
-      [popoverTitle]="isIncident?null:colTitle"
+<span #incidentPopoverSpan=ngbPopover
+      [ngbPopover]="isIncident ? incidentDetailTitle : colContent"
+      [popoverTitle]="isIncident ? null : colTitle"
       autoClose="outside"
       class="text-blue-800 position-relative cursor-pointer small-md-icon"
       container="body"
@@ -15,7 +15,7 @@
   <i [ngClass]="creating?'icon-spinner2 spinner':isIncident?'icon-target2':'icon-target'"></i>
 </span>
 </div>
-<button #incidentPopober=ngbPopover [hidden]="!multiple"
+<button #incidentPopoverButton=ngbPopover [hidden]="!multiple"
         [ngbPopover]="colContent"
         autoClose="outside"
         class="p-1 text-blue-800 font-weight-light my-2"
@@ -28,12 +28,12 @@
 </button>
 <ng-template #colContent>
   <div class="d-flex flex-column justify-content-start align-items-start">
-    <a (click)="createIncident(); incidentPopober.close()"
+    <a (click)="createIncident(); closePopover()"
        class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
       <i class="icon-plus2 mr-1"></i>
       Create incident
     </a>
-    <a (click)="addToIncident(); incidentPopober.close()"
+    <a (click)="addToIncident(); closePopover()"
        class="text-blue-800 span-small-icon font-size-base cursor-pointer p-1 item-status w-100">
       <i class="icon-make-group mr-1"></i>
       Add to incident
