@@ -6,7 +6,8 @@ import com.park.utmstack.service.UtmConfigurationParameterQueryService;
 import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
-import com.park.utmstack.web.rest.util.HeaderUtil;
+import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -33,13 +33,10 @@ public class UtmConfigurationParameterResource {
 
     private final Logger log = LoggerFactory.getLogger(UtmConfigurationParameterResource.class);
 
-    private static final String ENTITY_NAME = "utmConfigurationParameter";
     private static final String CLASSNAME = "UtmConfigurationParameterResource";
 
     private final UtmConfigurationParameterService utmConfigurationParameterService;
-
     private final UtmConfigurationParameterQueryService utmConfigurationParameterQueryService;
-
     private final ApplicationEventService applicationEventService;
 
     public UtmConfigurationParameterResource(UtmConfigurationParameterService utmConfigurationParameterService,
@@ -64,12 +61,21 @@ public class UtmConfigurationParameterResource {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             utmConfigurationParameterService.saveAll(parameters);
             return ResponseEntity.ok().build();
+        } catch (UtmMailException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildPreconditionFailedResponse(msg);
+        } catch (IllegalArgumentException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildBadRequestResponse(msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+            return UtilResponse.buildInternalServerErrorResponse(msg);
         }
     }
 
