@@ -77,7 +77,7 @@ create table utm_source_scan
     id             bigint not null
         primary key,
     active         boolean default true,
-    next_execution_date timestamp,
+    last_execution_date date,
     created_date   timestamp,
     modified_date  timestamp,
     user_sources_id bigint
