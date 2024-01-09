@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240109001" author="leonardo">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            UPDATE utm_configuration_parameter SET conf_param_required = false WHERE conf_param_short IN ('utmstack.mail.username', 'utmstack.mail.password');
+        </sql>
+    </changeSet>
+</databaseChangeLog>
