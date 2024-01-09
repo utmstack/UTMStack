@@ -5,10 +5,6 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <changeSet id="20240109001" author="leonardo">
-        <addColumn tableName="utm_configuration_section">
-            <column name="section_active" type="boolean" />
-        </addColumn>
-
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             UPDATE utm_configuration_parameter SET conf_param_required = false WHERE conf_param_short IN ('utmstack.mail.username', 'utmstack.mail.password');
         </sql>
