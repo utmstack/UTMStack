@@ -31,5 +31,9 @@ public class UtilResponse {
     public static <T> ResponseEntity<T> buildPreconditionFailedResponse(String msg) {
         return buildErrorResponse(HttpStatus.PRECONDITION_FAILED, msg);
     }
+
+    public static <T> ResponseEntity<T> buildNotFoundResponse(String msg) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, msg);
+    }
 }
 

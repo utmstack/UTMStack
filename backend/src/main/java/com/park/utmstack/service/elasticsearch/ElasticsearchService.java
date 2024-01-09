@@ -1,5 +1,6 @@
 package com.park.utmstack.service.elasticsearch;
 
+import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.utmstack.opensearch_connector.enums.IndexSortableProperty;
 import com.utmstack.opensearch_connector.enums.TermOrder;
 import com.utmstack.opensearch_connector.exceptions.OpenSearchException;
@@ -17,6 +18,7 @@ import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;
@@ -141,6 +143,10 @@ public class ElasticsearchService {
      */
     public List<IndexPropertyType> getIndexProperties(String indexPattern) {
         final String ctx = CLASSNAME + ".getIndexProperties";
+
+        if (!indexExist(indexPattern))
+            throw new OpenSearchIndexNotFoundException(ctx  + ": Index [" + indexPattern + "] not found");
+
         try {
             Map<String, String> properties = client.getClient().getIndexProperties(indexPattern);
             if (CollectionUtils.isEmpty(properties))
