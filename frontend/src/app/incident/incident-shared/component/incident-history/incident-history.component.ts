@@ -28,12 +28,7 @@ export class IncidentHistoryComponent implements OnInit {
   noMoreResult = false;
   totalItems: any;
   itemsPerPage = 15;
-  actions: IncidentHistoryActionEnum[] = [
-    IncidentHistoryActionEnum.INCIDENT_CREATED,
-    IncidentHistoryActionEnum.INCIDENT_NOTE_ADD,
-    IncidentHistoryActionEnum.INCIDENT_ALERT_ADD,
-    IncidentHistoryActionEnum.INCIDENT_ALERT_STATUS_CHANGED,
-  ];
+  actions: IncidentHistoryActionEnum[] = [];
 
   constructor(private incidentHistoryService: UtmIncidentHistoryService) {
   }
@@ -60,6 +55,7 @@ export class IncidentHistoryComponent implements OnInit {
       this.loading = false;
       this.items = response.body;
       this.totalItems = Number(response.headers.get('X-Total-Count'));
+      this.actions = Array.from(new Set(response.body.concat(this.items).map( item => item.actionType)));
     });
   }
 
