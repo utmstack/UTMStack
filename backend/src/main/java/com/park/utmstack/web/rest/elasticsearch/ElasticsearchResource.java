@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.elasticsearch;
 
+import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
@@ -71,7 +72,7 @@ public class ElasticsearchResource {
         final String ctx = CLASSNAME + ".getFieldValuesWithCount";
         try {
             return ResponseEntity.ok(elasticsearchService.getFieldValuesWithCount(rq.getField(), rq.getIndex(),
-                rq.getFilters(), rq.getTop(), rq.isOrderByCount(), rq.isSortAsc()));
+                    rq.getFilters(), rq.getTop(), rq.isOrderByCount(), rq.isSortAsc()));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
@@ -91,11 +92,16 @@ public class ElasticsearchResource {
         final String ctx = CLASSNAME + ".getIndexProperties";
         try {
             return ResponseEntity.ok(elasticsearchService.getIndexProperties(indexPattern));
+        } catch (OpenSearchIndexNotFoundException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.info(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.INFO);
+            return UtilResponse.buildNotFoundResponse(msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return UtilResponse.buildInternalServerErrorResponse(msg);
         }
     }
 
@@ -132,7 +138,7 @@ public class ElasticsearchResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 
@@ -143,17 +149,17 @@ public class ElasticsearchResource {
         final String ctx = CLASSNAME + ".search";
         try {
             SearchResponse<Map> searchResponse = elasticsearchService.search(filters, top, indexPattern,
-                pageable, Map.class);
+                    pageable, Map.class);
 
             if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
                 return ResponseEntity.ok(Collections.emptyList());
 
             HitsMetadata<Map> hits = searchResponse.hits();
             HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), top),
-                pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
+                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/search");
 
             return ResponseEntity.ok().headers(headers).body(hits.hits().stream()
-                .map(Hit::source).collect(Collectors.toList()));
+                    .map(Hit::source).collect(Collectors.toList()));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -167,7 +173,7 @@ public class ElasticsearchResource {
         final String ctx = CLASSNAME + ".searchToCsv";
         try {
             SearchResponse<Map> searchResponse = elasticsearchService.search(params.getFilters(), params.getTop(),
-                params.getIndexPattern(), Pageable.unpaged(), Map.class);
+                    params.getIndexPattern(), Pageable.unpaged(), Map.class);
 
             if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
                 return ResponseEntity.ok().build();
@@ -189,7 +195,7 @@ public class ElasticsearchResource {
         final String ctx = CLASSNAME + ".genericSearch";
         try {
             SearchResponse<Map> searchResponse = elasticsearchService.search(body.getFilters(), body.getTop(),
-                body.getIndex(), pageable, Map.class);
+                    body.getIndex(), pageable, Map.class);
 
             if (Objects.isNull(searchResponse) || Objects.isNull(searchResponse.hits()) || searchResponse.hits().total().value() == 0)
                 return ResponseEntity.ok().build();
@@ -197,10 +203,10 @@ public class ElasticsearchResource {
             HitsMetadata<Map> hits = searchResponse.hits();
 
             HttpHeaders headers = UtilPagination.generatePaginationHttpHeaders(Math.min(hits.total().value(), body.getTop()),
-                pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/generic-search");
+                    pageable.getPageNumber(), pageable.getPageSize(), "/api/elasticsearch/generic-search");
 
             return ResponseEntity.ok().headers(headers).body(hits.hits().stream()
-                .map(Hit::source).collect(Collectors.toList()));
+                    .map(Hit::source).collect(Collectors.toList()));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -214,7 +220,7 @@ public class ElasticsearchResource {
         final String ctx = CLASSNAME + ".getClusterStatus";
         try {
             return elasticsearchService.getClusterStatus().map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.noContent().build());
+                    .orElseGet(() -> ResponseEntity.noContent().build());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
