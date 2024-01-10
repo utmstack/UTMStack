@@ -33,9 +33,9 @@ func CleanOldVersions(h *holmes.Logger) error {
 		return fmt.Errorf("error checking UTMStackAgent service: %v", err)
 	} else if isInstalled {
 		if utils.CheckIfPathExist(filepath.Join(path, "version.json")) {
-			err = utils.Execute(exeName, path, "uninstall")
-			if err != nil {
-				return err
+			result, errB := utils.ExecuteWithResult(exeName, path, "uninstall")
+			if errB {
+				return fmt.Errorf("%s", result)
 			}
 		} else {
 			return fmt.Errorf("UTMStackAgent is already installed")
