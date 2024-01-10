@@ -22,9 +22,10 @@ func execBin(binName string, arg ...string) error {
 		}
 	}
 
-	err = utils.Execute(filepath.Join(path, binName), path, arg...)
-	if err != nil {
-		return fmt.Errorf("%v", err)
+	result, errB := utils.ExecuteWithResult(filepath.Join(path, binName), path, arg...)
+	if errB {
+		return fmt.Errorf("%s", result)
 	}
+
 	return nil
 }

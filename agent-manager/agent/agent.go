@@ -214,7 +214,7 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResp
 				AgentKey: oldAgent.AgentKey,
 			}, nil
 		} else {
-			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered: %v", err)
+			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
 		}
 	}
 

@@ -3,6 +3,7 @@ package agent
 import (
 	context "context"
 	"fmt"
+	"strings"
 
 	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
@@ -45,6 +46,9 @@ func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey stri
 	ctx = metadata.AppendToOutgoingContext(ctx, "connection-key", UTMKey)
 	response, err := agentClient.RegisterAgent(ctx, request)
 	if err != nil {
+		if strings.Contains(err.Error(), "hostname has already been registered") {
+			return fmt.Errorf("failed to register agent: hostname has already been registered")
+		}
 		return fmt.Errorf("failed to register agent: %v", err)
 	}
 

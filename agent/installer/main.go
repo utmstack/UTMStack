@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
@@ -20,26 +18,17 @@ import (
 var h = holmes.New("debug", "UTMStackAgentInstaller")
 
 func main() {
-	// Get current path
+	beautyLogger := utils.GetBeautyLogger()
+	beautyLogger.PrintBanner()
+
 	path, err := utils.GetMyPath()
 	if err != nil {
-		fmt.Printf("Failed to get current path: %v", err)
+		beautyLogger.WriteError("failed to get current path", err)
 		h.FatalError("Failed to get current path: %v", err)
 	}
 
-	servBins := depend.ServicesBin{}
-	switch runtime.GOOS {
-	case "windows":
-		servBins.AgentServiceBin = "utmstack_agent_service.exe"
-		servBins.UpdaterServiceBin = "utmstack_updater_service.exe"
-		servBins.RedlineServiceBin = "utmstack_redline_service.exe"
-	case "linux":
-		servBins.AgentServiceBin = "utmstack_agent_service"
-		servBins.UpdaterServiceBin = "utmstack_updater_service"
-		servBins.RedlineServiceBin = "utmstack_redline_service"
-	}
+	servBins := depend.GetServicesBins()
 
-	// Configuring log saving
 	var logger = utils.CreateLogger(filepath.Join(path, "logs", "utmstack_agent_installer.log"))
 	defer logger.Close()
 	log.SetOutput(logger)
@@ -51,87 +40,86 @@ func main() {
 			ip, utmKey, skip := os.Args[2], os.Args[3], os.Args[4]
 
 			if strings.Count(utmKey, "*") == len(utmKey) {
-				fmt.Println("The connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.")
+				beautyLogger.WriteError("The connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.", nil)
 				h.FatalError("The connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.")
 			}
 
-			fmt.Println("Installing UTMStack Agent services...")
-			h.Info("Installing UTMStack Agent services...")
-
+			beautyLogger.WriteSimpleMessage("Installing UTMStack Agent...")
 			if !utils.IsPortOpen(ip, configuration.AgentManagerPort) || !utils.IsPortOpen(ip, configuration.LogAuthProxyPort) {
-				fmt.Printf("Error installing the UTMStack Agent: one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
+				beautyLogger.WriteError("one or more of the requiered ports are closed. Please open ports 9000 and 50051.", nil)
 				h.FatalError("Error installing the UTMStack Agent: one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
 			}
 
 			err := utils.CreatePathIfNotExist(filepath.Join(path, "locks"))
 			if err != nil {
-				fmt.Printf("error creating locks path: %v", err)
+				beautyLogger.WriteError("error creating locks path", err)
 				h.FatalError("error creating locks path: %v", err)
 			}
 
 			err = utils.SetLock(filepath.Join(path, "locks", "setup.lock"))
 			if err != nil {
-				fmt.Printf("error setting setup.lock: %v", err)
+				beautyLogger.WriteError("error setting setup.lock", err)
 				h.FatalError("error setting setup.lock: %v", err)
 			}
 
 			err = checkversion.CleanOldVersions(h)
 			if err != nil {
-				fmt.Printf("error cleaning old versions: %v", err)
+				beautyLogger.WriteError("error cleaning old versions", err)
 				h.FatalError("error cleaning old versions: %v", err)
 			}
 
-			// Download dependencies
+			beautyLogger.WriteSimpleMessage("Downloading UTMStack dependencies...")
 			err = depend.DownloadDependencies(servBins, ip, skip)
 			if err != nil {
-				fmt.Printf("error downloading dependencies: %v", err)
+				beautyLogger.WriteError("error downloading dependencies", err)
 				h.FatalError("error downloading dependencies: %v", err)
 			}
+			beautyLogger.WriteSuccessfull("UTMStack dependencies downloaded correctly.")
 
-			// Install Services
+			beautyLogger.WriteSimpleMessage("Installing services...")
 			err = services.ConfigureServices(servBins, ip, utmKey, skip, "install")
 			if err != nil {
-				fmt.Printf("error installing UTMStack services: %v", err)
+				beautyLogger.WriteError("error installing UTMStack services", err)
 				h.FatalError("error installing UTMStack services: %v", err)
 			}
 
-			h.Info("UTMStack Agent services installed correctly.")
-			fmt.Println("UTMStack Agent services installed correctly.")
-
 			err = utils.RemoveLock(filepath.Join(path, "locks", "setup.lock"))
 			if err != nil {
-				fmt.Printf("error removing setup.lock: %v", err)
+				beautyLogger.WriteError("error removing setup.lock", err)
 				h.FatalError("error removing setup.lock: %v", err)
 			}
+
+			beautyLogger.WriteSuccessfull("Services installed correctly")
+			beautyLogger.WriteSuccessfull("UTMStack Agent installed correctly.")
 
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 
 		case "uninstall":
-			fmt.Println("Uninstalling UTMStack services...")
+			beautyLogger.WriteSimpleMessage("Uninstalling UTMStack Agent...")
 
-			// Uninstall Services
 			if isInstalled, err := utils.CheckIfServiceIsInstalled("UTMStackAgent"); err != nil {
-				fmt.Printf("error checking UTMStackAgent service: %v", err)
+				beautyLogger.WriteError("error checking UTMStackAgent service", err)
 				h.FatalError("error checking UTMStackAgent service: %v", err)
 			} else if isInstalled {
+				beautyLogger.WriteSimpleMessage("Uninstalling UTMStack services...")
 				err = services.ConfigureServices(servBins, "", "", "", "uninstall")
 				if err != nil {
-					fmt.Printf("error uninstalling UTMStack services: %v", err)
+					beautyLogger.WriteError("error uninstalling UTMStack services", err)
 					h.FatalError("error uninstalling UTMStack services: %v", err)
 				}
 
-				fmt.Println("UTMStack services uninstalled correctly.")
+				beautyLogger.WriteSuccessfull("UTMStack services uninstalled correctly.")
 				time.Sleep(5 * time.Second)
 				os.Exit(0)
 
 			} else {
-				fmt.Println("UTMStackAgent not installed")
+				beautyLogger.WriteError("UTMStackAgent not installed", nil)
 				h.FatalError("UTMStackAgent not installed")
 			}
 
 		default:
-			fmt.Println("unknown option")
+			beautyLogger.WriteError("unknown option", nil)
 		}
 	}
 }
