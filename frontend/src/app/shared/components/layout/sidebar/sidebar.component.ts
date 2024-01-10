@@ -19,7 +19,6 @@ export class SidebarComponent implements OnInit {
   user: User;
   private menu: boolean;
   iconPath = SYSTEM_MENU_ICONS_PATH;
-  liteVersion = false;
 
   constructor(public router: Router,
               private spinner: NgxSpinnerService,
@@ -30,10 +29,6 @@ export class SidebarComponent implements OnInit {
     this.menuBehavior.$menu.subscribe(menu => {
       this.menu = menu;
     });
-    this.utmRunModeService.isLiteMode().subscribe(response => {
-      this.liteVersion = response.body;
-    });
-
   }
 
   ngOnInit() {
