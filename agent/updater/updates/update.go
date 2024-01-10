@@ -32,7 +32,7 @@ func UpdateServices(cnf configuration.Config, utmLogger *holmes.Logger) {
 			continue
 		}
 
-		err = utmServices.UpdateLatestVersions(env)
+		err = utmServices.UpdateLatestVersions(env, utmLogger)
 		if err != nil {
 			utmLogger.Error("error updating latest versions: %v", err)
 			continue

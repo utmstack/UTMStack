@@ -41,13 +41,13 @@ func (u *UTMServices) UpdateCurrentVersions() error {
 	return nil
 }
 
-func (u *UTMServices) UpdateLatestVersions(env string) error {
+func (u *UTMServices) UpdateLatestVersions(env string, utmLogger *holmes.Logger) error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("failed to get current path: %v", err)
 	}
 
-	err = utils.DownloadFile(configuration.Bucket+env+"/versions.json", filepath.Join(path, "versions.json"))
+	err = utils.DownloadFile(configuration.Bucket+env+"/versions.json", filepath.Join(path, "versions.json"), utmLogger)
 	if err != nil {
 		return fmt.Errorf("error downloading latest versions.json: %v", err)
 	}
@@ -74,7 +74,7 @@ func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
 	}
 
 	if isVersionGreater(u.CurrentVersions.RedlineVersion, u.LatestVersions.RedlineVersion) {
-		err := u.UpdateService(path, env, "redline", u.LatestVersions.RedlineVersion)
+		err := u.UpdateService(path, env, "redline", u.LatestVersions.RedlineVersion, utmLogger)
 		if err != nil {
 			return fmt.Errorf("error updating UTMStackRedline service: %v", err)
 		}
@@ -82,7 +82,7 @@ func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
 	}
 
 	if isVersionGreater(u.CurrentVersions.AgentVersion, u.LatestVersions.AgentVersion) {
-		err := u.UpdateService(path, env, "agent", u.LatestVersions.AgentVersion)
+		err := u.UpdateService(path, env, "agent", u.LatestVersions.AgentVersion, utmLogger)
 		if err != nil {
 			return fmt.Errorf("error updating UTMStackAgent service: %v", err)
 		}
@@ -90,7 +90,7 @@ func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
 	}
 
 	if isVersionGreater(u.CurrentVersions.UpdaterVersion, u.LatestVersions.UpdaterVersion) {
-		err := u.UpdateService(path, env, "updater", u.LatestVersions.UpdaterVersion)
+		err := u.UpdateService(path, env, "updater", u.LatestVersions.UpdaterVersion, utmLogger)
 		if err != nil {
 			return fmt.Errorf("error updating UTMStackUpdater service: %v", err)
 		}
@@ -100,7 +100,7 @@ func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
 	return nil
 }
 
-func (u *UTMServices) UpdateService(path string, env string, servCode string, newVers string) error {
+func (u *UTMServices) UpdateService(path string, env string, servCode string, newVers string, utmLogger *holmes.Logger) error {
 	attr := u.ServAttr[servCode]
 	err := utils.CreatePathIfNotExist(filepath.Join(path, "locks"))
 	if err != nil {
@@ -121,7 +121,7 @@ func (u *UTMServices) UpdateService(path string, env string, servCode string, ne
 		}
 
 		url := configuration.Bucket + env + "/" + servCode + "_service/v" + newVers + "/" + attr.ServBin + "?time=" + utils.GetCurrentTime()
-		err = utils.DownloadFile(url, filepath.Join(path, attr.ServBin))
+		err = utils.DownloadFile(url, filepath.Join(path, attr.ServBin), utmLogger)
 		if err != nil {
 			return fmt.Errorf("error downloading new %s: %v", attr.ServBin, err)
 		}
