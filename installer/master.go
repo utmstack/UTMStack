@@ -19,7 +19,7 @@ func Master(c *Config) error {
 		return err
 	}
 
-	if err := utils.CheckDisk(100); err != nil {
+	if err := utils.CheckDisk(30); err != nil {
 		return err
 	}
 
