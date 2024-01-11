@@ -1,5 +1,6 @@
 import {Directive, Input, TemplateRef, ViewContainerRef} from '@angular/core';
 import {AccountService} from '../../../core/auth/account.service';
+import {distinctUntilChanged, first} from "rxjs/operators";
 
 /**
  * @whatItDoes Conditionally includes an HTML element if current user has any
@@ -30,7 +31,12 @@ export class HasAnyAuthorityDirective {
     this.authorities = typeof value === 'string' ? [value] : value;
     this.updateView();
     // Get notified each time authentication state changes.
-    this.accountService.getAuthenticationState().subscribe(identity => this.updateView());
+    this.accountService.getAuthenticationState()
+      .pipe(distinctUntilChanged((prev, next) => {
+        // console.log('prev:', prev, 'next:', next);
+        return prev && next && prev.id === next.id;
+      }))
+      .subscribe(identity => this.updateView());
   }
 
   private updateView(): void {
