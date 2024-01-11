@@ -33,8 +33,8 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 	var elements []string
 	cacheStorageMutex.RLock()
 	cToBreak := 0
-	ait := time.Now().UTC().Unix() - func()int64{
-		switch seconds{
+	ait := time.Now().UTC().Unix() - func() int64 {
+		switch seconds {
 		case 0:
 			return 60
 		default:
@@ -105,7 +105,28 @@ func ProcessQueue() {
 
 func Clean() {
 	for {
-		if utils.AssignedMemory >= 80 && len(CacheStorage) > 500 {
+		var clean bool
+
+		if len(CacheStorage) > 500 {
+			if utils.AssignedMemory >= 80 {
+				clean = true
+			} else {
+				old := gjson.Get(CacheStorage[0], "@timestamp").String()
+				oldTime, err := time.Parse(time.RFC3339Nano, old)
+				if err != nil {
+					log.Printf("Could not parse old log timestamp. Cleaning up")
+					clean = true
+				}
+
+				hourAgo := time.Now().UTC().Add(-1 * time.Hour)
+
+				if oldTime.Before(hourAgo) {
+					clean = true
+				}
+			}
+		}
+
+		if clean {
 			cacheStorageMutex.Lock()
 			CacheStorage = CacheStorage[500:]
 			cacheStorageMutex.Unlock()
