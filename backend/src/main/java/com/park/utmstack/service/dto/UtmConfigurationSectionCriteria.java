@@ -26,9 +26,7 @@ public class UtmConfigurationSectionCriteria implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private LongFilter id;
-
     private StringFilter section;
-    private StringFilter description;
     private ModulesNameShortFilter moduleNameShort;
 
     public LongFilter getId() {
@@ -45,14 +43,6 @@ public class UtmConfigurationSectionCriteria implements Serializable {
 
     public void setSection(StringFilter section) {
         this.section = section;
-    }
-
-    public StringFilter getDescription() {
-        return description;
-    }
-
-    public void setDescription(StringFilter description) {
-        this.description = description;
     }
 
     public ModulesNameShortFilter getModuleNameShort() {

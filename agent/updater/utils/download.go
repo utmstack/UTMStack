@@ -1,39 +1,31 @@
 package utils
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/quantfall/holmes"
 )
 
 const (
-	maxConnectionAttempts = 3
-	initialReconnectDelay = 10 * time.Second
-	maxReconnectDelay     = 60 * time.Second
+	reconnectDelay = 5 * time.Minute
 )
 
 // DownloadFile downloads a file from a URL and saves it to disk. Returns an error on failure.
-func DownloadFile(url string, fileName string) error {
-	connectionAttemps := 0
-	reconnectDelay := initialReconnectDelay
-
+func DownloadFile(url string, fileName string, utmLogger *holmes.Logger) error {
 	var resp *http.Response
 	var err error
 
 	for {
-		if connectionAttemps >= maxConnectionAttempts {
-			return fmt.Errorf("error downloading file after %d attemps: %v", maxConnectionAttempts, err)
-		}
 		resp, err = http.Get(url)
 		if err != nil || resp.StatusCode != http.StatusOK {
 			if resp != nil {
 				resp.Body.Close()
 			}
-			connectionAttemps++
+			utmLogger.Error("error downloading file from %s: %v", url, err)
 			time.Sleep(reconnectDelay)
-			reconnectDelay = IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
 			continue
 		}
 		break

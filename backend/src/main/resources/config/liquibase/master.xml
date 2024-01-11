@@ -28,4 +28,8 @@
 
     <include file="config/liquibase/changelog/20231229001_updating_syslog_json_generic_filters.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240108001_add_column_section_active_to_utm_configuration_section_table.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20240109001_modifying_requirement_for_configuration_parameters.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

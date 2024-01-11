@@ -51,6 +51,8 @@ export class LogAnalyzerFieldComponent implements OnInit {
           this.columnChange.emit(this.fieldSelected);
           this.loadingFields = false;
         });
+      } else {
+        this.loadingFields = false;
       }
     });
     this.indexFieldController.$field.subscribe(field => {

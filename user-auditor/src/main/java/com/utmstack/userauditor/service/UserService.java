@@ -110,7 +110,7 @@ public class UserService {
     }
 
     private List<UserAttribute> synchronizeAttributes(User user, EventLog eventLog) {
-        user.setSid(eventLog.logx.wineventlog.eventData.subjectUserSid);
+        user.setSid(eventLog.logx.wineventlog.eventData.targetUserSid);
 
         List<UserAttribute> attributes = new ArrayList<>();
 
@@ -142,10 +142,10 @@ public class UserService {
     private String attributeByKey(WindowsAttributes key, EventLog eventLog) {
         switch (key) {
             case SAMAccountName:
-                return eventLog.logx.wineventlog.eventData.subjectUserName;
+                return eventLog.logx.wineventlog.eventData.targetUserName;
 
             case ObjectSID:
-                return eventLog.logx.wineventlog.eventData.targetSid;
+                return eventLog.logx.wineventlog.eventData.targetUserSid;
 
             case CreatedAt:
                 return eventLog.logx.wineventlog.event.code.equals(String.valueOf(EventType.USER_CREATED.getEventId())) ? eventLog.logx.wineventlog.event.created : "";
