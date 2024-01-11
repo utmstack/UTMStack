@@ -1,6 +1,6 @@
 import {Directive, Input, TemplateRef, ViewContainerRef} from '@angular/core';
+import {distinctUntilChanged} from 'rxjs/operators';
 import {AccountService} from '../../../core/auth/account.service';
-import {distinctUntilChanged, first} from "rxjs/operators";
 
 /**
  * @whatItDoes Conditionally includes an HTML element if current user has any
