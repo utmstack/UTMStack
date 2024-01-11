@@ -32,10 +32,7 @@ export class HasAnyAuthorityDirective {
     this.updateView();
     // Get notified each time authentication state changes.
     this.accountService.getAuthenticationState()
-      .pipe(distinctUntilChanged((prev, next) => {
-        // console.log('prev:', prev, 'next:', next);
-        return prev && next && prev.id === next.id;
-      }))
+      .pipe(distinctUntilChanged((prev, next) =>  prev && next && prev.id === next.id))
       .subscribe(identity => this.updateView());
   }
 
