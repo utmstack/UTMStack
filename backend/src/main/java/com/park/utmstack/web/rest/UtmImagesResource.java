@@ -54,7 +54,7 @@ public class UtmImagesResource {
 
             UtmImages img = imageOpt.get();
             img.setUserImg(image.getUserImg());
-            return ResponseEntity.ok(imagesRepository.save(img));
+            return ResponseEntity.ok(utmImagesService.save(img));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
