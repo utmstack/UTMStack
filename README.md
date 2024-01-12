@@ -88,6 +88,7 @@ Resources needed for one month of hot log storage.
 - You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention
 
 ## Installation steps
+The installation can be performed using an installer file or an [ISO image](https://utmstack.com/install). The "Preparing for installation" instructions below are only for the installer file option; please skip them if you use the ISO image instead.
 
 ### Preparing for installation
 

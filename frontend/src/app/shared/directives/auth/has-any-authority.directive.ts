@@ -1,4 +1,5 @@
 import {Directive, Input, TemplateRef, ViewContainerRef} from '@angular/core';
+import {distinctUntilChanged} from 'rxjs/operators';
 import {AccountService} from '../../../core/auth/account.service';
 
 /**
@@ -30,7 +31,9 @@ export class HasAnyAuthorityDirective {
     this.authorities = typeof value === 'string' ? [value] : value;
     this.updateView();
     // Get notified each time authentication state changes.
-    this.accountService.getAuthenticationState().subscribe(identity => this.updateView());
+    this.accountService.getAuthenticationState()
+      .pipe(distinctUntilChanged((prev, next) =>  prev && next && prev.id === next.id))
+      .subscribe(identity => this.updateView());
   }
 
   private updateView(): void {
