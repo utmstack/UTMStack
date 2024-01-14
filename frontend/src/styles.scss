@@ -1292,5 +1292,12 @@ $topnav-background-color: #FFFFFF;
   }
 }
 
+app-rules {
+  .ng-select .ng-select-container {
+    min-height: 33px !important;
+    height: auto !important;
+  }
+}
+
 
 
