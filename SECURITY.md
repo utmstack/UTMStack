@@ -2,6 +2,7 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-|  10.y.z | :white_check_mark: |
+| Version | Supported          | EoS/EoL      |
+| ------- | ------------------ | ------------ |
+|  9.x    | :white_check_mark: | Jan 15, 2024 |
+|  10.x   | :white_check_mark: | Jan 15, 2026 |
