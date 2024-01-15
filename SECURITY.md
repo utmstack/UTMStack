@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-| Version | Supported          | EoS/EoL      |
+| Version | Status             | EoS/EoL      |
 | ------- | ------------------ | ------------ |
 |  1.x    | :x:                | Jan 15, 2016 |
 |  2.x    | :x:                | Jan 15, 2017 |
@@ -14,4 +14,4 @@
 |  8.x    | :x:                | Jan 15, 2023 |
 |  9.x    | :x:                | Jan 15, 2024 |
 |  10.x   | :white_check_mark: | Jan 15, 2026 |
-|  11.x   | :white_check_mark: | Jan 15, 2029 |
+|  11.x   | :clock1:           | Jan 15, 2029 |
