@@ -73,6 +73,7 @@ export class AuthServerProvider {
             'please try to login again. If the problem continues, contact the support team');
         }
       });
+      observer.next();
       observer.complete();
     });
   }
