@@ -6,5 +6,5 @@ require (
 	github.com/RackSec/srslog v0.0.0-20180709174129-a4725f04ec91
 	github.com/gorilla/mux v1.8.0
 	github.com/quantfall/holmes v1.3.0
-	github.com/utmstack/config-client-go v1.0.3
+	github.com/utmstack/config-client-go v1.1.0
 )
