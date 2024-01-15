@@ -9,7 +9,6 @@ const FrontEnd string =`server {
       root /usr/share/nginx/html;
       index index.html index.htm;
       try_files $uri $uri/ /index.html =404;
-      add_header Content-Security-Policy "default-src 'self' https://fonts.googleapis.com/css* https://fonts.gstatic.com/s/poppins/v20*; frame-src 'self' data:; script-src 'self' https://storage.googleapis.com; style-src 'self'; img-src 'self' data:;  font-src 'self' data:" always;
     }
 
     set $utmstack_backend http://backend:8080;
