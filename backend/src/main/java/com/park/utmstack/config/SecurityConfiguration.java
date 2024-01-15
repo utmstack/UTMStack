@@ -24,6 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
+import tech.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.JHipsterProperties;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
@@ -39,24 +41,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final TokenProvider tokenProvider;
     private final CorsFilter corsFilter;
     private final InternalApiKeyProvider internalApiKeyProvider;
+    private final JHipsterProperties jHipsterProperties;
 
     public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
                                  UserDetailsService userDetailsService,
                                  TokenProvider tokenProvider,
-                                 CorsFilter corsFilter, InternalApiKeyProvider internalApiKeyProvider) {
+                                 CorsFilter corsFilter, InternalApiKeyProvider internalApiKeyProvider, JHipsterProperties jHipsterProperties) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDetailsService = userDetailsService;
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.internalApiKeyProvider = internalApiKeyProvider;
+        this.jHipsterProperties = jHipsterProperties;
     }
 
     @PostConstruct
     public void init() {
         try {
             authenticationManagerBuilder
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
+                    .userDetailsService(userDetailsService)
+                    .passwordEncoder(passwordEncoder());
         } catch (Exception e) {
             throw new BeanInitializationException("Security configuration failed", e);
         }
@@ -76,51 +80,53 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
-            .antMatchers(HttpMethod.OPTIONS, "/**")
-            .antMatchers("/swagger-ui/**")
-            .antMatchers("/i18n/**");
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .antMatchers("/swagger-ui/**")
+                .antMatchers("/i18n/**");
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
-            .csrf()
-            .disable()
-            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling()
-            .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-            .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
-            .and()
-            .headers()
-            .frameOptions()
-            .disable()
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            .antMatchers("/api/authenticate").permitAll()
-            .antMatchers("/api/authenticateFederationServiceManager").permitAll()
-            .antMatchers("/api/ping").permitAll()
-            .antMatchers("/api/date-format").permitAll()
-            .antMatchers("/api/healthcheck").permitAll()
-            .antMatchers("/api/releaseInfo").permitAll()
-            .antMatchers("/api/account/reset-password/init").permitAll()
-            .antMatchers("/api/account/reset-password/finish").permitAll()
-            .antMatchers("/api/images/all").permitAll()
-            .antMatchers("/api/tfa/verifyCode").hasAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
-            .antMatchers("/api/utm-incident-jobs").hasAuthority(AuthoritiesConstants.ADMIN)
-            .antMatchers("/api/utm-incident-jobs/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            .antMatchers("/api/custom-reports/**").denyAll()
-            .antMatchers("/api/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-            .antMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
-            .antMatchers("/ws/**").permitAll()
-            .antMatchers("/management/info").permitAll()
-            .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            .and()
-            .apply(securityConfigurerAdapterForJwt())
-            .and()
-            .apply(securityConfigurerAdapterForInternalApiKey());
+                .csrf()
+                .disable()
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
+                .and()
+                .headers()
+                .contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())
+                .and()
+                .frameOptions()
+                .disable()
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers("/api/authenticate").permitAll()
+                .antMatchers("/api/authenticateFederationServiceManager").permitAll()
+                .antMatchers("/api/ping").permitAll()
+                .antMatchers("/api/date-format").permitAll()
+                .antMatchers("/api/healthcheck").permitAll()
+                .antMatchers("/api/releaseInfo").permitAll()
+                .antMatchers("/api/account/reset-password/init").permitAll()
+                .antMatchers("/api/account/reset-password/finish").permitAll()
+                .antMatchers("/api/images/all").permitAll()
+                .antMatchers("/api/tfa/verifyCode").hasAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
+                .antMatchers("/api/utm-incident-jobs").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/api/utm-incident-jobs/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/api/custom-reports/**").denyAll()
+                .antMatchers("/api/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                .antMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/ws/**").permitAll()
+                .antMatchers("/management/info").permitAll()
+                .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .and()
+                .apply(securityConfigurerAdapterForJwt())
+                .and()
+                .apply(securityConfigurerAdapterForInternalApiKey());
 
     }
 
