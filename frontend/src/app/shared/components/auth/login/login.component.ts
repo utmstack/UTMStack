@@ -58,8 +58,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.apiServiceCheckerService.isOnlineApi$.subscribe(result => {
       if (result) {
-        this.startNavigation();
-
         this.activatedRoute.queryParams.subscribe(params => {
           if (params.token) {
             this.loginService.loginWithToken(params.token, true).then(() => {
