@@ -9,7 +9,7 @@ markupsafe==2.1.3; python_version >= '3.7'
 packaging==23.2; python_version >= '3.7'
 psycopg2-binary==2.9.9
 pycparser==2.21
-pycryptodome==3.19.0
+pycryptodome==3.19.1
 pyjwt==2.8.0
 requests==2.31.0
 strenum==0.4.15
