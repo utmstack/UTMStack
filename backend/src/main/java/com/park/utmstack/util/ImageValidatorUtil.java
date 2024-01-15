@@ -8,8 +8,9 @@ import org.apache.tika.mime.MimeTypes;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class ImageValidatorUtil {
