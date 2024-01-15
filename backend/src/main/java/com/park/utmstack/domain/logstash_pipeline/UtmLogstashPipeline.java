@@ -3,9 +3,9 @@ package com.park.utmstack.domain.logstash_pipeline;
 import com.park.utmstack.service.logstash_pipeline.enums.PipelineStatus;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * A UtmLogstashPipeline.
