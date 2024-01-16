@@ -8,23 +8,21 @@ import (
 	"time"
 
 	"github.com/quantfall/holmes"
-	"github.com/utmstack/UTMStack/agent/updater/constants"
+	"github.com/utmstack/UTMStack/agent/updater/configuration"
 	"github.com/utmstack/UTMStack/agent/updater/serv"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
-var h = holmes.New("debug", constants.SERV_NAME)
+var utmLogger = holmes.New("debug", configuration.SERV_NAME)
 
 func main() {
-	// Get current path
 	path, err := utils.GetMyPath()
 	if err != nil {
-		fmt.Printf("Failed to get current path: %v", err)
-		h.FatalError("Failed to get current path: %v", err)
+		fmt.Printf("failed to get current path: %v", err)
+		utmLogger.FatalError("failed to get current path: %v", err)
 	}
 
-	// Configuring log saving
-	var logger = utils.CreateLogger(filepath.Join(path, "logs", constants.SERV_LOG))
+	var logger = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 	defer logger.Close()
 	log.SetOutput(logger)
 
@@ -32,25 +30,25 @@ func main() {
 		mode := os.Args[1]
 		switch mode {
 		case "run":
-			serv.RunService(h)
+			serv.RunService(utmLogger)
 		case "install":
-			h.Info("Installing UTMStack Updater service...")
+			utmLogger.Info("Installing UTMStack Updater service...")
 
-			if isInstalled, err := utils.CheckIfServiceIsInstalled(constants.SERV_NAME); err != nil {
-				h.FatalError("error checking %s service: %v", constants.SERV_NAME, err)
+			if isInstalled, err := utils.CheckIfServiceIsInstalled(configuration.SERV_NAME); err != nil {
+				utmLogger.FatalError("error checking %s service: %v", configuration.SERV_NAME, err)
 			} else if isInstalled {
-				h.FatalError("%s is already installed", constants.SERV_NAME)
+				utmLogger.FatalError("%s is already installed", configuration.SERV_NAME)
 			}
 
-			serv.InstallService(h)
-			h.Info("UTMStack Updater service installed correctly.")
+			serv.InstallService(utmLogger)
+			utmLogger.Info("UTMStack Updater service installed correctly.")
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 
 		case "uninstall":
-			h.Info("Uninstalling UTMStack Updater service...")
-			serv.UninstallService(h)
-			h.Info("UTMStack Updater service uninstalled correctly.")
+			utmLogger.Info("Uninstalling UTMStack Updater service...")
+			serv.UninstallService(utmLogger)
+			utmLogger.Info("UTMStack Updater service uninstalled correctly.")
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 
@@ -58,6 +56,6 @@ func main() {
 			fmt.Println("unknown option")
 		}
 	} else {
-		serv.RunService(h)
+		serv.RunService(utmLogger)
 	}
 }

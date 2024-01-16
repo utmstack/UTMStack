@@ -26,6 +26,7 @@ const (
 	WinLockName     = "utmstack_windows_collector.lock"
 	RedlineLockName = "utmstack_redline.lock"
 	RedlineServName = "UTMStackRedline"
+	UUIDFileName    = "uuid.yml"
 )
 
 type LogType string

@@ -1286,5 +1286,18 @@ $topnav-background-color: #FFFFFF;
   }
 }
 
+.popover-group{
+  .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value{
+    width: 100%;
+  }
+}
+
+app-rules {
+  .ng-select .ng-select-container {
+    min-height: 33px !important;
+    height: auto !important;
+  }
+}
+
 
 

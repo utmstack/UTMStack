@@ -71,7 +71,6 @@ spring:
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
-      # modify batch size as necessary
       hibernate.jdbc.batch_size: 25
       hibernate.order_inserts: true
       hibernate.order_updates: true
@@ -128,6 +127,6 @@ jhipster:
     license: unlicensed
     license-url:
   security:
-    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+    content-security-policy: "default-src 'self' https://fonts.googleapis.com/css* https://fonts.gstatic.com/s/poppins/v20*; frame-src 'self' data:; script-src 'self' https://storage.googleapis.com*; style-src 'self' https://fonts.googleapis.com/css*; img-src 'self' data:; font-src 'self' data:"
 
 # application:

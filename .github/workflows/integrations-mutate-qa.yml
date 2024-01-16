@@ -1,8 +1,8 @@
 name: Mutate QA
 
 on:
-  pull_request:
-    branches: [ "rc" ]
+  push:
+    branches: [ "qa" ]
     paths:
       - 'mutate/**'
 
@@ -13,4 +13,4 @@ jobs:
       image_name: mutate
       environment: v10-qa
       directory: mutate
-      branch: main
+      branch: qa

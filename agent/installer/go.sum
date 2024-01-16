@@ -1,3 +1,5 @@
+github.com/logrusorgru/aurora v2.0.3+incompatible h1:tOpm7WcpBTn4fjmVfgpQq0EfczGlG91VSDkswnjF5A8=
+github.com/logrusorgru/aurora v2.0.3+incompatible/go.mod h1:7rIyQOR62GCctdiQpZ/zOJlFyk6y+94wXzv6RNZgaR4=
 github.com/quantfall/holmes v1.3.0 h1:cy0kEz5qfBVWg/33cXBPfQVMAcwN7nLrPuqkyizKZfI=
 github.com/quantfall/holmes v1.3.0/go.mod h1:yC2xubHFP3b0NfYlDhHhNtgvct79iGzJgmiY18YSr8Q=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
