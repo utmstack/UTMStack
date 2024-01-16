@@ -81,6 +81,7 @@ func RestartService(serv string) error {
 	return nil
 }
 
+// StopService stops a service
 func StopService(name string) error {
 	path, err := GetMyPath()
 	if err != nil {
@@ -101,6 +102,7 @@ func StopService(name string) error {
 	return nil
 }
 
+// UninstallService uninstalls a service
 func UninstallService(name string) error {
 	path, err := GetMyPath()
 	if err != nil {

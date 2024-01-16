@@ -18,22 +18,25 @@ type Environment struct {
 	Branch string `yaml:"branch"`
 }
 
-func ReadEnv() (*Environment, error) {
+// ReadEnv reads the environment file
+// If the file does not exist, it returns a default environment with release branch
+// If the file exists, it returns the environment
+func ReadEnv() (string, error) {
 	var env Environment
 	path, err := utils.GetMyPath()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	path = filepath.Join(path, "env.yml")
 
 	if _, err = os.Stat(path); os.IsNotExist(err) {
-		return &Environment{Branch: "release"}, nil
+		return "release", nil
 	} else {
 		err = utils.ReadYAML(path, &env)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 	}
-	return &env, nil
+	return env.Branch, nil
 }

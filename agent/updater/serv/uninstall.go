@@ -2,18 +2,19 @@ package serv
 
 import (
 	"github.com/quantfall/holmes"
-	"github.com/utmstack/UTMStack/agent/updater/constants"
+	"github.com/utmstack/UTMStack/agent/updater/configuration"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
-func UninstallService(h *holmes.Logger) {
+// UninstallService uninstalls the service in the system
+func UninstallService(utmLogger *holmes.Logger) {
 	// Uninstall service
-	err := utils.StopService(constants.SERV_NAME)
+	err := utils.StopService(configuration.SERV_NAME)
 	if err != nil {
-		h.FatalError("error stopping %s: %v", constants.SERV_NAME, err)
+		utmLogger.FatalError("error stopping %s: %v", configuration.SERV_NAME, err)
 	}
-	err = utils.UninstallService(constants.SERV_NAME)
+	err = utils.UninstallService(configuration.SERV_NAME)
 	if err != nil {
-		h.FatalError("error uninstalling %s: %v", constants.SERV_NAME, err)
+		utmLogger.FatalError("error uninstalling %s: %v", configuration.SERV_NAME, err)
 	}
 }

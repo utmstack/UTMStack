@@ -65,3 +65,18 @@ func DownloadDependencies(servBins ServicesBin, ip string, skip string) error {
 
 	return nil
 }
+
+func GetServicesBins() ServicesBin {
+	servBins := ServicesBin{}
+	switch runtime.GOOS {
+	case "windows":
+		servBins.AgentServiceBin = "utmstack_agent_service.exe"
+		servBins.UpdaterServiceBin = "utmstack_updater_service.exe"
+		servBins.RedlineServiceBin = "utmstack_redline_service.exe"
+	case "linux":
+		servBins.AgentServiceBin = "utmstack_agent_service"
+		servBins.UpdaterServiceBin = "utmstack_updater_service"
+		servBins.RedlineServiceBin = "utmstack_redline_service"
+	}
+	return servBins
+}

@@ -40,8 +40,6 @@ export class AppModuleViewComponent implements OnInit {
   };
   server: UtmServerType;
   servers: UtmServerType[];
-  liteMode = true;
-
 
   constructor(public modalService: NgbModal,
               private activatedRoute: ActivatedRoute,
@@ -56,9 +54,6 @@ export class AppModuleViewComponent implements OnInit {
       if (params) {
         this.req['moduleName.equals'] = params.setUp;
       }
-    });
-    this.utmRunModeService.isLiteMode().subscribe(response => {
-      this.liteMode = response.body;
     });
     this.moduleRefreshBehavior.$moduleChange.subscribe(refresh => {
       this.getModules();

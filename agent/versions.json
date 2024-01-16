@@ -2,9 +2,15 @@
     "versions": [
         {
             "master_version": "10.1.0",
-            "agent_version": "10.1.1",
-            "updater_version": "10.1.2",
-            "redline_version": "10.1.1"
+            "agent_version": "10.1.3",
+            "updater_version": "10.1.4",
+            "redline_version": "10.1.2"
+        },
+        {
+            "master_version": "10.2.0",
+            "agent_version": "10.1.3",
+            "updater_version": "10.1.4",
+            "redline_version": "10.1.2"
         }
     ]
 }
