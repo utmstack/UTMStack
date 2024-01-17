@@ -6,7 +6,8 @@
 
     <changeSet id="20240117002" author="Manuel">
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
-            INSERT INTO utm_getting_started ( step_short, step_order, completed) VALUES ( 'APPLICATION_SETTINGS', 1, false);
+            INSERT INTO utm_getting_started ( step_short, step_order, completed)
+            VALUES ( 'APPLICATION_SETTINGS', 1, false);
 
             update utm_getting_started
             set step_order = 2
