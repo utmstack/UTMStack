@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20231218001" author="Freddy">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            INSERT INTO utm_menu (id, "name", url, parent_id, "type", dashboard_id, "position", menu_active, menu_action, menu_icon, module_name_short)
+            VALUES(506, 'Compliance schedule', 'compliance/schedule', 500, 1, NULL, 1, true, true, NULL, NULL);
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (506, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (506, 'ROLE_USER');
+
+            -----------Updating old compliance menus------------
+            UPDATE utm_menu SET "position"=2 WHERE id=502;
+            UPDATE utm_menu SET "position"=3 WHERE id=503;
+            UPDATE utm_menu SET "position"=4 WHERE id=504;
+            UPDATE utm_menu SET "position"=5 WHERE id=505;
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>
