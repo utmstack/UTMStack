@@ -6,6 +6,7 @@ import {filter} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../../alert/utm-toast.service';
 import {GettingStartedBehavior} from '../../../../../../behaviors/getting-started.behavior';
 import {GettingStartedService} from '../../../../../../services/getting-started/getting-started.service';
+import {ApplicationConfigSectionEnum} from '../../../../../../types/configuration/section-config.type';
 import {
   GettingStartedStepDocURLEnum,
   GettingStartedStepEnum,
@@ -40,11 +41,7 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
         this.getSteps();
       }
     });
-    if (this.router.url.includes(GettingStartedStepUrlEnum.DASHBOARD_BUILDER)
-      && !this.isStepCompleted(GettingStartedStepEnum.DASHBOARD_BUILDER)) {
-      this.openModal(GettingStartedStepEnum.DASHBOARD_BUILDER);
-    }
-    this.routeSub = this.router.events.pipe(
+    this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       const matchedEnumKey = Object.keys(GettingStartedStepUrlEnum)
@@ -119,11 +116,24 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
   goToGuide(step: GettingStartedStepEnum) {
     const route = GettingStartedStepUrlEnum[step];
     let queryParams = {};
-    if (step === GettingStartedStepEnum.DASHBOARD_BUILDER) {
-      queryParams = {mode: 'edit', dashboardId: 7, dashboardName: 'threat_activity'};
-    } else if (step === GettingStartedStepEnum.THREAT_MANAGEMENT) {
-      queryParams = {alertType: 'ALERT'};
+
+    switch (step) {
+      case GettingStartedStepEnum.DASHBOARD_BUILDER:
+        queryParams = {mode: 'edit', dashboardId: 7, dashboardName: 'threat_activity'};
+        break;
+
+      case GettingStartedStepEnum.THREAT_MANAGEMENT:
+        queryParams = {alertType: 'ALERT'};
+        break;
+
+      case GettingStartedStepEnum.APPLICATION_SETTINGS:
+        queryParams = {sections: JSON.stringify([ApplicationConfigSectionEnum.Email, ApplicationConfigSectionEnum.Alerts])};
+        break;
+
+      default:
+        break;
     }
+
     this.router.navigate([route], {
       queryParams
     });

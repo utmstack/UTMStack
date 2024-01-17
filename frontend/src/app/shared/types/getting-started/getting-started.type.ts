@@ -44,13 +44,13 @@ export enum GettingStartedStepVideoPathEnum {
     THREAT_MANAGEMENT = 'assets/video/getting_started_alert_step.gif',
     INTEGRATIONS = 'assets/video/getting_started_integrations_step.gif',
     INVITE_USERS = 'assets/video/test.gif',
-    APPLICATION_SETTINGS = 'assets/video/test.gif'
+    APPLICATION_SETTINGS = 'assets/video/getting_started_app_settings.gif'
 }
 export enum GettingStartedStepDocURLEnum {
     DASHBOARD_BUILDER = 'UTMStackComponents/Dashboards/README.html',
     THREAT_MANAGEMENT = 'UTMStackComponents/Threath%20Managment/README.html',
     INTEGRATIONS = 'assets/video/getting_started_integrations_step.gif',
     INVITE_USERS = 'assets/video/test.gif',
-    APPLICATION_SETTINGS = 'assets/video/test.gif'
+    APPLICATION_SETTINGS = 'assets/video/getting_started_app_settings.gif'
 }
 

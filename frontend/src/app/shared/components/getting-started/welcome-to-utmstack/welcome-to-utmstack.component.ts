@@ -7,6 +7,7 @@ import {GettingStartedBehavior} from 'src/app/shared/behaviors/getting-started.b
 import {AccountService} from '../../../../core/auth/account.service';
 import {ONLINE_DOCUMENTATION_BASE} from '../../../constants/global.constant';
 import {GettingStartedService} from '../../../services/getting-started/getting-started.service';
+import {ApplicationConfigSectionEnum} from "../../../types/configuration/section-config.type";
 import {GettingStartedStepEnum} from '../../../types/getting-started/getting-started.type';
 import {isSubdomainOfUtmstack} from '../../../util/url.util';
 import {UtmAdminChangeEmailComponent} from '../utm-admin-change-email/utm-admin-change-email.component';
@@ -61,9 +62,12 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
       modal.componentInstance.setupSuccess.subscribe(() => {
         if (gettingStarted) {
           this.utmGettingStartedService.completeStep(GettingStartedStepEnum.SET_ADMIN_USER).subscribe(() => {
-            this.router.navigate(['/creator/dashboard/builder'], {
+            /*this.router.navigate(['/creator/dashboard/builder'], {
               queryParams: {mode: 'edit', dashboardId: 7, dashboardName: 'threat_activity'}
-            });
+            });*/
+            this.router.navigate(['/app-management/settings/application-config'], {
+             queryParams: {sections: JSON.stringify([ApplicationConfigSectionEnum.Email, ApplicationConfigSectionEnum.Alerts])}
+           });
           });
         } else {
           this.router.navigate(['/integrations/explore']);
