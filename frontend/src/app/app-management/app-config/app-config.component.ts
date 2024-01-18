@@ -35,7 +35,6 @@ export class AppConfigComponent implements OnInit {
     this.loading = true;
     this.utmConfigSectionService.query({page: 0, size: 10000, 'moduleNameShort.specified': false}).subscribe(response => {
       this.loading = false;
-      console.log(response.body);
       this.sections = sections.length > 0 ? sections.map(id => response.body.find(s => s.id === id)) : response.body;
     }, error => {
       this.toastService.showError('Error', 'Error getting application configurations sections');
