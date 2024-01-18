@@ -16,6 +16,7 @@ import {
   GettingStartedStepVideoPathEnum,
   GettingStartedType
 } from '../../../../../../types/getting-started/getting-started.type';
+import {isSubdomainOfUtmstack} from '../../../../../../util/url.util';
 
 
 @Component({
@@ -41,7 +42,11 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
         this.getSteps();
       }
     });
-    this.router.events.pipe(
+    if (this.router.url.includes(GettingStartedStepUrlEnum.APPLICATION_SETTINGS)
+      && !this.isStepCompleted(GettingStartedStepEnum.APPLICATION_SETTINGS)) {
+      this.openModal(GettingStartedStepEnum.APPLICATION_SETTINGS);
+    }
+    this.routeSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       const matchedEnumKey = Object.keys(GettingStartedStepUrlEnum)
@@ -170,8 +175,8 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
       <img height="480" controls *ngIf="videoPath" style="width: 100%" [src]="videoPath | safe:'resourceUrl'" [alt]="name">
 
     </div>
-    <div class="modal-footer d-flex justify-content-between align-items-center">
-      <app-utm-online-documentation [path]="urlDoc" text="Learn more"></app-utm-online-documentation>
+    <div [ngClass]="{'justify-content-between': urlDoc}"  class="modal-footer d-flex  align-items-center">
+      <app-utm-online-documentation *ngIf="urlDoc" [path]="urlDoc" text="Learn more"></app-utm-online-documentation>
       <button class="btn utm-button utm-button-primary d-flex justify-content-start"
               (click)="complete()">Continue
       </button>
@@ -193,9 +198,16 @@ export class GettingStartedModalComponent implements OnInit {
   }
 
   ngOnInit() {
+    const  inSaas = isSubdomainOfUtmstack();
     this.icon = GettingStartedStepIconPathEnum[this.step];
     this.name = GettingStartedStepNameEnum[this.step];
-    this.videoPath = GettingStartedStepVideoPathEnum[this.step];
+
+    if (this.step === GettingStartedStepEnum.APPLICATION_SETTINGS && inSaas) {
+      this.videoPath = GettingStartedStepVideoPathEnum.APPLICATION_SAAS_SETTINGS;
+    } else {
+      this.videoPath = GettingStartedStepVideoPathEnum[this.step];
+    }
+
     this.urlDoc = (this.step === GettingStartedStepEnum.DASHBOARD_BUILDER || this.step === GettingStartedStepEnum.THREAT_MANAGEMENT)
       ? GettingStartedStepDocURLEnum[this.step] : null;
   }
