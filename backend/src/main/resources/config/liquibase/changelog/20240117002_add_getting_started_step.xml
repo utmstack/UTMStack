@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240117002" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            INSERT INTO utm_getting_started ( step_short, step_order, completed)
+            VALUES ( 'APPLICATION_SETTINGS', 1, false);
+
+            update utm_getting_started
+            set step_order = 2
+            where step_short = 'DASHBOARD_BUILDER';
+
+            update utm_getting_started
+            set step_order = 3
+            where step_short = 'THREAT_MANAGEMENT';
+
+            update utm_getting_started
+            set step_order = 4
+            where step_short = 'INTEGRATIONS';
+        </sql>
+    </changeSet>
+</databaseChangeLog>

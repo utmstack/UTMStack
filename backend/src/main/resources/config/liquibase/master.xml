@@ -35,4 +35,6 @@
 
     <include file="config/liquibase/changelog/20240109001_modifying_requirement_for_configuration_parameters.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240117002_add_getting_started_step.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
