@@ -12,13 +12,13 @@
           [agent]="agent"
           [asset]="asset">
   </app-utm-agent-detail>
-  <div class="form-group mt-3" *ngIf="hasNoReason">
+  <div class="form-group mt-3" *ngIf="hasNoReason && agent.status === 'ONLINE'">
     <label for="reportDesc">Provide the reason to run a command in the agent</label>
     <textarea class="form-control" [(ngModel)]="websocketCommand.reason" id="reportDesc"
               rows="3"></textarea>
   </div>
 
-  <div class="d-flex justify-content-end">
+  <div *ngIf="agent.status === 'ONLINE'" class="d-flex justify-content-end">
     <button class="btn utm-button utm-button-primary" (click)="connectToAgent = true"
             [disabled]="!websocketCommand.reason && websocketCommand.reason === ''">
       <i class="icon-terminal mr-1"></i>
@@ -26,7 +26,7 @@
     </button>
   </div>
 </div>
-<div class="alert alert-warning alert-styled-right mt-3 alert-dismissible">
+<div *ngIf="agent.status === 'ONLINE'" class="alert alert-warning alert-styled-right mt-3 alert-dismissible">
   <span class="font-weight-semibold">Warning! </span>
   <span>You can cause damage to the infrastructure and services of your organization</span>
 </div>

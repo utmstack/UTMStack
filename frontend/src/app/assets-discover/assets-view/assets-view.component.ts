@@ -336,6 +336,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.viewAssetDetail = asset;
     this.agent = asset.assetName;
+    console.log(asset);
   }
 
   isSourceConnected(asset: NetScanType, source: UtmDataInputStatus): boolean {
