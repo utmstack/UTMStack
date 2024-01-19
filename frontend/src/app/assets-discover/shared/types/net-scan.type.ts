@@ -32,7 +32,7 @@ export class NetScanType {
   registeredMode: AssetDiscoveryTypeEnum;
   agent: boolean;
   dataInputList: UtmDataInputStatus[];
-  assetOsPlatform: string;
-  assetOsMinorVersion: string;
-  assetOsMajorVersion: string;
+  assetOsPlatform?: string;
+  assetOsMinorVersion?: string;
+  assetOsMajorVersion?: string;
 }

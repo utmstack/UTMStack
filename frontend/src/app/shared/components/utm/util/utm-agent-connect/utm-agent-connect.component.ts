@@ -25,7 +25,6 @@ export class UtmAgentConnectComponent implements OnInit {
     if (this.hostname) {
       this.agentManagerService.getAgent(this.hostname).subscribe(response => {
         this.agent = response.body;
-        console.log(this.agent);
       },
       error => this.assetTypeToAgentType());
     }
