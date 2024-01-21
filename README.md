@@ -53,7 +53,7 @@ We welcome contributions from the community! Whether you're a developer, a secur
 
 ## Security
 
-UTMStack is designed with security in mind. Every instance of UTMStack gets a dedicated Virtual Machine, protected by two firewalls for additional isolation from the internet and other tenants. All data at rest and in transit is encrypted, and server keys are stored in a KeyVault and can only be accessed by the Cloud Operations Engineering team for support and maintenance reasons.
+UTMStack code is reviewed daily for vulnerable dependencies. Penetration testing is performed on the system yearly and after every major release. All data in transit between agents and UTMStack servers is encrypted using TLS. UTMStack services are isolated by containers and microservices with strong authentication. Connections to the UTMStack server are authenticated with a +24 characters unique key. User credentials are encrypted in the database and protected by fail2ban mechanisms and 2FA.
 
 ## License
 
