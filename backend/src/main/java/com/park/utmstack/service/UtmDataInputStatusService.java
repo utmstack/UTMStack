@@ -317,8 +317,8 @@ public class UtmDataInputStatusService {
         dst.put("aso", "");
         dst.put("asn", 0);
         dst.put("user", "");
-        src.put("ip", "");
-        src.put("host", "");
+        dst.put("ip", "");
+        dst.put("host", "");
 
         Map<String, Object> incidentDetails = new HashMap<>();
         incidentDetails.put("createdBy", "");
