@@ -63,6 +63,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
             this.loginService.loginWithToken(params.token, true).then(() => {
               this.checkLogin(params.url);
             });
+          } else if (params.key) {
+            this.loginService.loginWithKey(params.key, true).then(() => {
+              this.startInternalNavigation();
+            });
           } else {
             this.loadingAuth = false;
           }
@@ -169,6 +173,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
           .then(() => this.spinner.hide());
       }
     });
+  }
+
+  startInternalNavigation(){
+    this.router.navigate(['/dashboard/overview']);
   }
 
 }
