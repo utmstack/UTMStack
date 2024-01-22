@@ -53,7 +53,7 @@ We welcome contributions from the community! Whether you're a developer, a secur
 
 ## Security
 
-UTMStack is designed with security in mind. Every instance of UTMStack gets a dedicated Virtual Machine, protected by two firewalls for additional isolation from the internet and other tenants. All data at rest and in transit is encrypted, and server keys are stored in a KeyVault and can only be accessed by the Cloud Operations Engineering team for support and maintenance reasons.
+UTMStack code is reviewed daily for vulnerable dependencies. Penetration testing is performed on the system yearly and after every major release. All data in transit between agents and UTMStack servers is encrypted using TLS. UTMStack services are isolated by containers and microservices with strong authentication. Connections to the UTMStack server are authenticated with a +24 characters unique key. User credentials are encrypted in the database and protected by fail2ban mechanisms and 2FA.
 
 ## License
 
@@ -82,12 +82,13 @@ Definitions:
 - Data source: any individual source of logs, for example, devices, agents, SaaS integrations.
 
 Resources needed for one month of hot log storage.
-- For 50 data sources (100 GB) of hot log storage you will need 4 Cores, 8 GB RAM, 150 GB Disk Space
+- For 50 data sources (120 GB) of hot log storage you will need 4 Cores, 8 GB RAM, 150 GB Disk Space
 - For 120 data sources (250 GB) of hot log storage you will need 8 Cores, 16 GB RAM, 250 GB Disk Space
 - For 240 data sources (500 GB) of hot log storage you will need 16 Cores, 32 GB RAM, 450 GB Disk Space
 - You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention
 
 ## Installation steps
+The installation can be performed using an installer file or an [ISO image](https://utmstack.com/install). The "Preparing for installation" instructions below are only for the installer file option; please skip them if you use the ISO image instead.
 
 ### Preparing for installation
 

@@ -375,7 +375,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Services["filebrowser"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/filebrowser:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/filebrowser/filebrowser:" + conf.Branch),
 		Volumes: []string{
 			stack.Rules + ":/srv",
 		},
@@ -561,6 +561,44 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_PASS=" + conf.Password,
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
+	}
+
+	c.Services["selenium-standalone-chrome"] = Service{
+		Image: utils.Str("selenium/standalone-chrome:latest"),
+		Ports: []string{
+			"4444:4444",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
+	}
+
+	c.Services["web-pdf"] = Service{
+		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		DependsOn: []string{
+			"backend",
+			"frontend",
+			"selenium-standalone-chrome",
+		},
+		Environment: []string{
+			"WEB_DRIVER_HOST=selenium-standalone-chrome",
+			"WEB_DRIVER_PORT=4444",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

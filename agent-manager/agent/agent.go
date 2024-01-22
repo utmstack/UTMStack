@@ -3,10 +3,11 @@ package agent
 import (
 	"context"
 	"fmt"
-	"github.com/utmstack/UTMStack/agent-manager/config"
 	"io"
 	"log"
 	"time"
+
+	"github.com/utmstack/UTMStack/agent-manager/config"
 
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent-manager/models"
@@ -206,11 +207,15 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResp
 	}
 
 	oldAgent, err := s.GetAgentByHostname(ctx, &Hostname{Hostname: agent.Hostname})
-	if err == nil && oldAgent.Ip == agent.Ip && oldAgent.Mac == agent.Mac {
-		return &AgentResponse{
-			Id:       oldAgent.Id,
-			AgentKey: oldAgent.AgentKey,
-		}, nil
+	if err == nil {
+		if oldAgent.Ip == agent.Ip {
+			return &AgentResponse{
+				Id:       oldAgent.Id,
+				AgentKey: oldAgent.AgentKey,
+			}, nil
+		} else {
+			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
+		}
 	}
 
 	token := uuid.New().String()

@@ -2,7 +2,6 @@ package com.park.utmstack.checks;
 
 import com.park.utmstack.config.Constants;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.util.Assert;
 
 import java.sql.Connection;
 

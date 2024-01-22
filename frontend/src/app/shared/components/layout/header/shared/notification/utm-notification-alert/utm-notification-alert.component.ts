@@ -42,7 +42,6 @@ export class UtmNotificationAlertComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('destroy');
     this.destroy$.next(true);
     clearInterval(this.timeoutAlert);
     clearInterval(this.intervalAlert);
