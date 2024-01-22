@@ -49,15 +49,17 @@ def main(environment):
 	version_blob = bucket.blob(endp + "/versions.json")
 	version_blob.upload_from_string(json.dumps({'versions': remote_versions}, indent=4))
 	
+	# Create agent blobs
 	agent_windows_blob = bucket.blob(endp + "/agent_service/v" + local_agent_versions["agent_version"] + "/utmstack_agent_service.exe")
 	agent_linux_blob = bucket.blob(endp + "/agent_service/v" + local_agent_versions["agent_version"] + "/utmstack_agent_service")
 	updater_windows_blob = bucket.blob(endp + "/updater_service/v" + local_agent_versions["updater_version"] + "/utmstack_updater_service.exe")
 	updater_linux_blob = bucket.blob(endp + "/updater_service/v" + local_agent_versions["updater_version"] + "/utmstack_updater_service")
 	redline_windows_blob = bucket.blob(endp + "/redline_service/v" + local_agent_versions["redline_version"] + "/utmstack_redline_service.exe")
 	redline_linux_blob = bucket.blob(endp + "/redline_service/v" + local_agent_versions["redline_version"] + "/utmstack_redline_service")
-	installer_windows_blob = bucket.blob(endp + "/installer/v" + local_agent_versions["installer_version"] + "/utmstack_agent_installer.exe")
-	installer_linux_blob = bucket.blob(endp + "/installer/v" + local_agent_versions["installer_version"] + "/utmstack_agent_installer")
+	installer_windows_blob = bucket.blob(endp + "/installer/v" + local_master_version + "/utmstack_agent_installer.exe")
+	installer_linux_blob = bucket.blob(endp + "/installer/v" + local_master_version + "/utmstack_agent_installer")
 
+	# Upload agent services
 	agent_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent_service", "utmstack_agent_service.exe"))
 	agent_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent_service", "utmstack_agent_service"))
 	updater_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "updater_service", "utmstack_updater_service.exe"))

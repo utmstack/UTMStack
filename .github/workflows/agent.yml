@@ -28,16 +28,20 @@ jobs:
             echo "Agent Deployment to RELEASE"
             echo "DEPLOY_ENV=release" >> $GITHUB_ENV
           fi
-
-      - name: Build Agent Service for Linux
-        working-directory: ./agent/agent
+      
+      - name: Build for Linux
+        working-directory: ./agent
         env:
           GOOS: linux
           GOARCH: amd64
-        run: go build -o utmstack_agent_service -v .
+        run: |
+          go build -o utmstack_agent_service -v ./agent
+          go build -o utmstack_agent_installer -v ./installer
+          go build -o utmstack_redline_service -v ./redline
+          go build -o utmstack_updater_service -v ./updater
 
-      - name: Build and sign Agent Service for Windows
-        working-directory: ./agent/agent
+      - name: Build and sign for Windows
+        working-directory: ./agent
         env:
           GOOS: windows
           GOARCH: amd64
@@ -45,66 +49,15 @@ jobs:
           SIGN_CERT: ${{ env.SIGN_CERT }}
           SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
         run: |
-          go build -o utmstack_agent_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "utmstack_agent_service.exe"
-
-      - name: Build Agent Installer for Linux
-        working-directory: ./agent/installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: go build -o utmstack_agent_installer -v .
-
-      - name: Build and sign Agent Installerfor Windows
-        working-directory: ./agent/installer
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          SIGN_CERT: ${{ env.SIGN_CERT }}
-          SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
-        run: |
-          go build -o utmstack_agent_installer.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "utmstack_agent_installer.exe"
-
-      - name: Build Redline Service for Linux
-        working-directory: ./agent/redline
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: go build -o utmstack_redline_service -v .
-
-      - name: Build and sign Redline Service for Windows
-        working-directory: ./agent/redline
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          SIGN_CERT: ${{ env.SIGN_CERT }}
-          SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
-        run: |
-          go build -o utmstack_redline_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "utmstack_redline_service.exe"
-
-      - name: Build Updater Service for Linux
-        working-directory: ./agent/updater
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: go build -o utmstack_updater_service -v .
-
-      - name: Build and sign Updater Service for Windows
-        working-directory: ./agent/updater
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          SIGN_CERT: ${{ env.SIGN_CERT }}
-          SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
-        run: |
-          go build -o utmstack_updater_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "utmstack_updater_service.exe"
-  
+          go build -o utmstack_agent_service.exe -v ./agent
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "agent/utmstack_agent_service.exe"
+          go build -o utmstack_agent_installer.exe -v ./installer
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "installer/utmstack_agent_installer.exe"
+          go build -o utmstack_redline_service.exe -v ./redline
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "redline/utmstack_redline_service.exe"
+          go build -o utmstack_updater_service.exe -v ./updater
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "updater/utmstack_updater_service.exe"
+           
       - name: Run Python script for deploy to Google
         working-directory: ".github/scripts"
         env:
