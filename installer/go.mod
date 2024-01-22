@@ -5,10 +5,10 @@ go 1.21
 toolchain go1.21.2
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.34
+	github.com/cloudfoundry/gosigar v1.3.42
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
 	github.com/lib/pq v1.10.9
-	github.com/shirou/gopsutil/v3 v3.23.9
+	github.com/shirou/gopsutil/v3 v3.23.12
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -23,6 +23,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 )
