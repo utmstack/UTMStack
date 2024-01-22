@@ -579,6 +579,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"4444:4444",
 		},
 		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
 	}
 
 	c.Services["web-pdf"] = Service{
@@ -593,6 +601,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"WEB_DRIVER_PORT=4444",
 		},
 		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
 	}
 
 	c.Volumes["postgres_data"] = Volume{
