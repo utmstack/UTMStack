@@ -41,10 +41,12 @@ export class GuideLinuxAgentComponent implements OnInit {
   }
   getCommandCentos7RedHat(): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
-    return `sudo bash -c "yum install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent
-       https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && chmod -R 777
-      /opt/utmstack-linux-agent/utmstack_agent_installer && /opt/utmstack-linux-agent/utmstack_agent_installer install ` +
-      ip  + ` <secret>` + this.token + `</secret> yes"`;
+
+    return `sudo bash -c "yum install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent \
+        https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
+        chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
+        /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
+
   }
   getCommandCentos8Almalinux(): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
