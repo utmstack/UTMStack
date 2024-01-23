@@ -58,6 +58,7 @@
                                [filebeatModule]="module.moduleName">
         </app-guide-macos-agent>
         <app-guide-linux-agent *ngSwitchCase="moduleEnum.LINUX_AGENT" [serverId]="serverId"
+                               [version]="currentVersion"
                                [integrationId]="module.id"></app-guide-linux-agent>
 
         <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO" [serverId]="serverId"
