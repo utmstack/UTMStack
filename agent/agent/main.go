@@ -96,7 +96,7 @@ func main() {
 			msg := os.Args[2]
 			logp := logservice.GetLogProcessor()
 
-			// Read config
+			// Read current config
 			cnf, err := configuration.GetCurrentConfig()
 			if err != nil {
 				os.Exit(0)
