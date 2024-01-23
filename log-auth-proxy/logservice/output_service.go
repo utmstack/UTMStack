@@ -15,16 +15,22 @@ import (
 	"github.com/utmstack/UTMStack/log-auth-proxy/panelservice"
 )
 
+var transport = &http.Transport{
+	MaxIdleConns: 100,
+}
+
 type LogOutputService struct {
 	Connections map[model.LogType]string
 	Mutex       sync.Mutex
 	Ticker      *time.Ticker
+	Client      *http.Client
 }
 
 func NewLogOutputService() *LogOutputService {
 	connections, _ := getServiceMap()
 	return &LogOutputService{
 		Connections: connections,
+		Client:      &http.Client{Transport: transport},
 	}
 
 }
@@ -76,10 +82,13 @@ func (out *LogOutputService) getConnectionPort(logType model.LogType) (string, e
 }
 
 func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
-	client := &http.Client{}
 	url := fmt.Sprintf(config.LogstashPipelinesEndpoint, config.LogstashHost(), port)
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
-	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	resp, err := out.Client.Do(req)
 	if err != nil {
 		fmt.Println(err)
 		return
