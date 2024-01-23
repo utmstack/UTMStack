@@ -31,6 +31,7 @@ align-items-center h-100 w-100 mt-auto utm-login-cover">
             <i class="icon-lock2 text-muted"></i>
           </div>
           <input [placeholder]="'login.password' | translate" class="form-control"
+                 [minlength]="'4'"
                  formControlName="password"
                  type="password">
         </div>
