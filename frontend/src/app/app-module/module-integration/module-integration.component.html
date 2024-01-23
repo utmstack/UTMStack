@@ -2,6 +2,7 @@
 
     <div *ngIf="module;else loading" [ngSwitch]="module.moduleName" class="activated-route w-100 h-100">
         <app-guide-winlogbeat [serverId]="serverId" *ngSwitchCase="moduleEnum.WINDOWS_AGENT"
+                              [version]="currentVersion"
                               [integrationId]="module.id"></app-guide-winlogbeat>
         <app-guide-asset-scanner [serverId]="serverId" *ngSwitchCase="moduleEnum.ASSET_MANAGEMENT"
                                  [integrationId]="module.id"></app-guide-asset-scanner>
@@ -57,6 +58,7 @@
                                [filebeatModule]="module.moduleName">
         </app-guide-macos-agent>
         <app-guide-linux-agent *ngSwitchCase="moduleEnum.LINUX_AGENT" [serverId]="serverId"
+                               [version]="currentVersion"
                                [integrationId]="module.id"></app-guide-linux-agent>
 
         <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO" [serverId]="serverId"
