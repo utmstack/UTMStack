@@ -27,6 +27,10 @@ export class UtmCodeViewComponent implements OnInit, OnChanges {
         }
     }
 
+    preventCopy(event: ClipboardEvent): void {
+        event.preventDefault();
+    }
+
     copyCode() {
         const selBox = document.createElement('textarea');
         const copyText = this.removeSecretsTags(this.str.split('<br>').join(''));
