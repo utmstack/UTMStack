@@ -2,6 +2,7 @@
 
     <div *ngIf="module;else loading" [ngSwitch]="module.moduleName" class="activated-route w-100 h-100">
         <app-guide-winlogbeat [serverId]="serverId" *ngSwitchCase="moduleEnum.WINDOWS_AGENT"
+                              [version]="currentVersion"
                               [integrationId]="module.id"></app-guide-winlogbeat>
         <app-guide-asset-scanner [serverId]="serverId" *ngSwitchCase="moduleEnum.ASSET_MANAGEMENT"
                                  [integrationId]="module.id"></app-guide-asset-scanner>
