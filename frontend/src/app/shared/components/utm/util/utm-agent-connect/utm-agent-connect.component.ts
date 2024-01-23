@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {NetScanType} from '../../../../../assets-discover/shared/types/net-scan.type';
 import {UtmAgentManagerService} from '../../../../services/agent/utm-agent-manager.service';
-import {AgentType} from '../../../../types/agent/agent.type';
+import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 import {IncidentCommandType} from '../../../../types/incident/incident-command.type';
-import {NetScanType} from "../../../../../assets-discover/shared/types/net-scan.type";
 
 @Component({
   selector: 'app-utm-agent-connect',
@@ -25,7 +25,8 @@ export class UtmAgentConnectComponent implements OnInit {
     if (this.hostname) {
       this.agentManagerService.getAgent(this.hostname).subscribe(response => {
         this.agent = response.body;
-      });
+      },
+      error => this.assetTypeToAgentType());
     }
   }
 
@@ -33,5 +34,24 @@ export class UtmAgentConnectComponent implements OnInit {
     this.websocketCommand.reason = '';
     this.hasNoReason = true;
     this.agent = $event;
+  }
+
+  assetTypeToAgentType() {
+    this.agent = {
+      ip: this.asset.assetIp,
+      hostname: this.asset.assetName,
+      os: this.asset.assetOs,
+      status: AgentStatusEnum.OFFLINE,
+      platform: this.asset.assetOsPlatform,
+      version: this.asset.assetOsMinorVersion,
+      agentKey: '',
+      id: this.asset.id,
+      lastSeen: this.asset.modifiedAt,
+      mac: '',
+      osMajorVersion: this.asset.assetOsMajorVersion,
+      osMinorVersion: this.asset.assetOs,
+      aliases: '',
+      addresses: ''
+    };
   }
 }
