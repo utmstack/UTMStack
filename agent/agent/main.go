@@ -29,7 +29,6 @@ func main() {
 		h.FatalError("Failed to get current path: %v", err)
 	}
 
-	// Configuring log saving
 	var logger = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 	defer logger.Close()
 	log.SetOutput(logger)
@@ -42,7 +41,6 @@ func main() {
 		case "install":
 			h.Info("Installing UTMStack Agent service...")
 
-			// Generate Certificates
 			certsPath := filepath.Join(path, "certs")
 			err = utils.CreatePathIfNotExist(certsPath)
 			if err != nil {
@@ -58,7 +56,6 @@ func main() {
 
 			cnf, utmKey := configuration.GetInitialConfig()
 
-			// Connect to Agent Manager
 			conn, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AGENTMANAGERPORT)
 			if err != nil {
 				fmt.Printf("error connecting to Agent Manager: %v", err)
@@ -67,7 +64,6 @@ func main() {
 			defer conn.Close()
 			h.Info("Connection to Agent Manager successful!!!")
 
-			// Register Agent
 			if err = pb.RegisterAgent(conn, cnf, utmKey, h); err != nil {
 				h.FatalError("%v", err)
 			}
@@ -83,7 +79,6 @@ func main() {
 				h.FatalError("error configuring syslog server: %v", err)
 			}
 
-			// Install Beats
 			if err = beats.InstallBeats(*cnf, h); err != nil {
 				fmt.Printf("error installing beats: %v", err)
 				h.FatalError("error installing beats: %v", err)
@@ -96,13 +91,11 @@ func main() {
 			msg := os.Args[2]
 			logp := logservice.GetLogProcessor()
 
-			// Read config
 			cnf, err := configuration.GetCurrentConfig()
 			if err != nil {
 				os.Exit(0)
 			}
 
-			// Connect to log-auth-proxy
 			connLogServ, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AUTHLOGSPORT)
 			if err != nil {
 				fmt.Printf("error connecting to Log Auth Proxy: %v", err)
@@ -110,7 +103,6 @@ func main() {
 			}
 			defer connLogServ.Close()
 
-			// Create a client for LogService
 			logClient := logservice.NewLogServiceClient(connLogServ)
 			ctxLog, cancelLog := context.WithCancel(context.Background())
 			defer cancelLog()
@@ -123,14 +115,12 @@ func main() {
 		case "uninstall":
 			h.Info("Uninstalling UTMStack Agent service...")
 
-			// Read config
 			cnf, err := configuration.GetCurrentConfig()
 			if err != nil {
 				fmt.Printf("error getting config: %v", err)
 				h.FatalError("error getting config: %v", err)
 			}
 
-			// Connect to Agent Manager
 			conn, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AGENTMANAGERPORT)
 			if err != nil {
 				fmt.Printf("error connecting to Agent Manager: %v", err)
@@ -139,7 +129,6 @@ func main() {
 				h.Info("Connection to Agent Manager successful!!!")
 				fmt.Printf("Connection to Agent Manager successful!!!")
 
-				// Delete agent
 				if err = pb.DeleteAgent(conn, cnf, h); err != nil {
 					fmt.Printf("error deleting agent: %v", err)
 					h.Error("error deleting agent: %v", err)
@@ -147,7 +136,6 @@ func main() {
 			}
 			defer conn.Close()
 
-			// Uninstall Beats
 			if err = beats.UninstallBeats(h); err != nil {
 				fmt.Printf("error uninstalling beats: %v", err)
 				h.FatalError("error uninstalling beats: %v", err)
