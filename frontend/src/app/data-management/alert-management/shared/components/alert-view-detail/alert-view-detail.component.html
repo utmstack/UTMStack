@@ -143,7 +143,7 @@
       </div>
       <div class="alert-details w-100 d-flex justify-content-start mb-2 align-items-start"
            *ngIf="alert.dataSource &&
-    (alert.source.host.includes(alert.dataSource) || alert.destination.host.includes(alert.dataSource)) && (!hideEmptyField || (hideEmptyField && !incidentResponse))">
+    (alert.source.host && alert.source.host.includes(alert.dataSource) || alert.destination.host && alert.destination.host.includes(alert.dataSource)) && (!hideEmptyField || (hideEmptyField && !incidentResponse))">
         <span class="text-blue-800 font-weight-light has-minimum-width mr-2">Incident response:</span>&nbsp;
         <app-utm-console-check [hostname]="alert.dataSource"
                                (emptyValue)="incidentResponse = $event"
