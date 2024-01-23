@@ -33,34 +33,38 @@ export class GuideLinuxAgentComponent implements OnInit {
 
   getCommandUbuntu(): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
-    return `sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-linux-agent &&
-            wget -P /opt/utmstack-linux-agent https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && chmod -R 777
-            /opt/utmstack-linux-agent/utmstack_agent_installer && /opt/utmstack-linux-agent/utmstack_agent_installer install ` +
-            ip  + ` <secret>` + this.token + `</secret> yes"`;
+
+    return `sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-linux-agent && \
+    wget -P /opt/utmstack-linux-agent https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
+    chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
+    /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
   }
   getCommandCentos7RedHat(): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
     return `sudo bash -c "yum install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent
-       https://cdn.utmstack.com/agent_updates/release/installer/v10.2.0/utmstack_agent_installer && chmod -R 777
+       https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && chmod -R 777
       /opt/utmstack-linux-agent/utmstack_agent_installer && /opt/utmstack-linux-agent/utmstack_agent_installer install ` +
       ip  + ` <secret>` + this.token + `</secret> yes"`;
   }
   getCommandCentos8Almalinux(): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
-    return `sudo bash -c "dnf install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent
-            https://cdn.utmstack.com/agent_updates/release/installer/v10.2.0/utmstack_agent_installer && chmod -R 777
-            /opt/utmstack-linux-agent/utmstack_agent_installer && /opt/utmstack-linux-agent/utmstack_agent_installer install ` +
-            ip  + ` <secret>` + this.token + `</secret> yes"`;
+
+    return `sudo bash -c "yum install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent \
+        https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
+        chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
+        /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
   }
   getUninstallCommand(): string {
-    return `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_installer uninstall || true;
-            systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true;
-            rm /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; systemctl stop UTMStackRedline 2>/dev/null || true;
-            systemctl disable UTMStackRedline 2>/dev/null || true; rm /etc/systemd/system/UTMStackRedline.service 2>/dev/null || true;
-            systemctl stop UTMStackUpdater 2>/dev/null || true; systemctl disable UTMStackUpdater 2>/dev/null || true;
-            rm /etc/systemd/system/UTMStackUpdater.service 2>/dev/null || true; systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true;
-            systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; rm /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true;
-            systemctl daemon-reload 2>/dev/null || true; echo 'Removing UTMStack Agent dependencies...' &&
-            sleep 10 && rm -rf /opt/utmstack-linux-agent && echo 'UTMStack Agent dependencies removed successfully.'"`;
+    return `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_installer uninstall || true; \
+      systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; \
+      rm /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; systemctl stop UTMStackRedline 2>/dev/null || true; \
+      systemctl disable UTMStackRedline 2>/dev/null || true; rm /etc/systemd/system/UTMStackRedline.service 2>/dev/null || true; \
+      systemctl stop UTMStackUpdater 2>/dev/null || true; systemctl disable UTMStackUpdater 2>/dev/null || true; \
+      rm /etc/systemd/system/UTMStackUpdater.service 2>/dev/null || true; systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true; \
+      systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; \
+      rm /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true; \
+      systemctl daemon-reload 2>/dev/null || true; \
+      echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent && \
+      echo 'UTMStack Agent dependencies removed successfully.'"`;
   }
 }
