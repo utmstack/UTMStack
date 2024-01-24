@@ -12,6 +12,7 @@ export class GuideWinlogbeatComponent implements OnInit {
   @Input() serverId: number;
   module = UtmModulesEnum;
   token: string;
+  @Input() version: string;
 
   constructor(private federationConnectionService: FederationConnectionService) {
   }
@@ -34,7 +35,7 @@ export class GuideWinlogbeatComponent implements OnInit {
   getCommand(): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
     return `New-Item -ItemType Directory -Force -Path "C:\\Program Files\\UTMStack\\UTMStack Agent"; ` +
-      `Invoke-WebRequest -Uri "https://cdn.utmstack.com/agent_updates/release/installer/v10.2.0/utmstack_agent_installer.exe" ` +
+      `Invoke-WebRequest -Uri "https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer.exe" ` +
       `-OutFile "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_installer.exe"; ` +
       `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_installer.exe" ` +
       `-ArgumentList 'install', '` + ip  + `', '<secret>` + this.token + `</secret>', 'yes' -NoNewWindow -Wait`;
