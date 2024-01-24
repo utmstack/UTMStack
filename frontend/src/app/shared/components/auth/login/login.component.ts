@@ -10,7 +10,7 @@ import {LoginService} from '../../../../core/login/login.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
-import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL} from '../../../constants/global.constant';
+import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
 import {stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
 
@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   credentials: any;
   formLogin: FormGroup;
   logged = false;
+  roles = [ADMIN_ROLE, USER_ROLE];
   startLogin = false;
   isInDemo: boolean;
   loadingAuth = true;
@@ -171,11 +172,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
           ? '/getting-started' : '/dashboard/overview';
         this.router.navigate([redirectTo])
           .then(() => this.spinner.hide());
+      } else {
+        this.logged = false;
+        this.utmToast.showError('Login error', 'User without privileges.');
       }
     });
   }
 
-  startInternalNavigation(){
+  startInternalNavigation() {
     this.router.navigate(['/dashboard/overview']);
   }
 
