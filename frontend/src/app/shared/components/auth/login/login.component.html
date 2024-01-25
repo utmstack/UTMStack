@@ -31,6 +31,7 @@ align-items-center h-100 w-100 mt-auto utm-login-cover">
             <i class="icon-lock2 text-muted"></i>
           </div>
           <input [placeholder]="'login.password' | translate" class="form-control"
+                 [minlength]="'4'"
                  formControlName="password"
                  type="password">
         </div>
@@ -67,7 +68,7 @@ align-items-center h-100 w-100 mt-auto utm-login-cover">
 </div>
 
 <!-- /content area -->
-<div *ngIf="logged" class="content d-flex justify-content-center align-items-center h-100 w-100">
+<div *appHasAnyAuthority="roles" class="content d-flex justify-content-center align-items-center h-100 w-100">
   <app-utm-spinner [height]="'35px'" [label]="'Loading modules...'" [loading]="true"
                    [width]="'35px'"></app-utm-spinner>
 </div>
