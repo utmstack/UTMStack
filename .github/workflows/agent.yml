@@ -12,56 +12,53 @@ jobs:
     name: Build
     runs-on: signing
     steps:
-      - name: Determine Build Environment
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build and sign agent services
         id: set-env
         run: |
-          if (github.event_name -eq 'push' -and github.ref_name -eq 'main') {
+          if ("${{ github.event_name }}" -eq 'push' -and "${{ github.ref_name }}" -eq 'main') {
             Write-Host "Agent Deployment to DEV"
-            $env:DEPLOY_ENV = 'dev'
-          } elif (github.event_name -eq 'push' -and github.ref_name -eq 'qa' ) {
+            $env:DEPLOY_ENV = "dev"
+          } elseif ("${{ github.event_name }}" -eq 'push' -and "${{ github.ref_name }}" -eq 'qa' ) {
             Write-Host "Agent Deployment to QA"
-            $env:DEPLOY_ENV = 'qa'
-          } elif (github.event_name -eq 'push' -and github.ref_name -eq 'rc' ) {
+            $env:DEPLOY_ENV = "qa"
+          } elseif ("${{ github.event_name }}" -eq 'push' -and "${{ github.ref_name }}" -eq 'rc' ) {
             Write-Host "Agent Deployment to RC"
-            $env:DEPLOY_ENV = 'rc'
-          } elif (github.event_name -eq 'push' -and github.ref -match '^refs/tags/v') {
+            $env:DEPLOY_ENV = "rc"
+          } elseif ("${{ github.event_name }}" -eq 'push' -and "${{ github.ref }}" -match '^refs/tags/v') {
             Write-Host "Agent Deployment to RELEASE"
-            $env:DEPLOY_ENV = 'release'
+            $env:DEPLOY_ENV = "release"
           }
-      
-      - name: Build for Linux
-        working-directory: ./agent
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          go build -o utmstack_agent_service -v ./agent
-          go build -o utmstack_agent_installer -v ./installer
-          go build -o utmstack_redline_service -v ./redline
-          go build -o utmstack_updater_service -v ./updater
 
-      - name: Build and sign for Windows
-        working-directory: ./agent
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          SIGN_CERT: ${{ env.SIGN_CERT }}
-          SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
-        run: |
-          go build -o utmstack_agent_service.exe -v ./agent
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "agent/utmstack_agent_service.exe"
-          go build -o utmstack_agent_installer.exe -v ./installer
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "installer/utmstack_agent_installer.exe"
-          go build -o utmstack_redline_service.exe -v ./redline
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "redline/utmstack_redline_service.exe"
-          go build -o utmstack_updater_service.exe -v ./updater
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "$SIGN_CERT" /csp "eToken Base Cryptographic Provider" /k "[{{${SIGN_KEY}}}]=${SIGN_CONTAINER}" "updater/utmstack_updater_service.exe"
-           
-      - name: Run Python script for deploy to Google
-        working-directory: ".github/scripts"
-        env:
-          GCP_KEY: ${{ secrets.GCP_KEY }}
-        run: |
-          Write-Host "Deploying Agent to $env:DEPLOY_ENV"
-          python agent-deploy.py  $env:DEPLOY_ENV
+          cd ${{ github.workspace }}/agent/agent/configuration; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          cd ${{ github.workspace }}/agent/agent; go build -o utmstack_agent_service -v .
+          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer -v .
+          cd ${{ github.workspace }}/agent/redline; go build -o utmstack_redline_service -v .
+          cd ${{ github.workspace }}/agent/updater; go build -o utmstack_updater_service -v .
+          
+          $env:GOOS = "windows"
+          cd ${{ github.workspace }}/agent/agent; go build -o utmstack_agent_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ env.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
+          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ env.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_installer.exe"
+          cd ${{ github.workspace }}/agent/redline; go build -o utmstack_redline_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ env.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_redline_service.exe"
+          cd ${{ github.workspace }}/agent/updater; go build -o utmstack_updater_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ env.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service.exe"
+
+          Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.12.1/python-3.12.1-amd64.exe" -OutFile "python-installer.exe"
+          Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
+          Remove-Item -Path "python-installer.exe"
+          python -m pip install --upgrade pip
+          pip install requests google-cloud-storage pyyaml
+
+          $env:GCP_KEY = '${{ secrets.GCP_KEY }}'
+          cd ${{ github.workspace }}/.github/scripts; & 'C:\Program Files\Python312\python.exe' 'agent-deploy.py'  $env:DEPLOY_ENV
+
+          cd ${{ github.workspace }}; Remove-Item -Path "./*" -Recurse -Force
+      
