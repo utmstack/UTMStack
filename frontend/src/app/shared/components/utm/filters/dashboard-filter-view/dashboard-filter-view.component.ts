@@ -35,4 +35,6 @@ export class DashboardFilterViewComponent implements OnInit {
   doAction(action: 'edit' | 'delete', filter: DashboardFilterType) {
     this.filterAction.emit({action, filter});
   }
+
+
 }
