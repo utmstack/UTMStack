@@ -174,9 +174,4 @@ export class LoginComponent implements OnInit, AfterViewInit {
       }
     });
   }
-
-  startInternalNavigation() {
-    this.router.navigate(['/dashboard/overview']);
-  }
-
 }
