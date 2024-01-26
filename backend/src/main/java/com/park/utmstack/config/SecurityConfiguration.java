@@ -120,6 +120,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .antMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/ws/**").permitAll()
+                .antMatchers("/management/info").permitAll()
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .and()
                 .apply(securityConfigurerAdapterForJwt())
