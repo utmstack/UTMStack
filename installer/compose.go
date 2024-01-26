@@ -349,10 +349,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_PORT=5432",
 			"DB_NAME=utmstack",
 			"LOGSTASH_URL=http://logstash:9600",
-			"ELASTICSEARCH_HOST=" + utils.Mode(conf.ServerType, map[string]interface{}{
-				"aio":   "node1",
-				"cloud": "gateway.utmstack.local",
-			}).(string),
+			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
 			"ENCRYPTION_KEY=" + conf.InternalKey,
@@ -420,10 +417,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"POSTGRESQL_HOST=postgres",
 			"POSTGRESQL_PORT=5432",
 			"POSTGRESQL_DATABASE=utmstack",
-			"ELASTICSEARCH_HOST=" + utils.Mode(conf.ServerType, map[string]interface{}{
-				"aio":   "node1",
-				"cloud": "gateway.utmstack.local",
-			}).(string),
+			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 			"ERROR_LEVEL=info",
 		},
