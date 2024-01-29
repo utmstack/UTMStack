@@ -567,32 +567,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
-	c.Services["selenium-standalone-chrome"] = Service{
-		Image: utils.Str("selenium/standalone-chrome:latest"),
-		Ports: []string{
-			"4444:4444",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str("1G"),
-				},
-			},
-		},
-	}
-
 	c.Services["web-pdf"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"frontend",
-			"selenium-standalone-chrome",
-		},
-		Environment: []string{
-			"WEB_DRIVER_HOST=selenium-standalone-chrome",
-			"WEB_DRIVER_PORT=4444",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
