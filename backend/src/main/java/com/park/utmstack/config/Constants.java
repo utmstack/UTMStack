@@ -69,7 +69,10 @@ public final class Constants {
     // - Alert index common fields
     // ----------------------------------------------------------------------------------
     public static final String alertIdKeyword = "id.keyword";
+
     public static final String alertStatus = "status";
+
+    public static final String alertTags = "tags";
     public static final String alertIsIncident = "isIncident";
     public static final String alertNameKeyword = "name.keyword";
     public static final String alertSeverityLabel = "severityLabel.keyword";
