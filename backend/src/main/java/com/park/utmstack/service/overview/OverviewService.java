@@ -59,6 +59,7 @@ public class OverviewService {
                 result.add(new CardType("Last 7 days", 0));
                 return result;
             }
+
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
 
@@ -67,7 +68,7 @@ public class OverviewService {
                     .dateRange(dr -> dr.field(Constants.timestamp)
                         .keyed(true).timeZone("UTC")
                         .ranges(r -> r.key(TODAY_KEY).from(f -> f.expr("now/d")).to(t -> t.expr("now")))
-                        .ranges(r -> r.key(LAST_WEEK_KEY).from(f -> f.expr("now-7d")).to(t -> t.expr("now")))))).size(0));
+                        .ranges(r -> r.key(LAST_WEEK_KEY).from(f -> f.expr("now-7d/d")).to(t -> t.expr("now")))))).size(0));
 
             SearchResponse<String> response = elasticsearchService.search(sr, String.class);
             Aggregate aggregate = response.aggregations().get(AGG_NAME);
