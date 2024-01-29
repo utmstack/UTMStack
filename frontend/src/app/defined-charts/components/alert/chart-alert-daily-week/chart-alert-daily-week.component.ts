@@ -37,7 +37,6 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
 
   getDailyAlert() {
     this.overviewAlertDashboardService.getCardAlertTodayWeek().subscribe(response => {
-      console.log('Alerts:', response.body);
       this.dailyAlert = response.body;
       this.loadingChartDailyAlert = false;
     });
@@ -47,9 +46,9 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
     const queryParams = {};
     queryParams[ALERT_GLOBAL_FIELD] = 'ALERT';
     if (type !== 'today') {
-      queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now-7d,now';
+      queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now-7d/d,now';
     } else {
-      queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now,now';
+      queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now/d,now';
     }
     this.spinner.show('loadingSpinner');
     this.router.navigate(['/data/alert/view'], {
