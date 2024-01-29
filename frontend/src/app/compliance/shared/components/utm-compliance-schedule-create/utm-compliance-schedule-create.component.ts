@@ -1,9 +1,13 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {Subject} from "rxjs";
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../shared/behaviors/dashboard.behavior';
 import {UtmDashboardType} from '../../../../shared/chart/types/dashboard/utm-dashboard.type';
+import {
+  DashboardFilterLayout
+} from '../../../../shared/components/utm/filters/dashboard-filter-view/dashboard-filter-view.component';
 import {
   ElasticFilterDefaultTime
 } from '../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
@@ -16,14 +20,12 @@ import {ElasticFilterType} from '../../../../shared/types/filter/elastic-filter.
 import {OperatorsType} from '../../../../shared/types/filter/operators.type';
 import {UtmIndexPattern} from '../../../../shared/types/index-pattern/utm-index-pattern';
 import {UtmFieldType} from '../../../../shared/types/table/utm-field.type';
-import {filtersWithPatternToStringParam
-} from '../../../../shared/util/query-params-to-filter.util';
+import {filtersWithPatternToStringParam} from '../../../../shared/util/query-params-to-filter.util';
 import {CpReportBehavior} from '../../behavior/cp-report.behavior';
 import {ComplianceScheduleService} from '../../services/compliance-schedule.service';
 import {ComplianceReportType} from '../../type/compliance-report.type';
 import {ComplianceScheduleFilterType} from '../../type/compliance-schedule-filter.type';
 import {ComplianceScheduleType} from '../../type/compliance-schedule.type';
-import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-utm-compliance-schedule-create',
@@ -57,6 +59,7 @@ export class UtmComplianceScheduleCreateComponent implements OnInit, OnDestroy {
   filterDef: ComplianceScheduleFilterType[];
   dashboard: UtmDashboardType;
   onDestroy$: Subject<void> = new Subject();
+  dashboardFilterLayout = DashboardFilterLayout.ScheduleReportCompliance;
 
   constructor(private complianceScheduleService: ComplianceScheduleService,
               public activeModal: NgbActiveModal,
@@ -104,7 +107,7 @@ export class UtmComplianceScheduleCreateComponent implements OnInit, OnDestroy {
     this.step += 1;
     if (this.step === 2 && this.report) {
         this.getAllFilters().forEach(f => {
-          this.changeFilterValueService.changeSelectedValue({field: f.field, value: f.value})
+          this.changeFilterValueService.changeSelectedValue({field: f.field, value: f.value});
         });
     }
   }

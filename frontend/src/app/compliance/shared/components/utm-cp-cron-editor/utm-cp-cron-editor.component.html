@@ -1,37 +1,43 @@
 
   <div class="row">
     <div class="col-md-4" *ngIf="timeFrequency === TimeFrequency.Daily">
-      <div class="form-group">
         <label for="dailyFrequency">Repeat Every</label>
-        <select (change)="emitChange()" class="form-control" id="dailyFrequency" [(ngModel)]="dailyFrequency">
-          <option *ngFor="let option of frequenciesByType" [value]="option">{{ option }}</option>
-        </select>
-      </div>
+        <ng-select (change)="emitChange()"
+                   id="dailyFrequency"
+                   [(ngModel)]="dailyFrequency"
+                   [items]="frequenciesByType">
+          <!--<option *ngFor="let option of frequenciesByType" [value]="option">{{ option }}</option>-->
+        </ng-select>
     </div>
     <div class="col-md-4" *ngIf="timeFrequency === TimeFrequency.Monthly">
-      <div class="form-group">
         <label for="monthlyFrequency">Repeat Every</label>
-        <select (change)="emitChange()" class="form-control" id="monthlyFrequency" [(ngModel)]="monthlyFrequency">
-          <option *ngFor="let option of frequenciesByType" [value]="option">{{ option }}</option>
-        </select>
-      </div>
+        <ng-select (change)="emitChange()"
+                   id="monthlyFrequency"
+                   [(ngModel)]="monthlyFrequency"
+                   [items]="frequenciesByType">
+          <!--<option *ngFor="let option of frequenciesByType" [value]="option">{{ option }}</option>-->
+        </ng-select>
     </div>
     <div class="col-md-4" *ngIf="timeFrequency === TimeFrequency.Yearly">
-      <div class="form-group">
         <label for="yearlyFrequency">Repeat Every</label>
-        <select (change)="emitChange()" class="form-control" id="yearlyFrequency" [(ngModel)]="yearlyFrequency">
-          <option *ngFor="let option of months" [value]="option.value">{{ option.name }}</option>
-        </select>
-      </div>
+        <ng-select (change)="emitChange()"
+                   id="yearlyFrequency"
+                   [(ngModel)]="yearlyFrequency"
+                   [bindLabel]="'name'"
+                   [bindValue]="'value'"
+                   [items]="months">
+          <!--<option *ngFor="let option of months" [value]="option.value">{{ option.name }}</option>-->
+        </ng-select>
     </div>
     <div class="col-md-4"
          [ngClass]="{ 'col-md-4': timeFrequency !== TimeFrequency.Weekly, 'col-md-6': timeFrequency === TimeFrequency.Weekly }">
-      <div class="form-group">
         <label for="timeFrequency">{{ timeFrequency }}</label>
-        <select class="form-control" id="timeFrequency" (change)="onChangeFrequency()" [(ngModel)]="timeFrequency">
-          <option *ngFor="let option of getTimeEnumValues(TimeFrequency)" [value]="option">{{ option }}</option>
-        </select>
-      </div>
+        <ng-select id="timeFrequency"
+                (change)="onChangeFrequency()"
+                [items]="getTimeEnumValues(TimeFrequency)"
+                [(ngModel)]="timeFrequency">
+<!--          <option *ngFor="let option of getTimeEnumValues(TimeFrequency)" [value]="option">{{ option }}</option>-->
+        </ng-select>
     </div>
     <div class="col-md-4"
          [ngClass]="{ 'col-md-4': timeFrequency !== TimeFrequency.Weekly, 'col-md-6': timeFrequency === TimeFrequency.Weekly }">
