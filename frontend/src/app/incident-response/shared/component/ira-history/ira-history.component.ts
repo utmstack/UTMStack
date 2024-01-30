@@ -23,7 +23,7 @@ export class IraHistoryComponent implements OnInit {
   }
 
   getHistory() {
-    this.incidentResponseRuleHistoryService.query({page: 0, size: 1000, ' ruleId.equals': this.incidentRule.id, sort: 'createdDate,desc'})
+    this.incidentResponseRuleHistoryService.query({page: 0, size: 1000, 'ruleId.equals': this.incidentRule.id, sort: 'createdDate,desc'})
       .subscribe(response => {
         if (response.body) {
           this.incidentRulesHistory = response.body;
