@@ -67,8 +67,8 @@ public class OverviewService {
                 .query(SearchUtil.toQuery(filters)).aggregations(AGG_NAME, Aggregation.of(agg -> agg
                     .dateRange(dr -> dr.field(Constants.timestamp)
                         .keyed(true).timeZone("UTC")
-                        .ranges(r -> r.key(TODAY_KEY).from(f -> f.expr("now/d")).from(t -> t.expr("now")))
-                        .ranges(r -> r.key(LAST_WEEK_KEY).from(f -> f.expr("now-7d/d")).from(t -> t.expr("now")))))).size(0));
+                        .ranges(r -> r.key(TODAY_KEY).from(f -> f.expr("now/d")).to(t -> t.expr("now")))
+                        .ranges(r -> r.key(LAST_WEEK_KEY).from(f -> f.expr("now-7d/d")).to(t -> t.expr("now")))))).size(0));
 
             SearchResponse<String> response = elasticsearchService.search(sr, String.class);
             Aggregate aggregate = response.aggregations().get(AGG_NAME);
