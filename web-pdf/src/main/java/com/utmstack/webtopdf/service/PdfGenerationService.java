@@ -1,6 +1,7 @@
 package com.utmstack.webtopdf.service;
 
 import com.utmstack.webtopdf.config.WebDriverConfig;
+import com.utmstack.webtopdf.config.enums.AccessType;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Pdf;
@@ -30,7 +31,7 @@ public class PdfGenerationService {
         this.webDriverConfig = webDriverConfig;
     }
 
-    public byte[] generatePdf(String url, String accessKey, String accessType) {
+    public byte[] generatePdf(String url, String accessKey, AccessType accessType) {
 
         WebDriver webDriver = webDriverConfig.createWebDriver();
 
@@ -39,11 +40,8 @@ public class PdfGenerationService {
             int indexAfterProtocol = url.indexOf('/', url.indexOf("//") + 2);
             String front = (indexAfterProtocol != -1) ? url.substring(0, indexAfterProtocol) : url;
 
-            if (accessType.equals("Utm_Token")) {
-                webDriver.get(front.concat("?token=".concat(accessKey)));
-            } else {
-                webDriver.get(front.concat("?key=".concat(accessKey)));
-            }
+            webDriver.get(front.concat(accessType.buildUrlPart(accessKey)));
+
             TimeUnit.SECONDS.sleep(5);
             webDriver.get(url);
             TimeUnit.SECONDS.sleep(15);

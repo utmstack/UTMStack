@@ -21,6 +21,7 @@ public class WebDriverConfig {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--no-sandbox");
+            options.setAcceptInsecureCerts(true);
 
             return new RemoteWebDriver(serverUrl, options);
         } catch (MalformedURLException | RuntimeException exception) {
