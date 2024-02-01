@@ -257,9 +257,9 @@ public class UtmDataInputStatusService {
     /**
      * Check datasource from utm_data_input_status table that are not of type WORKSTATION and
      * if any of them are down then create a new alert. This method is a schedule with a delay
-     * of 1 hour
+     * of 24 hour
      */
-    @Scheduled(fixedDelay = 12, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS)
     public void checkDatasourceDown() {
         final String ctx = CLASSNAME + ".checkDatasourceDown";
         try {
