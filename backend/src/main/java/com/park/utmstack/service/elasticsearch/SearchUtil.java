@@ -229,7 +229,7 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsInFields";
         try {
             filter.validate();
-            String value = CustomStringEscapeUtil.opensearchQueryStringEscape(String.valueOf(filter.getValue()));
+            String value = CustomStringEscapeUtil.openSearchQueryStringEscape(String.valueOf(filter.getValue()));
             bool.filter(f -> f.queryString(q -> q
                 .defaultField("*")
                 .query("*" + value + "*")));
@@ -242,7 +242,7 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsNotInFields";
         try {
             filter.validate();
-            String value = CustomStringEscapeUtil.opensearchQueryStringEscape(String.valueOf(filter.getValue()));
+            String value = CustomStringEscapeUtil.openSearchQueryStringEscape(String.valueOf(filter.getValue()));
             bool.filter(f -> f.bool(b -> b.mustNot(n -> n.queryString(q -> q
                 .defaultField("*")
                 .query("*" + value + "*")))));
