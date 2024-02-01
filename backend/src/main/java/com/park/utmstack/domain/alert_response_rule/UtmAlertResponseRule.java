@@ -9,8 +9,10 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -38,6 +40,9 @@ public class UtmAlertResponseRule implements Serializable {
     private String agentPlatform;
     @Column(name = "excluded_agents")
     private String excludedAgents;
+    @Size(max = 500)
+    @Column(name = "default_agent" , length = 500)
+    private String defaultAgent;
     @CreatedBy
     @Column(name = "created_by", nullable = false, length = 50, updatable = false)
     private String createdBy;
@@ -62,6 +67,7 @@ public class UtmAlertResponseRule implements Serializable {
         this.ruleCmd = dto.getCommand();
         this.ruleActive = dto.getActive();
         this.agentPlatform = dto.getAgentPlatform();
+        this.defaultAgent = dto.getDefaultAgent();
         if (!CollectionUtils.isEmpty(dto.getExcludedAgents()))
             this.excludedAgents = String.join(",", dto.getExcludedAgents());
         else
@@ -130,6 +136,14 @@ public class UtmAlertResponseRule implements Serializable {
 
     public void setExcludedAgents(String excludedAgents) {
         this.excludedAgents = excludedAgents;
+    }
+
+    public String getDefaultAgent() {
+        return defaultAgent;
+    }
+
+    public void setDefaultAgent(String defaultAgent) {
+        this.defaultAgent = defaultAgent;
     }
 
     public String getCreatedBy() {

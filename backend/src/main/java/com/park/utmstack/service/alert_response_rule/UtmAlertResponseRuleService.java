@@ -129,19 +129,26 @@ public class UtmAlertResponseRuleService {
                 return;
 
             List<UtmAlertResponseRule> rules = alertResponseRuleRepository.findAllByRuleActiveIsTrue();
-            if (CollectionUtils.isEmpty(rules))
-                return;
 
             // Excluding alerts tagged as false positive
             alerts = alerts.stream().filter(a -> (CollectionUtils.isEmpty(a.getTags()) || !a.getTags().contains("False positive")))
                 .collect(Collectors.toList());
 
+            // Do nothing if there is no valid alerts to check
+            if (CollectionUtils.isEmpty(alerts))
+                return;
+
             String alertJsonArray = new Gson().toJson(alerts);
             for (UtmAlertResponseRule rule : rules) {
                 List<FilterType> conditions = new ArrayList<>();
                 List<String> agentNames = networkScanRepository.findAgentNamesByPlatform(rule.getAgentPlatform());
+
                 if (!CollectionUtils.isEmpty(agentNames))
-                    conditions.add(new FilterType(Constants.alertDataSourceKeyword, OperatorType.IS_ONE_OF, agentNames));
+                    continue;
+
+                // Conditions for matching agents (these are the alerts made from logs coming from an agent)
+                //------------------------------------------------------------------------------------------
+                conditions.add(new FilterType(Constants.alertDataSourceKeyword, OperatorType.IS_ONE_OF, agentNames));
 
                 if (StringUtils.hasText(rule.getRuleConditions()))
                     conditions.addAll(new Gson().fromJson(rule.getRuleConditions(), TypeToken.getParameterized(List.class, FilterType.class).getType()));
@@ -152,19 +159,50 @@ public class UtmAlertResponseRuleService {
                 Filter filter = buildFilters(conditions);
                 List<?> matches = UtilJson.read("$[?]", alertJsonArray, filter);
 
-                if (CollectionUtils.isEmpty(matches))
-                    continue;
+                if (!CollectionUtils.isEmpty(matches)) {
 
-                for (Object match : matches) {
-                    String matchAsJson = new Gson().toJson(match);
+                    for (Object match : matches) {
+                        String matchAsJson = new Gson().toJson(match);
 
-                    UtmAlertResponseRuleExecution exe = new UtmAlertResponseRuleExecution();
-                    exe.setAgent(UtilJson.read("$.dataSource", matchAsJson));
-                    exe.setAlertId(UtilJson.read("$.id", matchAsJson));
-                    exe.setRuleId(rule.getId());
-                    exe.setCommand(buildCommand(rule.getRuleCmd(), matchAsJson));
-                    exe.setExecutionStatus(RuleExecutionStatus.PENDING);
-                    alertResponseRuleExecutionRepository.save(exe);
+                        UtmAlertResponseRuleExecution exe = new UtmAlertResponseRuleExecution();
+                        exe.setAgent(UtilJson.read("$.dataSource", matchAsJson));
+                        exe.setAlertId(UtilJson.read("$.id", matchAsJson));
+                        exe.setRuleId(rule.getId());
+                        exe.setCommand(buildCommand(rule.getRuleCmd(), matchAsJson));
+                        exe.setExecutionStatus(RuleExecutionStatus.PENDING);
+                        alertResponseRuleExecutionRepository.save(exe);
+                    }
+                }
+
+                // Then the alerts that match the filters but aren't from an agent, gets executed using the default agent if there is one
+                //-----------------------------------------------------------------------------------------------------------------------
+                if (StringUtils.hasText(rule.getDefaultAgent())) {
+                    List<FilterType> conditionsNonAgents = new ArrayList<>();
+                    conditionsNonAgents.add(new FilterType(Constants.alertDataSourceKeyword, OperatorType.IS_NOT_ONE_OF, agentNames));
+
+                    if (StringUtils.hasText(rule.getRuleConditions()))
+                        conditionsNonAgents.addAll(new Gson().fromJson(rule.getRuleConditions(), TypeToken.getParameterized(List.class, FilterType.class).getType()));
+
+                    if (StringUtils.hasText(rule.getExcludedAgents()))
+                        conditionsNonAgents.add(new FilterType(Constants.alertDataSourceKeyword, OperatorType.IS_NOT_ONE_OF, List.of(rule.getExcludedAgents().split(","))));
+
+                    filter = buildFilters(conditionsNonAgents);
+                    matches = UtilJson.read("$[?]", alertJsonArray, filter);
+
+                    if (!CollectionUtils.isEmpty(matches)) {
+
+                        for (Object match : matches) {
+                            String matchAsJson = new Gson().toJson(match);
+
+                            UtmAlertResponseRuleExecution exe = new UtmAlertResponseRuleExecution();
+                            exe.setAgent(rule.getDefaultAgent());
+                            exe.setAlertId(UtilJson.read("$.id", matchAsJson));
+                            exe.setRuleId(rule.getId());
+                            exe.setCommand(buildCommand(rule.getRuleCmd(), matchAsJson));
+                            exe.setExecutionStatus(RuleExecutionStatus.PENDING);
+                            alertResponseRuleExecutionRepository.save(exe);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
