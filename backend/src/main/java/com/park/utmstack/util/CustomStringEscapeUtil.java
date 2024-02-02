@@ -7,13 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CustomStringEscapeUtil {
-    public static String opensearchQueryStringEscape(String str) {
-        final String[] chars = new String[] {"+", "-", "=", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"};
-        final Map<CharSequence, CharSequence> escapeCustomMap = new HashMap<>();
-        escapeCustomMap.put("<", "");
-        escapeCustomMap.put(">", "");
-        for (String s : chars)
-            escapeCustomMap.put(s, "\\\\" + s);
-        return new AggregateTranslator(new LookupTranslator(escapeCustomMap)).translate(str);
+
+    private static final String[] CHARS = new String[] {"+", "-", "=", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"};
+
+    private static final Map<CharSequence, CharSequence> ESCAPE_CUSTOM_MAP = new HashMap<>();
+
+    static {
+        ESCAPE_CUSTOM_MAP.put("<", "");
+        ESCAPE_CUSTOM_MAP.put(">", "");
+        for (String s : CHARS)
+            ESCAPE_CUSTOM_MAP.put(s, "\\" + s);
+    }
+
+    public static String openSearchQueryStringEscape(String str) {
+        return new AggregateTranslator(new LookupTranslator(ESCAPE_CUSTOM_MAP)).translate(str);
     }
 }
