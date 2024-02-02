@@ -5,6 +5,9 @@
         [ngClass]="active?'toggle-active':'toggle-inactive'"
         class="switchery switchery-default switchery-sm">
       <small></small>
-    </span> &nbsp;
-  {{label}}
+    </span>
+    <div class="text-justify pl-2 w-95"
+         [ngClass]="customClass">
+        {{label}}
+    </div>
 </label>
