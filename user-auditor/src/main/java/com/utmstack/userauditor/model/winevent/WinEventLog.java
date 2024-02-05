@@ -22,7 +22,7 @@ public class WinEventLog{
 
     public String message;
     public String opcode;
-    public int process_id;
+    public String process_id;
     public String provider_guid;
     public int record_number;
     public String source_name;
