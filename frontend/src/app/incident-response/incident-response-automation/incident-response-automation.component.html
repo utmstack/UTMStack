@@ -2,6 +2,12 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 label-header">Incident Response Automation</h5>
     <div class="header-elements">
+      <button (click)="viewVariables()"
+              *appHasAnyAuthority="roles"
+              class="btn utm-button utm-button-primary mr-2"
+      >
+        Automation variables
+      </button>
       <button (click)="createRule()"
               class="btn utm-button utm-button-primary"
       >
@@ -113,11 +119,12 @@
       <tr *ngFor="let rule of rules">
 
         <td class="cursor-pointer text-wrap" style="width: 80px" (click)="viewConditions = rule"><p
-          class="text-blue-800 font-size-base">{{rule.id }}</p>
+          class="text-blue-800 font-size-base">{{ rule.id }}</p>
         </td>
 
         <td class="text-blue-800 cursor-pointer text-wrap word-break"
-            (click)="viewConditions = rule">{{rule.name }}</td>
+            (click)="viewConditions = rule">{{ rule.name }}
+        </td>
 
         <td>
           <span (click)="setActive(rule, true)" *ngIf="!rule.active"
@@ -130,23 +137,23 @@
 
 
         <td class="cursor-pointer text-wrap" style="width: 20%" (click)="viewConditions = rule"><p
-          class="font-size-base">{{rule.description }}</p>
+          class="font-size-base">{{ rule.description }}</p>
         </td>
         <td class="cursor-pointer text-wrap" (click)="viewConditions = rule"><p
-          class="font-size-base">{{rule.lastModifiedBy }}</p>
+          class="font-size-base">{{ rule.lastModifiedBy }}</p>
         </td>
         <td class="cursor-pointer text-wrap" (click)="viewConditions = rule"><p
-          class="font-size-base">{{rule.lastModifiedDate | date:'short' }}</p>
+          class="font-size-base">{{ rule.lastModifiedDate | date:'short' }}</p>
         </td>
         <td
           class="text-blue-800 cursor-pointer" (click)="viewConditions = rule">
-          <strong>{{rule.conditions.length }}</strong> {{rule.conditions.length > 1 ? 'conditions' : 'condition'}}
+          <strong>{{ rule.conditions.length }}</strong> {{ rule.conditions.length > 1 ? 'conditions' : 'condition' }}
         </td>
         <td class="text-wrap tags-container text-break cursor-pointer" (click)="viewConditions = rule">
-          <code>{{rule.command}}</code>
+          <code>{{ rule.command }}</code>
         </td>
 
-        <td (click)="viewConditions=rule" class="cursor-pointer">{{rule.agentPlatform }}</td>
+        <td (click)="viewConditions=rule" class="cursor-pointer">{{ rule.agentPlatform }}</td>
         <td style="width: 15px" class="text-center">
           <div class="d-flex justify-content-end align-items-center medium-icon">
             <i (click)="editRule(rule)" class="icon-pencil3 cursor-pointer mr-3"
@@ -204,7 +211,7 @@
     <div class="title d-flex justify-content-between  align-items-center border-bottom-1
      border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">
-        Rule {{viewConditions.name}}
+        Rule {{ viewConditions.name }}
       </h6>
       <button (click)="viewConditions= undefined" aria-label="Close"
               class="close button-close" type="button">
@@ -214,17 +221,17 @@
     <div class="w-100 p-3">
       <div class="alert-details w-100 d-flex justify-content-start align-items-start flex-column mb-2">
         <span class="text-blue-800 font-weight-light mr-2">Description:</span>
-        <p class="font-size-base">{{viewConditions.description}}</p>
+        <p class="font-size-base">{{ viewConditions.description }}</p>
       </div>
       <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
         <span class="text-blue-800 font-weight-light mr-2">Execute on agents with:</span>&nbsp;
-        <p class="font-size-base">{{viewConditions.agentPlatform}}</p>
+        <p class="font-size-base">{{ viewConditions.agentPlatform }}</p>
       </div>
       <div class="alert-details w-100 d-flex justify-content-start align-items-start mb-2 flex-column">
         <span class="text-blue-800 font-weight-light mr-2">Excluding:</span>
         <div class="d-flex justify-content-start align-items-start">
           <span class="badge p-1 border-1 badge-flat font-weight-light border-info-800 text-info-800 mr-2 mb-2"
-                *ngFor="let exclusion of viewConditions.excludedAgents">{{exclusion}}</span>
+                *ngFor="let exclusion of viewConditions.excludedAgents">{{ exclusion }}</span>
         </div>
       </div>
       <div class="utm-box mt-4 p-3 border-1 border-blue-800 position-relative">
@@ -233,9 +240,9 @@
        </span>
         <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2"
              *ngFor="let condition of viewConditions.conditions">
-          <span class="text-blue-800 font-weight-light has-minimum-width">{{getFieldName(condition.field)}}</span>&nbsp;
-          <span class="font-weight-light  font-weight-semibold mr-2">{{getFilterName(condition.operator)}}</span>&nbsp;
-          <span class="">{{condition.value}}</span>&nbsp;
+          <span class="text-blue-800 font-weight-light has-minimum-width">{{ getFieldName(condition.field) }}</span>&nbsp;
+          <span class="font-weight-light  font-weight-semibold mr-2">{{ getFilterName(condition.operator) }}</span>&nbsp;
+          <span class="">{{ condition.value }}</span>&nbsp;
         </div>
       </div>
 
@@ -253,3 +260,22 @@
   </div>
 </div>
 
+
+<div *ngIf="viewVariableModal" class="utm-right-container">
+  <div (click)="viewVariableModal= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Automation variables
+      </h6>
+      <button (click)="viewVariableModal= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="w-100 p-3">
+      <app-incident-response-variables></app-incident-response-variables>
+    </div>
+  </div>
+</div>

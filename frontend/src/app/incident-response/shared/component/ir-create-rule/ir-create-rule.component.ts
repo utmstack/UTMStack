@@ -1,3 +1,4 @@
+import {HttpResponse} from '@angular/common/http';
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -5,7 +6,10 @@ import {debounceTime} from 'rxjs/operators';
 import {UtmNetScanService} from '../../../../assets-discover/shared/services/utm-net-scan.service';
 import {NetScanType} from '../../../../assets-discover/shared/types/net-scan.type';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {ALERT_NAME_FIELD, INCIDENT_AUTOMATION_ALERT_FIELDS} from '../../../../shared/constants/alert/alert-field.constant';
+import {
+  ALERT_NAME_FIELD,
+  INCIDENT_AUTOMATION_ALERT_FIELDS
+} from '../../../../shared/constants/alert/alert-field.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {PrefixElementEnum} from '../../../../shared/enums/prefix-element.enum';
@@ -14,7 +18,9 @@ import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 import {createElementPrefix, getElementPrefix} from '../../../../shared/util/string-util';
 import {IncidentResponseRuleService} from '../../services/incident-response-rule.service';
+import {IncidentResponseVariableService} from '../../services/incident-response-variable.service';
 import {IncidentRuleType} from '../../type/incident-rule.type';
+import {IncidentVariableType} from '../../type/incident-variable.type';
 
 @Component({
   selector: 'app-ir-create-rule',
@@ -26,7 +32,7 @@ export class IrCreateRuleComponent implements OnInit {
   @Input() rule: IncidentRuleType;
   @ViewChild('autocomplete') autocomplete: ElementRef;
   @Output() ruleCreated = new EventEmitter<boolean>();
-  step = 1;
+  step = 3;
   stepCompleted: number[] = [];
   creating = false;
   formRule: FormGroup;
@@ -38,6 +44,7 @@ export class IrCreateRuleComponent implements OnInit {
   typing = true;
   rulePrefix: string = createElementPrefix(PrefixElementEnum.INCIDENT_RESPONSE_AUTOMATION);
   valuesMap: Map<string, string[]> = new Map();
+  variables: IncidentVariableType[];
 
   constructor(private incidentResponseRuleService: IncidentResponseRuleService,
               public activeModal: NgbActiveModal,
@@ -45,6 +52,7 @@ export class IrCreateRuleComponent implements OnInit {
               public inputClass: InputClassResolve,
               private utmNetScanService: UtmNetScanService,
               private elasticSearchIndexService: ElasticSearchIndexService,
+              private incidentResponseVariableService: IncidentResponseVariableService,
               private utmToastService: UtmToastService) {
 
     this.formRule = this.fb.group({
@@ -104,6 +112,7 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').valueChanges.pipe(debounceTime(1000)).subscribe(value => {
       this.searchRule(this.rulePrefix + value);
     });
+    this.getVariables();
   }
 
   searchRule(rule: string) {
@@ -217,13 +226,14 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').setValue(this.rulePrefix + this.formRule.get('name').value);
   }
 
- clearAgentTypeSelection() {
-   if (this.formRule.get('agentType').value) {
-     this.formRule.get('excludedAgents').setValue([]);
-   } else {
-     this.formRule.get('defaultAgent').setValue('');
-   }
- }
+  clearAgentTypeSelection() {
+    if (this.formRule.get('agentType').value) {
+      this.formRule.get('excludedAgents').setValue([]);
+    } else {
+      this.formRule.get('defaultAgent').setValue('');
+    }
+  }
+
   errorSaving(action: string) {
     const ruleName: string = this.formRule.get('name').value;
     this.formRule.get('name').setValue(this.replacePrefixInName(ruleName));
@@ -254,8 +264,8 @@ export class IrCreateRuleComponent implements OnInit {
         return !this.formRule.get('name').valid || !this.formRule.get('description').valid || this.exist;
       case 2:
         return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0
-            || !this.ruleConditions.valid
-            || (this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
+          || !this.ruleConditions.valid
+          || (this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
       case 3:
         return !this.command || this.command === '';
     }
@@ -286,7 +296,7 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   onChangeToggle($event) {
-    if ($event ) {
+    if ($event) {
       this.formRule.get('excludedAgents').setValue([]);
     } else {
       this.formRule.get('defaultAgent').setValue('');
@@ -294,4 +304,15 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('agentType').setValue($event);
   }
 
+  getVariables() {
+    this.incidentResponseVariableService.query({page: 0, size: 100}).subscribe(response => {
+      if (response.body) {
+        this.variables = response.body;
+      }
+    });
+  }
+
+  getVariablePlaceHolder(variable: IncidentVariableType) {
+    return `secrets.${variable.variableName}`;
+  }
 }
