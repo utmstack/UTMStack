@@ -1,1 +1,14 @@
+.step-title {
+  position: absolute;
+  bottom: 35px;
+}
 
+.wizard-step .step-link {
+  padding-top: 0 !important;
+}
+
+.step-icon {
+  position: absolute;
+  top:50%;
+  transform: translateY(-50%);
+}

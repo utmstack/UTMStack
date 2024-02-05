@@ -8,6 +8,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 export class UtmToggleComponent implements OnInit {
   @Input() active: boolean;
   @Input() label: string;
+  @Input() customClass: string;
   @Input() emitAtStart: boolean;
   @Output() toggleChange = new EventEmitter<boolean>();
 
