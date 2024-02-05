@@ -20,7 +20,7 @@ public class WinEventLog{
     public String level;
     public String log_name;
 
-    public String message;
+    public String mesage;
     public String opcode;
     public String process_id;
     public String provider_guid;
