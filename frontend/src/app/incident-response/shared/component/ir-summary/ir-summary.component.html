@@ -19,7 +19,7 @@
     </span>
 
 
-    <ng-container *ngIf="agentType">
+    <ng-container *ngIf="!agentType">
       <span>
         Importantly, the automation excludes designated agents, such as
       </span>
@@ -28,7 +28,7 @@
       </span>
     </ng-container>
 
-    <ng-container *ngIf="!agentType">
+    <ng-container *ngIf="agentType">
       <span>
         In case none of the agents satisfy the specified conditions, the automation will smoothly revert and execute on the default agent,
         <span class="badge p-1 border-1 badge-flat font-weight-light border-info-800 text-info-800 mr-2 mb-2">
@@ -44,7 +44,7 @@
     <span>
      Crucially, when these conditions are met, the automation will proceed to execute the following action:
     </span>
-    <app-utm-code-view [code]="command" [allowCopy]="true"></app-utm-code-view>
+    <app-utm-code-view class="w-100 mt-1" [code]="command" [allowCopy]="false"></app-utm-code-view>
   </div>
 </div>
 
