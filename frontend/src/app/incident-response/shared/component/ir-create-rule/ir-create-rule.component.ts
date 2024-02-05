@@ -215,7 +215,7 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').setValue(this.rulePrefix + this.formRule.get('name').value);
   }
 
- clearAgentTypeSelection(){
+ clearAgentTypeSelection() {
    if (!this.formRule.get('agentType').value) {
      this.formRule.get('excludedAgents').setValue([]);
    } else {
@@ -247,11 +247,13 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   isDisable(step: number) {
+    console.log((!this.formRule.get('agentType').value && this.formRule.get('defaultAgent').value === ''));
     switch (step) {
       case 1:
         return !this.formRule.get('name').valid || !this.formRule.get('description').valid || this.exist;
       case 2:
-        return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0;
+        return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0
+            || (!this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
       case 3:
         return !this.command || this.command === '';
     }

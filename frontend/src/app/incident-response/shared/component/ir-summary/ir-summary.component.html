@@ -6,12 +6,13 @@
       It will evaluate the following conditions:
     </p>
 
-    <div class="alert-details mb-1 mt-1"
-         *ngFor="let condition of conditions">
-      <span class="text-blue-800 font-weight-light has-minimum-width">{{getFieldName(condition.field)}}</span>&nbsp;
-      <span class="font-weight-light  font-weight-semibold">{{getFilterName(condition.operator)}}</span>&nbsp;
-      <span class="">{{condition.value}}</span>&nbsp;
-    </div>
+    <ul class="mb-1 mt-1">
+      <li class="ml-2"  *ngFor="let condition of conditions">
+        <span class="text-blue-800 font-weight-light has-minimum-width">{{'- ' + getFieldName(condition.field)}}</span>&nbsp;
+        <span class="font-weight-light  font-weight-semibold">{{getFilterName(condition.operator)}}</span>&nbsp;
+        <span class="">{{condition.value}}</span>&nbsp;
+      </li>
+    </ul>
 
     <span>
       On agents operating on the <strong>{{ platform | capitalize }}</strong> platform.
