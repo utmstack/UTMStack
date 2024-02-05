@@ -54,7 +54,7 @@ export class IrCreateRuleComponent implements OnInit {
       conditions: this.fb.array([]),
       command: ['', Validators.required],
       active: [true],
-      agentType: [true],
+      agentType: [false],
       excludedAgents: [[]],
       defaultAgent: [''],
       agentPlatform: ['', Validators.required]
@@ -81,7 +81,7 @@ export class IrCreateRuleComponent implements OnInit {
         this.ruleConditions.push(ruleCondition);
         this.getAgents(this.formRule.get('agentPlatform').value);
         this.formRule.get('excludedAgents').setValue(this.rule.excludedAgents);
-        this.formRule.get('agentType').setValue(this.rule.excludedAgents.length > 0);
+        this.formRule.get('agentType').setValue(this.rule.excludedAgents.length === 0);
         this.formRule.get('defaultAgent').setValue(this.rule.defaultAgent);
       }
     } else if (this.alert) {
@@ -148,6 +148,9 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   nextStep() {
+    if (this.step === 3) {
+      this.formRule.get('command').setValue(this.command);
+    }
     this.stepCompleted.push(this.step);
     this.step += 1;
   }
@@ -194,7 +197,6 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   editRule() {
-    console.log('edit');
     const action = 'edited';
     const actionError = 'editing';
     this.clearAgentTypeSelection();
@@ -216,7 +218,7 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
  clearAgentTypeSelection() {
-   if (!this.formRule.get('agentType').value) {
+   if (this.formRule.get('agentType').value) {
      this.formRule.get('excludedAgents').setValue([]);
    } else {
      this.formRule.get('defaultAgent').setValue('');
@@ -247,13 +249,12 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   isDisable(step: number) {
-    console.log((!this.formRule.get('agentType').value && this.formRule.get('defaultAgent').value === ''));
     switch (step) {
       case 1:
         return !this.formRule.get('name').valid || !this.formRule.get('description').valid || this.exist;
       case 2:
         return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0
-            || (!this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
+            || (this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
       case 3:
         return !this.command || this.command === '';
     }

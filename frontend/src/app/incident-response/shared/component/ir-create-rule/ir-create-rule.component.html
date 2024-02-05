@@ -95,7 +95,7 @@
                       [label]="'Incident response automation is active'">
       </app-utm-toggle>
     </div>
-    <div *ngIf="step===2" class="configure-step mt-3 mb-3 has-fixed-height overflow-auto">
+    <div *ngIf="step===2" class="configure-step mt-3 mb-3">
 
       <div class="w-100">
         <div formArrayName="conditions">
@@ -179,17 +179,17 @@
         </div>-->
       </div>
       <div class="d-flex mt-3 flex-column">
+        <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
+          <span class="font-weight-semibold">Info! </span>
+          <span>Select the agent handling strategy for the automation. By default (not active), commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria. If this option is active, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the automation won't be executed.</span>
+        </div>
           <app-utm-toggle (toggleChange)="formRule.get('agentType').setValue($event)"
                           [active]="formRule.get('agentType').value"
                           [emitAtStart]="false"
                           [customClass]="'pl-3'"
-                          [label]="'Agent handling strategy for the automation'"></app-utm-toggle>
-            <div class="alert alert-info alert-styled-right mt-1 info-dismissible">
-              <span class="font-weight-semibold">Info! </span>
-              <span>Select the agent handling strategy for the automation. By default, commands won't run on specified agents, even if the trigger conditions match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria.</span>
-            </div>
+                          [label]="'Run on specific agent'"></app-utm-toggle>
       </div>
-      <div *ngIf="formRule.get('agentType').value" class="d-flex mt-3 flex-column">
+      <div *ngIf="!formRule.get('agentType').value" class="d-flex mt-2 flex-column">
         <div class="col-12 p-0">
           <label class="pb-1" for="exclude">Exclude agents</label>
           <ng-select [clearable]="false"
@@ -212,9 +212,9 @@
           </div>
         </div>
       </div>
-      <div *ngIf="!formRule.get('agentType').value" class="d-flex mt-3 flex-column">
-        <div  class="col-12 p-0">
-          <label class="pb-1" for="exclude">Default agents</label>
+      <div *ngIf="formRule.get('agentType').value" class="d-flex mt-2 flex-column">
+        <div  class="col-6 p-0">
+          <label class="pb-1" for="exclude">Default agent</label>
           <ng-select [clearable]="false"
                      [items]="agents"
                      [placeholder]="'Select agent'"

@@ -19,6 +19,7 @@ public class WinEventLog{
     public ArrayList<String> keywords;
     public String level;
     public String log_name;
+    
     public String message;
     public String opcode;
     public int process_id;
@@ -27,7 +28,7 @@ public class WinEventLog{
     public String source_name;
     public ArrayList<String> tags;
     public String task;
-    public int thread_id;
+    public String thread_id;
     public int version;
 }
 
