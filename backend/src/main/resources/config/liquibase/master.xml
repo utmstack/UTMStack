@@ -32,4 +32,6 @@
 
     <include file="config/liquibase/changelog/20240109001_modifying_requirement_for_configuration_parameters.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240131001_add_default_agent_utm_alert_response_rule.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
