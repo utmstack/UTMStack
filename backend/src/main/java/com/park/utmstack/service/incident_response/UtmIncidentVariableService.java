@@ -10,8 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Service Implementation for managing UtmIncidentVariable.
@@ -70,6 +75,29 @@ public class UtmIncidentVariableService {
     }
 
     /**
+     * Get one utmIncidentVariable by name.
+     *
+     * @param variableName the name of the variable
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public Optional<UtmIncidentVariable> findByName(String variableName) {
+        return utmIncidentVariableRepository.findByVariableName(variableName);
+    }
+
+    /**
+     * Get all utmIncidentVariable by name in list.
+     *
+     * @param variableNames the names of the variables to list
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public List<UtmIncidentVariable> findByVariablesByNames(List<String> variableNames) {
+        return utmIncidentVariableRepository.findAllByVariableNameIn(variableNames);
+    }
+
+
+    /**
      * Delete the utmIncidentVariable by id.
      *
      * @param id the id of the entity
@@ -77,5 +105,28 @@ public class UtmIncidentVariableService {
     public void delete(Long id) {
         log.debug("Request to delete UtmIncidentVariable : {}", id);
         utmIncidentVariableRepository.deleteById(id);
+    }
+
+    public String replaceVariablesInCommand(String command) {
+        List<String> variableNames = new ArrayList<>();
+        Pattern pattern = Pattern.compile("\\$\\[variables\\.(.*?)]");
+        Matcher matcher = pattern.matcher(command);
+
+        while (matcher.find()) {
+            variableNames.add(matcher.group(1));
+        }
+
+        List<UtmIncidentVariable> variables = findByVariablesByNames(variableNames);
+        if (CollectionUtils.isEmpty(variables))
+            return command;
+
+        for (UtmIncidentVariable var : variables) {
+            String currentValue = var.getVariableValue();
+            if (var.isSecret())
+                currentValue = "$[" + var.getVariableName() + ":" + currentValue + "]";
+            command = command.replace("$[variables." + var.getVariableName() + "]", currentValue);
+        }
+
+        return command;
     }
 }

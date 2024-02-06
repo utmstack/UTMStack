@@ -9,18 +9,14 @@ import {UtmSharedModule} from '../shared/utm-shared.module';
 import {
   IncidentResponseAutomationComponent
 } from './incident-response-automation/incident-response-automation.component';
-import {
-  IrVariableCreateComponent
-} from './incident-response-variables/ir-variable-create/ir-variable-create.component';
 import {IncidentResponseCommandComponent} from './incident-response-command/incident-response-command.component';
 import {IncidentResponseRoutingModule} from './incident-response-routing.module';
-import {IncidentResponseVariablesComponent} from './incident-response-variables/incident-response-variables.component';
 import {IncidentResponseViewComponent} from './incident-response-view/incident-response-view.component';
 import {IncidentResponseSharedModule} from './shared/incident-response-shared.module';
 
 @NgModule({
   declarations: [IncidentResponseViewComponent, IncidentResponseCommandComponent,
-    IncidentResponseAutomationComponent, IncidentResponseVariablesComponent, IrVariableCreateComponent],
+    IncidentResponseAutomationComponent],
   imports: [
     CommonModule,
     IncidentResponseRoutingModule,
@@ -32,7 +28,7 @@ import {IncidentResponseSharedModule} from './shared/incident-response-shared.mo
     AlertManagementSharedModule,
     TranslateModule,
     ReactiveFormsModule
-  ], entryComponents: [IrVariableCreateComponent]
+  ], entryComponents: []
 })
 export class IncidentResponseModule {
 }

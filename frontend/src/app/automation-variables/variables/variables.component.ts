@@ -7,16 +7,16 @@ import {
 } from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
-import {IncidentResponseVariableService} from '../shared/services/incident-response-variable.service';
-import {IncidentVariableType} from '../shared/type/incident-variable.type';
-import {IrVariableCreateComponent} from './ir-variable-create/ir-variable-create.component';
+import {IrVariableCreateComponent} from '../../shared/components/utm/incident-variables/ir-variable-create/ir-variable-create.component';
+import {IncidentResponseVariableService} from '../../shared/services/incidents/incident-response-variable.service';
+import {IncidentVariableType} from '../../shared/types/incident/incident-variable.type';
 
 @Component({
-  selector: 'app-incident-response-variables',
-  templateUrl: './incident-response-variables.component.html',
-  styleUrls: ['./incident-response-variables.component.scss']
+  selector: 'app-variables',
+  templateUrl: './variables.component.html',
+  styleUrls: ['./variables.component.scss']
 })
-export class IncidentResponseVariablesComponent implements OnInit {
+export class VariablesComponent implements OnInit {
   loading = true;
   variables: IncidentVariableType[];
   itemsPerPage = 15;
@@ -39,17 +39,18 @@ export class IncidentResponseVariablesComponent implements OnInit {
     this.getVariables();
   }
 
-  deactivateRuleAction(variable: IncidentVariableType, active: boolean) {
+  deactivateAction(variable: IncidentVariableType) {
     const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {backdrop: 'static', centered: true});
-    deleteModalRef.componentInstance.header = 'Deactivate incident response automation';
-    deleteModalRef.componentInstance.message = 'Are you sure that you want to deactivate the variable: \n' + variable.variableName;
-    deleteModalRef.componentInstance.confirmBtnText = 'Inactive';
+    deleteModalRef.componentInstance.header = 'Delete automation variable';
+    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete the variable: \n' + variable.variableName + '?';
+    deleteModalRef.componentInstance.confirmBtnText = 'Delete';
     deleteModalRef.componentInstance.confirmBtnIcon = 'icon-cancel-circle2';
     deleteModalRef.componentInstance.confirmBtnType = 'delete';
-    deleteModalRef.componentInstance.textDisplay = 'If you inactive this variable, future alerts' +
-      ' will not trigger incident response commands.';
+    deleteModalRef.componentInstance.textDisplay = 'Incident response automation could encounter failures' +
+      ' when attempting to reference this specific variable.';
     deleteModalRef.componentInstance.textType = 'warning';
     deleteModalRef.result.then(() => {
+      this.delete(variable);
     });
   }
 
@@ -85,18 +86,9 @@ export class IncidentResponseVariablesComponent implements OnInit {
     this.getVariables();
   }
 
-
-  searchByRule($event: string | number) {
-    this.request['name.contains'] = $event;
-    this.getVariables();
-  }
-
   searchVariable($event: string | number) {
     this.request['variableName.contains'] = $event;
     this.getVariables();
-  }
-
-  editRule(variable: IncidentVariableType) {
   }
 
   createVariable() {
@@ -106,7 +98,24 @@ export class IncidentResponseVariablesComponent implements OnInit {
     });
   }
 
+  editVariable(variable: IncidentVariableType) {
+    const modal = this.modalService.open(IrVariableCreateComponent, {centered: true});
+    modal.componentInstance.incidentVariable = variable;
+    modal.componentInstance.actionCreated.subscribe(action => {
+      this.getVariables();
+    });
+  }
+
   getVariablePlaceHolder(variable: IncidentVariableType) {
-    return `$(secrets.${variable.variableName})`;
+    return `$[variables.${variable.variableName}]`;
+  }
+
+  delete(variable: IncidentVariableType) {
+    this.incidentResponseVariableService.delete(variable.id).subscribe(() => {
+      this.utmToastService.showSuccessBottom('Variable deleted successfully');
+      this.getVariables();
+    }, error1 => {
+      this.utmToastService.showError('Error', 'Error deleting variable');
+    });
   }
 }

@@ -41,9 +41,6 @@ export class IncidentResponseAutomationComponent implements OnInit {
   viewConditions: IncidentRuleType;
   platforms: string[];
   users: string[];
-  viewVariableModal = false;
-  roles = [ADMIN_ROLE];
-
 
   constructor(private sourcesService: SourcesService,
               private fb: FormBuilder,
@@ -197,7 +194,4 @@ export class IncidentResponseAutomationComponent implements OnInit {
     this.getRules();
   }
 
-  viewVariables() {
-    this.viewVariableModal = true;
-  }
 }

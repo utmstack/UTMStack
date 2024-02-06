@@ -2,10 +2,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {debounceTime} from 'rxjs/operators';
-import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {InputClassResolve} from '../../../shared/util/input-class-resolve';
-import {IncidentResponseVariableService} from '../../shared/services/incident-response-variable.service';
-import {IncidentVariableType} from '../../shared/type/incident-variable.type';
+import {UtmToastService} from '../../../../alert/utm-toast.service';
+import {InputClassResolve} from '../../../../util/input-class-resolve';
+import {IncidentResponseVariableService} from '../../../../services/incidents/incident-response-variable.service';
+import {IncidentVariableType} from '../../../../types/incident/incident-variable.type';
 
 
 @Component({
@@ -37,12 +37,14 @@ export class IrVariableCreateComponent implements OnInit {
       id: [{value: null, disabled: true}]
     });
     if (this.incidentVariable) {
+      this.exist = false;
       this.incidentVariableForm.patchValue(this.incidentVariable);
       this.incidentVariableForm.get('variableName').disable();
+    } else {
+      this.incidentVariableForm.get('variableName').valueChanges.pipe(debounceTime(1000)).subscribe(value => {
+        this.searchRule(value);
+      });
     }
-    this.incidentVariableForm.get('variableName').valueChanges.pipe(debounceTime(1000)).subscribe(value => {
-      this.searchRule(value);
-    });
   }
 
   createVariable() {

@@ -2,8 +2,8 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
-import {createRequestOption} from '../../../shared/util/request-util';
-import {IncidentVariableType} from '../type/incident-variable.type';
+import {createRequestOption} from '../../util/request-util';
+import {IncidentVariableType} from '../../types/incident/incident-variable.type';
 
 @Injectable({
   providedIn: 'root'

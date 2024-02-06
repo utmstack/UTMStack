@@ -260,19 +260,9 @@
           </div>
 
           <ng-template #colContent>
-            <div class="w-100">
-              <h6 class="font-weight-semibold mb-2">Variables</h6>
-              <ul class="w-100" *ngIf="variables && variables.length>0">
-                <li *ngFor="let variable of variables"
-                    (click)="insertFieldPlaceholder(getVariablePlaceHolder(variable)); p.close(); area.focus()"
-                    class="cursor-pointer font-size-base d-flex justify-content-between align-items-center mb-1">
-                  <span><i [ngClass]="variable.secret === true?'icon-lock2':'icon-cog7'"
-                           class="mr-1 font-size-sm"></i>{{ variable.variableName }}
-                    </span>
-                  <code>{{ '$(' + getVariablePlaceHolder(variable) + ')'}}</code>
-                </li>
-              </ul>
-            </div>
+            <app-incident-variable-select
+              (variableSelected)="insertVariablePlaceholder($event)"></app-incident-variable-select>
+
             <h6 class="font-weight-semibold mt-3 mb-2">Alert fields</h6>
             <ul class="w-100">
               <li *ngFor="let field of alertFields"

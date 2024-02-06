@@ -2,12 +2,6 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 label-header">Incident Response Automation</h5>
     <div class="header-elements">
-      <button (click)="viewVariables()"
-              *appHasAnyAuthority="roles"
-              class="btn utm-button utm-button-primary mr-2"
-      >
-        Automation variables
-      </button>
       <button (click)="createRule()"
               class="btn utm-button utm-button-primary"
       >
@@ -260,22 +254,3 @@
   </div>
 </div>
 
-
-<div *ngIf="viewVariableModal" class="utm-right-container">
-  <div (click)="viewVariableModal= undefined" class="overlay overlay-lg col-md-7"></div>
-  <div class="card utm-right-action utm-right-action-lg">
-    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
-     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
-      <h6 class="card-title text-blue-800 font-weight-light">
-        Automation variables
-      </h6>
-      <button (click)="viewVariableModal= undefined" aria-label="Close"
-              class="close button-close" type="button">
-        <div class="close-icon"></div>
-      </button>
-    </div>
-    <div class="w-100 p-3">
-      <app-incident-response-variables></app-incident-response-variables>
-    </div>
-  </div>
-</div>
