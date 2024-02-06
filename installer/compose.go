@@ -567,6 +567,23 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	c.Services["web-pdf"] = Service{
+		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		DependsOn: []string{
+			"backend",
+			"frontend",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
+	}
+
 	c.Volumes["postgres_data"] = Volume{
 		"external": false,
 	}

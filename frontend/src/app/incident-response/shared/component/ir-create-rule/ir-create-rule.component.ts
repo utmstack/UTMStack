@@ -231,13 +231,14 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').setValue(this.rulePrefix + this.formRule.get('name').value);
   }
 
-  clearAgentTypeSelection() {
-    if (this.formRule.get('agentType').value) {
-      this.formRule.get('excludedAgents').setValue([]);
-    } else {
-      this.formRule.get('defaultAgent').setValue('');
-    }
-  }
+
+ clearAgentTypeSelection() {
+   if (this.formRule.get('agentType').value) {
+     this.formRule.get('excludedAgents').setValue([]);
+   } else {
+     this.formRule.get('defaultAgent').setValue('');
+   }
+ }
 
   errorSaving(action: string) {
     const ruleName: string = this.formRule.get('name').value;
@@ -269,8 +270,8 @@ export class IrCreateRuleComponent implements OnInit {
         return !this.formRule.get('name').valid || !this.formRule.get('description').valid || this.exist;
       case 2:
         return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0
-          || !this.ruleConditions.valid
-          || (this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
+            || !this.ruleConditions.valid
+            || (this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
       case 3:
         return !this.command || this.command === '';
     }
@@ -301,7 +302,7 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   onChangeToggle($event) {
-    if ($event) {
+    if ($event ) {
       this.formRule.get('excludedAgents').setValue([]);
     } else {
       this.formRule.get('defaultAgent').setValue('');
@@ -312,6 +313,5 @@ export class IrCreateRuleComponent implements OnInit {
   insertVariablePlaceholder($event: string) {
     this.command += `$[${$event}]`;
   }
-
 
 }

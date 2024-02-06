@@ -15,12 +15,6 @@ import com.park.utmstack.service.logstash_pipeline.UtmLogstashPipelineService;
 import com.park.utmstack.service.logstash_pipeline.response.LogstashApiStatsResponse;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
-
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.vm.UtmLogstashPipelineVM;
 import org.slf4j.Logger;
@@ -36,8 +30,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
-import javax.annotation.Nullable;
 import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link UtmLogstashPipeline}.

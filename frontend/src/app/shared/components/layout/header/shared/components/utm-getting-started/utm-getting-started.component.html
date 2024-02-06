@@ -29,7 +29,7 @@
                  :'text-warning icon-circle2'"></i>
                     <span class="ml-2 font-size-lg text-blue-800">{{getName(step.stepShort)}}</span>
                 </div>
-                <span *ngIf="!step.completed" class="text-blue-800 font-weight-thin cursor-pointer"
+                <span *ngIf="!step.completed" class="badge badge-info font-weight-thin cursor-pointer"
                       (click)="goToGuide(step.stepShort)">Start</span>
             </div>
         </div>

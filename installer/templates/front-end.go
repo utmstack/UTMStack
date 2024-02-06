@@ -1,6 +1,6 @@
 package templates
 
-const FrontEnd string =`server {
+const FrontEnd string = `server {
     listen 80;
     server_name _;
     resolver 127.0.0.11 valid=10s ipv6=off;

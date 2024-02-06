@@ -8,7 +8,9 @@
         </span>
         <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
              class="round-indicator">
-          <i class="step-icon" [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-css'"></i>
+
+          <i class="step-icon"  [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-css'"></i>
+
         </div>
       </div>
       <div class="step-link">
@@ -20,7 +22,9 @@
         </span>
         <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
              class="round-indicator">
-          <i class="step-icon" [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-power2'"></i>
+
+          <i class="step-icon"  [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-power2'"></i>
+
         </div>
       </div>
       <div class="step-link">
@@ -32,7 +36,9 @@
         </span>
         <div [ngClass]="isCompleted(3)?'step-success':step===3?'step-active':'step-inactive'"
              class="round-indicator">
-          <i class="step-icon" [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-terminal'"></i>
+
+          <i class="step-icon"  [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-terminal'"></i>
+
         </div>
       </div>
       <div class="step-link">
@@ -44,7 +50,9 @@
         </span>
         <div [ngClass]="isCompleted(4) ? 'step-success':step === 4 ?'step-active' : 'step-inactive'"
              class="round-indicator">
-          <i class="step-icon" [ngClass]="isCompleted(4) ? 'icon-checkmark3' : 'icon-eye'"></i>
+
+          <i class="step-icon"  [ngClass]="isCompleted(4) ? 'icon-checkmark3' : 'icon-eye'"></i>
+
         </div>
       </div>
     </div>
@@ -183,11 +191,11 @@
           <span class="font-weight-semibold">Info! </span>
           <span>Select the agent handling strategy for the automation. By default (not active), commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria. If this option is active, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the automation won't be executed.</span>
         </div>
-        <app-utm-toggle (toggleChange)="onChangeToggle($event)"
-                        [active]="formRule.get('agentType').value"
-                        [emitAtStart]="false"
-                        [customClass]="'pl-3'"
-                        [label]="'Run on specific agent'"></app-utm-toggle>
+          <app-utm-toggle (toggleChange)="onChangeToggle($event)"
+                          [active]="formRule.get('agentType').value"
+                          [emitAtStart]="false"
+                          [customClass]="'pl-3'"
+                          [label]="'Run on specific agent'"></app-utm-toggle>
       </div>
       <div *ngIf="!formRule.get('agentType').value" class="d-flex mt-2 flex-column">
         <div class="col-12 p-0">
@@ -204,6 +212,33 @@
                      bindLabel="assetName"
                      id="exclude">
           </ng-select>
+        </div>
+        <div class="col-12 p-0">
+          <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
+            <span class="font-weight-semibold">Info! </span>
+            <span>Represents agents where the commands won't run, even if the trigger conditions match</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="formRule.get('agentType').value" class="d-flex mt-2 flex-column">
+        <div  class="col-6 p-0">
+          <label class="pb-1" for="exclude">Default agent</label>
+          <ng-select [clearable]="false"
+                     [items]="agents"
+                     [placeholder]="'Select agent'"
+                     [loadingText]="'Loading agents...'"
+                     [virtualScroll]="true"
+                     formControlName="defaultAgent"
+                     bindValue="assetName"
+                     bindLabel="assetName"
+                     id="deafult">
+          </ng-select>
+        </div>
+        <div class="col-12 p-0">
+          <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
+            <span class="font-weight-semibold">Info! </span>
+            <span>Designates the agent to execute the automation when no other agent meets the criteria to serve as the runner for this automation.</span>
+          </div>
         </div>
         <div class="col-12 p-0">
           <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
@@ -281,7 +316,7 @@
 
     <div *ngIf="step===4" class="configure-step mt-3 mb-3">
       <app-ir-summary
-        [formRule]="formRule">
+              [formRule]="formRule">
       </app-ir-summary>
     </div>
   </form>

@@ -1,7 +1,6 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.repository.UtmConfigurationParameterRepository;
 import com.park.utmstack.util.CipherUtil;
@@ -12,7 +11,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;

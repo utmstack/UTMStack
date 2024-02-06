@@ -7,6 +7,7 @@ import {GettingStartedBehavior} from 'src/app/shared/behaviors/getting-started.b
 import {AccountService} from '../../../../core/auth/account.service';
 import {ONLINE_DOCUMENTATION_BASE} from '../../../constants/global.constant';
 import {GettingStartedService} from '../../../services/getting-started/getting-started.service';
+import {ApplicationConfigSectionEnum} from "../../../types/configuration/section-config.type";
 import {GettingStartedStepEnum} from '../../../types/getting-started/getting-started.type';
 import {isSubdomainOfUtmstack} from '../../../util/url.util';
 import {UtmAdminChangeEmailComponent} from '../utm-admin-change-email/utm-admin-change-email.component';
@@ -20,6 +21,7 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
   private unsubscriber: Subject<void> = new Subject<void>();
   accountSetup = true;
   onlineDoc = ONLINE_DOCUMENTATION_BASE;
+  inSass: boolean;
 
   ngOnDestroy(): void {
     this.unsubscriber.next();
@@ -35,6 +37,7 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.inSass = isSubdomainOfUtmstack();
     history.pushState(null, '');
 
     fromEvent(window, 'popstate').pipe(
@@ -61,9 +64,9 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
       modal.componentInstance.setupSuccess.subscribe(() => {
         if (gettingStarted) {
           this.utmGettingStartedService.completeStep(GettingStartedStepEnum.SET_ADMIN_USER).subscribe(() => {
-            this.router.navigate(['/creator/dashboard/builder'], {
-              queryParams: {mode: 'edit', dashboardId: 7, dashboardName: 'threat_activity'}
-            });
+            this.router.navigate(['/app-management/settings/application-config'], {
+             queryParams: {sections: JSON.stringify(this.sectionsOrder())}
+           });
           });
         } else {
           this.router.navigate(['/integrations/explore']);
@@ -74,10 +77,23 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
   }
 
   gettingStarted() {
-    const inSaas = isSubdomainOfUtmstack();
-    this.utmGettingStartedService.initialize(inSaas).subscribe(value => {
+    this.utmGettingStartedService.initialize(this.inSass).subscribe(value => {
       this.gettingStartedBehavior.$init.next(true);
       this.setUpAdmin(true);
     });
+  }
+
+  sectionsOrder() {
+    if (this.inSass) {
+      return [ApplicationConfigSectionEnum.Alerts,
+        ApplicationConfigSectionEnum.Email,
+        ApplicationConfigSectionEnum.TwoFactorAuthentication,
+        ApplicationConfigSectionEnum.DateSettings];
+    } else {
+      return [ApplicationConfigSectionEnum.Email,
+        ApplicationConfigSectionEnum.Alerts,
+        ApplicationConfigSectionEnum.TwoFactorAuthentication,
+        ApplicationConfigSectionEnum.DateSettings];
+    }
   }
 }

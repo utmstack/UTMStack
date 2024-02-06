@@ -144,21 +144,24 @@ public class UtmAlertResponseRuleService {
             if (CollectionUtils.isEmpty(alerts))
                 return;
 
+            // Do nothing if there is no valid alerts to check
+            if (CollectionUtils.isEmpty(alerts))
+                return;
+
             String alertJsonArray = new Gson().toJson(alerts);
             for (UtmAlertResponseRule rule : rules) {
                 List<String> agentNames = networkScanRepository.findAgentNamesByPlatform(rule.getAgentPlatform());
 
                 if (CollectionUtils.isEmpty(agentNames))
                     continue;
-
                 // Matching agents (these are the alerts made from logs coming from an agent)
                 //------------------------------------------------------------------------------------------
-                createResponseRuleExecution(rule, alertJsonArray, agentNames, true);
+                createResponseRuleExecution(rule,alertJsonArray,agentNames,true);
 
                 // Then the alerts that match the filters but aren't from an agent, gets executed using the default agent if there is one
                 //-----------------------------------------------------------------------------------------------------------------------
                 if (StringUtils.hasText(rule.getDefaultAgent())) {
-                    createResponseRuleExecution(rule, alertJsonArray, agentNames, false);
+                    createResponseRuleExecution(rule,alertJsonArray,agentNames,false);
                 }
             }
         } catch (Exception e) {
@@ -168,7 +171,7 @@ public class UtmAlertResponseRuleService {
         }
     }
 
-    private void createResponseRuleExecution(UtmAlertResponseRule rule, String alertJsonArray, List<String> agentNames, boolean isAgent) throws Exception {
+    private void createResponseRuleExecution (UtmAlertResponseRule rule, String alertJsonArray, List<String> agentNames, boolean isAgent) throws Exception {
         final String ctx = CLASSNAME + ".createResponseRuleExecution";
         List<FilterType> conditions = new ArrayList<>();
         try {
