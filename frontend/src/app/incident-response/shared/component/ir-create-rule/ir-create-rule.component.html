@@ -181,7 +181,7 @@
       <div class="d-flex mt-3 flex-column">
         <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
           <span class="font-weight-semibold">Info! </span>
-          <span>Select the agent handling strategy for the automation. By default (not active), commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria. If this option is active, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the automation won't be executed.</span>
+          <span>Select the agent handling strategy for the automation. If <strong>not active</strong>, commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a <strong>default agent</strong> to run the automation if no other agent matches the criteria. If this option is <strong>active</strong>, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the <strong>automation won't be executed</strong>.</span>
         </div>
           <app-utm-toggle (toggleChange)="onChangeToggle($event)"
                           [active]="formRule.get('agentType').value"

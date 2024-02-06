@@ -19,7 +19,7 @@
     </span>
 
 
-    <ng-container *ngIf="!agentType">
+    <ng-container *ngIf="!agentType && excludedAgents.length > 0">
       <span>
         Importantly, the automation excludes designated agents, such as
       </span>
@@ -50,7 +50,7 @@
 
 <div class="d-flex p-0 flex-column">
   <div class="col-12 p-0">
-    <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
+    <div class="alert alert-warning alert-styled-right mb-2 mt-3 alert-dismissible">
       <span class="font-weight-semibold">Info! </span>
       <span>Please carefully review all presented changes, such as this one, before saving. Any oversight may lead to potential damage to your infrastructure.</span>
     </div>

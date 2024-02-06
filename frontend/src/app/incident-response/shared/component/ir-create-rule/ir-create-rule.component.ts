@@ -81,7 +81,7 @@ export class IrCreateRuleComponent implements OnInit {
         this.ruleConditions.push(ruleCondition);
         this.getAgents(this.formRule.get('agentPlatform').value);
         this.formRule.get('excludedAgents').setValue(this.rule.excludedAgents);
-        this.formRule.get('agentType').setValue(this.rule.excludedAgents.length === 0);
+        this.formRule.get('agentType').setValue(this.rule.excludedAgents.length === 0 && this.rule.defaultAgent !== '');
         this.formRule.get('defaultAgent').setValue(this.rule.defaultAgent);
       }
     } else if (this.alert) {
@@ -163,8 +163,12 @@ export class IrCreateRuleComponent implements OnInit {
 
   getAgents(platform: any) {
     this.formRule.get('excludedAgents').setValue([]);
+    this.formRule.get('defaultAgent').setValue('');
     this.utmNetScanService.query({page: 0, size: 10000, agent: true, osPlatform: platform}).subscribe(response => {
       this.agents = response.body;
+      if (this.agents.length  === 1) {
+        this.formRule.get('excludedAgents').disable();
+      }
     });
   }
 
@@ -286,7 +290,7 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   onChangeToggle($event) {
-    if ($event ) {
+    if ($event) {
       this.formRule.get('excludedAgents').setValue([]);
     } else {
       this.formRule.get('defaultAgent').setValue('');
