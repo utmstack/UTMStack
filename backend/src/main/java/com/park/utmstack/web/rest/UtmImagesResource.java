@@ -3,8 +3,10 @@ package com.park.utmstack.web.rest;
 import com.park.utmstack.domain.UtmImages;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.shared_types.enums.ImageShortName;
+import com.park.utmstack.repository.UtmImagesRepository;
 import com.park.utmstack.service.UtmImagesService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +31,14 @@ public class UtmImagesResource {
     private static final String CLASSNAME = "UtmImagesResource";
 
     private final UtmImagesService utmImagesService;
+    private final UtmImagesRepository imagesRepository;
     private final ApplicationEventService applicationEventService;
 
     public UtmImagesResource(UtmImagesService utmImagesService,
+                             UtmImagesRepository imagesRepository,
                              ApplicationEventService applicationEventService) {
         this.utmImagesService = utmImagesService;
+        this.imagesRepository = imagesRepository;
         this.applicationEventService = applicationEventService;
     }
 
@@ -42,14 +47,19 @@ public class UtmImagesResource {
     public ResponseEntity<UtmImages> updateImage(@Valid @RequestBody UtmImages image) {
         final String ctx = CLASSNAME + ".updateImage";
         try {
-            UtmImages result = utmImagesService.save(image);
-            return ResponseEntity.ok(result);
+            Optional<UtmImages> imageOpt = imagesRepository.findById(image.getShortName());
+
+            if (imageOpt.isEmpty())
+                return UtilResponse.buildBadRequestResponse("Image short name not recognized: " + image.getShortName());
+
+            UtmImages img = imageOpt.get();
+            img.setUserImg(image.getUserImg());
+            return ResponseEntity.ok(utmImagesService.save(img));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+            return UtilResponse.buildInternalServerErrorResponse(msg);
         }
     }
 
@@ -63,7 +73,7 @@ public class UtmImagesResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 
@@ -78,7 +88,7 @@ public class UtmImagesResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 
@@ -93,7 +103,7 @@ public class UtmImagesResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 }

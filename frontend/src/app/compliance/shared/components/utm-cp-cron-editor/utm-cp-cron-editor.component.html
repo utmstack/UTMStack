@@ -1,0 +1,73 @@
+
+  <div class="row">
+    <div class="col-md-4" *ngIf="timeFrequency === TimeFrequency.Daily">
+        <label for="dailyFrequency">Repeat Every</label>
+        <ng-select (change)="emitChange()"
+                   id="dailyFrequency"
+                   [(ngModel)]="dailyFrequency"
+                   [items]="frequenciesByType">
+          <!--<option *ngFor="let option of frequenciesByType" [value]="option">{{ option }}</option>-->
+        </ng-select>
+    </div>
+    <div class="col-md-4" *ngIf="timeFrequency === TimeFrequency.Monthly">
+        <label for="monthlyFrequency">Repeat Every</label>
+        <ng-select (change)="emitChange()"
+                   id="monthlyFrequency"
+                   [(ngModel)]="monthlyFrequency"
+                   [items]="frequenciesByType">
+          <!--<option *ngFor="let option of frequenciesByType" [value]="option">{{ option }}</option>-->
+        </ng-select>
+    </div>
+    <div class="col-md-4" *ngIf="timeFrequency === TimeFrequency.Yearly">
+        <label for="yearlyFrequency">Repeat Every</label>
+        <ng-select (change)="emitChange()"
+                   id="yearlyFrequency"
+                   [(ngModel)]="yearlyFrequency"
+                   [bindLabel]="'name'"
+                   [bindValue]="'value'"
+                   [items]="months">
+          <!--<option *ngFor="let option of months" [value]="option.value">{{ option.name }}</option>-->
+        </ng-select>
+    </div>
+    <div class="col-md-4"
+         [ngClass]="{ 'col-md-4': timeFrequency !== TimeFrequency.Weekly, 'col-md-6': timeFrequency === TimeFrequency.Weekly }">
+        <label for="timeFrequency">{{ timeFrequency }}</label>
+        <ng-select id="timeFrequency"
+                (change)="onChangeFrequency()"
+                [items]="getTimeEnumValues(TimeFrequency)"
+                [(ngModel)]="timeFrequency">
+<!--          <option *ngFor="let option of getTimeEnumValues(TimeFrequency)" [value]="option">{{ option }}</option>-->
+        </ng-select>
+    </div>
+    <div class="col-md-4"
+         [ngClass]="{ 'col-md-4': timeFrequency !== TimeFrequency.Weekly, 'col-md-6': timeFrequency === TimeFrequency.Weekly }">
+      <div class="form-group">
+        <label>{{ 'Hour(s):Min(s)' }}</label>
+        <ngb-timepicker
+          (change)="emitChange()"
+          [(ngModel)]="time"
+          [seconds]="false"
+          [spinners]="false"
+          [meridian]="false"
+          size="medium">
+        </ngb-timepicker>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="timeFrequency === TimeFrequency.Weekly">
+    <div class="margin-bottom order-2 order-sm-3">
+      <div class="d-flex gap-5">
+        <span *ngFor="let day of getTimeEnumValues(DaysOfWeek)" style="cursor: pointer"
+              class="badge badge-circle badge-lg"
+              [ngClass]="isSelected(day) ? 'badge-primary': 'badge-outline badge-primary'"
+              (click)="setDays(day)">
+          {{day[0]}}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+
+<!--<div [hidden]="true">
+  {{ cronSentence }}
+</div>-->

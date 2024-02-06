@@ -1,8 +1,8 @@
 package com.park.utmstack.domain.logstash_pipeline;
 
-import java.io.Serializable;
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * A UtmGroupLogstashPipelineFilters.
