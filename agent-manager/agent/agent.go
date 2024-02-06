@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
@@ -101,6 +102,19 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 	}
 }
 
+func (s *Grpc) replaceSecretValues(input string) string {
+	pattern := regexp.MustCompile(`\$\[(\w+):([^\]]+)\]`)
+	return pattern.ReplaceAllStringFunc(input, func(match string) string {
+		matches := pattern.FindStringSubmatch(match)
+		if len(matches) < 3 {
+			return match // In case of no match, return the original
+		}
+		encryptedValue := matches[2]
+		decryptedValue, _ := util.DecryptValue(encryptedValue)
+		return decryptedValue
+	})
+}
+
 func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 	for {
 		cmd, err := stream.Recv()
@@ -144,7 +158,7 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 			StreamMessage: &BidirectionalStream_Command{
 				Command: &UtmCommand{
 					AgentKey:    cmd.AgentKey,
-					Command:     cmd.Command,
+					Command:     s.replaceSecretValues(cmd.Command),
 					CmdId:       cmdID,
 					InternalKey: config.GetInternalKey(),
 				},

@@ -1,11 +1,15 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {debounceTime} from 'rxjs/operators';
 import {UtmNetScanService} from '../../../../assets-discover/shared/services/utm-net-scan.service';
 import {NetScanType} from '../../../../assets-discover/shared/types/net-scan.type';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {ALERT_NAME_FIELD, INCIDENT_AUTOMATION_ALERT_FIELDS} from '../../../../shared/constants/alert/alert-field.constant';
+import {
+  ALERT_NAME_FIELD,
+  INCIDENT_AUTOMATION_ALERT_FIELDS
+} from '../../../../shared/constants/alert/alert-field.constant';
+import {ADMIN_ROLE} from '../../../../shared/constants/global.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {PrefixElementEnum} from '../../../../shared/enums/prefix-element.enum';
@@ -14,7 +18,12 @@ import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 import {createElementPrefix, getElementPrefix} from '../../../../shared/util/string-util';
 import {IncidentResponseRuleService} from '../../services/incident-response-rule.service';
+import {IncidentResponseVariableService} from '../../../../shared/services/incidents/incident-response-variable.service';
 import {IncidentRuleType} from '../../type/incident-rule.type';
+import {IncidentVariableType} from '../../../../shared/types/incident/incident-variable.type';
+import {
+  IrVariableCreateComponent
+} from '../../../../shared/components/utm/incident-variables/ir-variable-create/ir-variable-create.component';
 
 @Component({
   selector: 'app-ir-create-rule',
@@ -39,12 +48,16 @@ export class IrCreateRuleComponent implements OnInit {
   rulePrefix: string = createElementPrefix(PrefixElementEnum.INCIDENT_RESPONSE_AUTOMATION);
   valuesMap: Map<string, string[]> = new Map();
 
+
+
   constructor(private incidentResponseRuleService: IncidentResponseRuleService,
               public activeModal: NgbActiveModal,
+
               private fb: FormBuilder,
               public inputClass: InputClassResolve,
               private utmNetScanService: UtmNetScanService,
               private elasticSearchIndexService: ElasticSearchIndexService,
+
               private utmToastService: UtmToastService) {
 
     this.formRule = this.fb.group({
@@ -104,6 +117,7 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').valueChanges.pipe(debounceTime(1000)).subscribe(value => {
       this.searchRule(this.rulePrefix + value);
     });
+
   }
 
   searchRule(rule: string) {
@@ -217,6 +231,7 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').setValue(this.rulePrefix + this.formRule.get('name').value);
   }
 
+
  clearAgentTypeSelection() {
    if (this.formRule.get('agentType').value) {
      this.formRule.get('excludedAgents').setValue([]);
@@ -224,6 +239,7 @@ export class IrCreateRuleComponent implements OnInit {
      this.formRule.get('defaultAgent').setValue('');
    }
  }
+
   errorSaving(action: string) {
     const ruleName: string = this.formRule.get('name').value;
     this.formRule.get('name').setValue(this.replacePrefixInName(ruleName));
@@ -292,6 +308,10 @@ export class IrCreateRuleComponent implements OnInit {
       this.formRule.get('defaultAgent').setValue('');
     }
     this.formRule.get('agentType').setValue($event);
+  }
+
+  insertVariablePlaceholder($event: string) {
+    this.command += `$[${$event}]`;
   }
 
 }

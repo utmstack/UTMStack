@@ -7,6 +7,7 @@ import com.park.utmstack.service.dto.agent_manager.AgentDTO;
 import com.park.utmstack.service.dto.agent_manager.AgentStatusEnum;
 import com.park.utmstack.service.grpc.CommandResult;
 import com.park.utmstack.service.grpc.Hostname;
+import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.service.incident_response.grpc_impl.IncidentResponseCommandService;
 import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import com.park.utmstack.web.rest.errors.AgentOfflineException;
@@ -32,12 +33,15 @@ public class UTMIncidentCommandWebsocket {
 
     private final AgentGrpcService agentGrpcService;
 
+    private final UtmIncidentVariableService utmIncidentVariableService;
+
     public UTMIncidentCommandWebsocket(SimpMessagingTemplate messagingTemplate,
                                        IncidentResponseCommandService incidentResponseCommandService,
-                                       AgentGrpcService agentGrpcService) {
+                                       AgentGrpcService agentGrpcService, UtmIncidentVariableService utmIncidentVariableService) {
         this.messagingTemplate = messagingTemplate;
         this.incidentResponseCommandService = incidentResponseCommandService;
         this.agentGrpcService = agentGrpcService;
+        this.utmIncidentVariableService = utmIncidentVariableService;
     }
 
     @MessageMapping("/command/{hostname}")
@@ -45,11 +49,11 @@ public class UTMIncidentCommandWebsocket {
         final String ctx = CLASSNAME + ".processCommand";
         try {
             String executedBy = SecurityUtils.getCurrentUserLogin()
-                .orElseThrow(() -> new InternalServerErrorException("Current user login not found"));
+                    .orElseThrow(() -> new InternalServerErrorException("Current user login not found"));
             String destination = String.format("/topic/%1$s", hostname);
             Hostname req = Hostname.newBuilder()
-                .setHostname(hostname)
-                .build();
+                    .setHostname(hostname)
+                    .build();
             try {
                 AgentDTO agentDTO = agentGrpcService.getAgentByHostname(req);
                 if (agentDTO.getStatus() == AgentStatusEnum.OFFLINE) {
@@ -57,24 +61,24 @@ public class UTMIncidentCommandWebsocket {
                 }
 
                 CommandVM commandVM = new Gson().fromJson(command, CommandVM.class);
-                incidentResponseCommandService.sendCommand(agentDTO.getAgentKey(), commandVM.getCommand(), commandVM.getOriginType(),
-                    commandVM.getOriginId(), commandVM.getReason(), executedBy, new StreamObserver<>() {
-                        @Override
-                        public void onNext(CommandResult value) {
-                            messagingTemplate.convertAndSendToUser(executedBy, destination, value.getResult());
-                        }
+                incidentResponseCommandService.sendCommand(agentDTO.getAgentKey(), utmIncidentVariableService.replaceVariablesInCommand(commandVM.getCommand()), commandVM.getOriginType(),
+                        commandVM.getOriginId(), commandVM.getReason(), executedBy, new StreamObserver<>() {
+                            @Override
+                            public void onNext(CommandResult value) {
+                                messagingTemplate.convertAndSendToUser(executedBy, destination, value.getResult());
+                            }
 
-                        @Override
-                        public void onError(Throwable t) {
-                            String msg = ctx + ": " + t.getLocalizedMessage();
-                            log.error(msg);
-                            messagingTemplate.convertAndSendToUser(executedBy, destination, t.getLocalizedMessage());
-                        }
+                            @Override
+                            public void onError(Throwable t) {
+                                String msg = ctx + ": " + t.getLocalizedMessage();
+                                log.error(msg);
+                                messagingTemplate.convertAndSendToUser(executedBy, destination, t.getLocalizedMessage());
+                            }
 
-                        @Override
-                        public void onCompleted() {
-                        }
-                    });
+                            @Override
+                            public void onCompleted() {
+                            }
+                        });
             } catch (Exception exception) {
                 throw new AgentNotfoundException();
             }
