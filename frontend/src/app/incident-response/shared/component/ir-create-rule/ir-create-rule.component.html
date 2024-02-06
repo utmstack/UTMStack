@@ -8,9 +8,7 @@
         </span>
         <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
              class="round-indicator">
-
           <i class="step-icon"  [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-css'"></i>
-
         </div>
       </div>
       <div class="step-link">
@@ -22,9 +20,7 @@
         </span>
         <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
              class="round-indicator">
-
           <i class="step-icon"  [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-power2'"></i>
-
         </div>
       </div>
       <div class="step-link">
@@ -36,9 +32,7 @@
         </span>
         <div [ngClass]="isCompleted(3)?'step-success':step===3?'step-active':'step-inactive'"
              class="round-indicator">
-
           <i class="step-icon"  [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-terminal'"></i>
-
         </div>
       </div>
       <div class="step-link">
@@ -50,9 +44,7 @@
         </span>
         <div [ngClass]="isCompleted(4) ? 'step-success':step === 4 ?'step-active' : 'step-inactive'"
              class="round-indicator">
-
           <i class="step-icon"  [ngClass]="isCompleted(4) ? 'icon-checkmark3' : 'icon-eye'"></i>
-
         </div>
       </div>
     </div>
@@ -62,7 +54,7 @@
       <div class="form-group">
         <label class="pb-1" for="name">Name</label>
         <div class="input-group">
-          <span class="input-group-text">{{ rulePrefix }}</span>
+          <span class="input-group-text">{{rulePrefix}}</span>
           <input [ngClass]="inputClass.resolveClassInput(formRule.get('name'))"
                  class="border-1 border-grey-600 form-control" formControlName="name"
                  id="name"
@@ -88,7 +80,7 @@
       </div>
       <div class="form-group">
         <label class="pb-1" for="description">Description
-          ({{ 512 - formRule.get('description').value.length }})</label>
+          ({{512 - formRule.get('description').value.length}})</label>
         <textarea [ngClass]="inputClass.resolveClassInput(formRule.get('description'))"
                   class="border-1 border-grey-600 form-control" formControlName="description"
                   id="description"
@@ -189,13 +181,14 @@
       <div class="d-flex mt-3 flex-column">
         <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
           <span class="font-weight-semibold">Info! </span>
-          <span>Select the agent handling strategy for the automation. By default (not active), commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria. If this option is active, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the automation won't be executed.</span>
+          <span>Select the agent handling strategy for the automation. If <strong>not active</strong>, commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a <strong>default agent</strong> to run the automation if no other agent matches the criteria. If this option is <strong>active</strong>, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the <strong>automation won't be executed</strong>.</span>
         </div>
           <app-utm-toggle (toggleChange)="onChangeToggle($event)"
                           [active]="formRule.get('agentType').value"
                           [emitAtStart]="false"
                           [customClass]="'pl-3'"
                           [label]="'Run on specific agent'"></app-utm-toggle>
+
       </div>
       <div *ngIf="!formRule.get('agentType').value" class="d-flex mt-2 flex-column">
         <div class="col-12 p-0">
@@ -222,33 +215,6 @@
       </div>
       <div *ngIf="formRule.get('agentType').value" class="d-flex mt-2 flex-column">
         <div  class="col-6 p-0">
-          <label class="pb-1" for="exclude">Default agent</label>
-          <ng-select [clearable]="false"
-                     [items]="agents"
-                     [placeholder]="'Select agent'"
-                     [loadingText]="'Loading agents...'"
-                     [virtualScroll]="true"
-                     formControlName="defaultAgent"
-                     bindValue="assetName"
-                     bindLabel="assetName"
-                     id="deafult">
-          </ng-select>
-        </div>
-        <div class="col-12 p-0">
-          <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
-            <span class="font-weight-semibold">Info! </span>
-            <span>Designates the agent to execute the automation when no other agent meets the criteria to serve as the runner for this automation.</span>
-          </div>
-        </div>
-        <div class="col-12 p-0">
-          <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
-            <span class="font-weight-semibold">Info! </span>
-            <span>Represents agents where the commands won't run, even if the trigger conditions match</span>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="formRule.get('agentType').value" class="d-flex mt-2 flex-column">
-        <div class="col-6 p-0">
           <label class="pb-1" for="exclude">Default agent</label>
           <ng-select [clearable]="false"
                      [items]="agents"
@@ -295,15 +261,11 @@
           </div>
 
           <ng-template #colContent>
-            <app-incident-variable-select
-              (variableSelected)="insertVariablePlaceholder($event)"></app-incident-variable-select>
-
-            <h6 class="font-weight-semibold mt-3 mb-2">Alert fields</h6>
             <ul class="w-100">
               <li *ngFor="let field of alertFields"
                   (click)="insertFieldPlaceholder(field.field); p.close(); area.focus()"
                   class="cursor-pointer font-size-base d-flex justify-content-between align-items-center mb-1">
-                {{ field.label }} <code>$({{ field.field }})</code>
+                {{ field.label }} <code>$({{field.field}})</code>
               </li>
             </ul>
           </ng-template>
@@ -337,7 +299,7 @@
             *ngIf="step===4"
             class="btn utm-button utm-button-primary ml-2">
       <i [ngClass]="creating?'icon-spinner2 spinner':'icon-terminal'"></i>
-      {{ rule ? 'Edit' : 'Create' }} automation&nbsp;
+      {{rule ? 'Edit' : 'Create'}} automation&nbsp;
     </button>
   </div>
 </div>
