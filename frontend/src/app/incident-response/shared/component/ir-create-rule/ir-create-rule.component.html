@@ -187,11 +187,8 @@
                           [active]="formRule.get('agentType').value"
                           [emitAtStart]="false"
                           [customClass]="'pl-3'"
-                          [label]="'Agent handling strategy for the automation'"></app-utm-toggle>
-            <div class="alert alert-info alert-styled-right mt-1 info-dismissible">
-              <span class="font-weight-semibold">Info! </span>
-              <span>Select the agent handling strategy for the automation. By default, commands won't run on specified agents, even if the trigger conditions match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria.</span>
-            </div>
+                          [label]="'Run on specific agent'"></app-utm-toggle>
+
       </div>
       <div *ngIf="!formRule.get('agentType').value" class="d-flex mt-2 flex-column">
         <div class="col-12 p-0">
