@@ -19,7 +19,7 @@ public class CustomStringEscapeUtil {
             ESCAPE_CUSTOM_MAP.put(s, "\\" + s);
     }
 
-    public static String openSearchQueryStringEscape(String str) {
+    public static String openSearchQueryStringEscap(String str) {
         return new AggregateTranslator(new LookupTranslator(ESCAPE_CUSTOM_MAP)).translate(str);
     }
 }

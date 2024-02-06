@@ -31,6 +31,8 @@ public class UtmAlertResponseRuleDTO {
     private Boolean active;
     @NotBlank
     private String agentPlatform;
+    @Size(max = 500)
+    private String defaultAgent;
     private List<String> excludedAgents = new ArrayList<>();
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String createdBy;
@@ -52,6 +54,7 @@ public class UtmAlertResponseRuleDTO {
         this.command = rule.getRuleCmd();
         this.active = rule.getRuleActive();
         this.agentPlatform = rule.getAgentPlatform();
+        this.defaultAgent = rule.getDefaultAgent();
         if (StringUtils.hasText(rule.getExcludedAgents()))
             this.excludedAgents.addAll(Arrays.asList(rule.getExcludedAgents().split(",")));
         this.createdBy = rule.getCreatedBy();
@@ -110,6 +113,14 @@ public class UtmAlertResponseRuleDTO {
 
     public String getAgentPlatform() {
         return agentPlatform;
+    }
+
+    public String getDefaultAgent() {
+        return defaultAgent;
+    }
+
+    public void setDefaultAgent(String defaultAgent) {
+        this.defaultAgent = defaultAgent;
     }
 
     public void setAgentPlatform(String agentPlatform) {

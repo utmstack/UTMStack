@@ -37,4 +37,6 @@
 
     <include file="config/liquibase/changelog/20240117002_add_getting_started_step.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240131001_add_default_agent_utm_alert_response_rule.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

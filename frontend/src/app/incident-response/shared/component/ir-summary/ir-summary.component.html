@@ -1,0 +1,58 @@
+
+<div class="d-flex p-2 flex-column">
+  <div>
+    <p>
+      The automation <strong>{{ automationName }}</strong> is designed to execute based on specific conditions.
+      It will evaluate the following conditions:
+    </p>
+
+    <ul class="mb-1 mt-1">
+      <li class="ml-2"  *ngFor="let condition of conditions">
+        <span class="text-blue-800 font-weight-light has-minimum-width">{{'- ' + getFieldName(condition.field)}}</span>&nbsp;
+        <span class="font-weight-light  font-weight-semibold">{{getFilterName(condition.operator)}}</span>&nbsp;
+        <span class="">{{condition.value}}</span>&nbsp;
+      </li>
+    </ul>
+
+    <span>
+      On agents operating on the <strong>{{ platform | capitalize }}</strong> platform.
+    </span>
+
+
+    <ng-container *ngIf="!agentType">
+      <span>
+        Importantly, the automation excludes designated agents, such as
+      </span>
+      <span class="badge p-1 border-1 badge-flat font-weight-light border-info-800 text-info-800 mr-2 mb-2"
+            *ngFor="let exclusion of excludedAgents">{{exclusion}}
+      </span>
+    </ng-container>
+
+    <ng-container *ngIf="agentType">
+      <span>
+        In case none of the agents satisfy the specified conditions, the automation will smoothly revert and execute on the default agent,
+        <span class="badge p-1 border-1 badge-flat font-weight-light border-info-800 text-info-800 mr-2 mb-2">
+              {{ defaultAgent | uppercase}}.
+        </span>
+        <span>
+          This guarantees a comprehensive and adaptable approach to the automation process.
+        </span>
+      </span>
+    </ng-container>
+  </div>
+  <div class="alert-details w-100 d-flex justify-content-start align-items-start mb-2 flex-column">
+    <span>
+     Crucially, when these conditions are met, the automation will proceed to execute the following action:
+    </span>
+    <app-utm-code-view class="w-100 mt-1" [code]="command" [allowCopy]="false"></app-utm-code-view>
+  </div>
+</div>
+
+<div class="d-flex p-0 flex-column">
+  <div class="col-12 p-0">
+    <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
+      <span class="font-weight-semibold">Info! </span>
+      <span>Please carefully review all presented changes, such as this one, before saving. Any oversight may lead to potential damage to your infrastructure.</span>
+    </div>
+  </div>
+</div>

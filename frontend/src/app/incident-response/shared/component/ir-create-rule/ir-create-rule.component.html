@@ -1,38 +1,50 @@
 <app-utm-modal-header [name]="(rule?'Edit':'Create') + ' incident response automation'"></app-utm-modal-header>
-<div class="container-fluid p-3">
-  <div class="d-flex flex-column justify-content-start align-items-start">
+<div class="container-fluid p-3 pt-5">
+  <div class="d-flex flex-column justify-content-start align-items-start pb-3">
     <div class="step-container wizard-step">
       <div class="step">
-         <span class="text-blue-800 font-weight-bold">
+        <span class="text-blue-800 font-weight-bold step-title">
           Automation
         </span>
         <div [ngClass]="isCompleted(1)?'step-success':step===1?'step-active':'step-inactive'"
              class="round-indicator">
-          <i [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-css'"></i>
+          <i class="step-icon"  [ngClass]="isCompleted(1)?'icon-checkmark3':'icon-file-css'"></i>
         </div>
       </div>
       <div class="step-link">
         <div class="line w-100"></div>
       </div>
       <div class="step">
-         <span class="text-blue-800 font-weight-bold">
+         <span class="text-blue-800 font-weight-bold step-title">
           Trigger
         </span>
         <div [ngClass]="isCompleted(2)?'step-success':step===2?'step-active':'step-inactive'"
              class="round-indicator">
-          <i [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-power2'"></i>
+          <i class="step-icon"  [ngClass]="isCompleted(2)?'icon-checkmark3':'icon-power2'"></i>
         </div>
       </div>
       <div class="step-link">
         <div class="line w-100"></div>
       </div>
       <div class="step">
-          <span class="text-blue-800 font-weight-bold">
+          <span class="text-blue-800 font-weight-bold step-title">
           Action
         </span>
         <div [ngClass]="isCompleted(3)?'step-success':step===3?'step-active':'step-inactive'"
              class="round-indicator">
-          <i [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-terminal'"></i>
+          <i class="step-icon"  [ngClass]="isCompleted(3)?'icon-checkmark3':'icon-terminal'"></i>
+        </div>
+      </div>
+      <div class="step-link">
+        <div class="line w-100"></div>
+      </div>
+      <div class="step">
+          <span class="text-blue-800 font-weight-bold step-title">
+          Summary
+        </span>
+        <div [ngClass]="isCompleted(4) ? 'step-success':step === 4 ?'step-active' : 'step-inactive'"
+             class="round-indicator">
+          <i class="step-icon"  [ngClass]="isCompleted(4) ? 'icon-checkmark3' : 'icon-eye'"></i>
         </div>
       </div>
     </div>
@@ -83,7 +95,7 @@
                       [label]="'Incident response automation is active'">
       </app-utm-toggle>
     </div>
-    <div *ngIf="step===2" class="configure-step mt-3 mb-3 has-fixed-height overflow-auto">
+    <div *ngIf="step===2" class="configure-step mt-3 mb-3">
 
       <div class="w-100">
         <div formArrayName="conditions">
@@ -114,7 +126,7 @@
                        [loading]="loadingData(condition.get('field').value)"
                        [multiple]="false"
                        [searchable]="true"
-                       class="flex-grow-1"
+                       class="flex-grow-1 w-30"
                        formControlName="value"
                        id="values">
             </ng-select>
@@ -122,21 +134,22 @@
                placement="left"
                (click)="removeRuleCondition(i)"></i>
           </div>
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between pr-4">
             <div>
               <span *ngIf="ruleConditions.length === 0 || !ruleConditions.valid"
                     class="text-danger-300 font-size-base">
                 You must set at least one trigger condition
               </span>
             </div>
-            <button class="btn utm-button utm-button-primary align-self-end" (click)="addRuleCondition()">Add
-              condition
+            <button class="btn utm-button btn-success align-self-end" (click)="addRuleCondition()">
+              <i class="icon-plus22"></i>&nbsp;
+              Add
             </button>
           </div>
         </div>
       </div>
-      <div class="d-flex mt-3">
-        <div class="d-flex flex-column w-30 mb-3 pr-2">
+      <div class="d-flex mt-3 flex-column">
+        <div class="col-6 p-0">
           <label class="pb-1" for="exclude">Agent platform is</label>
           <ng-select [clearable]="false"
                      [items]="platforms"
@@ -149,7 +162,7 @@
           </ng-select>
           <app-formcontrol-error [formcontrol]="formRule.get('agentPlatform')"></app-formcontrol-error>
         </div>
-        <div class="d-flex flex-column flex-grow-1 mb-3 pl-2">
+        <!--<div class="d-flex flex-column flex-grow-1 mb-3 pl-2">
           <label class="pb-1" for="exclude">Exclude agents</label>
           <ng-select [clearable]="false"
                      [items]="agents"
@@ -163,6 +176,61 @@
                      bindLabel="assetName"
                      id="exclude">
           </ng-select>
+        </div>-->
+      </div>
+      <div class="d-flex mt-3 flex-column">
+        <div class="alert alert-info alert-styled-right mb-2 info-dismissible">
+          <span class="font-weight-semibold">Info! </span>
+          <span>Select the agent handling strategy for the automation. By default (not active), commands will run on specified platform agents if the trigger conditions and dataSource field value of the alert match. Alternatively, choose a default agent to run the automation if no other agent matches the criteria. If this option is active, commands will run only on specified platform agents if the trigger conditions and dataSource field value of the alert match, if not, the automation won't be executed.</span>
+        </div>
+          <app-utm-toggle (toggleChange)="onChangeToggle($event)"
+                          [active]="formRule.get('agentType').value"
+                          [emitAtStart]="false"
+                          [customClass]="'pl-3'"
+                          [label]="'Run on specific agent'"></app-utm-toggle>
+      </div>
+      <div *ngIf="!formRule.get('agentType').value" class="d-flex mt-2 flex-column">
+        <div class="col-12 p-0">
+          <label class="pb-1" for="exclude">Exclude agents</label>
+          <ng-select [clearable]="false"
+                     [items]="agents"
+                     [placeholder]="'Select agents to exclude'"
+                     [loadingText]="'Loading agents...'"
+                     [virtualScroll]="true"
+                     [multiple]="true"
+                     formControlName="excludedAgents"
+                     (change)="onChangeExclude($event)"
+                     bindValue="assetName"
+                     bindLabel="assetName"
+                     id="exclude">
+          </ng-select>
+        </div>
+        <div class="col-12 p-0">
+          <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
+            <span class="font-weight-semibold">Info! </span>
+            <span>Represents agents where the commands won't run, even if the trigger conditions match</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="formRule.get('agentType').value" class="d-flex mt-2 flex-column">
+        <div  class="col-6 p-0">
+          <label class="pb-1" for="exclude">Default agent</label>
+          <ng-select [clearable]="false"
+                     [items]="agents"
+                     [placeholder]="'Select agent'"
+                     [loadingText]="'Loading agents...'"
+                     [virtualScroll]="true"
+                     formControlName="defaultAgent"
+                     bindValue="assetName"
+                     bindLabel="assetName"
+                     id="deafult">
+          </ng-select>
+        </div>
+        <div class="col-12 p-0">
+          <div class="alert alert-info alert-styled-right mt-2 info-dismissible">
+            <span class="font-weight-semibold">Info! </span>
+            <span>Designates the agent to execute the automation when no other agent meets the criteria to serve as the runner for this automation.</span>
+          </div>
         </div>
       </div>
       <div *ngIf="platforms.length === 0"
@@ -206,6 +274,12 @@
         <span>Warning! You may cause damage to the infrastructure and services of your organization, please review the automation command before saving it</span>
       </div>
     </div>
+
+    <div *ngIf="step===4" class="configure-step mt-3 mb-3">
+      <app-ir-summary
+              [formRule]="formRule">
+      </app-ir-summary>
+    </div>
   </form>
   <div class="button-container d-flex justify-content-end mt-3">
     <button (click)="backStep()" *ngIf="step > 1"
@@ -213,7 +287,7 @@
       <i class="icon-arrow-left22"></i>&nbsp;
       Back
     </button>
-    <button (click)="nextStep()" *ngIf="step < 3"
+    <button (click)="nextStep()" *ngIf="step < 4"
             [disabled]="isDisable(step) "
             class="btn utm-button utm-button-primary ml-2">
       Next&nbsp;
@@ -221,8 +295,7 @@
     </button>
 
     <button (click)="createRule()"
-            *ngIf="step===3"
-            [disabled]="!command || command === ''"
+            *ngIf="step===4"
             class="btn utm-button utm-button-primary ml-2">
       <i [ngClass]="creating?'icon-spinner2 spinner':'icon-terminal'"></i>
       {{rule ? 'Edit' : 'Create'}} automation&nbsp;

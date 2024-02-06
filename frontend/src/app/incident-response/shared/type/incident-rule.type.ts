@@ -13,6 +13,7 @@ export class IncidentRuleType {
   createdDate: Date;
   lastModifiedBy: string;
   lastModifiedDate: Date;
+  defaultAgent: string;
 }
 
 

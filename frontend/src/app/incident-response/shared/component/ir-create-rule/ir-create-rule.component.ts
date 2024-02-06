@@ -54,7 +54,9 @@ export class IrCreateRuleComponent implements OnInit {
       conditions: this.fb.array([]),
       command: ['', Validators.required],
       active: [true],
+      agentType: [false],
       excludedAgents: [[]],
+      defaultAgent: [''],
       agentPlatform: ['', Validators.required]
     });
     this.getPlatforms();
@@ -79,6 +81,8 @@ export class IrCreateRuleComponent implements OnInit {
         this.ruleConditions.push(ruleCondition);
         this.getAgents(this.formRule.get('agentPlatform').value);
         this.formRule.get('excludedAgents').setValue(this.rule.excludedAgents);
+        this.formRule.get('agentType').setValue(this.rule.excludedAgents.length === 0);
+        this.formRule.get('defaultAgent').setValue(this.rule.defaultAgent);
       }
     } else if (this.alert) {
       const alertName = this.getValueFromAlert(ALERT_NAME_FIELD);
@@ -144,6 +148,9 @@ export class IrCreateRuleComponent implements OnInit {
   }
 
   nextStep() {
+    if (this.step === 3) {
+      this.formRule.get('command').setValue(this.command);
+    }
     this.stepCompleted.push(this.step);
     this.step += 1;
   }
@@ -182,6 +189,7 @@ export class IrCreateRuleComponent implements OnInit {
     const action = 'created';
     const actionError = 'creating';
     this.formRule.get('command').setValue(this.command);
+    this.clearAgentTypeSelection();
     this.setNameBeforeSave();
     this.incidentResponseRuleService.create(this.formRule.value).subscribe(() => {
       this.successSaved(action);
@@ -191,6 +199,7 @@ export class IrCreateRuleComponent implements OnInit {
   editRule() {
     const action = 'edited';
     const actionError = 'editing';
+    this.clearAgentTypeSelection();
     this.formRule.get('command').setValue(this.command);
     this.setNameBeforeSave();
     this.incidentResponseRuleService.update(this.formRule.value).subscribe(() => {
@@ -208,7 +217,13 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('name').setValue(this.rulePrefix + this.formRule.get('name').value);
   }
 
-
+ clearAgentTypeSelection() {
+   if (this.formRule.get('agentType').value) {
+     this.formRule.get('excludedAgents').setValue([]);
+   } else {
+     this.formRule.get('defaultAgent').setValue('');
+   }
+ }
   errorSaving(action: string) {
     const ruleName: string = this.formRule.get('name').value;
     this.formRule.get('name').setValue(this.replacePrefixInName(ruleName));
@@ -238,7 +253,9 @@ export class IrCreateRuleComponent implements OnInit {
       case 1:
         return !this.formRule.get('name').valid || !this.formRule.get('description').valid || this.exist;
       case 2:
-        return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0;
+        return !this.formRule.get('agentPlatform').valid || this.ruleConditions.length === 0
+            || !this.ruleConditions.valid
+            || (this.formRule.get('agentType').value && !this.formRule.get('defaultAgent').value);
       case 3:
         return !this.command || this.command === '';
     }
@@ -266,6 +283,15 @@ export class IrCreateRuleComponent implements OnInit {
     this.elasticSearchIndexService.getElasticFieldValues(req).subscribe(res => {
       this.valuesMap.set(key, res.body);
     });
+  }
+
+  onChangeToggle($event) {
+    if ($event ) {
+      this.formRule.get('excludedAgents').setValue([]);
+    } else {
+      this.formRule.get('defaultAgent').setValue('');
+    }
+    this.formRule.get('agentType').setValue($event);
   }
 
 }

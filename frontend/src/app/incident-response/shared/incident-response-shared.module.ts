@@ -15,6 +15,7 @@ import {IrExecuteCommandComponent} from './component/ir-execute-command/ir-execu
 import {IrFullLogComponent} from './component/ir-full-log/ir-full-log.component';
 import {IrJobCreateComponent} from './component/ir-job-create/ir-job-create.component';
 import {IraHistoryComponent} from './component/ira-history/ira-history.component';
+import {IrSummaryComponent} from "./component/ir-summary/ir-summary.component";
 
 @NgModule({
   declarations: [IrJobCreateComponent,
@@ -25,14 +26,17 @@ import {IraHistoryComponent} from './component/ira-history/ira-history.component
     IrExecuteCommandComponent,
     IrCommandSelectComponent,
     IrCreateRuleComponent,
-    IraHistoryComponent],
+    IraHistoryComponent,
+    IrSummaryComponent],
   entryComponents: [IrJobCreateComponent, IrActionCreateComponent, IrCreateRuleComponent],
     exports: [IrJobCreateComponent,
         IncidentResponseFilterComponent,
         IncidentResponseStatusComponent,
         IrFullLogComponent,
         IrExecuteCommandComponent,
-        IrCreateRuleComponent, IraHistoryComponent],
+        IrCreateRuleComponent,
+        IraHistoryComponent,
+        IrSummaryComponent],
   imports: [
     CommonModule,
     NgbModule,
