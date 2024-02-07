@@ -6,6 +6,7 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.agent_manager.*;
 import com.park.utmstack.service.grpc.Hostname;
 import com.park.utmstack.service.grpc.ListRequest;
+import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.application_modules.UtmModuleResource;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -28,28 +29,33 @@ public class AgentManagerResource {
     private static final String CLASSNAME = "AgentManagerResource";
     private final Logger log = LoggerFactory.getLogger(UtmModuleResource.class);
     private final AgentGrpcService agentGrpcService;
+
+    private final UtmIncidentVariableService utmIncidentVariableService;
     private final ApplicationEventService eventService;
 
-    public AgentManagerResource(AgentGrpcService agentGrpcService, ApplicationEventService eventService) {
+    public AgentManagerResource(AgentGrpcService agentGrpcService,
+                                UtmIncidentVariableService utmIncidentVariableService,
+                                ApplicationEventService eventService) {
         this.agentGrpcService = agentGrpcService;
+        this.utmIncidentVariableService = utmIncidentVariableService;
         this.eventService = eventService;
     }
 
     @GetMapping("/agents")
     public ResponseEntity<List<AgentDTO>> listAgents(
-        @RequestParam(required = false) Integer pageNumber,
-        @RequestParam(required = false) Integer pageSize,
-        @RequestParam(required = false) String searchQuery,
-        @RequestParam(required = false) String sortBy) {
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) String sortBy) {
 
         final String ctx = CLASSNAME + ".listAgents";
         try {
             ListRequest request = ListRequest.newBuilder()
-                .setPageNumber(pageNumber != null ? pageNumber : 0)
-                .setPageSize(pageSize != null ? pageSize : 0)
-                .setSearchQuery(searchQuery != null ? searchQuery : "")
-                .setSortBy(sortBy != null ? sortBy : "")
-                .build();
+                    .setPageNumber(pageNumber != null ? pageNumber : 0)
+                    .setPageSize(pageSize != null ? pageSize : 0)
+                    .setSearchQuery(searchQuery != null ? searchQuery : "")
+                    .setSortBy(sortBy != null ? sortBy : "")
+                    .build();
             ListAgentsResponseDTO response = agentGrpcService.listAgents(request);
             List<AgentDTO> agentDTOList = response.getAgents();
             agentDTOList.forEach(agentDTO -> agentDTO.setAgentKey("SECRET"));
@@ -69,11 +75,11 @@ public class AgentManagerResource {
         final String ctx = CLASSNAME + ".listAgentsWithCommands";
         try {
             ListRequest request = ListRequest.newBuilder()
-                .setPageNumber(1)
-                .setPageSize(1000)
-                .setSearchQuery("")
-                .setSortBy("")
-                .build();
+                    .setPageNumber(1)
+                    .setPageSize(1000)
+                    .setSearchQuery("")
+                    .setSortBy("")
+                    .build();
             ListAgentsResponseDTO response = agentGrpcService.listAgentWithCommands(request);
             List<AgentDTO> agentDTOList = response.getAgents();
             agentDTOList.forEach(agentDTO -> agentDTO.setAgentKey("SECRET"));
@@ -90,12 +96,12 @@ public class AgentManagerResource {
 
     @GetMapping("/agent-by-hostname")
     public ResponseEntity<AgentDTO> getAgentByHostname(
-        @RequestParam @NotNull String hostname) {
+            @RequestParam @NotNull String hostname) {
         final String ctx = CLASSNAME + ".getAgentByHostname";
         try {
             Hostname request = Hostname.newBuilder()
-                .setHostname(hostname)
-                .build();
+                    .setHostname(hostname)
+                    .build();
             AgentDTO response = agentGrpcService.getAgentByHostname(request);
             response.setAgentKey("SECRET");
             HttpHeaders headers = new HttpHeaders();
@@ -110,24 +116,31 @@ public class AgentManagerResource {
 
     @GetMapping("/agent-commands")
     public ResponseEntity<List<AgentCommandDTO>> listAgentCommands(
-        @RequestParam(required = false) Integer pageNumber,
-        @RequestParam(required = false) Integer pageSize,
-        @RequestParam(required = false) String searchQuery,
-        @RequestParam(required = false) String sortBy) {
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) String sortBy) {
 
         final String ctx = CLASSNAME + ".listAgentCommands";
         try {
             ListRequest request = ListRequest.newBuilder()
-                .setPageNumber(pageNumber != null ? pageNumber : 0)
-                .setPageSize(pageSize != null ? pageSize : 0)
-                .setSearchQuery(searchQuery != null ? searchQuery : "")
-                .setSortBy(sortBy != null ? sortBy : "")
-                .build();
-
+                    .setPageNumber(pageNumber != null ? pageNumber : 0)
+                    .setPageSize(pageSize != null ? pageSize : 0)
+                    .setSearchQuery(searchQuery != null ? searchQuery : "")
+                    .setSortBy(sortBy != null ? sortBy : "")
+                    .build();
             ListAgentsCommandsResponseDTO response = agentGrpcService.listAgentCommands(request);
+
+            List<AgentCommandDTO> commands = response.getAgentCommands();
+
+            for (AgentCommandDTO command : commands) {
+                command.setResult(utmIncidentVariableService
+                        .replaceSecretVariableValuesWithPlaceholders(command.getResult()));
+            }
+
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-Total-Count", Long.toString(response.getTotal()));
-            return ResponseEntity.ok().headers(headers).body(response.getAgentCommands());
+            return ResponseEntity.ok().headers(headers).body(commands);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -142,8 +155,8 @@ public class AgentManagerResource {
         final String ctx = CLASSNAME + ".canRunCommand";
         try {
             Hostname request = Hostname.newBuilder()
-                .setHostname(hostname)
-                .build();
+                    .setHostname(hostname)
+                    .build();
             AgentDTO response = agentGrpcService.getAgentByHostname(request);
             return ResponseEntity.ok(response.getStatus() == AgentStatusEnum.ONLINE);
         } catch (Exception e) {
@@ -151,7 +164,7 @@ public class AgentManagerResource {
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 }

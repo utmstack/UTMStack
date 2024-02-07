@@ -9,6 +9,7 @@ import com.park.utmstack.service.grpc.CommandResult;
 import com.park.utmstack.service.grpc.Hostname;
 import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.service.incident_response.grpc_impl.IncidentResponseCommandService;
+import com.park.utmstack.util.exceptions.InvalidEchoCommandException;
 import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import com.park.utmstack.web.rest.errors.AgentOfflineException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
@@ -61,11 +62,14 @@ public class UTMIncidentCommandWebsocket {
                 }
 
                 CommandVM commandVM = new Gson().fromJson(command, CommandVM.class);
-                incidentResponseCommandService.sendCommand(agentDTO.getAgentKey(), utmIncidentVariableService.replaceVariablesInCommand(commandVM.getCommand()), commandVM.getOriginType(),
+                String commandVar = utmIncidentVariableService.replaceVariablesInCommand(commandVM.getCommand());
+
+                incidentResponseCommandService.sendCommand(agentDTO.getAgentKey(), commandVar, commandVM.getOriginType(),
                         commandVM.getOriginId(), commandVM.getReason(), executedBy, new StreamObserver<>() {
                             @Override
                             public void onNext(CommandResult value) {
-                                messagingTemplate.convertAndSendToUser(executedBy, destination, value.getResult());
+                                String output = utmIncidentVariableService.replaceSecretVariableValuesWithPlaceholders(value.getResult());
+                                messagingTemplate.convertAndSendToUser(executedBy, destination, output);
                             }
 
                             @Override
@@ -79,6 +83,7 @@ public class UTMIncidentCommandWebsocket {
                             public void onCompleted() {
                             }
                         });
+
             } catch (Exception exception) {
                 throw new AgentNotfoundException();
             }
