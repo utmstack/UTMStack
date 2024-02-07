@@ -4,6 +4,7 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.incident_response.UtmIncidentVariable;
 import com.park.utmstack.repository.incident_response.UtmIncidentVariableRepository;
 import com.park.utmstack.util.CipherUtil;
+import com.park.utmstack.util.exceptions.InvalidEchoCommandException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class UtmIncidentVariableService {
 
     private final Logger log = LoggerFactory.getLogger(UtmIncidentVariableService.class);
 
+    private final String ENCRYPTION_KEY = System.getenv(Constants.ENV_ENCRYPTION_KEY);
     private final UtmIncidentVariableRepository utmIncidentVariableRepository;
 
     public UtmIncidentVariableService(UtmIncidentVariableRepository utmIncidentVariableRepository) {
@@ -44,7 +46,7 @@ public class UtmIncidentVariableService {
         log.debug("Request to save UtmIncidentVariable : {}", utmIncidentVariable);
         if (utmIncidentVariable.isSecret()) {
             String currentValue = utmIncidentVariable.getVariableValue();
-            utmIncidentVariable.setVariableValue(CipherUtil.encrypt(currentValue, System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+            utmIncidentVariable.setVariableValue(CipherUtil.encrypt(currentValue, ENCRYPTION_KEY));
         }
         return utmIncidentVariableRepository.save(utmIncidentVariable);
     }
@@ -121,12 +123,61 @@ public class UtmIncidentVariableService {
             return command;
 
         for (UtmIncidentVariable var : variables) {
+            String varName = var.getVariableName();
             String currentValue = var.getVariableValue();
-            if (var.isSecret())
-                currentValue = "$[" + var.getVariableName() + ":" + currentValue + "]";
+            if (var.isSecret()) {
+                currentValue = "$[" + varName + ":" + currentValue + "]";
+            }
             command = command.replace("$[variables." + var.getVariableName() + "]", currentValue);
         }
 
         return command;
+    }
+
+    public String replaceSecretVariableValuesWithPlaceholders(String commandOutput) {
+        List<UtmIncidentVariable> variables = utmIncidentVariableRepository.findAll();
+        for (UtmIncidentVariable var : variables) {
+            if (var.isSecret()) {
+                String varValue = CipherUtil.decrypt(var.getVariableValue(), ENCRYPTION_KEY);
+                String escapedVariableValue = Pattern.quote(varValue);
+                commandOutput = commandOutput.replaceAll(escapedVariableValue, Matcher.quoteReplacement("*".repeat(varValue.length())));
+            }
+        }
+        return commandOutput;
+    }
+
+    /**
+     * Determine if user is trying to print a secret variable
+     *
+     * @param command command
+     * @return boolean
+     */
+    private boolean containsPrintStatementForVariable(String command, String variableName) {
+        // Patterns adjusted to dynamically include the given variableName
+        String[] printCommandPatterns = {
+                String.format("echo\\s+\\$\\[variables\\.%s\\]", variableName), // Bash, Zsh
+                String.format("printf\\s+['\"]?\\$\\[variables\\.%s\\]", variableName), // Bash, Zsh with printf
+                String.format("Write-(Output|Host|Verbose|Debug|Warning)\\s+['\"]?\\$\\[variables\\.%s\\]", variableName), // PowerShell
+                String.format("Console\\.Write(Line)?\\(\\$\\[variables\\.%s\\]\\)", variableName), // C# Console applications
+                String.format("System\\.out\\.print(ln)?\\(\\$\\[variables\\.%s\\]\\)", variableName), // Java
+                String.format("print\\(\\$\\[variables\\.%s\\]\\)", variableName), // Python
+                String.format("console\\.log\\(\\$\\[variables\\.%s\\]\\)", variableName), // JavaScript
+                String.format("cat\\s+\\$\\[variables\\.%s\\]", variableName), // Unix cat
+                String.format("type\\s+\\$\\[variables\\.%s\\]", variableName), // Windows CMD type
+                String.format("\\$\\[variables\\.%s\\]\\s*>", variableName), // Generic redirection
+                String.format("\\$\\[variables\\.%s\\]\\s*\\|", variableName), // Generic piping
+                String.format("echo\\s+['\"]?\\$\\[variables\\.%s\\]['\"]?\\s*\\|\\s*Out-String", variableName), // PowerShell echo piped
+                String.format("Get-Content\\s+\\$\\[variables\\.%s\\]", variableName) // PowerShell Get-Content
+        };
+
+        for (String patternStr : printCommandPatterns) {
+            Pattern pattern = Pattern.compile(patternStr);
+            Matcher matcher = pattern.matcher(command);
+            if (matcher.find()) {
+                return true; // Found a pattern that matches a print statement for the variable
+            }
+        }
+
+        return false; // No print statement for the variable found
     }
 }
