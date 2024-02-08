@@ -62,7 +62,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.activatedRoute.queryParams.subscribe(params => {
           if (params.token) {
             this.loginService.loginWithToken(params.token, true).then(() => {
-              this.checkLogin(params.url);
+              if (params.url) {
+                this.checkLogin(params.url);
+              } else {
+                this.router.navigate(['/dashboard/overview']).then(() => {
+                  this.spinner.hide('loadingSpinner');
+                });
+              }
             });
           } else if (params.key) {
             this.loginService.loginWithKey(params.key, true).then(() => {
