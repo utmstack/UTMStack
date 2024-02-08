@@ -40,6 +40,11 @@ type Grpc struct {
 
 var Cache map[uint]string
 
+var (
+	SecretVariablesCache = make(map[string]string)
+	cacheSecretLock      sync.RWMutex
+)
+
 type ResultCallback func(result *CommandResult)
 
 func (s *Grpc) authenticateAgent(stream AgentService_AgentStreamServer) (string, error) {
