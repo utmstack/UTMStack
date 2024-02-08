@@ -5,9 +5,10 @@ package com.park.utmstack.domain.getting_started;
  */
 public enum GettingStartedStepEnum {
     SET_ADMIN_USER,
+    APPLICATION_SETTINGS,
     DASHBOARD_BUILDER,
     THREAT_MANAGEMENT,
     INTEGRATIONS,
-//    APPLICATION_SETTINGS,
+
 //    INVITE_USERS;
 }

@@ -9,7 +9,7 @@
                   <i
                     [ngClass]="'icon-circle2'"
                     class="mr-2"></i>
-            {{agent.hostname}} ({{agent.os}})
+            {{ agent.hostname }} ({{ agent.os }})
     </span>
 
         <button (click)="closeConsole()" aria-label="Close"
@@ -22,7 +22,7 @@
         <div class="terminal f-flex flex-column">
           <div class="d-flex justify-content-start align-items-start" *ngIf="!commandInProgress">
                 <span class="console-info">
-                 {{'Password: '}}
+                 {{ 'Password: ' }}
                 </span>
             <input type="password"
                    [(ngModel)]="pass"
@@ -35,16 +35,28 @@
         <ng-container
           *ngIf="!connectionError && agent.status === agentStatusEnum.ONLINE;else missingAgent">
           <div class="terminal f-flex flex-column" #contentWrapper>
+            <span class="font-size-lg mb-3">
+              <i class="icon-keyboard"></i> Press <b>TAB</b> to use automation variables in the command
+            </span>
+            <ng-template #colContent>
+              <app-incident-variable-select
+                (variableSelected)="insertVariablePlaceholder($event)"></app-incident-variable-select>
+            </ng-template>
+
             <div class="output d-flex flex-grow-1 align-items-start justify-content-start flex-column">
                 <span *ngFor="let message of messages" [innerHTML]="message | safe:'html'"
                       [ngClass]="{'ml-3': !message.startsWith(consoleSignal)}"></span>
             </div>
             <div class="d-flex justify-content-start align-items-start" *ngIf="!commandInProgress">
-                <span class="console-info">
-                 {{consoleSignal}}
+                <span class="console-info"
+                      [ngbPopover]="colContent" [autoClose]="true" triggers="manual" #p=ngbPopover
+                      [popoverClass]="'popover'"
+                      container="body" placement="right">
+                 {{ consoleSignal }}
                 </span>
               <input [(ngModel)]="command"
                      #commandInput
+                     (keydown.tab)="p.open()"
                      (keyup.enter)="sendCommand()" class="command ml-2"
                      (keyup)="handleCommandHistory($event)" (keydown)="handleCommandHistory($event)"
                      placeholder="Enter command here">

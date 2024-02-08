@@ -1,0 +1,70 @@
+<app-utm-modal-header [name]="incidentVariable?'Edit variable':'Create variable'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="command-container d-flex flex-column">
+    <form [formGroup]="incidentVariableForm" action="" class="form">
+      <div class="form-group">
+        <label class="pb-1" for="variableName">Variable Name</label>
+        <input [ngClass]="inputClass.resolveClassInput(incidentVariableForm.get('variableName'))"
+               class="border-1 border-grey-600 form-control" formControlName="variableName"
+               id="variableName"
+               name="variableName">
+        <app-formcontrol-error [formcontrol]="incidentVariableForm.get('variableName')"></app-formcontrol-error>
+
+        <div *ngIf="typing && incidentVariableForm.get('variableName').valid"
+             class="checking-tag-name d-flex justify-content-start align-items-center mt-1 span-small-icon">
+          <i class="icon-spinner2 spinner mr-2"></i>
+          <span>Checking variable name...</span>
+        </div>
+        <div *ngIf="exist && !typing"
+             class="checking-tag-name d-flex justify-content-start align-items-center text-danger-300 mt-1 span-small-icon">
+          <i class="icon-copy4 mr-2"></i>
+          <span>Variable name already exist</span>
+        </div>
+        <div *ngIf="!exist && !typing && incidentVariableForm.get('variableName').value!==''"
+             class="checking-tag-name d-flex justify-content-start align-items-center text-blue-800 mt-1 span-small-icon">
+          <i class="icon-checkmark-circle mr-2"></i>
+          <span>Variable name is valid</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="pb-1" for="variableDescription">Variable Description
+          ({{ 512 - incidentVariableForm.get('variableDescription').value.length }})</label>
+
+        <textarea [ngClass]="inputClass.resolveClassInput(incidentVariableForm.get('variableDescription'))"
+                  class="border-1 border-grey-600 form-control" formControlName="variableDescription"
+                  id="variableDescription"
+                  name="variableDescription"
+                  rows="2">
+        </textarea>
+        <app-formcontrol-error [formcontrol]="incidentVariableForm.get('variableDescription')"></app-formcontrol-error>
+      </div>
+
+      <app-utm-toggle (toggleChange)="incidentVariableForm.get('secret').setValue($event)"
+                      [active]="incidentVariableForm.get('secret').value"
+                      [label]="'Variable is a secret?'"></app-utm-toggle>
+
+      <div class="form-group mt-2">
+        <label class="pb-1" for="variableValue">Value</label>
+        <input [ngClass]="inputClass.resolveClassInput(incidentVariableForm.get('variableValue'))"
+               class="border-1 border-grey-600 form-control" formControlName="variableValue"
+               id="variableValue"
+               [type]="incidentVariableForm.get('secret').value?'password':'text'"
+               name="variableValue">
+        <app-formcontrol-error [formcontrol]="incidentVariableForm.get('variableValue')"></app-formcontrol-error>
+      </div>
+    </form>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button (click)="createVariable()"
+              [disabled]="creating || exist || incidentVariableForm.invalid" class="btn utm-button utm-button-primary">
+        <i [ngClass]="creating?'icon-spinner2 spinner':'icon-lock2'"></i>&nbsp;
+        Save
+      </button>
+    </div>
+  </div>
+</div>

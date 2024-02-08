@@ -1,7 +1,5 @@
 package com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.impl.coordinate_map;
 
-import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
-import com.utmstack.opensearch_connector.types.BucketAggregation;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.park.utmstack.domain.chart_builder.UtmVisualization;
 import com.park.utmstack.domain.chart_builder.types.aggregation.AggregationType;
@@ -11,6 +9,8 @@ import com.park.utmstack.domain.ip_info.GeoIp;
 import com.park.utmstack.service.ip_info.IpInfoService;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.park.utmstack.util.exceptions.UtmIpInfoException;
+import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
+import com.utmstack.opensearch_connector.types.BucketAggregation;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

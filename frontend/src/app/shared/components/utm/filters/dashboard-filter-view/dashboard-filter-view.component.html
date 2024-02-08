@@ -1,16 +1,33 @@
-<div class="d-flex align-items-center w-100"
-     *ngIf="filters && filters.length>0"
-     [ngClass]="position==='left'?'justify-content-start':'justify-content-end'">
-  <div class="d-flex justify-content-start align-items-center"
-       [ngClass]="position==='left'?'mr-3':'ml-3'"
-       *ngFor="let filter of filters">
-    <label class="mr-2" for="">{{filter.filterLabel}} </label>
-    <app-dashboard-filter-select [filter]="filter"></app-dashboard-filter-select>
-    <span *ngIf="building">
+<ng-container *ngIf="layout == DashboardFilterLayout.Default">
+    <div class="d-flex align-items-center w-100"
+         *ngIf="filters && filters.length>0"
+         [ngClass]="position==='left'?'justify-content-start':'justify-content-end'">
+        <div class="d-flex justify-content-start align-items-center"
+             [ngClass]="position==='left'?'mr-3':'ml-3'"
+             *ngFor="let filter of filters">
+            <label class="mr-2" for="">{{filter.filterLabel}} </label>
+            <app-dashboard-filter-select [filter]="filter"></app-dashboard-filter-select>
+            <span *ngIf="building">
       <i class="icon-pencil ml-2 cursor-pointer" [ngbTooltip]="'Edit '+ filter.filterLabel +' filter'"
          (click)="doAction('edit',filter)"></i>
       <i class="icon-cross2 ml-2 cursor-pointer" [ngbTooltip]="'Delete '+ filter.filterLabel +' filter'"
          (click)="doAction('delete',filter)"></i>
     </span>
-  </div>
-</div>
+        </div>
+    </div>
+</ng-container>
+<ng-container *ngIf="layout == DashboardFilterLayout.ScheduleReportCompliance">
+    <div class="container">
+        <div class="row" *ngFor="let filter of filters; let i = index"
+             [ngClass]="{'mb-3': i < filters.length-1}">
+            <div class="col-2">
+                <label class="mr-2" for="">{{filter.filterLabel}} </label>
+            </div>
+            <div class="col-10">
+                <app-dashboard-filter-select [filter]="filter"
+                                             [fullWidth]="'true'">
+                </app-dashboard-filter-select>
+            </div>
+        </div>
+    </div>
+</ng-container>

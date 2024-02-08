@@ -18,6 +18,8 @@ import {filtersToStringParam} from '../../shared/util/query-params-to-filter.uti
 import {normalizeString} from '../../shared/util/string-util';
 import {RenderLayoutService} from '../shared/services/render-layout.service';
 import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
+import {ExportPdfService} from "../../shared/services/util/export-pdf.service";
+import {NgxSpinnerService} from "ngx-spinner";
 
 @Component({
   selector: 'app-dashboard-render',
@@ -65,7 +67,9 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
               private modalService: NgbModal,
               private dashboardBehavior: DashboardBehavior,
               private timeFilterBehavior: TimeFilterBehavior,
-              private utmRenderVisualization: UtmRenderVisualization) {
+              private utmRenderVisualization: UtmRenderVisualization,
+              private exportPdfService: ExportPdfService,
+              private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
@@ -159,7 +163,16 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
 
   exportToPdf() {
     filtersToStringParam(this.filtersValues).then(queryParams => {
-      window.open('/dashboard/export/' + this.dashboardId + '/' + normalizeString(this.dashboard.name) + '?' + queryParams, '_blank');
+      this.spinner.show('buildPrintPDF');
+      const url = '/dashboard/export/' + this.dashboardId + '/' + normalizeString(this.dashboard.name) + '?' + queryParams;
+      // window.open('/dashboard/export/' + this.dashboardId + '/' + normalizeString(this.dashboard.name) + '?' + queryParams, '_blank');
+      this.exportPdfService.getPdf(url, this.dashboard.name, 'PDF_TYPE_TOKEN').subscribe(response => {
+        this.spinner.hide('buildPrintPDF').then(() =>
+          this.exportPdfService.handlePdfResponse(response));
+      }, error => {
+        this.spinner.hide('buildPrintPDF');
+        console.error('Error downloading PDF:', error);
+      });
     });
   }
 }

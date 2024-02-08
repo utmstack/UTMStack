@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	passphrase = os.Getenv(config.UTMSharedKeyEnv)
+	passphrase = os.Getenv(config.UTMEncryptionKeyEnv)
 )
 
 func EncryptDecryptConfValues(conf *models.AgentModuleConfiguration, action string) *models.AgentModuleConfiguration {

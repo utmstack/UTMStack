@@ -23,26 +23,47 @@ import {PasswordResetInitComponent} from './components/auth/password-reset/init/
 import {PasswordStrengthBarComponent} from './components/auth/password-strength/password-strength-bar.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
-import {UtmAdminChangeEmailComponent} from './components/getting-started/utm-admin-change-email/utm-admin-change-email.component';
-import {WelcomeToUtmstackComponent} from './components/getting-started/welcome-to-utmstack/welcome-to-utmstack.component';
+import {
+  UtmAdminChangeEmailComponent
+} from './components/getting-started/utm-admin-change-email/utm-admin-change-email.component';
+import {
+  WelcomeToUtmstackComponent
+} from './components/getting-started/welcome-to-utmstack/welcome-to-utmstack.component';
 import {IncidentSeverityComponent} from './components/incident/incident-severity/incident-severity.component';
-import {CompleteIncidentModalComponent, IncidentStatusComponent} from './components/incident/incident-status/incident-status.component';
+import {
+  CompleteIncidentModalComponent,
+  IncidentStatusComponent
+} from './components/incident/incident-status/incident-status.component';
 import {FooterComponent} from './components/layout/footer/footer.component';
-import {HeaderMenuNavigationComponent} from './components/layout/header/header-menu-navigation/header-menu-navigation.component';
+import {
+  HeaderMenuNavigationComponent
+} from './components/layout/header/header-menu-navigation/header-menu-navigation.component';
 import {HeaderComponent} from './components/layout/header/header.component';
 import {MobileHeaderComponent} from './components/layout/header/mobile-header/mobile-header.component';
 // tslint:disable-next-line:max-line-length
-import {UtmDateFormatInfoComponent} from './components/layout/header/shared/components/utm-date-format-info/utm-date-format-info.component';
+import {
+  UtmDateFormatInfoComponent
+} from './components/layout/header/shared/components/utm-date-format-info/utm-date-format-info.component';
 import {
   GettingStartedFinishedModalComponent,
   GettingStartedModalComponent,
   UtmGettingStartedComponent
 } from './components/layout/header/shared/components/utm-getting-started/utm-getting-started.component';
-import {UtmLicenseInfoComponent} from './components/layout/header/shared/components/utm-license-info/utm-license-info.component';
-import {UtmMenuBurgerComponent} from './components/layout/header/shared/components/utm-menu-burger/utm-menu-burger.component';
-import {UtmVaultStatusComponent} from './components/layout/header/shared/components/utm-vault-status/utm-vault-status.component';
-import {UtmVersionInfoComponent} from './components/layout/header/shared/components/utm-version-info/utm-version-info.component';
-import {UtmNotificationAdComponent} from './components/layout/header/shared/notification/utm-notification-ad/utm-notification-ad.component';
+import {
+  UtmLicenseInfoComponent
+} from './components/layout/header/shared/components/utm-license-info/utm-license-info.component';
+import {
+  UtmMenuBurgerComponent
+} from './components/layout/header/shared/components/utm-menu-burger/utm-menu-burger.component';
+import {
+  UtmVaultStatusComponent
+} from './components/layout/header/shared/components/utm-vault-status/utm-vault-status.component';
+import {
+  UtmVersionInfoComponent
+} from './components/layout/header/shared/components/utm-version-info/utm-version-info.component';
+import {
+  UtmNotificationAdComponent
+} from './components/layout/header/shared/notification/utm-notification-ad/utm-notification-ad.component';
 // tslint:disable-next-line:max-line-length
 import {
   UtmNotificationAlertComponent
@@ -51,39 +72,59 @@ import {
 import {
   UtmNotificationAssetsComponent
 } from './components/layout/header/shared/notification/utm-notification-assets/utm-notification-assets.component';
-import {PasswordComponent} from './components/layout/header/shared/notification/utm-notification-user-setting/password/password.component';
-import {SettingsComponent} from './components/layout/header/shared/notification/utm-notification-user-setting/settings/settings.component';
+import {
+  PasswordComponent
+} from './components/layout/header/shared/notification/utm-notification-user-setting/password/password.component';
+import {
+  SettingsComponent
+} from './components/layout/header/shared/notification/utm-notification-user-setting/settings/settings.component';
 // tslint:disable-next-line:max-line-length
 import {
   UtmNotificationUserSettingComponent
 } from './components/layout/header/shared/notification/utm-notification-user-setting/utm-notification-user-setting.component';
 import {SidebarComponent} from './components/layout/sidebar/sidebar.component';
 import {NotFoundComponent} from './components/not-found/not-found.component';
-import {UtmHeaderHealthWarningComponent} from './components/utm-header-health-warning/utm-header-health-warning.component';
+import {
+  UtmHeaderHealthWarningComponent
+} from './components/utm-header-health-warning/utm-header-health-warning.component';
 import {UtmLiteVersionComponent} from './components/utm-lite-version/utm-lite-version.component';
 import {UtmModuleDisabledComponent} from './components/utm-module-disabled/utm-module-disabled.component';
 import {KpiComponent} from './components/utm/charts/kpi/kpi.component';
 import {NoDataChartComponent} from './components/utm/charts/no-data-chart/no-data-chart.component';
-import {AppConfigDeleteConfirmComponent} from './components/utm/config/app-config-delete-confirm/app-config-delete-confirm.component';
+import {
+  AppConfigDeleteConfirmComponent
+} from './components/utm/config/app-config-delete-confirm/app-config-delete-confirm.component';
 import {AppConfigParamsComponent} from './components/utm/config/app-config-params/app-config-params.component';
 import {AppConfigSectionsComponent} from './components/utm/config/app-config-sections/app-config-sections.component';
-import {AppModuleDisabledWarningComponent} from './components/utm/config/app-module-disabled-warning/app-module-disabled-warning.component';
+import {
+  AppModuleDisabledWarningComponent
+} from './components/utm/config/app-module-disabled-warning/app-module-disabled-warning.component';
 import {UtmEmailConfCheckComponent} from './components/utm/config/utm-email-conf-check/utm-email-conf-check.component';
-import {ElasticMetricHealthComponent} from './components/utm/elastic/elastic-metric-health/elastic-metric-health.component';
+import {
+  ElasticMetricHealthComponent
+} from './components/utm/elastic/elastic-metric-health/elastic-metric-health.component';
 // tslint:disable-next-line:max-line-length
 import {
   DashboardFilterSelectComponent
 } from './components/utm/filters/dashboard-filter-view/dashboard-filter-select/dashboard-filter-select.component';
-import {DashboardFilterViewComponent} from './components/utm/filters/dashboard-filter-view/dashboard-filter-view.component';
+import {
+  DashboardFilterViewComponent
+} from './components/utm/filters/dashboard-filter-view/dashboard-filter-view.component';
 import {DateRangeComponent} from './components/utm/filters/date-range/date-range.component';
 import {ElasticFilterTimeComponent} from './components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {TimeFilterComponent} from './components/utm/filters/time-filter/time-filter.component';
 import {UtmDataLimitComponent} from './components/utm/filters/utm-data-limit/utm-data-limit.component';
-import {ElasticFilterAddComponent} from './components/utm/filters/utm-elastic-filter/elastic-filter-add/elastic-filter-add.component';
+import {
+  ElasticFilterAddComponent
+} from './components/utm/filters/utm-elastic-filter/elastic-filter-add/elastic-filter-add.component';
 import {ElasticFilterComponent} from './components/utm/filters/utm-elastic-filter/elastic-filter.component';
 import {FormcontrolErrorComponent} from './components/utm/form/formcontrol-error/formcontrol-error.component';
-import {IndexPatternCreateComponent} from './components/utm/index-pattern/index-pattern-create/index-pattern-create.component';
-import {IndexPatternSelectComponent} from './components/utm/index-pattern/index-pattern-select/index-pattern-select.component';
+import {
+  IndexPatternCreateComponent
+} from './components/utm/index-pattern/index-pattern-create/index-pattern-create.component';
+import {
+  IndexPatternSelectComponent
+} from './components/utm/index-pattern/index-pattern-select/index-pattern-select.component';
 import {LogstashStatsComponent} from './components/utm/logstash/logstash-stats/logstash-stats.component';
 import {UtmServerSelectComponent} from './components/utm/server/utm-server-select/utm-server-select.component';
 import {NoDataFoundComponent} from './components/utm/table/no-data-found/no-data-found.component';
@@ -94,8 +135,12 @@ import {UtmDynamicTableComponent} from './components/utm/table/utm-table/dynamic
 import {
   UtmDtableDetailResolverComponent
 } from './components/utm/table/utm-table/shared/component/utm-dtable-detail-resolver/utm-dtable-detail-resolver.component';
-import {TableDetailContentDirective} from './components/utm/table/utm-table/shared/directive/table-detail-content.directive';
-import {UtmDtableColumnsComponent} from './components/utm/table/utm-table/utm-dtable-columns/utm-dtable-columns.component';
+import {
+  TableDetailContentDirective
+} from './components/utm/table/utm-table/shared/directive/table-detail-content.directive';
+import {
+  UtmDtableColumnsComponent
+} from './components/utm/table/utm-table/utm-dtable-columns/utm-dtable-columns.component';
 // tslint:disable-next-line:max-line-length
 import {
   UtmJsonDetailViewComponent
@@ -118,25 +163,33 @@ import {UtmAgentConnectComponent} from './components/utm/util/utm-agent-connect/
 import {UtmAgentConsoleComponent} from './components/utm/util/utm-agent-console/utm-agent-console.component';
 import {UtmAgentDetailComponent} from './components/utm/util/utm-agent-detail/utm-agent-detail.component';
 import {UtmAgentSelectComponent} from './components/utm/util/utm-agent-select/utm-agent-select.component';
-import {UtmChangeDashboardTimeComponent} from './components/utm/util/utm-change-dashboard-time/utm-change-dashboard-time.component';
+import {
+  UtmChangeDashboardTimeComponent
+} from './components/utm/util/utm-change-dashboard-time/utm-change-dashboard-time.component';
 import {UtmCodeHighlightComponent} from './components/utm/util/utm-code-highlight/utm-code-highlight.component';
 import {UtmCodeViewComponent} from './components/utm/util/utm-code-view/utm-code-view.component';
 import {UtmColorsOrderComponent} from './components/utm/util/utm-colors-order/utm-colors-order.component';
 import {UtmConsoleCheckComponent} from './components/utm/util/utm-console-check/utm-console-check.component';
 import {UtmCountryFlagComponent} from './components/utm/util/utm-country-flag/utm-country-flag.component';
-import {UtmFileDragDropDirective} from './components/utm/util/utm-file-upload/shared/directives/utm-file-drag-drop.directive';
+import {
+  UtmFileDragDropDirective
+} from './components/utm/util/utm-file-upload/shared/directives/utm-file-drag-drop.directive';
 import {UtmFileUploadComponent} from './components/utm/util/utm-file-upload/utm-file-upload.component';
 import {UtmInputFileUploadComponent} from './components/utm/util/utm-input-file-upload/utm-input-file-upload.component';
 import {UtmInsideModalComponent} from './components/utm/util/utm-inside-modal/utm-inside-modal.component';
 import {UtmModalHeaderComponent} from './components/utm/util/utm-modal-header/utm-modal-header.component';
-import {UtmOnlineDocumentationComponent} from './components/utm/util/utm-online-documentation/utm-online-documentation.component';
+import {
+  UtmOnlineDocumentationComponent
+} from './components/utm/util/utm-online-documentation/utm-online-documentation.component';
 import {UtmPdfPreviewComponent} from './components/utm/util/utm-pdf-preview/utm-pdf-preview.component';
 import {UtmProgressbarComponent} from './components/utm/util/utm-progressbar/utm-progressbar.component';
 import {UtmReportHeaderComponent} from './components/utm/util/utm-report-header/utm-report-header.component';
 import {UtmScrollTopComponent} from './components/utm/util/utm-scroll-top/utm-scroll-top.component';
 import {UtmSearchInputComponent} from './components/utm/util/utm-search-input/utm-search-input.component';
 import {UtmSecretViewComponent} from './components/utm/util/utm-secret-view/utm-secret-view.component';
-import {UtmSingleColorSelectComponent} from './components/utm/util/utm-single-color-select/utm-single-color-select.component';
+import {
+  UtmSingleColorSelectComponent
+} from './components/utm/util/utm-single-color-select/utm-single-color-select.component';
 import {UtmSpinnerComponent} from './components/utm/util/utm-spinner/utm-spinner.component';
 import {UtmTagInputComponent} from './components/utm/util/utm-tag-input/utm-tag-input.component';
 import {UtmTerminalInputComponent} from './components/utm/util/utm-terminal-input/utm-terminal-input.component';
@@ -156,6 +209,10 @@ import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {AssetsGroupAddModule} from "../assets-discover/shared/components/asset-group-add/assets-group-add.module";
+import {
+  IrVariableCreateComponent
+} from "./components/utm/incident-variables/ir-variable-create/ir-variable-create.component";
+import {IncidentVariableSelectComponent} from "./components/utm/incident-variables/incident-variable-select.component";
 
 
 @NgModule({
@@ -291,8 +348,9 @@ import {AssetsGroupAddModule} from "../assets-discover/shared/components/asset-g
     UtmSecretViewComponent,
     LogstashStatsComponent,
     UtmCodeHighlightComponent,
-    ZoomDirective
-
+    ZoomDirective,
+    IrVariableCreateComponent,
+    IncidentVariableSelectComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -381,7 +439,9 @@ import {AssetsGroupAddModule} from "../assets-discover/shared/components/asset-g
     UtmSecretViewComponent,
     LogstashStatsComponent,
     UtmCodeHighlightComponent,
-    UtmVersionInfoComponent
+    UtmVersionInfoComponent,
+    IrVariableCreateComponent,
+    IncidentVariableSelectComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -423,7 +483,8 @@ import {AssetsGroupAddModule} from "../assets-discover/shared/components/asset-g
     UtmDateFormatInfoComponent,
     GettingStartedModalComponent,
     GettingStartedFinishedModalComponent,
-    UtmAdminChangeEmailComponent],
+    UtmAdminChangeEmailComponent,
+    IrVariableCreateComponent],
   providers: [
     UtmToastService,
     MenuBehavior,

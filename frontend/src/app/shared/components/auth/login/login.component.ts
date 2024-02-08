@@ -70,6 +70,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 });
               }
             });
+          } else if (params.key) {
+            this.loginService.loginWithKey(params.key, true).then(() => {
+              this.startInternalNavigation();
+            });
           } else {
             this.loadingAuth = false;
           }
@@ -180,4 +184,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  startInternalNavigation() {
+    this.router.navigate(['/dashboard/overview']);
+  }
+
 }

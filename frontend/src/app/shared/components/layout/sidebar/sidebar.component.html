@@ -93,6 +93,17 @@
       </a>
     </li>
 
+    <li (click)="closeMenu();navigateTo('/variables/list')" *appHasAnyAuthority="roleAdmin"
+        class="nav-item p-1"
+        routerLinkActive="active-link-sidebar">
+      <a class="nav-link" container="body" ngbTooltip="Automation Variables"
+         placement="left"
+         tooltipClass="utm-tooltip">
+        <span class="svg-icon svg-icon-md" [ngClass]="isActive('/variables')?'svg-icon-active':'svg-icon-primary'"
+              [inlineSVG]="iconPath+ 'DATA_PROTECTION.svg'"></span>
+      </a>
+    </li>
+
 
     <li class="nav-item p-1">
       <a (click)=" signOut()" class="nav-link"

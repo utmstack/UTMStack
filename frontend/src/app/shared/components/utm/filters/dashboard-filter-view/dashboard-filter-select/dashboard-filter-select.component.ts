@@ -12,6 +12,7 @@ import {ElasticFilterType} from '../../../../../types/filter/elastic-filter.type
 })
 export class DashboardFilterSelectComponent implements OnInit, OnChanges {
   @Input() filter: DashboardFilterType;
+  @Input() fullWidth = false;
   values: any[];
   isLoading = true;
 
