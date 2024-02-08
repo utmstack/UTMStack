@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum AccessType {
     UTM_TOKEN("Utm_Token", "?token=", "&url=dashboard/overview"),
-    DEFAULT("default", "?key=", "");
+    UTM_INTERNAL_KEY("Utm_Internal_Key", "?key=", "");
 
     @Getter
     private final String type;
