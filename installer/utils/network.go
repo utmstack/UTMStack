@@ -2,7 +2,7 @@ package utils
 
 import (
 	"net"
-
+	"strings"
 )
 
 func GetMainIP() (string, error) {
@@ -17,21 +17,23 @@ func GetMainIP() (string, error) {
 	return localAddr.IP.String(), nil
 }
 
-func GetMainIface(mainIP string) (string, error){
+func GetMainIface(mainIP string) (string, error) {
 	var iface string
 	ifaces, err := net.Interfaces()
-	if err != nil{
+	if err != nil {
 		return iface, err
 	}
 
-	for _, i := range ifaces{
-		al , err := i.Addrs()
-		if err!= nil{
+	for _, i := range ifaces {
+		al, err := i.Addrs()
+		if err != nil {
 			return iface, err
 		}
 
-		for _, a := range al{
-			if a.String() == mainIP{
+		for _, a := range al {
+			as := strings.Split(a.String(), "/")[0]
+
+			if as == mainIP {
 				iface = i.Name
 			}
 		}
