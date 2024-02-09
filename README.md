@@ -88,6 +88,8 @@ Resources needed for one month of hot log storage.
 - For 500 data sources (1000 GB) of hot log storage you will need 32 Cores, 64 GB RAM, 1000 GB Disk Space
 - You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention
 
+IMPORTANT: Going above 500 data sources/devices requires adding slave nodes for horizontal scaling.
+
 ## Installation steps
 The installation can be performed using an installer file or an [ISO image](https://utmstack.com/install). The instructions below are only for the installer file option; please skip them if you use the ISO image instead.
 > **_NOTE:_** The default Ubuntu Server credentials are; "user: utmstack", "password: utmstack"
