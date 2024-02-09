@@ -118,8 +118,8 @@ export class UtmCpCronEditorComponent implements ControlValueAccessor {
       const cronParts = cron.split(' ');
       if (cronParts[1] !== '*') {
         this.time = {
-          hour: Number(cronParts[1]),
-          minute: Number(cronParts[2])
+          hour: Number(cronParts[2]),
+          minute: Number(cronParts[1])
         };
       }
 

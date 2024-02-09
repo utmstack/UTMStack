@@ -4,7 +4,7 @@
 .step-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-evenly;
   width: 100%;
   position: relative;
 
@@ -45,9 +45,9 @@
   .step-link {
     height: 1px;
     background-color: #7777;
-    width: 72%;
+    width: 36%;
     top: 33px;
-    left: 16%;
+    left: 34%;
     position: absolute;
     z-index: 0;
   }

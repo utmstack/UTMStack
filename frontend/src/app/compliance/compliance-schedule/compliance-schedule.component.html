@@ -51,7 +51,7 @@
                 </span>
               </td>
               <td>
-                <app-active-filters [showHeader]="false" [dataType]="EventDataTypeEnum.EVENT" [filters]="getAllFilters(schedule.filterDef)"></app-active-filters>
+                <app-active-filters *ngIf="schedule.filterDef.length > 0" [showHeader]="false" [dataType]="EventDataTypeEnum.EVENT" [filters]="getAllFilters(schedule.filterDef)"></app-active-filters>
               </td>
               <td class="td-action">
                 <div class="d-flex justify-content-end align-items-center medium-icon">
