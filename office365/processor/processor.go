@@ -79,7 +79,7 @@ func (o *OfficeProcessor) StartSubscriptions() *logger.Error {
 
 		resp, status, e := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
 		if e != nil || status != http.StatusOK {
-			if resp.Error.Code == "AF20024"{
+			if e.Is("subscription is already enabled") {
 				continue
 			}
 			return e

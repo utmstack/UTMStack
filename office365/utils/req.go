@@ -25,7 +25,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(resp.StatusCode, err.Error())
+		return result, http.StatusInternalServerError, Logger.ErrorF(http.StatusInternalServerError, err.Error())
 	}
 	defer resp.Body.Close()
 
