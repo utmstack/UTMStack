@@ -5,43 +5,42 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/threatwinds/logger"
 )
 
-func DoReq[response any](url string, data []byte, method string, headers map[string]string) (response, int, error) {
+func DoReq[response any](url string, data []byte, method string, headers map[string]string) (response, int, *logger.Error) {
+	var result response
+
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
-		return *new(response), http.StatusInternalServerError, err
+		return result, http.StatusInternalServerError, Logger.ErrorF(http.StatusInternalServerError, err.Error())
 	}
 
 	for k, v := range headers {
 		req.Header.Add(k, v)
 	}
 
-	//transCfg := &http.Transport{
-	//	TLSClientConfig: &tls.Config{},
-	//}
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return *new(response), http.StatusInternalServerError, err
+		return result, http.StatusInternalServerError, Logger.ErrorF(resp.StatusCode, err.Error())
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return *new(response), http.StatusInternalServerError, err
-	}
-
-	var result response
-
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return *new(response), http.StatusInternalServerError, err
+		return result, http.StatusInternalServerError, Logger.ErrorF(http.StatusInternalServerError, err.Error())
 	}
 
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-		return result, resp.StatusCode, err
+		return result, resp.StatusCode, Logger.ErrorF(resp.StatusCode, "received status code: %d", resp.StatusCode)
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, http.StatusInternalServerError, Logger.ErrorF(http.StatusInternalServerError, err.Error())
 	}
 
 	return result, resp.StatusCode, nil
