@@ -35,7 +35,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-		return result, resp.StatusCode, Logger.ErrorF(resp.StatusCode, "received status code: %d", resp.StatusCode)
+		return result, resp.StatusCode, Logger.ErrorF(resp.StatusCode, "while sending request to %s received status code: %d and response body: %s", url, resp.StatusCode, body)
 	}
 
 	err = json.Unmarshal(body, &result)
