@@ -13,7 +13,7 @@
            bindValue="name"
            class="ml-2 mr-2"
            id="id"
-           style="max-width:300px;min-width: 200px">
+           [ngStyle]="{'max-width.px': fullWidth ? 'unset' : '300', 'min-width.px': fullWidth ? 'unset' : '200'}">
   <ng-template let-item="item" ng-option-tmp>
     <span class="span-small-icon" title="{{item}}">{{item}}</span>
   </ng-template>

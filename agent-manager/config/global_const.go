@@ -27,6 +27,7 @@ func ConnectionKeyRoutes() []string {
 
 const PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
 const UTMSharedKeyEnv = "INTERNAL_KEY"
+const UTMEncryptionKeyEnv = "ENCRYPTION_KEY"
 const UTMHostEnv = "UTM_HOST"
 
 func GetInternalKey() string {

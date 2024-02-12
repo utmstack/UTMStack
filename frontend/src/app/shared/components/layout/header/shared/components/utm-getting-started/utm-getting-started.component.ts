@@ -6,6 +6,7 @@ import {filter} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../../alert/utm-toast.service';
 import {GettingStartedBehavior} from '../../../../../../behaviors/getting-started.behavior';
 import {GettingStartedService} from '../../../../../../services/getting-started/getting-started.service';
+import {ApplicationConfigSectionEnum} from '../../../../../../types/configuration/section-config.type';
 import {
   GettingStartedStepDocURLEnum,
   GettingStartedStepEnum,
@@ -15,6 +16,7 @@ import {
   GettingStartedStepVideoPathEnum,
   GettingStartedType
 } from '../../../../../../types/getting-started/getting-started.type';
+import {isSubdomainOfUtmstack} from '../../../../../../util/url.util';
 
 
 @Component({
@@ -40,9 +42,9 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
         this.getSteps();
       }
     });
-    if (this.router.url.includes(GettingStartedStepUrlEnum.DASHBOARD_BUILDER)
-      && !this.isStepCompleted(GettingStartedStepEnum.DASHBOARD_BUILDER)) {
-      this.openModal(GettingStartedStepEnum.DASHBOARD_BUILDER);
+    if (this.router.url.includes(GettingStartedStepUrlEnum.APPLICATION_SETTINGS)
+      && !this.isStepCompleted(GettingStartedStepEnum.APPLICATION_SETTINGS)) {
+      this.openModal(GettingStartedStepEnum.APPLICATION_SETTINGS);
     }
     this.routeSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -119,11 +121,24 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
   goToGuide(step: GettingStartedStepEnum) {
     const route = GettingStartedStepUrlEnum[step];
     let queryParams = {};
-    if (step === GettingStartedStepEnum.DASHBOARD_BUILDER) {
-      queryParams = {mode: 'edit', dashboardId: 7, dashboardName: 'threat_activity'};
-    } else if (step === GettingStartedStepEnum.THREAT_MANAGEMENT) {
-      queryParams = {alertType: 'ALERT'};
+
+    switch (step) {
+      case GettingStartedStepEnum.DASHBOARD_BUILDER:
+        queryParams = {mode: 'edit', dashboardId: 7, dashboardName: 'threat_activity'};
+        break;
+
+      case GettingStartedStepEnum.THREAT_MANAGEMENT:
+        queryParams = {alertType: 'ALERT'};
+        break;
+
+      case GettingStartedStepEnum.APPLICATION_SETTINGS:
+        queryParams = {sections: JSON.stringify([ApplicationConfigSectionEnum.Email, ApplicationConfigSectionEnum.Alerts])};
+        break;
+
+      default:
+        break;
     }
+
     this.router.navigate([route], {
       queryParams
     });
@@ -160,8 +175,8 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
       <img height="480" controls *ngIf="videoPath" style="width: 100%" [src]="videoPath | safe:'resourceUrl'" [alt]="name">
 
     </div>
-    <div class="modal-footer d-flex justify-content-between align-items-center">
-      <app-utm-online-documentation [path]="urlDoc" text="Learn more"></app-utm-online-documentation>
+    <div [ngClass]="{'justify-content-between': urlDoc}"  class="modal-footer d-flex  align-items-center">
+      <app-utm-online-documentation *ngIf="urlDoc" [path]="urlDoc" text="Learn more"></app-utm-online-documentation>
       <button class="btn utm-button utm-button-primary d-flex justify-content-start"
               (click)="complete()">Continue
       </button>
@@ -183,9 +198,16 @@ export class GettingStartedModalComponent implements OnInit {
   }
 
   ngOnInit() {
+    const  inSaas = isSubdomainOfUtmstack();
     this.icon = GettingStartedStepIconPathEnum[this.step];
     this.name = GettingStartedStepNameEnum[this.step];
-    this.videoPath = GettingStartedStepVideoPathEnum[this.step];
+
+    if (this.step === GettingStartedStepEnum.APPLICATION_SETTINGS && inSaas) {
+      this.videoPath = GettingStartedStepVideoPathEnum.APPLICATION_SAAS_SETTINGS;
+    } else {
+      this.videoPath = GettingStartedStepVideoPathEnum[this.step];
+    }
+
     this.urlDoc = (this.step === GettingStartedStepEnum.DASHBOARD_BUILDER || this.step === GettingStartedStepEnum.THREAT_MANAGEMENT)
       ? GettingStartedStepDocURLEnum[this.step] : null;
   }

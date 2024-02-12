@@ -86,7 +86,7 @@ export const MENU_ICONS = [
   'CROSS_PLATFORM_TESTING.svg',
   'CUSTOM_CODING.svg',
   'DATA_MANAGEMENT.svg',
-  'DATA _ROTECTION.svg',
+  'DATA_PROTECTION.svg',
   'DEVELOPMENT.svg',
   'COMMERCE_OPTIMIZATION.svg',
   'FEEDBACK.svg',

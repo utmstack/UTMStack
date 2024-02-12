@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+<changeSet id="20231120003" author="Freddy">
+        <createTable tableName="utm_compliance_report_schedule">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="compliance_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="schedule_string" type="varchar(250)">
+                <constraints nullable="false" />
+            </column>
+            <column name="url_with_params" type="text">
+                <constraints nullable="false" />
+            </column>
+            <column name="filters" type="text">
+                <constraints nullable="false" />
+            </column>
+            <column name="last_execution_date" type="datetime">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="utm_compliance_report_schedule"
+                                 constraintName="fk_jhi_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseColumnNames="compliance_id"
+                                 baseTableName="utm_compliance_report_schedule"
+                                 constraintName="fk_utm_compliance_report_config"
+                                 referencedColumnNames="id"
+                                 referencedTableName="utm_compliance_report_config"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="20240205001" author="JD">
+
+        <createSequence cycle="false" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="ira_variable_seq" startValue="50"/>
+
+        <createTable tableName="utm_incident_variables">
+            <column name="id" type="bigint" defaultValueSequenceNext="ira_variable_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="variable_name" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="variable_value" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="variable_description" type="varchar(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_secret" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_modified_by" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+</databaseChangeLog>

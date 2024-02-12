@@ -1,11 +1,18 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 // tslint:disable-next-line:max-line-length
 import {UtmModulesEnum} from '../../app-module/shared/enum/utm-module.enum';
 import {UtmModulesService} from '../../app-module/shared/services/utm-modules.service';
 import {UtmModuleType} from '../../app-module/shared/type/utm-module.type';
 import {AccountService} from '../../core/auth/account.service';
+import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {MenuBehavior} from '../../shared/behaviors/menu.behavior';
+import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {
   ALERT_GLOBAL_FIELD,
   ALERT_NAME_FIELD,
@@ -22,14 +29,17 @@ import {UtmOpenModuleModalService} from '../../shared/services/config/utm-open-m
 import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/elasticsearch-index.service';
 import {IndexPatternService} from '../../shared/services/elasticsearch/index-pattern.service';
 import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
+import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-value.type';
+import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
 
 @Component({
   selector: 'app-dashboard-overview',
   templateUrl: './dashboard-overview.component.html',
   styleUrls: ['./dashboard-overview.component.scss']
 })
-export class DashboardOverviewComponent implements OnInit {
+export class DashboardOverviewComponent implements OnInit, OnDestroy {
   pdfExport = false;
   refreshTime = TIME_DASHBOARD_REFRESH;
   dailyAlert: ChartSerieValueType[] = [];
@@ -68,8 +78,12 @@ export class DashboardOverviewComponent implements OnInit {
   alertSeverityColorMap: { value: string, color: string }[] = [
     {color: '#42A5F5', value: LOW_TEXT},
     {color: '#FF9800', value: MEDIUM_TEXT},
-    {color: '#EF5350', value: HIGH_TEXT}]
-  ;
+    {color: '#EF5350', value: HIGH_TEXT}];
+
+  filters: ElasticFilterType[] = [];
+  filterTime: { from: string, to: string };
+  filtersValues: ElasticFilterType[] = [];
+  destroy$: Subject<void> = new Subject();
 
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
@@ -81,7 +95,12 @@ export class DashboardOverviewComponent implements OnInit {
               private indexPatternService: IndexPatternService,
               private indexPatternFieldService: ElasticSearchIndexService,
               private accountService: AccountService,
-              private modalService: NgbModal) {
+              private modalService: NgbModal,
+              private spinner: NgxSpinnerService,
+              private exportPdfService: ExportPdfService,
+              private activatedRoute: ActivatedRoute,
+              private timeFilterBehavior: TimeFilterBehavior,
+              private utmToastService: UtmToastService) {
   }
 
   ngOnInit() {
@@ -121,6 +140,26 @@ export class DashboardOverviewComponent implements OnInit {
     setTimeout(() => {
       this.synchronizeFields();
     }, 100000);
+
+    this.timeFilterBehavior.$time
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(time => {
+        if (time) {
+          this.filterTime = time;
+        }
+      });
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      const queryParams = Object.entries(params).length > 0 ? params : null;
+      if (queryParams) {
+        this.filterTime = JSON.parse(queryParams.filterTime);
+        setTimeout(() => {
+          this.pdfExport = true;
+          this.refreshInterval = null;
+          this.timeFilterBehavior.$time.next(this.filterTime);
+        }, 1000);
+      }
+    });
   }
 
   getActiveModuleStatus(modules: UtmModuleType[], moduleEnum: UtmModulesEnum): boolean {
@@ -136,7 +175,40 @@ export class DashboardOverviewComponent implements OnInit {
     });
   }
 
-  exportToPdf() {
+  getTimeFilterValue() {
+    this.filterTime = {
+      from: this.resolveFromDate(this.getTime()),
+      to: this.resolveToDate(this.getTime()),
+    };
+  }
+
+  getTime() {
+    const indexTime = this.filters.findIndex(value => value.field === '@timestamp');
+    if (indexTime !== -1) {
+      return {
+        from: this.filters[indexTime].value[0],
+        to: this.filters[indexTime].value[1]
+      };
+    }
+  }
+
+  resolveToDate(date: { from: any, to: any }): string {
+    if (!isNaN(Date.parse(date.to))) {
+      return date.to;
+    } else {
+      return new Date().toString();
+    }
+  }
+
+  resolveFromDate(date: { from: any, to: any }): string {
+    if (!isNaN(Date.parse(date.from))) {
+      return date.from;
+    } else {
+      return buildFormatInstantFromDate(date).timeFrom;
+    }
+  }
+
+  /*exportToPdf() {
     this.pdfExport = true;
     // captureScreen('utmDashboardAlert').then((finish) => {
     //   this.pdfExport = false;
@@ -144,6 +216,27 @@ export class DashboardOverviewComponent implements OnInit {
     setTimeout(() => {
       window.print();
     }, 1000);
+  }
+*/
+  exportToPdf() {
+    this.spinner.show('buildPrintPDF').then(() => {
+      const params = this.filterTime
+        ? `?filterTime=${encodeURIComponent(JSON.stringify(this.filterTime))}`
+        : '';
+      const url = `/dashboard/overview${params}`;
+
+      this.exportPdfService.getPdf(url, 'Dashboard_Overview', 'PDF_TYPE_TOKEN').
+      subscribe(response => {
+        this.spinner.hide('buildPrintPDF').then(() => {
+          this.pdfExport = false;
+          this.exportPdfService.handlePdfResponse(response);
+        });
+      }, error => {
+        this.spinner.hide('buildPrintPDF').then(() => {
+          this.utmToastService.showError('Error', 'An error occurred while creating a PDF.');
+        });
+      });
+    });
   }
 
   chartEvent($event: string) {
@@ -165,5 +258,10 @@ export class DashboardOverviewComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

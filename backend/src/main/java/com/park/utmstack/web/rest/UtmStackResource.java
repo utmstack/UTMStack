@@ -7,7 +7,6 @@ import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.CipherUtil;
-import com.park.utmstack.util.MapUtil;
 import com.park.utmstack.util.UtilResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
