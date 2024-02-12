@@ -79,6 +79,9 @@ func (o *OfficeProcessor) StartSubscriptions() *logger.Error {
 
 		resp, status, e := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
 		if e != nil || status != http.StatusOK {
+			if resp.Error.Code == "AF20024"{
+				continue
+			}
 			return e
 		}
 
