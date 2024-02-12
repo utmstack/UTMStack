@@ -68,6 +68,10 @@ public class PdfService {
         }
         return null;
     }
+
+    /**
+     * Enum used to define type of access used when accessing the PDF microservice
+     * */
     public enum PdfAccessTypes {
         PDF_TYPE_INTERNAL("Utm_Internal_Key"),
         PDF_TYPE_TOKEN("Utm_Token");

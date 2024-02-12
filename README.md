@@ -82,13 +82,17 @@ Definitions:
 - Data source: any individual source of logs, for example, devices, agents, SaaS integrations.
 
 Resources needed for one month of hot log storage.
-- For 50 data sources (120 GB) of hot log storage you will need 4 Cores, 8 GB RAM, 150 GB Disk Space
+- For 50 data sources (120 GB) of hot log storage you will need 4 Cores, 12 GB RAM, 150 GB Disk Space
 - For 120 data sources (250 GB) of hot log storage you will need 8 Cores, 16 GB RAM, 250 GB Disk Space
-- For 240 data sources (500 GB) of hot log storage you will need 16 Cores, 32 GB RAM, 450 GB Disk Space
+- For 240 data sources (500 GB) of hot log storage you will need 16 Cores, 32 GB RAM, 500 GB Disk Space
+- For 500 data sources (1000 GB) of hot log storage you will need 32 Cores, 64 GB RAM, 1000 GB Disk Space
 - You may combine these tiers to allocate resources based on the number of devices and desired hot log storage retention
 
+IMPORTANT: Going above 500 data sources/devices requires adding slave nodes for horizontal scaling.
+
 ## Installation steps
-The installation can be performed using an installer file or an [ISO image](https://utmstack.com/install). The "Preparing for installation" instructions below are only for the installer file option; please skip them if you use the ISO image instead.
+The installation can be performed using an installer file or an [ISO image](https://utmstack.com/install). The instructions below are only for the installer file option; please skip them if you use the ISO image instead.
+> **_NOTE:_** The default Ubuntu Server credentials are; "user: utmstack", "password: utmstack"
 
 ### Preparing for installation
 
