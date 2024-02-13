@@ -1,7 +1,7 @@
 <app-utm-modal-header [name]="(report?'Edit':'Create') + ' compliance schedule report'"></app-utm-modal-header>
 <div class="container-fluid p-3">
     <div class="d-flex flex-column justify-content-start align-items-start">
-        <div class="step-container mt-2 mb-5">
+        <div class="step-container mt-2 mb-2">
             <div class="step">
           <span class="text-blue-800 font-weight-bold">
           Compliance report select
@@ -24,15 +24,21 @@
         </div>
     </div>
     <div *ngIf="step===1" class="configure-step mt-3 mb-3">
+        <div class="alert alert-info alert-styled-right mb-2 mt-3 alert-dismissible">
+            <span>Choose the report you want to schedule.</span>
+        </div>
         <app-utm-compliance-select (reportSelected)="onDashboardSelected($event)"
                                    [idReport]="report ? report.id :null">
         </app-utm-compliance-select>
     </div>
     <div [hidden]="step !== 2"  class="configure-step mt-3 mb-3">
-        <div class="card">
-            <div class="card border-0 m-0 p-2">
+        <div>
+            <div>
+                <div class="alert alert-info alert-styled-right mb-3 mt-3 alert-dismissible">
+                    <span>You can choose from these filters for the generation of your report.</span>
+                </div>
                 <div class="d-flex align-items-center justify-content-start mr-5 w-100 mt-2">
-                    <div class="utm-box w-100 mt-4 p-3 border-1 border-blue-800 position-relative">
+                    <div class="utm-box w-100 mt-2 mb-1 p-3 border-1 border-blue-800 position-relative">
                       <span class="p-1 utm-box-label">
                         <i class="icon-filter4"></i>
                         Dashbaoards filters
@@ -40,8 +46,19 @@
                         <app-dashboard-filter-view [layout]="dashboardFilterLayout" [filters]="filters"></app-dashboard-filter-view>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <app-utm-cp-cron-editor [(ngModel)]="cron"></app-utm-cp-cron-editor>
+                <div class="alert alert-info alert-styled-right mt-4 mb-4 alert-dismissible">
+                    <span>You can choose from these filters for the generation of your report.</span>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center justify-content-start mr-5 w-100">
+                        <div class="utm-box w-100 p-3 border-1 border-blue-800 position-relative">
+                            <span class="p-1 utm-box-label">
+                                <i class="icon-hour-glass2"></i>
+                                Schedule
+                            </span>
+                            <app-utm-cp-cron-editor [(ngModel)]="cron"></app-utm-cp-cron-editor>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
