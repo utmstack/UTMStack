@@ -18,6 +18,12 @@ import {ComplianceRoutingModule} from './compliance-routing.module';
 import {ComplianceResultParamsComponent} from './compliance-templates/compliance-result-params/compliance-result-params.component';
 import {ComplianceTemplatesComponent} from './compliance-templates/compliance-templates.component';
 import {ComplianceSharedModule} from './shared/compliance-shared.module';
+import {ComplianceScheduleComponent} from "./compliance-schedule/compliance-schedule.component";
+import {
+  DashboardFilterCreateComponent
+} from "../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component";
+import {DashboardBuilderModule} from "../graphic-builder/dashboard-builder/dashboard-builder.module";
+import {AlertManagementSharedModule} from "../data-management/alert-management/shared/alert-management-shared.module";
 
 @NgModule({
   declarations: [
@@ -25,6 +31,7 @@ import {ComplianceSharedModule} from './shared/compliance-shared.module';
     ComplianceTemplatesComponent,
     ComplianceResultParamsComponent,
     ComplianceCustomViewComponent,
+    ComplianceScheduleComponent
   ],
   imports: [
     CommonModule,
@@ -41,11 +48,14 @@ import {ComplianceSharedModule} from './shared/compliance-shared.module';
     ComplianceManagementModule,
     ComplianceSharedModule,
     UtmDashboardSharedModule,
-    NgbCollapseModule
+    DashboardBuilderModule,
+    NgbCollapseModule,
+    AlertManagementSharedModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [
-    ComplianceResultParamsComponent],
+    ComplianceResultParamsComponent,
+    DashboardFilterCreateComponent],
   exports: []
 })
 export class ComplianceModule {

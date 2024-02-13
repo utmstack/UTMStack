@@ -5,9 +5,12 @@ import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {SourcesService} from '../../admin/sources/sources.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {
+  ModalConfirmationComponent
+} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {INCIDENT_AUTOMATION_ALERT_FIELDS} from '../../shared/constants/alert/alert-field.constant';
 import {FILTER_OPERATORS} from '../../shared/constants/filter-operators.const';
+import {ADMIN_ROLE, USER_ROLE} from '../../shared/constants/global.constant';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
@@ -38,7 +41,6 @@ export class IncidentResponseAutomationComponent implements OnInit {
   viewConditions: IncidentRuleType;
   platforms: string[];
   users: string[];
-
 
   constructor(private sourcesService: SourcesService,
               private fb: FormBuilder,
@@ -191,4 +193,5 @@ export class IncidentResponseAutomationComponent implements OnInit {
     };
     this.getRules();
   }
+
 }

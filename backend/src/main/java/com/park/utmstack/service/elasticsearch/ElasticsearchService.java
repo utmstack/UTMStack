@@ -1,11 +1,5 @@
 package com.park.utmstack.service.elasticsearch;
 
-import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
-import com.utmstack.opensearch_connector.enums.IndexSortableProperty;
-import com.utmstack.opensearch_connector.enums.TermOrder;
-import com.utmstack.opensearch_connector.exceptions.OpenSearchException;
-import com.utmstack.opensearch_connector.types.ElasticCluster;
-import com.utmstack.opensearch_connector.types.IndexSort;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.UtmSpaceNotificationControl;
@@ -17,8 +11,13 @@ import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
+import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
-import org.elasticsearch.index.IndexNotFoundException;
+import com.utmstack.opensearch_connector.enums.IndexSortableProperty;
+import com.utmstack.opensearch_connector.enums.TermOrder;
+import com.utmstack.opensearch_connector.exceptions.OpenSearchException;
+import com.utmstack.opensearch_connector.types.ElasticCluster;
+import com.utmstack.opensearch_connector.types.IndexSort;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.cat.indices.IndicesRecord;

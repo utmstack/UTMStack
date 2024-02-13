@@ -1,22 +1,25 @@
 package main
 
 import (
+	"net/http"
 	"sync"
 	"time"
 
-	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/office365/configuration"
 	"github.com/utmstack/UTMStack/office365/processor"
-	UTMStackConfigurationClient "github.com/utmstack/config-client-go"
+	"github.com/utmstack/UTMStack/office365/utils"
+	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 )
 
-var h = holmes.New("debug", "O365_Integration")
-
 const delayCheck = 300
 
 func main() {
+	intKey := configuration.GetInternalKey()
+	panelServ := configuration.GetPanelServiceName()
+	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
+
 	st := time.Now().Add(-600 * time.Second)
 
 	for {
@@ -24,41 +27,55 @@ func main() {
 		startTime := st.UTC().Format("2006-01-02T15:04:05")
 		endTime := et.UTC().Format("2006-01-02T15:04:05")
 
-		intKey := configuration.GetInternalKey()
-		panelServ := configuration.GetPanelServiceName()
-
-		client := UTMStackConfigurationClient.NewUTMClient(intKey, "http://"+panelServ)
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if (err.Error() != "") && (err.Error() != " ") {
-				h.Error("error getting configuration of the O365 module: %v", err)
+				utils.Logger.ErrorF(http.StatusInternalServerError, "error getting configuration of the O365 module: %v", err)
 			}
-			h.Info("Sync complete waiting %v seconds", delayCheck)
+
+			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
+
 			time.Sleep(time.Second * delayCheck)
+
 			st = et.Add(1)
+
 			continue
 		}
 
-		// If there is a configured tenant
-		h.Info("Getting logs for groups")
+		utils.Logger.Info("getting logs for groups")
+
 		var wg sync.WaitGroup
+		
 		wg.Add(len(moduleConfig.ConfigurationGroups))
+
 		for _, group := range moduleConfig.ConfigurationGroups {
 			go func(group types.ModuleGroup) {
+				var skip bool
+				
 				for _, cnf := range group.Configurations {
 					if cnf.ConfValue == "" || cnf.ConfValue == " " {
-						h.Info("program not configured yet for group: %s", group.GroupName)
-						continue
+						utils.Logger.Info("program not configured yet for group: %s", group.GroupName)
+						skip = true
+						break
 					}
 				}
-				processor.PullLogs(startTime, endTime, group, h)
-				defer wg.Done()
+				
+				if !skip {
+					processor.PullLogs(startTime, endTime, group)
+				}
+
+				wg.Done()
 			}(group)
 		}
 
+		utils.Logger.Info("waiting %d seconds until sync completes", delayCheck)
+
 		wg.Wait()
-		h.Info("Sync complete waiting %v seconds", delayCheck)
+
+		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
+
 		time.Sleep(time.Second * delayCheck)
+
 		st = et.Add(1)
 	}
 }

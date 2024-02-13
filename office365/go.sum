@@ -1,6 +1,8 @@
-github.com/quantfall/holmes v1.3.0 h1:cy0kEz5qfBVWg/33cXBPfQVMAcwN7nLrPuqkyizKZfI=
-github.com/quantfall/holmes v1.3.0/go.mod h1:yC2xubHFP3b0NfYlDhHhNtgvct79iGzJgmiY18YSr8Q=
-github.com/utmstack/config-client-go v1.0.3 h1:DhaAByGrTWm9pXkMnxXNX9mFRAktkmQaw8um0TIkdqM=
-github.com/utmstack/config-client-go v1.0.3/go.mod h1:5B1phBmxHZmnggujCsNVAHK2oFXIy89mLCc9ixrDcCo=
-github.com/utmstack/config-client-go v1.2.0 h1:nUlWxR3xGsFUvgFqANtbef2YTM2GVJnnSAX0A3QNuqs=
-github.com/utmstack/config-client-go v1.2.0/go.mod h1:kM0KoUizM9ZlcQp0qKviGTWn/+anT5Rfjx3zfZk79nM=
+github.com/google/uuid v1.4.0 h1:MtMxsa51/r9yyhkyLsVeVt0B+BGQZzpQiTQ4eHZ8bc4=
+github.com/google/uuid v1.4.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/threatwinds/logger v1.0.9 h1:hvWx1K38Paa/FjjcEG5L2d6KNonfBxKhayYjirssMfQ=
+github.com/threatwinds/logger v1.0.9/go.mod h1:FeygZcoXzEEtNBppgQ9xW+rqMJxZgeOUQ3Te4US/OFQ=
+github.com/utmstack/config-client-go v1.2.2 h1:fFz6ofRjSXmW6hc9wHR8MrtOUO+CRWPqX1w9vkYBER8=
+github.com/utmstack/config-client-go v1.2.2/go.mod h1:kM0KoUizM9ZlcQp0qKviGTWn/+anT5Rfjx3zfZk79nM=
+gopkg.in/natefinch/lumberjack.v2 v2.2.1 h1:bBRl1b0OH9s/DuPhuXpNl+VtCaJXFZ5/uEFST95x9zc=
+gopkg.in/natefinch/lumberjack.v2 v2.2.1/go.mod h1:YD8tP3GAjkrDg1eZH7EGmyESg/lsYskCTPBJVb9jqSc=

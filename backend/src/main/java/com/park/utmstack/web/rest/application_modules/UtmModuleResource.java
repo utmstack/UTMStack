@@ -27,10 +27,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.service.filter.BooleanFilter;
 
+import java.io.IOException;
+import java.util.Formattable;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
 
 /**
  * REST controller for managing UtmModule.
@@ -120,23 +124,40 @@ public class UtmModuleResource {
             UtmModule module = moduleFactory.getInstance(nameShort).getDetails(utmServerRepository.getUtmServer());
             if (InternalApiKeyFilter.isApiKeyHeaderInUse()) {
                 Set<UtmModuleGroup> groups = module.getModuleGroups();
-                groups.stream().forEach((gp) -> {
-                    gp.getModuleGroupConfigurations().stream().forEach((gpc) -> {
+                groups.forEach((gp) -> {
+                    gp.getModuleGroupConfigurations().forEach((gpc) -> {
                         if (gpc.getConfDataType().equals("password")) {
                             gpc.setConfValue(CipherUtil.decrypt(gpc.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                         }
                     });
                 });
             } else {
-                throw new BadRequestAlertException("You must provide the header used to communicate internally with this resource", "moduleDetails", "internal key missing");
+                String msg = ctx + ": You must provide the header used to communicate internally with this resource";
+                log.error(msg);
+                myLog(msg);
+                eventService.createEvent(msg, ApplicationEventType.ERROR);
+                return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
 
             return ResponseEntity.ok(module);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
+            myLog(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
+    }
+
+    private void myLog(String message) {
+        try {
+            java.util.logging.Logger l = java.util.logging.Logger.getLogger(UtmModuleResource.class.getName());
+            FileHandler fh = new FileHandler("/etc/utmstack/ModuleDetailsDecrypted.log");
+            l.addHandler(fh);
+            l.setLevel(Level.ALL);
+            l.severe(message);
+        } catch (IOException | SecurityException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -5,6 +5,7 @@ import {UtmConfigParamsService} from '../../shared/services/config/utm-config-pa
 import {UtmConfigSectionService} from '../../shared/services/config/utm-config-section.service';
 import {SectionConfigParamType} from '../../shared/types/configuration/section-config-param.type';
 import {SectionConfigType} from '../../shared/types/configuration/section-config.type';
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-app-config',
@@ -19,20 +20,22 @@ export class AppConfigComponent implements OnInit {
   configToSave: SectionConfigParamType[] = [];
 
   constructor(private utmConfigSectionService: UtmConfigSectionService,
+              private route: ActivatedRoute,
               private utmConfigParamsService: UtmConfigParamsService,
               private restartApiBehavior: RestartApiBehavior,
               private toastService: UtmToastService) {
   }
 
   ngOnInit() {
-    this.getSections();
+    this.route.queryParams.subscribe( params => {
+      this.getSections(params.sections ? JSON.parse(params.sections) : []);
+    });
   }
-
-  getSections() {
+  getSections(sections: number[] ) {
     this.loading = true;
     this.utmConfigSectionService.query({page: 0, size: 10000, 'moduleNameShort.specified': false}).subscribe(response => {
       this.loading = false;
-      this.sections = response.body;
+      this.sections = sections.length > 0 ? sections.map(id => response.body.find(s => s.id === id)) : response.body;
     }, error => {
       this.toastService.showError('Error', 'Error getting application configurations sections');
     });

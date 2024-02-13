@@ -9,6 +9,5 @@ services:
         environment:
             - WEB_DRIVER_HOST=localhost
             - WEB_DRIVER_PORT=4444
-            - DOMAIN_URL= "URL DEL FRONT"
         depends_on:
             - selenium-standalone-chrome
