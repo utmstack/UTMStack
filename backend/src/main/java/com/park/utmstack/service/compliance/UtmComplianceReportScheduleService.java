@@ -168,7 +168,7 @@ public class UtmComplianceReportScheduleService {
      * Method to know if is time to execute the task
      */
     private boolean isTimeToExecute(Instant next, Instant currentDate) {
-        return currentDate.atZone(ZoneOffset.UTC).toInstant().isAfter(next);
+        return currentDate.atZone(ZoneOffset.UTC).toLocalDate().isAfter(next.atZone(ZoneOffset.UTC).toLocalDate());
     }
 
     /**

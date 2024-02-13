@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.util;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.security.jwt.JWTFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -65,8 +66,8 @@ public class PdfGeneratorResource {
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename);
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
 
-            byte [] resultPdf = pdfService.getPdfReportByUrlInBytes(url, accessKey.substring(7), accessType.get()).getBody();
-            if (resultPdf!=null&&resultPdf.length>0) {
+            byte [] resultPdf = pdfService.getPdf(Constants.FRONT_BASE_URL + url, accessKey.substring(7), accessType.get());
+            if (resultPdf != null && resultPdf.length > 0 ) {
                 return ResponseEntity.ok().headers(headers).body(resultPdf);
             } else {
                 throw new NotFoundException("We couldn't generate the pdf, reason: No data returned from PDF service");
