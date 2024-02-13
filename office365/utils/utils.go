@@ -4,8 +4,9 @@ import "github.com/threatwinds/logger"
 
 var Logger *logger.Logger
 
-func init(){
+func init() {
 	Logger = logger.NewLogger(&logger.Config{
-		Level: 200,
+		Format: "text",
+		Level:  200,
 	})
 }
