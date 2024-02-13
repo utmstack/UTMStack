@@ -357,6 +357,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"GRPC_AGENT_MANAGER_HOST=agentmanager",
 			"GRPC_AGENT_MANAGER_PORT=50051",
 		},
+		Volumes: []string{
+			stack.Datasources + ":/etc/utmstack",
+		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,

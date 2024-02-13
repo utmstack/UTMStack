@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/office365/configuration"
 	"github.com/utmstack/UTMStack/office365/utils"
 	"github.com/utmstack/config-client-go/types"
@@ -43,7 +43,7 @@ func GetOfficeProcessor(group types.ModuleGroup) OfficeProcessor {
 	return offProc
 }
 
-func (o *OfficeProcessor) GetAuth() error {
+func (o *OfficeProcessor) GetAuth() *logger.Error {
 	requestUrl := configuration.GetMicrosoftLoginLink(o.TenantId)
 
 	data := url.Values{}
@@ -55,46 +55,48 @@ func (o *OfficeProcessor) GetAuth() error {
 	headers := map[string]string{
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
+
 	dataBytes := []byte(data.Encode())
 
 	result, status, err := utils.DoReq[MicrosoftLoginResponse](requestUrl, dataBytes, http.MethodPost, headers)
 	if err != nil || status != http.StatusOK {
-		return fmt.Errorf("failed to get authentication: %v", err)
+		return err
 	}
 
 	o.Credentials = result
+
 	return nil
 }
 
-func (o *OfficeProcessor) StartSubscriptions(h *holmes.Logger) error {
+func (o *OfficeProcessor) StartSubscriptions() *logger.Error {
 	for _, subscription := range o.Subscriptions {
-		h.Info("Starting subscription: %s...", subscription)
+		utils.Logger.Info("starting subscription: %s...", subscription)
 		url := configuration.GetStartSubscriptionLink(o.TenantId) + "?contentType=" + subscription
 		headers := map[string]string{
 			"Content-Type":  "application/json",
 			"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 		}
 
-		resp, status, err := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
-		if err != nil || status != http.StatusOK {
-			if status == http.StatusBadRequest && resp.Error.Code == "AF20024" {
+		resp, status, e := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
+		if e != nil || status != http.StatusOK {
+			if e.Is("subscription is already enabled") {
 				continue
 			}
-			h.Error("failed to start subscription: %v", err)
-			continue
-		}
-		respJson, err := json.Marshal(resp)
-		if err != nil || status != http.StatusOK {
-			h.Error("failed to unmarshal response: %v", err)
-			continue
+			return e
 		}
 
-		h.Info("Starting subscription response: %v", respJson)
+		respJson, err := json.Marshal(resp)
+		if err != nil || status != http.StatusOK {
+			return utils.Logger.ErrorF(http.StatusInternalServerError, "failed to unmarshal response: %v", err)
+		}
+
+		utils.Logger.Info("starting subscription response: %v", respJson)
 	}
+
 	return nil
 }
 
-func (o *OfficeProcessor) GetContentList(subscription string, startTime string, endTime string, group types.ModuleGroup) ([]ContentList, error) {
+func (o *OfficeProcessor) GetContentList(subscription string, startTime string, endTime string, group types.ModuleGroup) ([]ContentList, *logger.Error) {
 	url := configuration.GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s", startTime, endTime, subscription)
 
 	headers := map[string]string{
@@ -111,7 +113,7 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime string, 
 
 }
 
-func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse, error) {
+func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse, *logger.Error) {
 	headers := map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
@@ -125,11 +127,10 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 	return respBody, nil
 }
 
-func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.ModuleGroup, h *holmes.Logger) error {
+func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.ModuleGroup) {
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime, group)
 		if err != nil {
-			h.Error("error getting content list: %v", err)
 			continue
 		}
 		logsCounter := 0
@@ -137,21 +138,19 @@ func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					h.Error("error getting content details: %v", err)
 					continue
 				}
 				if len(details) > 0 {
 					logsCounter += len(details)
 					cleanLogs := ETLProcess(details, group)
-					err = SendToCorrelation(cleanLogs, h)
+					err = SendToCorrelation(cleanLogs)
 					if err != nil {
-						h.Error("error sending log to correlation engine: %v", err)
 						continue
 					}
 				}
 			}
 		}
-		h.Info("Found: %d new logs in %s. for group %s", logsCounter, subscription, group.GroupName)
+
+		utils.Logger.Info("found: %d new logs in %s for group %s", logsCounter, subscription, group.GroupName)
 	}
-	return nil
 }
