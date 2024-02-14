@@ -11,7 +11,7 @@ import (
 func Cloud(c *Config, update bool) error {
 	fmt.Println("Checking system requirements")
 
-	if err := utils.CheckMem(4); err != nil {
+	if err := utils.CheckMem(11); err != nil {
 		return err
 	}
 
