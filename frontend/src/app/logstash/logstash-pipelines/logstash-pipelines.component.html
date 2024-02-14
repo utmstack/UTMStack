@@ -26,16 +26,16 @@
              [alt]="pipeline.moduleName"
              [src]="'/assets/img/guides/logos/' + getModuleSvg(pipeline.moduleName)">
 
-        <div class="d-flex justify-content-center align-items-end mt-2 w-100">
+        <div class="d-flex justify-content-start align-items-end mt-2 w-100">
           <!--<span class="font-size-lg"><i
             class="icon-database-insert mr-1"></i><strong>{{pipeline.events.in | thousandSuff}}</strong></span>
           <span class="font-size-lg"><i
             class="icon-database-refresh mr-1"></i><strong>{{pipeline.events.filtered | thousandSuff}}</strong></span>-->
           <span class="font-size-lg">
-            <span class="mr-2 text-blue-800 font-weight-semibold">
-              {{ 'Processed events:'}}
+            <i class="text-blue-800 icon-database-export"></i></span>
+            <span class="text-blue-800 ml-1">
+              {{ 'Processed events:'}} <strong>{{pipeline.events.out | thousandSuff}}</strong>
             </span>
-            <i class="icon-database-export mr-1"></i><strong>{{pipeline.events.out | thousandSuff}}</strong></span>
         </div>
 
       </div>
