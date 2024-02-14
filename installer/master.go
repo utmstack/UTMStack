@@ -11,7 +11,7 @@ import (
 func Master(c *Config) error {
 	fmt.Println("Checking system requirements")
 
-	if err := utils.CheckMem(6); err != nil {
+	if err := utils.CheckMem(11); err != nil {
 		return err
 	}
 
