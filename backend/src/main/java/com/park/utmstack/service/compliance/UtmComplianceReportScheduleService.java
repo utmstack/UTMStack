@@ -10,6 +10,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.park.utmstack.service.UserService;
@@ -142,9 +143,8 @@ public class UtmComplianceReportScheduleService {
 
         List<UtmComplianceReportSchedule> schedulesList = findAll();
 
-        schedulesList.stream().forEach(current -> {
+        schedulesList.forEach(current -> {
             Optional<User> user = userService.getUserWithAuthorities(current.getUserId());
-
             try {
                 Instant currentDate = Instant.now(Clock.systemUTC());
                 Instant next = getNext(current.getScheduleString(), current.getLastExecutionTime(), currentDate);
@@ -176,11 +176,11 @@ public class UtmComplianceReportScheduleService {
      * */
     private Instant getNext(String cronExpresion, Instant lastExecution, Instant currentDate) {
         CronExpression parse = CronExpression.parse(cronExpresion);
-        Instant possibleNext = parse.next(lastExecution.atZone(ZoneOffset.UTC)).toInstant();
+        Instant possibleNext = Objects.requireNonNull(parse.next(lastExecution.atZone(ZoneOffset.UTC))).toInstant();
         Long diffBetweenLastAndNext = possibleNext.getEpochSecond() - lastExecution.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
         Long currentSecs = currentDate.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 
-        if (possibleNext.plusSeconds(diffBetweenLastAndNext).getEpochSecond()>=currentSecs) {
+        if (possibleNext.plusSeconds(diffBetweenLastAndNext).getEpochSecond() >= currentSecs) {
             return possibleNext;
         } else {
             // Then is a delay between the current date and last execution, so we have to move to the
@@ -188,7 +188,7 @@ public class UtmComplianceReportScheduleService {
             // is every 5 seconds
             Long diffBetweenCurrentAndPossibleNext = currentSecs - possibleNext.getEpochSecond();
             Integer rate = Long.valueOf(diffBetweenCurrentAndPossibleNext/diffBetweenLastAndNext).intValue();
-            Instant resultNext = lastExecution.atZone(ZoneOffset.UTC).toInstant().plusSeconds(diffBetweenLastAndNext*rate);
+            Instant resultNext = lastExecution.atZone(ZoneOffset.UTC).toInstant().plusSeconds(diffBetweenLastAndNext * rate);
             return resultNext.atZone(ZoneOffset.UTC).toInstant();
         }
 
