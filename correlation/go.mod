@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gin-gonic/gin v1.9.1
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
 	github.com/lib/pq v1.10.9
 	github.com/shirou/gopsutil/v3 v3.23.12
