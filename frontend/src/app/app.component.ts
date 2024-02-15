@@ -77,8 +77,6 @@ export class AppComponent implements OnInit {
         }, 3000);
       } else if (result != null && !result && !this.offline) {
         this.offline = true;
-        this.utmToastService.showError('Error trying to connect to API', 'An error occurred while trying to connect to the API, ' +
-          'please check the UTMStack API connection and try again.');
       }
     });
     this.router.events.subscribe(evt => {
@@ -124,8 +122,6 @@ export class AppComponent implements OnInit {
       }
     }, error => {
       this.offline = true;
-      this.utmToastService.showError('Error trying to connect to API', 'An error occurred while trying to connect to the API, ' +
-        'please check the UTMStack API connection and try again.');
     });
   }
 
