@@ -25,16 +25,20 @@ func main() {
 		}
 	}()
 	config.InitDb()
-	migration.Migrate()
+	migration.MigrateDatabase()
 
 	// Create a new server instance
 	s := &pb.Grpc{
-		AgentStreamMap: make(map[string]*pb.Stream),
-		ResultChannel:  make(map[string]chan *pb.CommandResult),
+		AgentStreamMap:     make(map[string]*pb.StreamAgent),
+		CollectorStreamMap: make(map[string]*pb.StreamCollector),
+		ResultChannel:      make(map[string]chan *pb.CommandResult),
 	}
-	pb.Cache = make(map[uint]string)
+	pb.CacheAgent = make(map[uint]string)
+	pb.CacheCollector = make(map[uint]string)
 
 	err := s.LoadAgentCacheFromDatabase()
+	err = s.LoadCollectorsCacheFromDatabase()
+
 	if err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
@@ -46,20 +50,22 @@ func main() {
 
 	// Create a gRPC server with the authInterceptor
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(recoverInterceptor),
-		grpc.ChainUnaryInterceptor(auth.InterceptorAgentService),
-		grpc.ChainUnaryInterceptor(auth.AgentStreamAuthInterceptor),
+		grpc.ChainUnaryInterceptor(auth.ConnectionKeyInterceptor),
+		grpc.ChainUnaryInterceptor(auth.StreamAuthInterceptor),
 		grpc.StreamInterceptor(auth.ProcessCommandInterceptor))
 	pb.RegisterAgentServiceServer(grpcServer, s)
 	pb.RegisterPanelServiceServer(grpcServer, s)
 	pb.RegisterAgentGroupServiceServer(grpcServer, s)
 
+	pb.RegisterCollectorServiceServer(grpcServer, s)
+	pb.RegisterPingServiceServer(grpcServer, s)
 	// Register the health check service
 	healthServer := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
 
 	// Set the health status to SERVING
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
-
+	s.InitPingSync()
 	// Start the gRPC server
 	log.Println("Starting gRPC server on 0.0.0.0:50051")
 	if err := grpcServer.Serve(lis); err != nil {

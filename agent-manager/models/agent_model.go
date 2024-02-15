@@ -5,12 +5,13 @@ import (
 	"time"
 )
 
-type AgentStatus int32
+type MalwareStatus string
 
 const (
-	Online  AgentStatus = 0
-	Offline AgentStatus = 1
-	Unknown AgentStatus = 2
+	New      MalwareStatus = "NEW"
+	Deleted  MalwareStatus = "DELETED"
+	Excluded MalwareStatus = "EXCLUDED"
+	Restored MalwareStatus = "RESTORED"
 )
 
 type AgentCommandStatus int32
@@ -45,11 +46,6 @@ type Agent struct {
 	OsMinorVersion string
 	Aliases        string
 	Addresses      string
-}
-
-type AgentLastSeen struct {
-	AgentKey string    `gorm:"primaryKey"`
-	LastPing time.Time `gorm:"index"`
 }
 
 type AgentCommand struct {
@@ -89,4 +85,52 @@ type AgentGroup struct {
 type AgentType struct {
 	gorm.Model
 	TypeName string
+}
+
+type AgentMalwareDetection struct {
+	gorm.Model
+	AgentID     uint
+	FilePath    string
+	Sha256      string
+	Md5         string
+	Description string
+	Status      MalwareStatus
+}
+
+type AgentMalwareHistory struct {
+	gorm.Model
+	MalwareId  uint
+	PrevStatus MalwareStatus
+	ToStatus   MalwareStatus
+	ChangedBy  string
+}
+
+type AgentMalwareExclusion struct {
+	gorm.Model
+	AgentID            uint
+	ExcludeFilePath    string
+	ExcludedBy         string
+	ExcludeDescription string
+}
+
+type AgentModule struct {
+	gorm.Model
+	AgentID       uint
+	ShortName     string
+	LargeName     string
+	Description   string
+	Enabled       bool
+	AllowDisabled bool
+	ModuleConfigs []AgentModuleConfiguration `gorm:"foreignKey:AgentModuleID"`
+}
+type AgentModuleConfiguration struct {
+	AgentModuleID   uint
+	ShortName       string
+	ConfKey         string
+	ConfValue       string
+	ConfName        string
+	ConfDescription string
+	ConfDatatype    string
+	ConfRequired    bool
+	ConfRegex       string
 }

@@ -5,13 +5,12 @@ option go_package = "github.com/utmstack/UTMStack/agent";
 package agent;
 
 import "google/protobuf/timestamp.proto";
-import "agent_config.proto";
+import "common.proto";
 
 service AgentService {
   rpc RegisterAgent(AgentRequest) returns (AgentResponse) {}
   rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
   rpc DeleteAgent(AgentDelete) returns (AgentResponse) {}
-  rpc Ping(stream PingResponse) returns (stream  PingRequest) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
   rpc UpdateAgentType (AgentTypeUpdate) returns (Agent) {}
   rpc UpdateAgentGroup (AgentGroupUpdate) returns (Agent) {}
@@ -47,7 +46,7 @@ message Agent {
   string ip = 1;
   string hostname = 2;
   string os = 3;
-  AgentStatus status = 4;
+  Status status = 4;
   string platform = 5;
   string version = 6;
   string agent_key = 7;
@@ -68,12 +67,6 @@ message AgentTypeUpdate {
 message AgentGroupUpdate {
   uint32 agent_id = 1;
   uint32 agent_group = 3;
-}
-
-enum AgentStatus {
-  ONLINE = 0;
-  OFFLINE = 1;
-  UNKNOWN = 2;
 }
 
 message AgentRequest {
@@ -119,35 +112,16 @@ message CommandResult {
   string cmd_id = 4;
 }
 
-message PingRequest {
-  string agent_key = 1;
-}
-
-message PingResponse {
-  bool is_alive = 1;
-  string  agent_key = 2;
-}
 
 message BidirectionalStream {
   oneof stream_message {
     UtmCommand command = 1;
     CommandResult result = 2;
     AuthResponse auth_response = 3;
-    UpdateAgentModule config = 4;
   }
 }
 
-message AuthResponse {
-  uint64 agent_id = 1;
-  string agent_key = 2;
-}
 
-message ListRequest {
-  int32 page_number = 1;
-  int32 page_size = 2;
-  string search_query = 3;
-  string sort_by = 4;
-}
 
 message ListAgentsResponse {
   repeated Agent rows = 1;

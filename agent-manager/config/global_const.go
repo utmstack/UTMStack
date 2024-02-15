@@ -5,10 +5,10 @@ import "os"
 func AgentKeyAuthRoutes() []string {
 	return []string{
 		"/agent.AgentService/AgentStream",
-		"/agent.AgentService/Ping",
 		"/agent.AgentService/DeleteAgent",
 		"agent.AgentConfigService/AgentModuleUpdateStream",
 		"agent.AgentConfigService/GetAgentConfig",
+		"agent.PingService/Ping",
 	}
 }
 
@@ -22,6 +22,8 @@ func ConnectionKeyRoutes() []string {
 		"/agent.AgentService/UpdateAgentType",
 		"/agent.AgentService/UpdateAgentGroup",
 		"/agent.AgentService/ListAgentCommands",
+
+		"/agent.CollectorService/RegisterCollector",
 	}
 }
 

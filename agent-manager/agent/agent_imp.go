@@ -19,7 +19,7 @@ import (
 )
 
 func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
-	// Authenticate the agent and get the agent's token
+	// Authenticate the agent and get the agent's key
 	agentKey, err := s.authenticateAgent(stream)
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 
 	// Add the agent to the agents map
 	s.mu.Lock()
-	s.AgentStreamMap[agentKey] = &Stream{token: agentKey, stream: stream}
+	s.AgentStreamMap[agentKey] = &StreamAgent{key: agentKey, stream: stream}
 	s.mu.Unlock()
 
 	for {
@@ -50,7 +50,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 				return err
 			}
 			s.mu.Lock()
-			s.AgentStreamMap[agentKey] = &Stream{token: agentKey, stream: stream}
+			s.AgentStreamMap[agentKey] = &StreamAgent{key: agentKey, stream: stream}
 			s.mu.Unlock()
 			return nil
 		}
@@ -184,27 +184,6 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 	}
 }
 
-func (s *Grpc) Ping(stream AgentService_PingServer) error {
-	for {
-		req, err := stream.Recv()
-		agentKey := req.GetAgentKey()
-		if err == io.EOF {
-			log.Printf("Client disconnected from Ping service: %s", agentKey)
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		err = agentService.SetAgentLastSeen(agentKey)
-		// Send a response to indicate that the agent is alive
-		if err != nil {
-			log.Printf("unable to update last seen for: %s with error:%s", agentKey, err)
-		}
-	}
-	return nil
-}
-
 func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResponse, error) {
 	agent := &models.Agent{
 		Ip:             req.GetIp(),
@@ -232,23 +211,23 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResp
 		}
 	}
 
-	token := uuid.New().String()
-	agent.AgentKey = token
+	key := uuid.New().String()
+	agent.AgentKey = key
 	err = agentService.Create(agent)
 	if err != nil {
 		return nil, err
 	}
 	// Update the cache
 	s.cacheMutex.Lock()
-	Cache[agent.ID] = token
+	CacheAgent[agent.ID] = key
 	s.cacheMutex.Unlock()
-	err = agentService.SetAgentLastSeen(token)
+	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
 		return nil, err
 	}
 	res := &AgentResponse{
 		Id:       uint32(agent.ID),
-		AgentKey: token,
+		AgentKey: key,
 	}
 	return res, nil
 }
@@ -324,7 +303,7 @@ func (s *Grpc) LoadAgentCacheFromDatabase() error {
 		return err
 	}
 	for _, agent := range agents {
-		Cache[agent.ID] = agent.AgentKey
+		CacheAgent[agent.ID] = agent.AgentKey
 	}
 	return nil
 }
@@ -386,7 +365,7 @@ func waitForReconnect(ctx context.Context, s *Grpc) error {
 				// Check if the stream is still valid
 				err := stream.stream.Context().Err()
 				if err == nil {
-					// Stream is still valid, wait for a moment and try again
+					// StreamAgent is still valid, wait for a moment and try again
 					time.Sleep(time.Second)
 					break
 				}
@@ -398,7 +377,7 @@ func waitForReconnect(ctx context.Context, s *Grpc) error {
 
 func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 	cmdHistory := &models.AgentCommand{
-		AgentID:       findAgentIdByToken(Cache, cmd.AgentKey),
+		AgentID:       findAgentIdByKey(CacheAgent, cmd.AgentKey),
 		Command:       cmd.Command,
 		CommandStatus: models.Pending,
 		Result:        "",
@@ -415,7 +394,7 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 }
 
 func updateHistoryCommand(cmdResult *CommandResult, cmdID string) {
-	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByToken(Cache, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
+	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByKey(CacheAgent, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
 	if err != nil {
 		log.Printf("Failed to update command status")
 	}
@@ -426,7 +405,7 @@ func parseAgentToProto(agent models.Agent) *Agent {
 	return &Agent{
 		Id:             uint32(agent.ID),
 		Ip:             agent.Ip,
-		Status:         AgentStatus(agentStatus),
+		Status:         Status(agentStatus),
 		Hostname:       agent.Hostname,
 		Os:             agent.Os,
 		Platform:       agent.Platform,

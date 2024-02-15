@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func AgentStreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func StreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	// Retrieve the metadata from the context
 	routes := config.AgentKeyAuthRoutes()
 
@@ -44,7 +44,7 @@ func AgentStreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc
 			return nil, status.Error(codes.Unauthenticated, "agent id is not valid")
 		}
 		// Replace this with the actual token cache
-		tokenCache := agent.Cache
+		tokenCache := agent.CacheAgent
 		// Check if the token exists in the token cache
 		if _, ok := tokenCache[uint(id)]; !ok || tokenCache[uint(id)] != token {
 			return nil, status.Error(codes.Unauthenticated, "invalid token")
@@ -55,7 +55,7 @@ func AgentStreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc
 	return handler(ctx, req)
 }
 
-func InterceptorAgentService(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func ConnectionKeyInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	if isInRoute(info.FullMethod, config.ConnectionKeyRoutes()) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {

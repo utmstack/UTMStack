@@ -13,13 +13,11 @@ import (
 
 type AgentService struct {
 	repo            *repository.AgentRepository
-	lastSeenService *AgentLastSeenService
+	lastSeenService *LastSeenService
 }
 
-func NewAgentService() *AgentService {
+func NewAgentService(lastSeenService *LastSeenService) *AgentService {
 	repo := repository.NewAgentRepository()
-	lastSeenService := NewAgentLastSeenService()
-	lastSeenService.Start()
 	return &AgentService{repo: repo, lastSeenService: lastSeenService}
 }
 
@@ -31,11 +29,6 @@ func (s *AgentService) Update(agent *models.Agent) error {
 	return s.repo.Update(agent)
 }
 
-func (s *AgentService) SetAgentLastSeen(agentKey string) error {
-	currentTime := time.Now()
-	return s.lastSeenService.Set(agentKey, currentTime)
-}
-
 func (s *AgentService) Delete(key uuid.UUID, deletedBy string) (uint, error) {
 	return s.repo.DeleteByKey(key, deletedBy)
 }
@@ -43,9 +36,11 @@ func (s *AgentService) Delete(key uuid.UUID, deletedBy string) (uint, error) {
 func (s *AgentService) FindByID(id uint) (*models.Agent, error) {
 	return s.repo.GetById(id)
 }
+
 func (s *AgentService) FindByToken(token string) (*models.Agent, error) {
 	return s.repo.GetByToken(uuid.MustParse(token))
 }
+
 func (s *AgentService) FindAll() ([]models.Agent, error) {
 	return s.repo.GetAll()
 }
@@ -72,7 +67,7 @@ func (s *AgentService) ListAgents(p util.Pagination, f []util.Filter) ([]models.
 
 }
 
-func (s *AgentService) GetAgentLastSeen(agent models.Agent) (models.AgentLastSeen, error) {
+func (s *AgentService) GetAgentLastSeen(agent models.Agent) (models.LastSeen, error) {
 	return s.lastSeenService.Get(agent.AgentKey)
 }
 
@@ -85,7 +80,7 @@ func (s *AgentService) ListAgentWithCommands(p util.Pagination, f []util.Filter)
 	return agents, totalCount, err
 }
 
-func (s *AgentService) GetAgentStatus(agent models.Agent) (models.AgentStatus, string) {
+func (s *AgentService) GetAgentStatus(agent models.Agent) (models.Status, string) {
 	lastSeen, err := s.GetAgentLastSeen(agent)
 	lastPing := lastSeen.LastPing.Format("2006-01-02 15:04:05")
 	if err != nil {
