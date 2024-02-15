@@ -71,7 +71,6 @@ export class AppComponent implements OnInit {
         this.offline = false;
         if (this.router.url === '/') {
             this.hideOnline = false;
-            this.utmToastService.showSuccess('Connection to the UTMStack API was successful.');
           }
         setTimeout(() => {
           this.hideOnline = true;
