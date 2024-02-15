@@ -69,7 +69,7 @@ export class UtmCpCronEditorComponent implements ControlValueAccessor {
   getTime(position: number): string {
     /*const formatTime = this.convertTo24Format(this.time);*/
     const time = position === 1 ? this.time.minute : this.time.hour;
-    return this.time.hour === 0 && this.time.minute === 0 ? '*' : time.toString();
+    return this.time.hour === 0 && this.time.minute === 0 ? '0' : time.toString();
   }
 
   getDay() {
@@ -153,7 +153,7 @@ export class UtmCpCronEditorComponent implements ControlValueAccessor {
     return Object.values(DaysOfWeek).findIndex(value => value === day).toString();
   }
   emitChange() {
-    this.cmdCron = `* ${this.getTime(1)} ${this.getTime(0)} ${this.getDay()} ${this.monthlyValue} ${this.getDays()}`;
+    this.cmdCron = `0 ${this.getTime(1)} ${this.getTime(0)} ${this.getDay()} ${this.monthlyValue} ${this.getDays()}`;
     this.onChange(this.cmdCron);
   }
 }

@@ -45,7 +45,7 @@ export class UtmComplianceScheduleCreateComponent implements OnInit, OnDestroy {
   operators: OperatorsType[] = FILTER_OPERATORS;
   operatorEnum = ElasticOperatorsEnum;
   solution = '';
-  cron = '* * * */1 * *';
+  cron = '0 0 0 */1 * *';
   reportId: number;
   filters: DashboardFilterType[];
   filtersTypes: ElasticFilterType[] = [];
