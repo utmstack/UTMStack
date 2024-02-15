@@ -33,10 +33,10 @@ export class LogstashPipelinesComponent implements OnInit, OnDestroy, AfterViewC
   ngOnInit() {
     this.getHealth();
     this.getLogstashStats();
-    /*this.interval = setInterval(() => {
+    this.interval = setInterval(() => {
       this.getHealth();
       this.getLogstashStats();
-    }, 5000);*/
+    }, 5000);
     this.imageChangeInterval = setInterval(() => this.setImages(), 8000);
   }
 
