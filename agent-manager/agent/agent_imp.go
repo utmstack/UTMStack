@@ -401,7 +401,7 @@ func updateHistoryCommand(cmdResult *CommandResult, cmdID string) {
 }
 
 func parseAgentToProto(agent models.Agent) *Agent {
-	agentStatus, lastSeen := agentService.GetAgentStatus(agent)
+	agentStatus, lastSeen := lastSeenService.GetStatus(agent.AgentKey)
 	return &Agent{
 		Id:             uint32(agent.ID),
 		Ip:             agent.Ip,

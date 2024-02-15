@@ -109,3 +109,20 @@ func (s *LastSeenService) Populate(lastPings []models.LastSeen) {
 		}
 	}
 }
+
+func (s *LastSeenService) GetLastSeen(key string) (models.LastSeen, error) {
+	return s.Get(key)
+}
+
+func (s *LastSeenService) GetStatus(key string) (models.Status, string) {
+	lastSeen, err := s.GetLastSeen(key)
+	lastPing := lastSeen.LastPing.Format("2006-01-02 15:04:05")
+	if err != nil {
+		return models.Offline, lastPing
+	}
+	duration := time.Since(lastSeen.LastPing)
+	if duration > time.Minute {
+		return models.Offline, lastPing
+	}
+	return models.Online, lastPing
+}

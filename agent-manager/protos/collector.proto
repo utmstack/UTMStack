@@ -53,6 +53,7 @@ message Collector {
   string version = 6;
   CollectorModule module = 7;
   CollectorConfigGroup configuration = 8;
+  string last_seen = 9;
 }
 
 message CollectorConfig {

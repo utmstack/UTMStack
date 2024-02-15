@@ -1,8 +1,6 @@
 package service
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
@@ -67,10 +65,6 @@ func (s *AgentService) ListAgents(p util.Pagination, f []util.Filter) ([]models.
 
 }
 
-func (s *AgentService) GetAgentLastSeen(agent models.Agent) (models.LastSeen, error) {
-	return s.lastSeenService.Get(agent.AgentKey)
-}
-
 // ListAgentWithCommands retrieves a paginated list of agents with commands based on the provided search criteria.
 func (s *AgentService) ListAgentWithCommands(p util.Pagination, f []util.Filter) ([]models.Agent, int64, error) {
 	agents, totalCount, err := s.repo.GetAgentsWithCommands(p, f)
@@ -78,17 +72,4 @@ func (s *AgentService) ListAgentWithCommands(p util.Pagination, f []util.Filter)
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve agents: %v", err)
 	}
 	return agents, totalCount, err
-}
-
-func (s *AgentService) GetAgentStatus(agent models.Agent) (models.Status, string) {
-	lastSeen, err := s.GetAgentLastSeen(agent)
-	lastPing := lastSeen.LastPing.Format("2006-01-02 15:04:05")
-	if err != nil {
-		return models.Offline, lastPing
-	}
-	duration := time.Since(lastSeen.LastPing)
-	if duration > time.Minute {
-		return models.Offline, lastPing
-	}
-	return models.Online, lastPing
 }
