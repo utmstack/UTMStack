@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Objects;
+
 /**
  * Service Implementation for PDF generation.
  */
@@ -59,7 +61,7 @@ public class PdfService {
         if (!rs.getStatusCode().is2xxSuccessful()) {
             log.error(ctx + ": " + restTemplateService.extractErrorMessage(rs));
         } else {
-            byte[] pdfInBytes = rs.getBody().getPdfBytes();
+            byte[] pdfInBytes = Objects.requireNonNull(rs.getBody()).getPdfBytes();
             if (pdfInBytes != null && pdfInBytes.length > 0) {
                 return pdfInBytes;
             } else {
