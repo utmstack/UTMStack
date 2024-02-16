@@ -5,7 +5,6 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	_ "github.com/lib/pq" //Import PostgreSQL driver
 )
 
 func RunEnvCmd(env []string, command string, arg ...string) error {

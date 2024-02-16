@@ -56,11 +56,11 @@ func (s *StackConfig) Populate(c *Config) error {
 func InstallDocker() error {
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
-	if err := utils.RunEnvCmd(env, "apt", "update"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "apt", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
 		return err
 	}
 
@@ -72,11 +72,11 @@ func InstallDocker() error {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "apt", "update"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "apt", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
 		return err
 	}
 

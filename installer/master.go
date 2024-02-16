@@ -11,7 +11,7 @@ import (
 func Master(c *Config) error {
 	fmt.Println("Checking system requirements")
 
-	if err := utils.CheckMem(6); err != nil {
+	if err := utils.CheckMem(11); err != nil {
 		return err
 	}
 
@@ -58,7 +58,40 @@ func Master(c *Config) error {
 		fmt.Println("Preparing system to run UTMStack [OK]")
 	}
 
-	if utils.GetLock(202310261604, stack.LocksDir){
+	if utils.GetLock(202402081552, stack.LocksDir) {
+		fmt.Println("Preparing kernel to run UTMStack")
+		if err := PrepareSystem(); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(202402081552, stack.LocksDir); err != nil {
+			return err
+		}
+		fmt.Println("Preparing kernel to run UTMStack [OK]")
+	}
+
+	if utils.GetLock(202402081553, stack.LocksDir) {
+		fmt.Println("Configuring VLAN")
+		iface, err := utils.GetMainIface(c.MainServer)
+		if err != nil {
+			return err
+		}
+
+		if err := InstallVlan(); err != nil {
+			return err
+		}
+
+		if err := ConfigureVLAN(iface); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(202402081553, stack.LocksDir); err != nil {
+			return err
+		}
+		fmt.Println("Configuring VLAN [OK]")
+	}
+
+	if utils.GetLock(202310261604, stack.LocksDir) {
 		fmt.Println("Creating pipelines.yml file")
 		err := utils.RunCmd("touch", path.Join(stack.LogstashConfig, "pipelines.yml"))
 		if err != nil {

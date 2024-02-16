@@ -357,6 +357,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"GRPC_AGENT_MANAGER_HOST=agentmanager",
 			"GRPC_AGENT_MANAGER_PORT=50051",
 		},
+		Volumes: []string{
+			stack.Datasources + ":/etc/utmstack",
+		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
@@ -555,6 +558,23 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_PASS=" + conf.Password,
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.Str("1G"),
+				},
+			},
+		},
+	}
+
+	c.Services["web-pdf"] = Service{
+		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		DependsOn: []string{
+			"backend",
+			"frontend",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
