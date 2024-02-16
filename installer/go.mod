@@ -7,6 +7,7 @@ toolchain go1.21.2
 require (
 	github.com/cloudfoundry/gosigar v1.3.47
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
+	github.com/lib/pq v1.10.9
 	github.com/shirou/gopsutil/v3 v3.24.1
 	gopkg.in/yaml.v3 v3.0.1
 )
