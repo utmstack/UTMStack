@@ -27,3 +27,17 @@ func ConfigureVLAN(mainIface string) error {
 
 	return nil
 }
+
+func InstallVlan() error {
+	env := []string{"DEBIAN_FRONTEND=noninteractive"}
+
+	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "vlan"); err != nil {
+		return err
+	}
+
+	return nil
+}

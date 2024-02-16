@@ -10,11 +10,11 @@ import (
 func InstallNginx() error {
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
-	if err := utils.RunEnvCmd(env, "apt", "update"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "apt", "install", "-y", "nginx"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "nginx"); err != nil {
 		return err
 	}
 
