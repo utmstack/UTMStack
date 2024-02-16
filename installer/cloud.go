@@ -77,6 +77,10 @@ func Cloud(c *Config, update bool) error {
 			return err
 		}
 
+		if err := InstallVlan(); err != nil {
+			return err
+		}
+
 		if err := ConfigureVLAN(iface); err != nil {
 			return err
 		}
