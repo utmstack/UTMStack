@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"time"
@@ -11,18 +13,11 @@ func (s *Grpc) Ping(stream PingService_PingServer) error {
 		req, err := stream.Recv()
 		auth := req.GetAuth()
 		key, err := s.cacheAuthenticate(auth, req.Type)
-		if err != nil {
-			return err
+		if err != nil || key == "" {
+			return status.Error(codes.Unauthenticated, "authorization key is not provided or is invalid")
 		}
 		if err == io.EOF {
-			err = stream.Send(&PingResponse{
-				IsAlive: true,
-				Key:     key,
-				Type:    req.Type,
-			})
-			if err != nil {
-				return err
-			}
+			log.Printf("ping for type %s with id %d ends wiht error: %s", req.Type, auth.Id, err)
 		}
 		if err != nil {
 			return err
@@ -31,5 +26,6 @@ func (s *Grpc) Ping(stream PingService_PingServer) error {
 		if err != nil {
 			log.Printf("unable to update last seen for: %s with error:%s", key, err)
 		}
+
 	}
 }
