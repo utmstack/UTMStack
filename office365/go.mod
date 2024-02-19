@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/threatwinds/logger v1.0.9
-	github.com/utmstack/config-client-go v1.2.2
+	github.com/utmstack/config-client-go v1.2.4
 )
 
 require (
