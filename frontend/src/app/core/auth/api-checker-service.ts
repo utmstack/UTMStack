@@ -9,7 +9,7 @@ import {SERVER_API_URL} from "../../app.constants";
 })
 export class ApiServiceCheckerService {
 
-  public resourceUrl = SERVER_API_URL + 'api/date-format';
+  public resourceUrl = SERVER_API_URL + 'api/ping';
   private retryInterval = 5000;
   private isOnline: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
   public isOnlineApi$: Observable<boolean> = this.isOnline.asObservable();

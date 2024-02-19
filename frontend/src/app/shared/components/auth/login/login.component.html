@@ -3,12 +3,12 @@
 align-items-center h-100 w-100 mt-auto utm-login-cover">
   <!-- Login form -->
 
-  <div *ngIf="!loadingAuth;else loading" class="card mb-0">
+  <div *ngIf="!loadingAuth; else loading" class="card mb-0">
     <div class="card-body pr-4 pl-4">
       <div class="text-center mb-3 d-flex justify-content-center">
         <div class="login-pic">
-          <img [src]="sanitizer.bypassSecurityTrustUrl(loginImage)"
-               *ngIf="loginImage;else loadImage"
+          <img *ngIf="(loginImage$ | async) as logo; else loadImage"
+               [src]="sanitizer.bypassSecurityTrustUrl(logo)"
                alt="Login" data-loading="lazy">
           <ng-template #loadImage>
             <i class="icon-image4" style="font-size: 100px;opacity: 0.1"></i>
