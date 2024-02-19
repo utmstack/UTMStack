@@ -6,7 +6,7 @@ import "common.proto";
 package agent;
 
 service CollectorService {
-  rpc RegisterCollector(RegisterRequest) returns (RegisterResponse) {}
+  rpc RegisterCollector(RegisterRequest) returns (AuthResponse) {}
   rpc DeleteCollector(CollectorDelete) returns (CollectorResponse) {}
   rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
@@ -30,6 +30,7 @@ message CollectorMessages {
 
 message ConfigKnowledge{
   string accepted = 1;
+  string request_id = 2;
 }
 
 message RegisterRequest {
@@ -37,11 +38,6 @@ message RegisterRequest {
   string hostname = 2;
   string version = 3;
   CollectorModule collector = 4;
-}
-
-message RegisterResponse {
-  uint32  id = 1;
-  string collector_key = 2;
 }
 
 message Collector {
@@ -57,7 +53,10 @@ message Collector {
 }
 
 message CollectorConfig {
-  repeated CollectorConfigGroup groups = 1;
+  string collector_key = 1;
+  repeated CollectorConfigGroup groups = 2;
+  string request_id = 3;
+  string internal_key = 8;
 }
 
 message CollectorConfigGroup {

@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectorServiceClient interface {
-	RegisterCollector(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	RegisterCollector(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	DeleteCollector(ctx context.Context, in *CollectorDelete, opts ...grpc.CallOption) (*CollectorResponse, error)
 	ListCollector(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListCollectorResponse, error)
 	CollectorStream(ctx context.Context, opts ...grpc.CallOption) (CollectorService_CollectorStreamClient, error)
@@ -36,8 +36,8 @@ func NewCollectorServiceClient(cc grpc.ClientConnInterface) CollectorServiceClie
 	return &collectorServiceClient{cc}
 }
 
-func (c *collectorServiceClient) RegisterCollector(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
-	out := new(RegisterResponse)
+func (c *collectorServiceClient) RegisterCollector(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
 	err := c.cc.Invoke(ctx, "/agent.CollectorService/RegisterCollector", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (x *collectorServiceCollectorStreamClient) Recv() (*CollectorMessages, erro
 // All implementations must embed UnimplementedCollectorServiceServer
 // for forward compatibility
 type CollectorServiceServer interface {
-	RegisterCollector(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	RegisterCollector(context.Context, *RegisterRequest) (*AuthResponse, error)
 	DeleteCollector(context.Context, *CollectorDelete) (*CollectorResponse, error)
 	ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error)
 	CollectorStream(CollectorService_CollectorStreamServer) error
@@ -109,7 +109,7 @@ type CollectorServiceServer interface {
 type UnimplementedCollectorServiceServer struct {
 }
 
-func (UnimplementedCollectorServiceServer) RegisterCollector(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+func (UnimplementedCollectorServiceServer) RegisterCollector(context.Context, *RegisterRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterCollector not implemented")
 }
 func (UnimplementedCollectorServiceServer) DeleteCollector(context.Context, *CollectorDelete) (*CollectorResponse, error) {

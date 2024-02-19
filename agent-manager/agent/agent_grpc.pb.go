@@ -22,9 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentServiceClient interface {
-	RegisterAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AgentResponse, error)
+	RegisterAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	AgentStream(ctx context.Context, opts ...grpc.CallOption) (AgentService_AgentStreamClient, error)
-	DeleteAgent(ctx context.Context, in *AgentDelete, opts ...grpc.CallOption) (*AgentResponse, error)
+	DeleteAgent(ctx context.Context, in *AgentDelete, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListAgents(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	UpdateAgentType(ctx context.Context, in *AgentTypeUpdate, opts ...grpc.CallOption) (*Agent, error)
 	UpdateAgentGroup(ctx context.Context, in *AgentGroupUpdate, opts ...grpc.CallOption) (*Agent, error)
@@ -41,8 +41,8 @@ func NewAgentServiceClient(cc grpc.ClientConnInterface) AgentServiceClient {
 	return &agentServiceClient{cc}
 }
 
-func (c *agentServiceClient) RegisterAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AgentResponse, error) {
-	out := new(AgentResponse)
+func (c *agentServiceClient) RegisterAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
 	err := c.cc.Invoke(ctx, "/agent.AgentService/RegisterAgent", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,8 +81,8 @@ func (x *agentServiceAgentStreamClient) Recv() (*BidirectionalStream, error) {
 	return m, nil
 }
 
-func (c *agentServiceClient) DeleteAgent(ctx context.Context, in *AgentDelete, opts ...grpc.CallOption) (*AgentResponse, error) {
-	out := new(AgentResponse)
+func (c *agentServiceClient) DeleteAgent(ctx context.Context, in *AgentDelete, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
 	err := c.cc.Invoke(ctx, "/agent.AgentService/DeleteAgent", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -148,9 +148,9 @@ func (c *agentServiceClient) ListAgentsWithCommands(ctx context.Context, in *Lis
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility
 type AgentServiceServer interface {
-	RegisterAgent(context.Context, *AgentRequest) (*AgentResponse, error)
+	RegisterAgent(context.Context, *AgentRequest) (*AuthResponse, error)
 	AgentStream(AgentService_AgentStreamServer) error
-	DeleteAgent(context.Context, *AgentDelete) (*AgentResponse, error)
+	DeleteAgent(context.Context, *AgentDelete) (*AuthResponse, error)
 	ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error)
 	UpdateAgentType(context.Context, *AgentTypeUpdate) (*Agent, error)
 	UpdateAgentGroup(context.Context, *AgentGroupUpdate) (*Agent, error)
@@ -164,13 +164,13 @@ type AgentServiceServer interface {
 type UnimplementedAgentServiceServer struct {
 }
 
-func (UnimplementedAgentServiceServer) RegisterAgent(context.Context, *AgentRequest) (*AgentResponse, error) {
+func (UnimplementedAgentServiceServer) RegisterAgent(context.Context, *AgentRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterAgent not implemented")
 }
 func (UnimplementedAgentServiceServer) AgentStream(AgentService_AgentStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method AgentStream not implemented")
 }
-func (UnimplementedAgentServiceServer) DeleteAgent(context.Context, *AgentDelete) (*AgentResponse, error) {
+func (UnimplementedAgentServiceServer) DeleteAgent(context.Context, *AgentDelete) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAgent not implemented")
 }
 func (UnimplementedAgentServiceServer) ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error) {

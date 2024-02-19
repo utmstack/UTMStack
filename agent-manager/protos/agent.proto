@@ -8,9 +8,9 @@ import "google/protobuf/timestamp.proto";
 import "common.proto";
 
 service AgentService {
-  rpc RegisterAgent(AgentRequest) returns (AgentResponse) {}
+  rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
   rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
-  rpc DeleteAgent(AgentDelete) returns (AgentResponse) {}
+  rpc DeleteAgent(AgentDelete) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
   rpc UpdateAgentType (AgentTypeUpdate) returns (Agent) {}
   rpc UpdateAgentGroup (AgentGroupUpdate) returns (Agent) {}
@@ -81,11 +81,6 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;  // IP secondary ips
-}
-
-message AgentResponse {
-  uint32  id = 1;
-  string agent_key = 2;
 }
 
 message AgentDelete {

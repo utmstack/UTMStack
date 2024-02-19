@@ -9,10 +9,20 @@ import (
 func (s *Grpc) Ping(stream PingService_PingServer) error {
 	for {
 		req, err := stream.Recv()
-		key := req.GetKey()
+		auth := req.GetAuth()
+		key, err := s.cacheAuthenticate(auth, req.Type)
+		if err != nil {
+			return err
+		}
 		if err == io.EOF {
-			log.Printf("Client disconnected from Ping service: %s", key)
-			break
+			err = stream.Send(&PingResponse{
+				IsAlive: true,
+				Key:     key,
+				Type:    req.Type,
+			})
+			if err != nil {
+				return err
+			}
 		}
 		if err != nil {
 			return err
@@ -22,5 +32,4 @@ func (s *Grpc) Ping(stream PingService_PingServer) error {
 			log.Printf("unable to update last seen for: %s with error:%s", key, err)
 		}
 	}
-	return nil
 }

@@ -21,16 +21,16 @@ import (
 func StreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	// Retrieve the metadata from the context
 	routes := config.AgentKeyAuthRoutes()
-
-	if isInRoute(info.FullMethod, routes) {
+	route := info.FullMethod
+	if isInRoute(route, routes) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
 		}
 
-		// Get the authorization token from the metadata
-		authToken := md.Get("agent-key")
-		authId := md.Get("agent-id")
+		// Get the authorization key from the metadata
+		authToken := md.Get("key")
+		authId := md.Get("id")
 		if len(authToken) == 0 {
 			return nil, status.Error(codes.Unauthenticated, "authorization token is not provided")
 		}
@@ -44,15 +44,27 @@ func StreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc.Unar
 			return nil, status.Error(codes.Unauthenticated, "agent id is not valid")
 		}
 		// Replace this with the actual token cache
-		tokenCache := agent.CacheAgent
+		authCache := getAuthCache(route)
+		if authCache == nil {
+			return nil, status.Error(codes.Unauthenticated, "unable to resolve auth cache")
+		}
 		// Check if the token exists in the token cache
-		if _, ok := tokenCache[uint(id)]; !ok || tokenCache[uint(id)] != token {
+		if _, ok := authCache[uint(id)]; !ok || authCache[uint(id)] != token {
 			return nil, status.Error(codes.Unauthenticated, "invalid token")
 		}
 		return handler(ctx, req)
 	}
 	// Call the handler if the token is valid
 	return handler(ctx, req)
+}
+
+func getAuthCache(method string) map[uint]string {
+	if strings.Contains(method, "agent.AgentService") {
+		return agent.CacheAgent
+	} else if strings.Contains(method, "agent.CollectorService") {
+		return agent.CacheCollector
+	}
+	return nil
 }
 
 func ConnectionKeyInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -69,10 +81,10 @@ func ConnectionKeyInterceptor(ctx context.Context, req interface{}, info *grpc.U
 	return handler(ctx, req)
 }
 
-func ProcessCommandInterceptor(srv interface{}, ss grpc.ServerStream,
+func PanelInterceptor(srv interface{}, ss grpc.ServerStream,
 	info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 
-	if info.FullMethod == "/agent.PanelService/ProcessCommand" {
+	if info.FullMethod == "/agent.PanelService/ProcessCommand" || info.FullMethod == "/agent.CollectorConfigurationService/CollectorConfigStream" {
 		md, ok := metadata.FromIncomingContext(ss.Context())
 		if !ok {
 			return status.Error(codes.Unauthenticated, "missing metadata")

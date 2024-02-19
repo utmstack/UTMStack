@@ -6,9 +6,8 @@ func AgentKeyAuthRoutes() []string {
 	return []string{
 		"/agent.AgentService/AgentStream",
 		"/agent.AgentService/DeleteAgent",
-		"agent.AgentConfigService/AgentModuleUpdateStream",
-		"agent.AgentConfigService/GetAgentConfig",
-		"agent.PingService/Ping",
+		"/agent.CollectorService/CollectorStream",
+		"/agent.CollectorService/DeleteCollector",
 	}
 }
 

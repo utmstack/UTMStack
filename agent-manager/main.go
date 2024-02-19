@@ -28,19 +28,10 @@ func main() {
 	migration.MigrateDatabase()
 
 	// Create a new server instance
-	s := &pb.Grpc{
-		AgentStreamMap:     make(map[string]*pb.StreamAgent),
-		CollectorStreamMap: make(map[string]*pb.StreamCollector),
-		ResultChannel:      make(map[string]chan *pb.CommandResult),
-	}
-	pb.CacheAgent = make(map[uint]string)
-	pb.CacheCollector = make(map[uint]string)
-
-	err := s.LoadAgentCacheFromDatabase()
-	err = s.LoadCollectorsCacheFromDatabase()
+	s, err := pb.InitGrpc()
 
 	if err != nil {
-		log.Fatalf("Failed to serve: %v", err)
+		log.Fatalf("Failed to inititialize gRPC: %v", err)
 	}
 	// Create a listener on a specific address and port
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
@@ -52,12 +43,13 @@ func main() {
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(recoverInterceptor),
 		grpc.ChainUnaryInterceptor(auth.ConnectionKeyInterceptor),
 		grpc.ChainUnaryInterceptor(auth.StreamAuthInterceptor),
-		grpc.StreamInterceptor(auth.ProcessCommandInterceptor))
+		grpc.StreamInterceptor(auth.PanelInterceptor))
+
 	pb.RegisterAgentServiceServer(grpcServer, s)
 	pb.RegisterPanelServiceServer(grpcServer, s)
 	pb.RegisterAgentGroupServiceServer(grpcServer, s)
-
 	pb.RegisterCollectorServiceServer(grpcServer, s)
+	pb.RegisterCollectorConfigurationServiceServer(grpcServer, s)
 	pb.RegisterPingServiceServer(grpcServer, s)
 	// Register the health check service
 	healthServer := health.NewServer()

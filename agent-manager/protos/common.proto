@@ -23,6 +23,6 @@ enum ConnectorType{
 }
 
 message AuthResponse {
-  uint64 id = 1;
+  uint32 id = 1;
   string key = 2;
 }

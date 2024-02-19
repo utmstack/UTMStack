@@ -103,7 +103,7 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 }
 
 func (s *Grpc) replaceSecretValues(input string) string {
-	pattern := regexp.MustCompile(`\$\[(\w+):([^\]]+)\]`)
+	pattern := regexp.MustCompile(`\$\[(\w+):([^]]+)]`)
 	return pattern.ReplaceAllStringFunc(input, func(match string) string {
 		matches := pattern.FindStringSubmatch(match)
 		if len(matches) < 3 {
@@ -184,7 +184,7 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 	}
 }
 
-func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResponse, error) {
+func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthResponse, error) {
 	agent := &models.Agent{
 		Ip:             req.GetIp(),
 		Hostname:       req.GetHostname(),
@@ -202,9 +202,9 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResp
 	oldAgent, err := s.GetAgentByHostname(ctx, &Hostname{Hostname: agent.Hostname})
 	if err == nil {
 		if oldAgent.Ip == agent.Ip {
-			return &AgentResponse{
-				Id:       oldAgent.Id,
-				AgentKey: oldAgent.AgentKey,
+			return &AuthResponse{
+				Id:  oldAgent.Id,
+				Key: oldAgent.AgentKey,
 			}, nil
 		} else {
 			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
@@ -225,27 +225,27 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AgentResp
 	if err != nil {
 		return nil, err
 	}
-	res := &AgentResponse{
-		Id:       uint32(agent.ID),
-		AgentKey: key,
+	res := &AuthResponse{
+		Id:  uint32(agent.ID),
+		Key: key,
 	}
 	return res, nil
 }
 
-func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AgentResponse, error) {
+func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse, error) {
 	// ...
 	// Delete the agent from the database and get its id
 	id, err := agentService.Delete(uuid.MustParse(req.AgentKey), req.DeletedBy)
 	if err != nil {
-		return &AgentResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
+		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 	// Update the cache
 	s.cacheMutex.Lock()
 	delete(s.AgentStreamMap, req.AgentKey)
 	s.cacheMutex.Unlock()
-	return &AgentResponse{
-		Id:       uint32(id),
-		AgentKey: req.AgentKey,
+	return &AuthResponse{
+		Id:  uint32(id),
+		Key: req.AgentKey,
 	}, nil
 }
 
