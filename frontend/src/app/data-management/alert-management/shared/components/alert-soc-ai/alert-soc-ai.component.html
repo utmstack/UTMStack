@@ -15,7 +15,7 @@
   </div>
 </ng-container>
 
-<div *ngIf="socAiResponse && !loading" class="w-100">
+<div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.Completed && !loading" class="w-100">
   <div class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
     <span class="font-weight-semibold">Warning! </span>
     <span>This evaluation has been made by an Artificial Intelligence beta that is still in training mode. Use this information carefully and at your own risk.</span>
@@ -36,7 +36,7 @@
     </li>
   </ul>
 
-  <div *ngIf="socAiResponse.nextSteps.length>0" class="w-100 mt-3 d-flex flex-column">
+  <div *ngIf="socAiResponse.nextSteps.length > 0" class="w-100 mt-3 d-flex flex-column">
     <span class="font-weight-semibold">{{socAiResponse.nextSteps.length > 1 ? 'Next steps' : 'Next step'}}:</span>
     <div class="w-100 my-1" *ngFor="let step of socAiResponse.nextSteps, let index=index;">
       <span class="font-weight-semibold font-size-base"><i class="icon-radio-unchecked"
@@ -45,4 +45,32 @@
       <p class="font-weight-light ml-3 mt-1 text-justify font-size-base" [innerHTML]="step.details"></p>
     </div>
   </div>
+</div>
+
+<div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.NotFound && !loading" class="w-100">
+  <div class="w-100 alert alert-info alert-styled-right mb-3 alert-dismissible">
+    <span class="font-weight-semibold">Info! </span>
+    <span>The SOC AI integration did not analyze this Alert; use the button below to kick-start an analysis</span>
+  </div>
+
+  <div class="d-flex justify-content-end mb-2">
+    <button (click)="processAlert()" class="btn utm-button utm-button-primary ml-2">
+      Process Alert
+    </button>
+  </div>
+
+</div>
+
+<div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.Error && !loading" class="w-100">
+  <div class="w-100 alert alert-error alert-styled-right mb-3 alert-dismissible">
+    <span class="font-weight-semibold">Error! </span>
+    <span>An error occurred while the SOC AI was processing this alert; use the below button to relaunch the analysis.</span>
+  </div>
+
+  <div class="d-flex justify-content-end mb-2">
+    <button (click)="processAlert()" class="btn utm-button utm-button-primary ml-2">
+      Reprocess Alert
+    </button>
+  </div>
+
 </div>
