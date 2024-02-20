@@ -1,0 +1,114 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 label-header">Automation Variables</h5>
+    <div class="header-elements">
+      <button (click)="createVariable()"
+              class="btn utm-button utm-button-primary">
+        Create variable
+      </button>
+    </div>
+  </div>
+  <div class="w-100 h-100 card m-0">
+    <div class="d-flex justify-content-between align-items-center p-2">
+      <app-utm-search-input [placeholder]="'Search variable'" (searchFor)="searchVariable($event)"
+                            style="min-width: 300px"></app-utm-search-input>
+
+    </div>
+    <div class="d-flex justify-content-between flex-column h-100">
+      <table class="table mb-0">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold cursor-pointer" id="thRule"
+              (sort)="onSort($event)"
+              [sortable]="'variableName'" appColumnSortable style="width: 20%">
+            Variable name
+          </th>
+
+          <th>Reference</th>
+          <th>Description</th>
+          <th class="font-weight-semibold" id="value">
+            Value
+          </th>
+          <th class="font-weight-semibold" id="created">
+            Created by
+          </th>
+          <th class="font-weight-semibold" id="thAction"
+              style="width: 15px">
+            Actions
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let variable of variables">
+
+
+          <td class="cursor-pointer text-wrap word-break">
+            <i [ngClass]="variable.secret === true?'icon-lock2':'icon-cog7'"
+               class="mr-1 font-size-sm"></i>{{ variable.variableName }}
+          </td>
+
+          <td class="cursor-pointer text-wrap">
+            <code>{{ getVariablePlaceHolder(variable) }}</code>
+          </td>
+
+          <td class="cursor-pointer text-wrap">
+            <p class="font-size-base">{{ variable.variableDescription }}</p>
+          </td>
+
+          <td class="cursor-pointer text-wrap">
+            {{ variable.secret ? '*******************' : variable.variableValue }}
+          </td>
+
+          <td class="cursor-pointer text-wrap">
+            {{ variable.createdBy }}
+          </td>
+
+          <td style="width: 15px" class="text-center">
+            <div class="d-flex justify-content-end align-items-center medium-icon">
+              <i (click)="editVariable(variable)" class="icon-pencil3 cursor-pointer mr-3"
+                 ngbTooltip="Edit automation variable" tooltipClass="utm-tooltip-top"></i>
+
+              <i (click)="deactivateAction(variable)" class="icon-cross2 cursor-pointer mr-3"
+                 ngbTooltip="Delete automation variable" tooltipClass="utm-tooltip-top"></i>
+            </div>
+          </td>
+
+
+        </tr>
+        </tbody>
+        <tbody *ngIf="(variables && variables.length===0 && !loading)">
+        <tr>
+          <td colspan="10">
+            <app-no-data-found></app-no-data-found>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="10">
+            <div class="p-5
+                d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading variables'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div *ngIf="variables && variables.length" class="mb-4 mt-3">
+        <div class="row justify-content-center">
+          <ngb-pagination (pageChange)="loadPage($event)"
+                          [boundaryLinks]="true"
+                          [collectionSize]="totalItems"
+                          [maxSize]="10"
+                          [pageSize]="itemsPerPage"
+                          [rotate]="true"
+                          [size]="'sm'"></ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

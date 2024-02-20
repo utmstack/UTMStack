@@ -5,7 +5,6 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
-import com.park.utmstack.domain.federation_service.ClientDTO;
 import com.park.utmstack.domain.federation_service.UtmFederationServiceClient;
 import com.park.utmstack.repository.federation_service.UtmFederationServiceClientRepository;
 import com.park.utmstack.security.TooMuchLoginAttemptsException;

@@ -8,7 +8,7 @@
     <app-active-directory-tree (selected)="objectSelected($event)"></app-active-directory-tree>
   </div>
   <div [ngStyle]="{'width':detailWidth}" class="flex-grow-1 card-right-detail resizable-table-responsive">
-    <div class="card h-100 card-detail">
+    <div [ngClass]="{ 'bg-transparent' : !showPanel }" class="card h-100 card-detail border-0">
       <div *ngIf="object && adInfo" class="detail-header tab-header">
         <div class="pl-2 pt-2">
           <h6 class="text-blue-800 font-weight-light">{{object.name}}</h6>
@@ -37,7 +37,7 @@
           </ul>
         </div>
       </div>
-      <div *ngIf="object" class="card-body p-0">
+      <div *ngIf="object" class="p-0 h-100">
         <app-active-directory-detail *ngIf="view==='detail'"
                                      [user]="object"
                                      [adInfo]="object">

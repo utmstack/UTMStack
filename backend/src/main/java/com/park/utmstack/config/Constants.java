@@ -114,6 +114,12 @@ public final class Constants {
      */
     public static final int IRA_EXECUTION_RETRIES = 5;
 
+    // ----------------------------------------------------------------------------------
+    // - Constants used to PDF microservice generation
+    // ----------------------------------------------------------------------------------
+    public static final String FRONT_BASE_URL = "https://10.21.199.3";
+    public static final String PDF_SERVICE_URL = "http://web-pdf:8080/generate-pdf";
+
     private Constants() {
     }
 }

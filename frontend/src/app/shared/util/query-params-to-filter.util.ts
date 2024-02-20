@@ -99,3 +99,66 @@ export function stringParamToQueryParams(queryString: string): Promise<object> {
     resolve(queryParams);
   });
 }
+
+/**
+ * Return string of query params
+ * @param filters ElasticFilterType to convert to string params
+ */
+export function filtersWithPatternToStringParam(filters: ElasticFilterType[]): Promise<string> {
+  return new Promise<string>(resolve => {
+    let queryString = '';
+    /**
+     * Add all filters to string
+     */
+    filters.forEach(value => {
+      if (value.pattern) {
+        queryString += value.field + '=' + value.operator + '->' + value.value + '->' + value.pattern + '&';
+      } else {
+        queryString += value.field + '=' + value.operator + '->' + value.value + '&';
+      }
+    });
+    // remove last &
+    queryString = queryString.substring(0, queryString.length - 1);
+    resolve(queryString);
+  });
+}
+
+/**
+ * Take query params and return ElasticFiltersType object
+ * @param queryParams Object params from route snapshot
+ */
+export function parseQueryParamsToFilterWithPattern(queryParams: object): Promise<ElasticFilterType[]> {
+  return new Promise<ElasticFilterType[]>(resolve => {
+    const filters: ElasticFilterType[] = [];
+    for (const key of Object.keys(queryParams)) {
+      if (key !== 'patternId' && key !== 'indexPattern' && key !== 'dataNature' && key !== 'mode'
+        && key !== 'queryId' && key !== 'queryName' && key !== 'alertType') {
+        const index = filters.findIndex(filter => filter.field === key);
+        if (index !== -1) {
+          filters[index].value = getValue(queryParams[key]);
+          filters[index].operator = getOperator(queryParams[key]);
+          filters[index].pattern = getIndexPattern(queryParams[key]);
+        } else {
+          filters.push({
+            field: key,
+            value: getValue(queryParams[key]),
+            operator: getOperator(queryParams[key]),
+            pattern: getIndexPattern(queryParams[key])
+          });
+        }
+      }
+    }
+    resolve(filters);
+  });
+}
+
+/**
+ * Return indexPattern to add to filter
+ * @param param Value of the param in queryParams
+ */
+export function getIndexPattern(param: string) {
+  if (param.includes('->')) {
+    return param.split('->').length > 2 ? param.split('->')[2] : '';
+  }
+  return '';
+}

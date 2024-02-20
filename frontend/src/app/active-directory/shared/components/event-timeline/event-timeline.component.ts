@@ -117,7 +117,7 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
           return 'utm_tmlabel_user_selected';
       }
     } else {
-      return 'utm_tmlabel_not_found';
+      return 'utm_tmlabel_not_found_selected';
     }
   }
 

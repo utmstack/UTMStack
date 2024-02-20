@@ -1,8 +1,8 @@
 package com.park.utmstack.service.elasticsearch;
 
+import com.park.utmstack.config.Constants;
 import com.utmstack.opensearch_connector.OpenSearch;
 import com.utmstack.opensearch_connector.enums.HttpScheme;
-import com.park.utmstack.config.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

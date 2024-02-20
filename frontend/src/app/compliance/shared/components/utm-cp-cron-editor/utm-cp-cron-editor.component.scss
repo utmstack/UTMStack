@@ -1,0 +1,32 @@
+
+.badge.badge-lg.badge-circle {
+  width: 2rem;
+  height: 2rem;
+}
+.badge.badge-lg {
+  min-width: 2rem;
+  font-size: 1rem;
+}
+.badge.badge-circle {
+  border-radius: 50%;
+  padding: 0;
+  min-width: unset;
+  width: 1.75rem;
+}
+.badge.badge-circle, .badge.badge-square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.75rem;
+  min-width: 1.75rem;
+  padding: 0 0.1rem;
+  line-height: 0;
+}
+.badge-primary.badge-outline {
+  border: 1px solid #007bff;
+  color: #007bff;
+  background-color: transparent;
+}
+.gap-5 {
+  gap: 1.25rem !important;
+}
