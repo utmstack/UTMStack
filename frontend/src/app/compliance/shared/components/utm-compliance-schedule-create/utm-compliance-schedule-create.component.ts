@@ -124,7 +124,7 @@ export class UtmComplianceScheduleCreateComponent implements OnInit, OnDestroy {
         complianceId: this.reportId,
         filterDef: this.convertToFilterDefs(),
         scheduleString: this.cron,
-        urlWithParams: `/dashboard/export-compliance/${this.reportId}${params}`
+        urlWithParams: `/dashboard/export-compliance/${this.reportId}?${params}`
       };
       if (this.report) {
         reportCompliance.id = this.report.id;
