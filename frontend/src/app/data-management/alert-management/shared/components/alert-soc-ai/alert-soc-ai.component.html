@@ -47,7 +47,7 @@
   </div>
 </div>
 
-<div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.NotFound && !loading" class="w-100">
+<div *ngIf="isEmpty(socAiResponse) && !loading" class="w-100">
   <div class="w-100 alert alert-info alert-styled-right mb-3 alert-dismissible">
     <span class="font-weight-semibold">Info! </span>
     <span>The SOC AI integration did not analyze this Alert; use the button below to kick-start an analysis</span>
@@ -62,7 +62,7 @@
 </div>
 
 <div *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.Error && !loading" class="w-100">
-  <div class="w-100 alert alert-error alert-styled-right mb-3 alert-dismissible">
+  <div class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
     <span class="font-weight-semibold">Error! </span>
     <span>An error occurred while the SOC AI was processing this alert; use the below button to relaunch the analysis.</span>
   </div>

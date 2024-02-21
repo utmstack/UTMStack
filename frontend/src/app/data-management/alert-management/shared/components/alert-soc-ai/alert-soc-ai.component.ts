@@ -5,6 +5,7 @@ import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operator
 import {ElasticDataService} from '../../../../../shared/services/elasticsearch/elastic-data.service';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {IndexSocAiStatus, SocAiType} from './soc-ai.type';
+import {AlertSocAiService} from "../../services/alert-soc-ai.service";
 
 @Component({
   selector: 'app-alert-soc-ai',
@@ -19,7 +20,8 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
   loading = false;
   private interval: any;
 
-  constructor(private elasticDataService: ElasticDataService, ) {}
+  constructor(private elasticDataService: ElasticDataService,
+              private alertSocAiService: AlertSocAiService) {}
 
   ngOnInit() {
     if (this.socAiActive) {
@@ -36,26 +38,11 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
     this.elasticDataService.search(1, 1, 1, SOC_AI_INDEX_PATTERN, filter)
       .subscribe((res: HttpResponse<any>) => {
         this.loading = false;
-        res.body.status = 'Completed';
-        if (!res || res.body.status === IndexSocAiStatus.Processing) {
-          if (!this.interval) {
-            this.startInterval();
-          }
+       // res.body.status = 'Completed';
+        if (!res || res.body.length === 0) {
+          this.socAiResponse = res.body;
         } else {
-          // this.socAiResponse = res.body[0];
-          this.socAiResponse = {
-            "@timestamp": "2024-02-19T09:35:50.275613061Z",
-            "severity": "3",
-            status : 'Error',
-            "category": "Brute Force",
-            "alertName": "Attempts to Brute Force a Microsoft 365 User Account",
-            "activityId": "b79a8f33-e9cd-4220-a270-cab5e523572b",
-            "classification": "possible incident",
-            "reasoning": [
-              "The alert indicates that there have been failed login attempts to a Microsoft 365 user account using the same username 'jhondoe@gmail.com', originating from different IP addresses, which suggests a potential brute force attack. The logs confirm multiple failed login attempts from various IP addresses within a short time frame, triggering the alert for 'Attempts to Brute Force a Microsoft 365 User Account.' The log entries show consecutive failed login attempts due to 'IdsLocked' from different ClientIP addresses, indicating an automated process attempting unauthorized access. This pattern aligns with known brute force attack techniques."
-            ],
-            "nextSteps": []
-          };
+          this.socAiResponse = res.body[0];
         }
       },
       (res: HttpResponse<any>) => {
@@ -74,6 +61,14 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
   }
 
   processAlert() {
+    this.alertSocAiService.processAlertBySoc([this.alertID])
+      .subscribe((res) => {
+        console.log(res);
+      },
+      error => console.log(error));
+  }
 
+  isEmpty(object: any) {
+    return Object.keys(object).length === 0;
   }
 }
