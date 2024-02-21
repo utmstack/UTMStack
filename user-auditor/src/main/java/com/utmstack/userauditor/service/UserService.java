@@ -33,8 +33,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserSourceRepository userSourceRepository;
-    private final UserAttributeRepository userAttributeRepository;
-    private final ElasticsearchService elasticsearchService;
     private final List<Source> sources;
 
     /**

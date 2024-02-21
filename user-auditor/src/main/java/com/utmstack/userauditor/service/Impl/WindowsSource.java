@@ -46,6 +46,9 @@ public class WindowsSource implements Source {
 
     final SourceScanRepository sourceScanRepository;
 
+    static final String SUBJECT_AGG_NAME = "SUBJECT_USER_NAME";
+    static final String TARGET_AGG_NAME = "TARGET_USER_NAME";
+
     WindowsSource(ElasticsearchService elasticsearchService, SourceScanRepository sourceScanRepository) {
         this.userEvents = new HashMap<>();
         this.elasticsearchService = elasticsearchService;
@@ -78,7 +81,7 @@ public class WindowsSource implements Source {
             if (!elasticsearchService.indexExist(userSource.getIndexPattern()))
                 return this.userEvents;
 
-            if (currentDateTime.isAfter(startDate)) {
+            if (startDate.toLocalDate().isBefore(currentDateTime.toLocalDate())) {
                 for (SourceFilter filter : userSource.getFilters()) {
                     this.executeQuery(startDate.format(formatter), this.executionDate(startDate).format(formatter), 10, filter);
                 }
@@ -96,15 +99,13 @@ public class WindowsSource implements Source {
 
     void executeQuery(String from, String to, Integer top, SourceFilter sourceFilter) {
 
-        // Pageable pageable = PageRequest.of(3, 10000, Sort.by(Sort.Order.asc("@timestamp")));
-
-        final String AGG_NAME = "recent_events_by_user";
-
         SearchRequest.Builder srb = getBuilder(sourceFilter, from, to);
 
         SearchResponse<String> rs = elasticsearchService.search(srb.build(), String.class);
 
-        List<BucketAggregation> buckets = TermAggregateParser.parse(rs.aggregations().get(AGG_NAME));
+        List<BucketAggregation> buckets = TermAggregateParser.parse(rs.aggregations().get(SUBJECT_AGG_NAME));
+        buckets.addAll(TermAggregateParser.parse(rs.aggregations().get(TARGET_AGG_NAME)));
+
         buckets.forEach(b -> {
             if (!this.userEvents.containsKey(this.getKey(b))) {
                 this.userEvents.put(this.getKey(b), getLastEvents(b.getSubAggregations().get("top_events").topHits()));
@@ -127,7 +128,14 @@ public class WindowsSource implements Source {
         srb.index(sourceFilter.getSource().getIndexPattern());
         srb.query(SearchUtil.toQuery(filters));
 
-        srb.aggregations("recent_events_by_user", agg -> agg
+        srb.aggregations(SUBJECT_AGG_NAME, agg -> agg
+                .terms(t -> t.field("logx.wineventlog.event_data.SubjectUserName.keyword")
+                        .order(List.of(Map.of("_count", SortOrder.Desc))))
+                .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
+                        .size(1)
+                        .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc))))));
+
+        srb.aggregations(TARGET_AGG_NAME, agg -> agg
                 .terms(t -> t.field("logx.wineventlog.event_data.TargetUserName.keyword")
                         .order(List.of(Map.of("_count", SortOrder.Desc))))
                 .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
