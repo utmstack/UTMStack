@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/soc-ai")
 public class UtmSocAiResource {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
@@ -27,7 +27,7 @@ public class UtmSocAiResource {
         this.applicationEventService = applicationEventService;
     }
 
-    @PostMapping("/send")
+    @PostMapping("/send-alerts")
     public ResponseEntity<String> sendData(@RequestBody String[] alertsId) {
         final String ctx = CLASSNAME + ".sendAlertsIds";
         try {
