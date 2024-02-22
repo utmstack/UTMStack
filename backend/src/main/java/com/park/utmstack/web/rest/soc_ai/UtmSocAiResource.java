@@ -30,7 +30,7 @@ public class UtmSocAiResource {
         this.applicationEventService = applicationEventService;
     }
 
-    @PostMapping("/send-alerts")
+    @PostMapping("/alerts")
     public ResponseEntity<Object> sendData(@RequestBody String[] alertsId) {
         final String ctx = CLASSNAME + ".sendAlertsIds";
         try {
