@@ -16,7 +16,5 @@ message PingRequest{
 }
 
 message PingResponse {
-  bool is_alive = 1;
-  string key = 2;
-  ConnectorType type = 3;
+  string received= 1;
 }
