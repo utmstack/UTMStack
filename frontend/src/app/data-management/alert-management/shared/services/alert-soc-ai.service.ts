@@ -15,7 +15,7 @@ export class AlertSocAiService {
   }
 
   processAlertBySoc(alertId: string[]): Observable<HttpResponse<any>> {
-    return this.http.post<HttpResponse<any>>(this.resourceUrl + '/send-alerts', alertId, {observe: 'response'});
+    return this.http.post<HttpResponse<any>>(this.resourceUrl + '/alerts', alertId, {observe: 'response'});
   }
 
 }

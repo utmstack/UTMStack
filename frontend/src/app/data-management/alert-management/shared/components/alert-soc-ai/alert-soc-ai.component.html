@@ -1,5 +1,5 @@
 <div class="has-fixed-height d-flex justify-content-center align-items-center w-100 flex-column"
-     *ngIf="!socAiResponse && !loading">
+     *ngIf="socAiResponse && socAiResponse.status === indexSocAiStatus.Processing">
   <span inlineSVG="assets/icons/system/SEARCH_PROCESS.svg" class="svg-icon svg-icon-grey svg-icon-10x"></span>
   <p class="text-justify font-size-lg mt-3 w-50">
     <i class="icon-spinner2 spinner"></i> The analysis of this alert is currently in progress.
@@ -54,8 +54,11 @@
   </div>
 
   <div class="d-flex justify-content-end mb-2">
-    <button (click)="processAlert()" class="btn utm-button utm-button-primary ml-2">
-      Process Alert
+    <button (click)="processAlert()"
+            [disabled]="loadingProcess"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="{'icon-spinner2 spinner': loadingProcess}"></i>
+      {{ loadingProcess ? 'Processing' : 'Process Alert'}}
     </button>
   </div>
 
@@ -68,8 +71,11 @@
   </div>
 
   <div class="d-flex justify-content-end mb-2">
-    <button (click)="processAlert()" class="btn utm-button utm-button-primary ml-2">
-      Reprocess Alert
+    <button (click)="processAlert()"
+            [disabled]="loadingProcess"
+            class="btn utm-button utm-button-primary ml-2">
+      <i [ngClass]="{'icon-spinner2 spinner': loadingProcess}"></i>
+      {{ loadingProcess ? 'Processing' : 'Reprocess Alert'}}
     </button>
   </div>
 
