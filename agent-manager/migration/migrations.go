@@ -23,10 +23,9 @@ func MigrateDatabase() {
 		return
 	}
 	performMigration(db, "performInitialMigrations_15022024_001", "jdieguez89", performInitialMigrations)
-	performMigration(db, "renameLastSeenTableAndColumn_15022024_002", "jdieguez89", renameLastSeenTableAndColumn)
+	performMigration(db, "renameLastSeenTableAndColumn_15022024_002", "jdieguez89", renameLastSeenTableAndColumnOrCreateTable)
 	performMigration(db, "seedAgentTypeTable_15022024_003", "jdieguez89", seedAgentTypeTable)
 	performMigration(db, "addLogCollectorTables_15022024_004", "jdieguez89", addLogCollectorTables)
-	performMigration(db, "renameLastSeenPrimaryKeyConstraintAndIndex_15022024_004", "jdieguez89", renameLastSeenPrimaryKeyConstraintAndIndex)
 	performMigration(db, "addDeletedByFieldToCollector", "jdieguez89", addDeletedByFieldToCollector)
 }
 
@@ -93,21 +92,36 @@ func performInitialMigrations(db *gorm.DB) error {
 
 // renameLastSeenTableAndColumn renaming `agent_last_seens` table to `last_seen`
 // and the `agent_key` column to `key`. This table will be used by agents and collectors
-func renameLastSeenTableAndColumn(db *gorm.DB) error {
+func renameLastSeenTableAndColumnOrCreateTable(db *gorm.DB) error {
 	// Rename the table from `agent_last_seens` to `last_seen`
 	newName := "last_seens"
-	if !db.Migrator().HasTable(newName) {
+	oldName := "agent_last_seens"
+	if !db.Migrator().HasTable(oldName) {
 		if err := db.Migrator().RenameTable("agent_last_seens", newName); err != nil {
 			fmt.Printf("Failed to rename table: %v\n", err)
 			return err
 		}
-	}
-	if err := db.Migrator().RenameColumn(&models.LastSeen{}, "agent_key", "key"); err != nil {
-		fmt.Printf("Failed to rename column: %v\n", err)
+		if err := db.Migrator().RenameColumn(&models.LastSeen{}, "agent_key", "key"); err != nil {
+			fmt.Printf("Failed to rename column: %v\n", err)
+			return err
+		}
+		sqlCommands := []string{
+			`ALTER TABLE "last_seens" RENAME CONSTRAINT "agent_last_seens_pkey" TO "last_seens_pkey";`,
+			`ALTER INDEX "agent_last_seens_pkey" RENAME TO "last_seens_pkey";`,
+			`ALTER INDEX "idx_agent_last_seens_last_ping" RENAME TO "idx_last_seens_last_ping";`,
+		}
+		err := executeSQLCommands(db, sqlCommands)
+		if err == nil {
+			fmt.Println("Renamed table and column successfully.")
+		}
 		return err
+
+	} else {
+		performMigration(db, "*models.LastSeen", "System", func(d *gorm.DB) error {
+			return d.AutoMigrate(&models.LastSeen{})
+		})
 	}
 
-	fmt.Println("Renamed table and column successfully.")
 	return nil
 }
 
@@ -172,16 +186,6 @@ func addLogCollectorTables(db *gorm.DB) error {
 		}
 	}
 	return nil
-}
-
-// renamePrimaryKeyConstraint rename agent_last_seens_pkey to last_seens_pkey
-func renameLastSeenPrimaryKeyConstraintAndIndex(db *gorm.DB) error {
-	sqlCommands := []string{
-		`ALTER TABLE "last_seens" RENAME CONSTRAINT "agent_last_seens_pkey" TO "last_seens_pkey";`,
-		`ALTER INDEX "agent_last_seens_pkey" RENAME TO "last_seens_pkey";`,
-		`ALTER INDEX "idx_agent_last_seens_last_ping" RENAME TO "idx_last_seens_last_ping";`,
-	}
-	return executeSQLCommands(db, sqlCommands)
 }
 
 func addDeletedByFieldToCollector(db *gorm.DB) error {
