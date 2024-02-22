@@ -66,9 +66,9 @@ export class AppComponent implements OnInit {
     this.favIcon = document.querySelector('#appFavicon');
     this.apiServiceCheckerService.isOnlineApi$.subscribe(result => {
       if (result) {
+        this.offline = false;
         this.timezoneFormatService.loadTimezoneAndFormat();
         this.getReportLogo();
-        this.offline = false;
         if (this.router.url === '/') {
             this.hideOnline = false;
           }

@@ -338,8 +338,8 @@ public class UtmDataInputStatusService {
         alert.put("description", "UTMStack launched this alert because the device exceeded the expected average time in which it can be without sending any log");
         alert.put("tactic", "Defense Evasion");
         alert.put("reference", Collections.singletonList("https://attack.mitre.org/tactics/TA0005/"));
-        alert.put("status", AlertStatus.OPEN.getCode());
-        alert.put("statusLabel", AlertStatus.OPEN.getName());
+        alert.put("status", AlertStatus.AUTOMATIC_REVIEW.getCode());
+        alert.put("statusLabel", AlertStatus.AUTOMATIC_REVIEW.getName());
         alert.put("severity", AlertSeverityEnum.LOW.getCode());
         alert.put("severityLabel", AlertSeverityEnum.LOW.getName());
         alert.put("dataType", input.getDataType());

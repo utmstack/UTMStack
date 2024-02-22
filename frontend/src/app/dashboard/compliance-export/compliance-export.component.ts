@@ -119,10 +119,12 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
   }
 
   getTimeFilterValue() {
-    this.filterTime = {
-      from: this.resolveFromDate(this.getTime()),
-      to: this.resolveToDate(this.getTime()),
-    };
+    if (this.getTime()) {
+      this.filterTime = {
+        from: this.resolveFromDate(this.getTime()),
+        to: this.resolveToDate(this.getTime()),
+      };
+    }
   }
 
   getTime() {
@@ -211,7 +213,7 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
   }
 
   resolveFromDate(date: { from: any, to: any }): string {
-    if (!isNaN(Date.parse(date.from))) {
+    if (date && !isNaN(Date.parse(date.from))) {
       return date.from;
     } else {
       return buildFormatInstantFromDate(date).timeFrom;

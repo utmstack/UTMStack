@@ -11,9 +11,9 @@ import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.domain.shared_types.AlertType;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
+import com.park.utmstack.repository.UtmAlertLastRepository;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.MailService;
-import com.park.utmstack.service.UtmAlertLastService;
 import com.park.utmstack.service.UtmAlertService;
 import com.park.utmstack.service.alert_response_rule.UtmAlertResponseRuleService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -46,6 +46,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
     private final MailService mailService;
     private final ApplicationEventService eventService;
     private final AlertPointcut alertPointcut;
-    private final UtmAlertLastService lastAlertService;
+    private final UtmAlertLastRepository lastAlertRepository;
     private final ElasticsearchService elasticsearchService;
     private final UtmModuleService moduleService;
     private final SocAIService socAIService;
@@ -68,14 +69,14 @@ public class UtmAlertServiceImpl implements UtmAlertService {
     public UtmAlertServiceImpl(MailService mailService,
                                ApplicationEventService eventService,
                                AlertPointcut alertPointcut,
-                               UtmAlertLastService lastAlertService,
+                               UtmAlertLastRepository lastAlertRepository,
                                ElasticsearchService elasticsearchService,
                                UtmModuleService moduleService, SocAIService socAIService,
                                UtmAlertResponseRuleService alertResponseRuleService) {
         this.mailService = mailService;
         this.eventService = eventService;
         this.alertPointcut = alertPointcut;
-        this.lastAlertService = lastAlertService;
+        this.lastAlertRepository = lastAlertRepository;
         this.elasticsearchService = elasticsearchService;
         this.moduleService = moduleService;
         this.socAIService = socAIService;
@@ -86,26 +87,17 @@ public class UtmAlertServiceImpl implements UtmAlertService {
     public void checkForNewAlerts() {
         final String ctx = CLASS_NAME + ".checkForNewAlerts";
         try {
-            Optional<UtmAlertLast> lastAlertOpt = lastAlertService.findOne(1L);
-            UtmAlertLast lastAlert;
-            Instant lastAlertTimestamp;
-
-            if (lastAlertOpt.isPresent()) {
-                lastAlert = lastAlertOpt.get();
-                lastAlertTimestamp = lastAlert.getLastAlertTimestamp();
-            } else {
-                lastAlertTimestamp = Instant.now().atZone(ZoneOffset.UTC).toInstant();
-                lastAlert = lastAlertService.save(new UtmAlertLast(lastAlertTimestamp));
-            }
+            UtmAlertLast initialDate = lastAlertRepository.findById(1L)
+                    .orElse(new UtmAlertLast(Instant.now().atZone(ZoneOffset.UTC).toInstant().minus(1, ChronoUnit.HOURS)));
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.OPEN.getCode()));
-            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_GREATER_THAN, lastAlertTimestamp.toString()));
+            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_GREATER_THAN, initialDate.getLastAlertTimestamp().toString()));
 
             SearchRequest.Builder srb = new SearchRequest.Builder();
             srb.query(SearchUtil.toQuery(filters))
-                .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
-                .size(1000);
+                    .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
+                    .size(1000);
             SearchUtil.applySort(srb, Sort.by(Sort.Order.asc(Constants.timestamp)));
 
             SearchRequest build = srb.build();
@@ -120,10 +112,8 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             if (CollectionUtils.isEmpty(alerts))
                 return;
 
-            lastAlertTimestamp = alerts.get(alerts.size() - 1).getTimestampAsInstant();
-            lastAlert.setLastAlertTimestamp(lastAlertTimestamp);
-
-            lastAlertService.save(lastAlert);
+            initialDate.setLastAlertTimestamp(alerts.get(alerts.size() - 1).getTimestampAsInstant());
+            lastAlertRepository.save(initialDate);
 
             for (AlertType alert : alerts) {
                 List<LogType> relatedLogs;
@@ -144,7 +134,6 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 }
 
                 String[] addressToNotify = emails.replace(" ", "").split(",");
-
                 mailService.sendAlertEmail(Arrays.asList(addressToNotify), alert, relatedLogs);
             }
 
@@ -185,21 +174,21 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
     @Override
     public void updateStatus(List<String> alertIds, int status, String statusObservation) throws
-        ElasticsearchIndexDocumentUpdateException {
+            ElasticsearchIndexDocumentUpdateException {
         final String ctx = CLASS_NAME + ".updateStatus";
         try {
             String ruleScript = "ctx._source.status=%1$s;" +
-                "ctx._source.statusLabel='%2$s';" +
-                "ctx._source.statusObservation=\"%3$s\";";
+                    "ctx._source.statusLabel='%2$s';" +
+                    "ctx._source.statusObservation=\"%3$s\";";
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS, alertIds));
 
             String script = String.format(ruleScript, status,
-                AlertStatus.getByCode(status).getName(), StringEscapeUtils.escapeJava(statusObservation));
+                    AlertStatus.getByCode(status).getName(), StringEscapeUtils.escapeJava(statusObservation));
 
             elasticsearchService.updateByQuery(SearchUtil.toQuery(filters),
-                Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS), script);
+                    Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS), script);
         } catch (Exception e) {
             throw new ElasticsearchIndexDocumentUpdateException(ctx + ": " + e.getMessage());
         }
@@ -207,7 +196,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
     @Override
     public void updateTags(List<String> alertIds, List<String> tags, Boolean createRule) throws
-        ElasticsearchIndexDocumentUpdateException {
+            ElasticsearchIndexDocumentUpdateException {
         final String ctx = CLASS_NAME + ".updateTags";
         try {
             List<FilterType> filters = new ArrayList<>();
@@ -219,7 +208,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 script = String.format(tagScript, "['" + String.join("','", tags) + "']");
 
             elasticsearchService.updateByQuery(SearchUtil.toQuery(filters), Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS),
-                script);
+                    script);
         } catch (Exception e) {
             throw new ElasticsearchIndexDocumentUpdateException(ctx + ": " + e.getMessage());
         }
@@ -238,9 +227,9 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                 return new ArrayList<>(alertStatus.values());
 
             SearchRequest srb = SearchRequest.of(r -> r.size(0)
-                .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
-                .query(SearchUtil.toQuery(filters))
-                .aggregations(AGG_NAME, a -> a.terms(t -> t.field(Constants.alertStatus).size(5))));
+                    .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
+                    .query(SearchUtil.toQuery(filters))
+                    .aggregations(AGG_NAME, a -> a.terms(t -> t.field(Constants.alertStatus).size(5))));
 
             SearchResponse<Object> response = elasticsearchService.search(srb, Object.class);
 
@@ -272,7 +261,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             String script = String.format("ctx._source.notes=\"%1$s\";", StringEscapeUtils.escapeJava(notes));
 
             elasticsearchService.updateByQuery(SearchUtil.toQuery(filters),
-                Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS), script);
+                    Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS), script);
         } catch (Exception e) {
             throw new ElasticsearchIndexDocumentUpdateException(ctx + ": " + e.getMessage());
         }
@@ -297,14 +286,14 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             String incidentCreatedBy = SecurityUtils.getCurrentUserLogin().orElse("system");
 
             String script = String.format("ctx._source.isIncident=true;" +
-                    "if(ctx._source.incidentDetail == null) {" +
-                    "ctx._source.incidentDetail = new HashMap();}" +
-                    "ctx._source.incidentDetail.incidentName=\"%1$s\";" +
-                    "ctx._source.incidentDetail.incidentId=\"%2$s\";" +
-                    "ctx._source.incidentDetail.creationDate=\"%3$s\";" +
-                    "ctx._source.incidentDetail.createdBy=\"%4$s\";" +
-                    "ctx._source.incidentDetail.source=\"%5$s\";",
-                incidentName, incidentId, incidentCreationDate, incidentCreatedBy, incidentSource);
+                            "if(ctx._source.incidentDetail == null) {" +
+                            "ctx._source.incidentDetail = new HashMap();}" +
+                            "ctx._source.incidentDetail.incidentName=\"%1$s\";" +
+                            "ctx._source.incidentDetail.incidentId=\"%2$s\";" +
+                            "ctx._source.incidentDetail.creationDate=\"%3$s\";" +
+                            "ctx._source.incidentDetail.createdBy=\"%4$s\";" +
+                            "ctx._source.incidentDetail.source=\"%5$s\";",
+                    incidentName, incidentId, incidentCreationDate, incidentCreatedBy, incidentSource);
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertIdKeyword, OperatorType.IS_ONE_OF_TERMS, alertIds));
@@ -330,8 +319,8 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             Query query = SearchUtil.toQuery(filters);
             SearchRequest request = SearchRequest.of(r -> r.query(query)
-                .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
-                .size(Constants.LOG_ANALYZER_TOTAL_RESULTS));
+                    .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
+                    .size(Constants.LOG_ANALYZER_TOTAL_RESULTS));
 
             HitsMetadata<AlertType> hits = elasticsearchService.search(request, AlertType.class).hits();
 
