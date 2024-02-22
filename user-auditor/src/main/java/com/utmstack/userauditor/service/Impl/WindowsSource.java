@@ -106,13 +106,15 @@ public class WindowsSource implements Source {
         List<BucketAggregation> buckets = TermAggregateParser.parse(rs.aggregations().get(SUBJECT_AGG_NAME));
         buckets.addAll(TermAggregateParser.parse(rs.aggregations().get(TARGET_AGG_NAME)));
 
-        buckets.forEach(b -> {
-            if (!this.userEvents.containsKey(this.getKey(b))) {
-                this.userEvents.put(this.getKey(b), getLastEvents(b.getSubAggregations().get("top_events").topHits()));
-            } else {
-                this.userEvents.get(this.getKey(b)).addAll(getLastEvents(b.getSubAggregations().get("top_events").topHits()));
-            }
-        });
+        buckets.stream()
+                .filter(bucket -> !bucket.getKey().equals("-"))
+                .forEach(b -> {
+                    if (!this.userEvents.containsKey(b.getKey())) {
+                        this.userEvents.put(b.getKey(), getLastEvents(b.getSubAggregations().get("top_events").topHits()));
+                    } else {
+                        this.userEvents.get(b.getKey()).addAll(getLastEvents(b.getSubAggregations().get("top_events").topHits()));
+                    }
+                });
     }
 
     @NotNull
@@ -173,15 +175,6 @@ public class WindowsSource implements Source {
             return LocalDateTime.of(startDate.toLocalDate().plusDays(1), LocalTime.now());
         } else {
             return startDate.plusMonths(searchIntervalMonths);
-        }
-    }
-
-    private String getKey(BucketAggregation bucket) {
-        if (bucket.getKey().equals("-")) {
-            EventLog eventLog = this.getLastEvents(bucket.getSubAggregations().get("top_events").topHits()).get(0);
-            return  eventLog.getLogx().wineventlog.eventData.subjectUserName;
-        } else {
-            return bucket.getKey();
         }
     }
 
