@@ -2,10 +2,11 @@ package migration
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Changeset struct {
@@ -96,7 +97,7 @@ func renameLastSeenTableAndColumnOrCreateTable(db *gorm.DB) error {
 	// Rename the table from `agent_last_seens` to `last_seen`
 	newName := "last_seens"
 	oldName := "agent_last_seens"
-	if !db.Migrator().HasTable(oldName) {
+	if db.Migrator().HasTable(oldName) {
 		if err := db.Migrator().RenameTable("agent_last_seens", newName); err != nil {
 			fmt.Printf("Failed to rename table: %v\n", err)
 			return err
