@@ -218,7 +218,7 @@
       <h6 class="card-title text-blue-800 font-weight-light">
         {{getRuleName()}}
       </h6>
-      <button (click)="viewAlertDetail= false" aria-label="Close"
+      <button (click)="viewAlertDetail= false;onRefreshData(true)" aria-label="Close"
               class="close button-close" type="button">
         <div class="close-icon"></div>
       </button>
