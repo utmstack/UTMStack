@@ -4,4 +4,4 @@ vendor/
 .DS_Store
 
 installer/installer
-*/.vscode/
+*/.vscode

@@ -135,14 +135,12 @@ public class UtmAlertResponseRuleService {
                 return;
 
             List<UtmAlertResponseRule> rules = alertResponseRuleRepository.findAllByRuleActiveIsTrue();
+            if (CollectionUtils.isEmpty(rules))
+                return;
 
             // Excluding alerts tagged as false positive
             alerts = alerts.stream().filter(a -> (CollectionUtils.isEmpty(a.getTags()) || !a.getTags().contains("False positive")))
                     .collect(Collectors.toList());
-
-            // Do nothing if there is no valid alerts to check
-            if (CollectionUtils.isEmpty(alerts))
-                return;
 
             // Do nothing if there is no valid alerts to check
             if (CollectionUtils.isEmpty(alerts))
@@ -154,6 +152,7 @@ public class UtmAlertResponseRuleService {
 
                 if (CollectionUtils.isEmpty(agentNames))
                     continue;
+
                 // Matching agents (these are the alerts made from logs coming from an agent)
                 //------------------------------------------------------------------------------------------
                 createResponseRuleExecution(rule,alertJsonArray,agentNames,true);
@@ -208,7 +207,6 @@ public class UtmAlertResponseRuleService {
 
                     exe.setAlertId(UtilJson.read("$.id", matchAsJson));
                     exe.setRuleId(rule.getId());
-
                     exe.setCommand(buildCommand(rule.getRuleCmd(), matchAsJson));
                     exe.setExecutionStatus(RuleExecutionStatus.PENDING);
                     alertResponseRuleExecutionRepository.save(exe);
