@@ -14,9 +14,15 @@ import com.utmstack.userauditor.service.interfaces.Source;
 import com.utmstack.userauditor.service.type.FilterType;
 import com.utmstack.userauditor.service.type.OperatorType;
 import com.utmstack.userauditor.service.type.SourceType;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.StringRareTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.aggregations.Aggregate;
+import org.opensearch.client.opensearch._types.aggregations.AggregationBuilders;
 import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -31,6 +37,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 
 @Component
 public class WindowsSource implements Source {
@@ -48,6 +55,8 @@ public class WindowsSource implements Source {
 
     static final String SUBJECT_AGG_NAME = "SUBJECT_USER_NAME";
     static final String TARGET_AGG_NAME = "TARGET_USER_NAME";
+
+    int pageNumber;
 
     WindowsSource(ElasticsearchService elasticsearchService, SourceScanRepository sourceScanRepository) {
         this.userEvents = new HashMap<>();
@@ -97,16 +106,25 @@ public class WindowsSource implements Source {
         }
     }
 
+    List<BucketAggregation> getBuckets(String from, String to, SourceFilter sourceFilter) {
+
+        SearchRequest.Builder srb = getBuilder(sourceFilter, from, to, this.pageNumber);
+        SearchResponse<String> rs = elasticsearchService.search(srb.build(), String.class);
+        List<BucketAggregation> buckets = TermAggregateParser.parse(rs.aggregations().get(TARGET_AGG_NAME));
+
+        if (!buckets.isEmpty()) {
+            this.pageNumber ++;
+            buckets.addAll(getBuckets( from,  to,  sourceFilter));
+        }
+
+        return buckets;
+    }
+
     void executeQuery(String from, String to, Integer top, SourceFilter sourceFilter) {
 
-        SearchRequest.Builder srb = getBuilder(sourceFilter, from, to);
+        this.pageNumber = 1;
 
-        SearchResponse<String> rs = elasticsearchService.search(srb.build(), String.class);
-
-        List<BucketAggregation> buckets = TermAggregateParser.parse(rs.aggregations().get(SUBJECT_AGG_NAME));
-        buckets.addAll(TermAggregateParser.parse(rs.aggregations().get(TARGET_AGG_NAME)));
-
-        buckets.stream()
+        getBuckets(from, to, sourceFilter).stream()
                 .filter(bucket -> !bucket.getKey().equals("-"))
                 .forEach(b -> {
                     if (!this.userEvents.containsKey(b.getKey())) {
@@ -118,7 +136,7 @@ public class WindowsSource implements Source {
     }
 
     @NotNull
-    private static SearchRequest.Builder getBuilder(SourceFilter sourceFilter, String from, String to) {
+    private static SearchRequest.Builder getBuilder(SourceFilter sourceFilter, String from, String to, int top) {
 
         List<FilterType> filters = new ArrayList<>();
 
@@ -130,19 +148,14 @@ public class WindowsSource implements Source {
         srb.index(sourceFilter.getSource().getIndexPattern());
         srb.query(SearchUtil.toQuery(filters));
 
-        srb.aggregations(SUBJECT_AGG_NAME, agg -> agg
-                .terms(t -> t.field("logx.wineventlog.event_data.SubjectUserName.keyword")
-                        .order(List.of(Map.of("_count", SortOrder.Desc))))
-                .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
-                        .size(1)
-                        .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc))))));
-
         srb.aggregations(TARGET_AGG_NAME, agg -> agg
                 .terms(t -> t.field("logx.wineventlog.event_data.TargetUserName.keyword")
+                        .size(100)
                         .order(List.of(Map.of("_count", SortOrder.Desc))))
-                .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
-                        .size(1)
-                        .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc))))));
+                            .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
+                            .size(1)
+                            .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc))))));
+
         return srb;
     }
 
