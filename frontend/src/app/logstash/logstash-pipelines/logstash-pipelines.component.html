@@ -182,8 +182,8 @@
 <ng-template #pipelineEventTemplate let-detail="pipeline" let-showColum="showColum">
   <div class="d-flex "
        [ngClass]="showColum?'flex-column align-items-start justify-content-center': 'justify-content-between align-items-center'">
-    <span class="span-small-icon"><i class="icon-database-insert mr-1"></i>Input: {{detail.events.in}}</span>
+    <!--<span class="span-small-icon"><i class="icon-database-insert mr-1"></i>Input: {{detail.events.in}}</span>-->
     <span class="span-small-icon"><i class="icon-database-refresh mr-1"></i>Processed: {{detail.events.filtered}}</span>
-    <span class="span-small-icon"><i class="icon-database-export mr-1"></i>Output: {{detail.events.out}}</span>
+    <!--<span class="span-small-icon"><i class="icon-database-export mr-1"></i>Output: {{detail.events.out}}</span>-->
   </div>
 </ng-template>
