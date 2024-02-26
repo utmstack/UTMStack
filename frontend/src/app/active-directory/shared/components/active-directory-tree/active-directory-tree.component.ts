@@ -45,7 +45,8 @@ getAllInfo() {
     const req = {
       sourceId: 1,
       page: 0,
-      size: ACTIVE_DIRECTORY_SIZE
+      size: ACTIVE_DIRECTORY_SIZE,
+      sort: 'name,asc'
     };
     this.activeDirectoryService.query(req).subscribe(data => {
       this.searching = false;
