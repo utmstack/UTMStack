@@ -3,7 +3,7 @@ package com.utmstack.userauditor.model;
 import com.utmstack.userauditor.model.audit.Auditable;
 import lombok.*;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.util.List;
 
 /**
