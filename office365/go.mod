@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/office365
 go 1.21.0
 
 require (
-	github.com/threatwinds/logger v1.0.9
+	github.com/threatwinds/logger v1.0.10
 	github.com/utmstack/config-client-go v1.2.4
 )
 
