@@ -7,7 +7,7 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TreeObjectBehavior} from '../../behavior/tree-object.behvior';
 import {WinlogbeatService} from '../../services/winlogbeat.service';
-import {ActiveDirectoryTreeType} from "../../types/active-directory-tree.type";
+import {ActiveDirectoryTreeType} from '../../types/active-directory-tree.type';
 import {WinlogbeatEventType} from '../../types/winlogbeat-event.type';
 
 @Component({
@@ -51,7 +51,7 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   }
 
   getEvents() {
-    if(this.filterTime){
+    if (this.filterTime && this.objectId.objectSid) {
       const req = {
         page: this.page,
         size: this.itemsPerPage,
@@ -72,6 +72,8 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
         }
       });
+    } else {
+      this.loading = false;
     }
   }
 

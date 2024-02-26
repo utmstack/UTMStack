@@ -1,8 +1,10 @@
 package com.utmstack.userauditor.service.Impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utmstack.userauditor.model.*;
 import com.utmstack.userauditor.model.winevent.EventLog;
+import com.utmstack.userauditor.model.winevent.UserEvent;
 import com.utmstack.userauditor.repository.SourceScanRepository;
 import com.utmstack.userauditor.service.elasticsearch.ElasticsearchService;
 import com.utmstack.userauditor.service.elasticsearch.SearchUtil;
@@ -11,6 +13,7 @@ import com.utmstack.userauditor.service.type.FilterType;
 import com.utmstack.userauditor.service.type.OperatorType;
 import com.utmstack.userauditor.service.type.SourceType;
 import org.opensearch.client.json.JsonData;
+import org.opensearch.client.opensearch._types.aggregations.CompositeAggregate;
 import org.opensearch.client.opensearch._types.aggregations.CompositeBucket;
 import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
 import org.opensearch.client.opensearch.core.SearchRequest;
@@ -49,12 +52,15 @@ public class WindowsSource implements Source {
 
     private static final String FIELD = "logx.wineventlog.event_data.TargetUserName.keyword";
 
-    private static final int ITEMS_PER_PAGE = 5;
+    private static final int ITEMS_PER_PAGE = 100;
+
+    private final ObjectMapper objectMapper;
 
     WindowsSource(ElasticsearchService elasticsearchService, SourceScanRepository sourceScanRepository) {
         this.userEvents = new HashMap<>();
         this.elasticsearchService = elasticsearchService;
         this.sourceScanRepository = sourceScanRepository;
+        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -105,8 +111,10 @@ public class WindowsSource implements Source {
         SearchResponse<String> rs = elasticsearchService.search(srb.build(), String.class);
         List<CompositeBucket> buckets = rs.aggregations().get(TARGET_AGG_NAME).composite().buckets().array();
 
+        CompositeAggregate aggregate = rs.aggregations().get(TARGET_AGG_NAME).composite();
+
         if (!buckets.isEmpty()) {
-            after = rs.aggregations().get(TARGET_AGG_NAME).composite().afterKey().get("users").toString().replaceAll("\"", "");
+            after = aggregate.afterKey().get("users").toString().replace("\"", "");
             buckets.addAll(getBuckets(from, to, sourceFilter, after));
         }
         return buckets;
@@ -115,39 +123,19 @@ public class WindowsSource implements Source {
     void executeQuery(String from, String to, SourceFilter sourceFilter) {
 
         getBuckets(from, to, sourceFilter, "").stream()
-                .filter(bucket -> !bucket.key().get("users").toString().equals("-"))
+                .map(b-> UserEvent.builder()
+                        .name(getKey(b))
+                        .topEvents(b.aggregations().get("top_events").topHits()).build())
+                .filter(user -> !user.getName().isEmpty())
                 .forEach(b -> {
-                    if (!this.userEvents.containsKey(b.key().get("users").toString())) {
-                        this.userEvents.put(b.key().get("users").toString(), getLastEvents(b.aggregations().get("top_events").topHits()));
+                    if (!this.userEvents.containsKey(b.getName())) {
+                        this.userEvents.put(b.getName(), getLastEvents(b.getTopEvents()));
                     } else {
-                        this.userEvents.get(b.key().get("users").toString()).addAll(getLastEvents(b.aggregations().get("top_events").topHits()));
+                        this.userEvents.get(b.getName()).addAll(getLastEvents(b.getTopEvents()));
                     }
                 });
     }
 
-    /*@NotNull
-    private static SearchRequest.Builder getBuilder(SourceFilter sourceFilter, String from, String to, int top) {
-
-        List<FilterType> filters = new ArrayList<>();
-
-        filters.add(new FilterType(sourceFilter.getField(), OperatorType.values()[sourceFilter.getOperator()], sourceFilter.getValue()));
-        filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, List.of(from, to)));
-
-        SearchRequest.Builder srb = new SearchRequest.Builder();
-        srb.size(0);
-        srb.index(sourceFilter.getSource().getIndexPattern());
-        srb.query(SearchUtil.toQuery(filters));
-
-        srb.aggregations(TARGET_AGG_NAME, agg -> agg
-                .terms(t -> t.field("logx.wineventlog.event_data.TargetUserName.keyword")
-                        .size(100)
-                        .order(List.of(Map.of("_count", SortOrder.Desc))))
-                            .aggregations("top_events", subAgg -> subAgg.topHits(th -> th
-                            .size(1)
-                            .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc))))));
-
-        return srb;
-    }*/
 
     private static SearchRequest.Builder getBuilder(SourceFilter sourceFilter, String from, String to, String after) {
 
@@ -168,7 +156,7 @@ public class WindowsSource implements Source {
     }
 
     List<EventLog> getLastEvents(TopHitsAggregate topEvents) {
-        ObjectMapper objectMapper = new ObjectMapper();
+        //ObjectMapper objectMapper = new ObjectMapper();
         List<EventLog> eventLogs = new ArrayList<>();
         List<Hit<JsonData>> searchHits = topEvents.hits().hits();
 
@@ -196,6 +184,14 @@ public class WindowsSource implements Source {
             return LocalDateTime.of(startDate.toLocalDate().plusDays(1), LocalTime.now());
         } else {
             return startDate.plusMonths(searchIntervalMonths);
+        }
+    }
+
+    private String getKey(CompositeBucket bucket) {
+        try {
+            return objectMapper.readValue(bucket.key().get("users").toString(), String.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
