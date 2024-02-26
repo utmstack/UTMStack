@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
@@ -101,6 +103,36 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 	}
 }
 
+func (s *Grpc) replaceSecretValues(input string) string {
+	pattern := regexp.MustCompile(`\$\[(\w+):([^\]]+)\]`)
+	return pattern.ReplaceAllStringFunc(input, func(match string) string {
+		matches := pattern.FindStringSubmatch(match)
+		if len(matches) < 3 {
+			return match // In case of no match, return the original
+		}
+		encryptedValue := matches[2]
+		// Decrypt and add to cache if not found
+		decryptedValue, _ := util.DecryptValue(encryptedValue)
+		addToSecretCache(match, decryptedValue)
+		return decryptedValue
+	})
+}
+
+func addToSecretCache(key, decryptedValue string) {
+	cacheSecretLock.Lock()
+	defer cacheSecretLock.Unlock()
+	SecretVariablesCache[key] = decryptedValue
+}
+
+func hideSecretsInCommandResult(result string) string {
+	cacheSecretLock.RLock()
+	defer cacheSecretLock.RUnlock()
+	for _, decryptedValue := range SecretVariablesCache {
+		result = strings.ReplaceAll(result, decryptedValue, strings.Repeat("*", len(decryptedValue)))
+	}
+	return result
+}
+
 func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 	for {
 		cmd, err := stream.Recv()
@@ -144,7 +176,7 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 			StreamMessage: &BidirectionalStream_Command{
 				Command: &UtmCommand{
 					AgentKey:    cmd.AgentKey,
-					Command:     cmd.Command,
+					Command:     s.replaceSecretValues(cmd.Command),
 					CmdId:       cmdID,
 					InternalKey: config.GetInternalKey(),
 				},
@@ -156,6 +188,7 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 
 		// Wait for the result from the agent
 		result := <-resultChan
+		result.Result = hideSecretsInCommandResult(result.Result)
 		updateHistoryCommand(result, cmdID)
 		// Send the result back to the PanelService
 		err = stream.Send(result)

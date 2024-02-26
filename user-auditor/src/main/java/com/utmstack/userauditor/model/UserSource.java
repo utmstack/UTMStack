@@ -3,7 +3,7 @@ package com.utmstack.userauditor.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.util.List;
 
 /**

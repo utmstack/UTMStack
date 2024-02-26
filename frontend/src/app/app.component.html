@@ -97,6 +97,18 @@
   <p style="color: #ffffff">Getting alert detail</p>
 </ngx-spinner>
 
+<ngx-spinner
+  [fullScreen]="true"
+  [id]="'buildPrintPDF'"
+  [name]="'buildPrintPDF'"
+  bdColor=" rgba(34, 34, 34, 0.58)"
+  bdOpacity=0.9
+  color="#ffffff"
+  size="medium"
+  type="ball-clip-rotate">
+  <p style="color: #ffffff">Creating pdf, please wait</p>
+</ngx-spinner>
+
 <app-utm-header-health-warning *appHasAnyAuthority="roles" [hidden]="isInExportRoute()"></app-utm-header-health-warning>
 
 <div class="offline" *ngIf="offline">

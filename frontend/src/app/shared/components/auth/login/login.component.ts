@@ -4,6 +4,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Observable} from "rxjs";
 import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
 import {LoginService} from '../../../../core/login/login.service';
@@ -31,7 +32,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   startLogin = false;
   isInDemo: boolean;
   loadingAuth = true;
-  loginImage: string;
+  loginImage$: Observable<string>;
 
   constructor(
     private loginService: LoginService,
@@ -49,6 +50,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ) {
     this.credentials = {};
     this.isInDemo = window.location.href.includes(DEMO_URL);
+    this.loginImage$ = this.themeChangeBehavior.$themeIcon.asObservable();
   }
 
   ngAfterViewInit() {
@@ -59,6 +61,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.apiServiceCheckerService.isOnlineApi$.subscribe(result => {
       if (result) {
+        this.loadingAuth = false;
         this.activatedRoute.queryParams.subscribe(params => {
           if (params.token) {
             this.loginService.loginWithToken(params.token, true).then(() => {
@@ -70,16 +73,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 });
               }
             });
-          } else {
-            this.loadingAuth = false;
+          } else if (params.key) {
+            this.loginService.loginWithKey(params.key, true).then(() => {
+              this.startInternalNavigation();
+            });
           }
         });
-        this.themeChangeBehavior.$themeIcon.subscribe(icon => {
-          if (icon) {
-            this.loginImage = icon;
-          }
-        });
-
         this.initForm();
       }
     });
@@ -180,4 +179,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  startInternalNavigation() {
+    this.router.navigate(['/dashboard/overview']);
+  }
+
 }

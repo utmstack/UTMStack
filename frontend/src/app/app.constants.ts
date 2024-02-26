@@ -13,3 +13,5 @@ export const SERVER_API_URL = environment.SERVER_API_URL + environment.SERVER_AP
 export const SERVER_API_CONTEXT = environment.SERVER_API_CONTEXT;
 export const WS_SERVER_API_URL = environment.WEBSOCKET_URL;
 export const BUILD_TIMESTAMP = environment.BUILD_TIMESTAMP;
+
+export const ACCESS_KEY =  'Utm-Internal-Key';

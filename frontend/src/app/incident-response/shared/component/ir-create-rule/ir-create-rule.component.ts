@@ -298,4 +298,9 @@ export class IrCreateRuleComponent implements OnInit {
     this.formRule.get('agentType').setValue($event);
   }
 
+  insertVariablePlaceholder($event: string) {
+    this.command += `$[${$event}]`;
+  }
+
+
 }

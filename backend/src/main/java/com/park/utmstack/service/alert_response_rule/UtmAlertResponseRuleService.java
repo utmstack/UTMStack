@@ -14,6 +14,7 @@ import com.park.utmstack.domain.alert_response_rule.enums.RuleNonExecutionCause;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
+import com.park.utmstack.domain.incident_response.UtmIncidentVariable;
 import com.park.utmstack.domain.shared_types.AlertType;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleExecutionRepository;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleHistoryRepository;
@@ -25,7 +26,9 @@ import com.park.utmstack.service.dto.UtmAlertResponseRuleDTO;
 import com.park.utmstack.service.dto.agent_manager.AgentDTO;
 import com.park.utmstack.service.dto.agent_manager.AgentStatusEnum;
 import com.park.utmstack.service.grpc.CommandResult;
+import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.service.incident_response.grpc_impl.IncidentResponseCommandService;
+import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.UtilJson;
 import com.park.utmstack.util.exceptions.UtmNotImplementedException;
 import io.grpc.stub.StreamObserver;
@@ -59,6 +62,7 @@ public class UtmAlertResponseRuleService {
     private final AgentService agentService;
     private final IncidentResponseCommandService incidentResponseCommandService;
     private final UtmAlertResponseRuleExecutionRepository alertResponseRuleExecutionRepository;
+    private final UtmIncidentVariableService utmIncidentVariableService;
 
     public UtmAlertResponseRuleService(UtmAlertResponseRuleRepository alertResponseRuleRepository,
                                        UtmAlertResponseRuleHistoryRepository alertResponseRuleHistoryRepository,
@@ -66,7 +70,8 @@ public class UtmAlertResponseRuleService {
                                        ApplicationEventService eventService,
                                        AgentService agentService,
                                        IncidentResponseCommandService incidentResponseCommandService,
-                                       UtmAlertResponseRuleExecutionRepository alertResponseRuleExecutionRepository) {
+                                       UtmAlertResponseRuleExecutionRepository alertResponseRuleExecutionRepository,
+                                       UtmIncidentVariableService utmIncidentVariableService) {
         this.alertResponseRuleRepository = alertResponseRuleRepository;
         this.alertResponseRuleHistoryRepository = alertResponseRuleHistoryRepository;
         this.networkScanRepository = networkScanRepository;
@@ -74,6 +79,7 @@ public class UtmAlertResponseRuleService {
         this.agentService = agentService;
         this.incidentResponseCommandService = incidentResponseCommandService;
         this.alertResponseRuleExecutionRepository = alertResponseRuleExecutionRepository;
+        this.utmIncidentVariableService = utmIncidentVariableService;
     }
 
     public UtmAlertResponseRule save(UtmAlertResponseRule alertResponseRule) {
@@ -81,7 +87,7 @@ public class UtmAlertResponseRuleService {
         try {
             if (alertResponseRule.getId() != null) {
                 UtmAlertResponseRule current = alertResponseRuleRepository.findById(alertResponseRule.getId())
-                    .orElseThrow(() -> new RuntimeException(String.format("Incident response rule with ID: %1$s not found", alertResponseRule.getId())));
+                        .orElseThrow(() -> new RuntimeException(String.format("Incident response rule with ID: %1$s not found", alertResponseRule.getId())));
                 alertResponseRuleHistoryRepository.save(new UtmAlertResponseRuleHistory(new UtmAlertResponseRuleDTO(current)));
             }
             return alertResponseRuleRepository.save(alertResponseRule);
@@ -113,8 +119,8 @@ public class UtmAlertResponseRuleService {
         final String ctx = CLASSNAME + ".resolveFilterValues";
         try {
             return Map.of(
-                "agentPlatform", alertResponseRuleRepository.findAgentPlatformValues(),
-                "users", alertResponseRuleRepository.findUserValues()
+                    "agentPlatform", alertResponseRuleRepository.findAgentPlatformValues(),
+                    "users", alertResponseRuleRepository.findUserValues()
             );
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
@@ -129,10 +135,12 @@ public class UtmAlertResponseRuleService {
                 return;
 
             List<UtmAlertResponseRule> rules = alertResponseRuleRepository.findAllByRuleActiveIsTrue();
+            if (CollectionUtils.isEmpty(rules))
+                return;
 
             // Excluding alerts tagged as false positive
             alerts = alerts.stream().filter(a -> (CollectionUtils.isEmpty(a.getTags()) || !a.getTags().contains("False positive")))
-                .collect(Collectors.toList());
+                    .collect(Collectors.toList());
 
             // Do nothing if there is no valid alerts to check
             if (CollectionUtils.isEmpty(alerts))
@@ -283,26 +291,26 @@ public class UtmAlertResponseRuleService {
                     if (agent.getStatus().equals(AgentStatusEnum.ONLINE)) {
                         String reason = "The incident response automation executed this command because it was accomplished the conditions of the rule with ID: " + cmd.getRuleId();
                         final StringBuilder results = new StringBuilder();
-                        incidentResponseCommandService.sendCommand(agent.getAgentKey(), cmd.getCommand(), "INCIDENT_RESPONSE_AUTOMATION",
-                            cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, new StreamObserver<>() {
-                                @Override
-                                public void onNext(CommandResult commandResult) {
-                                    results.append(commandResult.getResult());
-                                }
+                        incidentResponseCommandService.sendCommand(agent.getAgentKey(), utmIncidentVariableService.replaceVariablesInCommand(cmd.getCommand()), "INCIDENT_RESPONSE_AUTOMATION",
+                                cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, new StreamObserver<>() {
+                                    @Override
+                                    public void onNext(CommandResult commandResult) {
+                                        results.append(commandResult.getResult());
+                                    }
 
-                                @Override
-                                public void onError(Throwable throwable) {
+                                    @Override
+                                    public void onError(Throwable throwable) {
 
-                                }
+                                    }
 
-                                @Override
-                                public void onCompleted() {
-                                    cmd.setCommandResult(results.toString());
-                                    cmd.setExecutionStatus(RuleExecutionStatus.EXECUTED);
-                                    cmd.setNonExecutionCause(null);
-                                    alertResponseRuleExecutionRepository.save(cmd);
-                                }
-                            });
+                                    @Override
+                                    public void onCompleted() {
+                                        cmd.setCommandResult(results.toString());
+                                        cmd.setExecutionStatus(RuleExecutionStatus.EXECUTED);
+                                        cmd.setNonExecutionCause(null);
+                                        alertResponseRuleExecutionRepository.save(cmd);
+                                    }
+                                });
                     } else {
                         if (cmd.getExecutionRetries() < Constants.IRA_EXECUTION_RETRIES) {
                             cmd.setExecutionStatus(RuleExecutionStatus.PENDING);

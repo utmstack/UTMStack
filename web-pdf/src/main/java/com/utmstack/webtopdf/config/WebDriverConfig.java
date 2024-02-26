@@ -13,17 +13,15 @@ import java.net.URL;
 @Slf4j
 public class WebDriverConfig {
 
-    String webDriverHost = System.getenv("WEB_DRIVER_HOST");
-    String webDriverPort = System.getenv("WEB_DRIVER_PORT");
-
     public WebDriver createWebDriver() {
         try {
 
-            URL serverUrl = new URL("http://" + webDriverHost + ":" + webDriverPort + "/wd/hub");
+            URL serverUrl = new URL("http://localhost:4444/wd/hub");
 
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--no-sandbox");
+            options.setAcceptInsecureCerts(true);
 
             return new RemoteWebDriver(serverUrl, options);
         } catch (MalformedURLException | RuntimeException exception) {

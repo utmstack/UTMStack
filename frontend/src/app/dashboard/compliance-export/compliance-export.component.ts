@@ -8,10 +8,18 @@ import {CpReportsService} from '../../compliance/shared/services/cp-reports.serv
 import {ComplianceReportType} from '../../compliance/shared/type/compliance-report.type';
 import {AccountService} from '../../core/auth/account.service';
 import {Account} from '../../core/user/account.model';
+import {DashboardBehavior} from '../../shared/behaviors/dashboard.behavior';
 import {ThemeChangeBehavior} from '../../shared/behaviors/theme-change.behavior';
+import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {UtmDashboardVisualizationType} from '../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
+import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {
+  parseQueryParamsToFilterWithPattern
+} from '../../shared/util/query-params-to-filter.util';
+import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
 import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
+
 
 @Component({
   selector: 'app-compliance-export',
@@ -54,6 +62,8 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
   date = new Date();
   preparingPrint = true;
   cover: string;
+  filters: ElasticFilterType[] = [];
+  filterTime: { from: string, to: string };
 
   constructor(private activatedRoute: ActivatedRoute,
               private cpReportsService: CpReportsService,
@@ -61,6 +71,8 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
               private accountService: AccountService,
               private spinner: NgxSpinnerService,
               private themeChangeBehavior: ThemeChangeBehavior,
+              private dashboardBehavior: DashboardBehavior,
+              private timeFilterBehavior: TimeFilterBehavior,
               public sanitizer: DomSanitizer,
               private cdr: ChangeDetectorRef) {
   }
@@ -92,9 +104,37 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
       this.reportId = params.id;
       this.getTemplate();
     });
+    this.activatedRoute.queryParams.subscribe(params => {
+      const queryParams = Object.entries(params).length > 0 ? params : null;
+      if (queryParams) {
+        parseQueryParamsToFilterWithPattern(queryParams).then((filters) => {
+          this.filters = filters;
+          this.getTimeFilterValue();
+        });
+      }
+    });
     this.accountService.identity().then(account => {
       this.account = account;
     });
+  }
+
+  getTimeFilterValue() {
+    if (this.getTime()) {
+      this.filterTime = {
+        from: this.resolveFromDate(this.getTime()),
+        to: this.resolveToDate(this.getTime()),
+      };
+    }
+  }
+
+  getTime() {
+    const indexTime = this.filters.findIndex(value => value.field === '@timestamp');
+    if (indexTime !== -1) {
+      return {
+        from: this.filters[indexTime].value[0],
+        to: this.filters[indexTime].value[1]
+      };
+    }
   }
 
   /**
@@ -125,11 +165,59 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
     }
   }
 
+  resolveToDate(date: { from: any, to: any }): string {
+    if (!isNaN(Date.parse(date.to))) {
+      return date.to;
+    } else {
+      return new Date().toString();
+    }
+  }
+
+  setVisFilter(): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      for (const dashFilter of this.getFilterByIndexPattern()) {
+        this.dashboardBehavior.$filterDashboard.next(dashFilter);
+      }
+      if (this.filterTime) {
+        this.timeFilterBehavior.$time.next(this.getTime());
+      }
+      setTimeout(() => resolve(true), 5000);
+    });
+  }
+
+  getFilterByIndexPattern(): { filter: ElasticFilterType[], indexPattern: string }[] {
+    const filterDefs = [];
+
+    this.filters.forEach(filterType => {
+      const existingFilterDef = filterDefs.find(def => def.indexPattern === filterType.pattern);
+
+      if (existingFilterDef) {
+        existingFilterDef.filter.push(filterType);
+      } else {
+        filterDefs.push({
+          indexPattern: filterType.pattern,
+          filter: [filterType]
+        });
+      }
+    });
+    return filterDefs;
+  }
+
   onVisualizationLoaded() {
-    this.spinner.hide('buildPrint').then(() => {
+    this.setVisFilter().then(() => {
+      this.spinner.hide('buildPrint').then(() => {
         this.preparingPrint = false;
         this.print();
+      });
     });
+  }
+
+  resolveFromDate(date: { from: any, to: any }): string {
+    if (date && !isNaN(Date.parse(date.from))) {
+      return date.from;
+    } else {
+      return buildFormatInstantFromDate(date).timeFrom;
+    }
   }
 
 }

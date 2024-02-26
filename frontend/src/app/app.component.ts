@@ -66,20 +66,17 @@ export class AppComponent implements OnInit {
     this.favIcon = document.querySelector('#appFavicon');
     this.apiServiceCheckerService.isOnlineApi$.subscribe(result => {
       if (result) {
+        this.offline = false;
         this.timezoneFormatService.loadTimezoneAndFormat();
         this.getReportLogo();
-        this.offline = false;
         if (this.router.url === '/') {
             this.hideOnline = false;
-            this.utmToastService.showSuccess('Connection to the UTMStack API was successful.');
           }
         setTimeout(() => {
           this.hideOnline = true;
         }, 3000);
       } else if (result != null && !result && !this.offline) {
         this.offline = true;
-        this.utmToastService.showError('Error trying to connect to API', 'An error occurred while trying to connect to the API, ' +
-          'please check the UTMStack API connection and try again.');
       }
     });
     this.router.events.subscribe(evt => {
@@ -125,8 +122,6 @@ export class AppComponent implements OnInit {
       }
     }, error => {
       this.offline = true;
-      this.utmToastService.showError('Error trying to connect to API', 'An error occurred while trying to connect to the API, ' +
-        'please check the UTMStack API connection and try again.');
     });
   }
 

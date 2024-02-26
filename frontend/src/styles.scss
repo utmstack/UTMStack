@@ -1171,6 +1171,10 @@ $topnav-background-color: #FFFFFF;
   z-index: 2061 !important;
 }
 
+.tooltip {
+  z-index: 2062 !important;
+}
+
 .alert-warning {
   color: #232f3e !important;
   background-color: #fbbac0 !important;
@@ -1297,6 +1301,16 @@ app-rules {
     min-height: 33px !important;
     height: auto !important;
   }
+}
+
+app-utm-cp-cron-editor {
+  ngb-timepicker{
+    font-size: unset;
+  }
+}
+
+.ngb-tp-input-container {
+  width: unset!important;
 }
 
 
