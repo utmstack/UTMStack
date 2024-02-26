@@ -2,7 +2,7 @@ package com.utmstack.userauditor.model.audit;
 
 import com.utmstack.userauditor.model.Audit;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 public class AuditListener {
