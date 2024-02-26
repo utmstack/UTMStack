@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.utmstack.userauditor.model.audit.Auditable;
 import lombok.*;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 /**
  * A UtmAuditorUserAttributes.

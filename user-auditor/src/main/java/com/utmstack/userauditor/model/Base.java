@@ -2,9 +2,9 @@ package com.utmstack.userauditor.model;
 
 import com.utmstack.userauditor.model.audit.AuditListener;
 
-import jakarta.persistence.*;
 import lombok.*;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Getter
