@@ -29,7 +29,6 @@ import {AssetFilterType} from '../shared/types/asset-filter.type';
 import {UtmDataInputStatus} from '../shared/types/data-source-input.type';
 import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
-import {SYSTEM_MENU_ICONS_PATH} from "../../shared/constants/menu_icons.constants";
 
 @Component({
   selector: 'app-assets-view',
@@ -92,9 +91,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.setInitialWidth();
     this.getAssets();
-    this.interval = setInterval(() => {
-      this.getAssets();
-    }, 10000);
+    this.starInterval();
     this.accountService.identity().then(account => {
       this.reasonRun = {
         command: '',
@@ -107,7 +104,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    clearInterval(this.interval);
+    this.stopInterval(true);
     this.assetFiltersBehavior.$assetFilter.next(null);
   }
 
@@ -362,5 +359,20 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     this.reasonRun.reason = '';
   }
 
-  protected readonly SYSTEM_MENU_ICONS_PATH = SYSTEM_MENU_ICONS_PATH;
+  stopInterval(event: boolean) {
+    if (event) {
+      clearInterval(this.interval);
+      this.interval = null;
+    } else {
+      this.starInterval();
+    }
+  }
+
+  starInterval(){
+    if (!this.interval) {
+      this.interval = setInterval(() => {
+        this.getAssets();
+      }, 10000);
+    }
+  }
 }

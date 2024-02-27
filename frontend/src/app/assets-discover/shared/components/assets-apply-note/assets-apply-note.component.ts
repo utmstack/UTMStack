@@ -12,6 +12,7 @@ export class AssetsApplyNoteComponent implements OnInit {
   @Input() asset: NetScanType;
   @Input() showNote: boolean;
   @Output() applyNote = new EventEmitter<string>();
+  @Output() focus = new EventEmitter<boolean>();
   creating = false;
 
   constructor(private utmNetScanService: UtmNetScanService,
@@ -26,6 +27,7 @@ export class AssetsApplyNoteComponent implements OnInit {
     this.utmNetScanService.update(this.asset).subscribe(response => {
       this.utmToastService.showSuccessBottom('Comment added successfully');
       this.applyNote.emit('success');
+      this.focus.emit(false);
       this.creating = false;
     }, error => {
       this.utmToastService.showError('Error adding note',
@@ -36,5 +38,13 @@ export class AssetsApplyNoteComponent implements OnInit {
 
    onClick(event: Event) {
      event.stopPropagation();
+   }
+
+   onHidden() {
+     this.focus.emit(false);
+   }
+
+   onShown() {
+    this.focus.emit(true);
    }
 }
