@@ -29,7 +29,7 @@ func main() {
 		h.FatalError("Failed to get current path: %v", err)
 	}
 
-	// Configuring log saving
+	// Configuring  log saving
 	var logger = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 	defer logger.Close()
 	log.SetOutput(logger)
