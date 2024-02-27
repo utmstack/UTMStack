@@ -20,6 +20,8 @@
        tooltipClass="utm-tooltip-top">
     <span #tagPopoverSpan=ngbPopover
           (click)="getGroups($event)"
+          (shown)="onShown()"
+          (hidden)="onHidden()"
           [ngClass]="{'text-blue-800':group}"
           [ngbPopover]="colContent"
           [popoverTitle]="colTitle"

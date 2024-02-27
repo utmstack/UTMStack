@@ -135,7 +135,7 @@
                                          [group]="asset.group"
                                          [typeFormat]="'icon'" class="ml-2"></app-asset-group-add>
 
-                    <app-assets-apply-note [asset]="asset" class="ml-2"></app-assets-apply-note>
+                    <app-assets-apply-note (focus)="stopInterval($event)" [asset]="asset" class="ml-2"></app-assets-apply-note>
                   </div>
                 </td>
                 <td>

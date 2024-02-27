@@ -3,6 +3,8 @@
      tooltipClass="utm-tooltip-top">
 <span #notePopober=ngbPopover
       (click)="onClick($event)"
+      (shown)="onShown()"
+      (hidden)="onHidden()"
       [ngbPopover]="colContent"
       [popoverTitle]="colTitle"
       autoClose="outside"
