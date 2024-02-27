@@ -83,7 +83,7 @@ func main() {
 				h.FatalError("error configuring syslog server: %v", err)
 			}
 
-			// Install Beats
+			// Install  Beats
 			if err = beats.InstallBeats(*cnf, h); err != nil {
 				fmt.Printf("error installing beats: %v", err)
 				h.FatalError("error installing beats: %v", err)
