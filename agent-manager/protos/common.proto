@@ -26,3 +26,7 @@ message AuthResponse {
   uint32 id = 1;
   string key = 2;
 }
+
+message Hostname{
+  string hostname = 1;
+}

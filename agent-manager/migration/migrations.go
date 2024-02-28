@@ -2,6 +2,7 @@ package migration
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
@@ -28,6 +29,7 @@ func MigrateDatabase() {
 	performMigration(db, "seedAgentTypeTable_15022024_003", "jdieguez89", seedAgentTypeTable)
 	performMigration(db, "addLogCollectorTables_15022024_004", "jdieguez89", addLogCollectorTables)
 	performMigration(db, "addDeletedByFieldToCollector", "jdieguez89", addDeletedByFieldToCollector)
+	performMigration(db, "deleteColumnModuleIdFromCollectorGroupConfig", "jdieguez89", deleteColumnModuleIdFromCollectorGroupConfig)
 }
 
 // performMigration executes a given migration function if it has not been recorded yet.
@@ -63,6 +65,24 @@ func executeSQLCommands(db *gorm.DB, sqlCommands []string) error {
 			fmt.Printf("Failed to execute SQL command: %v\n", err)
 			return err
 		}
+	}
+	return nil
+}
+
+// DeleteColumnFromTable deletes a column from a specified table in the database.
+// tableName is the name of the table from which the column will be deleted.
+// columnName is the name of the column to be deleted.
+func deleteColumnFromTable(db *gorm.DB, table interface{}, columnName string) error {
+	// Check if the column exists before trying to delete it
+	if db.Migrator().HasColumn(table, columnName) {
+		err := db.Migrator().DropColumn(table, columnName)
+		if err != nil {
+			log.Printf("Failed to delete column '%s' from table '%s': %v", columnName, table, err)
+			return err
+		}
+	} else {
+		log.Printf("Column '%s' does not exist in table '%s'.", columnName, table)
+		return nil
 	}
 	return nil
 }
@@ -191,4 +211,10 @@ func addLogCollectorTables(db *gorm.DB) error {
 
 func addDeletedByFieldToCollector(db *gorm.DB) error {
 	return db.AutoMigrate(&models.Collector{})
+}
+
+func deleteColumnModuleIdFromCollectorGroupConfig(db *gorm.DB) error {
+	tableName := &models.CollectorConfigGroup{}
+	columnName := "module_id"
+	return deleteColumnFromTable(db, tableName, columnName)
 }

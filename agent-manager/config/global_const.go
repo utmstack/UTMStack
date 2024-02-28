@@ -24,6 +24,8 @@ func ConnectionKeyRoutes() []string {
 
 		"/agent.CollectorService/RegisterCollector",
 		"/agent.CollectorService/ListCollector",
+		"/agent.CollectorService/GetCollectorsByHostnameAndModule",
+		"/agent.CollectorService/ListCollectorHostnames",
 	}
 }
 

@@ -48,6 +48,7 @@ func main() {
 	pb.RegisterAgentServiceServer(grpcServer, s)
 	pb.RegisterPanelServiceServer(grpcServer, s)
 	pb.RegisterAgentGroupServiceServer(grpcServer, s)
+
 	pb.RegisterCollectorServiceServer(grpcServer, s)
 	pb.RegisterCollectorConfigurationServiceServer(grpcServer, s)
 	pb.RegisterPingServiceServer(grpcServer, s)

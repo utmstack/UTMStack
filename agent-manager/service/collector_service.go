@@ -33,9 +33,14 @@ func (s *CollectorService) Delete(key uuid.UUID, deletedBy string) (uint, error)
 	return s.repo.DeleteCollectorByKey(key, deletedBy)
 }
 
+func (s *CollectorService) GetCollectorByHostnameAndModule(hostname string, module models.CollectorModule) ([]models.Collector, error) {
+	return s.repo.GetCollectorByHostnameAndModule(hostname, module)
+}
+
 func (s *CollectorService) FinByID(id uint) (*models.Collector, error) {
 	return s.repo.GetCollectorById(id)
 }
+
 func (s *CollectorService) GetByKey(token string) (*models.Collector, error) {
 	return s.repo.GetByKey(uuid.MustParse(token))
 }
@@ -68,4 +73,8 @@ func (s *CollectorService) GetCollectorStatus(collector models.Collector) (model
 		return models.Offline, lastPing
 	}
 	return models.Online, lastPing
+}
+
+func (s *CollectorService) SaveCollectorConfigs(groups []models.CollectorConfigGroup, collectorId uint) error {
+	return s.repo.UpdateCollectorConfig(groups, collectorId)
 }

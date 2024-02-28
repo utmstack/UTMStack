@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
@@ -67,26 +68,13 @@ func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollec
 func convertToCollectorResponse(agents []models.Collector, total int64) (*ListCollectorResponse, error) {
 	var collectorMessages []*Collector
 	for _, collector := range agents {
-		agentProto := parseCollectorToProto(collector)
+		agentProto := modelToProtoCollector(collector)
 		collectorMessages = append(collectorMessages, agentProto)
 	}
 	return &ListCollectorResponse{
 		Rows:  collectorMessages,
 		Total: int32(total),
 	}, nil
-}
-
-func parseCollectorToProto(collector models.Collector) *Collector {
-	collectorStatus, lastSeen := lastSeenService.GetStatus(collector.CollectorKey)
-	return &Collector{
-		Id:           int32(collector.ID),
-		Ip:           collector.Ip,
-		Status:       Status(collectorStatus),
-		Hostname:     collector.Hostname,
-		Version:      collector.Version,
-		LastSeen:     lastSeen,
-		CollectorKey: collector.CollectorKey,
-	}
 }
 
 func (s *Grpc) CollectorConfigStream(stream CollectorConfigurationService_CollectorConfigStreamServer) error {
@@ -98,25 +86,39 @@ func (s *Grpc) CollectorConfigStream(stream CollectorConfigurationService_Collec
 		if err != nil {
 			return err
 		}
+		key := collectorConfig.CollectorKey
+		if key == "" {
+			return status.Errorf(codes.NotFound, "collector key is not provided")
+		}
 
-		// Get the agent from the agents map
-		collectorStream, ok := s.CollectorStreamMap[collectorConfig.CollectorKey]
+		collector, err := collectorService.GetByKey(key)
+		if err != nil {
+			return status.Errorf(codes.NotFound, "collector not found in database or is deleted")
+		}
+
+		collectorConf := protoToModelCollectorGroups(collectorConfig.Groups, collector.ID)
+
+		err = collectorService.SaveCollectorConfigs(collectorConf, collector.ID)
+		if err != nil {
+			return status.Errorf(codes.Internal, fmt.Sprintf("error saving collector configuration: %v", err.Error()))
+		}
+
+		collectorStream, ok := s.CollectorStreamMap[key]
 		if !ok {
-			return status.Errorf(codes.NotFound, "agent not found or is disconnected")
+			return status.Errorf(codes.NotFound, "colelctor not found or is disconnected")
 		}
 
 		chanId := uuid.New().String()
-		// Create a channel for the agent result and store it in the map
 		s.configChannelM.Lock()
 		resultChan := make(chan *ConfigKnowledge)
 		s.ConfigChannel[chanId] = resultChan
 		s.configChannelM.Unlock()
 
-		// Send the command to the agent along with the command ID
+		// Send the config to the collector along with the channel ID
 		err = collectorStream.stream.Send(&CollectorMessages{
 			StreamMessage: &CollectorMessages_Config{
 				Config: &CollectorConfig{
-					CollectorKey: collectorConfig.CollectorKey,
+					CollectorKey: key,
 					Groups:       collectorConfig.Groups,
 					RequestId:    chanId,
 				},
@@ -202,4 +204,18 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			s.configChannelM.Unlock()
 		}
 	}
+}
+
+func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*CollectorResponse, error) {
+	_, err := collectorService.Delete(uuid.MustParse(req.CollectorKey), req.DeletedBy)
+	if err != nil {
+		return &CollectorResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
+	}
+	s.cacheCollectorMutex.Lock()
+	delete(s.CollectorStreamMap, req.CollectorKey)
+	s.cacheCollectorMutex.Unlock()
+	return &CollectorResponse{
+		DeletedBy:    req.DeletedBy,
+		CollectorKey: req.DeletedBy,
+	}, nil
 }

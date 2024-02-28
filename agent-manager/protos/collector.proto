@@ -10,6 +10,8 @@ service CollectorService {
   rpc DeleteCollector(CollectorDelete) returns (CollectorResponse) {}
   rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
+  rpc ListCollectorHostnames (ListRequest) returns (CollectorHostnames) {}
+  rpc GetCollectorsByHostnameAndModule (FilterByHostAndModule) returns (ListCollectorResponse) {}
 }
 
 service CollectorConfigurationService {
@@ -26,6 +28,19 @@ message CollectorMessages {
     ConfigKnowledge result = 2;
     AuthResponse auth_response = 3;
   }
+}
+
+message Module{
+  CollectorModule module = 1;
+}
+
+message CollectorHostnames{
+  repeated string hostname = 1;
+}
+
+message FilterByHostAndModule{
+  string hostname = 1;
+  CollectorModule module = 2;
 }
 
 message ConfigKnowledge{
@@ -48,7 +63,7 @@ message Collector {
   string hostname = 5;
   string version = 6;
   CollectorModule module = 7;
-  CollectorConfigGroup configuration = 8;
+  repeated CollectorConfigGroup groups = 8;
   string last_seen = 9;
 }
 
@@ -61,10 +76,10 @@ message CollectorConfig {
 
 message CollectorConfigGroup {
   int32 id = 1;
-  int32 module_id = 2;
   string group_name = 3;
   string group_description = 4;
-  repeated CollectorGroupConfigurations collector_group_configs = 5;
+  repeated CollectorGroupConfigurations configurations = 5;
+  int32 collector_id = 6;
 }
 
 message CollectorGroupConfigurations {
@@ -92,3 +107,6 @@ message ListCollectorResponse {
   repeated Collector rows = 1;
   int32 total = 2;
 }
+
+
+

@@ -40,34 +40,43 @@ func (r *CollectorRepository) CreateCollector(collector *models.Collector) error
 
 func (r *CollectorRepository) GetCollectorById(id uint) (*models.Collector, error) {
 	var collector models.Collector
-	err := r.db.Preload("Configuration").Preload("Configuration.CollectorGroupConfigs").First(&collector, id).Error
+	err := r.db.Preload("Groups").Preload("Groups.Configurations").First(&collector, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return &collector, nil
 }
 
-func (r *CollectorRepository) GetCollectorByHostname(hostname string) (*models.Collector, error) {
-	var collector models.Collector
-	err := r.db.Where("hostname = ?", hostname).First(&collector).Error
+func (r *CollectorRepository) GetCollectorByHostnameAndModule(hostname string, module models.CollectorModule) ([]models.Collector, error) {
+	var collectors []models.Collector
+	err := r.db.Where("hostname = ? and module = ?", hostname, module).Error
 	if err != nil {
 		return nil, err
 	}
-	return &collector, nil
+	return collectors, nil
+}
+
+func (r *CollectorRepository) GetCollectorsHostnames() ([]string, error) {
+	var hostnames []string
+	err := r.db.Model(&models.Collector{}).Distinct("hostname").Pluck("hostname", &hostnames).Error
+	if err != nil {
+		return nil, err
+	}
+	return hostnames, nil
 }
 
 func (r *CollectorRepository) GetAllCollectors() ([]models.Collector, error) {
-	var agents []models.Collector
-	err := r.db.Preload("Configuration").Preload("Configuration.CollectorGroupConfigs").Find(&agents).Error
+	var collectors []models.Collector
+	err := r.db.Preload("Groups").Preload("Groups.Configurations").Find(&collectors).Error
 	if err != nil {
 		return nil, err
 	}
-	return agents, nil
+	return collectors, nil
 }
 
 func (r *CollectorRepository) GetByKey(key uuid.UUID) (*models.Collector, error) {
 	var collector models.Collector
-	err := r.db.Preload("Configuration").Preload("Configuration.CollectorGroupConfigs").Where("token = ?", key).First(&collector).Error
+	err := r.db.Preload("Groups").Preload("Groups.Configurations").Where("collector_key = ?", key).First(&collector).Error
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +105,7 @@ func (r *CollectorRepository) DeleteCollectorByKey(key uuid.UUID, deletedBy stri
 	return collector.ID, nil
 }
 
-// GetCollectorByFilter returns a paginated list of agents filtered by search query and sorted by provided fields
+// GetCollectorByFilter returns a paginated list of collectors filtered by search query and sorted by provided fields
 func (r *CollectorRepository) GetCollectorByFilter(p util.Pagination, f []util.Filter) ([]models.Collector, int64, error) {
 	var collectors []models.Collector
 	var count int64
@@ -105,8 +114,8 @@ func (r *CollectorRepository) GetCollectorByFilter(p util.Pagination, f []util.F
 		Scopes(util.FilterScope(f)).
 		Count(&count).
 		Scopes(p.PagingScope).
-		Preload("Configuration").
-		Preload("Configuration.CollectorGroupConfigs").
+		Preload("Groups").
+		Preload("Groups.Configurations").
 		Find(&collectors)
 	if tx.Error != nil {
 		return nil, 0, tx.Error
@@ -114,11 +123,35 @@ func (r *CollectorRepository) GetCollectorByFilter(p util.Pagination, f []util.F
 	return collectors, count, nil
 }
 
-// CountCollector returns the total number of agents
+// CountCollector returns the total number of collectors
 func (r *CollectorRepository) CountCollector() (int64, error) {
 	var count int64
 	if err := r.db.Model(&models.Collector{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *CollectorRepository) UpdateCollectorConfigGroup(collectorConfigGroup *models.CollectorConfigGroup) error {
+	return r.db.Save(collectorConfigGroup).Error
+}
+
+func (r *CollectorRepository) UpdateCollectorConfig(groups []models.CollectorConfigGroup, collectorId uint) error {
+	for _, group := range groups {
+		group.CollectorID = collectorId
+		if err := r.db.Save(&group).Error; err != nil {
+			return err
+		}
+		for _, groupConfig := range group.Configurations {
+			groupConfig.ConfigGroupID = group.ID
+			if groupConfig.ConfDataType == "password" {
+				secret, _ := util.EncryptValue(groupConfig.ConfValue)
+				groupConfig.ConfValue = secret
+			}
+			if err := r.db.Save(&groupConfig).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

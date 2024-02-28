@@ -38,10 +38,6 @@ message Id{
   int64 id = 1;
 }
 
-message Hostname{
-  string hostname = 1;
-}
-
 message Agent {
   string ip = 1;
   string hostname = 2;
