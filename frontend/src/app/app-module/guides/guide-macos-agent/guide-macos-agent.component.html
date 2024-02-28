@@ -10,13 +10,32 @@
       continue.
     </div>
     <p class="font-size-base text-justify mb-3">
-      The Syslog daemon (syslog) on MacOS is configured through the /etc/syslog.conf configuration file.
+      The Syslog daemon (syslog) on MacOS is configured using <strong>rsyslog</strong> through the /etc/syslog.conf configuration file.
       Follow the steps below to send all Syslog messages from an MacOS machine to UTMStack.
     </p>
     <ol class="setup_list">
       <li>
         <p class="step-guide" >
-            <span class="step_number">1</span>
+          <span class="step_number">1</span>
+          Install Homebrew, using the official documentation
+          <a class="text-primary font-weight-semibold"
+             href="https://docs.brew.sh/Installation"
+             target="_blank">here</a>, if you already installed go to the next step.
+        </p>
+      </li>
+      <li>
+        <p class="step-guide" >
+          <span class="step_number">2</span>
+          Install rsyslog on MacOS:
+        </p>
+        <div class="w-75 mt-3">
+          <app-utm-code-view
+            [code]="'brew install rsyslog'"></app-utm-code-view>
+        </div>
+      </li>
+      <li>
+        <p class="step-guide" >
+            <span class="step_number">3</span>
           Open the file /etc/syslog.conf in an editor:
           </p>
         <div class="w-75 mt-3">
@@ -26,7 +45,7 @@
       </li>
       <li>
         <p class="step-guide" >
-          <span class="step_number">2</span>
+          <span class="step_number">4</span>
           Append the following line at the end if you want to send over TCP:
         </p>
         <div class="w-75 mt-3">
@@ -43,7 +62,7 @@
       </li>
       <li>
         <p class="step-guide" >
-          <span class="step_number">3</span>
+          <span class="step_number">5</span>
           Restart the syslog daemon:
         </p>
         <div class="w-75 mt-3">
@@ -57,8 +76,8 @@
       </li>
       <li>
         <p class="step-guide">
-          <span class="step_number">4</span>
-          Enable log collector and this integration in the configuration file which 
+          <span class="step_number">6</span>
+          Enable log collector and this integration in the configuration file which
           you can find where your UTMStack Agent is located, in the path:
         </p>
         <div class="w-75 mt-3">
@@ -76,7 +95,7 @@
       </li>
       <li>
         <p class="step-guide mb-3">
-          <span class="step_number">5</span>
+          <span class="step_number">7</span>
           Click on the button shown below, to activate the UTMStack features related to this integration
         </p>
         <app-app-module-activate-button [module]="filebeatModule" [type]="'integration'"
