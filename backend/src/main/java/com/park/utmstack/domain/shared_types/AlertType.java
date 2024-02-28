@@ -100,7 +100,7 @@ public class AlertType {
     }
 
     public Boolean getIncident() {
-        return isIncident;
+        return isIncident != null && isIncident;
     }
 
     public void setIncident(Boolean incident) {

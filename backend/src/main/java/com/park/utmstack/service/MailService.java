@@ -142,7 +142,7 @@ public class MailService {
     @Async
     public void sendEmail(List<String> to, String subject, String content, boolean isMultipart, boolean isHtml) {
         log.debug("Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}", isMultipart, isHtml,
-            to, subject, content);
+                to, subject, content);
         JavaMailSender javaMailSender = getJavaMailSender();
         // Prepare message using a Spring helper
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -321,7 +321,9 @@ public class MailService {
             zipOut.putNextEntry(new ZipEntry(String.format("%1$s.html", alert.getId())));
             zipOut.write(templateEngine.process("mail/alertEmailAttachment", context).getBytes(StandardCharsets.UTF_8));
             zipOut.closeEntry();
-            buildRelatedEventCsvAttachment(relatedLogs, zipOut);
+
+            if (!relatedLogs.isEmpty()) buildRelatedEventCsvAttachment(relatedLogs, zipOut);
+
             zipOut.close();
             return new ByteArrayResource(bout.toByteArray());
         } catch (Exception e) {
@@ -330,12 +332,12 @@ public class MailService {
     }
 
     private void buildRelatedEventCsvAttachment(List<LogType> relatedLogs, ZipOutputStream zipOut) {
+        final String ctx = CLASS_NAME + ".buildRelatedEventCsvAttachment";
         Map<String, List<LogType>> evtTypes = new HashMap<>();
 
         // Separating event types
         relatedLogs.forEach(doc -> {
-            Map<String, String> logxFlatted = doc.getLogxFlatted();
-            String logxType = logxFlatted.get("type");
+            String logxType = doc.getDataType();
 
             evtTypes.computeIfAbsent(logxType, k -> new ArrayList<>());
             evtTypes.computeIfPresent(logxType, (k, v) -> {
@@ -362,27 +364,28 @@ public class MailService {
                     try {
                         csvPrinter.printRecords((Object) cells);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
                 });
                 zipOut.putNextEntry(new ZipEntry(String.format("%1$s.csv", k)));
                 zipOut.write(sb.toString().getBytes(StandardCharsets.UTF_8));
                 zipOut.closeEntry();
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(ctx + ": " + e.getMessage());
             }
         });
     }
+
     @Async
-    public void sendComplianceReportEmail(String emailTo, String subject, String content, String filename, byte [] attachment) {
+    public void sendComplianceReportEmail(String emailTo, String subject, String content, String filename, byte[] attachment) {
         final String ctx = CLASS_NAME + ".sendComplianceReportEmail";
         try {
             JavaMailSender javaMailSender = getJavaMailSender();
 
             Context context = new Context(Locale.ENGLISH);
             context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
-            context.setVariable("subject",subject);
-            context.setVariable("content",content);
+            context.setVariable("subject", subject);
+            context.setVariable("content", content);
 
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");

@@ -29,7 +29,7 @@ func main() {
 		h.FatalError("Failed to get current path: %v", err)
 	}
 
-	// Configuring log saving
+	// Configuring  log saving
 	var logger = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 	defer logger.Close()
 	log.SetOutput(logger)
@@ -83,7 +83,7 @@ func main() {
 				h.FatalError("error configuring syslog server: %v", err)
 			}
 
-			// Install Beats
+			// Install  Beats
 			if err = beats.InstallBeats(*cnf, h); err != nil {
 				fmt.Printf("error installing beats: %v", err)
 				h.FatalError("error installing beats: %v", err)
@@ -96,7 +96,7 @@ func main() {
 			msg := os.Args[2]
 			logp := logservice.GetLogProcessor()
 
-			// Read config
+			// Read  config
 			cnf, err := configuration.GetCurrentConfig()
 			if err != nil {
 				os.Exit(0)
