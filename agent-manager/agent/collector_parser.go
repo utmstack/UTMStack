@@ -8,9 +8,7 @@ import (
 // protoToModelCollectorGroupConfiguration Convert a single CollectorGroupConfigurations from proto to model.
 func protoToModelCollectorGroupConfiguration(protoConfig *CollectorGroupConfigurations) models.CollectorGroupConfigurations {
 	return models.CollectorGroupConfigurations{
-		Model: gorm.Model{
-			ID: uint(protoConfig.Id),
-		},
+		ConfigGroupID:   uint(protoConfig.GroupId),
 		ConfKey:         protoConfig.ConfKey,
 		ConfValue:       protoConfig.ConfValue,
 		ConfName:        protoConfig.ConfName,
@@ -70,7 +68,7 @@ func protoToModelCollector(proto *Collector) models.Collector {
 // ModelToProtoCollectorGroupConfiguration Convert a single CollectorGroupConfigurations from model to proto.
 func modelToProtoCollectorGroupConfiguration(modelConfig models.CollectorGroupConfigurations) *CollectorGroupConfigurations {
 	return &CollectorGroupConfigurations{
-		Id:              int32(modelConfig.ID),
+		GroupId:         int32(modelConfig.ConfigGroupID),
 		ConfKey:         modelConfig.ConfKey,
 		ConfValue:       modelConfig.ConfValue,
 		ConfName:        modelConfig.ConfName,

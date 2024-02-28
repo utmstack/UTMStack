@@ -28,9 +28,8 @@ type CollectorConfigGroup struct {
 }
 
 type CollectorGroupConfigurations struct {
-	gorm.Model
-	ConfigGroupID   uint   `json:"groupId"` // This acts as the foreign key for CollectorConfigGroup
-	ConfKey         string `json:"confKey" gorm:"type:varchar(255)"`
+	ConfigGroupID   uint   `gorm:"primaryKey"`
+	ConfKey         string `json:"confKey" gorm:"primaryKey;type:varchar(255)"`
 	ConfValue       string `json:"confValue" gorm:"type:text"`
 	ConfName        string `json:"confName" gorm:"type:varchar(255)"`
 	ConfDescription string `json:"confDescription" gorm:"type:text"`

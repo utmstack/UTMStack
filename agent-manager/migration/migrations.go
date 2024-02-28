@@ -30,6 +30,7 @@ func MigrateDatabase() {
 	performMigration(db, "addLogCollectorTables_15022024_004", "jdieguez89", addLogCollectorTables)
 	performMigration(db, "addDeletedByFieldToCollector", "jdieguez89", addDeletedByFieldToCollector)
 	performMigration(db, "deleteColumnModuleIdFromCollectorGroupConfig", "jdieguez89", deleteColumnModuleIdFromCollectorGroupConfig)
+	performMigration(db, "setConfigurationsPrimaryKey", "jdieguez89", setConfigurationsPrimaryKey)
 }
 
 // performMigration executes a given migration function if it has not been recorded yet.
@@ -217,4 +218,10 @@ func deleteColumnModuleIdFromCollectorGroupConfig(db *gorm.DB) error {
 	tableName := &models.CollectorConfigGroup{}
 	columnName := "module_id"
 	return deleteColumnFromTable(db, tableName, columnName)
+}
+
+// setConfigurationsPrimaryKey migrate the model to use the group id and the conf key as table primary key
+// to avoid inconsistencies
+func setConfigurationsPrimaryKey(db *gorm.DB) error {
+	return db.AutoMigrate(&models.CollectorGroupConfigurations{})
 }

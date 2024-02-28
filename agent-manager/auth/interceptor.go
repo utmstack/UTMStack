@@ -41,7 +41,7 @@ func StreamAuthInterceptor(ctx context.Context, req interface{}, info *grpc.Unar
 		token := authToken[0]
 		id, err := strconv.ParseUint(authId[0], 10, 32)
 		if err != nil {
-			return nil, status.Error(codes.Unauthenticated, "agent id is not valid")
+			return nil, status.Error(codes.Unauthenticated, "id is not valid")
 		}
 		// Replace this with the actual token cache
 		authCache := getAuthCache(route)

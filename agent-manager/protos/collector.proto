@@ -83,7 +83,6 @@ message CollectorConfigGroup {
 }
 
 message CollectorGroupConfigurations {
-  int32 id = 1;
   int32 group_id = 2;
   string conf_key = 3;
   string conf_value = 4;
