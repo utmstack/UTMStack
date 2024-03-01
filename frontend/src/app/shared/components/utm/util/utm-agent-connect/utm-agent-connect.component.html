@@ -18,7 +18,7 @@
               rows="3"></textarea>
   </div>
 
-  <div *ngIf="agent.status === 'ONLINE'" class="d-flex justify-content-end">
+  <div *ngIf="agent && agent.status === 'ONLINE'" class="d-flex justify-content-end">
     <button class="btn utm-button utm-button-primary" (click)="connectToAgent = true"
             [disabled]="!websocketCommand.reason && websocketCommand.reason === ''">
       <i class="icon-terminal mr-1"></i>
@@ -26,11 +26,11 @@
     </button>
   </div>
 </div>
-<div *ngIf="agent.status === 'ONLINE'" class="alert alert-warning alert-styled-right mt-3 alert-dismissible">
+<div *ngIf="agent && agent.status === 'ONLINE'" class="alert alert-warning alert-styled-right mt-3 alert-dismissible">
   <span class="font-weight-semibold">Warning! </span>
   <span>You can cause damage to the infrastructure and services of your organization</span>
 </div>
-<div *ngIf="agent.status === 'OFFLINE'" class="alert alert-info alert-styled-right mt-3 info-dismissible">
+<div *ngIf="agent && agent.status === 'OFFLINE'" class="alert alert-info alert-styled-right mt-3 info-dismissible">
   <span class="font-weight-semibold">Info! </span>
   <span>Offline agent, data based on the last sync.</span>
 </div>
