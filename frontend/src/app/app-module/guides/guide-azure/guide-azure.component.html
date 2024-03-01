@@ -5,14 +5,11 @@
     </h4>
   </div>
   <div class="card-body">
-    <h6 class="font-weight-semibold mb-3">
-      Create Event Hub and Account Storage
-    </h6>
     <ol class="setup_list">
       <li>
         <p class="step-guide">
           <span class="step_number">1</span>
-          Create event hub, using the official Azure documentation
+          Create <strong>"Event Hub"</strong>, using the official Azure documentation
           <a class="text-primary font-weight-semibold"
              href="https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-create"
              target="_blank">Quickstart: Create an event hub using Azure portal</a>
@@ -21,8 +18,9 @@
       <li>
         <p class="step-guide">
           <span class="step_number">2</span>
-          Create a new "Shared access policy" to allow access to the Event Hub created, make sure you select the
-          "Listen" permission
+          Create a new <strong>"Shared access policy"</strong> to allow access to the Event Hub created, make sure you
+          select the
+          <strong>"Listen"</strong> permission.
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/evenhubaccesspolicy.png"
@@ -31,38 +29,43 @@
       <li>
         <p class="step-guide">
           <span class="step_number">3</span>
-          Get the Event Hub connection string from "Shared access policy" created previously.
+          Get the <strong>Event Hub Shared Access policies - Connection string–primary key</strong> from <strong>"Shared
+          access policy"</strong> created previously.
+          It will be used to configure your tenant.
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/aacess_shared_policy.png"
              width="800">
         <br>
         <br>
-        Sample connection string:
+        Sample <strong>Connection string–primary key</strong>:
         <app-utm-code-view
           [allowCopy]="false"
-          code="Endpoint=sb://utmstack.servicebus.windows.net/;SharedAccessKeyName=activity-log-read-only;SharedAccessKey=mm6AbDcEfj8lk7sjsbzoTJ10qAkiSaG663YykEAG2eg=;EntityPath=insights-operational-logs">
+          code="Endpoint=sb://utmstacksharedaccesspolicy.servicebus.windows.net/;SharedAccessKeyName=UTMStackSharedAccesspolicy;SharedAccessKey=A1xFRWsEKcS19gGPEykezcVsK4qLAcQ2K+AEhCyITzU=">
         </app-utm-code-view>
       </li>
       <li>
         <p class="step-guide">
           <span class="step_number">4</span>
-          Get the name of the event group in: Azure Portal-> Event Hub -> Consumer groups.
+          Get the <strong>Consumer Group Name</strong> in: All services-> Event Hubs -> Your_Event_Hub_Namespace ->
+          Event Hubs -> Your_Event_Hub_Instance -> Consumer groups.
+          It will be used to configure your tenant.
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/consumer_group.png"
              width="600">
         <div class="alert alert-info alert-styled-right mt-3">
           Create a new consumer group specifically for Logstash. Do not use the $default or any other consumer group
-          that might already be in use. Reusing consumer groups among non-related consumers can cause unexpected
-          behavior and possibly lost events. All Logstash instances should use the same consumer group so that they can
-          work together for processing events.
+          that might already be in use.
+          Reusing consumer groups among non-related consumers can cause unexpected behavior and possibly lost events.
+          All Logstash instances should use the same consumer group so that they can work together for processing
+          events.
         </div>
       </li>
       <li>
         <p class="step-guide">
           <span class="step_number">5</span>
-          Create a storage account using the official Azure documentation
+          Create a <strong>"Storage Account"</strong> using the official Azure documentation
           <a class="text-primary font-weight-semibold"
              href="https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal"
              target="_blank">Quickstart: Create a storage account</a>
@@ -71,7 +74,8 @@
       <li>
         <p class="step-guide">
           <span class="step_number">6</span>
-          Get the container name in: Azure Portal-> Storage account -> Containers.
+          Get the <strong>"Storage Container Name"</strong> in: All services -> Storage account -> Your_Storage_Account
+          -> Containers. It will be used to configure your tenant.
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/container_name.png"
@@ -80,23 +84,20 @@
       <li>
         <p class="step-guide">
           <span class="step_number">7</span>
-          Get the connection string to access Azure storage account. Find the connection string here: Azure Portal->
-          Blob Storage account -> Access keys.
+          Get the <strong>Storage Account Connection string with key</strong> to access Azure <strong>"Storage
+          Account"</strong>.
+          Find the connection string here: Azure Portal -> Blob Storage account -> Access keys. It will be used to
+          configure your tenant.
         </p>
 
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/account_storage.png"
              width="800">
-        <div class="alert alert-info alert-styled-right mt-3">
-          The offsets (position) of the Event Hubs are stored in the configured Azure Blob store. The Azure Blob store
-          uses paths like a file system to store the offsets. If the paths between multiple Event Hubs overlap, then the
-          offsets may be stored incorrectly.
-        </div>
         <br>
         Sample connection string:
         <app-utm-code-view
           [allowCopy]="false"
-          code="DefaultEndpointsProtocol=https;AccountName=logstash;AccountKey=ETOPnkd/hDAWidkEpPZDiXffQPku/SZdXhPSLnfqdRTalssdEuPkZwIcouzXjCLb/xPZjzhmHfwRCGo0SBSw==;EndpointSuffix=core.windows.net">
+          code="DefaultEndpointsProtocol=https;AccountName=utmstackstorageaccount;AccountKey=ETOPnkd/hDAWidkEpPZDiXffQPku/SZdXhPSLnfqdRTalssdEuPkZwIcouzXjCLb/xPZjzhmHfwRCGo0SBSw==;EndpointSuffix=core.windows.net">
         </app-utm-code-view>
       </li>
       <li>
@@ -130,10 +131,23 @@
       <li>
         <p class="step-guide">
           <span class="step_number">11</span>
-          Use the data collected in the previous step to fill the form. You can add more than one Event Hub
-          configuration by clicking on the Add tenant button.
+          Use the data collected in the previous steps to fill the form as documented below.
+          You can add more than one Event Hub configuration by clicking on the Add tenant button.
         </p>
-
+        <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
+          <li>
+            <strong>Event Hub Shared Access Policies - Connection string-primary key: </strong> <u>Value obtained in step 3</u>
+          </li>
+          <li>
+            <strong>Consumer Group Name: </strong> <u>Value obtained in step 4</u>
+          </li>
+          <li>
+            <strong>Storage Container Name: </strong> <u>Value obtained in step 6</u>
+          </li>
+          <li>
+            <strong>Storage Account Connection string with key: </strong> <u>Value obtained in step 7</u>
+          </li>
+        </ul>
         <div class="row mt-3">
           <div class="col-lg-12 col-md-12 col-sm-12">
             <app-int-generic-group-config [moduleId]="integrationId"
