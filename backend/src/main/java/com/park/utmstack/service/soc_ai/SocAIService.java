@@ -36,7 +36,7 @@ public class SocAIService {
     }
 
 
-    private void sendData(Object data) {
+    public void sendData(Object data) {
         final String ctx = CLASSNAME + ".sendData";
         try {
             OkHttpClient client = new OkHttpClient.Builder()

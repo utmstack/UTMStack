@@ -19,6 +19,8 @@ export class AssetsApplyTypeComponent implements OnInit {
   @Input() assets: number[];
   @Input() type: AssetType;
   @Output() applyTypeEvent = new EventEmitter<string>();
+  @Output() focus = new EventEmitter<boolean>();
+
   types: AssetType[] = [];
   loading = true;
   creating = false;
@@ -72,5 +74,13 @@ export class AssetsApplyTypeComponent implements OnInit {
     } else {
       return 'icon-display';
     }
+  }
+
+  onHidden() {
+    this.focus.emit(false);
+  }
+
+  onShown() {
+    this.focus.emit(true);
   }
 }

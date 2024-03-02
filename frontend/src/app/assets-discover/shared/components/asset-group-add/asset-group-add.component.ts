@@ -20,6 +20,8 @@ export class AssetGroupAddComponent implements OnInit {
   @Input() assets: number[];
   @Input() group: AssetGroupType;
   @Output() applyGroupEvent = new EventEmitter<AssetGroupType>();
+  @Output() focus = new EventEmitter<boolean>();
+
   @ViewChild('tagPopoverSpan') tagPopoverSpan: NgbPopover;
   @ViewChild('tagPopoverButton') tagPopoverButton: NgbPopover;
   groups: AssetGroupType[];
@@ -92,5 +94,13 @@ export class AssetGroupAddComponent implements OnInit {
     if (this.tagPopoverButton) {
       this.tagPopoverButton.close();
     }
+  }
+
+  onHidden() {
+    this.focus.emit(false);
+  }
+
+  onShown() {
+    this.focus.emit(true);
   }
 }

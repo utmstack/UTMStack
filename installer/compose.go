@@ -483,19 +483,12 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	c.Services["socai"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
 		DependsOn: []string{
-			"postgres",
 			"node1",
 			"backend",
 		},
 		Environment: []string{
+			"GPT_MODEL=gpt-3.5-turbo-1106",
 			"PANEL_SERV_NAME=http://backend:8080",
-			"POSTGRES_USER=postgres",
-			"POSTGRES_HOST=postgres",
-			"POSTGRES_PORT=5432",
-			"POSTGRES_DB=utmstack",
-			"POSTGRES_GROUP=configuration",
-			"POSTGRES_PASSWORD=" + conf.Password,
-			"POSTGRES_MODULE=SOC_AI",
 			"OPENSEARCH_HOST=node1",
 			"OPENSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,

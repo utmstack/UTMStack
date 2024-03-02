@@ -134,7 +134,6 @@ public class UtmModuleResource {
             } else {
                 String msg = ctx + ": You must provide the header used to communicate internally with this resource";
                 log.error(msg);
-                myLog(msg);
                 eventService.createEvent(msg, ApplicationEventType.ERROR);
                 return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
@@ -143,21 +142,8 @@ public class UtmModuleResource {
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
-            myLog(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
-        }
-    }
-
-    private void myLog(String message) {
-        try {
-            java.util.logging.Logger l = java.util.logging.Logger.getLogger(UtmModuleResource.class.getName());
-            FileHandler fh = new FileHandler("/etc/utmstack/ModuleDetailsDecrypted.log");
-            l.addHandler(fh);
-            l.setLevel(Level.ALL);
-            l.severe(message);
-        } catch (IOException | SecurityException e) {
-            throw new RuntimeException(e);
         }
     }
 

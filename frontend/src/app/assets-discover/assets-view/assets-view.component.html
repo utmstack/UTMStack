@@ -127,15 +127,16 @@
                          container="body"
                          tooltipClass="utm-tooltip-top"></i>
                     </div>
-                    <app-assets-apply-type (applyTypeEvent)="getAssets()" [assets]="[asset.id]" [typeFormat]="'icon'"
+                    <app-assets-apply-type (applyTypeEvent)="getAssets()" (focus)="stopInterval($event)" [assets]="[asset.id]" [typeFormat]="'icon'"
                                            [type]="asset.assetType" class="ml-2">
                     </app-assets-apply-type>
 
-                    <app-asset-group-add (applyGroupEvent)="getAssets()" [assets]="[asset.id]"
+                    <app-asset-group-add (focus)="stopInterval($event)"
+                                         (applyGroupEvent)="getAssets()" [assets]="[asset.id]"
                                          [group]="asset.group"
                                          [typeFormat]="'icon'" class="ml-2"></app-asset-group-add>
 
-                    <app-assets-apply-note [asset]="asset" class="ml-2"></app-assets-apply-note>
+                    <app-assets-apply-note (focus)="stopInterval($event)" [asset]="asset" class="ml-2"></app-assets-apply-note>
                   </div>
                 </td>
                 <td>
