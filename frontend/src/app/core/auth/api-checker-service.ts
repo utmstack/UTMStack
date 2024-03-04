@@ -1,8 +1,8 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, interval, Observable, of, Subject, throwError} from 'rxjs';
-import {catchError, delay, first, switchMap, takeUntil, takeWhile, tap} from 'rxjs/operators';
-import {SERVER_API_URL} from "../../app.constants";
+import {BehaviorSubject, interval, Observable, Subject} from 'rxjs';
+import {first, takeUntil} from 'rxjs/operators';
+import {SERVER_API_URL} from '../../app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -38,17 +38,8 @@ export class ApiServiceCheckerService {
         );
     });
   }
-}
 
-/*return this.http.get(this.resourceUrl).pipe(
-  catchError(() => {
-    return of(false);
-  }),
-  switchMap((result: any) => {
-    if (result != null) {
-      return of(true);
-    }
-  }),
-  takeWhile((isAvailable: any) => isAvailable != null)
-);
-}*/
+  setOnlineStatus(status: boolean) {
+    this.isOnline.next(status);
+  }
+}
