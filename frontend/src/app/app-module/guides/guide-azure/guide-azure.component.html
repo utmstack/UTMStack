@@ -74,7 +74,7 @@
       <li>
         <p class="step-guide">
           <span class="step_number">6</span>
-          Get the <strong>"Storage Container Name"</strong> in: All services -> Storage account -> Your_Storage_Account
+          Get the <strong>"Storage Container Name"</strong> in: All services -> Storage accounts -> Your_Storage_Account
           -> Containers. It will be used to configure your tenant.
         </p>
         <img alt="Azure portal" class="step-img"
@@ -84,10 +84,8 @@
       <li>
         <p class="step-guide">
           <span class="step_number">7</span>
-          Get the <strong>Storage Account Connection string with key</strong> to access Azure <strong>"Storage
-          Account"</strong>.
-          Find the connection string here: Azure Portal -> Blob Storage account -> Access keys. It will be used to
-          configure your tenant.
+          Get the <strong>Storage Account Connection string with key</strong> to access Azure <strong>"Storage Account"</strong>.
+          Find the connection string here: All services -> Storage accounts -> Your_Storage_Account -> Access keys. It will be used to configure your tenant.
         </p>
 
         <img alt="Azure portal" class="step-img"
@@ -103,8 +101,8 @@
       <li>
         <p class="step-guide">
           <span class="step_number">8</span>
-          Configure your Azure Subscription to send log to the Event Hub. Go to Subscription and click on "Resource
-          providers". Search for "Event Grid", and make sure is registered in the "Resources providers".
+          Configure your Azure Subscription to send log to the Event Hub. Go to Subscription and click on <strong>"Resource
+          providers"</strong>. Search for <strong>"Event Grid"</strong>, and make sure is registered in the <strong>"Resources providers"</strong>.
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/eventgrid.png"
@@ -113,7 +111,7 @@
       <li>
         <p class="step-guide">
           <span class="step_number">9</span>
-          Create a new Event by clicking in the "Events" -> "Event Subscription"
+          Create a new Event by clicking in the Events -> Event Subscription
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/eventsubs.png"
@@ -122,7 +120,7 @@
       <li>
         <p class="step-guide">
           <span class="step_number">10</span>
-          Configure the "Event Subscription" to send logs to the Event Hub created previously.
+          Configure the <strong>"Event Subscription"</strong> to send logs to the Event Hub created previously.
         </p>
         <img alt="Azure portal" class="step-img"
              height="auto" src="../../../../assets/img/guides/azure/eventhubselection.png"
@@ -136,6 +134,7 @@
         </p>
         <ul class="mt-3 pl-3" style="list-style-type: circle !important;">
           <li>
+            The input field <strong>Event Hub Shared access policies - Connection string</strong> refers to Azure's
             <strong>Event Hub Shared Access Policies - Connection string-primary key: </strong> <u>Value obtained in step 3</u>
           </li>
           <li>
