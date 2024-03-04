@@ -4,7 +4,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable} from "rxjs";
+import {Observable} from 'rxjs';
 import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
 import {LoginService} from '../../../../core/login/login.service';
@@ -20,7 +20,7 @@ import {PasswordResetInitComponent} from '../password-reset/init/password-reset-
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit, AfterViewInit {
+export class LoginComponent implements OnInit {
   authenticationError: boolean;
   password: string;
   rememberMe: boolean;
@@ -53,15 +53,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.loginImage$ = this.themeChangeBehavior.$themeIcon.asObservable();
   }
 
-  ngAfterViewInit() {
-
-  }
-
   ngOnInit() {
-
     this.apiServiceCheckerService.isOnlineApi$.subscribe(result => {
       if (result) {
-        this.loadingAuth = false;
         this.activatedRoute.queryParams.subscribe(params => {
           if (params.token) {
             this.loginService.loginWithToken(params.token, true).then(() => {
@@ -80,6 +74,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           }
         });
         this.initForm();
+        this.loadingAuth = false;
       }
     });
   }
