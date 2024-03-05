@@ -15,12 +15,14 @@ import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/conf
 import {SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
 
+
 @Component({
   selector: 'app-config-sections',
   templateUrl: './app-config-sections.component.html',
   styleUrls: ['./app-config-sections.component.css']
 })
 export class AppConfigSectionsComponent implements OnInit, OnDestroy {
+
   @Input() section: SectionConfigType;
   @Output() validConfigSection = new EventEmitter<boolean>();
   @Input() allowDeleteSection = false;
@@ -35,6 +37,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   configDataTypeEnum = ConfigDataTypeEnum;
   timezones = TIMEZONES;
   dateFormats = DATE_FORMATS;
+  emailListRegex = /^(\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*|\s*[\w.-]+@[\w.-]+\.\w+\s*)$/;
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private router: Router,
@@ -43,6 +46,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
               private timezoneFormatService: TimezoneFormatService,
               private toastService: UtmToastService) {
   }
+
 
   ngOnInit() {
     this.getConfigurations();
@@ -121,8 +125,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   checkConfigValid(): boolean {
     let valid = true;
     for (const conf of this.configs) {
-      if (conf.confParamRequired) {
-        const validateConf = this.checkConfigValue(conf.confParamValue);
+      if (conf.confParamRequired || conf.confParamDatatype === ConfigDataTypeEnum.List) {
+        const validateConf = this.checkConfigValue(conf);
         if (!validateConf) {
           valid = validateConf;
         }
@@ -131,8 +135,14 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     return valid;
   }
 
-  checkConfigValue(config: string): boolean {
-    return config !== null && config !== '' && config !== undefined;
+  checkConfigValue(config: SectionConfigParamType): boolean {
+    switch (config.confParamDatatype) {
+      case ConfigDataTypeEnum.List:
+        return this.emailListRegex.test(config.confParamValue);
+
+      default:
+        return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
+    }
   }
 
   save($event: any, conf: SectionConfigParamType) {
@@ -179,4 +189,11 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       return null;
     }
   }
+
+  validEmailList(conf: SectionConfigParamType): boolean {
+    if (conf.confParamValue) {
+      return this.emailListRegex.test(conf.confParamValue);
+    }
+  }
+
 }
