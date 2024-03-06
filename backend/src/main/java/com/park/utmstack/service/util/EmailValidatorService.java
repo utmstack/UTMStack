@@ -12,13 +12,10 @@ public class EmailValidatorService implements Validator {
     private static final String emailListRegex = "^(\\s*[\\w.-]+@[\\w.-]+\\.\\w+(\\s*,\\s*[\\w.-]+@[\\w.-]+\\.\\w+)*\\s*|\\s*[\\w.-]+@[\\w.-]+\\.\\w+\\s*)$";
     private static final Pattern pattern = Pattern.compile(emailListRegex);
 
-    public boolean isValidEmailList(String emailList) {
-        return pattern.matcher(emailList).matches();
-    }
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return false;
+        return UtmConfigurationParameter.class.equals(clazz);
     }
 
     @Override
