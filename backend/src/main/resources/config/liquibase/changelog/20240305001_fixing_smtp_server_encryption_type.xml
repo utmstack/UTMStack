@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240305001" author="Freddy">
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+
+do $$
+   declare
+    auth_type varchar(50);
+   begin
+	   select conf_param_value from utm_configuration_parameter where conf_param_short='utmstack.mail.properties.mail.smtp.auth' into auth_type;
+
+      UPDATE public.utm_configuration_parameter SET conf_param_option = 'STARTTLS,SSL/TLS,NONE'
+	      where conf_param_short='utmstack.mail.properties.mail.smtp.auth';
+	     
+	  IF auth_type is not null then
+       	IF auth_type ='TLS' then
+          
+          UPDATE public.utm_configuration_parameter SET conf_param_value='STARTTLS'
+	      where conf_param_short='utmstack.mail.properties.mail.smtp.auth';
+	     
+        elsif auth_type ='SSL' then
+          
+          UPDATE public.utm_configuration_parameter SET conf_param_value='SSL/TLS'
+	      where conf_param_short='utmstack.mail.properties.mail.smtp.auth';
+	    else 
+	      UPDATE public.utm_configuration_parameter SET conf_param_value='NONE'
+	      where conf_param_short='utmstack.mail.properties.mail.smtp.auth';
+	    END IF;
+       else
+         UPDATE public.utm_configuration_parameter SET conf_param_value='NONE'
+	      where conf_param_short='utmstack.mail.properties.mail.smtp.auth';
+	   END IF;
+   end;
+$$ language plpgsql;
+
+            ]]>
+        </createProcedure>
+    </changeSet>
+</databaseChangeLog>

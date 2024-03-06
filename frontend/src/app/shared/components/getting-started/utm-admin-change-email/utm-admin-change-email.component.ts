@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {HttpErrorResponse} from '@angular/common/http';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, NgModel, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {AccountService} from '../../../../core/auth/account.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
@@ -17,6 +18,7 @@ export class UtmAdminChangeEmailComponent implements OnInit {
   @Input() account: any;
   @Output() setupSuccess = new EventEmitter<boolean>();
   @Input() gettingStarted: boolean;
+  @ViewChild('currentPasswordInput') currentPasswordInput: NgModel;
   saving = false;
   formEmail: FormGroup;
   doNotMatch: string;
@@ -51,7 +53,11 @@ export class UtmAdminChangeEmailComponent implements OnInit {
         () => {
           this.setupReady();
         },
-        () => {
+        (error: HttpErrorResponse ) => {
+          this.saving = false;
+          if (error.error && error.error.detail && error.error.detail.includes('Incorrect password')) {
+            this.currentPasswordInput.control.setErrors({wrongPassword: true});
+          }
           this.toastService.showError('Error changing default password',
             'has been an error while trying to setup your account');
         }
