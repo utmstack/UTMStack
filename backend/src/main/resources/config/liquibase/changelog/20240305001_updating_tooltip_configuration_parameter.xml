@@ -12,11 +12,13 @@
             -------------------------------------
 
             update utm_configuration_parameter
-            set conf_param_description = 'Configure all email addresses to notify when an alert comes in, separated by commas.'
+            set conf_param_description = 'Configure all email addresses to notify when an alert comes in, separated by commas.',
+                conf_param_datatype = 'email_list'
             where conf_param_short = 'utmstack.alert.addressToNotifyAlerts';
 
             update utm_configuration_parameter
-            set conf_param_description = 'Configure all email addresses to be notified when an alert is marked as an incident, separated by commas.'
+            set conf_param_description = 'Configure all email addresses to be notified when an alert is marked as an incident, separated by commas.',
+                conf_param_datatype = 'email_list'
             where conf_param_short = 'utmstack.alert.addressToNotifyIncidents';
 
         </sql>
