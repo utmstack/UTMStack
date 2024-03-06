@@ -41,5 +41,7 @@
   
     <include file="config/liquibase/changelog/20240205001_add_entity_IncidentResponseVariables.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240305001_fixing_smtp_server_encryption_type.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
