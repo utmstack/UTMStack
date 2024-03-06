@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 import {RestartApiBehavior} from '../../../../behaviors/restart-api.behavior';
@@ -10,7 +9,6 @@ import {
   TIMEZONES
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
-import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
@@ -37,13 +35,13 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   configDataTypeEnum = ConfigDataTypeEnum;
   timezones = TIMEZONES;
   dateFormats = DATE_FORMATS;
-  emailListRegex = /^(\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*|\s*[\w.-]+@[\w.-]+\.\w+\s*)$/;
+  // emailListRegex = /^(\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*|\s*[\w.-]+@[\w.-]+\.\w+\s*)$/;
+  // emailListRegex = /\/^(\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*|\s*[\w.-]+@[\w.-]+\.\w+\s*)$\//;
+  _emailListRegex = '^(\\s*[\\w.-]+@[\\w.-]+\\.\\w+(\\s*,\\s*[\\w.-]+@[\\w.-]+\\.\\w+)*\\s*|\\s*[\\w.-]+@[\\w.-]+\\.\\w+\\s*)$';
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
-              private router: Router,
               private modalService: NgbModal,
               private restartApiBehavior: RestartApiBehavior,
-              private timezoneFormatService: TimezoneFormatService,
               private toastService: UtmToastService) {
   }
 
@@ -178,6 +176,14 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       // };
       // this.timezoneFormatService.setDateFormatSubject(format);
     }
+  }
+
+  get emailListRegex() {
+    return  new RegExp(this._emailListRegex);
+  }
+
+  isValid(conf: SectionConfigParamType){
+    return new RegExp(conf.confParamRegexp).test(conf.confParamValue)
   }
 
   getConfigToSaveValue(shortName: string): string {

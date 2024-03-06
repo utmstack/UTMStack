@@ -85,7 +85,7 @@
                 [required]="conf.confParamRequired"
                 class="form-control"
                 rows="4"></textarea>
-      <div *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !emailListRegex.test(conf.confParamValue)" class="form-text text-danger">
+      <div *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
         Please enter valid email addresses separated by commas.
       </div>
 
