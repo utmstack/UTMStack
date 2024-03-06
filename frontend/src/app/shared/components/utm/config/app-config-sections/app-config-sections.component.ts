@@ -125,7 +125,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   checkConfigValid(): boolean {
     let valid = true;
     for (const conf of this.configs) {
-      if (conf.confParamRequired || conf.confParamDatatype === ConfigDataTypeEnum.List) {
+      if (conf.confParamRequired || conf.confParamDatatype === ConfigDataTypeEnum.EmailList) {
         const validateConf = this.checkConfigValue(conf);
         if (!validateConf) {
           valid = validateConf;
@@ -137,7 +137,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
   checkConfigValue(config: SectionConfigParamType): boolean {
     switch (config.confParamDatatype) {
-      case ConfigDataTypeEnum.List:
+      case ConfigDataTypeEnum.EmailList:
         return this.emailListRegex.test(config.confParamValue);
 
       default:
@@ -189,11 +189,4 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       return null;
     }
   }
-
-  validEmailList(conf: SectionConfigParamType): boolean {
-    if (conf.confParamValue) {
-      return this.emailListRegex.test(conf.confParamValue);
-    }
-  }
-
 }

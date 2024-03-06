@@ -21,6 +21,7 @@ export enum ConfigDataTypeEnum {
   Tel = 'tel',
   Password = 'password',
   Email = 'email',
+  EmailList = 'email_list',
   Number = 'number',
   Bool = 'bool',
   List = 'list',
