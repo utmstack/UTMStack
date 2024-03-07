@@ -3,24 +3,13 @@ package com.park.utmstack.service.compliance;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
-import com.park.utmstack.domain.chart_builder.UtmDashboard;
 import com.park.utmstack.domain.chart_builder.UtmDashboard_;
-import com.park.utmstack.domain.compliance.UtmComplianceReportConfig;
 import com.park.utmstack.domain.compliance.UtmComplianceReportConfig_;
 import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule;
 import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule_;
 import com.park.utmstack.repository.compliance.UtmComplianceReportScheduleRepository;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.chart_builder.UtmDashboardCriteria;
 import com.park.utmstack.service.dto.compliance.UtmComplianceReportScheduleCriteria;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -28,15 +17,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.service.QueryService;
-import tech.jhipster.service.filter.StringFilter;
 
 import javax.persistence.criteria.JoinType;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link UtmComplianceReportSchedule}.

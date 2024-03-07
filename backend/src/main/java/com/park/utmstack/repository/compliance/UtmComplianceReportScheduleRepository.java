@@ -1,11 +1,8 @@
 package com.park.utmstack.repository.compliance;
 
 import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.*;
-import org.springframework.lang.Nullable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,7 +17,7 @@ public interface UtmComplianceReportScheduleRepository extends JpaRepository<Utm
 
     Optional<UtmComplianceReportSchedule> findFirstByUserIdAndComplianceIdAndScheduleString(Long userId, Long complianceId, String scheduleString);
 
-    Page<UtmComplianceReportSchedule> findAllByUserId(Long userId, Pageable pageable, Specification<UtmComplianceReportSchedule> specification);
+    List<UtmComplianceReportSchedule> findAllByUserId(Long userId);
 
     void deleteByUserIdAndComplianceId(Long userId, Long complianceId);
 }

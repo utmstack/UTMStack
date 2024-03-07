@@ -134,7 +134,7 @@ public class UtmComplianceReportScheduleResource {
         try {
             log.debug("REST request to get all UtmComplianceReportSchedules");
             Page<UtmComplianceReportSchedule> page = utmComplianceReportScheduleService.findAllOfCurrentUser(criteria, pageable);
-            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-dashboards");
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/compliance-report-schedules-by-user");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
