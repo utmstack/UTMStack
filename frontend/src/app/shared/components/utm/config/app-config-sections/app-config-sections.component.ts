@@ -123,7 +123,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   checkConfigValid(): boolean {
     let valid = true;
     for (const conf of this.configs) {
-      if (conf.confParamRequired || conf.confParamDatatype === ConfigDataTypeEnum.EmailList) {
+      if (conf.confParamRequired || (conf.confParamRegexp && conf.confParamDatatype === ConfigDataTypeEnum.EmailList)) {
         const validateConf = this.checkConfigValue(conf);
         if (!validateConf) {
           valid = validateConf;
@@ -136,7 +136,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   checkConfigValue(config: SectionConfigParamType): boolean {
     switch (config.confParamDatatype) {
       case ConfigDataTypeEnum.EmailList:
-        return this.emailListRegex.test(config.confParamValue);
+        return this.isValid(config);
 
       default:
         return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
@@ -178,12 +178,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  get emailListRegex() {
-    return  new RegExp(this._emailListRegex);
-  }
-
   isValid(conf: SectionConfigParamType){
-    return new RegExp(conf.confParamRegexp).test(conf.confParamValue)
+    return new RegExp(conf.confParamRegexp).test(conf.confParamValue);
   }
 
   getConfigToSaveValue(shortName: string): string {
