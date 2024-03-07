@@ -6,6 +6,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import tech.jhipster.config.JHipsterConstants;
 
+import javax.mail.MessagingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,14 +38,16 @@ public class UtmStackService {
         }
     }
 
-    public void checkEmailConfiguration() throws Exception {
+    public void checkEmailConfiguration() throws MessagingException {
         final String ctx = CLASSNAME + ".checkEmailConfiguration";
         try {
             User user = userService.getCurrentUserLogin();
             List<String> to = Collections.singletonList(user.getEmail());
             mailService.sendCheckEmail(to);
+        } catch (MessagingException e) {
+            throw new MessagingException(ctx + ": " + e.getMessage());
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 

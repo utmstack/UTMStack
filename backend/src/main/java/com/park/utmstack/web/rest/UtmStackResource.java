@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import java.util.Map;
 
 /**
@@ -93,6 +94,11 @@ public class UtmStackResource {
         try {
             utmStackService.checkEmailConfiguration();
             return ResponseEntity.ok().build();
+        } catch (MessagingException e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildBadRequestResponse("Check failed with this configuration, review your configuration, save changes and try again");
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);

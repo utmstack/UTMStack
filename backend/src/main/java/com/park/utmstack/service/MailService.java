@@ -29,6 +29,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import javax.activation.DataHandler;
 import javax.mail.BodyPart;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -87,7 +88,7 @@ public class MailService {
 //        return mailSender;
 //    }
 
-    private @NotNull JavaMailSender getJavaMailSender() {
+    private @NotNull JavaMailSender getJavaMailSender() throws MessagingException {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         String host = Constants.CFG.get(Constants.PROP_MAIL_HOST);
         mailSender.setHost(host);
@@ -119,7 +120,15 @@ public class MailService {
                 break;
         }
         props.put("mail.smtp.ssl.trust", host);
+        mailSender.testConnection();
         return mailSender;
+    }
+
+    /**
+     * Method that can be used to test the email server configuration
+     * */
+    public void checkEmailConfiguration() throws MessagingException {
+        getJavaMailSender();
     }
 
     /**
@@ -127,7 +136,7 @@ public class MailService {
      *
      * @param to Address to send the testing email
      */
-    public void sendCheckEmail(List<String> to) throws Exception {
+    public void sendCheckEmail(List<String> to) throws MessagingException {
         try {
             JavaMailSender javaMailSender = getJavaMailSender();
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -137,9 +146,12 @@ public class MailService {
             message.setSubject("Testing mail configuration");
             message.setText("Your email configuration is OK !!!");
             javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: The mail configuration is wrong: %2$s", String.join(",", to), e.getMessage());
+            throw new MessagingException(msg);
         } catch (Exception e) {
             String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", to), e.getMessage());
-            throw new Exception(msg);
+            throw new RuntimeException(msg);
         }
     }
 
@@ -147,16 +159,22 @@ public class MailService {
     public void sendEmail(List<String> to, String subject, String content, boolean isMultipart, boolean isHtml) {
         log.debug("Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}", isMultipart, isHtml,
                 to, subject, content);
-        JavaMailSender javaMailSender = getJavaMailSender();
-        // Prepare message using a Spring helper
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        final String ctx = CLASS_NAME + ".sendEmail";
         try {
+            JavaMailSender javaMailSender = getJavaMailSender();
+            // Prepare message using a Spring helper
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
             message.setTo(to.toArray(new String[]{}));
             message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
             message.setSubject(subject);
             message.setText(content, isHtml);
             javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = String.format("%1$s: Email could not be sent to user(s) %2$s: The mail configuration is wrong: %3$s", ctx, String.join(",", to), e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
         } catch (Exception e) {
             String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", to), e.getMessage());
             log.error(msg);
@@ -166,11 +184,12 @@ public class MailService {
 
     @Async
     public void sendEmailWithAttachment(String emailsTo, String subject, String content, InputStream attach) {
-        JavaMailSender javaMailSender = getJavaMailSender();
-        // Prepare message using a Spring helper
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         try {
+            JavaMailSender javaMailSender = getJavaMailSender();
+            // Prepare message using a Spring helper
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
             Multipart mail = new MimeMultipart();
 
             BodyPart text = new MimeBodyPart();
@@ -187,6 +206,10 @@ public class MailService {
             mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailsTo));
             mimeMessage.setSubject(subject);
             javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: The mail configuration is wrong: %2$s", emailsTo, e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
         } catch (Exception e) {
             String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", emailsTo), e.getMessage());
             log.error(msg);
@@ -272,8 +295,12 @@ public class MailService {
             message.addAttachment(String.format("Alert_%1$s.zip", alert.getId()), zip);
 
             javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = String.format("%1$s: Email could not be sent to user(s) %2$s: The mail configuration is wrong: %3$s", ctx, String.join(",", emailsTo), e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
         } catch (Exception e) {
-            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, emailsTo, e.getMessage());
+            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, String.join(",", emailsTo), e.getMessage());
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
         }
@@ -301,8 +328,12 @@ public class MailService {
             message.setText(htmlContent, true);
 
             javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = String.format("%1$s: Email could not be sent to user(s) %2$s: The mail configuration is wrong: %3$s", ctx, String.join(",", emailsTo), e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
         } catch (Exception e) {
-            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, emailsTo, e.getMessage());
+            String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, String.join(",", emailsTo), e.getMessage());
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
         }
@@ -403,6 +434,10 @@ public class MailService {
             message.addAttachment(filename, complianceRep);
 
             javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = String.format("%1$s: Email could not be sent to user(s) %2$s: The mail configuration is wrong: %3$s", ctx, emailTo, e.getMessage());
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
         } catch (Exception e) {
             String msg = String.format("%1$s: Email could not be sent to %2$s: %3$s", ctx, emailTo, e.getMessage());
             log.error(msg);
