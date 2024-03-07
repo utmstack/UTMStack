@@ -5,6 +5,7 @@ import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule;
 import com.park.utmstack.repository.compliance.UtmComplianceReportScheduleRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.compliance.UtmComplianceReportScheduleService;
+import com.park.utmstack.service.dto.compliance.UtmComplianceReportScheduleCriteria;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 
@@ -12,8 +13,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
+import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -124,11 +129,13 @@ public class UtmComplianceReportScheduleResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of utmComplianceReportSchedules in body.
      */
     @GetMapping("/compliance-report-schedules-by-user")
-    public ResponseEntity<List<UtmComplianceReportSchedule>> getAllUtmComplianceReportSchedules() {
+    public ResponseEntity<List<UtmComplianceReportSchedule>> getAllUtmComplianceReportSchedules(UtmComplianceReportScheduleCriteria criteria, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllUtmComplianceReportSchedules";
         try {
             log.debug("REST request to get all UtmComplianceReportSchedules");
-            return utmComplianceReportScheduleService.findAllOfCurrentUser();
+            Page<UtmComplianceReportSchedule> page = utmComplianceReportScheduleService.findAllOfCurrentUser(criteria, pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-dashboards");
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);

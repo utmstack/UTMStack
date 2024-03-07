@@ -3,7 +3,12 @@ package com.park.utmstack.service.compliance;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.chart_builder.UtmDashboard;
+import com.park.utmstack.domain.chart_builder.UtmDashboard_;
+import com.park.utmstack.domain.compliance.UtmComplianceReportConfig;
+import com.park.utmstack.domain.compliance.UtmComplianceReportConfig_;
 import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule;
+import com.park.utmstack.domain.compliance.UtmComplianceReportSchedule_;
 import com.park.utmstack.repository.compliance.UtmComplianceReportScheduleRepository;
 
 import java.time.Clock;
@@ -15,21 +20,30 @@ import java.util.Optional;
 
 import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.dto.chart_builder.UtmDashboardCriteria;
+import com.park.utmstack.service.dto.compliance.UtmComplianceReportScheduleCriteria;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tech.jhipster.service.QueryService;
+import tech.jhipster.service.filter.StringFilter;
+
+import javax.persistence.criteria.JoinType;
 
 /**
  * Service Implementation for managing {@link UtmComplianceReportSchedule}.
  */
 @Service
 @Transactional
-public class UtmComplianceReportScheduleService {
+public class UtmComplianceReportScheduleService extends QueryService<UtmComplianceReportSchedule> {
 
     private final Logger log = LoggerFactory.getLogger(UtmComplianceReportScheduleService.class);
     private static final String CLASSNAME = "UtmComplianceReportScheduleService";
@@ -91,10 +105,11 @@ public class UtmComplianceReportScheduleService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public ResponseEntity<List<UtmComplianceReportSchedule>> findAllOfCurrentUser() {
+    public Page<UtmComplianceReportSchedule> findAllOfCurrentUser(UtmComplianceReportScheduleCriteria criteria, Pageable pageable) {
         log.debug("Request to get all UtmComplianceReportSchedules");
-        User user = userService.getCurrentUserLogin();
-        return ResponseEntity.ok().body(utmComplianceReportScheduleRepository.findAllByUserId(user.getId()));
+        log.debug("find by criteria : {}, page: {}", criteria, pageable);
+        final Specification<UtmComplianceReportSchedule> specification = createSpecification(criteria);
+        return utmComplianceReportScheduleRepository.findAll(specification, pageable);
     }
 
     /**
@@ -192,6 +207,20 @@ public class UtmComplianceReportScheduleService {
             return resultNext.atZone(ZoneOffset.UTC).toInstant();
         }
 
+    }
+
+    private Specification<UtmComplianceReportSchedule> createSpecification(UtmComplianceReportScheduleCriteria criteria) {
+
+        User user = userService.getCurrentUserLogin();
+        Specification<UtmComplianceReportSchedule> specification = Specification.where((root, query, criteriaBuilder) ->
+                                                                                        criteriaBuilder.equal(root.get("userId"), user.getId()));
+        if (criteria != null) {
+            if (criteria.getName() != null) {
+                specification = specification.and(buildSpecification(criteria.getName(),
+                        root -> root.join(UtmComplianceReportSchedule_.compliance, JoinType.INNER).join(UtmComplianceReportConfig_.associatedDashboard, JoinType.INNER).get(UtmDashboard_.name)));
+            }
+        }
+        return specification;
     }
 
 
