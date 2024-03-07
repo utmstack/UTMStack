@@ -37,6 +37,9 @@ public class UtmConfigurationParameter implements Serializable {
     @Column(name = "conf_param_value")
     private String confParamValue;
 
+    @Column(name = "conf_param_regexp")
+    private String confParamRegexp;
+
     @Column(name = "conf_param_required")
     private Boolean confParamRequired;
 
@@ -153,5 +156,13 @@ public class UtmConfigurationParameter implements Serializable {
 
     public void setConfParamOption(String confParamOption) {
         this.confParamOption = confParamOption;
+    }
+
+    public String getConfParamRegexp() {
+        return confParamRegexp;
+    }
+
+    public void setConfParamRegexp(String confParamRegexp) {
+        this.confParamRegexp = confParamRegexp;
     }
 }
