@@ -9,6 +9,7 @@ import {InlineSVGModule} from 'ng-inline-svg';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NgxSortableModule} from 'ngx-sortable-2';
+import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-group-add/assets-group-add.module';
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
 import {AuthServerProvider} from '../core/auth/auth-jwt.service';
@@ -23,6 +24,9 @@ import {PasswordResetInitComponent} from './components/auth/password-reset/init/
 import {PasswordStrengthBarComponent} from './components/auth/password-strength/password-strength-bar.component';
 import {TotpComponent} from './components/auth/totp/totp.component';
 import {ContactUsComponent} from './components/contact-us/contact-us.component';
+import {
+  EmailSettingNotificactionComponent
+} from './components/email-setting-notification/email-setting-notificaction.component';
 import {
   UtmAdminChangeEmailComponent
 } from './components/getting-started/utm-admin-change-email/utm-admin-change-email.component';
@@ -119,6 +123,10 @@ import {
 } from './components/utm/filters/utm-elastic-filter/elastic-filter-add/elastic-filter-add.component';
 import {ElasticFilterComponent} from './components/utm/filters/utm-elastic-filter/elastic-filter.component';
 import {FormcontrolErrorComponent} from './components/utm/form/formcontrol-error/formcontrol-error.component';
+import {IncidentVariableSelectComponent} from './components/utm/incident-variables/incident-variable-select.component';
+import {
+  IrVariableCreateComponent
+} from './components/utm/incident-variables/ir-variable-create/ir-variable-create.component';
 import {
   IndexPatternCreateComponent
 } from './components/utm/index-pattern/index-pattern-create/index-pattern-create.component';
@@ -208,11 +216,6 @@ import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import {AssetsGroupAddModule} from "../assets-discover/shared/components/asset-group-add/assets-group-add.module";
-import {
-  IrVariableCreateComponent
-} from "./components/utm/incident-variables/ir-variable-create/ir-variable-create.component";
-import {IncidentVariableSelectComponent} from "./components/utm/incident-variables/incident-variable-select.component";
 
 
 @NgModule({
@@ -350,7 +353,8 @@ import {IncidentVariableSelectComponent} from "./components/utm/incident-variabl
     UtmCodeHighlightComponent,
     ZoomDirective,
     IrVariableCreateComponent,
-    IncidentVariableSelectComponent
+    IncidentVariableSelectComponent,
+    EmailSettingNotificactionComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -441,7 +445,8 @@ import {IncidentVariableSelectComponent} from "./components/utm/incident-variabl
     UtmCodeHighlightComponent,
     UtmVersionInfoComponent,
     IrVariableCreateComponent,
-    IncidentVariableSelectComponent
+    IncidentVariableSelectComponent,
+    EmailSettingNotificactionComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -484,7 +489,8 @@ import {IncidentVariableSelectComponent} from "./components/utm/incident-variabl
     GettingStartedModalComponent,
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
-    IrVariableCreateComponent],
+    IrVariableCreateComponent,
+    EmailSettingNotificactionComponent],
   providers: [
     UtmToastService,
     MenuBehavior,
