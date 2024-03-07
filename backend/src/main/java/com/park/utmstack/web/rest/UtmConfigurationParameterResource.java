@@ -67,14 +67,16 @@ public class UtmConfigurationParameterResource {
         try {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
-                Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
-                emailValidatorService.validate(parameter, errors);
+                if(parameter.getConfParamDatatype().equals("email_list") && parameter.getConfParamRegexp() != null){
+                    Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
+                    emailValidatorService.validate(parameter, errors);
 
-                if (errors.hasErrors()) {
-                    String msg = "Email list validation failed. Please ensure that email addresses are separated by commas, and each address is valid.";
-                    log.error(msg);
-                    applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-                    return UtilResponse.buildPreconditionFailedResponse(msg);
+                    if (errors.hasErrors()) {
+                        String msg = "Email list validation failed. Please ensure that email addresses are separated by commas, and each address is valid.";
+                        log.error(msg);
+                        applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+                        return UtilResponse.buildPreconditionFailedResponse(msg);
+                    }
                 }
             }
             utmConfigurationParameterService.saveAll(parameters);
