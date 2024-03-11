@@ -43,5 +43,6 @@
 
     <include file="config/liquibase/changelog/20240305001_fixing_smtp_server_encryption_type.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240305001_updating_tooltip_configuration_parameter.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
