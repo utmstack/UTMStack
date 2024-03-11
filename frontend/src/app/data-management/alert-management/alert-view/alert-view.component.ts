@@ -1,14 +1,18 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {IrCreateRuleComponent} from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
+import {
+  IrCreateRuleComponent
+} from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {NewAlertBehavior} from '../../../shared/behaviors/new-alert.behavior';
-import {ElasticFilterDefaultTime} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {
+  ElasticFilterDefaultTime
+} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {
   ALERT_CASE_ID_FIELD,
   ALERT_FIELDS,
@@ -49,6 +53,7 @@ import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertManagementService} from '../shared/services/alert-management.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
 
 @Component({
   selector: 'app-alert-view',
@@ -111,7 +116,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
-              private spinner: NgxSpinnerService) {
+              private spinner: NgxSpinnerService,
+              private checkEmailConfigService: CheckEmailConfigService) {
     // this.tableWidth = this.pageWidth - 300;
   }
 
@@ -119,6 +125,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.checkEmailConfigService.check(ParamShortType.Alert);
     this.setInitialWidth();
     this.getTags();
     this.activatedRoute.queryParams.subscribe(params => {

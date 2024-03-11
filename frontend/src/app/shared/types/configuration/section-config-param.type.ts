@@ -14,6 +14,7 @@ export class SectionConfigParamType {
   section?: SectionConfigType;
   confParamRestartRequired: boolean;
   confParamOption: string;
+  confParamRegexp?: string;
 }
 
 export enum ConfigDataTypeEnum {
@@ -21,6 +22,7 @@ export enum ConfigDataTypeEnum {
   Tel = 'tel',
   Password = 'password',
   Email = 'email',
+  EmailList = 'email_list',
   Number = 'number',
   Bool = 'bool',
   List = 'list',
