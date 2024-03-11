@@ -29,7 +29,7 @@ export class CheckEmailConfigService {
     }).pipe(
         map(res =>  res.body[0]))
         .subscribe(section => {
-          if (section.confParamValue !== '') {
+          if (section.confParamValue === '') {
               const modal = this.modalService.open(EmailSettingNotificactionComponent, {centered: true});
               modal.componentInstance.section = section;
           }
