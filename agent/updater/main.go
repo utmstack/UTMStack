@@ -7,48 +7,42 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/agent/updater/configuration"
 	"github.com/utmstack/UTMStack/agent/updater/serv"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
 
-var utmLogger = holmes.New("debug", configuration.SERV_NAME)
-
 func main() {
 	path, err := utils.GetMyPath()
 	if err != nil {
-		fmt.Printf("failed to get current path: %v", err)
-		utmLogger.FatalError("failed to get current path: %v", err)
+		log.Fatalf("failed to get current path: %v", err)
 	}
 
-	var logger = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
-	defer logger.Close()
-	log.SetOutput(logger)
+	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 
 	if len(os.Args) > 1 {
 		mode := os.Args[1]
 		switch mode {
 		case "run":
-			serv.RunService(utmLogger)
+			serv.RunService(h)
 		case "install":
-			utmLogger.Info("Installing UTMStack Updater service...")
+			h.Info("Installing UTMStack Updater service...")
 
 			if isInstalled, err := utils.CheckIfServiceIsInstalled(configuration.SERV_NAME); err != nil {
-				utmLogger.FatalError("error checking %s service: %v", configuration.SERV_NAME, err)
+				h.Fatal("error checking %s service: %v", configuration.SERV_NAME, err)
 			} else if isInstalled {
-				utmLogger.FatalError("%s is already installed", configuration.SERV_NAME)
+				h.Fatal("%s is already installed", configuration.SERV_NAME)
 			}
 
-			serv.InstallService(utmLogger)
-			utmLogger.Info("UTMStack Updater service installed correctly.")
+			serv.InstallService(h)
+			h.Info("UTMStack Updater service installed correctly.")
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 
 		case "uninstall":
-			utmLogger.Info("Uninstalling UTMStack Updater service...")
-			serv.UninstallService(utmLogger)
-			utmLogger.Info("UTMStack Updater service uninstalled correctly.")
+			h.Info("Uninstalling UTMStack Updater service...")
+			serv.UninstallService(h)
+			h.Info("UTMStack Updater service uninstalled correctly.")
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 
@@ -56,6 +50,6 @@ func main() {
 			fmt.Println("unknown option")
 		}
 	} else {
-		serv.RunService(utmLogger)
+		serv.RunService(h)
 	}
 }

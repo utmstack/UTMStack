@@ -5,14 +5,14 @@ import (
 	"io"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 // Call this function to start sending Ping requests
-func StartPing(client pb.AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *holmes.Logger) {
+func StartPing(client pb.AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
 	connectionTime := 0 * time.Second
 	reconnectDelay := configuration.InitialReconnectDelay
 	var connErrMsgWritten bool
@@ -27,7 +27,7 @@ func StartPing(client pb.AgentServiceClient, ctx context.Context, cnf *configura
 		stream, err := client.Ping(ctx)
 		if err != nil {
 			if !connErrMsgWritten {
-				h.Error("failed to start Ping Stream: %v", err)
+				h.ErrorF("failed to start Ping Stream: %v", err)
 				connErrMsgWritten = true
 			}
 			time.Sleep(reconnectDelay)
@@ -45,11 +45,11 @@ func StartPing(client pb.AgentServiceClient, ctx context.Context, cnf *configura
 			err := stream.Send(&pb.PingResponse{AgentKey: cnf.AgentKey, IsAlive: true})
 			if err == io.EOF {
 				// Server closed the stream
-				h.Error("Server closed the stream: %v", err)
+				h.ErrorF("Server closed the stream: %v", err)
 				break
 			}
 			if err != nil {
-				h.Error("Error sending Ping request: %v", err)
+				h.ErrorF("Error sending Ping request: %v", err)
 				break
 			}
 		}
