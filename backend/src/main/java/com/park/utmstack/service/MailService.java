@@ -7,6 +7,8 @@ import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.shared_types.AlertType;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.mail_service.BaseMailSender;
+import com.park.utmstack.service.mail_service.MailSenderStrategy;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -21,7 +23,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -63,12 +64,15 @@ public class MailService {
     private final SpringTemplateEngine templateEngine;
     private final ApplicationEventService eventService;
 
+    private final List<BaseMailSender> mailSenders;
+
     public MailService(MessageSource messageSource,
                        SpringTemplateEngine templateEngine,
-                       ApplicationEventService eventService) {
+                       ApplicationEventService eventService, List<BaseMailSender> mailSenders) {
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
         this.eventService = eventService;
+        this.mailSenders = mailSenders;
         this.templateEngine.addDialect(new Java8TimeDialect());
     }
 
@@ -88,16 +92,23 @@ public class MailService {
 //        return mailSender;
 //    }
 
+    private MailSenderStrategy getSender(String type){
+        return mailSenders.stream()
+                .filter(s -> s.getEncryptionType().equals(type))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Class not found"));
+    }
+
     private @NotNull JavaMailSender getJavaMailSender() throws MessagingException {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+       /* JavaMailSender mailSender = new JavaMailSenderImpl();
         String host = Constants.CFG.get(Constants.PROP_MAIL_HOST);
         mailSender.setHost(host);
         mailSender.setPassword(Constants.CFG.get(Constants.PROP_MAIL_PASSWORD));
         mailSender.setUsername(Constants.CFG.get(Constants.PROP_MAIL_USERNAME));
         mailSender.setProtocol(Constants.PROP_EMAIL_PROTOCOL_VALUE);
-        Properties props = mailSender.getJavaMailProperties();
+        Properties props = mailSender.getJavaMailProperties();*/
         String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
-        String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
+        /*String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
         switch (authType) {
             case "STARTTLS":
                 mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_TLS_VALUE);
@@ -119,8 +130,10 @@ public class MailService {
                 props.put("mail.smtp.ssl.enable", "false");
                 break;
         }
-        props.put("mail.smtp.ssl.trust", host);
-        mailSender.testConnection();
+        props.put("mail.smtp.ssl.trust", host);*/
+        MailSenderStrategy mailSenderStrategy = getSender(authType);
+        JavaMailSender mailSender = mailSenderStrategy.getJavaMailSender();
+        ((JavaMailSenderImpl) mailSender).testConnection();
         return mailSender;
     }
 
