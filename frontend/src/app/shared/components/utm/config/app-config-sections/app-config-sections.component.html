@@ -39,7 +39,7 @@
   <p *ngIf="section.description" class="mb-3 mt-3">{{section.description}}</p>
   <div *ngIf="configs.length>0 && !loading"
        class="d-flex justify-content-between align-items-center flex-wrap w-100">
-    <div *ngFor="let conf of configs" [ngClass]="conf.confParamDatatype === 'list'?'w-100 order-8':'w-30'"
+    <div *ngFor="let conf of configs" [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList ?'w-100 order-8':'w-30'"
          class="form-group mb-4">
       <label [for]="'sectionParam'+conf.id"
              class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
@@ -80,12 +80,15 @@
                       [label]="'Enable/Disable param configuration'"></app-utm-toggle>
 
       <textarea (input)="save(conf.confParamValue,conf)"
-                *ngIf="conf.confParamDatatype === configDataTypeEnum.List"
+                *ngIf="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList"
                 [(ngModel)]="conf.confParamValue"
                 [id]="'sectionParam'+conf.id"
                 [required]="conf.confParamRequired"
                 class="form-control"
                 rows="4"></textarea>
+      <div *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
+        Please enter valid email addresses separated by commas.
+      </div>
 
       <ng-select [clearable]="false"
                  [searchable]="true"
