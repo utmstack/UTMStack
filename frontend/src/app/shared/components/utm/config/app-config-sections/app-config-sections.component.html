@@ -4,7 +4,7 @@
     <span class="font-weight-semibold">Warning! </span>
     <span>Required param configuration must be set to save this section</span>
   </div>
-  <div *ngIf="configToSave.length>0 && checkConfigValid() && !loading"
+  <div *ngIf="configToSave.length > 0 && checkConfigValid() && !loading"
        class="w-100 alert alert-info alert-styled-right mb-3">
        <span class="font-weight-semibold">
           Detect unsaved changes in configuration, do not forget save changes when you finish!
@@ -22,6 +22,7 @@
       </button>
 
       <app-utm-email-conf-check [validConfig]="checkConfigValid()"
+                                [emailConfig]="configs"
                                 class="mr-2"
                                 *ngIf="section.section.toLowerCase() === 'email'"></app-utm-email-conf-check>
 
