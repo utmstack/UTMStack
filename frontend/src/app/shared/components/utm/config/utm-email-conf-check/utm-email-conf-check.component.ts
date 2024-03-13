@@ -12,6 +12,7 @@ import {SectionConfigParamType} from "../../../../types/configuration/section-co
 export class UtmEmailConfCheckComponent implements OnInit {
   @Input() validConfig: boolean;
   @Input() emailConfig: SectionConfigParamType[] = [];
+  @Input() configToSave: SectionConfigParamType[] = [];
   checking: any;
   email: string;
 
@@ -24,10 +25,16 @@ export class UtmEmailConfCheckComponent implements OnInit {
   }
 
   testConfig() {
-    console.log(this.emailConfig);
     this.checking = true;
     this.accountService.identity().then(account => {
-      this.utmConfigEmailCheckService.checkEmail().subscribe(() => {
+      this.utmConfigEmailCheckService.checkEmail({
+        host:  this.getSectionParameterValue('utmstack.mail.host'),
+        username: this.getSectionParameterValue('utmstack.mail.username'),
+        password: this.getSectionParameterValue('utmstack.mail.password'),
+        from: this.getSectionParameterValue('utmstack.mail.from'),
+        port: this.getSectionParameterValue('utmstack.mail.port'),
+        authType: this.getSectionParameterValue('utmstack.mail.properties.mail.smtp.auth'),
+      }).subscribe(() => {
         this.checking = false;
         this.utmToastService.showSuccessBottom('A test email has been sent to ' + account.email + '; please check your inbox.');
       }, (error) => {
@@ -41,5 +48,12 @@ export class UtmEmailConfCheckComponent implements OnInit {
         }
       });
     });
+  }
+
+  getSectionParameterValue(paramShort: string) {
+    if (paramShort === 'utmstack.mail.password') {
+      return this.configToSave.find(conf => conf.confParamShort === paramShort).confParamValue;
+    }
+    return this.emailConfig.find(conf => conf.confParamShort === paramShort).confParamValue;
   }
 }

@@ -12,9 +12,8 @@ export class UtmConfigEmailCheckService {
   constructor(private http: HttpClient) {
   }
 
-  checkEmail(): Observable<HttpResponse<any>> {
-    return this.http.get<any>(this.resourceUrl, {observe: 'response'});
+  checkEmail(config: any): Observable<HttpResponse<any>> {
+    return this.http.post<any>(this.resourceUrl,  config,{observe: 'response'});
   }
-
 
 }

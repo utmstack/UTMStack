@@ -21,7 +21,8 @@
         Delete config
       </button>
 
-      <app-utm-email-conf-check [validConfig]="checkConfigValid()"
+      <app-utm-email-conf-check [validConfig]="checkConfigValid() && isPasswordSet()"
+                                [configToSave]="configToSave"
                                 [emailConfig]="configs"
                                 class="mr-2"
                                 *ngIf="section.section.toLowerCase() === 'email'"></app-utm-email-conf-check>
