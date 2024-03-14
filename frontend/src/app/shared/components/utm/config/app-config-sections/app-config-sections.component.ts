@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 import {RestartApiBehavior} from '../../../../behaviors/restart-api.behavior';
@@ -10,10 +9,10 @@ import {
   TIMEZONES
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
-import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
+
 
 @Component({
   selector: 'app-config-sections',
@@ -21,6 +20,7 @@ import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-
   styleUrls: ['./app-config-sections.component.css']
 })
 export class AppConfigSectionsComponent implements OnInit, OnDestroy {
+
   @Input() section: SectionConfigType;
   @Output() validConfigSection = new EventEmitter<boolean>();
   @Input() allowDeleteSection = false;
@@ -37,12 +37,11 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   dateFormats = DATE_FORMATS;
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
-              private router: Router,
               private modalService: NgbModal,
               private restartApiBehavior: RestartApiBehavior,
-              private timezoneFormatService: TimezoneFormatService,
               private toastService: UtmToastService) {
   }
+
 
   ngOnInit() {
     this.getConfigurations();
@@ -121,8 +120,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   checkConfigValid(): boolean {
     let valid = true;
     for (const conf of this.configs) {
-      if (conf.confParamRequired) {
-        const validateConf = this.checkConfigValue(conf.confParamValue);
+      if (conf.confParamRequired || (conf.confParamRegexp && conf.confParamDatatype === ConfigDataTypeEnum.EmailList)) {
+        const validateConf = this.checkConfigValue(conf);
         if (!validateConf) {
           valid = validateConf;
         }
@@ -131,8 +130,14 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     return valid;
   }
 
-  checkConfigValue(config: string): boolean {
-    return config !== null && config !== '' && config !== undefined;
+  checkConfigValue(config: SectionConfigParamType): boolean {
+    switch (config.confParamDatatype) {
+      case ConfigDataTypeEnum.EmailList:
+        return this.isValid(config);
+
+      default:
+        return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
+    }
   }
 
   save($event: any, conf: SectionConfigParamType) {
@@ -168,6 +173,10 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       // };
       // this.timezoneFormatService.setDateFormatSubject(format);
     }
+  }
+
+  isValid(conf: SectionConfigParamType){
+    return new RegExp(conf.confParamRegexp).test(conf.confParamValue);
   }
 
   getConfigToSaveValue(shortName: string): string {

@@ -15,6 +15,7 @@ import {IncidentFilterType} from '../../shared/types/incident/incident-filter.ty
 import {UtmIncidentType} from '../../shared/types/incident/utm-incident.type';
 import {TimeFilterType} from '../../shared/types/time-filter.type';
 import {calcTableDimension} from '../../shared/util/screen.util';
+import {CheckEmailConfigService, ParamShortType} from "../../shared/services/util/check-email-config.service";
 
 @Component({
   selector: 'app-incident-management',
@@ -60,12 +61,12 @@ export class IncidentManagementComponent implements OnInit, OnDestroy {
   constructor(private utmIncidentService: UtmIncidentService,
               private modalService: NgbModal,
               private activatedRoute: ActivatedRoute,
-              private utmToastService: UtmToastService) {
+              private checkEmailConfigService: CheckEmailConfigService) {
 
   }
 
   ngOnInit() {
-
+    this.checkEmailConfigService.check(ParamShortType.Incident);
     this.setInitialWidth();
     this.getIncidents();
     this.activatedRoute.queryParams.subscribe(params => {
