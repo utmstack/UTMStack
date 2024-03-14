@@ -3,6 +3,7 @@ package com.park.utmstack.web.rest;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.mail_sender.MailConfig;
 import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.util.Map;
 
 /**
@@ -88,11 +90,11 @@ public class UtmStackResource {
         }
     }
 
-    @GetMapping("/checkEmailConfiguration")
-    public ResponseEntity<Void> checkEmailConfiguration() {
+    @PostMapping ("/checkEmailConfiguration")
+    public ResponseEntity<Void> checkEmailConfiguration(@Valid @RequestBody MailConfig mailConfig) {
         final String ctx = CLASSNAME + ".checkEmailConfiguration";
         try {
-            utmStackService.checkEmailConfiguration();
+            utmStackService.checkEmailConfiguration(mailConfig);
             return ResponseEntity.ok().build();
         } catch (MessagingException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();

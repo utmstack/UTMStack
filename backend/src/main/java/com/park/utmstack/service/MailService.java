@@ -4,11 +4,12 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.incident.UtmIncident;
+import com.park.utmstack.domain.mail_sender.MailConfig;
 import com.park.utmstack.domain.shared_types.AlertType;
 import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.mail_service.BaseMailSender;
-import com.park.utmstack.service.mail_service.MailSenderStrategy;
+import com.park.utmstack.service.mail_sender.BaseMailSender;
+import com.park.utmstack.service.mail_sender.MailSenderStrategy;
 import com.utmstack.opensearch_connector.types.ElasticCluster;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -23,6 +24,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -99,16 +101,36 @@ public class MailService {
                 .orElseThrow(() -> new RuntimeException("Class not found"));
     }
 
+    private @NotNull JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, String port) throws MessagingException {
+
+        String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
+
+        MailSenderStrategy mailSenderStrategy = getSender(authType);
+        JavaMailSender mailSender = mailSenderStrategy.getJavaMailSender(host, username, password, protocol, port);
+        ((JavaMailSenderImpl) mailSender).testConnection();
+        return mailSender;
+    }
+
     private @NotNull JavaMailSender getJavaMailSender() throws MessagingException {
-       /* JavaMailSender mailSender = new JavaMailSenderImpl();
+
+        String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
+
+        MailSenderStrategy mailSenderStrategy = getSender(authType);
+        JavaMailSender mailSender = mailSenderStrategy.getJavaMailSender();
+        ((JavaMailSenderImpl) mailSender).testConnection();
+        return mailSender;
+    }
+
+    private @NotNull JavaMailSender getJavaMailSender1() throws MessagingException {
+       JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         String host = Constants.CFG.get(Constants.PROP_MAIL_HOST);
         mailSender.setHost(host);
         mailSender.setPassword(Constants.CFG.get(Constants.PROP_MAIL_PASSWORD));
         mailSender.setUsername(Constants.CFG.get(Constants.PROP_MAIL_USERNAME));
         mailSender.setProtocol(Constants.PROP_EMAIL_PROTOCOL_VALUE);
-        Properties props = mailSender.getJavaMailProperties();*/
+        Properties props = mailSender.getJavaMailProperties();
         String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
-        /*String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
+        String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
         switch (authType) {
             case "STARTTLS":
                 mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_TLS_VALUE);
@@ -130,10 +152,9 @@ public class MailService {
                 props.put("mail.smtp.ssl.enable", "false");
                 break;
         }
-        props.put("mail.smtp.ssl.trust", host);*/
-        MailSenderStrategy mailSenderStrategy = getSender(authType);
-        JavaMailSender mailSender = mailSenderStrategy.getJavaMailSender();
-        ((JavaMailSenderImpl) mailSender).testConnection();
+        props.put("mail.smtp.ssl.trust", host);
+
+         mailSender.testConnection();
         return mailSender;
     }
 
@@ -152,13 +173,20 @@ public class MailService {
     public void sendCheckEmail(List<String> to) throws MessagingException {
         try {
             JavaMailSender javaMailSender = getJavaMailSender();
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
-            message.setTo(to.toArray(new String[]{}));
-            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
-            message.setSubject("Testing mail configuration");
-            message.setText("Your email configuration is OK !!!");
-            javaMailSender.send(mimeMessage);
+            javaMailSender.send(this.getMimeMessage(javaMailSender, to, Constants.CFG.get(Constants.PROP_MAIL_FROM)));
+        } catch (MessagingException e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: The mail configuration is wrong: %2$s", String.join(",", to), e.getMessage());
+            throw new MessagingException(msg);
+        } catch (Exception e) {
+            String msg = String.format("Email could not be sent to user(s) %1$s: %2$s", String.join(",", to), e.getMessage());
+            throw new RuntimeException(msg);
+        }
+    }
+
+    public void sendCheckEmail(List<String> to, MailConfig config) throws MessagingException {
+        try {
+            JavaMailSender javaMailSender = getJavaMailSender(config.getHost(), config.getUsername(), config.getPassword(), Constants.PROP_EMAIL_PROTOCOL_VALUE, config.getPort());
+            javaMailSender.send(this.getMimeMessage(javaMailSender, to, config.getFrom()));
         } catch (MessagingException e) {
             String msg = String.format("Email could not be sent to user(s) %1$s: The mail configuration is wrong: %2$s", String.join(",", to), e.getMessage());
             throw new MessagingException(msg);
@@ -456,5 +484,16 @@ public class MailService {
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
         }
+    }
+
+    private MimeMessage getMimeMessage(JavaMailSender javaMailSender, List<String> to, String from) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
+        message.setTo(to.toArray(new String[]{}));
+        message.setFrom(from);
+        message.setSubject("Testing mail configuration");
+        message.setText("Your email configuration is OK !!!");
+
+        return mimeMessage;
     }
 }
