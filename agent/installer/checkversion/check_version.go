@@ -5,12 +5,12 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/runner/agent"
 	"github.com/utmstack/UTMStack/agent/runner/utils"
 )
 
-func CleanOldVersions(h *holmes.Logger) error {
+func CleanOldVersions(h *logger.Logger) error {
 	// Get current path
 	path, err := utils.GetMyPath()
 	if err != nil {

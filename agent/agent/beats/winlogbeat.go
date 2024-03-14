@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
@@ -12,7 +12,7 @@ import (
 
 type Winlogbeat struct{}
 
-func (w Winlogbeat) Install(h *holmes.Logger) error {
+func (w Winlogbeat) Install() error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("error getting current path: %v", err)
@@ -62,11 +62,11 @@ func (w Winlogbeat) Install(h *holmes.Logger) error {
 	return nil
 }
 
-func (w Winlogbeat) SendSystemLogs(h *holmes.Logger) {
+func (w Winlogbeat) SendSystemLogs(h *logger.Logger) {
 	logLinesChan := make(chan []string)
 	path, err := utils.GetMyPath()
 	if err != nil {
-		h.Error("error getting current path: %v", err)
+		h.ErrorF("error getting current path: %v", err)
 	}
 	winbLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
 
