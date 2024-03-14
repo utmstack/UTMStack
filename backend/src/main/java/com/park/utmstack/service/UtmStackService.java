@@ -2,11 +2,13 @@ package com.park.utmstack.service;
 
 import com.park.utmstack.checks.ElasticsearchConnectionCheck;
 import com.park.utmstack.domain.User;
+import com.park.utmstack.domain.mail_sender.MailConfig;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import tech.jhipster.config.JHipsterConstants;
 
 import javax.mail.MessagingException;
+import javax.validation.constraints.Email;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,12 +40,12 @@ public class UtmStackService {
         }
     }
 
-    public void checkEmailConfiguration() throws MessagingException {
+    public void checkEmailConfiguration(MailConfig config) throws MessagingException {
         final String ctx = CLASSNAME + ".checkEmailConfiguration";
         try {
             User user = userService.getCurrentUserLogin();
             List<String> to = Collections.singletonList(user.getEmail());
-            mailService.sendCheckEmail(to);
+            mailService.sendCheckEmail(to, config);
         } catch (MessagingException e) {
             throw new MessagingException(ctx + ": " + e.getMessage());
         } catch (Exception e) {
