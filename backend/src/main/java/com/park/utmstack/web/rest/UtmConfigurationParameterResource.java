@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,7 @@ public class UtmConfigurationParameterResource {
         try {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
-                if(parameter.getConfParamDatatype().equals("email_list") && parameter.getConfParamRegexp() != null){
+                if(parameter.getConfParamDatatype().equals("email_list") && StringUtils.hasText(parameter.getConfParamRegexp())){
                     Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
                     emailValidatorService.validate(parameter, errors);
 
