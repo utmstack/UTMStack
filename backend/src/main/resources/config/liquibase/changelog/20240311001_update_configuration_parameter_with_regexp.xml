@@ -8,14 +8,14 @@
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
 
             -------------------------------------
-            -- Add column conf_param_regexp configurarion parameter messages --
+            -- Add column conf_param_regexp configuration parameter messages --
 
             ALTER TABLE utm_configuration_parameter
                 ADD COLUMN conf_param_regexp TEXT;
             -------------------------------------
 
             -------------------------------------
-            -- Updating configurarion parameter messages --
+            -- Updating configuration parameter messages --
             -------------------------------------
 
             update utm_configuration_parameter
