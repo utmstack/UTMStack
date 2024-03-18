@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20240305001" author="Manuel">
+    <changeSet id="20240311001" author="Manuel">
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
 
             -------------------------------------
