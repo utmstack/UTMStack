@@ -35,6 +35,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   configDataTypeEnum = ConfigDataTypeEnum;
   timezones = TIMEZONES;
   dateFormats = DATE_FORMATS;
+  isCheckedEmailConfig = false;
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private modalService: NgbModal,
@@ -71,6 +72,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   }
 
   saveConfig() {
+    this.checkedEmailConfig(false);
     this.saving = true;
     if (this.checkConfigValid()) {
       this.utmConfigParamsService.update(this.configToSave).subscribe(response => {
@@ -189,8 +191,14 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  checkedEmailConfig(event: boolean){
+    console.log(event);
+    this.isCheckedEmailConfig = event;
+  }
+
   isPasswordSet() {
     const conf = this.configToSave.find(conf => conf.confParamShort === 'utmstack.mail.password');
     return this.configToSave.length > 0 &&  conf && conf.confParamValue !== '';
   }
+
 }
