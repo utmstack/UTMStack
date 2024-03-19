@@ -2,19 +2,19 @@ package serv
 
 import (
 	"github.com/kardianos/service"
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 )
 
 // RunService runs the service in the system
-func RunService(utmLogger *holmes.Logger) {
+func RunService(utmLogger *logger.Logger) {
 	svcConfig := GetConfigServ()
 	prg := new(program)
 	newService, err := service.New(prg, svcConfig)
 	if err != nil {
-		utmLogger.FatalError("error creating new service: %v", err)
+		utmLogger.Fatal("error creating new service: %v", err)
 	}
 	err = newService.Run()
 	if err != nil {
-		utmLogger.FatalError("error running new service: %v", err)
+		utmLogger.Fatal("error running new service: %v", err)
 	}
 }

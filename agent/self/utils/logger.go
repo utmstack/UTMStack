@@ -3,23 +3,20 @@ package utils
 import (
 	"sync"
 
-	"gopkg.in/natefinch/lumberjack.v2"
+	"github.com/threatwinds/logger"
 )
 
 var (
-	logger             *lumberjack.Logger
+	selfLogger         *logger.Logger
 	loggerOnceInstance sync.Once
 )
 
 // CreateLogger returns a single instance of a Logger configured to save logs to a rotating file.
-func CreateLogger(filename string) *lumberjack.Logger {
+func CreateLogger(filename string) *logger.Logger {
 	loggerOnceInstance.Do(func() {
-		logger = &lumberjack.Logger{
-			Filename:   filename,
-			MaxSize:    5,
-			MaxBackups: 100,
-			MaxAge:     30,
-		}
+		selfLogger = logger.NewLogger(
+			&logger.Config{Format: "text", Level: 100, Output: filename, Retries: 3, Wait: 5},
+		)
 	})
-	return logger
+	return selfLogger
 }

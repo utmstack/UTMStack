@@ -5,12 +5,12 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 )
 
 const maxBatchWait = 5 * time.Second
 
-func TailLogFile(filePath string, logLinesChan chan []string, stopChan chan bool, batchCapacity int, h *holmes.Logger) {
+func TailLogFile(filePath string, logLinesChan chan []string, stopChan chan bool, batchCapacity int, h *logger.Logger) {
 	latestline := "null"
 	batch := make([]string, 0, batchCapacity)
 	ticker := time.NewTicker(maxBatchWait)
@@ -64,34 +64,31 @@ loop:
 	}
 }
 
-func WatchFolder(logType string, logsPath string, logLinesChan chan []string, batchCapacity int, h *holmes.Logger) {
+func WatchFolder(logType string, logsPath string, logLinesChan chan []string, batchCapacity int, h *logger.Logger) {
 	stopChan := make(chan bool)
 	latestLog := ""
 	pattern := regexp.MustCompile(fmt.Sprintf(`%s-(\d+)(?:-(\d+))?\.ndjson`, logType))
 
 	ticker := time.NewTicker(5 * time.Second)
 
-	for {
-		select {
-		case <-ticker.C:
-			isEmpty, err := IsDirEmpty(logsPath)
+	for range ticker.C {
+		isEmpty, err := IsDirEmpty(logsPath)
+		if err != nil {
+			h.Info("error checking if %s is empty: %v\n", logsPath, err)
+			continue
+		}
+		if !isEmpty {
+			newLatestLog, err := FindLatestLog(logsPath, pattern)
 			if err != nil {
-				h.Info("error checking if %s is empty: %v\n", logsPath, err)
+				h.Info("error getting latest log name: %v", err)
 				continue
 			}
-			if !isEmpty {
-				newLatestLog, err := FindLatestLog(logsPath, pattern)
-				if err != nil {
-					h.Info("error getting latest log name: %v\n", err)
-					continue
+			if newLatestLog != latestLog && newLatestLog != "" {
+				if latestLog != "" {
+					stopChan <- true
 				}
-				if newLatestLog != latestLog && newLatestLog != "" {
-					if latestLog != "" {
-						stopChan <- true
-					}
-					latestLog = newLatestLog
-					go TailLogFile(latestLog, logLinesChan, stopChan, batchCapacity, h)
-				}
+				latestLog = newLatestLog
+				go TailLogFile(latestLog, logLinesChan, stopChan, batchCapacity, h)
 			}
 		}
 	}

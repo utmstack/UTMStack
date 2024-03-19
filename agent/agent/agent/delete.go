@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	grpc "google.golang.org/grpc"
@@ -20,7 +20,7 @@ const (
 	maxReconnectDelay     = 60 * time.Second
 )
 
-func DeleteAgent(conn *grpc.ClientConn, cnf *configuration.Config, h *holmes.Logger) error {
+func DeleteAgent(conn *grpc.ClientConn, cnf *configuration.Config, h *logger.Logger) error {
 	connectionAttemps := 0
 	reconnectDelay := initialReconnectDelay
 
@@ -51,7 +51,6 @@ func DeleteAgent(conn *grpc.ClientConn, cnf *configuration.Config, h *holmes.Log
 		if err != nil {
 			connectionAttemps++
 			h.Info("error removing UTMStack Agent from Agent Manager, trying again in %.0f seconds", reconnectDelay.Seconds())
-			fmt.Printf("error removing UTMStack Agent from Agent Manager, trying again in %.0f seconds\n", reconnectDelay.Seconds())
 			time.Sleep(reconnectDelay)
 			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
 			continue

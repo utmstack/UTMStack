@@ -6,33 +6,28 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
-	"github.com/quantfall/holmes"
 	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/beats"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/conn"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
+	"github.com/utmstack/UTMStack/agent/agent/modules"
 	"github.com/utmstack/UTMStack/agent/agent/serv"
-	"github.com/utmstack/UTMStack/agent/agent/syslog"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/grpc/metadata"
 )
-
-var h = holmes.New("debug", configuration.SERV_NAME)
 
 func main() {
 	// Get current path
 	path, err := utils.GetMyPath()
 	if err != nil {
-		fmt.Printf("Failed to get current path: %v", err)
-		h.FatalError("Failed to get current path: %v", err)
+		log.Fatalf("Failed to get current path: %v", err)
 	}
 
-	// Configuring  log saving
-	var logger = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
-	defer logger.Close()
-	log.SetOutput(logger)
+	// Configuring log saving
+	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 
 	if len(os.Args) > 1 {
 		arg := os.Args[1]
@@ -46,14 +41,12 @@ func main() {
 			certsPath := filepath.Join(path, "certs")
 			err = utils.CreatePathIfNotExist(certsPath)
 			if err != nil {
-				fmt.Printf("error creating path: %s", err)
-				h.FatalError("error creating path: %s", err)
+				h.Fatal("error creating path: %s", err)
 			}
 
 			err = utils.GenerateCerts(certsPath)
 			if err != nil {
-				fmt.Printf("error generating certificates: %v", err)
-				h.FatalError("error generating certificates: %v", err)
+				h.Fatal("error generating certificates: %v", err)
 			}
 
 			cnf, utmKey := configuration.GetInitialConfig()
@@ -61,32 +54,28 @@ func main() {
 			// Connect to Agent Manager
 			conn, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AGENTMANAGERPORT)
 			if err != nil {
-				fmt.Printf("error connecting to Agent Manager: %v", err)
-				h.FatalError("error connecting to Agent Manager: %v", err)
+				h.Fatal("error connecting to Agent Manager: %v", err)
 			}
 			defer conn.Close()
 			h.Info("Connection to Agent Manager successful!!!")
 
 			// Register Agent
 			if err = pb.RegisterAgent(conn, cnf, utmKey, h); err != nil {
-				h.FatalError("%v", err)
+				h.Fatal("%v", err)
 			}
 
 			// Write config in config.yml
 			if err = configuration.SaveConfig(cnf); err != nil {
-				fmt.Printf("error writing config file: %v", err)
-				h.FatalError("error writing config file: %v", err)
+				h.Fatal("error writing config file: %v", err)
 			}
 
-			if err = syslog.ConfigureCollectorFirstTime(); err != nil {
-				fmt.Printf("error configuring syslog server: %v", err)
-				h.FatalError("error configuring syslog server: %v", err)
+			if err = modules.ConfigureCollectorFirstTime(); err != nil {
+				h.Fatal("error configuring syslog server: %v", err)
 			}
 
-			// Install  Beats
+			// Install Beats
 			if err = beats.InstallBeats(*cnf, h); err != nil {
-				fmt.Printf("error installing beats: %v", err)
-				h.FatalError("error installing beats: %v", err)
+				h.Fatal("error installing beats: %v", err)
 			}
 
 			serv.InstallService(h)
@@ -96,7 +85,7 @@ func main() {
 			msg := os.Args[2]
 			logp := logservice.GetLogProcessor()
 
-			// Read  config
+			// Read config
 			cnf, err := configuration.GetCurrentConfig()
 			if err != nil {
 				os.Exit(0)
@@ -105,8 +94,7 @@ func main() {
 			// Connect to log-auth-proxy
 			connLogServ, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AUTHLOGSPORT)
 			if err != nil {
-				fmt.Printf("error connecting to Log Auth Proxy: %v", err)
-				h.Error("error connecting to Log Auth Proxy: %v", err)
+				h.ErrorF("error connecting to Log Auth Proxy: %v", err)
 			}
 			defer connLogServ.Close()
 
@@ -118,39 +106,61 @@ func main() {
 
 			err = logp.ProcessLogsWithHighPriority(msg, logClient, ctxLog, cnf, h)
 			if err != nil {
-				h.Error("error sending High Priority Log to Log Auth Proxy: %v", err)
+				h.ErrorF("error sending High Priority Log to Log Auth Proxy: %v", err)
 			}
+		case "enable-integration", "disable-integration":
+			integration := os.Args[2]
+			proto := os.Args[3]
+
+			port, err := modules.ChangeIntegrationStatus(integration, proto, (arg == "enable-integration"))
+			if err != nil {
+				fmt.Printf("error trying to %s: %v", arg, err)
+				h.ErrorF("error trying to %s: %v", arg, err)
+				os.Exit(0)
+			}
+			fmt.Printf("%s %s done correctly in port %s %s", arg, integration, port, proto)
+			time.Sleep(5 * time.Second)
+
+		case "change-port":
+			integration := os.Args[2]
+			proto := os.Args[3]
+			port := os.Args[4]
+
+			old, err := modules.ChangePort(integration, proto, port)
+			if err != nil {
+				fmt.Printf("error trying to change port: %v", err)
+				h.ErrorF("error trying to change port: %v", err)
+				os.Exit(0)
+			}
+			fmt.Printf("change port done correctly from %s to %s in %s for %s integration", old, port, proto, integration)
+			time.Sleep(5 * time.Second)
+
 		case "uninstall":
 			h.Info("Uninstalling UTMStack Agent service...")
 
 			// Read config
 			cnf, err := configuration.GetCurrentConfig()
 			if err != nil {
-				fmt.Printf("error getting config: %v", err)
-				h.FatalError("error getting config: %v", err)
+				h.Fatal("error getting config: %v", err)
 			}
 
 			// Connect to Agent Manager
 			conn, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AGENTMANAGERPORT)
 			if err != nil {
-				fmt.Printf("error connecting to Agent Manager: %v", err)
-				h.Error("error connecting to Agent Manager: %v", err)
+				h.ErrorF("error connecting to Agent Manager: %v", err)
 			} else {
 				h.Info("Connection to Agent Manager successful!!!")
-				fmt.Printf("Connection to Agent Manager successful!!!")
 
 				// Delete agent
 				if err = pb.DeleteAgent(conn, cnf, h); err != nil {
-					fmt.Printf("error deleting agent: %v", err)
-					h.Error("error deleting agent: %v", err)
+					h.ErrorF("error deleting agent: %v", err)
 				}
 			}
 			defer conn.Close()
 
 			// Uninstall Beats
 			if err = beats.UninstallBeats(h); err != nil {
-				fmt.Printf("error uninstalling beats: %v", err)
-				h.FatalError("error uninstalling beats: %v", err)
+				h.Fatal("error uninstalling beats: %v", err)
 			}
 			os.Remove(filepath.Join(path, "config.yml"))
 

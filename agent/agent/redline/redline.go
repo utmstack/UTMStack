@@ -5,17 +5,16 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
-func CheckRedlineService(h *holmes.Logger) {
+func CheckRedlineService(h *logger.Logger) {
 	// Get current path
 	path, err := utils.GetMyPath()
 	if err != nil {
-		fmt.Printf("Failed to get current path: %v", err)
-		h.FatalError("Failed to get current path: %v", err)
+		h.Fatal("Failed to get current path: %v", err)
 	}
 
 	bin := configuration.GetAgentBin()
@@ -26,12 +25,12 @@ func CheckRedlineService(h *holmes.Logger) {
 		if attempts >= 3 {
 			h.Info("Redline service has been stopped")
 			if err := utils.Execute(filepath.Join(path, bin), path, "send-log", fmt.Sprintf("%s service has been stopped", configuration.RedlineServName)); err != nil {
-				h.Error("error checking %s: error sending log : %v", configuration.RedlineServName, err)
+				h.ErrorF("error checking %s: error sending log : %v", configuration.RedlineServName, err)
 				time.Sleep(time.Second * 5)
 				continue
 			}
 			if err := utils.RestartService(configuration.RedlineServName); err != nil {
-				h.Error("error restarting %s service: %v", configuration.RedlineServName, err)
+				h.ErrorF("error restarting %s service: %v", configuration.RedlineServName, err)
 				time.Sleep(time.Second * 5)
 				continue
 			}
@@ -43,7 +42,7 @@ func CheckRedlineService(h *holmes.Logger) {
 		}
 
 		if isRunning, err := utils.CheckIfServiceIsActive(configuration.RedlineServName); err != nil {
-			h.Error("error checking if %s is running: %v", configuration.RedlineServName, err)
+			h.ErrorF("error checking if %s is running: %v", configuration.RedlineServName, err)
 			time.Sleep(time.Second * 5)
 		} else if isRunning {
 			time.Sleep(time.Second * 5)
