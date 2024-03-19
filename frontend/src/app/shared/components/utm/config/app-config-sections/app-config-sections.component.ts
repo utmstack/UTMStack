@@ -188,4 +188,9 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       return null;
     }
   }
+
+  isPasswordSet() {
+    const conf = this.configToSave.find(conf => conf.confParamShort === 'utmstack.mail.password');
+    return this.configToSave.length > 0 &&  conf && conf.confParamValue !== '';
+  }
 }
