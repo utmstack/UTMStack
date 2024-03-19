@@ -11,9 +11,6 @@ on:
       directory:
         required: true
         type: string
-      branch:
-        required: true
-        type: string
 
 jobs:
   build:
@@ -21,8 +18,6 @@ jobs:
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
-        with:
-          ref: ${{inputs.branch}}
           
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3

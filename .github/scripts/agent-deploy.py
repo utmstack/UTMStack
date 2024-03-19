@@ -71,7 +71,7 @@ def main(environment):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update UTMStack agents in Google Cloud Storage")
-    parser.add_argument("environment", type=str, help="Environment(dev, qa, rc, release)")
+    parser.add_argument("environment", type=str, help="Environment(dev, rc, release)")
     
     args = parser.parse_args()
     main(args.environment)
