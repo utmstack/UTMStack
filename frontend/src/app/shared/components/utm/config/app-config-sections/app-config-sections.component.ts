@@ -177,7 +177,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  isValid(conf: SectionConfigParamType){
+  isValid(conf: SectionConfigParamType) {
     return new RegExp(conf.confParamRegexp).test(conf.confParamValue);
   }
 
@@ -192,7 +192,6 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   }
 
   checkedEmailConfig(event: boolean){
-    console.log(event);
     this.isCheckedEmailConfig = event;
   }
 

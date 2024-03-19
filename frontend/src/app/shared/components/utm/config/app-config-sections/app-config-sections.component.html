@@ -75,6 +75,9 @@
              [id]="'sectionParam'+conf.id"
              [required]="conf.confParamRequired"
              [type]="conf.confParamDatatype" class="form-control">
+      <div *ngIf="conf.confParamRegexp  && !isValid(conf)" class="form-text text-danger">
+        {{ conf.confParamLarge }} is invalid
+      </div>
 
       <app-utm-toggle (toggleChange)="save($event === true?'true':'false',conf)"
                       *ngIf="conf.confParamDatatype === configDataTypeEnum.Bool"
