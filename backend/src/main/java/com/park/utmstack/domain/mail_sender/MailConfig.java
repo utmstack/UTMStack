@@ -9,7 +9,7 @@ public class MailConfig {
     String username;
     @NotNull
     String password;
-    String port;
+    Integer port;
     @NotNull
     String authType;
     @NotNull
@@ -39,11 +39,11 @@ public class MailConfig {
         this.password = password;
     }
 
-    public String getPort() {
+    public Integer getPort() {
         return port;
     }
 
-    public void setPort(String port) {
+    public void setPort(Integer port) {
         this.port = port;
     }
 

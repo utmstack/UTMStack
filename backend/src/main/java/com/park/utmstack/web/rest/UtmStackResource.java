@@ -2,11 +2,13 @@ package com.park.utmstack.web.rest;
 
 
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.mail_sender.MailConfig;
 import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.UtilResponse;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,14 +38,18 @@ public class UtmStackResource {
     private final UtmConfigurationParameterService utmConfigurationParameterService;
     private final InfoEndpoint infoEndpoint;
 
+    private final MailConfigService mailConfigService;
+
     public UtmStackResource(UtmStackService utmStackService,
                             ApplicationEventService applicationEventService,
                             UtmConfigurationParameterService utmConfigurationParameterService,
-                            InfoEndpoint infoEndpoint) {
+                            InfoEndpoint infoEndpoint,
+                            MailConfigService mailConfigService) {
         this.utmStackService = utmStackService;
         this.applicationEventService = applicationEventService;
         this.utmConfigurationParameterService = utmConfigurationParameterService;
         this.infoEndpoint = infoEndpoint;
+        this.mailConfigService = mailConfigService;
     }
 
     @GetMapping("/ping")
@@ -91,10 +98,11 @@ public class UtmStackResource {
     }
 
     @PostMapping ("/checkEmailConfiguration")
-    public ResponseEntity<Void> checkEmailConfiguration(@Valid @RequestBody MailConfig mailConfig) {
+    public ResponseEntity<Void> checkEmailConfiguration(@Valid @RequestBody List<UtmConfigurationParameter> parameters) {
         final String ctx = CLASSNAME + ".checkEmailConfiguration";
         try {
-            utmStackService.checkEmailConfiguration(mailConfig);
+
+            utmStackService.checkEmailConfiguration(this.mailConfigService.getMailConfigFromParameters(parameters));
             return ResponseEntity.ok().build();
         } catch (MessagingException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();

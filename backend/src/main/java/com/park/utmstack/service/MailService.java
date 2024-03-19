@@ -101,7 +101,7 @@ public class MailService {
                 .orElseThrow(() -> new RuntimeException("Class not found"));
     }
 
-    private @NotNull JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, String port) throws MessagingException {
+    private @NotNull JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, int port) throws MessagingException {
 
         String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
 

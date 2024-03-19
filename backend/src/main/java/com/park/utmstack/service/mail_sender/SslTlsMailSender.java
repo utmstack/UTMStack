@@ -25,8 +25,8 @@ public class SslTlsMailSender extends BaseMailSender {
     }
 
     @Override
-    public JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, String port){
-        JavaMailSender mailSender = super.getJavaMailSender(host, username, password, protocol, StringUtils.hasText(port) ? port : Constants.PROP_EMAIL_PORT_SSL_VALUE.toString());
+    public JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, Integer port){
+        JavaMailSender mailSender = super.getJavaMailSender(host, username, password, protocol,  port != null && port != 0 ? port : Constants.PROP_EMAIL_PORT_SSL_VALUE);
         addProperties(mailSender);
 
         return mailSender;

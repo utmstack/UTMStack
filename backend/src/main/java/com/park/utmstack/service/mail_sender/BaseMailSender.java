@@ -14,12 +14,12 @@ public abstract class BaseMailSender implements MailSenderStrategy {
         this.mailSender = new JavaMailSenderImpl();
     }
 
-    private void configure(String host, String username, String password, String protocol, String port) {
+    private void configure(String host, String username, String password, String protocol, Integer port) {
         mailSender.setHost(host);
         mailSender.setPassword(password);
         mailSender.setUsername(username);
         mailSender.setProtocol(protocol);
-        mailSender.setPort(Integer.parseInt(port));
+        mailSender.setPort(port);
     }
 
     @Override
@@ -29,7 +29,7 @@ public abstract class BaseMailSender implements MailSenderStrategy {
         String username = Constants.CFG.get(Constants.PROP_MAIL_USERNAME);
         String password = Constants.CFG.get(Constants.PROP_MAIL_PASSWORD);
         String protocol = Constants.PROP_EMAIL_PROTOCOL_VALUE;
-        String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
+        Integer port = Integer.parseInt(Constants.CFG.get(Constants.PROP_MAIL_PORT));
 
         configure(host, username, password, protocol, port);
 
@@ -38,7 +38,7 @@ public abstract class BaseMailSender implements MailSenderStrategy {
 
 
     @Override
-    public JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, String port) {
+    public JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, Integer port) {
 
         configure(host, username, password, protocol, port);
         return mailSender;
