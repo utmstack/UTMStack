@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 )
@@ -13,7 +13,7 @@ const (
 	delayCheckSyslogCnfig = 10 * time.Second
 )
 
-func SyslogServersUp(h *holmes.Logger) {
+func SyslogServersUp(h *logger.Logger) {
 	var collectorGotUpFirstTime bool
 	syslogServers := []SyslogServer{}
 
@@ -22,7 +22,7 @@ func SyslogServersUp(h *holmes.Logger) {
 		logCollectorConfig, err := ReadCollectorConfig()
 		if err != nil {
 			fmt.Printf("error reading collector configuration: %v", err)
-			h.FatalError("error reading collector configuration: %v", err)
+			h.Fatal("error reading collector configuration: %v", err)
 		}
 		if logCollectorConfig.LogCollectorIsenabled {
 			if !collectorGotUpFirstTime {

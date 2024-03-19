@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 )
 
@@ -14,8 +14,8 @@ type BeatConfig struct {
 }
 
 type Beat interface {
-	Install(h *holmes.Logger) error
-	SendSystemLogs(h *holmes.Logger)
+	Install() error
+	SendSystemLogs(h *logger.Logger)
 	Uninstall() error
 }
 
@@ -32,11 +32,11 @@ func getBeatsInstances() []Beat {
 	return beatsInstance
 }
 
-func InstallBeats(cnf configuration.Config, h *holmes.Logger) error {
+func InstallBeats(cnf configuration.Config, h *logger.Logger) error {
 	beatsInstances := getBeatsInstances()
 
 	for _, beat := range beatsInstances {
-		err := beat.Install(h)
+		err := beat.Install()
 		if err != nil {
 			return fmt.Errorf("%v", err)
 		}
@@ -47,14 +47,14 @@ func InstallBeats(cnf configuration.Config, h *holmes.Logger) error {
 	return nil
 }
 
-func BeatsLogsReader(h *holmes.Logger) {
+func BeatsLogsReader(h *logger.Logger) {
 	beatsInstances := getBeatsInstances()
 	for _, beat := range beatsInstances {
 		go beat.SendSystemLogs(h)
 	}
 }
 
-func UninstallBeats(h *holmes.Logger) error {
+func UninstallBeats(h *logger.Logger) error {
 	beatsInstances := getBeatsInstances()
 
 	for _, beat := range beatsInstances {

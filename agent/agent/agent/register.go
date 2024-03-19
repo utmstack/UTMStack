@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey string, h *holmes.Logger) error {
+func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey string, h *logger.Logger) error {
 	// Create a client for AgentService
 	agentClient := NewAgentServiceClient(conn)
 	ctx, cancel := context.WithCancel(context.Background())

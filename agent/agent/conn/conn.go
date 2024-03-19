@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	grpc "google.golang.org/grpc"
@@ -18,7 +18,7 @@ const (
 	maxReconnectDelay     = 60 * time.Second
 )
 
-func ConnectToServer(cnf *configuration.Config, h *holmes.Logger, addrs, port string) (*grpc.ClientConn, error) {
+func ConnectToServer(cnf *configuration.Config, h *logger.Logger, addrs, port string) (*grpc.ClientConn, error) {
 	connectionAttemps := 0
 	reconnectDelay := initialReconnectDelay
 
@@ -39,7 +39,6 @@ func ConnectToServer(cnf *configuration.Config, h *holmes.Logger, addrs, port st
 			if err != nil {
 				connectionAttemps++
 				h.Info("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())
-				fmt.Printf("error connecting to Server, trying again in %.0f seconds\n", reconnectDelay.Seconds())
 				time.Sleep(reconnectDelay)
 				reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
 				continue
@@ -53,7 +52,6 @@ func ConnectToServer(cnf *configuration.Config, h *holmes.Logger, addrs, port st
 			if err != nil {
 				connectionAttemps++
 				h.Info("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())
-				fmt.Printf("error connecting to Server, trying again in %.0f seconds\n", reconnectDelay.Seconds())
 				time.Sleep(reconnectDelay)
 				reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
 				continue

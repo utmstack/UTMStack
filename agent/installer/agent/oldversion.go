@@ -6,15 +6,15 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/runner/utils"
 )
 
-func CleanOldAgent(h *holmes.Logger) {
+func CleanOldAgent(h *logger.Logger) {
 	servName := "utmstack"
 	if isOldInstalled, err := utils.CheckIfServiceIsInstalled(servName); err != nil {
 		fmt.Printf("error checking utmstack service: %v", err)
-		h.Error("error checking utmstack service: %v", err)
+		h.ErrorF("error checking utmstack service: %v", err)
 	} else if isOldInstalled {
 		fmt.Println("Uninstalling UTMStack Agent old version...")
 		h.Info("Uninstalling UTMStack Agent old version...")
@@ -22,17 +22,17 @@ func CleanOldAgent(h *holmes.Logger) {
 		// Stopping and uninstalling UTMStack Agent old version
 		err := utils.StopService(servName)
 		if err != nil {
-			h.Error("error stopping %s: %v", servName, err)
+			h.ErrorF("error stopping %s: %v", servName, err)
 		}
 
 		err = utils.UninstallService(servName)
 		if err != nil {
-			h.Error("error uninstalling %s: %v", servName, err)
+			h.ErrorF("error uninstalling %s: %v", servName, err)
 		}
 
 		err = stopWazuh()
 		if err != nil {
-			h.Error("error stopping wazuh: %v", err)
+			h.ErrorF("error stopping wazuh: %v", err)
 		}
 
 		// Stopping and uninstalling beats
@@ -40,23 +40,23 @@ func CleanOldAgent(h *holmes.Logger) {
 		case "windows":
 			err := stopWinlogbeat()
 			if err != nil {
-				h.Error("%v", err)
+				h.ErrorF("%v", err)
 			}
 			pathOld := "C:\\Program Files\\UTMStack\\UTMStackAgent"
 			err = os.RemoveAll(pathOld)
 			if err != nil {
-				h.Error("error deleting old agent folder: %v", err)
+				h.ErrorF("error deleting old agent folder: %v", err)
 			}
 
 		case "linux":
 			err := uninstallFilebeat()
 			if err != nil {
-				h.Error("%v", err)
+				h.ErrorF("%v", err)
 			}
 			pathOld := "/opt/linux-agent"
 			err = os.RemoveAll(pathOld)
 			if err != nil {
-				h.Error("error deleting old agent folder: %v", err)
+				h.ErrorF("error deleting old agent folder: %v", err)
 			}
 		}
 	}

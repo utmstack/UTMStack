@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/KbaYero/UTMStack/agent/self/utils"
+	"github.com/utmstack/UTMStack/agent/self/utils"
 )
 
 type Environment struct {

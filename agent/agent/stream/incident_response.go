@@ -2,24 +2,22 @@ package stream
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"runtime"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *holmes.Logger) {
+func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
 	// Get current path
 	path, err := utils.GetMyPath()
 	if err != nil {
-		fmt.Printf("Failed to get current path: %v", err)
-		h.FatalError("Failed to get current path: %v", err)
+		h.Fatal("Failed to get current path: %v", err)
 	}
 
 	connectionTime := 0 * time.Second
@@ -36,7 +34,7 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
 			if !connErrMsgWritten {
-				h.Error("failed to start AgentStream: %v", err)
+				h.ErrorF("failed to start AgentStream: %v", err)
 				connErrMsgWritten = true
 			}
 
@@ -55,7 +53,7 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 
 		if err := stream.Send(authResponse); err != nil {
 			if !connErrMsgWritten {
-				h.Error("failed to send AuthResponse: %v", err)
+				h.ErrorF("failed to send AuthResponse: %v", err)
 				connErrMsgWritten = true
 			}
 			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
@@ -74,7 +72,7 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 				break
 			}
 			if err != nil {
-				h.Error("error receiving command from server: %v", err)
+				h.ErrorF("error receiving command from server: %v", err)
 				break
 			}
 
@@ -86,14 +84,14 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 					break
 				}
 				if err != nil {
-					h.Error("failed to send result to server: %v", err)
+					h.ErrorF("failed to send result to server: %v", err)
 				}
 			}
 		}
 	}
 }
 
-func commandProcessor(h *holmes.Logger, path string, stream pb.AgentService_AgentStreamClient, cnf *configuration.Config, commandPair []string) error {
+func commandProcessor(h *logger.Logger, path string, stream pb.AgentService_AgentStreamClient, cnf *configuration.Config, commandPair []string) error {
 	var result string
 	var errB bool
 
@@ -105,11 +103,11 @@ func commandProcessor(h *holmes.Logger, path string, stream pb.AgentService_Agen
 	case "linux":
 		result, errB = utils.ExecuteWithResult("sh", path, "-c", commandPair[0])
 	default:
-		h.FatalError("unsupported operating system: %s", runtime.GOOS)
+		h.Fatal("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	if errB {
-		h.Error("error executing command %s: %s", commandPair[0], result)
+		h.ErrorF("error executing command %s: %s", commandPair[0], result)
 	} else {
 		h.Info("Result when executing the command %s: %s", commandPair[0], result)
 	}

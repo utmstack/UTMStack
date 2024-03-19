@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/updater/configuration"
 	"github.com/utmstack/UTMStack/agent/updater/utils"
 )
@@ -41,7 +41,7 @@ func (u *UTMServices) UpdateCurrentVersions() error {
 	return nil
 }
 
-func (u *UTMServices) UpdateLatestVersions(env string, utmLogger *holmes.Logger) error {
+func (u *UTMServices) UpdateLatestVersions(env string, utmLogger *logger.Logger) error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("failed to get current path: %v", err)
@@ -67,7 +67,7 @@ func (u *UTMServices) UpdateLatestVersions(env string, utmLogger *holmes.Logger)
 	return nil
 }
 
-func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
+func (u *UTMServices) CheckUpdates(env string, utmLogger *logger.Logger) error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("failed to get current path: %v", err)
@@ -100,7 +100,7 @@ func (u *UTMServices) CheckUpdates(env string, utmLogger *holmes.Logger) error {
 	return nil
 }
 
-func (u *UTMServices) UpdateService(path string, env string, servCode string, newVers string, utmLogger *holmes.Logger) error {
+func (u *UTMServices) UpdateService(path string, env string, servCode string, newVers string, utmLogger *logger.Logger) error {
 	attr := u.ServAttr[servCode]
 	err := utils.CreatePathIfNotExist(filepath.Join(path, "locks"))
 	if err != nil {

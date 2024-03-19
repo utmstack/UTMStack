@@ -1,6 +1,7 @@
 package serv
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -8,13 +9,10 @@ import (
 	"time"
 
 	"github.com/kardianos/service"
-	"github.com/quantfall/holmes"
-	"github.com/utmstack/UTMStack/agent/redline/constants"
+	"github.com/utmstack/UTMStack/agent/redline/configuration"
 	"github.com/utmstack/UTMStack/agent/redline/protector"
 	"github.com/utmstack/UTMStack/agent/redline/utils"
 )
-
-var h = holmes.New("debug", constants.SERV_NAME)
 
 type program struct{}
 
@@ -30,8 +28,11 @@ func (p *program) Stop(s service.Service) error {
 func (p *program) run() {
 	path, err := utils.GetMyPath()
 	if err != nil {
-		h.FatalError("Failed to get current path: %v", err)
+		log.Fatalf("Failed to get current path: %v\n", err)
 	}
+
+	// Configuring log saving
+	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 
 	for {
 		if utils.CheckIfPathExist(filepath.Join(path, "locks", "setup.lock")) {
@@ -42,7 +43,7 @@ func (p *program) run() {
 	}
 
 	h.Info("UTMStackRedline started correctly")
-	for servName, lockName := range constants.GetServicesLock() {
+	for servName, lockName := range configuration.GetServicesLock() {
 		go protector.ProtectService(servName, lockName, h)
 	}
 

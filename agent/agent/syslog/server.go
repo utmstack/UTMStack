@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/filters"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
@@ -62,7 +62,7 @@ func (s *SyslogServer) SetHandler(channel chan logservice.LogPipe) {
 	s.ChannelHandler = channel
 }
 
-func (s *SyslogServer) Listen(h *holmes.Logger) {
+func (s *SyslogServer) Listen(h *logger.Logger) {
 	if s.protoPorts.UDP != "" {
 		h.Info("Server %s listening in port: %s protocol: UDP\n", s.DataType, s.protoPorts.UDP)
 		go s.listenUDP(h)
@@ -77,13 +77,13 @@ func (s *SyslogServer) Listen(h *holmes.Logger) {
 		caCertPool := x509.NewCertPool()
 		caCert, err := os.ReadFile(configuration.GetCaPath())
 		if err != nil {
-			h.FatalError("%s", err)
+			h.Fatal("%s", err)
 		}
 		caCertPool.AppendCertsFromPEM(caCert)
 
 		cert, err := tls.LoadX509KeyPair(configuration.GetCertPath(), configuration.GetKeyPath())
 		if err != nil {
-			h.FatalError("%s", err)
+			h.Fatal("%s", err)
 		}
 
 		tlsConfig := &tls.Config{
@@ -93,41 +93,41 @@ func (s *SyslogServer) Listen(h *holmes.Logger) {
 		}
 		s.tlsConfig = tlsConfig
 
-		h.Info("Server %s listening in port: %s protocol: TCP(TLS)\n", s.DataType, s.protoPorts.TLS)
+		h.Info("Server %s listening in port: %s protocol: TCP(TLS)", s.DataType, s.protoPorts.TLS)
 		go s.listenTLS(h)
 	}
 }
 
-func (s *SyslogServer) Kill(h *holmes.Logger) {
+func (s *SyslogServer) Kill(h *logger.Logger) {
 	if s.protoPorts.UDP != "" {
-		h.Info("Server %s closed in port: %s protocol: UDP\n", s.DataType, s.protoPorts.UDP)
+		h.Info("Server %s closed in port: %s protocol: UDP", s.DataType, s.protoPorts.UDP)
 		s.UDPListener.Cancel()
 		s.UDPListener.Listener.Close()
 	}
 
 	if s.protoPorts.TCP != "" {
-		h.Info("Server %s closed in port: %s protocol: TCP\n", s.DataType, s.protoPorts.TCP)
+		h.Info("Server %s closed in port: %s protocol: TCP", s.DataType, s.protoPorts.TCP)
 		s.TCPListener.Cancel()
 		s.TCPListener.Listener.Close()
 	}
 
 	if s.protoPorts.TLS != "" {
-		h.Info("Server %s closed in port: %s protocol: TCP(TLS)\n", s.DataType, s.protoPorts.TLS)
+		h.Info("Server %s closed in port: %s protocol: TCP(TLS)", s.DataType, s.protoPorts.TLS)
 		s.TLSListener.Cancel()
 		s.TLSListener.Listener.Close()
 	}
 }
 
-func (s *SyslogServer) listenUDP(h *holmes.Logger) {
+func (s *SyslogServer) listenUDP(h *logger.Logger) {
 	listener, err := net.ListenPacket("udp", s.addr+":"+s.protoPorts.UDP)
 	if err != nil {
-		h.Error("%v", err)
+		h.ErrorF("%v", err)
 		return
 	}
 
 	udpListener, ok := listener.(*net.UDPConn)
 	if !ok {
-		h.Error("Could not assert to *net.UDPConn")
+		h.ErrorF("Could not assert to *net.UDPConn")
 		return
 	}
 
@@ -158,19 +158,19 @@ func (s *SyslogServer) listenUDP(h *holmes.Logger) {
 						continue
 					}
 
-					h.Error("%v", err)
+					h.ErrorF("%v", err)
 					continue
 				}
 				remoteAddr := add.String()
 				remoteAddr, _, err = net.SplitHostPort(remoteAddr)
 				if err != nil {
-					h.Error("%v", err)
+					h.ErrorF("%v", err)
 					continue
 				}
 				if remoteAddr == "127.0.0.1" {
 					remoteAddr, err = os.Hostname()
 					if err != nil {
-						h.Error("error getting hostname: %v\n", err)
+						h.ErrorF("error getting hostname: %v\n", err)
 						continue
 					}
 				}
@@ -181,16 +181,16 @@ func (s *SyslogServer) listenUDP(h *holmes.Logger) {
 	}()
 }
 
-func (s *SyslogServer) listenTCP(h *holmes.Logger) {
+func (s *SyslogServer) listenTCP(h *logger.Logger) {
 	listener, err := net.Listen("tcp", s.addr+":"+s.protoPorts.TCP)
 	if err != nil {
-		h.Error("%v", err)
+		h.ErrorF("%v", err)
 		return
 	}
 
 	tcpListener, ok := listener.(*net.TCPListener)
 	if !ok {
-		h.Error("Could not assert to *net.TCPListener")
+		h.ErrorF("Could not assert to *net.TCPListener")
 		return
 	}
 
@@ -216,7 +216,7 @@ func (s *SyslogServer) listenTCP(h *holmes.Logger) {
 						continue
 					}
 
-					h.Error("%v", err)
+					h.ErrorF("%v", err)
 					continue
 				}
 
@@ -226,10 +226,10 @@ func (s *SyslogServer) listenTCP(h *holmes.Logger) {
 	}()
 }
 
-func (s *SyslogServer) listenTLS(h *holmes.Logger) {
+func (s *SyslogServer) listenTLS(h *logger.Logger) {
 	listener, err := tls.Listen("tcp", s.addr+":"+s.protoPorts.TLS, s.tlsConfig)
 	if err != nil {
-		h.FatalError("%s", err)
+		h.Fatal("%s", err)
 	}
 
 	s.TLSListener.Listener = listener
@@ -253,7 +253,7 @@ func (s *SyslogServer) listenTLS(h *holmes.Logger) {
 						continue
 					}
 
-					h.Error("%v", err)
+					h.ErrorF("%v", err)
 					continue
 				}
 
@@ -263,7 +263,7 @@ func (s *SyslogServer) listenTLS(h *holmes.Logger) {
 	}()
 }
 
-func (s *SyslogServer) handleConnectionUDP(logsChannel chan string, h *holmes.Logger) {
+func (s *SyslogServer) handleConnectionUDP(logsChannel chan string, h *logger.Logger) {
 	logBatch := []string{}
 	ticker := time.NewTicker(5 * time.Second)
 
@@ -274,7 +274,7 @@ func (s *SyslogServer) handleConnectionUDP(logsChannel chan string, h *holmes.Lo
 				if s.DataType == string(configuration.LogTypeCiscoGeneric) {
 					ciscoData, err := filters.ProcessCiscoData(logBatch)
 					if err != nil {
-						h.Error("error processing cisco data: %v", err)
+						h.ErrorF("error processing cisco data: %v", err)
 						continue
 					}
 					for typ, logB := range ciscoData {
@@ -303,7 +303,7 @@ func (s *SyslogServer) handleConnectionUDP(logsChannel chan string, h *holmes.Lo
 				if s.DataType == string(configuration.LogTypeCiscoGeneric) {
 					ciscoData, err := filters.ProcessCiscoData(logBatch)
 					if err != nil {
-						h.Error("error processing cisco data: %v", err)
+						h.ErrorF("error processing cisco data: %v", err)
 						continue
 					}
 					for typ, logB := range ciscoData {
@@ -324,7 +324,7 @@ func (s *SyslogServer) handleConnectionUDP(logsChannel chan string, h *holmes.Lo
 	}
 }
 
-func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *holmes.Logger) {
+func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *logger.Logger) {
 	defer c.Close()
 	logBatch := []string{}
 	ticker := time.NewTicker(5 * time.Second)
@@ -334,12 +334,12 @@ func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *holmes.Logger) {
 	var err error
 	remoteAddr, _, err = net.SplitHostPort(remoteAddr)
 	if err != nil {
-		h.FatalError("error spliting host and port: ", err)
+		h.Fatal("error spliting host and port: %v\n", err)
 	}
 	if remoteAddr == "127.0.0.1" {
 		remoteAddr, err = os.Hostname()
 		if err != nil {
-			h.FatalError("error getting hostname: %v\n", err)
+			h.Fatal("error getting hostname: %v\n", err)
 		}
 	}
 
@@ -350,7 +350,7 @@ func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *holmes.Logger) {
 				if s.DataType == string(configuration.LogTypeCiscoGeneric) {
 					ciscoData, err := filters.ProcessCiscoData(logBatch)
 					if err != nil {
-						h.Error("error processing cisco data: %v", err)
+						h.ErrorF("error processing cisco data: %v", err)
 						continue
 					}
 					for typ, logB := range ciscoData {
@@ -376,7 +376,7 @@ func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *holmes.Logger) {
 				if err == io.EOF || err.(net.Error).Timeout() {
 					return
 				}
-				h.Error("%v", err)
+				h.ErrorF("%v", err)
 				return
 			}
 			message = strings.TrimSuffix(message, "\n")
@@ -387,7 +387,7 @@ func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *holmes.Logger) {
 				if s.DataType == string(configuration.LogTypeCiscoGeneric) {
 					ciscoData, err := filters.ProcessCiscoData(logBatch)
 					if err != nil {
-						h.Error("error processing cisco data: %v", err)
+						h.ErrorF("error processing cisco data: %v", err)
 						continue
 					}
 					for typ, logB := range ciscoData {
@@ -409,7 +409,7 @@ func (s *SyslogServer) handleConnectionTCP(c net.Conn, h *holmes.Logger) {
 	}
 }
 
-func (s *SyslogServer) handleConnectionTLS(c net.Conn, h *holmes.Logger) {
+func (s *SyslogServer) handleConnectionTLS(c net.Conn, h *logger.Logger) {
 	defer c.Close()
 	logBatch := []string{}
 	ticker := time.NewTicker(5 * time.Second)
@@ -417,14 +417,12 @@ func (s *SyslogServer) handleConnectionTLS(c net.Conn, h *holmes.Logger) {
 	remoteAddr := c.RemoteAddr().String()
 
 	var err error
-	remoteAddr, _, err = net.SplitHostPort(remoteAddr)
-	if err != nil {
-		h.FatalError("error spliting host and port: ", err)
+	if remoteAddr, _, err = net.SplitHostPort(remoteAddr); err != nil {
+		h.Fatal("error spliting host and port: %v\n", err)
 	}
 	if remoteAddr == "127.0.0.1" {
-		remoteAddr, err = os.Hostname()
-		if err != nil {
-			h.FatalError("error getting hostname: %v\n", err)
+		if remoteAddr, err = os.Hostname(); err != nil {
+			h.Fatal("error getting hostname: %v\n", err)
 		}
 	}
 
@@ -447,7 +445,7 @@ func (s *SyslogServer) handleConnectionTLS(c net.Conn, h *holmes.Logger) {
 				if err == io.EOF || err.(net.Error).Timeout() {
 					return
 				}
-				h.Error("%v", err)
+				h.ErrorF("%v", err)
 				return
 			}
 			message = strings.TrimSuffix(message, "\n")

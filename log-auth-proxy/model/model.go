@@ -45,6 +45,10 @@ const (
 	JsonInput                        = "json_input"
 	Syslog                           = "syslog"
 	Generic                          = "generic"
+	Netflow                          = "netflow"
+	Aix                              = "aix"
+	FirewallPfsense                  = "firewall_pfsense"
+	FirewallFortiweb                 = "firewall_fortiweb"
 )
 
 type ServiceStatus string

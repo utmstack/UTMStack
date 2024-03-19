@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/KbaYero/UTMStack/agent/self/constants"
-	"github.com/KbaYero/UTMStack/agent/self/utils"
+	"github.com/utmstack/UTMStack/agent/self/configuration"
+	"github.com/utmstack/UTMStack/agent/self/utils"
 )
 
 func UpdateUpdaterService(version, env string) error {
@@ -16,8 +16,8 @@ func UpdateUpdaterService(version, env string) error {
 	}
 
 	// Download new bin
-	bin := constants.GetUpdaterBin()
-	url := constants.Bucket + env + "/updater_service/v" + version + "/" + bin + "?time=" + utils.GetCurrentTime()
+	bin := configuration.GetUpdaterBin()
+	url := configuration.Bucket + env + "/updater_service/v" + version + "/" + bin + "?time=" + utils.GetCurrentTime()
 	err = utils.DownloadFile(url, filepath.Join(path, bin))
 	if err != nil {
 		return fmt.Errorf("error downloading new %s: %v", bin, err)
