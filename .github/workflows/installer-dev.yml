@@ -2,7 +2,7 @@ name: Installer Dev
 
 on:
   workflow_run:
-    workflows: ["General Workflow"]
+    workflows: ["Dev/Rc Deploy"]
     types:
       - completed
 

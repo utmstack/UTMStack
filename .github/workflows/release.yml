@@ -7,7 +7,7 @@ on:
 jobs:
   agent_manager_build:
     name: Build Agent Manager
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: agent-manager
       environment: v10
@@ -16,13 +16,13 @@ jobs:
 
   agent_build:
     name: Build Agent
-    uses: ./.github/workflows/agent.yml
+    uses: ./.github/workflows/used/agent.yml
     with:
       environment: release
 
   backend_build:
     name: Build Backend
-    uses: ./.github/workflows/docker-java-11.yml
+    uses: ./.github/workflows/used/docker-java-11.yml
     with:
       image_name: backend
       environment: v10
@@ -30,7 +30,7 @@ jobs:
   
   correlation_build:
     name: Build Correlation
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: correlation
       environment: v10
@@ -39,7 +39,7 @@ jobs:
 
   frontend_build:
     name: Build Frontend
-    uses: ./.github/workflows/docker-frontend.yml
+    uses: ./.github/workflows/used/docker-frontend.yml
     with:
       image_name: frontend
       environment: v10
@@ -47,7 +47,7 @@ jobs:
 
   bdgz_build:
     name: Build Bitdefender
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: bitdefender
       environment: v10
@@ -56,7 +56,7 @@ jobs:
 
   mutate_build:
     name: Build Mutate
-    uses: ./.github/workflows/docker-basic.yml
+    uses: ./.github/workflows/used/docker-basic.yml
     with:
       image_name: mutate
       environment: v10
@@ -64,7 +64,7 @@ jobs:
 
   o365_build:
     name: Build Office365
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: office365
       environment: v10
@@ -73,7 +73,7 @@ jobs:
   
   log_auth_proxy_build:
     name: Build Log Auth Proxy
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: log-auth-proxy
       environment: v10
@@ -82,7 +82,7 @@ jobs:
   
   user_auditor_build:
     name: Build User Auditor
-    uses: ./.github/workflows/docker-java.yml
+    uses: ./.github/workflows/used/docker-java.yml
     with:
       image_name: user-auditor
       environment: v10
@@ -90,7 +90,7 @@ jobs:
     
   web_pdf_build:
     name: Build Web PDF
-    uses: ./.github/workflows/docker-java.yml
+    uses: ./.github/workflows/used/docker-java.yml
     with:
       image_name: web-pdf
       environment: v10
@@ -98,4 +98,4 @@ jobs:
 
   installer_build:
     name: Build Installer
-    uses: ./.github/workflows/installer.yml
+    uses: ./.github/workflows/used/installer.yml
