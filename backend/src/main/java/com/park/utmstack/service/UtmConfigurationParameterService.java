@@ -2,7 +2,9 @@ package com.park.utmstack.service;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.UtmConfigurationParameter;
+import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.repository.UtmConfigurationParameterRepository;
+import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import org.slf4j.Logger;
@@ -37,13 +39,16 @@ public class UtmConfigurationParameterService {
     private final UtmConfigurationParameterRepository configParamRepository;
     private final UserService userService;
     private final MailService mailService;
+    private final ApplicationEventService applicationEventService;
 
     public UtmConfigurationParameterService(UtmConfigurationParameterRepository configParamRepository,
                                             UserService userService,
-                                            MailService mailService) {
+                                            MailService mailService,
+                                            ApplicationEventService applicationEventService) {
         this.configParamRepository = configParamRepository;
         this.userService = userService;
         this.mailService = mailService;
+        this.applicationEventService = applicationEventService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -53,12 +58,20 @@ public class UtmConfigurationParameterService {
             List<UtmConfigurationParameter> params = configParamRepository.findAll();
             if (CollectionUtils.isEmpty(params))
                 return;
-            params.forEach(p -> {
+            for (UtmConfigurationParameter p : params) {
                 String value = p.getConfParamValue();
                 if (StringUtils.hasText(value) && p.getConfParamDatatype().equalsIgnoreCase("password"))
-                    value = CipherUtil.decrypt(value, System.getenv(Constants.ENV_ENCRYPTION_KEY));
+                    try {
+                        value = CipherUtil.decrypt(value, System.getenv(Constants.ENV_ENCRYPTION_KEY));
+                    } catch (Exception e) {
+                        String msg = String.format("%1$s: Fail to decrypt the value of the configuration parameter %2$s, error is: %3$s",
+                                ctx, p.getConfParamLarge(), e.getLocalizedMessage());
+                        log.error(msg);
+                        applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+                        continue;
+                    }
                 Constants.CFG.put(p.getConfParamShort(), value);
-            });
+            }
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }

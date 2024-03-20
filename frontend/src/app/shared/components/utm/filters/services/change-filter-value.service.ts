@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ChangeFilterValueService {
-  private selectedValueSubject = new BehaviorSubject<{ field: any, value: any }>(null);
+  private selectedValueSubject = new BehaviorSubject<{ field: any, value: any }>({field: undefined, value: undefined});
 
   selectedValue$: Observable<any> = this.selectedValueSubject.asObservable();
 

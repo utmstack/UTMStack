@@ -14,6 +14,7 @@ type ServicesBin struct {
 
 const (
 	MASTERVERSIONENDPOINT = "/management/info"
+	INSTALLER_LOG_FILE    = "utmstack_agent_installer.log"
 	Bucket                = "https://cdn.utmstack.com/agent_updates/"
 	AgentManagerPort      = "9000"
 	LogAuthProxyPort      = "50051"

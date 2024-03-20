@@ -65,6 +65,10 @@
                class="form-text text-danger">
           Your email cannot be longer than 100 characters.
         </small>
+          <small *ngIf="emailInput.errors.emailInUse"
+                 class="form-text text-danger">
+            Email is already in use.
+          </small>
       </div>
     </div>
     <div class="w-100 pt-2 d-flex justify-content-end">

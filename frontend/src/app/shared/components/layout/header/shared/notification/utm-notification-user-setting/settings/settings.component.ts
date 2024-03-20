@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AccountService} from '../../../../../../../../core/auth/account.service';
 import {User} from '../../../../../../../../core/user/user.model';
 import {UtmToastService} from '../../../../../../../alert/utm-toast.service';
 import {DEMO_URL} from '../../../../../../../constants/global.constant';
 import {ContactUsComponent} from '../../../../../../contact-us/contact-us.component';
+import {NgModel} from "@angular/forms";
 
 
 @Component({
@@ -17,6 +18,7 @@ export class SettingsComponent implements OnInit {
   success: string;
   settingsAccount: User;
   languages: any[];
+  @ViewChild('emailInput') emailInput: NgModel;
 
   constructor(private accountService: AccountService,
               public activeModal: NgbActiveModal,
@@ -42,10 +44,14 @@ export class SettingsComponent implements OnInit {
             this.activeModal.close();
           });
         },
-        () => {
+        (error) => {
           this.success = null;
           this.error = 'ERROR';
-          this.utmToast.showError('Problem', 'Problem updating your account, please try again');
+          if (error.error && error.error.detail && error.error.detail.includes('Email is already in use')) {
+            this.emailInput.control.setErrors({emailInUse: true});
+          } else {
+            this.utmToast.showError('Problem', 'Problem updating your account, please try again');
+          }
         }
       );
     } else {

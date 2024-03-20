@@ -1,0 +1,16 @@
+<app-utm-modal-header [name]="'Configure Alert and Incident Notifications'" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <h6>
+    You have not yet specified the email address in the settings to receive alert and incident notifications.
+  </h6>
+  <div class="button-container d-flex justify-content-end mt-4">
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>&nbsp;
+      Cancel
+    </button>
+    <button (click)="activeModal.close()" [routerLink]= "['app-management/settings/application-config']" [queryParams]="{'id': section.sectionId}"
+            class="btn utm-button utm-button-danger">
+      Go to Settings
+    </button>
+  </div>
+</div>

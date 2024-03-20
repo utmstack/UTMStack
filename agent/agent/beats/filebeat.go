@@ -5,16 +5,16 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
-	"github.com/utmstack/UTMStack/agent/agent/filters"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
+	"github.com/utmstack/UTMStack/agent/agent/parser"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 type Filebeat struct{}
 
-func (f Filebeat) Install(h *holmes.Logger) error {
+func (f Filebeat) Install() error {
 	path, err := utils.GetMyPath()
 	if err != nil {
 		return fmt.Errorf("error getting current path: %v", err)
@@ -115,19 +115,21 @@ func (f Filebeat) Install(h *holmes.Logger) error {
 	return nil
 }
 
-func (f Filebeat) SendSystemLogs(h *holmes.Logger) {
+func (f Filebeat) SendSystemLogs(h *logger.Logger) {
 	logLinesChan := make(chan []string)
 	path, err := utils.GetMyPath()
 	if err != nil {
-		h.Error("error getting current path: %v", err)
+		h.ErrorF("error getting current path: %v", err)
 	}
 	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
 
+	parser := parser.GetParser("beats")
+
 	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, configuration.BatchCapacity, h)
 	for logLine := range logLinesChan {
-		beatsData, err := filters.ProcessBeatData(logLine)
+		beatsData, err := parser.ProcessData(logLine)
 		if err != nil {
-			h.Error("error processing beats data: %v", err)
+			h.ErrorF("error processing beats data: %v", err)
 			continue
 		}
 		for typ, logB := range beatsData {

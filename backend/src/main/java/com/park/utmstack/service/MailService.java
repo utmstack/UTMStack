@@ -98,18 +98,22 @@ public class MailService {
         String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
         String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
         switch (authType) {
-            case "TLS":
+            case "STARTTLS":
                 mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_TLS_VALUE);
+                props.clear();
                 props.put("mail.smtp.auth", "true");
                 props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.starttls.required", "true");
                 break;
-            case "SSL":
+            case "SSL/TLS":
                 mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_SSL_VALUE);
+                props.clear();
                 props.put("mail.smtp.auth", "true");
                 props.put("mail.smtp.ssl.enable", "true");
                 break;
             default:
                 mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_NONE_VALUE);
+                props.clear();
                 props.put("mail.smtp.auth", "false");
                 props.put("mail.smtp.ssl.enable", "false");
                 break;

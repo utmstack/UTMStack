@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 )
 
 // DownloadFile downloads a file from a URL and saves it to disk. Returns an error on failure.
-func DownloadFile(url string, fileName string, utmLogger *holmes.Logger) error {
+func DownloadFile(url string, fileName string, utmLogger *logger.Logger) error {
 	var resp *http.Response
 	var err error
 
@@ -24,7 +24,7 @@ func DownloadFile(url string, fileName string, utmLogger *holmes.Logger) error {
 			if resp != nil {
 				resp.Body.Close()
 			}
-			utmLogger.Error("error downloading file from %s: %v", url, err)
+			utmLogger.ErrorF("error downloading file from %s: %v", url, err)
 			time.Sleep(reconnectDelay)
 			continue
 		}
