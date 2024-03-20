@@ -153,7 +153,7 @@ jobs:
     name: Build Agent Manager
     needs: check
     if: needs.check.outputs.agent_manager_checking == 'true'
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: agent-manager
       environment: ${{ needs.check.outputs.env_version }}
@@ -164,7 +164,7 @@ jobs:
     name: Build Agent
     needs: check
     if: needs.check.outputs.agent_checking == 'true'
-    uses: ./.github/workflows/agent.yml
+    uses: ./.github/workflows/used/agent.yml
     with:
       environment: ${{ replace(needs.check.outputs.env_version, 'v10-', '') }}
 
@@ -172,7 +172,7 @@ jobs:
     name: Build Backend
     needs: check
     if: needs.check.outputs.backend_checking == 'true'
-    uses: ./.github/workflows/docker-java-11.yml
+    uses: ./.github/workflows/used/docker-java-11.yml
     with:
       image_name: backend
       environment: ${{ needs.check.outputs.env_version }}
@@ -182,7 +182,7 @@ jobs:
     name: Build Correlation
     needs: check
     if: needs.check.outputs.correlation_checking == 'true'
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: correlation
       environment: ${{ needs.check.outputs.env_version }}
@@ -193,7 +193,7 @@ jobs:
     name: Build Frontend
     needs: check
     if: needs.check.outputs.frontend_checking == 'true'
-    uses: ./.github/workflows/docker-frontend.yml
+    uses: ./.github/workflows/used/docker-frontend.yml
     with:
       image_name: frontend
       environment: ${{ needs.check.outputs.env_version }}
@@ -203,7 +203,7 @@ jobs:
     name: Build Bitdefender
     needs: check
     if: needs.check.outputs.bdgz_checking == 'true'
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: bitdefender
       environment: ${{ needs.check.outputs.env_version }}
@@ -214,7 +214,7 @@ jobs:
     name: Build Mutate
     needs: check
     if: needs.check.outputs.mutate_checking == 'true'
-    uses: ./.github/workflows/docker-basic.yml
+    uses: ./.github/workflows/used/docker-basic.yml
     with:
       image_name: mutate
       environment: ${{ needs.check.outputs.env_version }}
@@ -224,7 +224,7 @@ jobs:
     name: Build Office365
     needs: check
     if: needs.check.outputs.o365_checking == 'true'
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: office365
       environment: ${{ needs.check.outputs.env_version }}
@@ -235,7 +235,7 @@ jobs:
     name: Build Log Auth Proxy
     needs: check
     if: needs.check.outputs.log_auth_proxy_checking == 'true'
-    uses: ./.github/workflows/docker-golang.yml
+    uses: ./.github/workflows/used/docker-golang.yml
     with:
       image_name: log-auth-proxy
       environment: ${{ needs.check.outputs.env_version }}
@@ -246,7 +246,7 @@ jobs:
     name: Build User Auditor
     needs: check
     if: needs.check.outputs.user_auditor_checking == 'true'
-    uses: ./.github/workflows/docker-java.yml
+    uses: ./.github/workflows/used/docker-java.yml
     with:
       image_name: user-auditor
       environment: ${{ needs.check.outputs.env_version }}
@@ -256,7 +256,7 @@ jobs:
     name: Build Web PDF
     needs: check
     if: needs.check.outputs.web_pdf_checking == 'true'
-    uses: ./.github/workflows/docker-java.yml
+    uses: ./.github/workflows/used/docker-java.yml
     with:
       image_name: web-pdf
       environment: ${{ needs.check.outputs.env_version }}
