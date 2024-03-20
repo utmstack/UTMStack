@@ -31,8 +31,6 @@ jobs:
     steps:
     - name: Check out code into the right branch
       uses: actions/checkout@v4
-      with:
-        ref: main
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v4

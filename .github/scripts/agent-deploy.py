@@ -6,6 +6,9 @@ from google.cloud import storage
 import yaml
 
 def main(environment):
+	if environment.startswith("v10-"):
+		environment = environment.replace("v10-", "")
+		
 	gcp_key = json.loads(os.environ.get("GCP_KEY"))
 	storage_client = storage.Client.from_service_account_info(gcp_key)
 
