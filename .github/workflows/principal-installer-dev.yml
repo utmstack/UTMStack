@@ -1,20 +1,36 @@
-name: Installer QA
+name: Installer Dev
 
 on:
   workflow_run:
-    workflows: ["Frontend QA", "Backend QA", "User Auditor QA", "Web PDF QA", "Log Auth Proxy QA", "Agent Manager QA", "Correlation QA", "Bitdefender QA", "Mutate QA", "O365 QA"]
+    workflows: ["Dev/Rc Deploy"]
     types:
       - completed
 
 jobs:
-  build:
-    name: Build
-    runs-on: qa
+  check_feature:
+    name: Check if feature
+    runs-on: ubuntu-latest
+    outputs:
+      is_feature: ${{ steps.check.outputs.is_feature }}
+    steps:
+      - id: check
+        run: |
+          echo ${{ github.event.workflow_run.event }}
+          if ${{ startsWith(github.event.workflow_run.head_branch, 'feature/') && github.event.workflow_run.event != 'pull_request_review'}}; then
+            echo "It's a feature"
+            echo "is_feature=true" >> $GITHUB_OUTPUT
+          else
+            echo "It's not a feature"
+            echo "is_feature=false" >> $GITHUB_OUTPUT
+          fi
+  deploy:
+    name: Deploy to dev
+    needs: check_feature
+    if: needs.check_feature.outputs.is_feature == 'true'
+    runs-on: dev
     steps:
     - name: Check out code into the right branch
       uses: actions/checkout@v4
-      with:
-        ref: qa
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v4

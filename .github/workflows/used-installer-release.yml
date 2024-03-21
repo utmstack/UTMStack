@@ -1,10 +1,7 @@
 name: Installer Release
 
 on:
-  push:
-    tags: [ 'v*' ]
-    paths:
-      - 'installer/**'
+  workflow_call:
 
 jobs:
   build:
@@ -13,8 +10,6 @@ jobs:
     steps:
     - name: Check out code into the right branch
       uses: actions/checkout@v4
-      with:
-        ref: rc
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v4
