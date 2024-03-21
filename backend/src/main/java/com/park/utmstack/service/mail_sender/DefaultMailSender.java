@@ -2,6 +2,7 @@ package com.park.utmstack.service.mail_sender;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.shared_types.enums.EncryptionType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
@@ -12,8 +13,10 @@ import java.util.Properties;
 @Component
 public class DefaultMailSender extends BaseMailSender {
 
-    public DefaultMailSender(){
-        super(EncryptionType.NONE);
+    @Autowired
+    public DefaultMailSender(JavaMailSenderImpl mailSender){
+
+        super(EncryptionType.NONE, mailSender);
     }
 
     @Override

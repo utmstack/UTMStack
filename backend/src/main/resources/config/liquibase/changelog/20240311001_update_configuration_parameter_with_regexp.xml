@@ -12,14 +12,12 @@
             -------------------------------------
             -- Add column conf_param_regexp configuration parameter messages --
 
-            ALTER TABLE utm_configuration_parameter DROP COLUMN conf_param_regexp;
-
             ALTER TABLE utm_configuration_parameter
                 ADD COLUMN conf_param_regexp TEXT;
             -------------------------------------
 
             -------------------------------------
-            -- Updating configuration parameter messages --
+            -- Updating configuration parameter messages and regexp--
             -------------------------------------
 
             update utm_configuration_parameter
@@ -39,7 +37,7 @@
             where conf_param_short = 'utmstack.mail.from';
 
             update utm_configuration_parameter
-            set conf_param_regexp = '^((?=[a-zA-Z0-9-]{1,63}\.)(?=[a-zA-Z0-9-]{1,63}\.[a-zA-Z]{2,63})|(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))$'
+            set conf_param_regexp = '^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}|(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'
             where conf_param_short = 'utmstack.mail.host';
 
             update utm_configuration_parameter

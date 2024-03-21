@@ -2,18 +2,19 @@ package com.park.utmstack.service.mail_sender;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.shared_types.enums.EncryptionType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Properties;
 
 @Component
 public class StartTlsMailSender extends BaseMailSender {
 
-    public StartTlsMailSender(){
-        super(EncryptionType.STARTTLS);
+    @Autowired
+    public StartTlsMailSender(JavaMailSenderImpl mailSender){
+        super(EncryptionType.STARTTLS, mailSender);
     }
 
     @Override
@@ -39,7 +40,6 @@ public class StartTlsMailSender extends BaseMailSender {
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
         props.put("mail.smtp.ssl.trust", ((JavaMailSenderImpl) mailSender).getHost());
-
     }
 
 }

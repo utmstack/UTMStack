@@ -70,7 +70,8 @@ public class MailService {
 
     public MailService(MessageSource messageSource,
                        SpringTemplateEngine templateEngine,
-                       ApplicationEventService eventService, List<BaseMailSender> mailSenders) {
+                       ApplicationEventService eventService,
+                       List<BaseMailSender> mailSenders) {
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
         this.eventService = eventService;

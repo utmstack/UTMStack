@@ -9,9 +9,9 @@ public abstract class BaseMailSender implements MailSenderStrategy {
     private final JavaMailSenderImpl mailSender;
     private final EncryptionType type;
 
-    public BaseMailSender(EncryptionType type) {
+    public BaseMailSender(EncryptionType type, JavaMailSenderImpl javaMailSender) {
         this.type = type;
-        this.mailSender = new JavaMailSenderImpl();
+        this.mailSender = javaMailSender;
     }
 
     private void configure(String host, String username, String password, String protocol, Integer port) {
