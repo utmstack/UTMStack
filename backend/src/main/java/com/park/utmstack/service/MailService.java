@@ -123,13 +123,6 @@ public class MailService {
     }
 
     /**
-     * Method that can be used to test the email server configuration
-     * */
-    public void checkEmailConfiguration() throws MessagingException {
-        getJavaMailSender();
-    }
-
-    /**
      * Send a test email to the passed address to check if the email configuration is ok
      *
      * @param to Address to send the testing email
