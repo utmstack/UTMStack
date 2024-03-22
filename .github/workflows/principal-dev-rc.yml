@@ -77,7 +77,7 @@ jobs:
               - 'correlation/**'
       - id: changes_correlation_output
         run: |
-          echo "correlation_checking=steps.changes_correlation.outputs.paths" >> $GITHUB_OUTPUT
+          echo "correlation_checking=${{ steps.changes_correlation.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_frontend
@@ -87,7 +87,7 @@ jobs:
               - 'frontend/**'
       - id: changes_frontend_output
         run: |
-          echo "frontend_checking=steps.changes_frontend.outputs.paths" >> $GITHUB_OUTPUT
+          echo "frontend_checking=${{ steps.changes_frontend.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_bdgz
@@ -97,7 +97,7 @@ jobs:
               - 'bdgz/**'
       - id: changes_bdgz_output
         run: |
-          echo "bdgz_checking=steps.changes_bdgz.outputs.paths" >> $GITHUB_OUTPUT
+          echo "bdgz_checking=${{ steps.changes_bdgz.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_mutate
@@ -107,7 +107,7 @@ jobs:
               - 'mutate/**'
       - id: changes_mutate_output
         run: |
-          echo "mutate_checking=steps.changes_mutate.outputs.paths" >> $GITHUB_OUTPUT
+          echo "mutate_checking=${{ steps.changes_mutate.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_o365
@@ -117,7 +117,7 @@ jobs:
               - 'office365/**'
       - id: changes_o365_output
         run: |
-          echo "o365_checking=steps.changes_o365.outputs.paths" >> $GITHUB_OUTPUT
+          echo "o365_checking=${{ steps.changes_o365.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_log_auth_proxy
@@ -127,7 +127,7 @@ jobs:
               - 'log-auth-proxy/**'
       - id: changes_log_auth_proxy_output
         run: |
-          echo "log_auth_proxy_checking=steps.changes_log_auth_proxy.outputs.paths" >> $GITHUB_OUTPUT
+          echo "log_auth_proxy_checking=${{ steps.changes_log_auth_proxy.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_user_auditor
@@ -137,7 +137,7 @@ jobs:
               - 'user-auditor/**'
       - id: changes_user_auditor_output
         run: |
-          echo "user_auditor_checking=steps.changes_user_auditor.outputs.paths" >> $GITHUB_OUTPUT
+          echo "user_auditor_checking=${{ steps.changes_user_auditor.outputs.paths }}" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: changes_web_pdf
@@ -147,7 +147,7 @@ jobs:
               - 'web-pdf/**'
       - id: changes_web_pdf_output
         run: |
-          echo "web_pdf_checking=steps.changes_web_pdf.outputs.paths" >> $GITHUB_OUTPUT
+          echo "web_pdf_checking=${{ steps.changes_web_pdf.outputs.paths }}" >> $GITHUB_OUTPUT
   
   agent_manager_build:
     name: Build Agent Manager
