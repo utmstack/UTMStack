@@ -2,7 +2,7 @@ name: Dev/Rc Deploy
 
 on:
   push:
-    branches: [ 'feature/*' ]
+    branches: [ 'feature/**' ]
   pull_request_review:
     types: [submitted]
 
