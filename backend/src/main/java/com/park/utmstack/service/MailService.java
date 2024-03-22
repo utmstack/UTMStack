@@ -122,43 +122,6 @@ public class MailService {
         return mailSender;
     }
 
-    private @NotNull JavaMailSender getJavaMailSender1() throws MessagingException {
-       JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        String host = Constants.CFG.get(Constants.PROP_MAIL_HOST);
-        mailSender.setHost(host);
-        mailSender.setPassword(Constants.CFG.get(Constants.PROP_MAIL_PASSWORD));
-        mailSender.setUsername(Constants.CFG.get(Constants.PROP_MAIL_USERNAME));
-        mailSender.setProtocol(Constants.PROP_EMAIL_PROTOCOL_VALUE);
-        Properties props = mailSender.getJavaMailProperties();
-        String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
-        String port = Constants.CFG.get(Constants.PROP_MAIL_PORT);
-        switch (authType) {
-            case "STARTTLS":
-                mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_TLS_VALUE);
-                props.clear();
-                props.put("mail.smtp.auth", "true");
-                props.put("mail.smtp.starttls.enable", "true");
-                props.put("mail.smtp.starttls.required", "true");
-                break;
-            case "SSL/TLS":
-                mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_SSL_VALUE);
-                props.clear();
-                props.put("mail.smtp.auth", "true");
-                props.put("mail.smtp.ssl.enable", "true");
-                break;
-            default:
-                mailSender.setPort(StringUtils.hasText(port) ? Integer.parseInt(port) : Constants.PROP_EMAIL_PORT_NONE_VALUE);
-                props.clear();
-                props.put("mail.smtp.auth", "false");
-                props.put("mail.smtp.ssl.enable", "false");
-                break;
-        }
-        props.put("mail.smtp.ssl.trust", host);
-
-         mailSender.testConnection();
-        return mailSender;
-    }
-
     /**
      * Method that can be used to test the email server configuration
      * */
