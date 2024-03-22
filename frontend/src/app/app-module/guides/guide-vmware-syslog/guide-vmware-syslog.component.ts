@@ -12,6 +12,7 @@ export class GuideVmwareSyslogComponent implements OnInit {
   @Input() integrationId: number;
   @Input() serverId: number;
   @ViewChild('stepContent6') stepContent6: TemplateRef<any>;
+  @ViewChild('stepContent10') stepCommandContent: TemplateRef<any>;
   module = UtmModulesEnum;
   vmwarePaths: VmwareOSPaths[] = [
     {os: 'linux', path: '/opt/utmstack-linux-agent/log-collector-config.json'},
@@ -28,9 +29,10 @@ export class GuideVmwareSyslogComponent implements OnInit {
     switch (id) {
       case 'stepContent6':
         return this.stepContent6;
+      case 'stepContent10':
+        return this.stepCommandContent;
     }
   }
-
 }
 export class VmwareOSPaths {
   os: string;

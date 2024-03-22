@@ -50,7 +50,7 @@ import {GuideVulnerabilitiesComponent} from './guides/guide-vulnerabilities/guid
 import {GuideWebrootComponent} from './guides/guide-webroot/guide-webroot.component';
 import {GuideWindowFaaComponent} from './guides/guide-window-faa/guide-window-faa.component';
 import {GuideWinlogbeatComponent} from './guides/guide-winlogbeat/guide-winlogbeat.component';
-import {StepListComponent} from './guides/shared/components/step-list.component';
+import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {StepComponent, StepDirective} from './guides/shared/components/step.component';
 import {ModuleIntegrationComponent} from './module-integration/module-integration.component';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
@@ -105,7 +105,7 @@ import {AppModuleSharedModule} from './shared/app-module-shared.module';
     GuideBitdefenderComponent,
     GuideAs400Component,
     GuideSocAiComponent,
-    StepListComponent,
+    UtmListComponent,
     StepComponent,
     StepDirective
   ],

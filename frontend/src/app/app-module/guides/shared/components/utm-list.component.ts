@@ -3,20 +3,20 @@ import {Step} from '../step';
 import {StepDirective} from './step.component';
 
 @Component({
-  selector: 'app-step-list',
+  selector: 'app-utm-list',
   template: `
-    <li *ngFor="let step of steps">
+    <ng-container *ngFor="let item of items">
       <ng-template
         [ngTemplateOutlet]="stepTemplateRef"
-        [ngTemplateOutletContext]="{ $implicit: step }">
+        [ngTemplateOutletContext]="{ $implicit: item }">
       </ng-template>
-    </li>
+    </ng-container>
   `
 })
 
-export class StepListComponent {
+export class UtmListComponent {
 
-  @Input() steps: Step[];
+  @Input() items: any[];
 
   @ContentChild(StepDirective, { read: TemplateRef })
   stepTemplateRef!: TemplateRef<unknown>;

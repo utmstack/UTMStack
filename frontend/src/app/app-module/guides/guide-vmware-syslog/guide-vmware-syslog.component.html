@@ -6,60 +6,82 @@
   </div>
   <div class="card-body">
     <ol class="setup_list">
-      <app-step-list [steps]="steps">
+      <app-utm-list [items]="steps">
         <ng-template stepTemplateRef let-step>
-          <app-step>
-            <span stepNumber>{{step.id}}</span>
-            {{step.name}}
-            <ng-container [ngTemplateOutlet]="getContentStep(step.content)" ></ng-container>
-          </app-step>
+          <li>
+            <app-step>
+              <span stepNumber>{{step.id}}</span>
+              <div [innerHtml]="step.name"></div>
+              <ng-container *ngIf="step.content">
+                <ng-template [ngIf]="step.content.id === 'stepContent6'" #stepContent6 >
+                  <div  class="table-responsive pl-3 pr-3">
+                    <table class="table table-condensed">
+                      <thead>
+                      <tr>
+                        <th class="w-25">Parameter</th>
+                        <th class="w-25">ESX version</th>
+                        <th class="w-50">Description</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td>Syslog.Local.DatastorePath</td>
+                        <td>ESX or ESXi 3.5.x or 4.x</td>
+                        <td>Type the directory path for the local syslog messages on your ESXi server.
+                          The default directory path is [] /scratch/log/messages.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Syslog.Remote.Hostname</td>
+                        <td>ESX or ESXi 3.5.x or 4.x</td>
+                        <td>Type the IP address of the UTMStack agent.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Syslog.Remote.Port</td>
+                        <td>ESX or ESXi 3.5.x or 4.x</td>
+                        <td>Type the port number the ESXi server uses to forward syslog data.
+                          Use the following ports: 7002 UDP, 7002 TCP, 7052 TCP (TLS)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Syslog.global.logHost</td>
+                        <td>ESXi v5.x or ESXi v6.x</td>
+                        <td>
+                          Type the URL and port number that the ESXi server uses to forward syslog data.
+                          Examples: udp://&lt;UTMStack Agent IP address&gt;:7002
+                          tcp://&lt;UTMStack Agent IP address&gt;:7002
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </ng-template>
+                <ng-template [ngIf]="step.content['commands']">
+                  <app-utm-list [items]="step.content['commands']">
+                    <ng-template stepTemplateRef let-command>
+                      <app-utm-code-view [code]=command></app-utm-code-view>
+                    </ng-template>
+                  </app-utm-list>
+                </ng-template>
+              </ng-container>
+            </app-step>
+          </li>
         </ng-template>
-      </app-step-list>
+      </app-utm-list>
     </ol>
   </div>
 </div>
 
-<ng-template #stepContent6>
-  <div  class="table-responsive pl-3 pr-3">
-    <table class="table table-condensed">
-      <thead>
-      <tr>
-        <th class="w-25">Parameter</th>
-        <th class="w-25">ESX version</th>
-        <th class="w-50">Description</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>Syslog.Local.DatastorePath</td>
-        <td>ESX or ESXi 3.5.x or 4.x</td>
-        <td>Type the directory path for the local syslog messages on your ESXi server.
-          The default directory path is [] /scratch/log/messages.
-        </td>
-      </tr>
-      <tr>
-        <td>Syslog.Remote.Hostname</td>
-        <td>ESX or ESXi 3.5.x or 4.x</td>
-        <td>Type the IP address of the UTMStack agent.
-        </td>
-      </tr>
-      <tr>
-        <td>Syslog.Remote.Port</td>
-        <td>ESX or ESXi 3.5.x or 4.x</td>
-        <td>Type the port number the ESXi server uses to forward syslog data.
-          Use the following ports: 7002 UDP, 7002 TCP, 7052 TCP (TLS)
-        </td>
-      </tr>
-      <tr>
-        <td>Syslog.global.logHost</td>
-        <td>ESXi v5.x or ESXi v6.x</td>
-        <td>
-          Type the URL and port number that the ESXi server uses to forward syslog data.
-          Examples: udp://&lt;UTMStack Agent IP address&gt;:7002
-          tcp://&lt;UTMStack Agent IP address&gt;:7002
-        </td>
-      </tr>
-      </tbody>
-    </table>
+
+<ng-template #stepContent15>
+  <div class="w-75 mt-3" *ngFor="let paths of vmwarePaths">
+    <span class="font-weight-semibold mb-2">{{paths.os}}</span>
+    <app-utm-code-view [code]=paths.path></app-utm-code-view>
   </div>
+  <img alt="Module configuration" class="step-img"
+       [src]="'../../../../assets/img/guides/vmware/vmware.png'">
+</ng-template>
+<ng-template #stepCommandContent>
+  <app-utm-code-view [code]="'esxcli system syslog config get'"></app-utm-code-view>
 </ng-template>
