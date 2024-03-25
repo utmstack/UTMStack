@@ -50,4 +50,9 @@ export const VMWARESTEPS: Step[] = [
       id: 'stepContent15'
     }
   },
-  ];
+  {id: '16', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+    content: {
+      id: 'stepContent16'
+    }
+  },
+];

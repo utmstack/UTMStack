@@ -50,10 +50,11 @@ import {GuideVulnerabilitiesComponent} from './guides/guide-vulnerabilities/guid
 import {GuideWebrootComponent} from './guides/guide-webroot/guide-webroot.component';
 import {GuideWindowFaaComponent} from './guides/guide-window-faa/guide-window-faa.component';
 import {GuideWinlogbeatComponent} from './guides/guide-winlogbeat/guide-winlogbeat.component';
-import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {StepComponent, StepDirective} from './guides/shared/components/step.component';
+import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {ModuleIntegrationComponent} from './module-integration/module-integration.component';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
+import {LogCollectorComponent} from './guides/shared/components/log-collector.component';
 
 
 @NgModule({
@@ -107,7 +108,8 @@ import {AppModuleSharedModule} from './shared/app-module-shared.module';
     GuideSocAiComponent,
     UtmListComponent,
     StepComponent,
-    StepDirective
+    StepDirective,
+    LogCollectorComponent
   ],
   imports: [
     CommonModule,
