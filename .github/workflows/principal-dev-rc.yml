@@ -1,0 +1,263 @@
+name: Dev/Rc Deploy
+
+on:
+  push:
+    branches: [ 'feature/**' ]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  check:
+    name: Checking
+    runs-on: ubuntu-latest
+    outputs:
+      env_version: ${{ steps.set-env.outputs.env_version }}
+      agent_manager_checking: ${{ steps.changes_agent_manager_output.outputs.agent_manager_checking }}
+      agent_checking: ${{ steps.changes_agent_output.outputs.agent_checking }}
+      backend_checking: ${{ steps.changes_backend_output.outputs.backend_checking }}
+      correlation_checking: ${{ steps.changes_correlation_output.outputs.correlation_checking }}
+      frontend_checking: ${{ steps.changes_frontend_output.outputs.frontend_checking }}
+      bdgz_checking: ${{ steps.changes_bdgz_output.outputs.bdgz_checking }}
+      mutate_checking: ${{ steps.changes_mutate_output.outputs.mutate_checking }}
+      o365_checking: ${{ steps.changes_o365_output.outputs.o365_checking }}
+      log_auth_proxy_checking: ${{ steps.changes_log_auth_proxy_output.outputs.log_auth_proxy_checking }}
+      user_auditor_checking: ${{ steps.changes_user_auditor_output.outputs.user_auditor_checking }}
+      web_pdf_checking: ${{ steps.changes_web_pdf_output.outputs.web_pdf_checking }}
+    steps:
+      - name: Determine Build Environment
+        id: set-env
+        run: |
+          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') }}; then
+            echo "DEV environment"
+            echo "env_version=v10-dev" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main' }}; then
+            echo "RC environment"
+            echo "env_version=v10-rc" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/checkout@v2
+
+      - uses: dorny/paths-filter@v2
+        id: changes_agent_manager
+        with:
+          filters: |
+            paths:
+              - 'agent-manager/**'
+      - id: changes_agent_manager_output
+        run: |
+          echo "agent_manager_checking=${{ steps.changes_agent_manager.outputs.paths }}" >> $GITHUB_OUTPUT
+      
+      - uses: dorny/paths-filter@v2
+        id: changes_agent
+        with:
+          filters: |
+            paths:
+              - 'agent/**'
+              - 'version.yml'
+      - id: changes_agent_output
+        run: |
+          echo "agent_checking=${{ steps.changes_agent.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_backend
+        with:
+          filters: |
+            paths:
+              - 'backend/**'
+              - 'version.yml'
+      - id: changes_backend_output
+        run: |
+          echo "backend_checking=${{ steps.changes_backend.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_correlation
+        with:
+          filters: |
+            paths:
+              - 'correlation/**'
+      - id: changes_correlation_output
+        run: |
+          echo "correlation_checking=${{ steps.changes_correlation.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_frontend
+        with:
+          filters: |
+            paths:
+              - 'frontend/**'
+      - id: changes_frontend_output
+        run: |
+          echo "frontend_checking=${{ steps.changes_frontend.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_bdgz
+        with:
+          filters: |
+            paths:
+              - 'bdgz/**'
+      - id: changes_bdgz_output
+        run: |
+          echo "bdgz_checking=${{ steps.changes_bdgz.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_mutate
+        with:
+          filters: |
+            paths:
+              - 'mutate/**'
+      - id: changes_mutate_output
+        run: |
+          echo "mutate_checking=${{ steps.changes_mutate.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_o365
+        with:
+          filters: |
+            paths:
+              - 'office365/**'
+      - id: changes_o365_output
+        run: |
+          echo "o365_checking=${{ steps.changes_o365.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_log_auth_proxy
+        with:
+          filters: |
+            paths:
+              - 'log-auth-proxy/**'
+      - id: changes_log_auth_proxy_output
+        run: |
+          echo "log_auth_proxy_checking=${{ steps.changes_log_auth_proxy.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_user_auditor
+        with:
+          filters: |
+            paths:
+              - 'user-auditor/**'
+      - id: changes_user_auditor_output
+        run: |
+          echo "user_auditor_checking=${{ steps.changes_user_auditor.outputs.paths }}" >> $GITHUB_OUTPUT
+
+      - uses: dorny/paths-filter@v2
+        id: changes_web_pdf
+        with:
+          filters: |
+            paths:
+              - 'web-pdf/**'
+      - id: changes_web_pdf_output
+        run: |
+          echo "web_pdf_checking=${{ steps.changes_web_pdf.outputs.paths }}" >> $GITHUB_OUTPUT
+  
+  agent_manager_build:
+    name: Build Agent Manager
+    needs: check
+    if: needs.check.outputs.agent_manager_checking == 'true'
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: agent-manager
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: agent-manager
+      binary: server
+
+  agent_build:
+    name: Build Agent
+    needs: check
+    if: needs.check.outputs.agent_checking == 'true'
+    uses: ./.github/workflows/used-agent.yml
+    with:
+      environment: ${{ needs.check.outputs.env_version }}
+
+  backend_build:
+    name: Build Backend
+    needs: check
+    if: needs.check.outputs.backend_checking == 'true'
+    uses: ./.github/workflows/used-docker-java-11.yml
+    with:
+      image_name: backend
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: backend
+  
+  correlation_build:
+    name: Build Correlation
+    needs: check
+    if: needs.check.outputs.correlation_checking == 'true'
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: correlation
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: correlation
+      binary: correlation
+
+  frontend_build:
+    name: Build Frontend
+    needs: check
+    if: needs.check.outputs.frontend_checking == 'true'
+    uses: ./.github/workflows/used-docker-frontend.yml
+    with:
+      image_name: frontend
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: frontend
+
+  bdgz_build:
+    name: Build Bitdefender
+    needs: check
+    if: needs.check.outputs.bdgz_checking == 'true'
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: bitdefender
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: bdgz
+      binary: bdgz_integration
+
+  mutate_build:
+    name: Build Mutate
+    needs: check
+    if: needs.check.outputs.mutate_checking == 'true'
+    uses: ./.github/workflows/used-docker-basic.yml
+    with:
+      image_name: mutate
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: mutate
+
+  o365_build:
+    name: Build Office365
+    needs: check
+    if: needs.check.outputs.o365_checking == 'true'
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: office365
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: office365
+      binary: o365_integration
+  
+  log_auth_proxy_build:
+    name: Build Log Auth Proxy
+    needs: check
+    if: needs.check.outputs.log_auth_proxy_checking == 'true'
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: log-auth-proxy
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: log-auth-proxy
+      binary: server
+  
+  user_auditor_build:
+    name: Build User Auditor
+    needs: check
+    if: needs.check.outputs.user_auditor_checking == 'true'
+    uses: ./.github/workflows/used-docker-java.yml
+    with:
+      image_name: user-auditor
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: user-auditor
+    
+  web_pdf_build:
+    name: Build Web PDF
+    needs: check
+    if: needs.check.outputs.web_pdf_checking == 'true'
+    uses: ./.github/workflows/used-docker-java.yml
+    with:
+      image_name: web-pdf
+      environment: ${{ needs.check.outputs.env_version }}
+      directory: web-pdf

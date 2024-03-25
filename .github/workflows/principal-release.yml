@@ -1,0 +1,101 @@
+name: Release Deploy
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  agent_manager_build:
+    name: Build Agent Manager
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: agent-manager
+      environment: v10
+      directory: agent-manager
+      binary: server
+
+  agent_build:
+    name: Build Agent
+    uses: ./.github/workflows/used-agent.yml
+    with:
+      environment: release
+
+  backend_build:
+    name: Build Backend
+    uses: ./.github/workflows/used-docker-java-11.yml
+    with:
+      image_name: backend
+      environment: v10
+      directory: backend
+  
+  correlation_build:
+    name: Build Correlation
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: correlation
+      environment: v10
+      directory: correlation
+      binary: correlation
+
+  frontend_build:
+    name: Build Frontend
+    uses: ./.github/workflows/used-docker-frontend.yml
+    with:
+      image_name: frontend
+      environment: v10
+      directory: frontend
+
+  bdgz_build:
+    name: Build Bitdefender
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: bitdefender
+      environment: v10
+      directory: bdgz
+      binary: bdgz_integration
+
+  mutate_build:
+    name: Build Mutate
+    uses: ./.github/workflows/used-docker-basic.yml
+    with:
+      image_name: mutate
+      environment: v10
+      directory: mutate
+
+  o365_build:
+    name: Build Office365
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: office365
+      environment: v10
+      directory: office365
+      binary: o365_integration
+  
+  log_auth_proxy_build:
+    name: Build Log Auth Proxy
+    uses: ./.github/workflows/used-docker-golang.yml
+    with:
+      image_name: log-auth-proxy
+      environment: v10
+      directory: log-auth-proxy
+      binary: server
+  
+  user_auditor_build:
+    name: Build User Auditor
+    uses: ./.github/workflows/used-docker-java.yml
+    with:
+      image_name: user-auditor
+      environment: v10
+      directory: user-auditor
+    
+  web_pdf_build:
+    name: Build Web PDF
+    uses: ./.github/workflows/used-docker-java.yml
+    with:
+      image_name: web-pdf
+      environment: v10
+      directory: web-pdf
+
+  installer_build:
+    name: Build Installer
+    uses: ./.github/workflows/used-installer-release.yml

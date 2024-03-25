@@ -1,4 +1,4 @@
-name: Docker Image Golang
+name: Docker Image Basic
 on:
   workflow_call:
     inputs:
@@ -11,12 +11,6 @@ on:
       directory:
         required: true
         type: string
-      binary:
-        required: true
-        type: string
-      branch:
-        required: true
-        type: string
 
 jobs:
   build:
@@ -24,23 +18,7 @@ jobs:
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
-        with:
-          ref: ${{inputs.branch}}
-
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v4
-        with:
-          go-version: ^1.20
-        id: go
-
-      - name: Running Tests
-        working-directory: ./${{inputs.directory}}
-        run: go test -v ./...
-  
-      - name: Build Binary
-        working-directory: ./${{inputs.directory}}
-        run: go build -o ${{inputs.binary}} -v .
-        
+          
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:

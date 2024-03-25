@@ -12,9 +12,6 @@ on:
       directory:
         required: true
         type: string
-      branch:
-        required: true
-        type: string
 
 jobs:
   build:
@@ -22,9 +19,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{inputs.branch}}
-        # Runs a single command using the runners shell
+
       - uses: actions/setup-node@v1 #this installs node and npm for us
         with:
           node-version: '14.16.1'
