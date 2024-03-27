@@ -1,6 +1,6 @@
 import {Step} from '../shared/step';
 
-export const VMWARESTEPS: Step[] = [
+export const VMWARE_STEPS: Step[] = [
   {id: '1', name: 'Log in to your VMware vSphere Client.'},
   {id: '2', name: 'Select the host that manages your VMware inventory'},
   {id: '3', name: 'Click on the Configuration tab.'},

@@ -1,116 +1,176 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {UtmModulesEnum} from "../../../shared/enum/utm-module.enum";
 
 @Component({
-  selector: 'app-log-colletor',
-  template: `
-    <div class="flex-container mt-2 mb-3">
-      <ng-select [items]="platforms"
-                 bindLabel="name"
-                 placeholder="Select platform"
-                 [(ngModel)]="selectedPlatform"
-                 class="flex-item">
-      </ng-select>
-      <ng-select [items]="protocols"
-                 bindLabel="name"
-                 placeholder="Select Protocol"
-                 [(ngModel)]="selectedProtocol"
-                 class="flex-item">
-      </ng-select>
-      <ng-select [items]="actions"
-                 bindLabel="name"
-                 placeholder="Select Action"
-                 [(ngModel)]="selectedAction"
-                 class="flex-item">
-      </ng-select>
-    </div>
-    <ng-container *ngIf="selectedProtocol && selectedPlatform && selectedAction">
-        <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
-        <app-utm-code-view class="" [code]=command></app-utm-code-view>
-    </ng-container>
-  `,
-  styles: [`
-    .flex-container {
-      display: flex;
-    }
+    selector: 'app-log-colletor',
+    template: `
+        <div class="flex-container mt-2 mb-3">
+            <ng-select [items]="platforms"
+                       bindLabel="name"
+                       placeholder="Select platform"
+                       [(ngModel)]="selectedPlatform"
+                       class="flex-item">
+            </ng-select>
+            <ng-select [items]="protocols"
+                       bindLabel="name"
+                       placeholder="Select Protocol"
+                       [(ngModel)]="selectedProtocol"
+                       class="flex-item">
+            </ng-select>
+            <ng-select [items]="actions"
+                       bindLabel="name"
+                       placeholder="Select Action"
+                       [(ngModel)]="selectedAction"
+                       class="flex-item">
+            </ng-select>
+        </div>
+        <ng-container *ngIf="selectedProtocol && selectedPlatform && selectedAction">
+            <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
+            <app-utm-code-view class="" [code]=command></app-utm-code-view>
+        </ng-container>
+    `,
+    styles: [`
+        .flex-container {
+            display: flex;
+        }
 
-    .flex-item {
-      flex-grow: 1;
-      margin-right: 10px;
-    }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+        .flex-item {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+    `],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class LogCollectorComponent {
 
-  protocols = [
-    { id: 1, name: 'TCP' },
-    { id: 2, name: 'UDP' },
-    { id: 3, name: 'TLS' }
-  ];
+  @Input() protocols = [
+        {id: 1, name: 'TCP'},
+        {id: 2, name: 'UDP'},
+        {id: 3, name: 'TLS'}
+    ];
 
-  actions = [
-    { id: 1, name: 'ENABLE', action: 'enable-integration'},
-    { id: 2, name: 'DISABLE',  action: 'disable-integration'}
-  ];
+    actions = [
+        {id: 1, name: 'ENABLE', action: 'enable-integration'},
+        {id: 2, name: 'DISABLE', action: 'disable-integration'}
+    ];
 
-  platforms = [
-    { id: 1, name: 'WINDOWS',
-      command: 'sudo bash -c "Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENT\', \'PORT\' -NoNewWindow -Wait\n',
-      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
-    },
-    { id: 2,
-      name: 'LINUX' , command: 'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENT PORT"',
-      shell: 'Linux bash terminal'
+    platforms = [
+        {
+            id: 1, name: 'WINDOWS',
+            command: 'sudo bash -c "Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
+            shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+        },
+        {
+            id: 2,
+            name: 'LINUX', command: 'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENTNAME PORT"',
+            shell: 'Linux bash terminal'
+        }
+    ];
+
+    @Input() agent: string;
+
+    _selectedProtocol: any;
+    _selectedPlatform: any;
+    _selectedAction: any;
+    module = UtmModulesEnum;
+
+    constructor() {
     }
-  ];
 
-  @Input() agent: string;
+    get command() {
+        this.selectedPlatform.command.replace(/PORT/gi, this.selectedProtocol.name.toLowerCase());
+        return this.replaceAll(this.selectedPlatform.command, {
+            PORT: this.selectedProtocol.name.toLowerCase(),
+            AGENTNAME: this.agentName(),
+            ACTION: this.selectedAction.action
+        });
+    }
 
-  _selectedProtocol: any;
-  _selectedPlatform: any;
-  _selectedAction: any;
-  constructor() {
-  }
+    get selectedPlatform() {
+        return this._selectedPlatform;
+    }
 
-  get command() {
-    this.selectedPlatform.command.replace(/PORT/gi, this.selectedProtocol.name.toLowerCase());
-    return this.replaceAll(this.selectedPlatform.command, {
-      PORT: this.selectedProtocol.name.toLowerCase(),
-      AGENT: this.agent.toLowerCase(),
-      ACTION: this.selectedAction.action
-    });
-  }
+    set selectedPlatform(platform) {
+        this._selectedPlatform = platform;
+    }
 
-  get selectedPlatform() {
-    return this._selectedPlatform;
-  }
+    get selectedProtocol() {
+        return this._selectedProtocol;
+    }
 
-  set selectedPlatform(platform) {
-    this._selectedPlatform = platform;
-  }
+    set selectedProtocol(protocol) {
+        this._selectedProtocol = protocol;
+    }
 
-  get selectedProtocol() {
-    return this._selectedProtocol;
-  }
+    get selectedAction() {
+        return this._selectedAction;
+    }
 
-  set selectedProtocol(protocol) {
-     this._selectedProtocol = protocol;
-  }
+    set selectedAction(action) {
+        this._selectedAction = action;
+    }
 
-  get selectedAction() {
-    return this._selectedAction;
-  }
+    agentName() {
+        switch (this.agent) {
 
-  set selectedAction(action) {
-    this._selectedAction = action;
-  }
+            case UtmModulesEnum.VMWARE:
+                return 'vmware';
 
-   replaceAll(command, wordsToReplace) {
-    return Object.keys(wordsToReplace).reduce(
-      (f, s, i) =>
-        `${f}`.replace(new RegExp(s, 'ig'), wordsToReplace[s]),
-      command
-    );
-  }
+            case UtmModulesEnum.SYSLOG:
+                return 'syslog';
+
+            case UtmModulesEnum.SONIC_WALL:
+                return 'firewall_sonicwall';
+
+            case UtmModulesEnum.SOPHOS_XG:
+                return 'firewall_sophos';
+
+            case UtmModulesEnum.PFSENSE:
+              return 'firewall_pfsense';
+
+            case UtmModulesEnum.PALO_ALTO:
+              return 'firewall_paloalto';
+
+            case UtmModulesEnum.MIKROTIK:
+              return 'firewall_mikrotik';
+
+            case UtmModulesEnum.FORTIGATE:
+              return 'firewall_fortinet';
+
+            case UtmModulesEnum.SENTINEL_ONE:
+              return 'antivirus_sentinel_one';
+
+            case UtmModulesEnum.FORTIWEB:
+              return 'firewall_fortiweb';
+
+            case UtmModulesEnum.AIX:
+              return 'aix';
+
+            case UtmModulesEnum.ESET:
+              return 'antivirus_eset';
+
+            case UtmModulesEnum.KASPERSKY:
+              return 'antivirus_kaspersky';
+
+            case UtmModulesEnum.MACOS:
+              return 'macos_logs';
+
+            case UtmModulesEnum.FIRE_POWER:
+            case UtmModulesEnum.CISCO:
+            case UtmModulesEnum.CISCO_SWITCH:
+            case UtmModulesEnum.MERAKI:
+            case UtmModulesEnum.NETFLOW:
+
+              return 'cisco';
+        }
+    }
+
+    replaceAll(command, wordsToReplace) {
+        return Object.keys(wordsToReplace).reduce(
+            (f, s, i) =>
+                `${f}`.replace(new RegExp(s, 'ig'), wordsToReplace[s]),
+            command
+        );
+    }
 }

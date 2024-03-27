@@ -1,5 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {VMWARE_STEPS} from '../guide-vmware-syslog/vmware.steps';
+import {Step} from '../shared/step';
+import {SENTINELSTEPS} from './sentinel.steps';
+import {SyslogModulePorts} from "../guide-syslog/guide-syslog.component";
 
 @Component({
   selector: 'app-guide-sentinel-one',
@@ -10,19 +14,29 @@ export class GuideSentinelOneComponent implements OnInit {
   @Input() integrationId: number;
   module = UtmModulesEnum;
   @Input() serverId: number;
+  steps: Step[] = SENTINELSTEPS;
 
-  sentinelonePaths: SentinelOneOSPaths[] = [
-    {os: 'linux', path: '/opt/utmstack-linux-agent/log-collector-config.json'},
-    {os: 'windows', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\log-collector-config.json'}
-  ];
   constructor() {
   }
 
   ngOnInit() {
   }
 
-}
-export class SentinelOneOSPaths {
-  os: string;
-  path: string;
+  getPorts(): SyslogModulePorts[] {
+    return [
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7012 TCP'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7012 UDP'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7062 TCP (TLS)'},
+    ];
+  }
+
+  getProtocols() {
+    return this.getPorts().map((port, index) => {
+      return {
+        id: index,
+        name: port.port.split(' ')[1]
+      };
+    });
+  }
+
 }

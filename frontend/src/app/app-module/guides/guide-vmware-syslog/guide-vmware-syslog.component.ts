@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 import {Step} from '../shared/step';
-import {VMWARESTEPS} from './vmware.steps';
+import {VMWARE_STEPS} from './vmware.steps';
 
 @Component({
   selector: 'app-guide-vmware-syslog',
@@ -12,7 +12,7 @@ export class GuideVmwareSyslogComponent implements OnInit {
   @Input() integrationId: number;
   @Input() serverId: number;
   module = UtmModulesEnum;
-  steps: Step[] = VMWARESTEPS;
+  steps: Step[] = VMWARE_STEPS;
 
   constructor() {
   }

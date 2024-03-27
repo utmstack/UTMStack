@@ -47,8 +47,8 @@
                            [integrationId]="module.id"></app-guide-webroot>
         <app-guide-window-faa [serverId]="serverId" *ngSwitchCase="moduleEnum.WINDOWS_FAA"
                               [integrationId]="module.id"></app-guide-window-faa>
-        <app-guide-netflow [serverId]="serverId" *ngSwitchCase="moduleEnum.NETFLOW"
-                           [integrationId]="module.id"></app-guide-netflow>
+        <!--<app-guide-netflow [serverId]="serverId" *ngSwitchCase="moduleEnum.NETFLOW"
+                           [integrationId]="module.id"></app-guide-netflow>-->
         <app-guide-sophos [serverId]="serverId" *ngSwitchCase="moduleEnum.SOPHOS"
                           [integrationId]="module.id"></app-guide-sophos>
         <app-guide-json *ngSwitchCase="moduleEnum.JSON"></app-guide-json>
@@ -61,21 +61,42 @@
                                [version]="currentVersion"
                                [integrationId]="module.id"></app-guide-linux-agent>
 
-        <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO" [serverId]="serverId"
+        <!--<app-guide-cisco *ngSwitchCase="moduleEnum.CISCO" [serverId]="serverId"
                          [filebeatModuleName]="module.prettyName"
-                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>-->
 
-        <app-guide-cisco *ngSwitchCase="moduleEnum.MERAKI" [serverId]="serverId"
-                         [filebeatModuleName]="module.prettyName"
-                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.CISCO"
+                        [moduleEnum]="moduleEnum.CISCO"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
 
-        <app-guide-cisco *ngSwitchCase="moduleEnum.FIRE_POWER" [serverId]="serverId"
-                         [filebeatModuleName]="module.prettyName"
-                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.MERAKI"
+                        [moduleEnum]="moduleEnum.MERAKI"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
 
-        <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO_SWITCH" [serverId]="serverId"
+
+        <!--<app-guide-cisco *ngSwitchCase="moduleEnum.MERAKI" [serverId]="serverId"
                          [filebeatModuleName]="module.prettyName"
-                         [filebeatModule]="module.moduleName"></app-guide-cisco>
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>-->
+
+        <!--<app-guide-cisco *ngSwitchCase="moduleEnum.FIRE_POWER" [serverId]="serverId"
+                         [filebeatModuleName]="module.prettyName"
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>-->
+
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FIRE_POWER"
+                        [moduleEnum]="moduleEnum.FIRE_POWER"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.CISCO_SWITCH"
+                        [moduleEnum]="moduleEnum.CISCO_SWITCH"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
+     <!--   <app-guide-cisco *ngSwitchCase="moduleEnum.CISCO_SWITCH" [serverId]="serverId"
+                         [filebeatModuleName]="module.prettyName"
+                         [filebeatModule]="module.moduleName"></app-guide-cisco>-->
 
         <app-guide-eset *ngSwitchCase="moduleEnum.ESET" [serverId]="serverId"
                         [filebeatModuleName]="module.prettyName"
@@ -137,6 +158,27 @@
 
         <app-guide-soc-ai *ngSwitchCase="moduleEnum.SOC_AI" [serverId]="serverId"
                           [integrationId]="module.id"></app-guide-soc-ai>
+
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.PFSENSE"
+                        [moduleEnum]="moduleEnum.PFSENSE"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.NETFLOW"
+                        [moduleEnum]="moduleEnum.NETFLOW"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FORTIWEB"
+                        [moduleEnum]="moduleEnum.FORTIWEB"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.AIX"
+                        [moduleEnum]="moduleEnum.AIX"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
 
   </div>
   <ng-template #loading>

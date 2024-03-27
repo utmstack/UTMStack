@@ -1,5 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {Step} from '../shared/step';
+import {MAC_STEPS} from './mac.steps';
 
 @Component({
   selector: 'app-guide-macos-agent',
@@ -13,9 +15,10 @@ export class GuideMacosAgentComponent implements OnInit {
   module = UtmModulesEnum;
   @Input() serverId: number;
 
+  steps: Step[] = MAC_STEPS;
   constructor() { }
 
   ngOnInit() {
+    console.log(this.steps);
   }
-
 }
