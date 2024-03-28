@@ -10,6 +10,7 @@ public enum ModuleName {
     AWS_TRAFFIC_MIRROR,
     AWS_IAM_USER,
     AWS_CLOUDTRAIL,
+    AIX,
     AWS_SQL_SERVER,
     AWS_POSTGRESQL,
     AWS_BEANSTALK,
@@ -46,6 +47,7 @@ public enum ModuleName {
     KASPERSKY,
     SENTINEL_ONE,
     FORTIGATE,
+    FORTIWEB,
     SOPHOS_XG,
     FIRE_POWER,
     UFW,
@@ -59,5 +61,7 @@ public enum ModuleName {
     IBM_AS_400,
     SALESFORCE,
     BITDEFENDER,
-    SOC_AI
+    SOC_AI,
+
+    PFSENSE
 }
