@@ -26,14 +26,14 @@ export class AppManagementSidebarComponent implements OnInit {
 
   ngOnInit() {
     this.inSass = isSubdomainOfUtmstack();
-    if (!this.inSass) {
+    /*if (!this.inSass) {
       this.updateView();
       this.licenceChangeBehavior.$licenceChange.subscribe(licenceChange => {
         if (licenceChange) {
           this.updateView();
         }
       });
-    }
+    }*/
   }
 
   private updateView(): void {
