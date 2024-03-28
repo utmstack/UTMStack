@@ -27,12 +27,12 @@ const routes: Routes = [
     },
     children: [
       {path: '', redirectTo: 'connection-key', pathMatch: 'full'},
-      {
+      /*{
         path: 'license',
         loadChildren: '../license/license.module#LicenseModule',
         canActivate: [UserRouteAccessService, SaasRouteAccessService],
         data: {authorities: [ADMIN_ROLE]}
-      },
+      },*/
       {
         path: 'rollover',
         component: RolloverConfigComponent,
