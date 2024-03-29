@@ -48,8 +48,8 @@
             -- Updating configuration section shortname--
             -------------------------------------
 
-           /* ALTER TABLE utm_configuration_section
-            RENAME COLUMN module_name_short TO short_name;*/
+            ALTER TABLE utm_configuration_section
+            RENAME COLUMN module_name_short TO short_name;
 
             update utm_configuration_section
             set  short_name = 'SMS'
