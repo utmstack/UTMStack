@@ -10,7 +10,7 @@ import {
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
-import {SectionConfigType} from '../../../../types/configuration/section-config.type';
+import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
 
 
@@ -36,6 +36,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   timezones = TIMEZONES;
   dateFormats = DATE_FORMATS;
   isCheckedEmailConfig = false;
+  sectionType = ApplicationConfigSectionEnum;
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private modalService: NgbModal,

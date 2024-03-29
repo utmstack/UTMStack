@@ -75,7 +75,7 @@
              [id]="'sectionParam'+conf.id"
              [required]="conf.confParamRequired"
              [type]="conf.confParamDatatype" class="form-control">
-      <small *ngIf="conf.confParamRegexp && conf.confParamValue != ''  && !isValid(conf)" class="form-text text-danger">
+      <small *ngIf="conf.confParamRegexp && conf.confParamValue != ''  && !isValid(conf) && conf.confParamDatatype !== configDataTypeEnum.EmailList" class="form-text text-danger">
         {{ conf.confParamLarge }} is invalid
       </small>
 
@@ -91,9 +91,9 @@
                 [required]="conf.confParamRequired"
                 class="form-control"
                 rows="4"></textarea>
-      <div *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
+      <small *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
         Please enter valid email addresses separated by commas.
-      </div>
+      </small>
 
       <ng-select [clearable]="false"
                  [searchable]="true"
