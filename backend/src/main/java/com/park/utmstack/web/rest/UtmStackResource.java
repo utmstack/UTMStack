@@ -38,18 +38,16 @@ public class UtmStackResource {
     private final UtmConfigurationParameterService utmConfigurationParameterService;
     private final InfoEndpoint infoEndpoint;
 
-    private final MailConfigService mailConfigService;
+
 
     public UtmStackResource(UtmStackService utmStackService,
                             ApplicationEventService applicationEventService,
                             UtmConfigurationParameterService utmConfigurationParameterService,
-                            InfoEndpoint infoEndpoint,
-                            MailConfigService mailConfigService) {
+                            InfoEndpoint infoEndpoint) {
         this.utmStackService = utmStackService;
         this.applicationEventService = applicationEventService;
         this.utmConfigurationParameterService = utmConfigurationParameterService;
         this.infoEndpoint = infoEndpoint;
-        this.mailConfigService = mailConfigService;
     }
 
     @GetMapping("/ping")
@@ -89,26 +87,6 @@ public class UtmStackResource {
         final String ctx = CLASSNAME + ".isInDevelop";
         try {
             return ResponseEntity.ok(utmStackService.isInDevelop());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
-        }
-    }
-
-    @PostMapping ("/checkEmailConfiguration")
-    public ResponseEntity<Void> checkEmailConfiguration(@Valid @RequestBody List<UtmConfigurationParameter> parameters) {
-        final String ctx = CLASSNAME + ".checkEmailConfiguration";
-        try {
-
-            utmStackService.checkEmailConfiguration(this.mailConfigService.getMailConfigFromParameters(parameters));
-            return ResponseEntity.ok().build();
-        } catch (MessagingException e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildBadRequestResponse("Check failed with this configuration, review your configuration, save changes and try again");
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
