@@ -26,10 +26,10 @@
                                 [emailConfig]="configs"
                                 (isChecked) = "checkedEmailConfig($event)"
                                 class="mr-2"
-                                *ngIf="section.section.toLowerCase() === 'email'"></app-utm-email-conf-check>
+                                *ngIf="section.shortName === sectionType[sectionType.EMAIL]"></app-utm-email-conf-check>
 
       <button (click)="saveConfig()"
-              [disabled]="!checkConfigValid() || saving || configToSave.length === 0 || (section.section.toLowerCase() === 'email' && !isCheckedEmailConfig)"
+              [disabled]="!checkConfigValid() || saving || configToSave.length === 0 || (section.shortName === sectionType[sectionType.EMAIL] && !isCheckedEmailConfig)"
               class="btn utm-button utm-button-primary font-size-base span-small-icon">
         <i
           [ngClass]="saving?'icon-spinner2 spinner':'icon-cog3'"></i>
