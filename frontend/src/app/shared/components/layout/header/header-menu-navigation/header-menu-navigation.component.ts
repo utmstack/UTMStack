@@ -107,7 +107,7 @@ export class HeaderMenuNavigationComponent implements OnInit {
       || actions.findIndex(value => value.parentId === activeParent) > -1;
     if (isChild) {
       const indexChild = childrens.findIndex((value) => {
-        return value.url && this.router.url.replace(/\//g, '').includes(value.url.replace(/\//g, '')) && value.parentId === activeParent;
+        return this.router.url.replace(/\//g, '').includes(value.url.replace(/\//g, '')) && value.parentId === activeParent;
       });
       const indexActions = actions.findIndex((value) => {
         return value.url.replace(/\//g, '')
