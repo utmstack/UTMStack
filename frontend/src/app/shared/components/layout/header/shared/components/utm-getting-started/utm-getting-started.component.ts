@@ -132,7 +132,7 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
         break;
 
       case GettingStartedStepEnum.APPLICATION_SETTINGS:
-        queryParams = {sections: JSON.stringify([ApplicationConfigSectionEnum.Email, ApplicationConfigSectionEnum.Alerts])};
+        queryParams = {sections: JSON.stringify([ApplicationConfigSectionEnum.EMAIL, ApplicationConfigSectionEnum.ALERTS])};
         break;
 
       default:

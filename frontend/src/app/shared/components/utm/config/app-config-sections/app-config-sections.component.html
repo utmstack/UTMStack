@@ -4,7 +4,7 @@
     <span class="font-weight-semibold">Warning! </span>
     <span>Required param configuration must be set to save this section</span>
   </div>
-  <div *ngIf="configToSave.length>0 && checkConfigValid() && !loading"
+  <div *ngIf="configToSave.length > 0 && checkConfigValid() && !loading"
        class="w-100 alert alert-info alert-styled-right mb-3">
        <span class="font-weight-semibold">
           Detect unsaved changes in configuration, do not forget save changes when you finish!
@@ -21,12 +21,15 @@
         Delete config
       </button>
 
-      <app-utm-email-conf-check [validConfig]="checkConfigValid()"
+      <app-utm-email-conf-check [validConfig]="(!checkConfigValid() || saving || configToSave.length === 0) && isCheckedEmailConfig"
+                                [configToSave]="configToSave"
+                                [emailConfig]="configs"
+                                (isChecked) = "checkedEmailConfig($event)"
                                 class="mr-2"
-                                *ngIf="section.section.toLowerCase() === 'email'"></app-utm-email-conf-check>
+                                *ngIf="section.shortName === sectionType[sectionType.EMAIL]"></app-utm-email-conf-check>
 
       <button (click)="saveConfig()"
-              [disabled]="!checkConfigValid() ||saving || configToSave.length === 0"
+              [disabled]="!checkConfigValid() || saving || configToSave.length === 0 || (section.shortName === sectionType[sectionType.EMAIL] && !isCheckedEmailConfig)"
               class="btn utm-button utm-button-primary font-size-base span-small-icon">
         <i
           [ngClass]="saving?'icon-spinner2 spinner':'icon-cog3'"></i>
@@ -72,6 +75,9 @@
              [id]="'sectionParam'+conf.id"
              [required]="conf.confParamRequired"
              [type]="conf.confParamDatatype" class="form-control">
+      <small *ngIf="conf.confParamRegexp && conf.confParamValue != ''  && !isValid(conf) && conf.confParamDatatype !== configDataTypeEnum.EmailList" class="form-text text-danger">
+        {{ conf.confParamLarge }} is invalid
+      </small>
 
       <app-utm-toggle (toggleChange)="save($event === true?'true':'false',conf)"
                       *ngIf="conf.confParamDatatype === configDataTypeEnum.Bool"
@@ -85,9 +91,9 @@
                 [required]="conf.confParamRequired"
                 class="form-control"
                 rows="4"></textarea>
-      <div *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
+      <small *ngIf="conf.confParamDatatype === configDataTypeEnum.EmailList && !isValid(conf)" class="form-text text-danger">
         Please enter valid email addresses separated by commas.
-      </div>
+      </small>
 
       <ng-select [clearable]="false"
                  [searchable]="true"

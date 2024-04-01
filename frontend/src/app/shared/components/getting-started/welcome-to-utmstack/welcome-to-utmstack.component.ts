@@ -85,15 +85,15 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
 
   sectionsOrder() {
     if (this.inSass) {
-      return [ApplicationConfigSectionEnum.Alerts,
-        ApplicationConfigSectionEnum.Email,
-        ApplicationConfigSectionEnum.TwoFactorAuthentication,
-        ApplicationConfigSectionEnum.DateSettings];
+      return [ApplicationConfigSectionEnum.ALERTS,
+        ApplicationConfigSectionEnum.EMAIL,
+        ApplicationConfigSectionEnum.TFA,
+        ApplicationConfigSectionEnum.DATE_SETTINGS];
     } else {
-      return [ApplicationConfigSectionEnum.Email,
-        ApplicationConfigSectionEnum.Alerts,
-        ApplicationConfigSectionEnum.TwoFactorAuthentication,
-        ApplicationConfigSectionEnum.DateSettings];
+      return [ApplicationConfigSectionEnum.EMAIL,
+        ApplicationConfigSectionEnum.ALERTS,
+        ApplicationConfigSectionEnum.TFA,
+        ApplicationConfigSectionEnum.DATE_SETTINGS];
     }
   }
 }
