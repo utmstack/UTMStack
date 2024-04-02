@@ -4,8 +4,10 @@ import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmConfigurationParameterQueryService;
 import com.park.utmstack.service.UtmConfigurationParameterService;
+import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
+import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.service.validators.email.EmailValidatorService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.util.exceptions.UtmMailException;
@@ -16,13 +18,16 @@ import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.ResponseUtil;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -42,11 +47,8 @@ public class UtmConfigurationParameterResource {
     private final UtmConfigurationParameterQueryService utmConfigurationParameterQueryService;
     private final ApplicationEventService applicationEventService;
     private final EmailValidatorService emailValidatorService;
-
     private final MailConfigService mailConfigService;
-
     private final UtmStackService utmStackService;
-
     public UtmConfigurationParameterResource(UtmConfigurationParameterService utmConfigurationParameterService,
                                              UtmConfigurationParameterQueryService utmConfigurationParameterQueryService,
                                              ApplicationEventService applicationEventService,
