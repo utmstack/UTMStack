@@ -87,6 +87,9 @@ export class MenuComponent implements OnInit {
     modalRef.componentInstance.btnText = 'Update submenu';
     modalRef.componentInstance.isCreate = false;
     modalRef.componentInstance.menu = submenu;
+    if (submenu.parentId) {
+      modalRef.componentInstance.parent = this.menus.find( m => m.id === submenu.parentId);
+    }
     modalRef.componentInstance.menuCreated.subscribe(() => {
       this.loadMenus();
     });

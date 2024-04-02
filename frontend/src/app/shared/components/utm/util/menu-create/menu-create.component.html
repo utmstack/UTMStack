@@ -23,7 +23,7 @@
                       [label]="'Is this menu active?'" class="mb-3"></app-utm-toggle>
     </div>
     <div class="mb-3">
-      <app-utm-toggle (toggleChange)="toggleMenuActive($event)" [active]="isContainer"
+      <app-utm-toggle (toggleChange)="toggleMenuActive($event)" [active]="isContainer" [hidden]="!isContainer"
                       [label]="'Is this menu a container?'"></app-utm-toggle>
     </div>
 
