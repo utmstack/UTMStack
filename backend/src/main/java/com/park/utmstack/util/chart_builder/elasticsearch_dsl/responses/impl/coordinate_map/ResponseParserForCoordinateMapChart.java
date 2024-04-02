@@ -15,9 +15,11 @@ import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ResponseParserForCoordinateMapChart implements ResponseParser<CoordinateMapChartResult> {
@@ -43,6 +45,7 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
 
             if (bucket != null) {
                 List<BucketAggregation> entries = TermAggregateParser.parse(result.aggregations().get(bucket.getId()));
+                entries = entries.stream().filter(e -> StringUtils.hasText(e.getKey())).collect(Collectors.toList());
 
                 for (BucketAggregation entry : entries) {
                     GeoIp ipV4Info;
