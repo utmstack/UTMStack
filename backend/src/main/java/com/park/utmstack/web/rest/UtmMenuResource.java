@@ -9,7 +9,7 @@ import com.park.utmstack.service.UtmMenuQueryService;
 import com.park.utmstack.service.UtmMenuService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmMenuCriteria;
-import com.park.utmstack.service.util.validators.menu.MenuValidatorService;
+import com.park.utmstack.service.validators.menu.MenuValidatorService;
 import com.park.utmstack.util.exceptions.UtmEntityRemoveException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import io.micrometer.core.annotation.Timed;

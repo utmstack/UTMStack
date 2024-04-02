@@ -1,4 +1,4 @@
-package com.park.utmstack.service.util.validators.menu;
+package com.park.utmstack.service.validators.menu;
 
 import com.park.utmstack.domain.UtmMenu;
 import org.springframework.stereotype.Service;

@@ -6,7 +6,7 @@ import com.park.utmstack.service.UtmConfigurationParameterQueryService;
 import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
-import com.park.utmstack.service.util.validators.email.EmailValidatorService;
+import com.park.utmstack.service.validators.email.EmailValidatorService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;

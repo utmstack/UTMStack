@@ -1,4 +1,4 @@
-package com.park.utmstack.service.util.validators.email;
+package com.park.utmstack.service.validators.email;
 
 import com.park.utmstack.domain.UtmConfigurationParameter;
 import org.springframework.stereotype.Service;
