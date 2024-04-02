@@ -64,8 +64,8 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
             if (criteria.getSection() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getSection(), UtmConfigurationSection_.section));
             }
-            if (criteria.getModuleNameShort() != null) {
-                specification = specification.and(buildSpecification(criteria.getModuleNameShort(), UtmConfigurationSection_.moduleNameShort));
+            if (criteria.getShortName() != null) {
+                specification = specification.and(buildSpecification(criteria.getShortName(), UtmConfigurationSection_.shortName));
             }
         }
 

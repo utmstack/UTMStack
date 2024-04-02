@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240311001" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+
+
+
+            -------------------------------------
+            -- Add column conf_param_regexp configuration parameter messages --
+
+            ALTER TABLE utm_configuration_parameter
+                ADD COLUMN conf_param_regexp TEXT;
+
+
+            -------------------------------------
+            -- Updating configuration parameter messages and regexp--
+            -------------------------------------
+
+            update utm_configuration_parameter
+            set conf_param_description = 'Configure all email addresses to notify when an alert comes in, separated by commas.',
+                conf_param_datatype = 'email_list',
+                conf_param_regexp = '^(\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*|\s*[\w.-]+@[\w.-]+\.\w+\s*)$'
+            where conf_param_short = 'utmstack.alert.addressToNotifyAlerts';
+
+            update utm_configuration_parameter
+            set conf_param_description = 'Configure all email addresses to be notified when an alert is marked as an incident, separated by commas.',
+                conf_param_datatype = 'email_list',
+                conf_param_regexp = '^(\s*[\w.-]+@[\w.-]+\.\w+(\s*,\s*[\w.-]+@[\w.-]+\.\w+)*\s*|\s*[\w.-]+@[\w.-]+\.\w+\s*)$'
+            where conf_param_short = 'utmstack.alert.addressToNotifyIncidents';
+
+            update utm_configuration_parameter
+            set conf_param_regexp = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            where conf_param_short = 'utmstack.mail.from';
+
+            update utm_configuration_parameter
+            set conf_param_regexp = '^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}|(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'
+            where conf_param_short = 'utmstack.mail.host';
+
+            update utm_configuration_parameter
+            set conf_param_regexp = '^(?:https?:\/\/)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\.[a-zA-Z]{2,})(?:\/[^\s\/]*)?$'
+            where conf_param_short = 'utmstack.mail.baseUrl';
+
+            -------------------------------------
+            -- Updating configuration section shortname--
+            -------------------------------------
+
+            ALTER TABLE utm_configuration_section
+            RENAME COLUMN module_name_short TO short_name;
+
+            update utm_configuration_section
+            set  short_name = 'SMS'
+            where id = '1';
+
+            update utm_configuration_section
+            set  short_name = 'EMAIL'
+            where id = '2';
+
+            update utm_configuration_section
+            set  short_name = 'TFA'
+            where id = '3';
+
+            update utm_configuration_section
+            set  short_name = 'ALERTS'
+            where id = '4';
+
+            update utm_configuration_section
+            set  short_name = 'DATE_SETTINGS'
+            where id = '5';
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

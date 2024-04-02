@@ -2,7 +2,7 @@ package com.park.utmstack.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.park.utmstack.domain.application_modules.enums.ModuleName;
+import com.park.utmstack.domain.shared_types.enums.SectionType;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -27,8 +27,8 @@ public class UtmConfigurationSection implements Serializable {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "module_name_short")
-    private ModuleName moduleNameShort;
+    @Column(name = "short_name")
+    private SectionType shortName;
 
     @JsonIgnore
     @Column(name = "section_active")
@@ -59,19 +59,19 @@ public class UtmConfigurationSection implements Serializable {
         this.description = description;
     }
 
-    public ModuleName getModuleNameShort() {
-        return moduleNameShort;
-    }
-
-    public void setModuleNameShort(ModuleName moduleNameShort) {
-        this.moduleNameShort = moduleNameShort;
-    }
-
     public Boolean getSectionActive() {
         return sectionActive;
     }
 
     public void setSectionActive(Boolean sectionActive) {
         this.sectionActive = sectionActive;
+    }
+
+    public SectionType getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(SectionType sectionType) {
+        this.shortName = sectionType;
     }
 }
