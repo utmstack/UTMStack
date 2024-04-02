@@ -1,4 +1,4 @@
-package com.park.utmstack.service.util;
+package com.park.utmstack.service.util.validators.menu;
 
 import com.park.utmstack.domain.UtmMenu;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class MenuValidatorService implements Validator {
         UtmMenu menu = (UtmMenu) target;
 
         if (menu.getParentId() != null && menu.getUrl() == null) {
-            errors.rejectValue("url", "urlField", "Url field  can't be null");
+            errors.rejectValue("url", "urlField", "Url field can't be null");
         }
     }
 }
