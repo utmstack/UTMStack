@@ -47,4 +47,8 @@
 
     <include file="/config/liquibase/changelog/20240326001_adding_pfsense.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240403001_adding_netflow.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240403002_adding_fortiweb.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
