@@ -10,7 +10,7 @@ import {
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
-import {SectionConfigType} from '../../../../types/configuration/section-config.type';
+import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
 
 
@@ -35,6 +35,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   configDataTypeEnum = ConfigDataTypeEnum;
   timezones = TIMEZONES;
   dateFormats = DATE_FORMATS;
+  isCheckedEmailConfig = false;
+  sectionType = ApplicationConfigSectionEnum;
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private modalService: NgbModal,
@@ -71,6 +73,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   }
 
   saveConfig() {
+    this.checkedEmailConfig(false);
     this.saving = true;
     if (this.checkConfigValid()) {
       this.utmConfigParamsService.update(this.configToSave).subscribe(response => {
@@ -175,7 +178,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  isValid(conf: SectionConfigParamType){
+  isValid(conf: SectionConfigParamType) {
     return new RegExp(conf.confParamRegexp).test(conf.confParamValue);
   }
 
@@ -188,4 +191,14 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       return null;
     }
   }
+
+  checkedEmailConfig(event: boolean){
+    this.isCheckedEmailConfig = event;
+  }
+
+  isPasswordSet() {
+    const conf = this.configToSave.find(conf => conf.confParamShort === 'utmstack.mail.password');
+    return this.configToSave.length > 0 &&  conf && conf.confParamValue !== '';
+  }
+
 }
