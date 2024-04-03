@@ -430,8 +430,39 @@ AS
    mutate {
       remove_field => ["@version","path","original_log_message","headers", "tags"]
    }
-}', 'pfsense', null, true, 'PFSENSE', true, '1.0.1');
+}', 'pfsense', null, true, 'PFSENSE', true, '2.0.0');
             ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
+                    VALUES (47, 'firewall_pfsense', 'Pfsense', null, 'up', 'PFSENSE', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1522, 47, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
+                    VALUES (63, 47, 'HTTP', 'http', false, true);
+
+                    INSERT INTO utm_logstash_input_configuration (input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
+                    VALUES (63, 'http_port', '10043', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (63,'log-firewall-pfsense-*', 'PFSENSE', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (261, 'Pfsense', 'discover/log-analyzer?patternId=63&indexPattern=log-firewall_pfsense-*', 200, 1, null, 61, true, false, null, 'PFSENSE');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 261, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 261, 'ROLE_ADMIN');
+
+
+            ]]>
+
+
         </sql>
     </changeSet>
 </databaseChangeLog>
