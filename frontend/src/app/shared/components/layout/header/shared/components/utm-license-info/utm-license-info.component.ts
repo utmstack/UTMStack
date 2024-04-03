@@ -21,11 +21,11 @@ export class UtmLicenseInfoComponent implements OnInit {
 
   ngOnInit() {
     this.getLicenseStatus();
-    this.licenceChangeBehavior.$licenceChange.subscribe(licenceChange => {
+    /*this.licenceChangeBehavior.$licenceChange.subscribe(licenceChange => {
       if (licenceChange) {
         this.getLicenseStatus();
       }
-    });
+    });*/
   }
 
   getLicenseStatus() {

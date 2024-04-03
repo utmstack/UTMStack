@@ -64,6 +64,9 @@ public class ModuleFactory {
     private final ModuleSalesforce moduleSalesforce;
     private final ModuleIbmAs400 moduleIbmAs400;
     private final ModuleSocAi moduleSocAi;
+    private final ModulePfsense modulePfsense;
+    private final ModuleFortiWeb moduleFortiWeb;
+    private final ModuleAix moduleAix;
 
 
     public ModuleFactory(ModuleFileIntegrity moduleFileIntegrity,
@@ -123,7 +126,10 @@ public class ModuleFactory {
                          ModuleBitdefender moduleBitdefender,
                          ModuleSalesforce moduleSalesforce,
                          ModuleIbmAs400 moduleIbmAs400,
-                         ModuleSocAi moduleSocAi) {
+                         ModuleSocAi moduleSocAi,
+                         ModulePfsense modulePfsense,
+                         ModuleFortiWeb moduleFortiWeb,
+                         ModuleAix moduleAix) {
         this.moduleFileIntegrity = moduleFileIntegrity;
         this.moduleO365 = moduleO365;
         this.moduleAzure = moduleAzure;
@@ -182,6 +188,9 @@ public class ModuleFactory {
         this.moduleSalesforce = moduleSalesforce;
         this.moduleIbmAs400 = moduleIbmAs400;
         this.moduleSocAi = moduleSocAi;
+        this.modulePfsense = modulePfsense;
+        this.moduleFortiWeb = moduleFortiWeb;
+        this.moduleAix = moduleAix;
     }
 
     public IModule getInstance(ModuleName nameShort) {
@@ -301,6 +310,12 @@ public class ModuleFactory {
             return moduleIbmAs400;
         if (nameShort.equals(ModuleName.SOC_AI))
             return moduleSocAi;
+        if (nameShort.equals(ModuleName.PFSENSE))
+            return modulePfsense;
+        if (nameShort.equals(ModuleName.FORTIWEB))
+            return moduleFortiWeb;
+        if (nameShort.equals(ModuleName.AIX))
+            return moduleAix;
         throw new RuntimeException("Unrecognized module " + nameShort.name());
     }
 }
