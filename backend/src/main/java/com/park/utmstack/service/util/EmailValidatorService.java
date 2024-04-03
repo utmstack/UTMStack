@@ -18,13 +18,13 @@ public class EmailValidatorService implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
 
-        UtmConfigurationParameter utm = (UtmConfigurationParameter) target;
-        String emailListRegex = utm.getConfParamRegexp();
+        UtmConfigurationParameter parameter = (UtmConfigurationParameter) target;
+        String emailListRegex = parameter.getConfParamRegexp();
 
         Pattern pattern = Pattern.compile(emailListRegex);
 
-        if(!pattern.matcher(utm.getConfParamValue()).matches()){
-            errors.rejectValue("confParamValue", "customValidation.name.invalidFormat", "Invalid email address");
+        if(!pattern.matcher(parameter.getConfParamValue()).matches()){
+            errors.rejectValue("confParamValue", "customValidation.name.invalidFormat", String.format("Invalid %s", parameter.getConfParamShort()));
         }
     }
 }

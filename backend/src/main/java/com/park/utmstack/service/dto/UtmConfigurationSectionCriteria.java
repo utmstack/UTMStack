@@ -1,6 +1,7 @@
 package com.park.utmstack.service.dto;
 
 import com.park.utmstack.domain.application_modules.enums.ModuleName;
+import com.park.utmstack.domain.shared_types.enums.SectionType;
 import tech.jhipster.service.filter.Filter;
 import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
@@ -20,14 +21,14 @@ public class UtmConfigurationSectionCriteria implements Serializable {
     /**
      * Class for filtering ModulesNameShort
      */
-    public static class ModulesNameShortFilter extends Filter<ModuleName> {
+    public static class SectionTypeFilter extends Filter<SectionType> {
     }
 
     private static final long serialVersionUID = 1L;
 
     private LongFilter id;
     private StringFilter section;
-    private ModulesNameShortFilter moduleNameShort;
+    private SectionTypeFilter shortName;
 
     public LongFilter getId() {
         return id;
@@ -45,11 +46,11 @@ public class UtmConfigurationSectionCriteria implements Serializable {
         this.section = section;
     }
 
-    public ModulesNameShortFilter getModuleNameShort() {
-        return moduleNameShort;
+    public SectionTypeFilter getShortName() {
+        return shortName;
     }
 
-    public void setModuleNameShort(ModulesNameShortFilter moduleNameShort) {
-        this.moduleNameShort = moduleNameShort;
+    public void setShortName(SectionTypeFilter shortName) {
+        this.shortName = shortName;
     }
 }
