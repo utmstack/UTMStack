@@ -51,4 +51,6 @@
 
     <include file="/config/liquibase/changelog/20240403002_adding_fortiweb.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240403003_adding_aix.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
