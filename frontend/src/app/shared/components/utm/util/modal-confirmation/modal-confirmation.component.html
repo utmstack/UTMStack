@@ -8,7 +8,7 @@
 
   <label class="font-weight-light modal-message">{{message}}</label>
   <div class="d-flex justify-content-end mt-3">
-    <button (click)="cancel()" class="btn utm-button utm-button-grey mr-3">
+    <button [hidden]="hideBtnCancel" (click)="cancel()" class="btn utm-button utm-button-grey mr-3">
       <i class="icon-cancel-circle2"></i>
       Cancel
     </button>

@@ -14,6 +14,7 @@ export class ModalConfirmationComponent implements OnInit {
   confirmBtnType: 'delete' | 'default';
   textDisplay: string;
   textType: 'warning' | 'danger';
+  hideBtnCancel = false;
 
   constructor(private activeModal: NgbActiveModal) {
   }
