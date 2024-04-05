@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {UtmModulesEnum} from "../../../shared/enum/utm-module.enum";
-import {ModalService} from "../../../../core/modal/modal.service";
+import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
+import {ModalService} from '../../../../core/modal/modal.service';
 import {
   ModalConfirmationComponent
-} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
+} from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 
 @Component({
   selector: 'app-log-colletor',
@@ -63,7 +63,7 @@ export class LogCollectorComponent {
   platforms = [
     {
       id: 1, name: 'WINDOWS',
-      command: 'sudo bash -c "Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
+      command: 'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
       shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
     },
     {
@@ -161,12 +161,16 @@ export class LogCollectorComponent {
       case UtmModulesEnum.MACOS:
         return 'macos_logs';
 
+      case UtmModulesEnum.DECEPTIVE_BYTES:
+        return 'antivirus_deceptivebytes';
+
+      case UtmModulesEnum.NETFLOW:
+        return 'netflow';
+
       case UtmModulesEnum.FIRE_POWER:
       case UtmModulesEnum.CISCO:
       case UtmModulesEnum.CISCO_SWITCH:
       case UtmModulesEnum.MERAKI:
-      case UtmModulesEnum.NETFLOW:
-
         return 'cisco';
     }
   }

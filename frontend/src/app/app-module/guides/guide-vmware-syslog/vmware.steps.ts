@@ -30,7 +30,7 @@ export const VMWARE_STEPS: Step[] = [
       commands: ['esxcli system syslog reload']
     }
   },
-  {id: '13', name: 'After making configuration changes, load the new configuration by running this command:',
+  {id: '13', name: 'Configuring ESXi Firewall Exception using the esxcli command/syslog port',
     content: {
       id: 'stepContent13',
       commands: ['esxcli network firewall ruleset set --ruleset-id=syslog --enabled=true',

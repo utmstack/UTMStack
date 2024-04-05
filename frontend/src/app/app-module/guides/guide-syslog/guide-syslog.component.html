@@ -35,16 +35,6 @@
                                     [protocols]="getProtocols()">
                   </app-log-colletor>
                 </ng-template>
-
-                <ng-template [ngIf]="step.content.id === 'stepContent3'">
-                  <div  class="mt-3">
-                    <app-app-module-activate-button [module]="moduleEnum"
-                                                    [type]="'integration'"
-                                                    [disabled]="false"
-                                                    [serverId]="serverId">
-                    </app-app-module-activate-button>
-                  </div>
-                </ng-template>
               </ng-container>
             </app-step>
           </li>

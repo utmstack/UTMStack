@@ -103,7 +103,7 @@ export class GuideSyslogComponent implements OnInit {
     return this.getPorts().map((port, index) => {
       return {
         id: index,
-        name: port.port.split(' ')[1]
+        name: port.port.includes('TLS') ? 'TLS' : port.port.split(' ')[1]
       };
     });
   }
