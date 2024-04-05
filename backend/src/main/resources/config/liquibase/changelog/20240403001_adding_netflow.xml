@@ -167,8 +167,8 @@
                     INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
                     VALUES (64, 48, 'HTTP', 'http', false, true);
 
-                    INSERT INTO utm_logstash_input_configuration (input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
-                    VALUES (64, 'http_port', '10044', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
+                    INSERT INTO utm_logstash_input_configuration (id, input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
+                    VALUES (64, 64, 'http_port', '10044', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
 
                     INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
                     VALUES (64,'log-netflow-*', 'NETFLOW', true, true);
