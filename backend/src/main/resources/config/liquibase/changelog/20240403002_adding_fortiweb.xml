@@ -60,8 +60,6 @@ AS
 
                     perform public.register_integration_syslog(srv_id);
 
-                    // perform public.register_integration_linux_logs(srv_id);
-
                     perform public.register_integration_vmware(srv_id);
 
                     perform public.register_integration_linux_agent(srv_id);
@@ -132,8 +130,6 @@ AS
                     perform public.register_integration_gcp(srv_id);
 
                     perform public.register_integration_fire_power(srv_id);
-
-                    // perform public.register_integration_ufw(srv_id);
 
                     perform public.register_integration_mikrotik(srv_id);
 
