@@ -53,4 +53,7 @@
 
     <include file="/config/liquibase/changelog/20240403003_adding_aix.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240405001_disable_unused_modules.xml" relativeToChangelogFile="false"/>
+
+
 </databaseChangeLog>
