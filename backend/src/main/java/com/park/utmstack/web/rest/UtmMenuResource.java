@@ -9,12 +9,13 @@ import com.park.utmstack.service.UtmMenuQueryService;
 import com.park.utmstack.service.UtmMenuService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmMenuCriteria;
+import com.park.utmstack.service.validators.menu.MenuValidatorService;
 import com.park.utmstack.util.exceptions.UtmEntityRemoveException;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import io.micrometer.core.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,13 +24,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -44,50 +46,58 @@ public class UtmMenuResource {
     private final UtmMenuAuthorityService menuAuthorityService;
     private final ApplicationEventService applicationEventService;
 
+    private final MenuValidatorService menuValidatorService;
+
     public UtmMenuResource(UtmMenuQueryService menuQueryService, UtmMenuService menuService,
                            UtmMenuAuthorityService menuAuthorityService,
-                           ApplicationEventService applicationEventService) {
+                           ApplicationEventService applicationEventService,
+                           MenuValidatorService menuValidatorService) {
         this.menuQueryService = menuQueryService;
         this.menuService = menuService;
         this.menuAuthorityService = menuAuthorityService;
         this.applicationEventService = applicationEventService;
+        this.menuValidatorService = menuValidatorService;
     }
 
     @PostMapping("/menu")
     @Timed
-    public ResponseEntity<UtmMenu> createUtmMenu(@Valid @RequestBody UtmMenu menu) {
+    public ResponseEntity<Object> createUtmMenu(@Valid @RequestBody UtmMenu menu) {
         final String ctx = CLASS_NAME + ".createUtmMenu";
 
         try {
-            if (menu.getId() != null)
-                throw new BadRequestAlertException("A new UtmMenu cannot already have an ID", ENTITY_NAME, "idexists");
-
+            validateMenu(menu);
             UtmMenu result = menuService.save(menu);
 
             if (!CollectionUtils.isEmpty(menu.getAuthorities()))
                 saveOrUpdateMenuAuthorities(result.getId(), menu.getAuthorities());
 
-            return ResponseEntity.created(new URI("/api/menu/" + result.getId())).headers(
-                HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
-        } catch (Exception e) {
+            return ResponseEntity.created(new URI("/api/menu/" + result.getId()))
+                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+                    .body(result);
+        }
+
+        catch (MethodArgumentNotValidException ex) {
+            return this.exceptionHandler(ex);
+        }
+
+        catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg))
+                    .body(null);
         }
 
     }
 
     @PutMapping("/menu")
     @Timed
-    public ResponseEntity<UtmMenu> updateUtmMenu(@Valid @RequestBody UtmMenu menu) {
+    public ResponseEntity<Object> updateUtmMenu(@Valid @RequestBody UtmMenu menu) {
         final String ctx = CLASS_NAME + ".updateUtmMenu";
 
         try {
-            if (menu.getId() == null)
-                throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-
+            validateMenu(menu);
             UtmMenu result = menuService.save(menu);
             menuAuthorityService.deleteByMenuId(result.getId());
 
@@ -95,7 +105,13 @@ public class UtmMenuResource {
                 saveOrUpdateMenuAuthorities(result.getId(), menu.getAuthorities());
 
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
+
+        }
+        catch (MethodArgumentNotValidException ex) {
+            return this.exceptionHandler(ex);
+        }
+
+        catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -253,5 +269,26 @@ public class UtmMenuResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
+    }
+
+    private void validateMenu (UtmMenu utmMenu) throws MethodArgumentNotValidException, NoSuchMethodException {
+        BeanPropertyBindingResult result = new BeanPropertyBindingResult(utmMenu, "utmMenu");
+        menuValidatorService.validate(utmMenu, result);
+
+        if (result.hasErrors()) {
+            throw new MethodArgumentNotValidException(new MethodParameter(
+                    this.getClass().getDeclaredMethod("validateMenu", UtmMenu.class), 0), result);
+        }
+    }
+
+    private ResponseEntity<Object> exceptionHandler(MethodArgumentNotValidException ex) {
+        Map<String, Object> fieldError = new HashMap<>();
+
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        fieldErrors.forEach(error -> fieldError.put(
+                error.getField(), error.getDefaultMessage()));
+
+        return ResponseEntity.badRequest()
+                .body(fieldError);
     }
 }

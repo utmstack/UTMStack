@@ -1,6 +1,6 @@
 <app-utm-modal-header [name]="level===1?'Create menu':'Create submenu'" class="w-100"></app-utm-modal-header>
 <div class="container-fluid p-3">
-  <form #myForm>
+  <form #myForm ="ngForm">
     <div class="form-group mt-0">
       <label class="pb-1" for="menuName">Menu name</label>
       <input #nameInput="ngModel" [(ngModel)]="menu.name" class="form-control" id="menuName"
@@ -23,7 +23,7 @@
                       [label]="'Is this menu active?'" class="mb-3"></app-utm-toggle>
     </div>
     <div class="mb-3">
-      <app-utm-toggle (toggleChange)="toggleMenuActive($event)" [active]="isContainer"
+      <app-utm-toggle (toggleChange)="toggleMenuActive($event)" [active]="isContainer" [hidden]="!isContainer"
                       [label]="'Is this menu a container?'"></app-utm-toggle>
     </div>
 
@@ -58,6 +58,7 @@
         <input #urlInput="ngModel" [(ngModel)]="menu.url"
                [disabled]="menu.type === 1" class="form-control utm-margin-bottom-10"
                id="url"
+               [required]="menu.parentId !== null"
                name="url" placeholder="URL" type="url">
         <div *ngIf="urlInput.dirty || urlInput.touched">
         <span *ngIf="urlInput.errors && urlInput.errors.required"
@@ -91,7 +92,7 @@
       Cancel
     </button>
     <button (click)="createMenu()"
-            [disabled]="menu && (menu.authorities && menu.authorities.length==0) || menu.name===''"
+            [disabled]="myForm.invalid || menu && (menu.authorities && menu.authorities.length==0) || menu.name===''"
             class="btn utm-button utm-button-primary
              d-flex justify-content-center
               align-items-center">
