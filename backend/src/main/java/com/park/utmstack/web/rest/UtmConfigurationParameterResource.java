@@ -8,7 +8,7 @@ import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
 import com.park.utmstack.service.mail_config.MailConfigService;
-import com.park.utmstack.service.util.EmailValidatorService;
+import com.park.utmstack.service.validators.email.EmailValidatorService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -47,11 +47,8 @@ public class UtmConfigurationParameterResource {
     private final UtmConfigurationParameterQueryService utmConfigurationParameterQueryService;
     private final ApplicationEventService applicationEventService;
     private final EmailValidatorService emailValidatorService;
-
     private final MailConfigService mailConfigService;
-
     private final UtmStackService utmStackService;
-
     public UtmConfigurationParameterResource(UtmConfigurationParameterService utmConfigurationParameterService,
                                              UtmConfigurationParameterQueryService utmConfigurationParameterQueryService,
                                              ApplicationEventService applicationEventService,
