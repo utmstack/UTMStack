@@ -27,14 +27,14 @@ AS
                     'pfsense.svg',
                     'PFSENSE',
                     srv_id,
-                    'DEVICE',
+                    'Device',
                     FALSE,
                     TRUE,
                     TRUE)
                 ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'Pfsense',
                                                             module_icon        = 'pfsense.svg',
                                                             module_name        = 'PFSENSE',
-                                                            module_category    = 'DEVICE',
+                                                            module_category    = 'Device',
                                                             module_description = 'PfSense is a free and open-source firewall and router that also features unified threat management load balancing, multi-WAN and more.',
                                                             lite_version       = TRUE,
                                                             server_id          = srv_id;
@@ -440,6 +440,13 @@ AS
                     INSERT INTO utm_menu_authority (menu_id, authority_name)
                     VALUES ( 261, 'ROLE_ADMIN');
 
+                    UPDATE utm_index_pattern
+                    SET pattern_module = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE'
+                    WHERE pattern = 'log-firewall-*';
+
+                    UPDATE utm_menu
+                    SET module_name_short = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE'
+                        WHERE id= 204;
 
             ]]>
 

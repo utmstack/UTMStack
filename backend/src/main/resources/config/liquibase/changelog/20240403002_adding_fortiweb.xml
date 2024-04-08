@@ -407,6 +407,14 @@ AS
                     INSERT INTO utm_menu_authority (menu_id, authority_name)
                     VALUES ( 263, 'ROLE_ADMIN');
 
+                    UPDATE utm_index_pattern
+                    SET pattern_module = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE,FORTIWEB'
+                        WHERE pattern = 'log-firewall-*';
+
+                    UPDATE utm_menu
+                    SET module_name_short = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE,FORTIWEB'
+                        WHERE id= 204;
+
             ]]>
 
 
