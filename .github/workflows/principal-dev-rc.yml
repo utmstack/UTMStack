@@ -13,7 +13,6 @@ jobs:
     outputs:
       env_version: ${{ steps.set-env.outputs.env_version }}
       agent_manager_checking: ${{ steps.changes_agent_manager_output.outputs.agent_manager_checking }}
-      agent_checking: ${{ steps.changes_agent_output.outputs.agent_checking }}
       backend_checking: ${{ steps.changes_backend_output.outputs.backend_checking }}
       correlation_checking: ${{ steps.changes_correlation_output.outputs.correlation_checking }}
       frontend_checking: ${{ steps.changes_frontend_output.outputs.frontend_checking }}
@@ -47,17 +46,6 @@ jobs:
         run: |
           echo "agent_manager_checking=${{ steps.changes_agent_manager.outputs.paths }}" >> $GITHUB_OUTPUT
       
-      - uses: dorny/paths-filter@v2
-        id: changes_agent
-        with:
-          filters: |
-            paths:
-              - 'agent/**'
-              - 'version.yml'
-      - id: changes_agent_output
-        run: |
-          echo "agent_checking=${{ steps.changes_agent.outputs.paths }}" >> $GITHUB_OUTPUT
-
       - uses: dorny/paths-filter@v2
         id: changes_backend
         with:
@@ -159,14 +147,6 @@ jobs:
       environment: ${{ needs.check.outputs.env_version }}
       directory: agent-manager
       binary: server
-
-  agent_build:
-    name: Build Agent
-    needs: check
-    if: needs.check.outputs.agent_checking == 'true'
-    uses: ./.github/workflows/used-agent.yml
-    with:
-      environment: ${{ needs.check.outputs.env_version }}
 
   backend_build:
     name: Build Backend
