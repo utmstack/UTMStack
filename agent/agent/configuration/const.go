@@ -8,7 +8,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
-const REPLACE_KEY string = ""
+const REPLACE_KEY string = "f7T8"
 
 const (
 	AGENTMANAGERPORT      string = "9000"
@@ -18,20 +18,21 @@ const (
 	InitialReconnectDelay        = 10 * time.Second
 	MaxReconnectDelay            = 120 * time.Second
 
-	SERV_NAME         = "UTMStackAgent"
-	SERV_LOG          = "utmstack_agent.log"
-	ModulesServName   = "UTMStackModulesLogsCollector"
-	WinServName       = "UTMStackWindowsLogsCollector"
-	ModulesLockName   = "utmstack_modules_collector.lock"
-	WinLockName       = "utmstack_windows_collector.lock"
-	RedlineLockName   = "utmstack_redline.lock"
-	RedlineServName   = "UTMStackRedline"
-	CollectorFileName = "log-collector-config.json"
-	UUIDFileName      = "uuid.yml"
-	MESSAGE_HEADER    = "utm_stack_agent_ds"
-	BatchToSend       = 5
-	PortRangeMin      = "7000"
-	PortRangeMax      = "9000"
+	SERV_NAME            = "UTMStackAgent"
+	SERV_LOG             = "utmstack_agent.log"
+	ModulesServName      = "UTMStackModulesLogsCollector"
+	WinServName          = "UTMStackWindowsLogsCollector"
+	ModulesLockName      = "utmstack_modules_collector.lock"
+	WinLockName          = "utmstack_windows_collector.lock"
+	RedlineLockName      = "utmstack_redline.lock"
+	RedlineServName      = "UTMStackRedline"
+	CollectorFileName    = "log-collector-configuration.json"
+	CollectorFileNameOld = "log-collector-config.json"
+	UUIDFileName         = "uuid.yml"
+	MESSAGE_HEADER       = "utm_stack_agent_ds"
+	BatchToSend          = 5
+	PortRangeMin         = "7000"
+	PortRangeMax         = "9000"
 )
 
 type LogType string
@@ -127,6 +128,11 @@ func GetCaPath() string {
 func GetCollectorConfigPath() string {
 	path, _ := utils.GetMyPath()
 	return filepath.Join(path, CollectorFileName)
+}
+
+func GetCollectorConfigPathOld() string {
+	path, _ := utils.GetMyPath()
+	return filepath.Join(path, CollectorFileNameOld)
 }
 
 func GetAgentBin() string {
