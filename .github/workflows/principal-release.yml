@@ -14,12 +14,6 @@ jobs:
       directory: agent-manager
       binary: server
 
-  agent_build:
-    name: Build Agent
-    uses: ./.github/workflows/used-agent.yml
-    with:
-      environment: release
-
   backend_build:
     name: Build Backend
     uses: ./.github/workflows/used-docker-java-11.yml
