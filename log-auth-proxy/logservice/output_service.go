@@ -2,9 +2,9 @@ package logservice
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
@@ -16,7 +16,13 @@ import (
 )
 
 var transport = &http.Transport{
-	MaxIdleConns: 100,
+	MaxIdleConns:          100,
+	IdleConnTimeout:       2 * time.Second,
+	ResponseHeaderTimeout: 2 * time.Second,
+	ForceAttemptHTTP2:     true,
+	TLSClientConfig: &tls.Config{
+		InsecureSkipVerify: true,
+	},
 }
 
 type LogOutputService struct {
@@ -30,9 +36,8 @@ func NewLogOutputService() *LogOutputService {
 	connections, _ := getServiceMap()
 	return &LogOutputService{
 		Connections: connections,
-		Client:      &http.Client{Transport: transport},
+		Client:      &http.Client{Transport: transport, Timeout: 2 * time.Second},
 	}
-
 }
 
 func (out *LogOutputService) SendLog(logType model.LogType, logData string) {
@@ -85,18 +90,16 @@ func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
 	url := fmt.Sprintf(config.LogstashPipelinesEndpoint, config.LogstashHost(), port)
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error creating request: %v", err.Error())
 	}
 
 	resp, err := out.Client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error sendind logs with error: %v", err.Error())
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		defer resp.Body.Close()
-		_, err := ioutil.ReadAll(resp.Body)
-		fmt.Println(err)
+		fmt.Printf("error sendind logs with http code %d", resp.StatusCode)
 		return
 	}
 }
