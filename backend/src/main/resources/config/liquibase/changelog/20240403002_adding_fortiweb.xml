@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240326002" author="Manuel">
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_fortiweb(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('FortiWeb',
+                    'FortiWeb is a web application firewall (WAF) developed by Fortinet. It provides protection for web applications against various types of attacks, including SQL injection, cross-site scripting (XSS), and other common web exploits.',
+                    FALSE,
+                    'fortigate.svg',
+                    'FORTIWEB',
+                    srv_id,
+                    'DEVICE',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'FortiWeb',
+                                                            module_icon        = 'fortigate.svg',
+                                                            module_name        = 'FORTIWEB',
+                                                            module_category    = 'DEVICE',
+                                                            module_description = 'FortiWeb is a web application firewall (WAF) developed by Fortinet. It provides protection for web applications against various types of attacks, including SQL injection, cross-site scripting (XSS), and other common web exploits.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+                create or replace function register_integrations(srv_id integer, srv_type character varying)
+                    returns void
+                    language plpgsql
+                    as
+                $$
+                BEGIN
+
+                    perform public.register_integration_netflow(srv_id);
+
+                    perform public.register_integration_window_agent(srv_id);
+
+                    perform public.register_integration_syslog(srv_id);
+
+                    perform public.register_integration_vmware(srv_id);
+
+                    perform public.register_integration_linux_agent(srv_id);
+
+                    perform public.register_integration_apache(srv_id);
+
+                    perform public.register_integration_linux_audit_demon(srv_id);
+
+                    perform public.register_integration_elasticsearch(srv_id);
+
+                    perform public.register_integration_hap(srv_id);
+
+                    perform public.register_integration_kafka(srv_id);
+
+                    perform public.register_integration_kibana(srv_id);
+
+                    perform public.register_integration_logstash(srv_id);
+
+                    perform public.register_integration_mongodb(srv_id);
+
+                    perform public.register_integration_mysql(srv_id);
+
+                    perform public.register_integration_nats(srv_id);
+
+                    perform public.register_integration_nginx(srv_id);
+
+                    perform public.register_integration_osquery(srv_id);
+
+                    perform public.register_integration_postgresql(srv_id);
+
+                    perform public.register_integration_redis(srv_id);
+
+                    perform public.register_integration_traefik(srv_id);
+
+                    perform public.register_integration_cisco(srv_id);
+
+                    perform public.register_integration_cisco_meraki(srv_id);
+
+                    perform public.register_integration_json(srv_id);
+
+                    perform public.register_integration_iis(srv_id);
+
+                    perform public.register_integration_kaspersky(srv_id);
+
+                    perform public.register_integration_eset(srv_id);
+
+                    perform public.register_integration_sentinel_one(srv_id);
+
+                    perform public.register_integration_fortigate(srv_id);
+
+                    perform public.register_integration_sophosxg(srv_id);
+
+                    perform public.register_integration_macos(srv_id);
+
+
+                IF srv_type = 'aio' THEN
+
+                    perform public.register_integration_file_integrity(srv_id);
+
+                    perform public.register_integration_azure(srv_id);
+
+                    perform public.register_integration_o365(srv_id);
+
+                    perform public.register_integration_aws(srv_id);
+
+                    perform public.register_integration_sophos_central(srv_id);
+
+                    perform public.register_integration_gcp(srv_id);
+
+                    perform public.register_integration_fire_power(srv_id);
+
+                    perform public.register_integration_mikrotik(srv_id);
+
+                    perform public.register_integration_palo_alto(srv_id);
+
+                    perform public.register_integration_cisco_switch(srv_id);
+
+                    perform public.register_integration_sonic_wall(srv_id);
+
+                    perform public.register_integration_deceptive_bytes(srv_id);
+
+                    perform public.register_integration_github(srv_id);
+
+                    perform public.register_integration_bitdefender(srv_id);
+
+                    perform public.register_integration_soc_ai(srv_id);
+
+                    perform public.register_integration_pfsense(srv_id);
+
+                    perform public.register_integration_fortiweb(srv_id);
+
+                END IF;
+
+                perform public.update_module_dependencies();
+            END;
+            $$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+                perform public.execute_register_integration_function();
+            end;
+            $$
+            language plpgsql;
+        </createProcedure>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version)
+                VALUES (1524, 'filter {
+  #https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/470577/introduction
+  #Filter version 1.1.0
+
+  split {
+    field => "message"
+    terminator => "<utm-log-separator>"
+  }
+
+  #Looking for datasource generated by an agent and parse original message
+  if [message]=~/\[utm_stack_agent_ds=(.+)\]-(.+)/ {
+    grok {
+      match => {
+        "message" => [ "\[utm_stack_agent_ds=%{DATA:dataSource}\]-%{GREEDYDATA:original_log_message}" ]
+      }
+    }
+  }
+  if [original_log_message] {
+    mutate {
+      update => { "message" => "%{[original_log_message]}" }
+    }
+  }
+
+  if ![dataType] {
+# The log destination is already identified by the agent so, don''t need an entry point
+#......................................................................#
+  #First, replace whitespaces with default string after = to avoid kv issues, example:
+  #device_id= date=2021-08-18, generates -> device_id="date=2021-08-18"
+  #and should generate two fields: device_id and date
+    mutate {
+      gsub => [
+        "message", "= ", "=X0X "
+      ]
+    }
+    mutate {
+      gsub => [
+        "message", ''=""'', "=X0X "
+      ]
+    }
+
+  #......................................................................#
+  #Using grok to parse priority if present
+    grok {
+      match => {
+        "message" => [
+          "(<%{NUMBER:priority}>)?%{GREEDYDATA:message_rest}"
+        ]
+      }
+    }
+
+  #......................................................................#
+  #Using the kv filter with default config, usefull in key-value logs
+    if [message_rest] {
+      kv {
+        source => "message_rest"
+        allow_duplicate_values => false
+        target => "kv_field"
+      }
+    }
+  #......................................................................#
+  #Remove fields that have issues with kv filter
+    mutate {
+      remove_field => ["[kv_field][msg]"]
+    }
+  #......................................................................#
+  #Using grok to parse kv issued fields
+    if [message_rest] {
+      grok {
+        match => {
+          "message_rest" => [
+            "%{GREEDYDATA} msg=%{QUOTEDSTRING:msg}%{GREEDYDATA}"
+          ]
+        }
+      }
+  #......................................................................#
+  #Remove double quotation and add to kv_field
+      mutate {
+        gsub => ["[msg]", ''"'', ""]
+      }
+    }
+    mutate {
+      rename => { "msg" => "[kv_field][msg]" }
+      rename => { "message" => "[kv_field][message]" }
+    }
+  #......................................................................#
+  #Generating dataSource field required by CorrelationRulesEngine
+    if (![dataSource]){
+     mutate {
+        add_field => { "dataSource" => "%{host}" }
+     }
+    }
+
+  #......................................................................#
+  #Generating dataType field required by CorrelationRulesEngine
+    mutate {
+      add_field => {
+        "dataType" => "firewall-fortiweb"
+      }
+    }
+  #......................................................................#
+  #Cleaning message field
+    mutate {
+        gsub => ["[kv_field][message]", "X0X", ""]
+    }
+
+  #......................................................................#
+  #Set null the fields with de X0X value (default string for null), and replace simple and double quotation
+  #also generate logx tree structure dynamically
+    if [kv_field] {
+      ruby {
+        code => ''
+          event.get("[kv_field]").each do |k, v|
+          if (v == "X0X")
+            event.set("[logx][fortiweb][#{k}]",nil)
+          elsif !(v.kind_of?(Array))
+            new_v = v.to_s.gsub(/\"/, "")
+            new_v = new_v.gsub(/\''/, "")
+            event.set("[logx][fortiweb][#{k}]",new_v)
+          else
+            event.set("[logx][fortiweb][#{k}]",v)
+          end
+          end
+        ''
+      }
+    }
+  #......................................................................#
+  # Rename standard fields and fields out of kv result
+    mutate {
+      rename => { "priority" => "[logx][fortiweb][priority]" }
+      rename => { "[logx][fortiweb][srcip]" => "[logx][fortiweb][src_ip]" }
+      rename => { "[logx][fortiweb][src]" => "[logx][fortiweb][src_ip]" }
+      rename => { "[logx][fortiweb][srcport]" => "[logx][fortiweb][src_port]" }
+      rename => { "[logx][fortiweb][dstip]" => "[logx][fortiweb][dest_ip]" }
+      rename => { "[logx][fortiweb][dst]" => "[logx][fortiweb][dest_ip]" }
+      rename => { "[logx][fortiweb][dstport]" => "[logx][fortiweb][dest_port]" }
+      rename => { "[logx][fortiweb][dst_port]" => "[logx][fortiweb][dest_port]" }
+    }
+
+  #......................................................................#
+  # Rename HTTP fields
+    mutate {
+      rename => { "priority" => "[logx][fortiweb][priority]" }
+      rename => { "[logx][fortiweb][HTTP_agent]" => "[logx][fortiweb][http_agent]" }
+      rename => { "[logx][fortiweb][HTTP_response_time]" => "[logx][fortiweb][http_response_time]" }
+      rename => { "[logx][fortiweb][HTTP_request_time]" => "[logx][fortiweb][http_request_time]" }
+      rename => { "[logx][fortiweb][HTTP_request_bytes]" => "[logx][fortiweb][http_request_bytes]" }
+      rename => { "[logx][fortiweb][HTTP_response_bytes]" => "[logx][fortiweb][http_response_bytes]" }
+      rename => { "[logx][fortiweb][HTTP_retcode]" => "[logx][fortiweb][http_retcode]" }
+      rename => { "[logx][fortiweb][HTTP_host]" => "[logx][fortiweb][http_host]" }
+      rename => { "[logx][fortiweb][HTTP_method]" => "[logx][fortiweb][http_method]" }
+      rename => { "[logx][fortiweb][HTTP_url]" => "[logx][fortiweb][http_url]" }
+    }
+  #......................................................................#
+  #Formatting number values
+    mutate {
+        convert => {
+          "[logx][fortiweb][priority]" => "integer"
+          "[logx][fortiweb][duration]" => "integer"
+          "[logx][fortiweb][sessionid]" => "integer"
+          "[logx][fortiweb][transport]" => "integer"
+          "[logx][fortiweb][src_port]" => "integer"
+          "[logx][fortiweb][srcserver]" => "integer"
+          "[logx][fortiweb][dest_port]" => "integer"
+          "[logx][fortiweb][appid]" => "integer"
+          "[logx][fortiweb][countapp]" => "integer"
+          "[logx][fortiweb][rcvdbyte]" => "integer"
+          "[logx][fortiweb][rcvdpkt]" => "integer"
+          "[logx][fortiweb][rcvddelta]" => "integer"
+          "[logx][fortiweb][sentbyte]" => "integer"
+          "[logx][fortiweb][sentdelta]" => "integer"
+          "[logx][fortiweb][sentpkt]" => "integer"
+          "[logx][fortiweb][policyid]" => "integer"
+          "[logx][fortiweb][eventtime]" => "integer"
+          "[logx][fortiweb][countdns]" => "integer"
+          "[logx][fortiweb][remport]" => "integer"
+          "[logx][fortiweb][locport]" => "integer"
+        }
+    }
+
+
+    #Generating action field for established connections
+    #First for type traffic
+    if [logx][fortiweb][type] and [logx][fortiweb][type] == "traffic" and [logx][fortiweb][status] and [logx][fortiweb][status] == "success"  {
+      mutate {
+        add_field => { "[logx][utm][action]" => "Success" }
+      }
+    }
+    #Then for type event
+    else if ([logx][fortiweb][type] and [logx][fortiweb][type] == "event" ) {
+      #Subtype system
+      if ([logx][fortiweb][subtype] and [logx][fortiweb][action] and [logx][fortiweb][status])
+      and ([logx][fortiweb][subtype] == "system" )
+      and ( ([logx][fortiweb][action] == "login" and [logx][fortiweb][status] == "success")
+      or [logx][fortiweb][action] == "logout" ) {
+        mutate {
+          add_field => { "[logx][utm][action]" => "Success" }
+        }
+      }
+    }
+
+    #Finally, remove unnecessary fields
+    mutate {
+        remove_field => ["@version","path","message_rest","tags","kv_field","original_log_message","headers"]
+    }
+  }
+}', 'fortiweb', null, true, 'FORTIWEB', false, '1.1.0');
+            ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
+                    VALUES (49, 'firewall_fortiweb', 'fortiweb', null, 'up', 'FORTIWEB', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1524, 49, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
+                    VALUES (65, 49, 'HTTP', 'http', false, true);
+
+                    INSERT INTO utm_logstash_input_configuration (id, input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
+                    VALUES (65, 65, 'http_port', '10045', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (65,'log-firewall-fortiweb-*', 'FORTIWEB', true, true);
+
+                    INSERT INTO utm_data_source_config (data_type, data_type_name, system_owner, included)
+                    VALUES ( 'firewall-fortiweb', 'FORTIWEB', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (263, 'FortiWeb', 'discover/log-analyzer?patternId=65&indexPattern=log-firewall-fortiweb-*', 200, 1, null, 61, false, false, null, 'FORTIWEB');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 263, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 263, 'ROLE_ADMIN');
+
+                    UPDATE utm_index_pattern
+                    SET pattern_module = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE,FORTIWEB'
+                        WHERE pattern = 'log-firewall-*';
+
+                    UPDATE utm_menu
+                    SET module_name_short = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE,FORTIWEB'
+                        WHERE id= 204;
+
+            ]]>
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,95 @@
+name: Agent Build
+on:
+  push:
+    tags: [ 'v*' ]
+    branches: [ 'feature/**' ]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  check:
+    name: Checking
+    runs-on: ubuntu-latest
+    outputs:
+      env_version: ${{ steps.set-env.outputs.env_version }}
+      agent_checking: ${{ steps.changes_agent_output.outputs.agent_checking }}
+    steps:
+      - name: Determine Build Environment
+        id: set-env
+        run: |
+          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') }}; then
+            echo "DEV environment"
+            echo "env_version=v10-dev" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main' }}; then
+            echo "RC environment"
+            echo "env_version=v10-rc" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}; then
+            echo "RELEASE environment"
+            echo "env_version=release" >> $GITHUB_OUTPUT
+          fi
+      - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changes_agent
+        with:
+          filters: |
+            paths:
+              - 'agent/**'
+              - 'version.yml'
+      - id: changes_agent_output
+        run: |
+          echo "agent_checking=${{ steps.changes_agent.outputs.paths }}" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build
+    needs: check
+    if: needs.check.outputs.agent_checking == 'true'
+    runs-on: signing
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Build and sign agent services
+        id: set-env
+        run: |
+          $env:DEPLOY_ENV = '${{ needs.check.outputs.env_version }}'
+
+          cd ${{ github.workspace }}/agent/agent/configuration; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          cd ${{ github.workspace }}/agent/agent; go build -o utmstack_agent_service -v .
+          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer -v .
+          cd ${{ github.workspace }}/agent/redline; go build -o utmstack_redline_service -v .
+          cd ${{ github.workspace }}/agent/updater; go build -o utmstack_updater_service -v .
+          
+          $env:GOOS = "windows"
+          cd ${{ github.workspace }}/agent/agent; go build -o utmstack_agent_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
+          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_installer.exe"
+          cd ${{ github.workspace }}/agent/redline; go build -o utmstack_redline_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_redline_service.exe"
+          cd ${{ github.workspace }}/agent/updater; go build -o utmstack_updater_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service.exe"
+
+          Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.12.1/python-3.12.1-amd64.exe" -OutFile "python-installer.exe"
+          Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
+          Remove-Item -Path "python-installer.exe"
+          python -m pip install --upgrade pip
+          pip install requests google-cloud-storage pyyaml
+
+          $env:GCP_KEY = '${{ secrets.GCP_KEY }}'
+          cd ${{ github.workspace }}/.github/scripts; & 'C:\Program Files\Python312\python.exe' 'agent-deploy.py'  $env:DEPLOY_ENV
+
+          cd ${{ github.workspace }}; Remove-Item -Path "./*" -Recurse -Force
+      

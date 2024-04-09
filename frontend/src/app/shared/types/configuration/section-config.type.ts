@@ -2,12 +2,13 @@ export class SectionConfigType {
   description?: string;
   id?: 0;
   section?: string;
+  shortName?: string;
 }
 
 export enum ApplicationConfigSectionEnum {
   SMS = 1,
-  Email = 2,
-  TwoFactorAuthentication = 3,
-  Alerts = 4,
-  DateSettings = 5
+  EMAIL = 2,
+  TFA = 3,
+  ALERTS = 4,
+  DATE_SETTINGS = 5
 }

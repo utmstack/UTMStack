@@ -3,6 +3,7 @@ package modules
 import (
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
@@ -23,12 +24,39 @@ type CollectorConfiguration struct {
 	Integrations map[string]Integration `json:"integrations"`
 }
 
+type ProtocolListenOld struct {
+	Enabled bool   `json:"enabled"`
+	UDP     string `json:"UDP,omitempty"`
+	TCP     string `json:"TCP,omitempty"`
+	TLS     string `json:"TLS,omitempty"`
+}
+
+type CollectorConfigurationOld struct {
+	LogCollectorIsenabled bool                         `json:"log_collector_enabled"`
+	Integrations          map[string]ProtocolListenOld `json:"integrations"`
+}
+
 func ReadCollectorConfig() (CollectorConfiguration, error) {
 	cnf := CollectorConfiguration{}
-	err := utils.ReadJson(configuration.GetCollectorConfigPath(), &cnf)
-	if err != nil {
-		return cnf, err
+	if !utils.CheckIfPathExist(configuration.GetCollectorConfigPath()) {
+		cnfOld := CollectorConfigurationOld{}
+		err := utils.ReadJson(configuration.GetCollectorConfigPathOld(), &cnfOld)
+		if err != nil {
+			return CollectorConfiguration{}, err
+		}
+		cnf = MigrateOldConfig(cnfOld)
+		err = WriteCollectorConfig(cnf.Integrations, configuration.GetCollectorConfigPath())
+		if err != nil {
+			return CollectorConfiguration{}, err
+		}
+		os.Remove(configuration.GetCollectorConfigPathOld())
+	} else {
+		err := utils.ReadJson(configuration.GetCollectorConfigPath(), &cnf)
+		if err != nil {
+			return cnf, err
+		}
 	}
+
 	return cnf, nil
 }
 
@@ -135,4 +163,36 @@ func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, cur
 	ln.Close()
 
 	return true
+}
+
+func MigrateOldConfig(old CollectorConfigurationOld) CollectorConfiguration {
+	integrations := make(map[string]Integration)
+	for logTyp, ports := range configuration.ProtoPorts {
+		newIntegration := Integration{}
+		if logTyp == "syslog" && old.LogCollectorIsenabled {
+			newIntegration.TCP.IsListen = true
+		} else {
+			newIntegration.TCP.IsListen = false
+		}
+		newIntegration.TCP.Port = ports.TCP
+		newIntegration.UDP.IsListen = false
+		newIntegration.UDP.Port = ports.UDP
+		newIntegration.TLS.IsListen = false
+		newIntegration.TLS.Port = ports.TLS
+		integrations[string(logTyp)] = newIntegration
+	}
+
+	for logTyp, port := range old.Integrations {
+		if _, ok := integrations[logTyp]; ok {
+			if old.LogCollectorIsenabled && port.Enabled {
+				integration := integrations[logTyp]
+				integration.TCP.IsListen = true
+				integration.UDP.IsListen = false
+				integration.TLS.IsListen = false
+				integrations[logTyp] = integration
+			}
+		}
+	}
+
+	return CollectorConfiguration{Integrations: integrations}
 }

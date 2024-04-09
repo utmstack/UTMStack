@@ -107,7 +107,8 @@ export class MenuCreateComponent implements OnInit {
           }
           this.activeModal.close();
           this.utmToastService.showSuccessBottom('Menu created successfully');
-        });
+        },
+          error => this.creating = false);
       }
     } else {
       this.modalService.open(ContactUsComponent, {centered: true});

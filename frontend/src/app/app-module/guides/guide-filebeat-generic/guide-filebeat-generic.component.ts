@@ -15,104 +15,104 @@ export class GuideFilebeatGenericComponent implements OnInit {
   commandsActivate: FilebeatCommands[] = [
     {module: UtmModulesEnum.TRAEFIK, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable traefik',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.TRAEFIK, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable traefik', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.APACHE, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable apache',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.APACHE, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable apache', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.ELASTICSEARCH, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable elasticsearch',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.ELASTICSEARCH, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable elasticsearch', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.HAPROXY, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable haproxy',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.HAPROXY, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable haproxy', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.MONGODB, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable mongodb',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.MONGODB, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable mongodb', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.KIBANA, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable kibana',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.KIBANA, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable kibana', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.LOGSTASH, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable logstash',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.LOGSTASH, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable logstash', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.KAFKA, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable kafka',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.KAFKA, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable kafka', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.MYSQL, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable mysql',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.MYSQL, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable mysql', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.REDIS, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable redis',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.REDIS, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable redis', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.POSTGRESQL, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable postgresql',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.POSTGRESQL, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable postgresql', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.NGINX, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable nginx',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.NGINX, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable nginx', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.AUDITD, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable auditd',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.OSQUERY, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable osquery',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.OSQUERY, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable osquery', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
 
     {module: UtmModulesEnum.NATS, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable nats',
-      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart ModulesLogsCollector'},
+      path: '/opt/utmstack-linux-agent/beats/filebeat/modules.d/', restartCmd: 'sudo systemctl restart UTMStackModulesLogsCollector'},
     {module: UtmModulesEnum.NATS, os: 'windows', command: 'cd "C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\" '
         + '&& filebeat modules enable nats', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\beats\\filebeat\\modules.d\\',
-      restartCmd: 'sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector'},
+      restartCmd: 'sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector'},
   ];
   moduleNoCommands: UtmModulesEnum[] = [];
   moduleConfigs: FilebeatModuleConfig[] = [

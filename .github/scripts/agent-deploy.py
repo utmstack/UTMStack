@@ -6,6 +6,9 @@ from google.cloud import storage
 import yaml
 
 def main(environment):
+	if environment.startswith("v10-"):
+		environment = environment.replace("v10-", "")
+		
 	gcp_key = json.loads(os.environ.get("GCP_KEY"))
 	storage_client = storage.Client.from_service_account_info(gcp_key)
 
@@ -71,7 +74,7 @@ def main(environment):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update UTMStack agents in Google Cloud Storage")
-    parser.add_argument("environment", type=str, help="Environment(dev, qa, rc, release)")
+    parser.add_argument("environment", type=str, help="Environment(dev, rc, release)")
     
     args = parser.parse_args()
     main(args.environment)

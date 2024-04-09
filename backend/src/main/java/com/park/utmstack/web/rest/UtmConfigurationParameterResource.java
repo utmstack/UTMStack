@@ -4,9 +4,11 @@ import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmConfigurationParameterQueryService;
 import com.park.utmstack.service.UtmConfigurationParameterService;
+import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
-import com.park.utmstack.service.util.EmailValidatorService;
+import com.park.utmstack.service.mail_config.MailConfigService;
+import com.park.utmstack.service.validators.email.EmailValidatorService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -16,13 +18,16 @@ import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.ResponseUtil;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -42,15 +47,20 @@ public class UtmConfigurationParameterResource {
     private final UtmConfigurationParameterQueryService utmConfigurationParameterQueryService;
     private final ApplicationEventService applicationEventService;
     private final EmailValidatorService emailValidatorService;
-
+    private final MailConfigService mailConfigService;
+    private final UtmStackService utmStackService;
     public UtmConfigurationParameterResource(UtmConfigurationParameterService utmConfigurationParameterService,
                                              UtmConfigurationParameterQueryService utmConfigurationParameterQueryService,
                                              ApplicationEventService applicationEventService,
-                                             EmailValidatorService emailValidatorService) {
+                                             EmailValidatorService emailValidatorService,
+                                             MailConfigService mailConfigService,
+                                             UtmStackService utmStackService) {
         this.utmConfigurationParameterService = utmConfigurationParameterService;
         this.utmConfigurationParameterQueryService = utmConfigurationParameterQueryService;
         this.applicationEventService = applicationEventService;
         this.emailValidatorService = emailValidatorService;
+        this.mailConfigService = mailConfigService;
+        this.utmStackService = utmStackService;
     }
 
     /**
@@ -67,12 +77,12 @@ public class UtmConfigurationParameterResource {
         try {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
-                if(parameter.getConfParamDatatype().equals("email_list") && parameter.getConfParamRegexp() != null){
+                if(StringUtils.hasText(parameter.getConfParamRegexp())){
                     Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
                     emailValidatorService.validate(parameter, errors);
 
                     if (errors.hasErrors()) {
-                        String msg = "Email list validation failed. Please ensure that email addresses are separated by commas, and each address is valid.";
+                        String msg =  String.format("Validation failed for field %s.", parameter.getConfParamShort());
                         log.error(msg);
                         applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
                         return UtilResponse.buildPreconditionFailedResponse(msg);
@@ -126,5 +136,25 @@ public class UtmConfigurationParameterResource {
         log.debug("REST request to get UtmConfigurationParameter : {}", id);
         Optional<UtmConfigurationParameter> utmConfigurationParameter = utmConfigurationParameterService.findOne(id);
         return ResponseUtil.wrapOrNotFound(utmConfigurationParameter);
+    }
+
+    @PostMapping ("/checkEmailConfiguration")
+    public ResponseEntity<Void> checkEmailConfiguration(@Valid @RequestBody List<UtmConfigurationParameter> parameters) {
+        final String ctx = CLASSNAME + ".checkEmailConfiguration";
+        try {
+
+            utmStackService.checkEmailConfiguration(this.mailConfigService.getMailConfigFromParameters(parameters));
+            return ResponseEntity.ok().build();
+        } catch (MessagingException e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildBadRequestResponse("Check failed with this configuration, review your configuration, save changes and try again");
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
     }
 }

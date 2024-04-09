@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240326001" author="Manuel">
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_aix(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('IBM AIX',
+                    'AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms.',
+                    FALSE,
+                    'aix.svg',
+                    'AIX',
+                    srv_id,
+                    'DEVICE',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'IBM AIX',
+                                                            module_icon        = 'aix.svg',
+                                                            module_name        = 'AIX',
+                                                            module_category    = 'DEVICE',
+                                                            module_description = 'AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+                create or replace function register_integrations(srv_id integer, srv_type character varying)
+                    returns void
+                    language plpgsql
+                    as
+                $$
+                BEGIN
+
+                    perform public.register_integration_netflow(srv_id);
+
+                    perform public.register_integration_window_agent(srv_id);
+
+                    perform public.register_integration_syslog(srv_id);
+
+                    perform public.register_integration_vmware(srv_id);
+
+                    perform public.register_integration_linux_agent(srv_id);
+
+                    perform public.register_integration_apache(srv_id);
+
+                    perform public.register_integration_linux_audit_demon(srv_id);
+
+                    perform public.register_integration_elasticsearch(srv_id);
+
+                    perform public.register_integration_hap(srv_id);
+
+                    perform public.register_integration_kafka(srv_id);
+
+                    perform public.register_integration_kibana(srv_id);
+
+                    perform public.register_integration_logstash(srv_id);
+
+                    perform public.register_integration_mongodb(srv_id);
+
+                    perform public.register_integration_mysql(srv_id);
+
+                    perform public.register_integration_nats(srv_id);
+
+                    perform public.register_integration_nginx(srv_id);
+
+                    perform public.register_integration_osquery(srv_id);
+
+                    perform public.register_integration_postgresql(srv_id);
+
+                    perform public.register_integration_redis(srv_id);
+
+                    perform public.register_integration_traefik(srv_id);
+
+                    perform public.register_integration_cisco(srv_id);
+
+                    perform public.register_integration_cisco_meraki(srv_id);
+
+                    perform public.register_integration_json(srv_id);
+
+                    perform public.register_integration_iis(srv_id);
+
+                    perform public.register_integration_kaspersky(srv_id);
+
+                    perform public.register_integration_eset(srv_id);
+
+                    perform public.register_integration_sentinel_one(srv_id);
+
+                    perform public.register_integration_fortigate(srv_id);
+
+                    perform public.register_integration_sophosxg(srv_id);
+
+                    perform public.register_integration_macos(srv_id);
+
+
+                IF srv_type = 'aio' THEN
+
+                    perform public.register_integration_file_integrity(srv_id);
+
+                    perform public.register_integration_azure(srv_id);
+
+                    perform public.register_integration_o365(srv_id);
+
+                    perform public.register_integration_aws(srv_id);
+
+                    perform public.register_integration_sophos_central(srv_id);
+
+                    perform public.register_integration_gcp(srv_id);
+
+                    perform public.register_integration_fire_power(srv_id);
+
+                    perform public.register_integration_mikrotik(srv_id);
+
+                    perform public.register_integration_palo_alto(srv_id);
+
+                    perform public.register_integration_cisco_switch(srv_id);
+
+                    perform public.register_integration_sonic_wall(srv_id);
+
+                    perform public.register_integration_deceptive_bytes(srv_id);
+
+                    perform public.register_integration_github(srv_id);
+
+                    perform public.register_integration_bitdefender(srv_id);
+
+                    perform public.register_integration_soc_ai(srv_id);
+
+                    perform public.register_integration_pfsense(srv_id);
+
+                    perform public.register_integration_fortiweb(srv_id);
+
+                    perform public.register_integration_aix(srv_id);
+
+                END IF;
+
+                perform public.update_module_dependencies();
+            END;
+            $$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+                perform public.execute_register_integration_function();
+            end;
+            $$
+            language plpgsql;
+        </createProcedure>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version)
+                VALUES (1525, 'filter {
+    # IBM AIX filter version 2.0.0
+
+    split {
+      field => "message"
+      terminator => "<utm-log-separator>"
+    }
+
+    #Looking for datasource generated by an agent and parse original message
+    if [message]=~/\[utm_stack_agent_ds=(.+)\]-(.+)/ {
+      grok {
+       match => {
+          "message" => [ "\[utm_stack_agent_ds=%{DATA:dataSourceAgent}\]-%{GREEDYDATA:original_log_message}" ]
+        }
+      }
+    }
+    if [original_log_message] {
+      mutate {
+        update => { "message" => "%{[original_log_message]}" }
+      }
+    }
+
+    if ![dataType] {
+# The log destination is already identified by the agent so, don''t need an entry point
+#......................................................................#
+            
+            #......................................................................# 
+            #Generating dataType field required by CurrelationRulesEngine
+            mutate {
+                add_field => { "dataType" => "ibm-aix" }
+            }
+            #......................................................................#
+            #Using grok to parse header of the message
+            grok {
+                match => {
+                    "message" => "(%{INT:not_defined})?(\s)?(<%{NUMBER:priority}>)?(%{INT:syslog_version})?%{SYSLOGTIMESTAMP:timestamp}(\s)%{GREEDYDATA:msg_init}"
+                }
+            }
+            #......................................................................#
+            #Checking that the msg_init field exists
+            if ([msg_init]){
+                #......................................................................#
+                #Checking that the message contains Message forwarded from
+                if "Message forwarded from" in [message]{
+                    grok {
+                        match => {
+                            "msg_init" => "Message(\s)forwarded(\s)from(\s)%{DATA:dataSource}: %{GREEDYDATA:msg_all}"
+                        }
+                    }
+
+                    if [msg_all]{
+                        #...................................................................#
+                        #Checking that the message contains TTY= or PWD= or COMMAND= or USER=
+                        if (("TTY=" in [msg_all] and ";" in [msg_all]) or ("PWD=" in [msg_all] and ";" in [msg_all]) or ("USER=" in [msg_all] and ";" in [msg_all]) or 
+                        ("COMMAND=" in [msg_all] and ";" in [msg_all])){
+                            #......................................................................#
+                            #Using grok to parse msg_all
+                            grok {
+                                match => {
+                                    "msg_all" => "%{DATA:commandType} : %{GREEDYDATA:msg_with_tty}"
+                                }
+                            }
+
+                            #......................................................................#
+                            #Using grok to parse msg_with_tty individual fields
+                            if "TTY=" in [msg_with_tty]{
+                                grok { match => { "msg_with_tty" => ["TTY=%{DATA:tty} ; %{WORD}=","TTY=%{GREEDYDATA:tty}"] } }
+                            }
+                            if "PWD=" in [msg_with_tty]{
+                                grok { match => { "msg_with_tty" => ["PWD=%{DATA:pwd} ; %{WORD}=","PWD=%{GREEDYDATA:pwd}"] } }
+                            }
+                            if "USER=" in [msg_with_tty]{
+                                grok { match => { "msg_with_tty" => ["USER=%{DATA:user} ; %{WORD}=","USER=%{GREEDYDATA:user}"] } }
+                            }
+                            if "COMMAND=" in [msg_with_tty]{
+                                grok { match => { "msg_with_tty" => ["COMMAND=%{DATA:command} ; %{WORD}=","COMMAND=%{GREEDYDATA:command}"] } }
+                            }
+
+                        }else if ("command continued" in [msg_all]){
+                            #......................................................................#
+                            #Using grok to parse msg_all
+                            grok {
+                                match => {
+                                    "msg_all" => "%{GREEDYDATA:commandType} : \(command continued\) %{GREEDYDATA:command}"
+                                }
+                            }
+                        }else if([msg_all]=~/\w+\[[0-9]+\]: /){
+                            grok {
+                                match => {
+                                    "msg_all" => "%{DATA:eventType}\[%{INT:PID}\]: %{GREEDYDATA:msg}"
+                                }
+                            }
+
+                            if [msg]{
+                                #......................................................................#
+                                #Format where the LENGTH, SESSIONID, ENTRYID, STATEMENT, USERID, USERHOST, ACTION, RETURNCODE, OBJ$CREATOR, OBJ$NAME, and OS$USERID fields exist
+                                if ("LENGTH" in [message] or "SESSIONID" in [message] or "ENTRYID" in [message] or "STATEMENT" in [message] or "USERID" in [message] or "USERHOST" in [message] or "ACTION" in [message]
+                                or "RETURNCODE" in [message] or "OBJ$CREATOR" in [message] or "OBJ$NAME" in [message] or "OS$USERID" in [message]){
+                                    #......................................................................#
+                                    #Using grok to parse msg individual fields
+                                    if "LENGTH:" in [msg]{
+                                        grok { match => { "msg" => ["LENGTH: \"%{DATA:length}\""] } }
+                                    }
+                                    if "SESSIONID:" in [msg]{
+                                        grok { match => { "msg" => ["SESSIONID:(\s)?\[%{INT:irrelevant}\] \"%{DATA:sessionID}\""] } }
+                                    }
+                                    if "ENTRYID:" in [msg]{
+                                        grok { match => { "msg" => ["ENTRYID:(\s)?\[%{INT:irrelevant}\] \"%{DATA:entryID}\""] } }
+                                    }
+                                    if "STATEMENT:" in [msg]{
+                                        grok { match => { "msg" => ["STATEMENT:(\s)?\[%{INT:irrelevant}\] \"%{DATA:statement}\""] } }
+                                    }
+                                    if "USERID:" in [msg]{
+                                        grok { match => { "msg" => ["USERID:(\s)?\[%{INT:irrelevant}\] \"%{DATA:userID}\""] } }
+                                    }
+                                    if "USERHOST:" in [msg]{
+                                        grok { match => { "msg" => ["USERHOST:(\s)?\[%{INT:irrelevant}\] \"%{DATA:userHost}\""] } }
+                                    }
+                                    if "ACTION:" in [msg]{
+                                        grok { match => { "msg" => ["ACTION:(\s)?\[%{INT:irrelevant}\] \"%{DATA:action}\""] } }
+                                    }
+                                    if "RETURNCODE:" in [msg]{
+                                        grok { match => { "msg" => ["RETURNCODE:(\s)?\[%{INT:irrelevant}\] \"%{DATA:returnCode}\""] } }
+                                    }
+                                    if [msg] =~/OBJ(.+)CREATOR:/{
+                                        grok { match => { "msg" => ["OBJ%{DATA:irrelevant}CREATOR:(\s)?\[%{INT:irrelevant}\] \"%{DATA:obj_creator}\""] } }
+                                    }
+                                    if [msg] =~/OBJ(.+)NAME:/{
+                                        grok { match => { "msg" => ["OBJ%{DATA:irrelevant}NAME:(\s)?\[%{INT:irrelevant}\] \"%{DATA:obj_name}\""] } }
+                                    }
+                                    if [msg] =~/OS(.+)USERID:/{
+                                        grok { match => { "msg" => ["OS%{DATA:irrelevant}USERID:(\s)?\[%{INT:irrelevant}\] \"%{DATA:OS_userID}\""] } }
+                                    }
+
+                                }else if ([msg]=~/from(.+)port/){
+                                    grok {
+                                        match => {
+                                            "msg" => [
+                                                "%{DATA:irrelevant}from user %{WORD:irrelevant} %{DATA:src_ip} port %{INT:src_port}(%{GREEDYDATA:irrelevant})?",
+                                                "%{DATA:irrelevant}from %{DATA:src_ip} port %{INT:src_port}(%{GREEDYDATA:irrelevant})?"
+                                                ]
+                                        }
+                                    }
+                                }
+                            }
+                        }else {
+                            grok {
+                            match => {
+                                "msg_all" => [
+                                    "%{GREEDYDATA:eventType}:(\s)%{GREEDYDATA:msg}",
+                                    "%{GREEDYDATA:msg}"
+                                    ]
+                            }
+                            }
+                        }
+                    }
+                    
+                }else{
+                    grok {
+                        match => {
+                            "msg_init" => "%{WORD:eventType}: %{DATA:irrelevant}\[%{INT:PID}\] %{GREEDYDATA:msg}"
+                        }
+                    }
+                }
+               
+            }
+            #.....................................................................#
+            #Generating dataSource field required by Correlation Engine
+            if (![dataSource]){
+              if ([dataSourceAgent]){
+                mutate {
+                    rename => { "[dataSourceAgent]" => "[dataSource]" }
+                }
+              } else {
+                mutate {
+                    add_field => { "dataSource" => "%{host}" }
+                }
+              }
+            }
+            #......................................................................#
+            #Generating utm.action field required by Correlation Engine
+            if ([msg] and [msg]=~/([Dd]isconnected (by|from))|([Rr]eceived [Dd]isconnect)|([Cc]onnection (is )?(closed|reset))/){
+                mutate {
+					          add_field => { "[logx][utm][action]" => "Success" }
+				        }
+            }
+
+            #......................................................................#
+            #Adding all fields to json tree structure
+            mutate {
+                rename => { "message" => "[logx][ibm_aix][message]" }
+                rename => { "priority" => "[logx][ibm_aix][priority]" }
+                rename => { "commandType" => "[logx][ibm_aix][commandType]" }
+                rename => { "tty" => "[logx][ibm_aix][tty]" }
+                rename => { "pwd" => "[logx][ibm_aix][pwd]" }
+                rename => { "user" => "[logx][ibm_aix][user]" }
+                rename => { "command" => "[logx][ibm_aix][command]" }
+                rename => { "eventType" => "[logx][ibm_aix][eventType]" }
+                rename => { "msg" => "[logx][ibm_aix][msg]" }
+                rename => { "length" => "[logx][ibm_aix][length]" }
+                rename => { "sessionID" => "[logx][ibm_aix][sessionID]" }
+                rename => { "entryID" => "[logx][ibm_aix][entryID]" }
+                rename => { "statement" => "[logx][ibm_aix][statement]" }
+                rename => { "userID" => "[logx][ibm_aix][userID]" }
+                rename => { "userHost" => "[logx][ibm_aix][userHost]" }
+                rename => { "action" => "[logx][ibm_aix][action]" }
+                rename => { "returnCode" => "[logx][ibm_aix][returnCode]" }
+                rename => { "obj_creator" => "[logx][ibm_aix][obj_creator]" }
+                rename => { "obj_name" => "[logx][ibm_aix][obj_name]" }
+                rename => { "OS_userID" => "[logx][ibm_aix][OS_userID]" }
+                rename => { "src_ip" => "[logx][ibm_aix][src_ip]" }
+                rename => { "src_port" => "[logx][ibm_aix][src_port]" }
+                rename => { "PID" => "[logx][ibm_aix][PID]" }
+            }
+            #......................................................................#
+            #Finally, remove unnecessary fields
+            mutate {
+                remove_field => ["@version","timestamp","path","type","syslog_version",
+                "not_defined","msg_all","msg_init","irrelevant", "msg_with_tty",
+                "original_log_message","headers", "tags", "dataSourceAgent"]
+            }
+    }
+}', 'aix', null, true, 'AIX', false, '2.0.0');
+            ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
+                    VALUES (50, 'ibm_aix', 'AIX', null, 'up', 'AIX', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1525, 50, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
+                    VALUES (66, 50, 'HTTP', 'http', false, true);
+
+                    INSERT INTO utm_logstash_input_configuration (id, input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
+                    VALUES (66 ,66, 'http_port', '10046', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (66,'log-ibm-aix-*', 'AIX', true, true);
+
+                    INSERT INTO utm_data_source_config (data_type, data_type_name, system_owner, included)
+                    VALUES ( 'ibm-aix', 'AIX', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (264, 'AIX', 'discover/log-analyzer?patternId=66&indexPattern=log-ibm-aix-*', 200, 1, null, 61, false, false, null, 'AIX');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 264, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 264, 'ROLE_ADMIN');
+
+
+            ]]>
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

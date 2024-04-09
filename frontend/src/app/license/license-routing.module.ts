@@ -7,12 +7,12 @@ import {UtmLicenseComponent} from './utm-license/utm-license.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'license-info'},
-  {
+  /*{
     path: 'license-info',
     component: UtmLicenseComponent,
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]},
-  }
+  }*/
 ];
 
 @NgModule({

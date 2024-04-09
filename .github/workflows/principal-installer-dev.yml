@@ -1,0 +1,74 @@
+name: Installer Dev
+
+on:
+  workflow_run:
+    workflows: ["Dev/Rc Deploy"]
+    types:
+      - completed
+
+jobs:
+  check_feature:
+    name: Check if feature
+    runs-on: ubuntu-latest
+    outputs:
+      is_feature: ${{ steps.check.outputs.is_feature }}
+    steps:
+      - id: check
+        run: |
+          echo ${{ github.event.workflow_run.event }}
+          if ${{ startsWith(github.event.workflow_run.head_branch, 'feature/') && github.event.workflow_run.event != 'pull_request_review'}}; then
+            echo "It's a feature"
+            echo "is_feature=true" >> $GITHUB_OUTPUT
+          else
+            echo "It's not a feature"
+            echo "is_feature=false" >> $GITHUB_OUTPUT
+          fi
+  deploy:
+    name: Deploy to dev
+    needs: check_feature
+    if: needs.check_feature.outputs.is_feature == 'true'
+    runs-on: dev
+    steps:
+    - name: Check out code into the right branch
+      uses: actions/checkout@v4
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v4
+      with:
+        go-version: ^1.20 
+      id: go
+
+    - name: Get dependencies
+      working-directory: ./installer
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+
+    - name: Test
+      working-directory: ./installer
+      run: go test -v .
+
+    - name: Build
+      working-directory: ./installer
+      env:
+        GOOS: linux
+        GOARCH: amd64
+      run: |
+        go build -o installer -v .
+        mv installer /home/utmstack/installer
+        chmod +x /home/utmstack/installer
+
+    - name: Run
+      id: run_installer
+      working-directory: /home/utmstack
+      run: |
+          sudo ./installer
+
+    - name: Open ports
+      id: open_ports
+      working-directory: /home/utmstack
+      run: |
+          sudo docker service update --publish-add 9200:9200 utmstack_node1 & docker service update --publish-add 5432:5432 utmstack_postgres

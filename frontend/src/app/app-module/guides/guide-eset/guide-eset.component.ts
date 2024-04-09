@@ -1,5 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {VMWARE_STEPS} from "../guide-vmware-syslog/vmware.steps";
+import {Step} from "../shared/step";
+import {ESET_STEPS} from "./eset-steps";
+import {SyslogModulePorts} from "../guide-syslog/guide-syslog.component";
 
 @Component({
   selector: 'app-guide-eset',
@@ -12,19 +16,28 @@ export class GuideEsetComponent implements OnInit {
   @Input() filebeatModuleName: string;
   module = UtmModulesEnum;
   @Input() serverId: number;
-
-  esetPaths: EsetOSPaths[] = [
-    {os: 'linux', path: '/opt/utmstack-linux-agent/log-collector-config.json'},
-    {os: 'windows', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\log-collector-config.json'}
-  ];
+  steps: Step[] = ESET_STEPS;
   constructor() {
   }
 
   ngOnInit() {
   }
 
-}
-export class EsetOSPaths {
-  os: string;
-  path: string;
+  getPorts(): SyslogModulePorts[] {
+    return [
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7003 TCP'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7003 UDP'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7053 TCP (TLS)'},
+    ];
+  }
+
+  getProtocols() {
+    return this.getPorts().map((port, index) => {
+      return {
+        id: index,
+        name: port.port.split(' ')[1]
+      };
+    });
+  }
+
 }

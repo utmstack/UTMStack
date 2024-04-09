@@ -43,6 +43,17 @@
 
     <include file="config/liquibase/changelog/20240305001_fixing_smtp_server_encryption_type.xml" relativeToChangelogFile="false"/>
 
-    <include file="config/liquibase/changelog/20240305001_updating_tooltip_configuration_parameter.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20240311001_update_configuration_parameter_with_regexp.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240326001_adding_pfsense.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240403001_adding_netflow.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240403002_adding_fortiweb.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240403003_adding_aix.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240405001_disable_unused_modules.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
