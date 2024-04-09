@@ -8,7 +8,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
-const REPLACE_KEY string = "f7T8"
+const REPLACE_KEY string = ""
 
 const (
 	AGENTMANAGERPORT      string = "9000"
