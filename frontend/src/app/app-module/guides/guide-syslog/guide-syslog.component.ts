@@ -1,5 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {VMWARE_STEPS} from "../guide-vmware-syslog/vmware.steps";
+import {Step} from "../shared/step";
+import {SYSLOGSTEPS} from "./syslog.steps";
 
 @Component({
   selector: 'app-guide-syslog',
@@ -21,10 +24,7 @@ export class GuideSyslogComponent implements OnInit {
     {module: UtmModulesEnum.DECEPTIVE_BYTES, img: 'deceptivebytes.png'},
     {module: UtmModulesEnum.SOPHOS_XG, img: 'sophosxg.png'}
   ];
-  syslogPaths: SyslogOSPaths[] = [
-    {os: 'linux', path: '/opt/utmstack-linux-agent/log-collector-config.json'},
-    {os: 'windows', path: 'C:\\Program Files\\UTMStack\\UTMStack Agent\\log-collector-config.json'}
-  ];
+
   syslogPorts: SyslogModulePorts[] = [
     {module: UtmModulesEnum.FORTIGATE, port: '7005 TCP'},
     {module: UtmModulesEnum.FORTIGATE, port: '7005 UDP'},
@@ -52,8 +52,40 @@ export class GuideSyslogComponent implements OnInit {
 
     {module: UtmModulesEnum.SOPHOS_XG, port: '7008 TCP'},
     {module: UtmModulesEnum.SOPHOS_XG, port: '7008 UDP'},
-    {module: UtmModulesEnum.SOPHOS_XG, port: '7058 TCP (TLS)'}
+    {module: UtmModulesEnum.SOPHOS_XG, port: '7058 TCP (TLS)'},
+
+    {module: UtmModulesEnum.SYSLOG, port: '7014 TCP'},
+    {module: UtmModulesEnum.SYSLOG, port: '7014 UDP'},
+    {module: UtmModulesEnum.SYSLOG, port: '2056 TCP (TLS)'},
+
+    {module: UtmModulesEnum.FIRE_POWER, port: '1470 TCP'},
+    {module: UtmModulesEnum.FIRE_POWER, port: '514 UDP'},
+
+    {module: UtmModulesEnum.CISCO, port: '1470 TCP'},
+    {module: UtmModulesEnum.CISCO, port: '514 UDP'},
+
+    {module: UtmModulesEnum.MERAKI, port: '1470 TCP'},
+    {module: UtmModulesEnum.MERAKI, port: '514 UDP'},
+
+    {module: UtmModulesEnum.CISCO_SWITCH, port: '1470 TCP'},
+    {module: UtmModulesEnum.CISCO_SWITCH, port: '514 UDP'},
+
+    {module: UtmModulesEnum.PFSENSE, port: '7017 TCP'},
+    {module: UtmModulesEnum.PFSENSE, port: '7017 UDP'},
+    {module: UtmModulesEnum.PFSENSE, port: '7067 TCP (TLS)'},
+
+    {module: UtmModulesEnum.FORTIWEB, port: '7018 TCP'},
+    {module: UtmModulesEnum.FORTIWEB, port: '7018 UDP'},
+    {module: UtmModulesEnum.FORTIWEB, port: '7068 TCP (TLS)'},
+
+    {module: UtmModulesEnum.NETFLOW, port: '2055 UDP'},
+
+    {module: UtmModulesEnum.AIX, port: '7016 TCP'},
+    {module: UtmModulesEnum.AIX, port: '7016 UDP'},
+    {module: UtmModulesEnum.AIX, port: '7066 TCP (TLS)'},
   ];
+
+  steps: Step[] = SYSLOGSTEPS;
 
   constructor() {
   }
@@ -66,6 +98,16 @@ export class GuideSyslogComponent implements OnInit {
   getPorts(): SyslogModulePorts[] {
     return this.syslogPorts.filter(value => value.module === this.moduleEnum);
   }
+
+  getProtocols(): { name: string; id: number }[] {
+    return this.getPorts().map((port, index) => {
+      return {
+        id: index,
+        name: port.port.includes('TLS') ? 'TLS' : port.port.split(' ')[1]
+      };
+    });
+  }
+
 }
 
 export class SyslogModuleImages {

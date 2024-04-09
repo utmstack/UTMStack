@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240326001" author="Manuel">
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_pfsense(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('PfSense',
+                    'PfSense is a free and open-source firewall and router that also features unified threat management load balancing, multi-WAN and more.',
+                    FALSE,
+                    'pfsense.svg',
+                    'PFSENSE',
+                    srv_id,
+                    'Device',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'Pfsense',
+                                                            module_icon        = 'pfsense.svg',
+                                                            module_name        = 'PFSENSE',
+                                                            module_category    = 'Device',
+                                                            module_description = 'PfSense is a free and open-source firewall and router that also features unified threat management load balancing, multi-WAN and more.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+                create or replace function register_integrations(srv_id integer, srv_type character varying)
+                    returns void
+                    language plpgsql
+                    as
+                $$
+                BEGIN
+
+                    perform public.register_integration_netflow(srv_id);
+
+                    perform public.register_integration_window_agent(srv_id);
+
+                    perform public.register_integration_syslog(srv_id);
+
+                    perform public.register_integration_vmware(srv_id);
+
+                    perform public.register_integration_linux_agent(srv_id);
+
+                    perform public.register_integration_apache(srv_id);
+
+                    perform public.register_integration_linux_audit_demon(srv_id);
+
+                    perform public.register_integration_elasticsearch(srv_id);
+
+                    perform public.register_integration_hap(srv_id);
+
+                    perform public.register_integration_kafka(srv_id);
+
+                    perform public.register_integration_kibana(srv_id);
+
+                    perform public.register_integration_logstash(srv_id);
+
+                    perform public.register_integration_mongodb(srv_id);
+
+                    perform public.register_integration_mysql(srv_id);
+
+                    perform public.register_integration_nats(srv_id);
+
+                    perform public.register_integration_nginx(srv_id);
+
+                    perform public.register_integration_osquery(srv_id);
+
+                    perform public.register_integration_postgresql(srv_id);
+
+                    perform public.register_integration_redis(srv_id);
+
+                    perform public.register_integration_traefik(srv_id);
+
+                    perform public.register_integration_cisco(srv_id);
+
+                    perform public.register_integration_cisco_meraki(srv_id);
+
+                    perform public.register_integration_json(srv_id);
+
+                    perform public.register_integration_iis(srv_id);
+
+                    perform public.register_integration_kaspersky(srv_id);
+
+                    perform public.register_integration_eset(srv_id);
+
+                    perform public.register_integration_sentinel_one(srv_id);
+
+                    perform public.register_integration_fortigate(srv_id);
+
+                    perform public.register_integration_sophosxg(srv_id);
+
+                    perform public.register_integration_macos(srv_id);
+
+
+                IF srv_type = 'aio' THEN
+
+                    perform public.register_integration_file_integrity(srv_id);
+
+                    perform public.register_integration_azure(srv_id);
+
+                    perform public.register_integration_o365(srv_id);
+
+                    perform public.register_integration_aws(srv_id);
+
+                    perform public.register_integration_sophos_central(srv_id);
+
+                    perform public.register_integration_gcp(srv_id);
+
+                    perform public.register_integration_fire_power(srv_id);
+
+                    perform public.register_integration_mikrotik(srv_id);
+
+                    perform public.register_integration_palo_alto(srv_id);
+
+                    perform public.register_integration_cisco_switch(srv_id);
+
+                    perform public.register_integration_sonic_wall(srv_id);
+
+                    perform public.register_integration_deceptive_bytes(srv_id);
+
+                    perform public.register_integration_github(srv_id);
+
+                    perform public.register_integration_bitdefender(srv_id);
+
+                    perform public.register_integration_soc_ai(srv_id);
+
+                    perform public.register_integration_pfsense(srv_id);
+
+                END IF;
+
+                perform public.update_module_dependencies();
+            END;
+            $$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+                perform public.execute_register_integration_function();
+            end;
+            $$
+            language plpgsql;
+        </createProcedure>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version)
+                VALUES (1522, 'filter {
+    # pfSense filter version 2.0.0
+    #Based in https://docs.netgate.com/pfsense/en/latest/monitoring/logs/raw-filter-format.html
+
+    split {
+     field => "message"
+     terminator => "<utm-log-separator>"
+    }
+
+    if ![dataType] {
+        #.........................................................................#
+        #First, define the entry point
+        if [message] and (([message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),(4|6)/)
+        or ([message]=~/ [a-z-_\.]+( \d+)? - - /)
+        or ([message]=~/ \/(.+?)( \d+)? - - \((.+?)\) [A-Z]+ \((.+?)\)/)){
+
+            #......................................................................#
+            #Generating dataType field required by CurrelationRulesEngine
+            mutate {
+                add_field => { "dataType" => "firewall-pfsense" }
+            }
+
+            #......................................................................#
+            #Using grok to parse header of the message
+            grok {
+                match => {
+                    "message" => "(%{INT:not_defined})?(\s)?(<%{NUMBER:priority}>)?(%{INT:syslog_version})? %{TIMESTAMP_ISO8601:timestamp} %{IPORHOST:syslog_host} %{GREEDYDATA:msg_all}"
+                }
+            }
+
+            #......................................................................#
+            #Checking that the msg_all field exists
+            if ([msg_all]){
+                if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),(4|6)/{
+                    grok {
+                        match => {
+                            "msg_all" => "%{WORD:event_type}(\s)?(\[)?(%{NUMBER:pid})?(\])?( - -|:) %{GREEDYDATA:csv_msg}"
+                        }
+                    }
+                    #.....................................................................#
+                    #Check if csv_msg exists and parsing it
+                    if [csv_msg]{
+                        #Changing the empty fields by X0X and then eliminating them
+                        mutate {
+                            gsub => [
+                                "csv_msg", ",,", ",X0X,"
+                            ]
+                        }
+                        #The gsub is repeated, because the first time it leaves some intermediate fields empty
+                        mutate {
+                            gsub => [
+                                "csv_msg", ",,", ",X0X,"
+                            ]
+                        }
+
+                        if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),4,(.+)(tcp|TCP|Tcp)/{
+                            csv {
+                                source => "csv_msg"
+                                skip_header => "true"
+                                columns => ["rule_number", "sub_rule_number", "anchor", "tracker", "real_interface", "reason",
+                                            "action", "direction", "ip_version", "ipv4_tos", "ipv4_ecn", "ipv4_ttl", "ipv4_id",
+                                            "ipv4_offset", "ipv4_flags", "ipv4_protocol_id", "proto", "ip_length", "src_ip", "dest_ip",
+                                            "src_port", "dest_port", "data_length", "tcp_flags", "sequence_number", "ack_number",
+                                            "tcp_window", "urg", "tcp_options"]
+                            }
+                        }else if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),4,(.+)(udp|UDP|Udp)/{
+                            csv {
+                                source => "csv_msg"
+                                skip_header => "true"
+                                columns => ["rule_number", "sub_rule_number", "anchor", "tracker", "real_interface", "reason",
+                                            "action", "direction", "ip_version", "ipv4_tos", "ipv4_ecn", "ipv4_ttl", "ipv4_id",
+                                            "ipv4_offset", "ipv4_flags", "ipv4_protocol_id", "proto", "ip_length", "src_ip", "dest_ip",
+                                            "src_port", "dest_port", "data_length"]
+                            }
+                        } else if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),4,(.+)(icmp|ICMP|Icmp)/{
+                            csv {
+                                source => "csv_msg"
+                                skip_header => "true"
+                                columns => ["rule_number", "sub_rule_number", "anchor", "tracker", "real_interface", "reason",
+                                            "action", "direction", "ip_version", "ipv4_tos", "ipv4_ecn", "ipv4_ttl", "ipv4_id",
+                                            "ipv4_offset", "ipv4_flags", "ipv4_protocol_id", "proto", "ip_length", "src_ip", "dest_ip",
+                                            "icmp_type", "icmp_data1", "icmp_data2", "icmp_data3", "icmp_data4", "icmp_data5"]
+
+                            }
+                        } else if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),6,(.+)(tcp|TCP|Tcp)/{
+                            csv {
+                                source => "csv_msg"
+                                skip_header => "true"
+                                columns => ["rule_number", "sub_rule_number", "anchor", "tracker", "real_interface", "reason",
+                                            "action", "direction", "ip_version", "ipv6_class", "ipv6_flow_label", "ipv6_hop_limit", "proto",
+                                            "ipv6_protocol_id", "ip_length", "src_ip", "dest_ip",
+                                            "src_port", "dest_port", "data_length", "tcp_flags", "sequence_number", "ack_number",
+                                            "tcp_window", "urg", "tcp_options"]
+                            }
+                        }else if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),6,(.+)(udp|UDP|Udp)/{
+                            csv {
+                                source => "csv_msg"
+                                skip_header => "true"
+                                columns => ["rule_number", "sub_rule_number", "anchor", "tracker", "real_interface", "reason",
+                                            "action", "direction", "ip_version", "ipv6_class", "ipv6_flow_label", "ipv6_hop_limit", "proto",
+                                            "ipv6_protocol_id", "ip_length", "src_ip", "dest_ip",
+                                            "src_port", "dest_port", "data_length"]
+                            }
+                        } else if [message]=~/ filterlog(.+),(match|\w+),(block|pass),(in|out),6,(.+)(icmp|ICMP|Icmp)/{
+                            csv {
+                                source => "csv_msg"
+                                skip_header => "true"
+                                columns => ["rule_number", "sub_rule_number", "anchor", "tracker", "real_interface", "reason",
+                                            "action", "direction", "ip_version", "ipv6_class", "ipv6_flow_label", "ipv6_hop_limit", "proto",
+                                            "ipv6_protocol_id", "ip_length", "src_ip", "dest_ip",
+                                            "icmp_type", "icmp_data1", "icmp_data2", "icmp_data3", "icmp_data4", "icmp_data5"]
+
+                            }
+                        }
+                        #......................................................................#
+                        #Rename the csv fields:
+                        mutate {
+                            rename => { "[rule_number]" => "[csv_field][rule_number]" }
+                            rename => { "[sub_rule_number]" => "[csv_field][sub_rule_number]" }
+                            rename => { "[anchor]" => "[csv_field][anchor]" }
+                            rename => { "[tracker]" => "[csv_field][tracker]" }
+                            rename => { "[real_interface]" => "[csv_field][real_interface]" }
+                            rename => { "[reason]" => "[csv_field][reason]" }
+                            rename => { "[action]" => "[csv_field][action]" }
+                            rename => { "[direction]" => "[csv_field][direction]" }
+                            rename => { "[ip_version]" => "[csv_field][ip_version]" }
+                            rename => { "[ipv4_tos]" => "[csv_field][ipv4_tos]" }
+                            rename => { "[ipv4_ecn]" => "[csv_field][ipv4_ecn]" }
+                            rename => { "[ipv4_ttl]" => "[csv_field][ipv4_ttl]" }
+                            rename => { "[ipv4_id]" => "[csv_field][ipv4_id]" }
+                            rename => { "[ipv4_offset]" => "[csv_field][ipv4_offset]" }
+                            rename => { "[ipv4_flags]" => "[csv_field][ipv4_flags]" }
+                            rename => { "[ipv4_protocol_id]" => "[csv_field][ipv4_protocol_id]" }
+                            rename => { "[proto]" => "[csv_field][proto]" }
+                            rename => { "[ip_length]" => "[csv_field][ip_length]" }
+                            rename => { "[src_ip]" => "[csv_field][src_ip]" }
+                            rename => { "[dest_ip]" => "[csv_field][dest_ip]" }
+                            rename => { "[src_port]" => "[csv_field][src_port]" }
+                            rename => { "[dest_port]" => "[csv_field][dest_port]" }
+                            rename => { "[data_length]" => "[csv_field][data_length]" }
+                            rename => { "[tcp_flags]" => "[csv_field][tcp_flags]" }
+                            rename => { "[sequence_number]" => "[csv_field][sequence_number]" }
+                            rename => { "[ack_number]" => "[csv_field][ack_number]" }
+                            rename => { "[tcp_window]" => "[csv_field][tcp_window]" }
+                            rename => { "[urg]" => "[csv_field][urg]" }
+                            rename => { "[tcp_options]" => "[csv_field][tcp_options]" }
+                            rename => { "[ipv6_class]" => "[csv_field][ipv6_class]" }
+                            rename => { "[ipv6_flow_label]" => "[csv_field][ipv6_flow_label]" }
+                            rename => { "[ipv6_hop_limit]" => "[csv_field][ipv6_hop_limit]" }
+                            rename => { "[ipv6_protocol_id]" => "[csv_field][ipv6_protocol_id]" }
+                            rename => { "[icmp_type]" => "[csv_field][icmp_type]" }
+                            rename => { "[icmp_data1]" => "[csv_field][icmp_data1]" }
+                            rename => { "[icmp_data2]" => "[csv_field][icmp_data2]" }
+                            rename => { "[icmp_data3]" => "[csv_field][icmp_data3]" }
+                            rename => { "[icmp_data4]" => "[csv_field][icmp_data4]" }
+                            rename => { "[icmp_data5]" => "[csv_field][icmp_data5]" }
+                        }
+
+                        #......................................................................#
+                        # Delete empty csv fields with ruby code
+                        if [csv_field] {
+                            ruby {
+                                code => ''
+                                    event.get("[csv_field]").each do |k, v|
+                                        if (v == "X0X")
+                                            event.remove(k)
+                                        else
+                                            event.set("[logx][pfsense][#{k}]",v)
+                                        end
+                                    end
+                                    ''
+                            }
+                        }
+                    }
+                }else if[message]=~/ [a-z-_\.]+( \d+)? - - /{
+                    grok {
+                        match => {
+                            "msg_all" => "%{DATA:event_type}( %{NUMBER:pid})? - - (- )?%{GREEDYDATA:msg}"
+                        }
+                    }
+                }else if [message]=~/ \/(.+?)( \d+)? - - \((.+?)\) [A-Z]+ \((.+?)\)/{
+                    grok {
+                        match => {
+                            "msg_all" => "%{PATH:process}( %{NUMBER:pid})? - - \(%{DATA:user}\) %{WORD:command_action} \(%{PATH:process_path}\)(GREEDYDATA:)?"
+                        }
+                    }
+                }
+
+
+            }
+
+            #......................................................................#
+            # Rename other fields
+            mutate {
+                rename => { "[event_type]" => "[logx][pfsense][event_type]" }
+                rename => { "[msg]" => "[logx][pfsense][msg]" }
+                rename => { "[pid]" => "[logx][pfsense][pid]" }
+                rename => { "[priority]" => "[logx][pfsense][priority]" }
+                rename => { "[user]" => "[logx][pfsense][user]" }
+                rename => { "[cmd]" => "[logx][pfsense][cmd]" }
+                rename => { "[process]" => "[logx][pfsense][process]" }
+                rename => { "[command_action]" => "[logx][pfsense][command_action]" }
+                rename => { "[process_path]" => "[logx][pfsense][process_path]" }
+            }
+
+            #.....................................................................#
+            #Generating dataSource field required by Correlation Engine
+            #Checks if exists, if not evaluate to the host variable
+            if [syslog_host]{
+                mutate {
+                    rename => { "[syslog_host]" => "[dataSource]" }
+                }
+            }
+            if (![dataSource]){
+                mutate {
+                    add_field => { "dataSource" => "%{host}" }
+                }
+            }
+
+            #......................................................................#
+            #Generating action field for established connections
+            if [logx][pfsense][action] and [logx][pfsense][action] == "pass"  {
+                mutate {
+                    add_field => { "[logx][utm][action]" => "Success" }
+                }
+            }
+            if [logx][pfsense][msg] and [logx][pfsense][msg]=~/[Cc]onnection reset/{
+                mutate {
+                    add_field => { "[logx][utm][action]" => "Success" }
+                }
+            }
+
+            #......................................................................#
+            #Finally, remove unnecessary fields
+            mutate {
+                remove_field => ["@version","timestamp","path","type","syslog_version",
+                "not_defined", "path", "event", "csv_msg", "csv_field", "msg_all"]
+            }
+        }
+    }
+}', 'pfsense', null, true, 'PFSENSE', false, '2.0.0');
+            ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
+                    VALUES (47, 'firewall_pfsense', 'Pfsense', null, 'up', 'PFSENSE', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1522, 47, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
+                    VALUES (63, 47, 'HTTP', 'http', false, true);
+
+                    INSERT INTO utm_logstash_input_configuration (id, input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
+                    VALUES (63, 63, 'http_port', '10043', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (63,'log-firewall-pfsense-*', 'PFSENSE', true, true);
+
+                    INSERT INTO utm_data_source_config (data_type, data_type_name, system_owner, included)
+                    VALUES ( 'firewall-pfsense', 'Pfsense', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (261, 'Pfsense', 'discover/log-analyzer?patternId=63&indexPattern=log-firewall-pfsense-*', 200, 1, null, 61, false, false, null, 'PFSENSE');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 261, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 261, 'ROLE_ADMIN');
+
+                    UPDATE utm_index_pattern
+                    SET pattern_module = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE'
+                    WHERE pattern = 'log-firewall-*';
+
+                    UPDATE utm_menu
+                    SET module_name_short = 'MERAKI,SOPHOS_XG,CISCO,FORTIGATE,FIRE_POWER,MIKROTIK,PALO_ALTO,SONIC_WALL,PFSENSE'
+                        WHERE id= 204;
+
+            ]]>
+
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>
