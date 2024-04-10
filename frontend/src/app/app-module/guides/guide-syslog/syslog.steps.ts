@@ -13,4 +13,9 @@ export const SYSLOGSTEPS: Step[] = [
       id: 'stepContent2'
     }
   },
+  {id: '3', name: 'Click on the button shown below, to activate the UTMStack features related to this integration',
+    content: {
+      id: 'stepContent3'
+    }
+  }
 ];
