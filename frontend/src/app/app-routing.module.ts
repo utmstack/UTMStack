@@ -139,6 +139,12 @@ const routes: Routes = [
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
+  {
+    path: 'threatwinds',
+    loadChildren: './threatwind/threatwind.module#ThreatWindModule',
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [ADMIN_ROLE, USER_ROLE]}
+  },
   {path: '', component: LoginComponent},
   {path: 'totp', component: TotpComponent},
   {path: 'reset/finish', component: PasswordResetFinishComponent},
