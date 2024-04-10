@@ -140,7 +140,7 @@ const routes: Routes = [
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   {
-    path: 'threatwinds',
+    path: 'threat-winds',
     loadChildren: './threatwind/threatwind.module#ThreatWindModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
