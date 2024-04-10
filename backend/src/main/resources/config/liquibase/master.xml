@@ -55,5 +55,7 @@
 
     <include file="/config/liquibase/changelog/20240405001_disable_unused_modules.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240410001_add_threatwinds_menu.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
