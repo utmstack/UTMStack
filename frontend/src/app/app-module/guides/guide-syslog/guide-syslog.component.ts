@@ -90,8 +90,7 @@ export class GuideSyslogComponent implements OnInit {
   constructor() {
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
   getImage(): SyslogModuleImages {
     return this.moduleImages.filter(value => value.module === this.moduleEnum)[0];
   }
@@ -106,6 +105,11 @@ export class GuideSyslogComponent implements OnInit {
         name: port.port.includes('TLS') ? 'TLS' : port.port.split(' ')[1]
       };
     });
+  }
+
+  getSteps() {
+    return this.moduleEnum === this.module.SYSLOG
+      ? this.steps.slice(0, 2) : this.steps;
   }
 
 }

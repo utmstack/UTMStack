@@ -14,7 +14,7 @@
       Logs received via Syslog are parsed and correlated by UTMStack automatically.
     </p>
     <ol class="setup_list">
-      <app-utm-list [items]="steps">
+      <app-utm-list [items]="getSteps()">
         <ng-template stepTemplateRef let-step>
           <li>
             <app-step>
@@ -35,6 +35,15 @@
                                     [protocols]="getProtocols()">
                   </app-log-colletor>
                 </ng-template>
+
+                <ng-template [ngIf]="step.content.id === 'stepContent3'">
+                  <div  class="mt-3">
+                    <app-app-module-activate-button [module]="moduleEnum" [type]="'integration'"
+                                                    [serverId]="serverId">
+                    </app-app-module-activate-button>
+                  </div>
+                </ng-template>
+
               </ng-container>
             </app-step>
           </li>
