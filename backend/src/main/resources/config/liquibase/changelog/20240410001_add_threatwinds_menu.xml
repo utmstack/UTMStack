@@ -7,22 +7,22 @@
     <changeSet id="20240410001" author="Manuel">
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
-            VALUES (901, 'ThreatWinds', null, null, 1, null, 13, true, false, 'threat-winds.svg', null);
+            VALUES (900, 'ThreatWinds', null, null, 1, null, 13, true, false, 'threat-winds.svg', null);
 
             INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
-            VALUES (902, 'Galaxy', 'threat-winds', 901, 1, null, 1, true, true, null, null);
+            VALUES (901, 'Galaxy', 'threat-winds', 900, 1, null, 1, true, true, null, null);
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name)
+            VALUES ( 900, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name)
+            VALUES ( 901, 'ROLE_ADMIN');
 
             INSERT INTO utm_menu_authority (menu_id, authority_name)
             VALUES ( 901, 'ROLE_USER');
 
             INSERT INTO utm_menu_authority (menu_id, authority_name)
-            VALUES ( 902, 'ROLE_ADMIN');
-
-            INSERT INTO utm_menu_authority (menu_id, authority_name)
-            VALUES ( 902, 'ROLE_USER');
-
-            INSERT INTO utm_menu_authority (menu_id, authority_name)
-            VALUES ( 901, 'ROLE_ADMIN');
+            VALUES ( 900, 'ROLE_ADMIN');
 
         </sql>
     </changeSet>
