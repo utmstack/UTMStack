@@ -19,7 +19,7 @@ public class MenuValidatorService implements Validator {
 
         UtmMenu menu = (UtmMenu) target;
 
-        if (menu.getParentId() != null && StringUtils.hasText(menu.getUrl())) {
+        if (menu.getParentId() != null && !StringUtils.hasText(menu.getUrl())) {
             errors.rejectValue("url", "urlField", "Url field can't be null");
         }
     }
