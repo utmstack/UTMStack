@@ -14,6 +14,7 @@ public class StartTlsMailSender extends BaseMailSender {
 
     @Autowired
     public StartTlsMailSender(JavaMailSenderImpl mailSender){
+
         super(EncryptionType.STARTTLS, mailSender);
     }
 
@@ -35,11 +36,9 @@ public class StartTlsMailSender extends BaseMailSender {
 
         Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
 
-        props.clear();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.smtp.ssl.trust", ((JavaMailSenderImpl) mailSender).getHost());
     }
 
 }

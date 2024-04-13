@@ -5,6 +5,8 @@ import com.park.utmstack.domain.shared_types.enums.EncryptionType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.util.Properties;
+
 public abstract class BaseMailSender implements MailSenderStrategy {
     private final JavaMailSenderImpl mailSender;
     private final EncryptionType type;
@@ -20,6 +22,8 @@ public abstract class BaseMailSender implements MailSenderStrategy {
         mailSender.setUsername(username);
         mailSender.setProtocol(protocol);
         mailSender.setPort(port);
+
+        addProperties();
     }
 
     @Override
@@ -39,10 +43,18 @@ public abstract class BaseMailSender implements MailSenderStrategy {
 
     @Override
     public JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, Integer port) {
-
         configure(host, username, password, protocol, port);
         return mailSender;
     }
+
+    public void addProperties(){
+        Properties props = mailSender.getJavaMailProperties();
+        props.clear();
+        props.put("mail.smtp.timeout", "5000");
+        props.put("mail.smtp.connectiontimeout", "5000");
+        props.put("mail.smtp.ssl.trust", mailSender.getHost());
+    }
+
 
     @Override
     public String getEncryptionType(){
