@@ -90,16 +90,16 @@ func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
 	url := fmt.Sprintf(config.LogstashPipelinesEndpoint, config.LogstashHost(), port)
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
 	if err != nil {
-		fmt.Printf("error creating request: %v", err.Error())
+		log.Printf("error creating request: %v", err.Error())
 	}
 
 	resp, err := out.Client.Do(req)
 	if err != nil {
-		fmt.Printf("error sendind logs with error: %v", err.Error())
+		log.Printf("error sending logs with error: %v", err.Error())
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("error sendind logs with http code %d", resp.StatusCode)
+		log.Printf("error sending logs with http code %d", resp.StatusCode)
 		return
 	}
 }
