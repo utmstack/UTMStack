@@ -7,7 +7,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/quantfall/holmes"
 	"github.com/utmstack/UTMStack/bdgz/configuration"
 	"github.com/utmstack/UTMStack/bdgz/server"
 	"github.com/utmstack/UTMStack/bdgz/utils"
@@ -15,27 +14,27 @@ import (
 )
 
 var (
-	h            = holmes.New("debug", "BDGZ_Integration")
 	mutex        = &sync.Mutex{}
 	moduleConfig = types.ConfigurationSection{}
 )
 
 func main() {
+	h := utils.GetLogger()
 	path, err := utils.GetMyPath()
 	if err != nil {
-		h.FatalError("failed to get current path: %v", err)
+		h.Fatal("failed to get current path: %v", err)
 	}
 
 	// Generate Certificates
 	certsPath := filepath.Join(path, "certs")
 	err = utils.CreatePathIfNotExist(certsPath)
 	if err != nil {
-		h.FatalError("error creating path: %s", err)
+		h.Fatal("error creating path: %s", err)
 	}
 
 	err = utils.GenerateCerts(certsPath)
 	if err != nil {
-		h.FatalError("error generating certificates: %v", err)
+		h.Fatal("error generating certificates: %v", err)
 	}
 
 	server.ServerUp(&moduleConfig, certsPath, h)

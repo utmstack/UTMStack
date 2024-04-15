@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/quantfall/holmes"
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/bdgz/constants"
 	"github.com/utmstack/UTMStack/bdgz/schema"
 	"github.com/utmstack/UTMStack/bdgz/utils"
@@ -17,7 +17,7 @@ import (
 var syslogHelper EpsSyslogHelper
 
 // GetBDGZLogs gets the Bitdefender Api Push logs and sends them to the syslog server
-func GetBDGZLogs(config *types.ConfigurationSection, h *holmes.Logger) http.HandlerFunc {
+func GetBDGZLogs(config *types.ConfigurationSection, h *logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h.Info("New group of events received")
 		// Check if the Bitdefender Module is active
@@ -25,7 +25,7 @@ func GetBDGZLogs(config *types.ConfigurationSection, h *holmes.Logger) http.Hand
 			//Check if the authorization exist
 			if r.Header.Get("authorization") == "" {
 				messag := "401 Missing Authorization Header"
-				h.Error(messag)
+				h.ErrorF(messag)
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -41,7 +41,7 @@ func GetBDGZLogs(config *types.ConfigurationSection, h *holmes.Logger) http.Hand
 			}
 			if !isAuth {
 				messag := "401 Invalid Authentication Credentials"
-				h.Error(messag)
+				h.ErrorF(messag)
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -52,7 +52,7 @@ func GetBDGZLogs(config *types.ConfigurationSection, h *holmes.Logger) http.Hand
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				h.Error("error to decode body: ", err)
+				h.ErrorF("error to decode body: %v", err)
 				return
 			}
 
@@ -65,13 +65,13 @@ func GetBDGZLogs(config *types.ConfigurationSection, h *holmes.Logger) http.Hand
 			w.WriteHeader(http.StatusOK)
 			w.Write(j)
 		} else {
-			h.Error("Bitdefender module disabled")
+			h.ErrorF("Bitdefender module disabled")
 		}
 	}
 }
 
 // ServerUp raises the connector that will receive the data and process it so that it is sent to the syslog server
-func ServerUp(cnf *types.ConfigurationSection, certsPath string, h *holmes.Logger) {
+func ServerUp(cnf *types.ConfigurationSection, certsPath string, h *logger.Logger) {
 	syslogHelper.Init()
 
 	r := mux.NewRouter().StrictSlash(false)
@@ -93,7 +93,7 @@ func ServerUp(cnf *types.ConfigurationSection, certsPath string, h *holmes.Logge
 		h.Info("Listening in port %s...\n", constants.GetConnectorPort())
 		err := server.ListenAndServeTLS(filepath.Join(certsPath, "server.crt"), filepath.Join(certsPath, "server.key"))
 		if err != nil {
-			h.Error("%v", err)
+			h.ErrorF("%v", err)
 		}
 		//Close connection with syslogServer
 		syslogHelper.clientSyslog.Close()
