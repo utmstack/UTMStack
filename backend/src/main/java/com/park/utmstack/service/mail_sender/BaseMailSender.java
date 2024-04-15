@@ -23,7 +23,7 @@ public abstract class BaseMailSender implements MailSenderStrategy {
         mailSender.setProtocol(protocol);
         mailSender.setPort(port);
 
-        addProperties();
+        setProperties();
     }
 
     @Override
@@ -47,11 +47,11 @@ public abstract class BaseMailSender implements MailSenderStrategy {
         return mailSender;
     }
 
-    public void addProperties(){
+    public void setProperties(){
         Properties props = mailSender.getJavaMailProperties();
         props.clear();
-        props.put("mail.smtp.timeout", "5000");
-        props.put("mail.smtp.connectiontimeout", "5000");
+        props.put("mail.smtp.timeout", "10000");
+        props.put("mail.smtp.connectiontimeout", "10000");
         props.put("mail.smtp.ssl.trust", mailSender.getHost());
     }
 
