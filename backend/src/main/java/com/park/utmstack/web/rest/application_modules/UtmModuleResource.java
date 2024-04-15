@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -126,7 +127,7 @@ public class UtmModuleResource {
                 Set<UtmModuleGroup> groups = module.getModuleGroups();
                 groups.forEach((gp) -> {
                     gp.getModuleGroupConfigurations().forEach((gpc) -> {
-                        if (gpc.getConfDataType().equals("password")) {
+                        if (gpc.getConfDataType().equals("password") && StringUtils.hasText(gpc.getConfValue())) {
                             gpc.setConfValue(CipherUtil.decrypt(gpc.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                         }
                     });
