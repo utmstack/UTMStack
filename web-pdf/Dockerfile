@@ -5,4 +5,4 @@ ADD target/web-pdf-1.0.0.jar ./
 
 EXPOSE 8080
 
-CMD /opt/bin/entry_point.sh & java -jar web-pdf-1.0.0.jar
+CMD /opt/bin/entry_point.sh & java -jar --shm-size=1g web-pdf-1.0.0.jar
