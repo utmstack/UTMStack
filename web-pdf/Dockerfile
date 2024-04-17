@@ -1,4 +1,4 @@
-# Use a Selenium base image.
+# Use a Selenium base image
 FROM selenium/standalone-chrome:latest
 
 ADD target/web-pdf-1.0.0.jar ./
