@@ -37,11 +37,8 @@ public class DefaultMailSender extends BaseMailSender {
 
         Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
 
-        props.clear();
         props.put("mail.smtp.auth", "false");
         props.put("mail.smtp.ssl.enable", "false");
-        props.put("mail.smtp.ssl.trust", ((JavaMailSenderImpl) mailSender).getHost());
-
     }
 
 }

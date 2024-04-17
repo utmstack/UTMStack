@@ -38,10 +38,8 @@ public class SslTlsMailSender extends BaseMailSender {
 
         Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
 
-        props.clear();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.ssl.enable", "true");
-        props.put("mail.smtp.ssl.trust", ((JavaMailSenderImpl) mailSender).getHost());
 
     }
 
