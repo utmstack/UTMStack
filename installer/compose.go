@@ -571,6 +571,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 
 	c.Services["web-pdf"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		Volumes: []string{
+			"/dev/shm",
+		},
 		DependsOn: []string{
 			"backend",
 			"frontend",
