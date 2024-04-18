@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 )
 
@@ -40,7 +41,7 @@ func (p *CiscoParser) IdentifySource(log string) (configuration.LogType, error) 
 	return configuration.LogTypeCiscoMeraki, nil
 }
 
-func (p *CiscoParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
+func (p *CiscoParser) ProcessData(logBatch interface{}, h *logger.Logger) (map[string][]string, error) {
 	classifiedLogs := make(map[string][]string)
 	batch, ok := logBatch.([]string)
 	if !ok {

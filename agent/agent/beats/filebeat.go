@@ -127,7 +127,7 @@ func (f Filebeat) SendSystemLogs(h *logger.Logger) {
 
 	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, configuration.BatchCapacity, h)
 	for logLine := range logLinesChan {
-		beatsData, err := parser.ProcessData(logLine)
+		beatsData, err := parser.ProcessData(logLine, h)
 		if err != nil {
 			h.ErrorF("error processing beats data: %v", err)
 			continue

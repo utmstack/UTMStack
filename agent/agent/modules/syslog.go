@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/logger"
+	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/parser"
@@ -130,11 +131,17 @@ func (m *SyslogModule) enableTCP() {
 		m.TCPListener.Listener = listener
 		m.TCPListener.CTX, m.TCPListener.Cancel = context.WithCancel(context.Background())
 
+		msgChannel := make(chan string)
+		go m.handleConnectionTCP(msgChannel)
+
 		go func() {
-			defer m.TCPListener.Listener.Close()
 			for {
 				select {
 				case <-m.TCPListener.CTX.Done():
+					err = m.TCPListener.Listener.Close()
+					if err != nil {
+						m.h.ErrorF("error closing tcp listener: %v", err)
+					}
 					return
 				default:
 					tcpListener.SetDeadline(time.Now().Add(1 * time.Second))
@@ -152,8 +159,34 @@ func (m *SyslogModule) enableTCP() {
 						m.h.ErrorF("error connecting with tcp listener: %v", err)
 						continue
 					}
+					reader := bufio.NewReader(conn)
+					remoteAddr := conn.RemoteAddr().String()
 
-					go m.handleConnectionTCP(conn)
+					remoteAddr, _, err = net.SplitHostPort(remoteAddr)
+					if err != nil {
+						m.h.ErrorF("error spliting host and port: %v", err)
+						continue
+					}
+
+					if remoteAddr == "127.0.0.1" {
+						remoteAddr, err = os.Hostname()
+						if err != nil {
+							m.h.Fatal("error getting hostname: %v\n", err)
+						}
+					}
+
+					message, err := reader.ReadString('\n')
+					if err != nil {
+						if err == io.EOF || err.(net.Error).Timeout() {
+							continue
+						}
+						m.h.ErrorF("error reading tcp data: %v", err)
+						return
+					}
+
+					message = configuration.GetMessageFormated(remoteAddr, message)
+
+					msgChannel <- message
 				}
 			}
 		}()
@@ -184,11 +217,15 @@ func (m *SyslogModule) enableUDP() {
 		msgChannel := make(chan string)
 
 		go m.handleConnectionUDP(msgChannel)
+
 		go func() {
-			defer m.UDPListener.Listener.Close()
 			for {
 				select {
 				case <-m.UDPListener.CTX.Done():
+					err = m.UDPListener.Listener.Close()
+					if err != nil {
+						m.h.ErrorF("error closing udp listener: %v", err)
+					}
 					return
 				default:
 					udpListener.SetDeadline(time.Now().Add(time.Second * 1))
@@ -246,32 +283,16 @@ func (m *SyslogModule) disableUDP() {
 	}
 }
 
-func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
-	defer c.Close()
+func (m *SyslogModule) handleConnectionTCP(logsChannel chan string) {
 	logBatch := []string{}
 	ticker := time.NewTicker(5 * time.Second)
-	reader := bufio.NewReader(c)
-	remoteAddr := c.RemoteAddr().String()
-
-	var err error
-	remoteAddr, _, err = net.SplitHostPort(remoteAddr)
-	if err != nil {
-		m.h.Fatal("error spliting host and port: %v", err)
-	}
-
-	if remoteAddr == "127.0.0.1" {
-		remoteAddr, err = os.Hostname()
-		if err != nil {
-			m.h.Fatal("error getting hostname: %v\n", err)
-		}
-	}
 
 	for {
 		select {
 		case <-ticker.C:
 			if len(logBatch) > 0 {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
+					logs, err := m.Parser.ProcessData(logBatch, m.h)
 					if err != nil {
 						m.h.ErrorF("error parsing data: %v", err)
 						continue
@@ -293,22 +314,17 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 		case <-m.TCPListener.CTX.Done():
 			return
 
-		default:
-			message, err := reader.ReadString('\n')
-			if err != nil {
-				if err == io.EOF || err.(net.Error).Timeout() {
-					return
-				}
-				m.h.ErrorF("error reading tcp data: %v", err)
-				return
-			}
+		case message := <-logsChannel:
 			message = strings.TrimSuffix(message, "\n")
-			message = configuration.GetMessageFormated(remoteAddr, message)
+			message, _, err := validations.ValidateString(message, false)
+			if err != nil {
+				m.h.ErrorF("error validating string: %v: message: %s", err, message)
+			}
 			logBatch = append(logBatch, message)
 
 			if len(logBatch) == configuration.BatchCapacity {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
+					logs, err := m.Parser.ProcessData(logBatch, m.h)
 					if err != nil {
 						m.h.ErrorF("error parsing data: %v", err)
 						continue
@@ -340,7 +356,7 @@ func (m *SyslogModule) handleConnectionUDP(logsChannel chan string) {
 		case <-ticker.C:
 			if len(logBatch) > 0 {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
+					logs, err := m.Parser.ProcessData(logBatch, m.h)
 					if err != nil {
 						m.h.ErrorF("error parsing data: %v", err)
 						continue
@@ -365,11 +381,15 @@ func (m *SyslogModule) handleConnectionUDP(logsChannel chan string) {
 
 		case message := <-logsChannel:
 			message = strings.TrimSuffix(message, "\n")
+			message, _, err := validations.ValidateString(message, false)
+			if err != nil {
+				m.h.ErrorF("error validating string: %v: message: %s", err, message)
+			}
 			logBatch = append(logBatch, message)
 
 			if len(logBatch) == configuration.BatchCapacity {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
+					logs, err := m.Parser.ProcessData(logBatch, m.h)
 					if err != nil {
 						m.h.ErrorF("error parsing data: %v", err)
 						continue
