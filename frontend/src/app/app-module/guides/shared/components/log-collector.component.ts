@@ -51,8 +51,7 @@ export class LogCollectorComponent {
 
   @Input() protocols = [
     {id: 1, name: 'TCP'},
-    {id: 2, name: 'UDP'},
-    {id: 3, name: 'TLS'}
+    {id: 2, name: 'UDP'}
   ];
 
   actions = [
