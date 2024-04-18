@@ -131,9 +131,6 @@ func (m *SyslogModule) enableTCP() {
 		m.TCPListener.Listener = listener
 		m.TCPListener.CTX, m.TCPListener.Cancel = context.WithCancel(context.Background())
 
-		msgChannel := make(chan string)
-		go m.handleConnectionTCP(msgChannel)
-
 		go func() {
 			defer func() {
 				err = m.TCPListener.Listener.Close()
@@ -161,37 +158,11 @@ func (m *SyslogModule) enableTCP() {
 						m.h.ErrorF("error connecting with tcp listener: %v", err)
 						continue
 					}
-					reader := bufio.NewReader(conn)
-					remoteAddr := conn.RemoteAddr().String()
-
-					remoteAddr, _, err = net.SplitHostPort(remoteAddr)
-					if err != nil {
-						m.h.ErrorF("error spliting host and port: %v", err)
-						continue
-					}
-
-					if remoteAddr == "127.0.0.1" {
-						remoteAddr, err = os.Hostname()
-						if err != nil {
-							m.h.Fatal("error getting hostname: %v\n", err)
-						}
-					}
-
-					message, err := reader.ReadString('\n')
-					if err != nil {
-						if err == io.EOF || err.(net.Error).Timeout() {
-							continue
-						}
-						m.h.ErrorF("error reading tcp data: %v", err)
-						return
-					}
-
-					message = configuration.GetMessageFormated(remoteAddr, message)
-
-					msgChannel <- message
+					go m.handleConnectionTCP(conn)
 				}
 			}
 		}()
+		select {}
 	}
 }
 
@@ -287,7 +258,47 @@ func (m *SyslogModule) disableUDP() {
 	}
 }
 
-func (m *SyslogModule) handleConnectionTCP(logsChannel chan string) {
+func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
+	defer c.Close()
+	reader := bufio.NewReader(c)
+	remoteAddr := c.RemoteAddr().String()
+
+	var err error
+	remoteAddr, _, err = net.SplitHostPort(remoteAddr)
+	if err != nil {
+		m.h.ErrorF("error spliting host and port: %v", err)
+	}
+
+	if remoteAddr == "127.0.0.1" {
+		remoteAddr, err = os.Hostname()
+		if err != nil {
+			m.h.ErrorF("error getting hostname: %v\n", err)
+		}
+	}
+
+	msgChannel := make(chan string)
+	go m.handleMessageTCP(msgChannel)
+
+	for {
+		select {
+		case <-m.TCPListener.CTX.Done():
+			return
+		default:
+			message, err := reader.ReadString('\n')
+			if err != nil {
+				if err == io.EOF || err.(net.Error).Timeout() {
+					return
+				}
+				m.h.ErrorF("error reading tcp data: %v", err)
+				return
+			}
+			message = configuration.GetMessageFormated(remoteAddr, message)
+			msgChannel <- message
+		}
+	}
+}
+
+func (m *SyslogModule) handleMessageTCP(logsChannel chan string) {
 	logBatch := []string{}
 	ticker := time.NewTicker(5 * time.Second)
 
@@ -315,8 +326,6 @@ func (m *SyslogModule) handleConnectionTCP(logsChannel chan string) {
 				}
 				logBatch = []string{}
 			}
-		case <-m.TCPListener.CTX.Done():
-			return
 
 		case message := <-logsChannel:
 			message = strings.TrimSuffix(message, "\n")
