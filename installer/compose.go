@@ -60,6 +60,11 @@ func (c *Compose) Encode() ([]byte, error) {
 }
 
 func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
+	err := CreateLogstashConfig(stack.LogstashConfig)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	c.Version = utils.Str("3.8")
 	c.Services = make(map[string]Service)
 	c.Volumes = make(map[string]Volume)
@@ -97,6 +102,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Datasources + ":/etc/utmstack",
 			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
 			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
+			stack.LogstashConfig + "/logstash.yml:/usr/share/logstash/config/logstash.yml",
 			stack.Cert + ":/cert",
 		},
 		DependsOn: []string{
@@ -565,6 +571,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 
 	c.Services["web-pdf"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		Volumes: []string{
+			stack.ShmFolder + ":/dev/shm",
+		},
 		DependsOn: []string{
 			"backend",
 			"frontend",

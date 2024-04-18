@@ -17,7 +17,6 @@ type Port struct {
 type Integration struct {
 	TCP Port `json:"tcp_port,omitempty"`
 	UDP Port `json:"udp_port,omitempty"`
-	TLS Port `json:"tls_port,omitempty"`
 }
 
 type CollectorConfiguration struct {
@@ -68,8 +67,6 @@ func ConfigureCollectorFirstTime() error {
 		newIntegration.TCP.Port = ports.TCP
 		newIntegration.UDP.IsListen = false
 		newIntegration.UDP.Port = ports.UDP
-		newIntegration.TLS.IsListen = false
-		newIntegration.TLS.Port = ports.TLS
 		integrations[string(logTyp)] = newIntegration
 	}
 	return WriteCollectorConfig(integrations, configuration.GetCollectorConfigPath())
@@ -82,7 +79,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 		return "", fmt.Errorf("error reading collector config: %v", err)
 	}
 
-	if proto != "tcp" && proto != "udp" && proto != "tls" {
+	if proto != "tcp" && proto != "udp" {
 		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
 	if valid := configuration.ValidateModuleType(configuration.LogType(logTyp)); valid == "nil" {
@@ -97,9 +94,6 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	case "udp":
 		integration.UDP.IsListen = isEnabled
 		port = integration.UDP.Port
-	case "tls":
-		integration.TLS.IsListen = isEnabled
-		port = integration.TLS.Port
 	}
 
 	cnf.Integrations[logTyp] = integration
@@ -113,7 +107,7 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 		return "", fmt.Errorf("error reading collector config: %v", err)
 	}
 
-	if proto != "tcp" && proto != "udp" && proto != "tls" {
+	if proto != "tcp" && proto != "udp" {
 		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
 	if valid := configuration.ValidateModuleType(configuration.LogType(logTyp)); valid == "nil" {
@@ -134,9 +128,6 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 	case "udp":
 		old = integration.UDP.Port
 		integration.UDP.Port = port
-	case "tls":
-		old = integration.TLS.Port
-		integration.TLS.Port = port
 	}
 
 	cnf.Integrations[logTyp] = integration
@@ -144,13 +135,9 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 }
 
 func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, currentIntegration string) bool {
-	if proto == "tls" {
-		proto = "tcp"
-	}
-
 	for integration, config := range cnf.Integrations {
 		if integration != currentIntegration {
-			if config.TCP.Port == port || config.UDP.Port == port || config.TLS.Port == port {
+			if config.TCP.Port == port || config.UDP.Port == port {
 				return false
 			}
 		}
@@ -177,8 +164,6 @@ func MigrateOldConfig(old CollectorConfigurationOld) CollectorConfiguration {
 		newIntegration.TCP.Port = ports.TCP
 		newIntegration.UDP.IsListen = false
 		newIntegration.UDP.Port = ports.UDP
-		newIntegration.TLS.IsListen = false
-		newIntegration.TLS.Port = ports.TLS
 		integrations[string(logTyp)] = newIntegration
 	}
 
@@ -188,7 +173,6 @@ func MigrateOldConfig(old CollectorConfigurationOld) CollectorConfiguration {
 				integration := integrations[logTyp]
 				integration.TCP.IsListen = true
 				integration.UDP.IsListen = false
-				integration.TLS.IsListen = false
 				integrations[logTyp] = integration
 			}
 		}

@@ -102,9 +102,7 @@ public class MailService {
                 .orElseThrow(() -> new RuntimeException("Class not found"));
     }
 
-    private @NotNull JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, int port) throws MessagingException {
-
-        String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
+    private @NotNull JavaMailSender getJavaMailSender(String host, String username, String password, String protocol, int port, String authType) throws MessagingException {
 
         MailSenderStrategy mailSenderStrategy = getSender(authType);
         JavaMailSender mailSender = mailSenderStrategy.getJavaMailSender(host, username, password, protocol, port);
@@ -142,7 +140,7 @@ public class MailService {
 
     public void sendCheckEmail(List<String> to, MailConfig config) throws MessagingException {
         try {
-            JavaMailSender javaMailSender = getJavaMailSender(config.getHost(), config.getUsername(), config.getPassword(), Constants.PROP_EMAIL_PROTOCOL_VALUE, config.getPort());
+            JavaMailSender javaMailSender = getJavaMailSender(config.getHost(), config.getUsername(), config.getPassword(), Constants.PROP_EMAIL_PROTOCOL_VALUE, config.getPort(), config.getAuthType());
             javaMailSender.send(this.getMimeMessage(javaMailSender, to, config.getFrom()));
         } catch (MessagingException e) {
             String msg = String.format("Email could not be sent to user(s) %1$s: The mail configuration is wrong: %2$s", String.join(",", to), e.getMessage());

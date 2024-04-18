@@ -3,23 +3,9 @@ package utils
 import (
 	"errors"
 	"os/exec"
-	"unicode/utf8"
-)
 
-func CleanString(s string) string {
-	v := make([]rune, 0, len(s))
-	for i, r := range s {
-		if r == utf8.RuneError {
-			_, size := utf8.DecodeRuneInString(s[i:])
-			if size == 1 {
-				v = append(v, '?')
-				continue
-			}
-		}
-		v = append(v, r)
-	}
-	return string(v)
-}
+	"github.com/threatwinds/validations"
+)
 
 func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 	cmd := exec.Command(c, arg...)
@@ -34,7 +20,10 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 		return string(out[:]) + err.Error(), true
 	}
 
-	validUtf8Out := CleanString(string(out[:]))
+	validUtf8Out, _, err := validations.ValidateString(string(out[:]), false)
+	if err != nil {
+		return string(out[:]) + err.Error(), true
+	}
 
 	return validUtf8Out, false
 }

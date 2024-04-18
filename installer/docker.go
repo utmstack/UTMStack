@@ -23,6 +23,7 @@ type StackConfig struct {
 	Datasources       string
 	Rules             string
 	LocksDir          string
+	ShmFolder         string
 }
 
 func (s *StackConfig) Populate(c *Config) error {
@@ -49,6 +50,7 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.ESMem = mem.Total / 1024 / 1024 / 1024 / 4
 	s.LSMem = mem.Total / 1024 / 1024 / 1024 / 5
 	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
+	s.ShmFolder = utils.MakeDir(0777, c.DataDir, "tmpfs")
 
 	return nil
 }
