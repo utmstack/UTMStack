@@ -22,6 +22,7 @@ type StackConfig struct {
 	Datasources       string
 	Rules             string
 	LocksDir          string
+	ShmFolder         string
 }
 
 func (s *StackConfig) Populate(c *Config) error {
@@ -46,6 +47,7 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
 	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
+	s.ShmFolder = utils.MakeDir(0777, c.DataDir, "tmpfs")
 
 	services := []utils.ServiceConfig{
 		{Name: "correlation", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
