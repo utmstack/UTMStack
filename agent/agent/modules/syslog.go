@@ -135,13 +135,15 @@ func (m *SyslogModule) enableTCP() {
 		go m.handleConnectionTCP(msgChannel)
 
 		go func() {
+			defer func() {
+				err = m.TCPListener.Listener.Close()
+				if err != nil {
+					m.h.ErrorF("error closing tcp listener: %v", err)
+				}
+			}()
 			for {
 				select {
 				case <-m.TCPListener.CTX.Done():
-					err = m.TCPListener.Listener.Close()
-					if err != nil {
-						m.h.ErrorF("error closing tcp listener: %v", err)
-					}
 					return
 				default:
 					tcpListener.SetDeadline(time.Now().Add(1 * time.Second))
@@ -219,13 +221,15 @@ func (m *SyslogModule) enableUDP() {
 		go m.handleConnectionUDP(msgChannel)
 
 		go func() {
+			defer func() {
+				err = m.UDPListener.Listener.Close()
+				if err != nil {
+					m.h.ErrorF("error closing udp listener: %v", err)
+				}
+			}()
 			for {
 				select {
 				case <-m.UDPListener.CTX.Done():
-					err = m.UDPListener.Listener.Close()
-					if err != nil {
-						m.h.ErrorF("error closing udp listener: %v", err)
-					}
 					return
 				default:
 					udpListener.SetDeadline(time.Now().Add(time.Second * 1))
