@@ -64,9 +64,8 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 		rcv, err := client.ProcessLogs(ctx, &LogMessage{LogType: newLog.Src, Data: newLog.Logs})
 		if err != nil {
 			h.ErrorF("Error sending logs to Log Auth Proxy: %v", err)
-			h.Info("logs with errors: ")
 			for _, log := range newLog.Logs {
-				h.Info("log: %s", log)
+				h.ErrorF("log with errors: %s", log)
 			}
 			if strings.Contains(err.Error(), "invalid agent key") {
 				invalidKeyCounter++

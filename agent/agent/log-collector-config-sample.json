@@ -2,28 +2,23 @@
     "integrations": {
         "syslog": {
             "tcp_port": { "enabled": false, "value": "7014" },
-            "udp_port": { "enabled": false, "value": "7014" },
-            "tls_port": { "enabled": false, "value": "2056" }
+            "udp_port": { "enabled": false, "value": "7014" }
         },
         "antivirus_deceptivebytes": {
             "tcp_port": { "enabled": false, "value": "7010" },
-            "udp_port": { "enabled": false, "value": "7010" },
-            "tls_port": { "enabled": false, "value": "7060" }
+            "udp_port": { "enabled": false, "value": "7010" }
         },
         "antivirus_eset": { 
             "tcp_port": { "enabled": false, "value": "7003" },
-            "udp_port": { "enabled": false, "value": "7003" },
-            "tls_port": { "enabled": false, "value": "7053" }
+            "udp_port": { "enabled": false, "value": "7003" }
         },
         "antivirus_kaspersky": {
             "tcp_port": { "enabled": false, "value": "7004" },
-            "udp_port": { "enabled": false, "value": "7004" },
-            "tls_port": { "enabled": false, "value": "7054" }
+            "udp_port": { "enabled": false, "value": "7004" }
         },
         "antivirus_sentinel_one": {
             "tcp_port": { "enabled": false, "value": "7012" },
-            "udp_port": { "enabled": false, "value": "7012" },
-            "tls_port": { "enabled": false, "value": "7062" }
+            "udp_port": { "enabled": false, "value": "7012" }
         },
         "cisco": {
             "tcp_port": { "enabled": false, "value": "1470" },
@@ -31,56 +26,46 @@
         },
         "firewall_fortinet": {
             "tcp_port": { "enabled": false, "value": "7005" },
-            "udp_port": { "enabled": false, "value": "7005" },
-            "tls_port": { "enabled": false, "value": "7055" }
+            "udp_port": { "enabled": false, "value": "7005" }
         },
         "firewall_mikrotik": {
             "tcp_port": { "enabled": false, "value": "7007" },
-            "udp_port": { "enabled": false, "value": "7007" },
-            "tls_port": { "enabled": false, "value": "7057" }
+            "udp_port": { "enabled": false, "value": "7007" }
         },
         "firewall_paloalto": {
             "tcp_port": { "enabled": false, "value": "7006" },
-            "udp_port": { "enabled": false, "value": "7006" },
-            "tls_port": { "enabled": false, "value": "7056" }
+            "udp_port": { "enabled": false, "value": "7006" }
         },
         "firewall_sonicwall": {
             "tcp_port": { "enabled": false, "value": "7009" },
-            "udp_port": { "enabled": false, "value": "7009" },
-            "tls_port": { "enabled": false, "value": "7059" }
+            "udp_port": { "enabled": false, "value": "7009" }
         },
         "firewall_sophos": {
             "tcp_port": { "enabled": false, "value": "7008" },
-            "udp_port": { "enabled": false, "value": "7008" },
-            "tls_port": { "enabled": false, "value": "7058" }
+            "udp_port": { "enabled": false, "value": "7008" }
         },
         "macos": {
             "tcp_port": { "enabled": false, "value": "7015" },
-            "udp_port": { "enabled": false, "value": "7015" },
-            "tls_port": { "enabled": false, "value": "7065" }
+            "udp_port": { "enabled": false, "value": "7015" }
         },
         "vmware": {
             "tcp_port": { "enabled": false, "value": "7002" },
-            "udp_port": { "enabled": false, "value": "7002" },
-            "tls_port": { "enabled": false, "value": "7052" }
+            "udp_port": { "enabled": false, "value": "7002" }
         },
         "netflow": {
             "udp_port": { "enabled": false, "value": "2055" }
         },
         "aix": {
             "tcp_port": { "enabled": false, "value": "7016" },
-            "udp_port": { "enabled": false, "value": "7016" },
-            "tls_port": { "enabled": false, "value": "7066" }
+            "udp_port": { "enabled": false, "value": "7016" }
         },
         "firewall_pfsense": {
             "tcp_port": { "enabled": false, "value": "7017" },
-            "udp_port": { "enabled": false, "value": "7017" },
-            "tls_port": { "enabled": false, "value": "7067" }
+            "udp_port": { "enabled": false, "value": "7017" }
         },
         "firewall_fortiweb": {
             "tcp_port": { "enabled": false, "value": "7018" },
-            "udp_port": { "enabled": false, "value": "7018" },
-            "tls_port": { "enabled": false, "value": "7068" }
+            "udp_port": { "enabled": false, "value": "7018" }
         }
     }
 }

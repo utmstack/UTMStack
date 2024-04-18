@@ -73,8 +73,6 @@ func ModulesUp(h *logger.Logger) {
 					port = config.TCP.Port
 				case "udp":
 					port = config.UDP.Port
-				case "tls":
-					port = config.TLS.Port
 				}
 
 				if port != "" && moCache[index].GetPort(proto) != port {
@@ -104,7 +102,7 @@ func ModulesUp(h *logger.Logger) {
 func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 	configs := make(map[string][]bool) // first bool is if is necessary kill the port, second bool is if is necessary start the port
 
-	protos := []string{"tcp", "udp", "tls"}
+	protos := []string{"tcp", "udp"}
 	for _, proto := range protos {
 		var isEnabled bool
 		var port string
@@ -116,9 +114,6 @@ func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 		case "udp":
 			isEnabled = cnf.UDP.IsListen
 			port = cnf.UDP.Port
-		case "tls":
-			isEnabled = cnf.TLS.IsListen
-			port = cnf.TLS.Port
 		}
 
 		if mod.IsPortListen(proto) && !isEnabled {
