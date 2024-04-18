@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -95,7 +96,9 @@ func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
 
 	resp, err := out.Client.Do(req)
 	if err != nil {
-		log.Printf("error sending logs with error: %v", err.Error())
+		if !strings.Contains(err.Error(), "Client.Timeout exceeded while awaiting headers") {
+			log.Printf("error sending logs with error: %v", err.Error())
+		}
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
