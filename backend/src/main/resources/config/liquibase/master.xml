@@ -57,5 +57,7 @@
 
     <include file="/config/liquibase/changelog/20240410001_add_threatwinds_menu.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240419001_updating_pfsense_filter.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
