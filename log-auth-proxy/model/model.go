@@ -46,7 +46,7 @@ const (
 	Syslog                           = "syslog"
 	Generic                          = "generic"
 	Netflow                          = "netflow"
-	Aix                              = "aix"
+	Aix                              = "ibm_aix"
 	FirewallPfsense                  = "firewall_pfsense"
 	FirewallFortiweb                 = "firewall_fortiweb"
 )
