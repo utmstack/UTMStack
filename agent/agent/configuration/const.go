@@ -75,7 +75,7 @@ const (
 	LogTypeMacOs               LogType = "macos_logs"
 	LogTypeGeneric             LogType = "generic"
 	LogTypeNetflow             LogType = "netflow"
-	LogTypeAix                 LogType = "aix"
+	LogTypeAix                 LogType = "ibm_aix"
 	LogTypePfsense             LogType = "firewall_pfsense"
 	LogTypeFortiweb            LogType = "firewall_fortiweb"
 )
