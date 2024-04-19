@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 	"path"
 	"strings"
@@ -27,7 +26,7 @@ func checkRenderer() (string, error) {
 		return "networkd", nil
 	}
 
-	return "", fmt.Errorf("unknown renderer")
+	return "networkd", nil
 }
 
 func ConfigureVLAN(mainIface string) error {
