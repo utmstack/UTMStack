@@ -51,9 +51,9 @@ func (s *StackConfig) Populate(c *Config) error {
 
 	services := []utils.ServiceConfig{
 		{Name: "correlation", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
-		{Name: "logstash", Priority: 1, MinMemory: 2.5 * 1024, MaxMemory: 60 * 1024},
-		{Name: "opensearch", Priority: 1, MinMemory: 2.5 * 1024, MaxMemory: 60 * 1024},
-		{Name: "log-auth-proxy", Priority: 1, MinMemory: 700, MaxMemory: 10 * 1024},
+		{Name: "logstash", Priority: 1, MinMemory: 2700, MaxMemory: 60 * 1024},
+		{Name: "opensearch", Priority: 1, MinMemory: 2700, MaxMemory: 60 * 1024},
+		{Name: "log-auth-proxy", Priority: 1, MinMemory: 600, MaxMemory: 10 * 1024},
 		{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
 		{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
 		{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
@@ -63,13 +63,13 @@ func (s *StackConfig) Populate(c *Config) error {
 		{Name: "aws", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "sophos", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "frontend", Priority: 3, MinMemory: 100, MaxMemory: 1024},
-		{Name: "socai", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "bitdefender", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "office365", Priority: 3, MinMemory: 50, MaxMemory: 1024},
+		{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
+		{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 1024},
+		{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 1024},
+		{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 1024},
 	}
 
-	total := int(mem.Total/1024/1024) - 3*1024
+	total := int(mem.Total/1024/1024) - 3*1000
 
 	rsrcs, err := utils.BalanceMemory(services, total)
 	if err != nil {
