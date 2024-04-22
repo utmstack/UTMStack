@@ -80,21 +80,22 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	LSMem := stack.ServiceResources["logstash"].AssignedMemory
 	c.Services["logstash"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
 		Environment: []string{
 			"CONFIG_RELOAD_AUTOMATIC=true",
-			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dg -Xmx%dg -Xss100m", stack.LSMem, stack.LSMem),
+			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dm -Xmx%dm -Xss100m", LSMem, LSMem),
 			fmt.Sprintf("PIPELINE_WORKERS=%d", stack.Threads),
 		},
 		Deploy: &Deploy{
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.LSMem*2)),
+					Memory: utils.Str(fmt.Sprintf("%vM", LSMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.LSMem)),
+					Memory: utils.Str(fmt.Sprintf("%vM", LSMem/2)),
 				},
 			},
 		},
@@ -111,6 +112,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Logging: &dLogging,
 	}
 
+	mutateMem := stack.ServiceResources["mutate"].AssignedMemory
 	c.Services["mutate"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/mutate:" + conf.Branch),
 		Volumes: []string{
@@ -134,12 +136,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", mutateMem)),
 				},
 			},
 		},
 	}
 
+	agentManagerMem := stack.ServiceResources["agentmanager"].AssignedMemory
 	c.Services["agentmanager"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
 		Volumes: []string{
@@ -166,7 +169,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", agentManagerMem)),
 				},
 			},
 		},
@@ -177,6 +180,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Command: []string{"/app/server"},
 	}
 
+	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	c.Services["postgres"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
 		Environment: []string{
@@ -194,7 +198,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", postgresMem)),
 				},
 				Reservations: &Res{
 					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
@@ -204,6 +208,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Command: []string{"postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"},
 	}
 
+	frontEndMem := stack.ServiceResources["frontend"].AssignedMemory
 	c.Services["frontend"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/frontend:" + conf.Branch),
 		DependsOn: []string{
@@ -222,12 +227,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", frontEndMem)),
 				},
 			},
 		},
 	}
 
+	awsMem := stack.ServiceResources["aws"].AssignedMemory
 	c.Services["aws"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
@@ -248,13 +254,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", awsMem)),
 				},
 			},
 		},
 		Command: []string{"python3", "-m", "utmstack.aws"},
 	}
 
+	o365Mem := stack.ServiceResources["office365"].AssignedMemory
 	c.Services["office365"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/office365:" + conf.Branch),
 		DependsOn: []string{
@@ -275,12 +282,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", o365Mem)),
 				},
 			},
 		},
 	}
 
+	sophosMem := stack.ServiceResources["sophos"].AssignedMemory
 	c.Services["sophos"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
 		DependsOn: []string{
@@ -301,13 +309,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", sophosMem)),
 				},
 			},
 		},
 		Command: []string{"python3", "-m", "utmstack.sophos"},
 	}
 
+	bitdefemderMem := stack.ServiceResources["bitdefender"].AssignedMemory
 	c.Services["bitdefender"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/bitdefender:" + conf.Branch),
 		DependsOn: []string{
@@ -334,12 +343,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", bitdefemderMem)),
 				},
 			},
 		},
 	}
 
+	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	c.Services["backend"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
 		DependsOn: []string{
@@ -371,7 +381,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", backendMem)),
 				},
 				Reservations: &Res{
 					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
@@ -380,6 +390,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	fileBrowserMem := stack.ServiceResources["filebrowser"].AssignedMemory
 	c.Services["filebrowser"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/filebrowser/filebrowser:" + conf.Branch),
 		Volumes: []string{
@@ -393,12 +404,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", fileBrowserMem)),
 				},
 			},
 		},
 	}
 
+	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
 	c.Services["correlation"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/correlation:" + conf.Branch),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
@@ -435,15 +447,16 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*3)),
+					Memory: utils.Str(fmt.Sprintf("%vM", correlationMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+					Memory: utils.Str(fmt.Sprintf("%vM", correlationMem/2)),
 				},
 			},
 		},
 	}
 
+	opensearchMem := stack.ServiceResources["opensearch"].AssignedMemory
 	if conf.ServerType == "aio" {
 		c.Services["node1"] = Service{
 			Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
@@ -468,7 +481,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				"compatibility.override_main_response_version:true",
 				"opensearch_security.disabled: true",
 				"path.repo=/usr/share/opensearch",
-				fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dg -Xmx%dg", stack.ESMem, stack.ESMem),
+				fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem, opensearchMem),
 				"network.host:0.0.0.0",
 			},
 			Logging: &dLogging,
@@ -476,16 +489,17 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				Placement: &pManager,
 				Resources: &Resources{
 					Limits: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem*2)),
+						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem)),
 					},
 					Reservations: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem/2)),
 					},
 				},
 			},
 		}
 	}
 
+	socAIMem := stack.ServiceResources["socai"].AssignedMemory
 	c.Services["socai"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
 		DependsOn: []string{
@@ -504,12 +518,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", 1)),
+					Memory: utils.Str(fmt.Sprintf("%vM", socAIMem)),
 				},
 			},
 		},
 	}
 
+	logAuthProxyMem := stack.ServiceResources["log-auth-proxy"].AssignedMemory
 	c.Services["log-auth-proxy"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/log-auth-proxy:" + conf.Branch),
 		DependsOn: []string{
@@ -535,12 +550,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vG", stack.ESMem)),
+					Memory: utils.Str(fmt.Sprintf("%vM", logAuthProxyMem)),
 				},
 			},
 		},
 	}
 
+	userAutidorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
 		DependsOn: []string{
@@ -563,12 +579,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str("1G"),
+					Memory: utils.Str(fmt.Sprintf("%vM", userAutidorMem)),
 				},
 			},
 		},
 	}
 
+	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
 	c.Services["web-pdf"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
 		Volumes: []string{
@@ -583,7 +600,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str("1G"),
+					Memory: utils.Str(fmt.Sprintf("%vM", webPDFMem)),
 				},
 			},
 		},

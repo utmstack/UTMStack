@@ -9,12 +9,6 @@ import (
 )
 
 func Master(c *Config) error {
-	fmt.Println("Checking system requirements")
-
-	if err := utils.CheckMem(11); err != nil {
-		return err
-	}
-
 	if err := utils.CheckCPU(2); err != nil {
 		return err
 	}
@@ -23,14 +17,14 @@ func Master(c *Config) error {
 		return err
 	}
 
-	fmt.Println("Checking system requirements [OK]")
-
 	fmt.Println("Generating Stack configuration")
 
 	var stack = new(StackConfig)
 	if err := stack.Populate(c); err != nil {
 		return err
 	}
+
+	fmt.Println("Checking system requirements [OK]")
 
 	fmt.Println("Generating Stack configuration [OK]")
 
