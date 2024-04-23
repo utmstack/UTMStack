@@ -5,6 +5,10 @@ import (
 	"sort"
 )
 
+const (
+	SYSTEM_RESERVED_MEMORY = 2.5 * 1000
+)
+
 type ServiceConfig struct {
 	Name           string
 	Priority       int
@@ -73,7 +77,7 @@ func balanceMemoryAcrossTrees(trees []*serviceLevel, totalMemory int) error {
 		totalMinMemory += tree.getMinimum()
 	}
 	if totalMemory < totalMinMemory {
-		return fmt.Errorf("your system does not have the minimum required memory: %dMB", totalMinMemory+3*1000)
+		return fmt.Errorf("your system does not have the minimum required memory: %dMB", totalMinMemory+SYSTEM_RESERVED_MEMORY)
 	}
 
 	sort.Slice(trees, func(i, j int) bool {
