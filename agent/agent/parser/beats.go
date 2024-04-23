@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/threatwinds/logger"
+	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 )
 
@@ -54,7 +56,7 @@ func (p *BeatsParser) IdentifySource(log string) (configuration.LogType, error) 
 	return configuration.LogTypeGeneric, nil
 }
 
-func (p *BeatsParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
+func (p *BeatsParser) ProcessData(logBatch interface{}, h *logger.Logger) (map[string][]string, error) {
 	classifiedLogs := make(map[string][]string)
 	batch, ok := logBatch.([]string)
 	if !ok {
@@ -65,7 +67,12 @@ func (p *BeatsParser) ProcessData(logBatch interface{}) (map[string][]string, er
 			return nil, err
 		} else {
 			if logType != "" {
-				classifiedLogs[string(logType)] = append(classifiedLogs[string(logType)], log)
+				validatedLog, _, err := validations.ValidateString(log, false)
+				if err != nil {
+					h.ErrorF("error validating log: %s: %v", log, err)
+					continue
+				}
+				classifiedLogs[string(logType)] = append(classifiedLogs[string(logType)], validatedLog)
 			}
 		}
 	}

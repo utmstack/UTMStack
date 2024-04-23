@@ -51,8 +51,7 @@ export class LogCollectorComponent {
 
   @Input() protocols = [
     {id: 1, name: 'TCP'},
-    {id: 2, name: 'UDP'},
-    {id: 3, name: 'TLS'}
+    {id: 2, name: 'UDP'}
   ];
 
   actions = [
@@ -150,7 +149,7 @@ export class LogCollectorComponent {
         return 'firewall_fortiweb';
 
       case UtmModulesEnum.AIX:
-        return 'aix';
+        return 'ibm_aix';
 
       case UtmModulesEnum.ESET:
         return 'antivirus_eset';

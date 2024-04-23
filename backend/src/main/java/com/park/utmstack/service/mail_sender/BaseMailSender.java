@@ -50,7 +50,6 @@ public abstract class BaseMailSender implements MailSenderStrategy {
     public void setProperties(){
         Properties props = mailSender.getJavaMailProperties();
         props.clear();
-        props.put("mail.smtp.timeout", "10000");
         props.put("mail.smtp.connectiontimeout", "10000");
         props.put("mail.smtp.ssl.trust", mailSender.getHost());
     }

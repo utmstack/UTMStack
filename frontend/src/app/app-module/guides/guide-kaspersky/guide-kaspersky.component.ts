@@ -25,8 +25,7 @@ export class GuideKasperskyComponent implements OnInit {
   getPorts(): SyslogModulePorts[] {
     return [
       {module: UtmModulesEnum.SENTINEL_ONE, port: '7004 TCP'},
-      {module: UtmModulesEnum.SENTINEL_ONE, port: '7004 UDP'},
-      {module: UtmModulesEnum.SENTINEL_ONE, port: '7054 TCP (TLS)'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7004 UDP'}
     ];
   }
 

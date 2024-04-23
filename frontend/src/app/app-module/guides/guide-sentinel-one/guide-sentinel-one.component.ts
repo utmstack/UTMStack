@@ -25,8 +25,7 @@ export class GuideSentinelOneComponent implements OnInit {
   getPorts(): SyslogModulePorts[] {
     return [
       {module: UtmModulesEnum.SENTINEL_ONE, port: '7012 TCP'},
-      {module: UtmModulesEnum.SENTINEL_ONE, port: '7012 UDP'},
-      {module: UtmModulesEnum.SENTINEL_ONE, port: '7062 TCP (TLS)'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7012 UDP'}
     ];
   }
 

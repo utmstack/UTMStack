@@ -26,8 +26,7 @@ export class GuideEsetComponent implements OnInit {
   getPorts(): SyslogModulePorts[] {
     return [
       {module: UtmModulesEnum.SENTINEL_ONE, port: '7003 TCP'},
-      {module: UtmModulesEnum.SENTINEL_ONE, port: '7003 UDP'},
-      {module: UtmModulesEnum.SENTINEL_ONE, port: '7053 TCP (TLS)'},
+      {module: UtmModulesEnum.SENTINEL_ONE, port: '7003 UDP'}
     ];
   }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/tehmaze/netflow"
 	"github.com/tehmaze/netflow/session"
 	"github.com/threatwinds/logger"
+	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/parser"
@@ -112,7 +113,7 @@ func (m *NetflowModule) EnablePort(proto string) {
 					logs, err := m.Parser.ProcessData(parser.NetflowObject{
 						Remote:  addr.String(),
 						Message: message,
-					})
+					}, m.h)
 					if err != nil {
 						m.h.ErrorF("error parsing netflow: %v", err)
 					}
@@ -176,7 +177,13 @@ func (m *NetflowModule) handleConnection(logsChannel chan []string) {
 		case <-m.CTX.Done():
 			return
 		case messages := <-logsChannel:
-			logBatch = append(logBatch, messages...)
+			for _, message := range messages {
+				msg, _, err := validations.ValidateString(message, false)
+				if err != nil {
+					m.h.ErrorF("error validating string: %v: message: %s", err, message)
+				}
+				logBatch = append(logBatch, msg)
+			}
 
 			if len(logBatch) >= configuration.BatchCapacity {
 				logservice.LogQueue <- logservice.LogPipe{

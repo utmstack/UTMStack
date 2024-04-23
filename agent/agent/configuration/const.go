@@ -75,7 +75,7 @@ const (
 	LogTypeMacOs               LogType = "macos_logs"
 	LogTypeGeneric             LogType = "generic"
 	LogTypeNetflow             LogType = "netflow"
-	LogTypeAix                 LogType = "aix"
+	LogTypeAix                 LogType = "ibm_aix"
 	LogTypePfsense             LogType = "firewall_pfsense"
 	LogTypeFortiweb            LogType = "firewall_fortiweb"
 )
@@ -83,28 +83,27 @@ const (
 type ProtoPort struct {
 	UDP string
 	TCP string
-	TLS string
 }
 
 var (
 	ProtoPorts = map[LogType]ProtoPort{
-		LogTypeSyslog:         {UDP: "7014", TCP: "7014", TLS: "2056"},
-		LogTypeVmware:         {UDP: "7002", TCP: "7002", TLS: "7052"},
-		LogTypeEset:           {UDP: "7003", TCP: "7003", TLS: "7053"},
-		LogTypeKaspersky:      {UDP: "7004", TCP: "7004", TLS: "7054"},
-		LogTypeCiscoGeneric:   {UDP: "514", TCP: "1470", TLS: ""},
-		LogTypeFortinet:       {UDP: "7005", TCP: "7005", TLS: "7055"},
-		LogTypePaloalto:       {UDP: "7006", TCP: "7006", TLS: "7056"},
-		LogTypeMikrotik:       {UDP: "7007", TCP: "7007", TLS: "7057"},
-		LogTypeSophosXG:       {UDP: "7008", TCP: "7008", TLS: "7058"},
-		LogTypeSonicwall:      {UDP: "7009", TCP: "7009", TLS: "7059"},
-		LogTypeDeceptivebytes: {UDP: "7010", TCP: "7010", TLS: "7060"},
-		LogTypeSentinelOne:    {UDP: "7012", TCP: "7012", TLS: "7062"},
-		LogTypeMacOs:          {UDP: "7015", TCP: "7015", TLS: "7065"},
-		LogTypeAix:            {UDP: "7016", TCP: "7016", TLS: "7066"},
-		LogTypePfsense:        {UDP: "7017", TCP: "7017", TLS: "7067"},
-		LogTypeFortiweb:       {UDP: "7018", TCP: "7018", TLS: "7068"},
-		LogTypeNetflow:        {UDP: "2055", TCP: "", TLS: ""},
+		LogTypeSyslog:         {UDP: "7014", TCP: "7014"},
+		LogTypeVmware:         {UDP: "7002", TCP: "7002"},
+		LogTypeEset:           {UDP: "7003", TCP: "7003"},
+		LogTypeKaspersky:      {UDP: "7004", TCP: "7004"},
+		LogTypeCiscoGeneric:   {UDP: "514", TCP: "1470"},
+		LogTypeFortinet:       {UDP: "7005", TCP: "7005"},
+		LogTypePaloalto:       {UDP: "7006", TCP: "7006"},
+		LogTypeMikrotik:       {UDP: "7007", TCP: "7007"},
+		LogTypeSophosXG:       {UDP: "7008", TCP: "7008"},
+		LogTypeSonicwall:      {UDP: "7009", TCP: "7009"},
+		LogTypeDeceptivebytes: {UDP: "7010", TCP: "7010"},
+		LogTypeSentinelOne:    {UDP: "7012", TCP: "7012"},
+		LogTypeMacOs:          {UDP: "7015", TCP: "7015"},
+		LogTypeAix:            {UDP: "7016", TCP: "7016"},
+		LogTypePfsense:        {UDP: "7017", TCP: "7017"},
+		LogTypeFortiweb:       {UDP: "7018", TCP: "7018"},
+		LogTypeNetflow:        {UDP: "2055", TCP: ""},
 	}
 
 	ProhibitedPortsChange = []LogType{LogTypeCiscoGeneric, LogTypeNetflow}

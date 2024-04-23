@@ -11,6 +11,7 @@ import (
 	"github.com/tehmaze/netflow/netflow6"
 	"github.com/tehmaze/netflow/netflow7"
 	"github.com/tehmaze/netflow/netflow9"
+	"github.com/threatwinds/logger"
 	pnf "github.com/utmstack/UTMStack/agent/agent/parser/netflow"
 )
 
@@ -34,7 +35,7 @@ type NetflowObject struct {
 	Message netflow.Message
 }
 
-func (p *NetflowParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
+func (p *NetflowParser) ProcessData(logBatch interface{}, h *logger.Logger) (map[string][]string, error) {
 	var metrics []pnf.Metric
 	var remote string
 

@@ -16,9 +16,6 @@ func WriteCollectorConfig(integrations map[string]Integration, filename string) 
 		if integration.UDP.Port != "" {
 			fileContent += fmt.Sprintf("            \"udp_port\": {\"enabled\": %t, \"value\": \"%s\"},\n", integration.UDP.IsListen, integration.UDP.Port)
 		}
-		if integration.TLS.Port != "" {
-			fileContent += fmt.Sprintf("            \"tls_port\": {\"enabled\": %t, \"value\": \"%s\"},\n", integration.TLS.IsListen, integration.TLS.Port)
-		}
 		if strings.HasSuffix(fileContent, ",\n") {
 			fileContent = fileContent[:len(fileContent)-2] + "\n"
 		}
@@ -48,10 +45,6 @@ func WriteCollectorConfigFromModules(mod []Module, filename string) error {
 			UDP: Port{
 				IsListen: m.IsPortListen("udp"),
 				Port:     m.GetPort("udp"),
-			},
-			TLS: Port{
-				IsListen: m.IsPortListen("tls"),
-				Port:     m.GetPort("tls"),
 			},
 		}
 	}
