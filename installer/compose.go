@@ -460,7 +460,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
-	opensearchMem := stack.ServiceResources["opensearch"].AssignedMemory
+	// Calculating the less closed odd value to assign the final memory, because if an even value is returned
+	// opensearch raises an error
+	opensearchMem := utils.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
