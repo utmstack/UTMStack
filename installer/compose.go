@@ -81,6 +81,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	LSMem := stack.ServiceResources["logstash"].AssignedMemory
+	LSMin := stack.ServiceResources["logstash"].MinMemory
 	c.Services["logstash"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
 		Environment: []string{
@@ -95,7 +96,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 					Memory: utils.Str(fmt.Sprintf("%vM", LSMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", LSMem/2)),
+					Memory: utils.Str(fmt.Sprintf("%vM", LSMin)),
 				},
 			},
 		},
@@ -181,6 +182,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
+	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
 		Image: utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
 		Environment: []string{
@@ -201,7 +203,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 					Memory: utils.Str(fmt.Sprintf("%vM", postgresMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
+					Memory: utils.Str(fmt.Sprintf("%vM", postgresMin)),
 				},
 			},
 		},
@@ -350,6 +352,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
+	backendMin := stack.ServiceResources["backend"].MinMemory
 	c.Services["backend"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
 		DependsOn: []string{
@@ -384,7 +387,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 					Memory: utils.Str(fmt.Sprintf("%vM", backendMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", 512)),
+					Memory: utils.Str(fmt.Sprintf("%vM", backendMin)),
 				},
 			},
 		},
@@ -411,6 +414,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
+	correlationMin := stack.ServiceResources["correlation"].MinMemory
 	c.Services["correlation"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/correlation:" + conf.Branch),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
@@ -450,13 +454,14 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 					Memory: utils.Str(fmt.Sprintf("%vM", correlationMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", correlationMem/2)),
+					Memory: utils.Str(fmt.Sprintf("%vM", correlationMin)),
 				},
 			},
 		},
 	}
 
 	opensearchMem := stack.ServiceResources["opensearch"].AssignedMemory
+	opensearchMin := stack.ServiceResources["opensearch"].MinMemory
 	if conf.ServerType == "aio" {
 		c.Services["node1"] = Service{
 			Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
@@ -492,7 +497,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem)),
 					},
 					Reservations: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem/2)),
+						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMin/2)),
 					},
 				},
 			},

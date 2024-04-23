@@ -61,15 +61,15 @@ func (s *StackConfig) Populate(c *Config) error {
 		{Name: "agentmanager", Priority: 3, MinMemory: 100, MaxMemory: 1024},
 		{Name: "mutate", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "aws", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 1024},
+		{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 512},
 		{Name: "sophos", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
 		{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 1024},
-		{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 1024},
-		{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 1024},
+		{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 512},
+		{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 512},
 	}
 
-	total := int(mem.Total/1024/1024) - 3*1000
+	total := int(mem.Total/1024/1024) - utils.SYSTEM_RESERVED_MEMORY
 
 	rsrcs, err := utils.BalanceMemory(services, total)
 	if err != nil {
