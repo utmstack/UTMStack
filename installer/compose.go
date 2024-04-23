@@ -460,6 +460,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
+	opensearchMem := stack.ServiceResources["opensearch"].AssignedMemory
+	opensearchMin := stack.ServiceResources["opensearch"].MinMemory
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
@@ -496,7 +498,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem)),
 					},
 					Reservations: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMin/2)),
+						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem/2)),
 					},
 				},
 			},
