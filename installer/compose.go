@@ -460,9 +460,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
-	opensearchMem := stack.ServiceResources["opensearch"].AssignedMemory
-	opensearchMin := stack.ServiceResources["opensearch"].MinMemory
-	if conf.ServerType == "aio" {
+	// temporary create node1 always
+	if true {
 		c.Services["node1"] = Service{
 			Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
 			Ports: []string{
