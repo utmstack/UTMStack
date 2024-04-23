@@ -497,7 +497,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem)),
 					},
 					Reservations: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMin)),
+						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMin/2)),
 					},
 				},
 			},
