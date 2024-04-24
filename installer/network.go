@@ -1,7 +1,9 @@
 package main
 
 import (
-	"os/exec"
+	"fmt"
+	"log"
+	"os"
 	"path"
 	"strings"
 
@@ -15,15 +17,24 @@ type Vlan struct {
 }
 
 func checkRenderer() (string, error) {
-	out, err := exec.Command("bash", "-c", "grep renderer /etc/netplan/*.yaml").Output()
+	folder := path.Join("/etc", "netplan")
+	files, err := os.ReadDir(folder)
 	if err != nil {
 		return "", err
 	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
 
-	if strings.Contains(string(out), "NetworkManager") {
-		return "NetworkManager", nil
-	} else if strings.Contains(string(out), "networkd") {
-		return "networkd", nil
+		bytes, err := os.ReadFile(path.Join(folder, file.Name()))
+		if err != nil {
+			return "", err
+		}
+
+		if strings.Contains(fmt.Sprintf("%s", bytes), "NetworkManager") {
+			return "NetworkManager", nil
+		}
 	}
 
 	return "networkd", nil
@@ -40,11 +51,13 @@ func ConfigureVLAN(mainIface string) error {
 		Iface:    mainIface,
 	}
 
+	log.Println("Generating vlan config")
 	err = utils.GenerateConfig(c, templates.Vlan, path.Join("/etc", "netplan", "99-vlan.yaml"))
 	if err != nil {
 		return err
 	}
 
+	log.Println("Applying vlan config")
 	if err := utils.RunCmd("netplan", "apply"); err != nil {
 		return err
 	}
