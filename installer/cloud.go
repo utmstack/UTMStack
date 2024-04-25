@@ -9,12 +9,6 @@ import (
 )
 
 func Cloud(c *Config, update bool) error {
-	fmt.Println("Checking system requirements")
-
-	if err := utils.CheckMem(11); err != nil {
-		return err
-	}
-
 	if err := utils.CheckCPU(2); err != nil {
 		return err
 	}
@@ -23,14 +17,14 @@ func Cloud(c *Config, update bool) error {
 		return err
 	}
 
-	fmt.Println("Checking system requirements [OK]")
-
 	fmt.Println("Generating Stack configuration")
 
 	var stack = new(StackConfig)
 	if err := stack.Populate(c); err != nil {
 		return err
 	}
+
+	fmt.Println("Checking system requirements [OK]")
 
 	fmt.Println("Generating Stack configuration [OK]")
 
@@ -73,7 +67,7 @@ func Cloud(c *Config, update bool) error {
 	if utils.GetLock(202402081553, stack.LocksDir) {
 		fmt.Println("Configuring VLAN")
 		iface, err := utils.GetMainIface(c.MainServer)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 
@@ -91,7 +85,7 @@ func Cloud(c *Config, update bool) error {
 		fmt.Println("Configuring VLAN [OK]")
 	}
 
-	if utils.GetLock(202310261604, stack.LocksDir){
+	if utils.GetLock(202310261604, stack.LocksDir) {
 		fmt.Println("Creating pipelines.yml file")
 		err := utils.RunCmd("touch", path.Join(stack.LogstashConfig, "pipelines.yml"))
 		if err != nil {

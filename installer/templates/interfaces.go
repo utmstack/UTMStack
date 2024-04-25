@@ -3,7 +3,7 @@ package templates
 const Vlan string = `
 network:
   version: 2
-  renderer: networkd
+  renderer: {{ .Renderer }}
 
   vlans:
     vlan10:

@@ -149,7 +149,7 @@ export class LogCollectorComponent {
         return 'firewall_fortiweb';
 
       case UtmModulesEnum.AIX:
-        return 'aix';
+        return 'ibm_aix';
 
       case UtmModulesEnum.ESET:
         return 'antivirus_eset';
