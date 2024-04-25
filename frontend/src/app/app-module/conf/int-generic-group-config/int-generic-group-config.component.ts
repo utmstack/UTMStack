@@ -3,6 +3,7 @@ import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ModalConfirmationComponent} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {EncryptService} from '../../../shared/services/util/encrypt.service';
+import {ModuleChangeStatusBehavior} from '../../shared/behavior/module-change-status.behavior';
 import {IntCreateGroupComponent} from '../../shared/components/int-create-group/int-create-group.component';
 import {UtmModuleGroupConfService} from '../../shared/services/utm-module-group-conf.service';
 import {UtmModuleGroupService} from '../../shared/services/utm-module-group.service';
@@ -30,7 +31,8 @@ export class IntGenericGroupConfigComponent implements OnInit {
               private toast: UtmToastService,
               private encryptService: EncryptService,
               private utmModuleGroupConfService: UtmModuleGroupConfService,
-              private modalService: ModalService) {
+              private modalService: ModalService,
+              private moduleChangeStatusBehavior: ModuleChangeStatusBehavior) {
   }
 
   ngOnInit() {
@@ -66,8 +68,10 @@ export class IntGenericGroupConfigComponent implements OnInit {
   deleteGroup(group: UtmModuleGroupType) {
     const deleteModal = this.modalService.open(ModalConfirmationComponent, {centered: true});
     deleteModal.componentInstance.header = 'Delete tenant';
-    deleteModal.componentInstance.message = 'By deleting ' + group.groupName + ' tenant UTMStack no longer receive' +
-      ' logs from this source.' + ' Are you sure that you want to delete this tenant?';
+    deleteModal.componentInstance.message = 'By deleting ' + group.groupName + ' tenant, UTMStack will no longer receive logs from this source.' +
+        (this.groups.length === 1 ? ' Since this is the only tenant, the module associated with it will be deactivated.' : '') +
+        ' Are you sure that you want to delete this tenant?';
+
     deleteModal.componentInstance.confirmBtnText = 'Delete';
     deleteModal.componentInstance.confirmBtnIcon = 'icon-stack-cancel';
     deleteModal.componentInstance.confirmBtnType = 'delete';
@@ -78,7 +82,11 @@ export class IntGenericGroupConfigComponent implements OnInit {
 
   deleteAction(group: UtmModuleGroupType) {
     this.utmModuleGroupService.delete(group.id).subscribe(response => {
-      this.toast.showSuccessBottom('Tenant group saved successfully');
+      if (this.groups.length === 1) {
+        this.moduleChangeStatusBehavior.setStatus(false);
+      } else {
+        this.toast.showSuccessBottom('Tenant group deleted successfully');
+      }
       this.getGroups();
     }, error => {
       this.toast.showError('Error deleting tenant',
@@ -92,6 +100,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
       this.savingConfig = false;
       this.pendingChanges = false;
       this.changes = {keys: [], moduleId: this.moduleId};
+      this.configValidChange.emit(this.tenantGroupConfigValid());
       this.toast.showSuccessBottom('Configuration saved successfully');
     }, () => {
       this.toast.showError('Error saving configuration',
@@ -112,7 +121,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
       required = group.moduleGroupConfigurations.filter(value => value.confRequired === true);
       valid = required.filter(value => value.confValue !== null && value.confValue);
     });
-    return valid.length === required.length;
+    return this.groups.length > 0 && valid.length === required.length;
   }
 
   checkConfigValue(config: string): boolean {
@@ -127,7 +136,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
     } else {
       this.changes.keys[index].confValue = integrationConfig.confValue;
     }
-    this.configValidChange.emit(this.tenantGroupConfigValid());
+    // this.configValidChange.emit(this.tenantGroupConfigValid());
   }
 
   cancelConfig(group: UtmModuleGroupType) {
