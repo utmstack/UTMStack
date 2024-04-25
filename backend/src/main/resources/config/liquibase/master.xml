@@ -59,5 +59,7 @@
 
     <include file="/config/liquibase/changelog/20240419001_updating_pfsense_filter.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240424001_updating_category_aix_fortiweb.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
