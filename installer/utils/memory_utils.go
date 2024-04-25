@@ -136,3 +136,10 @@ func BalanceMemory(services []ServiceConfig, totalMemory int) (map[string]*Servi
 
 	return serviceMap, nil
 }
+
+func GetOddValue(value int) int {
+	if value%2 == 0 {
+		return value
+	}
+	return value - 1
+}

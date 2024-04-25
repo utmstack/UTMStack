@@ -86,7 +86,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Image: utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
 		Environment: []string{
 			"CONFIG_RELOAD_AUTOMATIC=true",
-			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dm -Xmx%dm -Xss100m", LSMem, LSMem),
+			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dm -Xmx%dm -Xss100m", LSMem/2, LSMem/2),
 			fmt.Sprintf("PIPELINE_WORKERS=%d", stack.Threads),
 		},
 		Deploy: &Deploy{
@@ -460,7 +460,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
-	opensearchMem := stack.ServiceResources["opensearch"].AssignedMemory
+	// Calculating the less closed odd value to assign the final memory, because if an even value is returned
+	// opensearch raises an error
+	opensearchMem := utils.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
@@ -486,7 +488,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				"compatibility.override_main_response_version:true",
 				"opensearch_security.disabled: true",
 				"path.repo=/usr/share/opensearch",
-				fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem, opensearchMem),
+				fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem/2, opensearchMem/2),
 				"network.host:0.0.0.0",
 			},
 			Logging: &dLogging,
