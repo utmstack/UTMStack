@@ -1,0 +1,51 @@
+name: Runner
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      microservice:
+        required: true
+        type: string
+
+jobs:
+  prepare_deployment:
+    name: Prepare deployment - ${{inputs.microservice}}
+    runs-on: ubuntu-latest
+    outputs:
+      tech: ${{ steps.get_tech.outputs.tech }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine Tech
+        id: get_tech
+        run: |
+          folder_changed="${{inputs.microservice}}"
+          if [[ "$folder_changed" == "agent-manager" || "$folder_changed" == "correlation" || "$folder_changed" == "bitdefender" || "$folder_changed" == "o365" || "$folder_changed" == "log-auth-proxy" ]]; then
+            tech="golang"
+          elif [[ "$folder_changed" == "backend" ]]; then
+            tech="java-11"
+          elif [[ "$folder_changed" == "frontend" ]]; then
+            tech="frontend"
+          elif [[ "$folder_changed" == "mutate" ]]; then
+            tech="basic"
+          elif [[ "$folder_changed" == "user-auditor" || "web-pdf" ]]; then
+            tech="java"
+          else
+            tech="unknown"
+          fi
+          echo $tech
+          echo "::set-output name=tech::$tech"
+        shell: bash
+
+  service_deployment:
+    name: ${{inputs.microservice}} deployment
+    needs: prepare_deployment
+    if: ${{ needs.prepare_deployment.outputs.tech != 'unknown' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/used-docker-${{ needs.prepare_deployment.outputs.tech }}.yml
+        with:
+          image_name: ${{ inputs.microservice }}
+          environment: ${{inputs.environment}}

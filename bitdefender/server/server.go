@@ -8,9 +8,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/bdgz/constants"
-	"github.com/utmstack/UTMStack/bdgz/schema"
-	"github.com/utmstack/UTMStack/bdgz/utils"
+	"github.com/utmstack/UTMStack/bitdefender/constants"
+	"github.com/utmstack/UTMStack/bitdefender/schema"
+	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 

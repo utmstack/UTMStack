@@ -1,10 +1,18 @@
 name: Agent Build
+
 on:
+  release:
+    types: [ 'released' ]
   push:
-    tags: [ 'v*' ]
-    branches: [ 'feature/**' ]
+    branches: [ 'main', 'feature/**' ]
+    paths:
+      - 'agent/**'
+      - 'version.yml'
   pull_request_review:
     types: [submitted]
+    paths: 
+      - 'agent/**'
+      - 'version.yml'
 
 jobs:
   check:
@@ -12,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       env_version: ${{ steps.set-env.outputs.env_version }}
-      agent_checking: ${{ steps.changes_agent_output.outputs.agent_checking }}
     steps:
       - name: Determine Build Environment
         id: set-env
@@ -20,29 +27,21 @@ jobs:
           if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') }}; then
             echo "DEV environment"
             echo "env_version=v10-dev" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main' }}; then
+          elif ${{ github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main' && startsWith(github.event.pull_request.head.ref, 'feature/') }}; then
+            echo "QA environment"
+            echo "env_version=v10-qa" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}; then
             echo "RC environment"
             echo "env_version=v10-rc" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}; then
+          elif ${{ github.event_name == 'release' }}; then
             echo "RELEASE environment"
             echo "env_version=release" >> $GITHUB_OUTPUT
           fi
-      - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: changes_agent
-        with:
-          filters: |
-            paths:
-              - 'agent/**'
-              - 'version.yml'
-      - id: changes_agent_output
-        run: |
-          echo "agent_checking=${{ steps.changes_agent.outputs.paths }}" >> $GITHUB_OUTPUT
 
   build:
     name: Build
     needs: check
-    if: needs.check.outputs.agent_checking == 'true'
+    if: needs.check.outputs.env_version != ''
     runs-on: signing
     steps:
       - name: Checkout code

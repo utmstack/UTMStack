@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-COPY server /app/
+COPY agent-manager /app/
 
 # Install jq
 RUN apt-get update && \
@@ -17,12 +17,12 @@ RUN GRPCURL_VERSION=1.8.1 && \
     chmod +x /usr/local/bin/grpcurl
 
 
-# Expose the gRPC server port
+# Expose the gRPC agent-manager port
 EXPOSE 50051
 
 # Set the health check
 HEALTHCHECK --interval=60s --timeout=5s --start-period=5s --retries=3 CMD grpcurl -insecure -plaintext -d '{"service": ""}' localhost:50051 grpc.health.v1.Health/Check | jq -e '.status == "SERVING"' || exit 1
 
 
-# Run the server binary
-CMD ["/app/server"]
+# Run the agent-manager binary
+CMD ["/app/agent-manager"]

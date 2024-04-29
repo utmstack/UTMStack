@@ -8,9 +8,6 @@ on:
       environment:
         required: true
         type: string
-      directory:
-        required: true
-        type: string
 
 jobs:
   build:
@@ -29,6 +26,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v5
         with:
-          context: ./${{inputs.directory}}
+          context: ./${{inputs.image_name}}
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
