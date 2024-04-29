@@ -39,7 +39,6 @@ jobs:
           echo "::set-output name=tech::$tech"
         shell: bash
 
-<<<<<<< HEAD
   basic_deployment:
     name: Basic deployment
     needs: prepare_deployment
@@ -84,15 +83,3 @@ jobs:
     with:
       image_name: ${{ inputs.microservice }}
       environment: ${{inputs.environment}}
-=======
-  service_deployment:
-    name: ${{inputs.microservice}} deployment
-    needs: prepare_deployment
-    if: ${{ needs.prepare_deployment.outputs.tech != 'unknown' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/used-docker-${{ needs.prepare_deployment.outputs.tech }}.yml
-        with:
-          image_name: ${{ inputs.microservice }}
-          environment: ${{inputs.environment}}
->>>>>>> main
