@@ -1,7 +1,8 @@
 name: Installer Release
 
 on:
-  workflow_call:
+  release:
+    types: [ 'released' ]
 
 jobs:
   build:

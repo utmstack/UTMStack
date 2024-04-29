@@ -7,9 +7,9 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/utmstack/UTMStack/bdgz/configuration"
-	"github.com/utmstack/UTMStack/bdgz/server"
-	"github.com/utmstack/UTMStack/bdgz/utils"
+	"github.com/utmstack/UTMStack/bitdefender/configuration"
+	"github.com/utmstack/UTMStack/bitdefender/server"
+	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 

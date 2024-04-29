@@ -8,9 +8,6 @@ on:
       environment:
         required: true
         type: string
-      directory:
-        required: true
-        type: string
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +22,7 @@ jobs:
           distribution: "temurin"
 
       - name: Build with Maven
-        working-directory: ./${{inputs.directory}}
+        working-directory: ./${{inputs.image_name}}
         run: |
           echo "Building with maven"
           mvn clean install -U -s settings.xml
@@ -42,6 +39,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v5
         with:
-          context: /home/runner/work/UTMStack/UTMStack/${{inputs.directory}}/
+          context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}

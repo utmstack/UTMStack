@@ -2,7 +2,7 @@ FROM ubuntu:latest
 
 RUN apt update
 
-COPY o365_integration .
+COPY office365 .
 
-RUN chmod +x o365_integration
-ENTRYPOINT ./o365_integration
+RUN chmod +x office365
+ENTRYPOINT ./office365
