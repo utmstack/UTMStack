@@ -10,7 +10,7 @@
             <![CDATA[
 
                     UPDATE utm_module
-                    SET module_category = 'device'
+                    SET module_category = 'Device'
                     WHERE module_name IN ('FORTIWEB', 'AIX');
 
             ]]>
