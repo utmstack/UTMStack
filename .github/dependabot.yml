@@ -18,6 +18,6 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/bdgz" # Location of package manifests
+    directory: "/bitdefender" # Location of package manifests
     schedule:
       interval: "weekly"

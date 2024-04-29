@@ -7,7 +7,7 @@ import (
 
 	syslog "github.com/RackSec/srslog"
 	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/bdgz/constants"
+	"github.com/utmstack/UTMStack/bitdefender/constants"
 	"github.com/utmstack/config-client-go/types"
 )
 

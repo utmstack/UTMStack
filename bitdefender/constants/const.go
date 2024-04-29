@@ -1,6 +1,6 @@
 package constants
 
-import "github.com/utmstack/UTMStack/bdgz/utils"
+import "github.com/utmstack/UTMStack/bitdefender/utils"
 
 const EndpointPush = "/v1.0/jsonrpc/push"
 

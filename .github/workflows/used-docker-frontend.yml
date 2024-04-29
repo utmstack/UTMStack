@@ -9,9 +9,6 @@ on:
       environment:
         required: true
         type: string
-      directory:
-        required: true
-        type: string
 
 jobs:
   build:
@@ -32,7 +29,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Build
-        working-directory: ./${{inputs.directory}}
+        working-directory: ./${{inputs.image_name}}
         run: |
           export NODE_OPTIONS=--max_old_space_size=8192
           npm install
@@ -51,6 +48,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v2
         with:
-          context: /home/runner/work/UTMStack/UTMStack/${{inputs.directory}}/
+          context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}

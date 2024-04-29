@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-COPY server /app/
+COPY log-auth-proxy /app/
 
 # Install jq
 RUN apt-get update && \
@@ -17,9 +17,9 @@ RUN GRPCURL_VERSION=1.8.1 && \
     chmod +x /usr/local/bin/grpcurl
 
 
-# Expose the gRPC server port
+# Expose the gRPC log-auth-proxy port
 EXPOSE 50051
 EXPOSE 8080
 
-# Run the server binary
-CMD ["/app/server"]
+# Run the log-auth-proxy binary
+CMD ["/app/log-auth-proxy"]

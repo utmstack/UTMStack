@@ -2,7 +2,7 @@ name: Installer Dev
 
 on:
   workflow_run:
-    workflows: ["Dev/Rc Deploy"]
+    workflows: ["Multi Environment Build"]
     types:
       - completed
 
@@ -15,8 +15,8 @@ jobs:
     steps:
       - id: check
         run: |
-          echo ${{ github.event.workflow_run.event }}
-          if ${{ startsWith(github.event.workflow_run.head_branch, 'feature/') && github.event.workflow_run.event != 'pull_request_review'}}; then
+          echo "Doing ${{ github.event.workflow_run.event }} on ${{ github.event.workflow_run.head_branch }}"
+          if ${{ github.event.workflow_run.event == 'push' && startsWith(github.event.workflow_run.head_branch, 'feature/') }}; then
             echo "It's a feature"
             echo "is_feature=true" >> $GITHUB_OUTPUT
           else
@@ -31,6 +31,8 @@ jobs:
     steps:
     - name: Check out code into the right branch
       uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.workflow_run.head_branch }}
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v4
