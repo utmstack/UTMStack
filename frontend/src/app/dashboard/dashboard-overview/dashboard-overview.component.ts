@@ -257,6 +257,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
           for (const pattern of responsePatterns) {
             this.indexPatternFieldService.getElasticIndexField({indexPattern: pattern.pattern})
               .subscribe(responseFields => {
+                console.log('Fields:', responseFields);
                 this.localFieldService.setPatternStoredFields(pattern.pattern, responseFields.body);
               });
           }
