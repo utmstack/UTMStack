@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"sync"
 	"time"
 
@@ -30,7 +29,7 @@ func main() {
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if (err.Error() != "") && (err.Error() != " ") {
-				utils.Logger.ErrorF(http.StatusInternalServerError, "error getting configuration of the O365 module: %v", err)
+				utils.Logger.ErrorF("error getting configuration of the O365 module: %v", err)
 			}
 
 			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)

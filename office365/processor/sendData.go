@@ -15,7 +15,7 @@ func SendToCorrelation(data []TransformedLog) *logger.Error {
 	for _, log := range data {
 		body, err := json.Marshal(log)
 		if err != nil {
-			utils.Logger.ErrorF(http.StatusInternalServerError, "error encoding log to JSON: %v", err)
+			utils.Logger.ErrorF("error encoding log to JSON: %v", err)
 			continue
 		}
 
