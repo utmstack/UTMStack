@@ -168,7 +168,6 @@ export class IndexPatternCreateComponent implements OnInit {
       'pattern.equals': this.regex,
     };
     this.indexPatternService.query(req).subscribe(index => {
-      console.log(index.body.length > 0);
       this.indexExist = index.body.length > 0;
     });
   }
