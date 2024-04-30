@@ -87,7 +87,7 @@ func (o *OfficeProcessor) StartSubscriptions() *logger.Error {
 
 		respJson, err := json.Marshal(resp)
 		if err != nil || status != http.StatusOK {
-			return utils.Logger.ErrorF(http.StatusInternalServerError, "failed to unmarshal response: %v", err)
+			return utils.Logger.ErrorF("failed to unmarshal response: %v", err)
 		}
 
 		utils.Logger.Info("starting subscription response: %v", respJson)

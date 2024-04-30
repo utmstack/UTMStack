@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"sync"
 	"time"
 
@@ -30,7 +29,7 @@ func main() {
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if (err.Error() != "") && (err.Error() != " ") {
-				utils.Logger.ErrorF(http.StatusInternalServerError, "error getting configuration of the O365 module: %v", err)
+				utils.Logger.ErrorF("error getting configuration of the O365 module: %v", err)
 			}
 
 			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
@@ -45,13 +44,13 @@ func main() {
 		utils.Logger.Info("getting logs for groups")
 
 		var wg sync.WaitGroup
-		
+
 		wg.Add(len(moduleConfig.ConfigurationGroups))
 
 		for _, group := range moduleConfig.ConfigurationGroups {
 			go func(group types.ModuleGroup) {
 				var skip bool
-				
+
 				for _, cnf := range group.Configurations {
 					if cnf.ConfValue == "" || cnf.ConfValue == " " {
 						utils.Logger.Info("program not configured yet for group: %s", group.GroupName)
@@ -59,7 +58,7 @@ func main() {
 						break
 					}
 				}
-				
+
 				if !skip {
 					processor.PullLogs(startTime, endTime, group)
 				}
