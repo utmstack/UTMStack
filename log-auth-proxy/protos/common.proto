@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "github.com/utmstack/UTMStack/log-auth-proxy/agent";
+
+package agent;
+
+message ListRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    string search_query = 3;
+    string sort_by = 4;
+}
+
+enum Status {
+    ONLINE = 0;
+    OFFLINE = 1;
+    UNKNOWN = 2;
+}
+  
+enum ConnectorType{
+    AGENT = 0;
+    COLLECTOR = 1;
+}

@@ -1,19 +1,16 @@
 package logservice
 
 import (
-	"log"
-	"os"
-
-	"github.com/utmstack/UTMStack/log-auth-proxy/model"
+	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 )
 
 type LogData struct {
-	logType model.LogType
+	logType config.LogType
 	data    string
 }
 
 type LogService struct {
-	logChans map[model.LogType]chan LogData
+	logChans map[config.LogType]chan LogData
 }
 
 //func NewLogQueueService(connections *connection.SingletonConnections) *LogService {
@@ -34,23 +31,23 @@ type LogService struct {
 //	return service
 //}
 
-func (l *LogService) writeToFile(logType model.LogType) {
-	for logData := range l.logChans[logType] {
-		file, err := os.OpenFile(string(logData.logType)+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		if _, err := file.Write([]byte(logData.data + "\n")); err != nil {
-			log.Println(err)
-			file.Close()
-			continue
-		}
-		if err := file.Close(); err != nil {
-			log.Println(err)
-		}
-	}
-}
+// func (l *LogService) writeToFile(logType model.LogType) {
+// 	for logData := range l.logChans[logType] {
+// 		file, err := os.OpenFile(string(logData.logType)+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+// 		if err != nil {
+// 			log.Println(err)
+// 			continue
+// 		}
+// 		if _, err := file.Write([]byte(logData.data + "\n")); err != nil {
+// 			log.Println(err)
+// 			file.Close()
+// 			continue
+// 		}
+// 		if err := file.Close(); err != nil {
+// 			log.Println(err)
+// 		}
+// 	}
+// }
 
 //func (l *LogService) sendToTCP(logType model.LogType) {
 //	for logData := range l.logChans[logType] {
@@ -58,11 +55,11 @@ func (l *LogService) writeToFile(logType model.LogType) {
 //	}
 //}
 
-func (l *LogService) LogData(logType model.LogType, data string) {
+func (l *LogService) LogData(logType config.LogType, data string) {
 	l.logChans[logType] <- LogData{logType: logType, data: data}
 }
 
-func (l *LogService) LogBulkData(logType model.LogType, data []string) {
+func (l *LogService) LogBulkData(logType config.LogType, data []string) {
 	for _, row := range data {
 		l.logChans[logType] <- LogData{logType: logType, data: row}
 	}

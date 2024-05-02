@@ -8,32 +8,36 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
-	"github.com/utmstack/UTMStack/log-auth-proxy/model"
+	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 )
 
 func HttpLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc {
+	h := utils.GetLogger()
 	return func(c *gin.Context) {
 		var body map[string]interface{}
 
 		if err := c.ShouldBindJSON(&body); err != nil {
+			h.ErrorF("Error binding http JSON: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		logType, source, err := getHeaderAndSource(c)
 		if err != nil {
+			h.ErrorF("Error getting header and source: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		body["dataSource"] = source
 
-		if logType != model.JsonInput {
+		if logType != config.JsonInput {
 			body["dataType"] = logType
 		}
 
 		jsonBytes, err := json.Marshal(body)
 		if err != nil {
+			h.ErrorF("Error marshalling http JSON: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to convert JSON to string"})
 			return
 		}
@@ -47,15 +51,18 @@ func HttpLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc {
 }
 
 func HttpBulkLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc {
+	h := utils.GetLogger()
 	return func(c *gin.Context) {
 		var body []interface{}
 
 		if err := c.ShouldBindJSON(&body); err != nil {
+			h.ErrorF("Error binding bulk JSON: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		logType, source, err := getHeaderAndSource(c)
 		if err != nil {
+			h.ErrorF("Error getting header and source: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -68,12 +75,13 @@ func HttpBulkLog(logOutputService *logservice.LogOutputService) gin.HandlerFunc 
 			}
 
 			dataMap["dataSource"] = source
-			if logType != model.JsonInput {
+			if logType != config.JsonInput {
 				dataMap["dataType"] = logType
 			}
 
 			str, err := json.Marshal(v)
 			if err != nil {
+				h.ErrorF("Error marshalling bulk JSON: %v", err)
 				continue
 			}
 			log := string(str)
@@ -90,30 +98,33 @@ func HttpPing(c *gin.Context) {
 }
 
 func HttpGitHubHandler(logOutputService *logservice.LogOutputService) gin.HandlerFunc {
+	h := utils.GetLogger()
 	return func(c *gin.Context) {
 		var body interface{}
 
 		if err := c.ShouldBindJSON(&body); err != nil {
+			h.ErrorF("Error binding github JSON: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		jsonBytes, err := json.Marshal(body)
 		if err != nil {
+			h.ErrorF("Error marshalling github JSON: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to convert JSON to string"})
 			return
 		}
 
 		jsonString := string(jsonBytes)
 
-		go logOutputService.SendLog(model.WebHookGithub, jsonString)
+		go logOutputService.SendLog(config.WebHookGithub, jsonString)
 
-		c.JSON(http.StatusOK, gin.H{"status": "received", "sendTo": model.WebHookGithub})
+		c.JSON(http.StatusOK, gin.H{"status": "received", "sendTo": config.WebHookGithub})
 	}
 }
 
-func getHeaderAndSource(c *gin.Context) (model.LogType, string, error) {
-	var logKind model.LogType
+func getHeaderAndSource(c *gin.Context) (config.LogType, string, error) {
+	var logKind config.LogType
 	logType := c.GetHeader(config.ProxyLogTypeHeader)
 	source := c.GetHeader(config.ProxySourceHeader)
 	if source == "" {
@@ -121,9 +132,9 @@ func getHeaderAndSource(c *gin.Context) (model.LogType, string, error) {
 	}
 
 	if logType == "" {
-		logKind = model.JsonInput
+		logKind = config.JsonInput
 	} else {
-		logKind = model.LogType(logType)
+		logKind = config.LogType(logType)
 	}
 
 	return logKind, source, nil

@@ -2,16 +2,17 @@ package handlers
 
 import (
 	"bufio"
-	"log"
 	"net"
 	"strings"
 
+	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
 	"github.com/utmstack/UTMStack/log-auth-proxy/middleware"
-	"github.com/utmstack/UTMStack/log-auth-proxy/model"
+	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 )
 
 func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
+	h := utils.GetLogger()
 	defer conn.Close()
 
 	scanner := bufio.NewScanner(conn)
@@ -20,6 +21,7 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 
 		parts := strings.Split(message, ",LOG:")
 		if len(parts) != 2 {
+			h.ErrorF("INVALID FORMAT expecting AUTH:<token>,LOG:<log>")
 			conn.Write([]byte("INVALID FORMAT expecting AUTH:<token>,LOG:<log>\n"))
 			continue
 		}
@@ -32,12 +34,12 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 			continue
 		}
 
-		go logOutputService.SendLog(model.WebHookGithub, logData)
+		go logOutputService.SendLog(config.WebHookGithub, logData)
 		conn.Write([]byte("RECEIVED\n"))
 
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Println("Error reading from connection:", err.Error())
+		h.ErrorF("Error reading from connection: %s", err.Error())
 	}
 }

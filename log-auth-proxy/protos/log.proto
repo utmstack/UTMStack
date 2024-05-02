@@ -1,12 +1,15 @@
 syntax = "proto3";
 
-option go_package = "github.com/AtlasInsideCorp/UTMStackAgentServer/logservice";
+option go_package = "github.com/utmstack/UTMStack/log-auth-proxy/logservice";
 
 package logservice;
 
+import "common.proto";
+
 message LogMessage {
-  string log_type = 1;
-  repeated string data = 2;
+  agent.ConnectorType type = 1;
+  string log_type = 2;
+  repeated string data = 3;
 }
 message ReceivedMessage {
   bool received = 1;

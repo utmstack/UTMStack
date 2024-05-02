@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
-	"github.com/utmstack/UTMStack/log-auth-proxy/model"
 )
 
 var PanelUrl = os.Getenv(config.UTMHostEnv)
@@ -37,14 +35,14 @@ func GetConnectionKey() ([]byte, error) {
 	}
 	if resp.StatusCode == http.StatusOK {
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		return body, err
 	}
 	return nil, err
 }
 
-func GetPipelines() ([]model.PipelinePortConfiguration, error) {
-	var pipelines []model.PipelinePortConfiguration
+func GetPipelines() ([]config.PipelinePortConfiguration, error) {
+	var pipelines []config.PipelinePortConfiguration
 	client := &http.Client{}
 	req, err := createPanelRequest("GET", config.PanelPipelinesEndpoint)
 	if err != nil {
