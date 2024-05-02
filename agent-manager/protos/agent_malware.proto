@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/utmstack/UTMStack/agent";
+option go_package = "github.com/utmstack/UTMStack/agent-manager/agent";
 
 package agent;
 

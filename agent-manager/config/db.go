@@ -2,10 +2,12 @@ package config
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"os"
 	"sync"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -22,7 +24,9 @@ func InitDb() {
 		dbName := os.Getenv("DB_NAME")
 		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", dbHost, dbPort, dbUser, dbPassword, dbName)
 		var err error
-		dbConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		dbConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		})
 		if err != nil {
 			panic(err)
 		}

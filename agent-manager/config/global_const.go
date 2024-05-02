@@ -2,26 +2,41 @@ package config
 
 import "os"
 
-func AgentKeyAuthRoutes() []string {
+func KeyAuthRoutes() []string {
 	return []string{
 		"/agent.AgentService/AgentStream",
-		"/agent.AgentService/Ping",
 		"/agent.AgentService/DeleteAgent",
-		"agent.AgentConfigService/AgentModuleUpdateStream",
-		"agent.AgentConfigService/GetAgentConfig",
+
+		"/agent.CollectorService/CollectorStream",
+		"/agent.CollectorService/DeleteCollector",
+		"/agent.CollectorService/GetCollectorConfig",
+
+		"/agent.PingService/Ping",
 	}
 }
 
 func ConnectionKeyRoutes() []string {
 	return []string{
 		"/agent.AgentService/RegisterAgent",
+		"/agent.CollectorService/RegisterCollector",
+	}
+}
+
+func InternalKeyRoutes() []string {
+	return []string{
 		"/agent.AgentService/ListAgents",
+		"/agent.AgentService/UpdateAgentType",  // Not used
+		"/agent.AgentService/UpdateAgentGroup", // Not used
 		"/agent.AgentService/ListAgentCommands",
 		"/agent.AgentService/GetAgentByHostname",
 		"/agent.AgentService/ListAgentsWithCommands",
-		"/agent.AgentService/UpdateAgentType",
-		"/agent.AgentService/UpdateAgentGroup",
-		"/agent.AgentService/ListAgentCommands",
+
+		"/agent.CollectorService/ListCollector",
+		"/agent.CollectorService/ListCollectorHostnames",
+		"/agent.CollectorService/GetCollectorsByHostnameAndModule",
+
+		"/agent.PanelService/ProcessCommand",
+		"/agent.PanelCollectorService/RegisterCollectorConfig",
 	}
 }
 
