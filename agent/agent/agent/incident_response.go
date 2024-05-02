@@ -1,4 +1,4 @@
-package stream
+package agent
 
 import (
 	"context"
@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"github.com/threatwinds/logger"
-	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
+func IncidentResponseStream(client AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
 	// Get current path
 	path, err := utils.GetMyPath()
 	if err != nil {
@@ -44,24 +43,6 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 			continue
 		}
 
-		// Send the authentication response
-		authResponse := &pb.BidirectionalStream{
-			StreamMessage: &pb.BidirectionalStream_AuthResponse{
-				AuthResponse: &pb.AuthResponse{AgentKey: cnf.AgentKey, AgentId: uint64(cnf.AgentID)},
-			},
-		}
-
-		if err := stream.Send(authResponse); err != nil {
-			if !connErrMsgWritten {
-				h.ErrorF("failed to send AuthResponse: %v", err)
-				connErrMsgWritten = true
-			}
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
-			time.Sleep(reconnectDelay)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, configuration.MaxReconnectDelay)
-			continue
-		}
-
 		connErrMsgWritten = false
 
 		// Handle the bidirectional stream
@@ -77,7 +58,7 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 			}
 
 			switch msg := in.StreamMessage.(type) {
-			case *pb.BidirectionalStream_Command:
+			case *BidirectionalStream_Command:
 				// Handle the received command
 				err = commandProcessor(h, path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
 				if err == io.EOF {
@@ -91,7 +72,7 @@ func IncidentResponseStream(client pb.AgentServiceClient, ctx context.Context, c
 	}
 }
 
-func commandProcessor(h *logger.Logger, path string, stream pb.AgentService_AgentStreamClient, cnf *configuration.Config, commandPair []string) error {
+func commandProcessor(h *logger.Logger, path string, stream AgentService_AgentStreamClient, cnf *configuration.Config, commandPair []string) error {
 	var result string
 	var errB bool
 
@@ -113,9 +94,9 @@ func commandProcessor(h *logger.Logger, path string, stream pb.AgentService_Agen
 	}
 
 	// Send the result back to the server
-	if err := stream.Send(&pb.BidirectionalStream{
-		StreamMessage: &pb.BidirectionalStream_Result{
-			Result: &pb.CommandResult{Result: result, AgentKey: cnf.AgentKey, ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
+	if err := stream.Send(&BidirectionalStream{
+		StreamMessage: &BidirectionalStream_Result{
+			Result: &CommandResult{Result: result, AgentKey: cnf.AgentKey, ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
 		},
 	}); err != nil {
 		return err

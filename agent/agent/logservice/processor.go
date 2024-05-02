@@ -61,7 +61,7 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 		}
 
 		newLog := <-LogQueue
-		rcv, err := client.ProcessLogs(ctx, &LogMessage{LogType: newLog.Src, Data: newLog.Logs})
+		rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: newLog.Src, Data: newLog.Logs})
 		if err != nil {
 			h.ErrorF("Error sending logs to Log Auth Proxy: %v", err)
 			for _, log := range newLog.Logs {
@@ -120,7 +120,7 @@ func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogService
 		return fmt.Errorf("error getting hostname: %v", err)
 	}
 
-	rcv, err := client.ProcessLogs(ctx, &LogMessage{LogType: string(configuration.LogTypeGeneric), Data: []string{configuration.GetMessageFormated(host, msg)}})
+	rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: string(configuration.LogTypeGeneric), Data: []string{configuration.GetMessageFormated(host, msg)}})
 	if err != nil {
 		return fmt.Errorf("error sending logs to Log Auth Proxy: %v", err)
 	}

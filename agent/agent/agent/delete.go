@@ -28,8 +28,8 @@ func DeleteAgent(conn *grpc.ClientConn, cnf *configuration.Config, h *logger.Log
 	agentClient := NewAgentServiceClient(conn)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ctx = metadata.AppendToOutgoingContext(ctx, "agent-key", cnf.AgentKey)
-	ctx = metadata.AppendToOutgoingContext(ctx, "agent-id", strconv.Itoa(int(cnf.AgentID)))
+	ctx = metadata.AppendToOutgoingContext(ctx, "key", cnf.AgentKey)
+	ctx = metadata.AppendToOutgoingContext(ctx, "id", strconv.Itoa(int(cnf.AgentID)))
 
 	currentUser, err := user.Current()
 	if err != nil {
@@ -37,7 +37,6 @@ func DeleteAgent(conn *grpc.ClientConn, cnf *configuration.Config, h *logger.Log
 	}
 
 	delet := &AgentDelete{
-		AgentKey:  cnf.AgentKey,
 		DeletedBy: currentUser.Username,
 	}
 

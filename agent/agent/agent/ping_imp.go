@@ -1,4 +1,4 @@
-package stream
+package agent
 
 import (
 	"context"
@@ -6,13 +6,12 @@ import (
 	"time"
 
 	"github.com/threatwinds/logger"
-	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/configuration"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 // Call this function to start sending Ping requests
-func StartPing(client pb.AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
+func StartPing(client PingServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
 	connectionTime := 0 * time.Second
 	reconnectDelay := configuration.InitialReconnectDelay
 	var connErrMsgWritten bool
@@ -42,7 +41,7 @@ func StartPing(client pb.AgentServiceClient, ctx context.Context, cnf *configura
 		defer ticker.Stop()
 
 		for range ticker.C {
-			err := stream.Send(&pb.PingResponse{AgentKey: cnf.AgentKey, IsAlive: true})
+			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
 			if err == io.EOF {
 				// Server closed the stream
 				h.ErrorF("Server closed the stream: %v", err)

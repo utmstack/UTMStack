@@ -53,7 +53,7 @@ func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey stri
 	}
 
 	cnf.AgentID = uint(response.Id)
-	cnf.AgentKey = response.AgentKey
+	cnf.AgentKey = response.Key
 
 	h.Info("successfully registered agent")
 
