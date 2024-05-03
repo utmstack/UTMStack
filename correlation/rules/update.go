@@ -3,7 +3,6 @@ package rules
 import (
 	"log"
 	"os/exec"
-	"path/filepath"
 	"time"
 
 	"github.com/utmstack/UTMStack/correlation/utils"
