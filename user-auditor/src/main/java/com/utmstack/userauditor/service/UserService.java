@@ -2,10 +2,8 @@ package com.utmstack.userauditor.service;
 
 import com.utmstack.userauditor.model.*;
 import com.utmstack.userauditor.model.winevent.EventLog;
-import com.utmstack.userauditor.repository.UserAttributeRepository;
 import com.utmstack.userauditor.repository.UserRepository;
 import com.utmstack.userauditor.repository.UserSourceRepository;
-import com.utmstack.userauditor.service.elasticsearch.ElasticsearchService;
 import com.utmstack.userauditor.service.interfaces.Source;
 import com.utmstack.userauditor.service.type.EventType;
 import com.utmstack.userauditor.service.type.WindowsAttributes;
@@ -13,15 +11,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Service Implementation for managing {@link UserService}.
@@ -85,26 +79,33 @@ public class UserService {
 
     private void synchronizeUsers(Map<String, List<EventLog>> users, UserSource userSource) {
         users.forEach((s, eventLogs) -> {
-            User user = userRepository.findByName(s).orElse(new User());
 
-            if (user.getId() != null) {
-                if (this.isDeleteEvent(eventLogs)) {
-                    user.setActive(false);
+            // The DWM (Desktop Windows Manager) and Usermode Font Driver Host accesses are discarded.
+            if(!s.contains("DWM") && !s.contains("UMFD")){
+                User user = userRepository.findByName(s).orElse(
+                        User.builder()
+                                .source(userSource)
+                                .attributes(new ArrayList<>())
+                                .audit(new Audit())
+                                .name(s)
+                                .build()
+                );
+
+                if (user.getId() != null) {
+                    if (this.isDeleteEvent(eventLogs)) {
+                        user.setActive(false);
+                    }
+
+                }
+
+                if (!this.isDeleteEvent(eventLogs)){
+                    user.getAttributes().clear();
+                    user.getAttributes().addAll(this.synchronizeAttributes(user, getRecentEvent(eventLogs)));
                 }
 
                 userRepository.save(user);
-            } else {
-                User u = User.builder()
-                        .source(userSource)
-                        .audit(new Audit())
-                        .name(s)
-                        .build();
-
-                List<UserAttribute> userAttributes = this.getUserCreatedEvent(eventLogs) != null ? this.synchronizeAttributes(u, getUserCreatedEvent(eventLogs)): new ArrayList<>();
-                u.setAttributes(userAttributes);
-
-                userRepository.save(u);
             }
+
         });
     }
 
@@ -134,8 +135,12 @@ public class UserService {
         return eventLog.stream().anyMatch(e -> e.logx.wineventlog.eventId == EventType.USER_DELETED.getEventId());
     }
 
-    private EventLog getUserCreatedEvent(List<EventLog> eventLog) {
-        return eventLog.stream().filter(s -> (s.logx.wineventlog.eventId == EventType.USER_CREATED.getEventId() || (s.logx.wineventlog.eventId == EventType.USER_LAST_LOGON.getEventId()))).findFirst().orElse(null);
+    private EventLog getRecentEvent(List<EventLog> events) {
+       return events.stream().filter(s -> (s.logx.wineventlog.eventId == EventType.USER_CREATED.getEventId()
+               || (s.logx.wineventlog.eventId == EventType.USER_LAST_LOGON.getEventId())))
+               .max(Comparator.comparing(e -> e.timestamp))
+               .orElse(null);
+
     }
 
     private String attributeByKey(WindowsAttributes key, EventLog eventLog) {
