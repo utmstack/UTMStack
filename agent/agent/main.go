@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("Failed to get current path: %v", err)
 	}
 
-	// Configuring log saving
+	// Configuring log saving.
 	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 
 	if len(os.Args) > 1 {
