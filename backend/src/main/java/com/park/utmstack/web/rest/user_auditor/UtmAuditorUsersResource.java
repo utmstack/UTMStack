@@ -36,7 +36,7 @@ public class UtmAuditorUsersResource {
     public UtmAuditorUsersResource() {
 
         if (!StringUtils.hasText(System.getenv(Constants.ENV_AD_AUDIT_SERVICE))) {
-            this.microServiceUrl = "http://user-auditor:8080/api";
+            this.microServiceUrl = "http://localhost:8081/api";
         } else{
             this.microServiceUrl = System.getenv(Constants.ENV_AD_AUDIT_SERVICE);
         }
@@ -109,10 +109,11 @@ public class UtmAuditorUsersResource {
             urlParams.put("page", String.valueOf(pageable.getPageNumber()));
             urlParams.put("size", String.valueOf(pageable.getPageSize()));
             urlParams.put("id", String.valueOf(sourceId));
+            urlParams.put("sort", "name,asc");
 
             RestTemplate restTemplate = new RestTemplate();
 
-            String uri = microServiceUrl.concat("/utm-auditor-users-by-src?page={page}&size={size}&id={id}");
+            String uri = microServiceUrl.concat("/utm-auditor-users-by-src?page={page}&size={size}&sort={sort}&id={id}");
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
