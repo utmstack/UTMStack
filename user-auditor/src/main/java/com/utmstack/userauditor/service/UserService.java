@@ -110,7 +110,9 @@ public class UserService {
     }
 
     private List<UserAttribute> synchronizeAttributes(User user, EventLog eventLog) {
-        user.setSid(eventLog.logx.wineventlog.eventData.targetUserSid);
+        int eventId = eventLog.logx.wineventlog.eventId;
+        user.setSid(eventId == EventType.USER_LAST_LOGON.getEventId() ? eventLog.logx.wineventlog.eventData.targetUserSid :
+                eventLog.logx.wineventlog.eventData.targetSid);
 
         List<UserAttribute> attributes = new ArrayList<>();
 
