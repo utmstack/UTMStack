@@ -18,12 +18,13 @@
          placement="left"
          tooltipClass="utm-tooltip"></i>
     </div>-->
-  </div>
-  <div class="w-100 h-100 p-1 ad-container">
+
     <app-utm-search-input (searchFor)="searchInTree($event)"
                           *ngIf="tree && tree.length>0"
                           [searching]="searching"
                           placeholder="Search"></app-utm-search-input>
+  </div>
+  <div class="w-100 h-100 p-1 ad-container">
     <div *ngIf="tree.length===0" class="loading-tree pt-5">
       <app-utm-spinner [height]="'35px'"
                        [label]="'Loading tree'"
