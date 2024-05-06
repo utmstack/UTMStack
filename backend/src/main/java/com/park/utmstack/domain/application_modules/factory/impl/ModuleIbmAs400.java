@@ -8,6 +8,7 @@ import com.park.utmstack.domain.application_modules.types.ModuleRequirement;
 import com.park.utmstack.service.application_modules.UtmModuleService;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,33 @@ public class ModuleIbmAs400 implements IModule {
 
     @Override
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
-        return Collections.emptyList();
+        List<ModuleConfigurationKey> keys = new ArrayList<>();
+
+        keys.add(ModuleConfigurationKey.builder()
+                .withGroupId(groupId)
+                .withConfKey("collector.as400.user")
+                .withConfName("UserName")
+                .withConfDescription("The AS400 user's name.")
+                .withConfDataType("text")
+                .withConfRequired(true)
+                .build());
+        keys.add(ModuleConfigurationKey.builder()
+                .withGroupId(groupId)
+                .withConfKey("collector.as400.password")
+                .withConfName("Password")
+                .withConfDescription("The AS400 user's password.")
+                .withConfDataType("password")
+                .withConfRequired(true)
+                .build());
+        keys.add(ModuleConfigurationKey.builder()
+                .withGroupId(groupId)
+                .withConfKey("The AS400 user's password.")
+                .withConfName("Hostname")
+                .withConfDescription("The AS400's hostname or IP address.")
+                .withConfDataType("text")
+                .withConfRequired(true)
+                .build());
+
+        return keys;
     }
 }
