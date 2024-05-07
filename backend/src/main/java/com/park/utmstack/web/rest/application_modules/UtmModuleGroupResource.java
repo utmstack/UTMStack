@@ -62,6 +62,9 @@ public class UtmModuleGroupResource {
         final String ctx = CLASSNAME + ".createConfigurationGroup";
         try {
             UtmModuleGroup group = new UtmModuleGroup(moduleGroupVM.getName(), moduleGroupVM.getDescription(), moduleGroupVM.getModuleId());
+            if(moduleGroupVM.getCollector() != null){
+                group.setCollector(moduleGroupVM.getCollector());
+            }
             UtmModuleGroup result = moduleGroupService.save(group);
 
             UtmModule module = moduleService.findOne(moduleGroupVM.getModuleId())
