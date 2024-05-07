@@ -18,16 +18,4 @@ public interface AgentDeleteOrBuilder extends
    */
   com.google.protobuf.ByteString
       getDeletedByBytes();
-
-  /**
-   * <code>string agent_key = 2;</code>
-   * @return The agentKey.
-   */
-  java.lang.String getAgentKey();
-  /**
-   * <code>string agent_key = 2;</code>
-   * @return The bytes for agentKey.
-   */
-  com.google.protobuf.ByteString
-      getAgentKeyBytes();
 }
