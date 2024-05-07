@@ -59,7 +59,5 @@
 
     <include file="/config/liquibase/changelog/20240419001_updating_pfsense_filter.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20240506001_adding_as_400.xml" relativeToChangelogFile="false"/>
-
 
 </databaseChangeLog>

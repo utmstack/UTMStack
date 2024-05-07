@@ -3,21 +3,15 @@
 
 package com.park.utmstack.service.grpc;
 
-public interface AgentDeleteOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:agent.AgentDelete)
+public interface AgentResponseOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:agent.AgentResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>string deleted_by = 1;</code>
-   * @return The deletedBy.
+   * <code>uint32 id = 1;</code>
+   * @return The id.
    */
-  java.lang.String getDeletedBy();
-  /**
-   * <code>string deleted_by = 1;</code>
-   * @return The bytes for deletedBy.
-   */
-  com.google.protobuf.ByteString
-      getDeletedByBytes();
+  int getId();
 
   /**
    * <code>string agent_key = 2;</code>

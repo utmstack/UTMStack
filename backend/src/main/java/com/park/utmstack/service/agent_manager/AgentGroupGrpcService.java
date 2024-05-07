@@ -23,7 +23,7 @@ public class AgentGroupGrpcService {
     }
 
     public ListAgentGroupsDTO listGroups(ListRequest request) throws Exception {
-        final String ctx = CLASSNAME + ".listGroups";
+        final String ctx = CLASSNAME + ".createGroup";
         try {
             return mapToListAgentsGroupDTO(blockingStub.listGroups(request));
         } catch (Exception e) {

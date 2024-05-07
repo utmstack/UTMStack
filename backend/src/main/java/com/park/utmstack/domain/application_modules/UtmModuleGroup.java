@@ -42,9 +42,6 @@ public class UtmModuleGroup implements Serializable {
     @OneToMany(mappedBy = "moduleGroup", fetch = FetchType.EAGER)
     private Set<UtmModuleGroupConfiguration> moduleGroupConfigurations = new HashSet<>();
 
-    @Column(name = "collector_id")
-    private String collector;
-
     public UtmModuleGroup() {
     }
 
@@ -100,13 +97,5 @@ public class UtmModuleGroup implements Serializable {
 
     public void setModuleGroupConfigurations(Set<UtmModuleGroupConfiguration> moduleGroupConfigurations) {
         this.moduleGroupConfigurations = moduleGroupConfigurations;
-    }
-
-    public String getCollector() {
-        return collector;
-    }
-
-    public void setCollector(String collector) {
-        this.collector = collector;
     }
 }

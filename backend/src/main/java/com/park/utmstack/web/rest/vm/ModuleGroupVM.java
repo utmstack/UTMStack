@@ -9,7 +9,6 @@ public class ModuleGroupVM {
     private String description;
     @NotNull
     private Long moduleId;
-    String collector;
 
     public String getName() {
         return name;
@@ -33,13 +32,5 @@ public class ModuleGroupVM {
 
     public void setModuleId(Long moduleId) {
         this.moduleId = moduleId;
-    }
-
-    public String getCollector() {
-        return collector;
-    }
-
-    public void setCollector(String collector) {
-        this.collector = collector;
     }
 }

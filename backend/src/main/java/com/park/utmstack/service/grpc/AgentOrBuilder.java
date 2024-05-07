@@ -44,15 +44,15 @@ public interface AgentOrBuilder extends
       getOsBytes();
 
   /**
-   * <code>.agent.Status status = 4;</code>
+   * <code>.agent.AgentStatus status = 4;</code>
    * @return The enum numeric value on the wire for status.
    */
   int getStatusValue();
   /**
-   * <code>.agent.Status status = 4;</code>
+   * <code>.agent.AgentStatus status = 4;</code>
    * @return The status.
    */
-  com.park.utmstack.service.grpc.Status getStatus();
+  com.park.utmstack.service.grpc.AgentStatus getStatus();
 
   /**
    * <code>string platform = 5;</code>

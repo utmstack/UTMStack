@@ -7,7 +7,6 @@ import com.park.utmstack.service.dto.agent_manager.ListAgentsCommandsResponseDTO
 import com.park.utmstack.service.dto.agent_manager.ListAgentsResponseDTO;
 import com.park.utmstack.service.grpc.*;
 import io.grpc.*;
-import io.grpc.Status;
 import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,11 +136,12 @@ public class AgentGrpcService {
                 }
             }
 
-            AgentDelete request = AgentDelete.newBuilder().setDeletedBy(currentUser).build();
+            AgentDelete request = AgentDelete.newBuilder().setAgentKey(agent.getAgentKey())
+                .setDeletedBy(currentUser).build();
 
             Metadata customHeaders = new Metadata();
-            customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());
-            customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agent.getId()));
+            customHeaders.put(Metadata.Key.of("agent-key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());
+            customHeaders.put(Metadata.Key.of("agent-id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agent.getId()));
 
             Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
             AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);

@@ -306,7 +306,7 @@ public class ModuleFactory {
             return moduleBitdefender;
         if (nameShort.equals(ModuleName.SALESFORCE))
             return moduleSalesforce;
-        if (nameShort.equals(ModuleName.AS_400))
+        if (nameShort.equals(ModuleName.IBM_AS_400))
             return moduleIbmAs400;
         if (nameShort.equals(ModuleName.SOC_AI))
             return moduleSocAi;

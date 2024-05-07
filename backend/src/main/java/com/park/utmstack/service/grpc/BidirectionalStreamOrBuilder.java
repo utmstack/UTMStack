@@ -37,5 +37,20 @@ public interface BidirectionalStreamOrBuilder extends
    */
   com.park.utmstack.service.grpc.CommandResultOrBuilder getResultOrBuilder();
 
+  /**
+   * <code>.agent.AuthResponse auth_response = 3;</code>
+   * @return Whether the authResponse field is set.
+   */
+  boolean hasAuthResponse();
+  /**
+   * <code>.agent.AuthResponse auth_response = 3;</code>
+   * @return The authResponse.
+   */
+  com.park.utmstack.service.grpc.AuthResponse getAuthResponse();
+  /**
+   * <code>.agent.AuthResponse auth_response = 3;</code>
+   */
+  com.park.utmstack.service.grpc.AuthResponseOrBuilder getAuthResponseOrBuilder();
+
   com.park.utmstack.service.grpc.BidirectionalStream.StreamMessageCase getStreamMessageCase();
 }

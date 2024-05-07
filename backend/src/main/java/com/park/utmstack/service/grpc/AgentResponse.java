@@ -4,74 +4,85 @@
 package com.park.utmstack.service.grpc;
 
 /**
- * Protobuf type {@code agent.Hostname}
+ * Protobuf type {@code agent.AgentResponse}
  */
-public final class Hostname extends
+public final class AgentResponse extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:agent.Hostname)
-    HostnameOrBuilder {
+    // @@protoc_insertion_point(message_implements:agent.AgentResponse)
+    AgentResponseOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use Hostname.newBuilder() to construct.
-  private Hostname(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use AgentResponse.newBuilder() to construct.
+  private AgentResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private Hostname() {
-    hostname_ = "";
+  private AgentResponse() {
+    agentKey_ = "";
   }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new Hostname();
+    return new AgentResponse();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_descriptor;
+    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_AgentResponse_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_fieldAccessorTable
+    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_AgentResponse_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.park.utmstack.service.grpc.Hostname.class, com.park.utmstack.service.grpc.Hostname.Builder.class);
+            com.park.utmstack.service.grpc.AgentResponse.class, com.park.utmstack.service.grpc.AgentResponse.Builder.class);
   }
 
-  public static final int HOSTNAME_FIELD_NUMBER = 1;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object hostname_ = "";
+  public static final int ID_FIELD_NUMBER = 1;
+  private int id_ = 0;
   /**
-   * <code>string hostname = 1;</code>
-   * @return The hostname.
+   * <code>uint32 id = 1;</code>
+   * @return The id.
    */
   @java.lang.Override
-  public java.lang.String getHostname() {
-    java.lang.Object ref = hostname_;
+  public int getId() {
+    return id_;
+  }
+
+  public static final int AGENT_KEY_FIELD_NUMBER = 2;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object agentKey_ = "";
+  /**
+   * <code>string agent_key = 2;</code>
+   * @return The agentKey.
+   */
+  @java.lang.Override
+  public java.lang.String getAgentKey() {
+    java.lang.Object ref = agentKey_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      hostname_ = s;
+      agentKey_ = s;
       return s;
     }
   }
   /**
-   * <code>string hostname = 1;</code>
-   * @return The bytes for hostname.
+   * <code>string agent_key = 2;</code>
+   * @return The bytes for agentKey.
    */
   @java.lang.Override
   public com.google.protobuf.ByteString
-      getHostnameBytes() {
-    java.lang.Object ref = hostname_;
+      getAgentKeyBytes() {
+    java.lang.Object ref = agentKey_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      hostname_ = b;
+      agentKey_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -92,8 +103,11 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(hostname_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, hostname_);
+    if (id_ != 0) {
+      output.writeUInt32(1, id_);
+    }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentKey_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, agentKey_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -104,8 +118,12 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(hostname_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, hostname_);
+    if (id_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeUInt32Size(1, id_);
+    }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentKey_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, agentKey_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -117,13 +135,15 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof com.park.utmstack.service.grpc.Hostname)) {
+    if (!(obj instanceof com.park.utmstack.service.grpc.AgentResponse)) {
       return super.equals(obj);
     }
-    com.park.utmstack.service.grpc.Hostname other = (com.park.utmstack.service.grpc.Hostname) obj;
+    com.park.utmstack.service.grpc.AgentResponse other = (com.park.utmstack.service.grpc.AgentResponse) obj;
 
-    if (!getHostname()
-        .equals(other.getHostname())) return false;
+    if (getId()
+        != other.getId()) return false;
+    if (!getAgentKey()
+        .equals(other.getAgentKey())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -135,51 +155,53 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + HOSTNAME_FIELD_NUMBER;
-    hash = (53 * hash) + getHostname().hashCode();
+    hash = (37 * hash) + ID_FIELD_NUMBER;
+    hash = (53 * hash) + getId();
+    hash = (37 * hash) + AGENT_KEY_FIELD_NUMBER;
+    hash = (53 * hash) + getAgentKey().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(byte[] data)
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(java.io.InputStream input)
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -187,26 +209,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static com.park.utmstack.service.grpc.Hostname parseDelimitedFrom(java.io.InputStream input)
+  public static com.park.utmstack.service.grpc.AgentResponse parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static com.park.utmstack.service.grpc.Hostname parseDelimitedFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.AgentResponse parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -219,7 +241,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(com.park.utmstack.service.grpc.Hostname prototype) {
+  public static Builder newBuilder(com.park.utmstack.service.grpc.AgentResponse prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -235,26 +257,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code agent.Hostname}
+   * Protobuf type {@code agent.AgentResponse}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:agent.Hostname)
-      com.park.utmstack.service.grpc.HostnameOrBuilder {
+      // @@protoc_insertion_point(builder_implements:agent.AgentResponse)
+      com.park.utmstack.service.grpc.AgentResponseOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_descriptor;
+      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_AgentResponse_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_fieldAccessorTable
+      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_AgentResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.park.utmstack.service.grpc.Hostname.class, com.park.utmstack.service.grpc.Hostname.Builder.class);
+              com.park.utmstack.service.grpc.AgentResponse.class, com.park.utmstack.service.grpc.AgentResponse.Builder.class);
     }
 
-    // Construct using com.park.utmstack.service.grpc.Hostname.newBuilder()
+    // Construct using com.park.utmstack.service.grpc.AgentResponse.newBuilder()
     private Builder() {
 
     }
@@ -268,24 +290,25 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      hostname_ = "";
+      id_ = 0;
+      agentKey_ = "";
       return this;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_descriptor;
+      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_AgentResponse_descriptor;
     }
 
     @java.lang.Override
-    public com.park.utmstack.service.grpc.Hostname getDefaultInstanceForType() {
-      return com.park.utmstack.service.grpc.Hostname.getDefaultInstance();
+    public com.park.utmstack.service.grpc.AgentResponse getDefaultInstanceForType() {
+      return com.park.utmstack.service.grpc.AgentResponse.getDefaultInstance();
     }
 
     @java.lang.Override
-    public com.park.utmstack.service.grpc.Hostname build() {
-      com.park.utmstack.service.grpc.Hostname result = buildPartial();
+    public com.park.utmstack.service.grpc.AgentResponse build() {
+      com.park.utmstack.service.grpc.AgentResponse result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -293,17 +316,20 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public com.park.utmstack.service.grpc.Hostname buildPartial() {
-      com.park.utmstack.service.grpc.Hostname result = new com.park.utmstack.service.grpc.Hostname(this);
+    public com.park.utmstack.service.grpc.AgentResponse buildPartial() {
+      com.park.utmstack.service.grpc.AgentResponse result = new com.park.utmstack.service.grpc.AgentResponse(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(com.park.utmstack.service.grpc.Hostname result) {
+    private void buildPartial0(com.park.utmstack.service.grpc.AgentResponse result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.hostname_ = hostname_;
+        result.id_ = id_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.agentKey_ = agentKey_;
       }
     }
 
@@ -341,19 +367,22 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.park.utmstack.service.grpc.Hostname) {
-        return mergeFrom((com.park.utmstack.service.grpc.Hostname)other);
+      if (other instanceof com.park.utmstack.service.grpc.AgentResponse) {
+        return mergeFrom((com.park.utmstack.service.grpc.AgentResponse)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(com.park.utmstack.service.grpc.Hostname other) {
-      if (other == com.park.utmstack.service.grpc.Hostname.getDefaultInstance()) return this;
-      if (!other.getHostname().isEmpty()) {
-        hostname_ = other.hostname_;
-        bitField0_ |= 0x00000001;
+    public Builder mergeFrom(com.park.utmstack.service.grpc.AgentResponse other) {
+      if (other == com.park.utmstack.service.grpc.AgentResponse.getDefaultInstance()) return this;
+      if (other.getId() != 0) {
+        setId(other.getId());
+      }
+      if (!other.getAgentKey().isEmpty()) {
+        agentKey_ = other.agentKey_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -382,11 +411,16 @@ private static final long serialVersionUID = 0L;
             case 0:
               done = true;
               break;
-            case 10: {
-              hostname_ = input.readStringRequireUtf8();
+            case 8: {
+              id_ = input.readUInt32();
               bitField0_ |= 0x00000001;
               break;
-            } // case 10
+            } // case 8
+            case 18: {
+              agentKey_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000002;
+              break;
+            } // case 18
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -404,74 +438,106 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object hostname_ = "";
+    private int id_ ;
     /**
-     * <code>string hostname = 1;</code>
-     * @return The hostname.
+     * <code>uint32 id = 1;</code>
+     * @return The id.
      */
-    public java.lang.String getHostname() {
-      java.lang.Object ref = hostname_;
+    @java.lang.Override
+    public int getId() {
+      return id_;
+    }
+    /**
+     * <code>uint32 id = 1;</code>
+     * @param value The id to set.
+     * @return This builder for chaining.
+     */
+    public Builder setId(int value) {
+
+      id_ = value;
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>uint32 id = 1;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearId() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      id_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object agentKey_ = "";
+    /**
+     * <code>string agent_key = 2;</code>
+     * @return The agentKey.
+     */
+    public java.lang.String getAgentKey() {
+      java.lang.Object ref = agentKey_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        hostname_ = s;
+        agentKey_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string hostname = 1;</code>
-     * @return The bytes for hostname.
+     * <code>string agent_key = 2;</code>
+     * @return The bytes for agentKey.
      */
     public com.google.protobuf.ByteString
-        getHostnameBytes() {
-      java.lang.Object ref = hostname_;
+        getAgentKeyBytes() {
+      java.lang.Object ref = agentKey_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        hostname_ = b;
+        agentKey_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string hostname = 1;</code>
-     * @param value The hostname to set.
+     * <code>string agent_key = 2;</code>
+     * @param value The agentKey to set.
      * @return This builder for chaining.
      */
-    public Builder setHostname(
+    public Builder setAgentKey(
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
-      hostname_ = value;
-      bitField0_ |= 0x00000001;
+      agentKey_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
     /**
-     * <code>string hostname = 1;</code>
+     * <code>string agent_key = 2;</code>
      * @return This builder for chaining.
      */
-    public Builder clearHostname() {
-      hostname_ = getDefaultInstance().getHostname();
-      bitField0_ = (bitField0_ & ~0x00000001);
+    public Builder clearAgentKey() {
+      agentKey_ = getDefaultInstance().getAgentKey();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
     /**
-     * <code>string hostname = 1;</code>
-     * @param value The bytes for hostname to set.
+     * <code>string agent_key = 2;</code>
+     * @param value The bytes for agentKey to set.
      * @return This builder for chaining.
      */
-    public Builder setHostnameBytes(
+    public Builder setAgentKeyBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
-      hostname_ = value;
-      bitField0_ |= 0x00000001;
+      agentKey_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -488,23 +554,23 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:agent.Hostname)
+    // @@protoc_insertion_point(builder_scope:agent.AgentResponse)
   }
 
-  // @@protoc_insertion_point(class_scope:agent.Hostname)
-  private static final com.park.utmstack.service.grpc.Hostname DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:agent.AgentResponse)
+  private static final com.park.utmstack.service.grpc.AgentResponse DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new com.park.utmstack.service.grpc.Hostname();
+    DEFAULT_INSTANCE = new com.park.utmstack.service.grpc.AgentResponse();
   }
 
-  public static com.park.utmstack.service.grpc.Hostname getDefaultInstance() {
+  public static com.park.utmstack.service.grpc.AgentResponse getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Hostname>
-      PARSER = new com.google.protobuf.AbstractParser<Hostname>() {
+  private static final com.google.protobuf.Parser<AgentResponse>
+      PARSER = new com.google.protobuf.AbstractParser<AgentResponse>() {
     @java.lang.Override
-    public Hostname parsePartialFrom(
+    public AgentResponse parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -523,17 +589,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<Hostname> parser() {
+  public static com.google.protobuf.Parser<AgentResponse> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<Hostname> getParserForType() {
+  public com.google.protobuf.Parser<AgentResponse> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.park.utmstack.service.grpc.Hostname getDefaultInstanceForType() {
+  public com.park.utmstack.service.grpc.AgentResponse getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

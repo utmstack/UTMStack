@@ -58,9 +58,10 @@ public enum ModuleName {
     SONIC_WALL,
     DECEPTIVE_BYTES,
     GITHUB,
-    AS_400,
+    IBM_AS_400,
     SALESFORCE,
     BITDEFENDER,
     SOC_AI,
+
     PFSENSE
 }

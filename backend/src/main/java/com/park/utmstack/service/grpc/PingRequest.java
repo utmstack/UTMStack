@@ -4,74 +4,74 @@
 package com.park.utmstack.service.grpc;
 
 /**
- * Protobuf type {@code agent.Hostname}
+ * Protobuf type {@code agent.PingRequest}
  */
-public final class Hostname extends
+public final class PingRequest extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:agent.Hostname)
-    HostnameOrBuilder {
+    // @@protoc_insertion_point(message_implements:agent.PingRequest)
+    PingRequestOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use Hostname.newBuilder() to construct.
-  private Hostname(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use PingRequest.newBuilder() to construct.
+  private PingRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private Hostname() {
-    hostname_ = "";
+  private PingRequest() {
+    agentKey_ = "";
   }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new Hostname();
+    return new PingRequest();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_descriptor;
+    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_PingRequest_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_fieldAccessorTable
+    return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_PingRequest_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.park.utmstack.service.grpc.Hostname.class, com.park.utmstack.service.grpc.Hostname.Builder.class);
+            com.park.utmstack.service.grpc.PingRequest.class, com.park.utmstack.service.grpc.PingRequest.Builder.class);
   }
 
-  public static final int HOSTNAME_FIELD_NUMBER = 1;
+  public static final int AGENT_KEY_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private volatile java.lang.Object hostname_ = "";
+  private volatile java.lang.Object agentKey_ = "";
   /**
-   * <code>string hostname = 1;</code>
-   * @return The hostname.
+   * <code>string agent_key = 1;</code>
+   * @return The agentKey.
    */
   @java.lang.Override
-  public java.lang.String getHostname() {
-    java.lang.Object ref = hostname_;
+  public java.lang.String getAgentKey() {
+    java.lang.Object ref = agentKey_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      hostname_ = s;
+      agentKey_ = s;
       return s;
     }
   }
   /**
-   * <code>string hostname = 1;</code>
-   * @return The bytes for hostname.
+   * <code>string agent_key = 1;</code>
+   * @return The bytes for agentKey.
    */
   @java.lang.Override
   public com.google.protobuf.ByteString
-      getHostnameBytes() {
-    java.lang.Object ref = hostname_;
+      getAgentKeyBytes() {
+    java.lang.Object ref = agentKey_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      hostname_ = b;
+      agentKey_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -92,8 +92,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(hostname_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, hostname_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentKey_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, agentKey_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -104,8 +104,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(hostname_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, hostname_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentKey_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, agentKey_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -117,13 +117,13 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof com.park.utmstack.service.grpc.Hostname)) {
+    if (!(obj instanceof com.park.utmstack.service.grpc.PingRequest)) {
       return super.equals(obj);
     }
-    com.park.utmstack.service.grpc.Hostname other = (com.park.utmstack.service.grpc.Hostname) obj;
+    com.park.utmstack.service.grpc.PingRequest other = (com.park.utmstack.service.grpc.PingRequest) obj;
 
-    if (!getHostname()
-        .equals(other.getHostname())) return false;
+    if (!getAgentKey()
+        .equals(other.getAgentKey())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -135,51 +135,51 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + HOSTNAME_FIELD_NUMBER;
-    hash = (53 * hash) + getHostname().hashCode();
+    hash = (37 * hash) + AGENT_KEY_FIELD_NUMBER;
+    hash = (53 * hash) + getAgentKey().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(byte[] data)
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(java.io.InputStream input)
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -187,26 +187,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static com.park.utmstack.service.grpc.Hostname parseDelimitedFrom(java.io.InputStream input)
+  public static com.park.utmstack.service.grpc.PingRequest parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static com.park.utmstack.service.grpc.Hostname parseDelimitedFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static com.park.utmstack.service.grpc.Hostname parseFrom(
+  public static com.park.utmstack.service.grpc.PingRequest parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -219,7 +219,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(com.park.utmstack.service.grpc.Hostname prototype) {
+  public static Builder newBuilder(com.park.utmstack.service.grpc.PingRequest prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -235,26 +235,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code agent.Hostname}
+   * Protobuf type {@code agent.PingRequest}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:agent.Hostname)
-      com.park.utmstack.service.grpc.HostnameOrBuilder {
+      // @@protoc_insertion_point(builder_implements:agent.PingRequest)
+      com.park.utmstack.service.grpc.PingRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_descriptor;
+      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_PingRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_fieldAccessorTable
+      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_PingRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.park.utmstack.service.grpc.Hostname.class, com.park.utmstack.service.grpc.Hostname.Builder.class);
+              com.park.utmstack.service.grpc.PingRequest.class, com.park.utmstack.service.grpc.PingRequest.Builder.class);
     }
 
-    // Construct using com.park.utmstack.service.grpc.Hostname.newBuilder()
+    // Construct using com.park.utmstack.service.grpc.PingRequest.newBuilder()
     private Builder() {
 
     }
@@ -268,24 +268,24 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      hostname_ = "";
+      agentKey_ = "";
       return this;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_Hostname_descriptor;
+      return com.park.utmstack.service.grpc.AgentManagerGrpc.internal_static_agent_PingRequest_descriptor;
     }
 
     @java.lang.Override
-    public com.park.utmstack.service.grpc.Hostname getDefaultInstanceForType() {
-      return com.park.utmstack.service.grpc.Hostname.getDefaultInstance();
+    public com.park.utmstack.service.grpc.PingRequest getDefaultInstanceForType() {
+      return com.park.utmstack.service.grpc.PingRequest.getDefaultInstance();
     }
 
     @java.lang.Override
-    public com.park.utmstack.service.grpc.Hostname build() {
-      com.park.utmstack.service.grpc.Hostname result = buildPartial();
+    public com.park.utmstack.service.grpc.PingRequest build() {
+      com.park.utmstack.service.grpc.PingRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -293,17 +293,17 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public com.park.utmstack.service.grpc.Hostname buildPartial() {
-      com.park.utmstack.service.grpc.Hostname result = new com.park.utmstack.service.grpc.Hostname(this);
+    public com.park.utmstack.service.grpc.PingRequest buildPartial() {
+      com.park.utmstack.service.grpc.PingRequest result = new com.park.utmstack.service.grpc.PingRequest(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(com.park.utmstack.service.grpc.Hostname result) {
+    private void buildPartial0(com.park.utmstack.service.grpc.PingRequest result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.hostname_ = hostname_;
+        result.agentKey_ = agentKey_;
       }
     }
 
@@ -341,18 +341,18 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.park.utmstack.service.grpc.Hostname) {
-        return mergeFrom((com.park.utmstack.service.grpc.Hostname)other);
+      if (other instanceof com.park.utmstack.service.grpc.PingRequest) {
+        return mergeFrom((com.park.utmstack.service.grpc.PingRequest)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(com.park.utmstack.service.grpc.Hostname other) {
-      if (other == com.park.utmstack.service.grpc.Hostname.getDefaultInstance()) return this;
-      if (!other.getHostname().isEmpty()) {
-        hostname_ = other.hostname_;
+    public Builder mergeFrom(com.park.utmstack.service.grpc.PingRequest other) {
+      if (other == com.park.utmstack.service.grpc.PingRequest.getDefaultInstance()) return this;
+      if (!other.getAgentKey().isEmpty()) {
+        agentKey_ = other.agentKey_;
         bitField0_ |= 0x00000001;
         onChanged();
       }
@@ -383,7 +383,7 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 10: {
-              hostname_ = input.readStringRequireUtf8();
+              agentKey_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000001;
               break;
             } // case 10
@@ -404,73 +404,73 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object hostname_ = "";
+    private java.lang.Object agentKey_ = "";
     /**
-     * <code>string hostname = 1;</code>
-     * @return The hostname.
+     * <code>string agent_key = 1;</code>
+     * @return The agentKey.
      */
-    public java.lang.String getHostname() {
-      java.lang.Object ref = hostname_;
+    public java.lang.String getAgentKey() {
+      java.lang.Object ref = agentKey_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        hostname_ = s;
+        agentKey_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string hostname = 1;</code>
-     * @return The bytes for hostname.
+     * <code>string agent_key = 1;</code>
+     * @return The bytes for agentKey.
      */
     public com.google.protobuf.ByteString
-        getHostnameBytes() {
-      java.lang.Object ref = hostname_;
+        getAgentKeyBytes() {
+      java.lang.Object ref = agentKey_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        hostname_ = b;
+        agentKey_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string hostname = 1;</code>
-     * @param value The hostname to set.
+     * <code>string agent_key = 1;</code>
+     * @param value The agentKey to set.
      * @return This builder for chaining.
      */
-    public Builder setHostname(
+    public Builder setAgentKey(
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
-      hostname_ = value;
+      agentKey_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>string hostname = 1;</code>
+     * <code>string agent_key = 1;</code>
      * @return This builder for chaining.
      */
-    public Builder clearHostname() {
-      hostname_ = getDefaultInstance().getHostname();
+    public Builder clearAgentKey() {
+      agentKey_ = getDefaultInstance().getAgentKey();
       bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
     /**
-     * <code>string hostname = 1;</code>
-     * @param value The bytes for hostname to set.
+     * <code>string agent_key = 1;</code>
+     * @param value The bytes for agentKey to set.
      * @return This builder for chaining.
      */
-    public Builder setHostnameBytes(
+    public Builder setAgentKeyBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
-      hostname_ = value;
+      agentKey_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
@@ -488,23 +488,23 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:agent.Hostname)
+    // @@protoc_insertion_point(builder_scope:agent.PingRequest)
   }
 
-  // @@protoc_insertion_point(class_scope:agent.Hostname)
-  private static final com.park.utmstack.service.grpc.Hostname DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:agent.PingRequest)
+  private static final com.park.utmstack.service.grpc.PingRequest DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new com.park.utmstack.service.grpc.Hostname();
+    DEFAULT_INSTANCE = new com.park.utmstack.service.grpc.PingRequest();
   }
 
-  public static com.park.utmstack.service.grpc.Hostname getDefaultInstance() {
+  public static com.park.utmstack.service.grpc.PingRequest getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Hostname>
-      PARSER = new com.google.protobuf.AbstractParser<Hostname>() {
+  private static final com.google.protobuf.Parser<PingRequest>
+      PARSER = new com.google.protobuf.AbstractParser<PingRequest>() {
     @java.lang.Override
-    public Hostname parsePartialFrom(
+    public PingRequest parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -523,17 +523,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<Hostname> parser() {
+  public static com.google.protobuf.Parser<PingRequest> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<Hostname> getParserForType() {
+  public com.google.protobuf.Parser<PingRequest> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.park.utmstack.service.grpc.Hostname getDefaultInstanceForType() {
+  public com.park.utmstack.service.grpc.PingRequest getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 
