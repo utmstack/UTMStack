@@ -3,16 +3,21 @@ package com.park.utmstack.web.rest.collectors;
 import agent.CollectorOuterClass.CollectorModule;
 import agent.CollectorOuterClass.FilterByHostAndModule;
 import agent.CollectorOuterClass.CollectorHostnames;
-import agent.CollectorOuterClass.ListCollectorResponse;
+import agent.CollectorOuterClass.ConfigRequest;
 import agent.CollectorOuterClass.CollectorConfig;
 import agent.Common.ListRequest;
+import agent.Common.AuthResponse;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
+import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
+import com.park.utmstack.service.dto.collectors.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.ListCollectorsResponseDTO;
 import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
+import com.park.utmstack.web.rest.errors.InternalServerErrorException;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
 import com.utmstack.grpc.exception.CollectorServiceGrpcException;
 import org.slf4j.Logger;
@@ -21,6 +26,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 
 /**
@@ -34,36 +41,62 @@ public class UtmCollectorResource {
     private final CollectorOpsService collectorService;
     private final Logger log = LoggerFactory.getLogger(UtmCollectorResource.class);
     private final ApplicationEventService applicationEventService;
+    private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
 
-    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService) {
+    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService, UtmModuleGroupConfigurationService moduleGroupConfigurationService) {
         this.collectorService = collectorService;
         this.applicationEventService = applicationEventService;
+        this.moduleGroupConfigurationService = moduleGroupConfigurationService;
     }
 
     /**
      * {@code POST  /logstash-pipelines} : Create or update the collector configs.
      *
-     * @param collectorConfig the utmLogstashPipeline to create.
+     * @param collectorConfig the collector configs to be created/updated in the agent manager and updated in database.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, status {@code 400 (Bad request)} if the internal key is not set,
-     * or with status {@code 502 (Bad Gateway)} if the agent manager returns an error.
+     * status {@code 502 (Bad Gateway)} if the agent manager returns an error, or with status {@code 500 (Internal Server Error)} if the database couldn't
+     * persist the configurations.
      */
     @PostMapping("/collector-config")
-    public ResponseEntity<Void> upsertCollectorConfig(@RequestBody CollectorConfig collectorConfig) {
+    public ResponseEntity<Void> upsertCollectorConfig(
+            @Valid @RequestBody UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody collectorConfig,
+            CollectorDTO collectorDTO
+    ) {
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
+
         try {
-            collectorService.upsertCollectorConfig(collectorConfig);
-            // Update the configurations in local db.
-            return ResponseEntity.noContent().build();
+            // Get the actual configuration just in case of error when updating local db.
+            CollectorConfig cacheConfig = collectorService.getCollectorConfig(
+                    ConfigRequest.newBuilder().setModule(CollectorModule.valueOf(collectorDTO.getModule().toString())).build(),
+                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollector_key()).build()
+            );
+            // Map the configurations to gRPC CollectorConfig and try to insert/update the collector config
+            collectorService.upsertCollectorConfig(collectorService.mapToCollectorConfig(collectorConfig.getKeys(), collectorDTO));
+            // If the update is fine via gRPC, then update the configurations in local db.
+            try {
+                moduleGroupConfigurationService.updateConfigurationKeys(collectorConfig.getModuleId(), collectorConfig.getKeys());
+                return ResponseEntity.noContent().build();
+            } catch (Exception e) {
+                String msg = ctx + ": " + e.getMessage();
+                // In case of db error try to reset the configuration from the cache
+                collectorService.upsertCollectorConfig(cacheConfig);
+                throw new InternalServerErrorException(msg);
+            }
         } catch (BadRequestAlertException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        } catch (CollectorConfigurationGrpcException e) {
+        } catch (CollectorConfigurationGrpcException | CollectorServiceGrpcException e) {
             String msg = ctx + ": Collector manager is not available or the configuration is wrong, please check. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
+        } catch (InternalServerErrorException e) {
+            String msg = ctx + ": The collector configuration couldn't. be persisted on database. " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
