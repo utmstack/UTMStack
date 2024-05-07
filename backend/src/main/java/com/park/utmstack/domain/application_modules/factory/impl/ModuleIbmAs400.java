@@ -26,7 +26,7 @@ public class ModuleIbmAs400 implements IModule {
     public UtmModule getDetails(Long serverId) throws Exception {
         final String ctx = CLASSNAME + ".getDetails";
         try {
-            return moduleService.findByServerIdAndModuleName(serverId, ModuleName.IBM_AS_400);
+            return moduleService.findByServerIdAndModuleName(serverId, ModuleName.AS_400);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }

@@ -8,7 +8,7 @@
         <createProcedure dbms="postgresql">
         <![CDATA[
             CREATE
-            OR REPLACE FUNCTION public.register_integration_aix(srv_id integer)
+            OR REPLACE FUNCTION public.register_integration_ibm_as_400(srv_id integer)
     RETURNS void
     LANGUAGE plpgsql
 AS
