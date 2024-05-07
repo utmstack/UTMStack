@@ -50,7 +50,7 @@ public class UtmCollectorResource {
     }
 
     /**
-     * {@code POST  /logstash-pipelines} : Create or update the collector configs.
+     * {@code POST  /collector-config} : Create or update the collector configs.
      *
      * @param collectorConfig the collector configs to be created/updated in the agent manager and updated in database.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, status {@code 400 (Bad request)} if the internal key is not set,
@@ -93,7 +93,7 @@ public class UtmCollectorResource {
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
         } catch (InternalServerErrorException e) {
-            String msg = ctx + ": The collector configuration couldn't. be persisted on database. " + e.getLocalizedMessage();
+            String msg = ctx + ": The collector configuration couldn't be persisted on database. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
@@ -115,7 +115,7 @@ public class UtmCollectorResource {
                                                                          @RequestParam(required = false) Integer pageSize,
                                                                          @RequestParam(required = false) CollectorModuleEnum module,
                                                                          @RequestParam(required = false) String sortBy) {
-        final String ctx = CLASSNAME + ".listCollectors";
+        final String ctx = CLASSNAME + ".listCollectorsByModule";
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(pageNumber != null ? pageNumber : 0)
