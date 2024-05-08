@@ -11,7 +11,6 @@ import "google/protobuf/timestamp.proto";
 import "common.proto";
 
 service AgentService {
-    rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
     rpc DeleteAgent(AgentDelete) returns (AuthResponse) {}
     rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
     rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
