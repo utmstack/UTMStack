@@ -62,20 +62,17 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 	h := util.GetLogger()
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		h.ErrorF("metadata is not provided")
 		return nil, status.Error(codes.Internal, "unable to get metadata from context")
 	}
 
 	keys, ok := md["key"]
 	if !ok || len(keys) == 0 {
-		h.ErrorF("key is not provided")
 		return nil, status.Error(codes.Internal, "unable to get key from metadata")
 	}
 	key := keys[0]
 
 	id, err := collectorService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
-		h.ErrorF("unable to delete collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
 	}
 
@@ -92,14 +89,12 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 }
 
 func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollectorResponse, error) {
-	h := util.GetLogger()
 	page := util.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 
 	filter := util.NewFilter(req.SearchQuery)
 
 	collectors, total, err := collectorService.ListCollectors(page, filter)
 	if err != nil {
-		h.ErrorF("failed to fetch collectors: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
 	return convertToCollectorResponse(collectors, total)
@@ -189,13 +184,11 @@ func (s *Grpc) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*Coll
 	h := util.GetLogger()
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		h.ErrorF("metadata is not provided")
 		return nil, status.Error(codes.Internal, "unable to get metadata from context")
 	}
 
 	keys, ok := md["key"]
 	if !ok || len(keys) == 0 {
-		h.ErrorF("key is not provided")
 		return nil, status.Error(codes.Internal, "unable to get key from metadata")
 	}
 	key := keys[0]
@@ -219,13 +212,11 @@ func (s *Grpc) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig)
 
 	key := collectorConfig.CollectorKey
 	if key == "" {
-		h.ErrorF("collector key is not provided")
 		return nil, status.Errorf(codes.NotFound, "collector key is not provided")
 	}
 
 	collector, err := collectorService.GetByKey(key)
 	if err != nil {
-		h.ErrorF("collector not found in database or is deleted: %v", err)
 		return nil, status.Errorf(codes.NotFound, "collector not found in database or is deleted")
 	}
 

@@ -153,11 +153,10 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 
 		switch msg := in.StreamMessage.(type) {
 		case *BidirectionalStream_Command:
-			fmt.Println("Received command: ", msg.Command.CmdId)
+			h.Info("Received command: %s", msg.Command.CmdId)
 
 		case *BidirectionalStream_Result:
-			// Handle the received command (replace with your logic)
-			h.Info("Received command: %s", msg.Result.CmdId)
+			h.Info("Received command result: %s", msg.Result.CmdId)
 
 			cmdID := msg.Result.GetCmdId()
 
@@ -205,7 +204,6 @@ func (s *Grpc) replaceSecretValues(input string) string {
 }
 
 func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
-	h := util.GetLogger()
 	for {
 		cmd, err := stream.Recv()
 		if err == io.EOF {
@@ -218,22 +216,18 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 		// Get the agent from the agents map
 		agentStream, ok := s.AgentStreamMap[cmd.AgentKey]
 		if !ok {
-			h.ErrorF("Agent not found or is disconnected")
 			return status.Errorf(codes.NotFound, "agent not found or is disconnected")
 		}
 
 		if cmd.GetOriginId() == "" {
-			h.ErrorF("Agent origin ID not provided")
 			return status.Errorf(codes.NotFound, "agent origin ID not provided")
 		}
 
 		if cmd.GetOriginType() == "" {
-			h.ErrorF("Agent origin TYPE not provided")
 			return status.Errorf(codes.NotFound, "agent origin TYPE not provided")
 		}
 
 		if cmd.GetReason() == "" {
-			h.ErrorF("Agent command reason not provided")
 			return status.Errorf(codes.NotFound, "agent command reason not provided")
 		}
 
@@ -308,7 +302,6 @@ func (s *Grpc) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, e
 func (s *Grpc) UpdateAgentType(ctx context.Context, req *AgentTypeUpdate) (*Agent, error) {
 	h := util.GetLogger()
 	if req.AgentId == 0 || req.AgentType == 0 {
-		h.ErrorF("Error in req")
 		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
 	}
 	agent, err := agentService.UpdateAgentType(uint(req.AgentId), uint(req.AgentType))
