@@ -40,7 +40,7 @@ func main() {
 		h.Fatal("Failed to listen: %v", err)
 	}
 
-	// Create a gRPC server with the authInterceptor
+	// Create a gRPC server with the authInterceptor.
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(recoverInterceptor),
 		grpc.ChainUnaryInterceptor(auth.UnaryInterceptor),
 		grpc.StreamInterceptor(auth.StreamInterceptor))
