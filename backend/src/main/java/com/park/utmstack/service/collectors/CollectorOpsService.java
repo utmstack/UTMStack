@@ -220,7 +220,7 @@ public class CollectorOpsService {
         });
         // Creating the final CollectorConfig object
         collectorConfig = CollectorConfig.newBuilder()
-                .setCollectorKey(collectorDTO.getCollector_key())
+                .setCollectorKey(collectorDTO.getCollectorKey())
                 .setRequestId(String.valueOf(System.currentTimeMillis()))
                 .addAllGroups(collectorGroups)
                 .build();
@@ -278,7 +278,7 @@ public class CollectorOpsService {
             CollectorDelete collectorDelete = CollectorDelete.newBuilder().setDeletedBy(currentUser).build();
             AuthResponse auth = Common.AuthResponse.newBuilder()
                     .setId(collectorToSearch.get().getId())
-                    .setKey(collectorToSearch.get().getCollector_key())
+                    .setKey(collectorToSearch.get().getCollectorKey())
                     .build();
             collectorService.deleteCollector(collectorDelete, auth);
 

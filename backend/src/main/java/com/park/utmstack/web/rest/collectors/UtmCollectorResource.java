@@ -68,7 +68,7 @@ public class UtmCollectorResource {
             // Get the actual configuration just in case of error when updating local db.
             CollectorConfig cacheConfig = collectorService.getCollectorConfig(
                     ConfigRequest.newBuilder().setModule(CollectorModule.valueOf(collectorDTO.getModule().toString())).build(),
-                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollector_key()).build()
+                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollectorKey()).build()
             );
             // Map the configurations to gRPC CollectorConfig and try to insert/update the collector config
             collectorService.upsertCollectorConfig(collectorService.mapToCollectorConfig(collectorConfig.getKeys(), collectorDTO));
@@ -113,7 +113,7 @@ public class UtmCollectorResource {
     @GetMapping("/collectors-list")
     public ResponseEntity<ListCollectorsResponseDTO> listCollectorsByModule(@RequestParam(required = false) Integer pageNumber,
                                                                          @RequestParam(required = false) Integer pageSize,
-                                                                         @RequestParam(required = false) CollectorModuleEnum module,
+                                                                         @RequestParam(required = false) String module,
                                                                          @RequestParam(required = false) String sortBy) {
         final String ctx = CLASSNAME + ".listCollectorsByModule";
         try {

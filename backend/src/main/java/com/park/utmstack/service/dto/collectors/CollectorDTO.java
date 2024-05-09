@@ -6,22 +6,22 @@ import agent.CollectorOuterClass.Collector;
 public class CollectorDTO {
     private int id;
     private CollectorStatusEnum status;
-    private String collector_key;
+    private String collectorKey;
     private String ip;
     private String hostname;
     private String version;
     private CollectorModuleEnum module;
-    private String last_seen;
+    private String lastSeen;
 
     public CollectorDTO(Collector collector) {
         this.id = collector.getId();
         this.status = CollectorStatusEnum.valueOf(collector.getStatus().toString());
-        this.collector_key = collector.getCollectorKey();
+        this.collectorKey = collector.getCollectorKey();
         this.ip = collector.getIp();
         this.hostname = collector.getHostname();
         this.version = collector.getVersion();
         this.module = CollectorModuleEnum.valueOf(collector.getModule().toString());
-        this.last_seen = collector.getLastSeen();
+        this.lastSeen = collector.getLastSeen();
     }
 
     public int getId() {
@@ -40,12 +40,12 @@ public class CollectorDTO {
         this.status = status;
     }
 
-    public String getCollector_key() {
-        return collector_key;
+    public String getCollectorKey() {
+        return collectorKey;
     }
 
-    public void setCollector_key(String collector_key) {
-        this.collector_key = collector_key;
+    public void setCollectorKey(String collectorKey) {
+        this.collectorKey = collectorKey;
     }
 
     public String getIp() {
@@ -80,11 +80,11 @@ public class CollectorDTO {
         this.module = module;
     }
 
-    public String getLast_seen() {
-        return last_seen;
+    public String getLastSeen() {
+        return lastSeen;
     }
 
-    public void setLast_seen(String last_seen) {
-        this.last_seen = last_seen;
+    public void setLastSeen(String lastSeen) {
+        this.lastSeen = lastSeen;
     }
 }
