@@ -178,7 +178,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"postgres",
 			"node1",
 		},
-		Command: []string{"/app/server"},
 	}
 
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory

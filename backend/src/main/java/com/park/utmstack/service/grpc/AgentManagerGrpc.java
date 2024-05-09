@@ -151,34 +151,32 @@ public final class AgentManagerGrpc {
       "e\022\036\n\004rows\030\001 \003(\0132\020.agent.AgentType\022\r\n\005tot" +
       "al\030\002 \001(\005*W\n\022AgentCommandStatus\022\020\n\014NOT_EX" +
       "ECUTED\020\000\022\t\n\005QUEUE\020\001\022\013\n\007PENDING\020\002\022\014\n\010EXEC" +
-      "UTED\020\003\022\t\n\005ERROR\020\0042\331\004\n\014AgentService\022;\n\rRe" +
-      "gisterAgent\022\023.agent.AgentRequest\032\023.agent" +
-      ".AuthResponse\"\000\0228\n\013DeleteAgent\022\022.agent.A" +
-      "gentDelete\032\023.agent.AuthResponse\"\000\022=\n\nLis" +
-      "tAgents\022\022.agent.ListRequest\032\031.agent.List" +
-      "AgentsResponse\"\000\022K\n\013AgentStream\022\032.agent." +
-      "BidirectionalStream\032\032.agent.Bidirectiona" +
-      "lStream\"\000(\0010\001\0229\n\017UpdateAgentType\022\026.agent" +
-      ".AgentTypeUpdate\032\014.agent.Agent\"\000\022;\n\020Upda" +
-      "teAgentGroup\022\027.agent.AgentGroupUpdate\032\014." +
-      "agent.Agent\"\000\022L\n\021ListAgentCommands\022\022.age" +
-      "nt.ListRequest\032!.agent.ListAgentsCommand" +
-      "sResponse\"\000\0225\n\022GetAgentByHostname\022\017.agen" +
-      "t.Hostname\032\014.agent.Agent\"\000\022I\n\026ListAgents" +
-      "WithCommands\022\022.agent.ListRequest\032\031.agent" +
-      ".ListAgentsResponse\"\0002O\n\014PanelService\022?\n" +
-      "\016ProcessCommand\022\021.agent.UtmCommand\032\024.age" +
-      "nt.CommandResult\"\000(\0010\0012\352\001\n\021AgentGroupSer" +
-      "vice\0225\n\013CreateGroup\022\021.agent.AgentGroup\032\021" +
-      ".agent.AgentGroup\"\000\0223\n\tEditGroup\022\021.agent" +
-      ".AgentGroup\032\021.agent.AgentGroup\"\000\022B\n\nList" +
-      "Groups\022\022.agent.ListRequest\032\036.agent.ListA" +
-      "gentsGroupResponse\"\000\022%\n\013DeleteGroup\022\t.ag" +
-      "ent.Id\032\t.agent.Id\"\0002Y\n\020AgentTypeService\022" +
-      "E\n\016ListAgentTypes\022\022.agent.ListRequest\032\035." +
-      "agent.ListAgentsTypeResponse\"\000B7\n\036com.pa" +
-      "rk.utmstack.service.grpcB\020AgentManagerGr" +
-      "pcP\001\210\001\001b\006proto3"
+      "UTED\020\003\022\t\n\005ERROR\020\0042\234\004\n\014AgentService\0228\n\013De" +
+      "leteAgent\022\022.agent.AgentDelete\032\023.agent.Au" +
+      "thResponse\"\000\022=\n\nListAgents\022\022.agent.ListR" +
+      "equest\032\031.agent.ListAgentsResponse\"\000\022K\n\013A" +
+      "gentStream\022\032.agent.BidirectionalStream\032\032" +
+      ".agent.BidirectionalStream\"\000(\0010\001\0229\n\017Upda" +
+      "teAgentType\022\026.agent.AgentTypeUpdate\032\014.ag" +
+      "ent.Agent\"\000\022;\n\020UpdateAgentGroup\022\027.agent." +
+      "AgentGroupUpdate\032\014.agent.Agent\"\000\022L\n\021List" +
+      "AgentCommands\022\022.agent.ListRequest\032!.agen" +
+      "t.ListAgentsCommandsResponse\"\000\0225\n\022GetAge" +
+      "ntByHostname\022\017.agent.Hostname\032\014.agent.Ag" +
+      "ent\"\000\022I\n\026ListAgentsWithCommands\022\022.agent." +
+      "ListRequest\032\031.agent.ListAgentsResponse\"\000" +
+      "2O\n\014PanelService\022?\n\016ProcessCommand\022\021.age" +
+      "nt.UtmCommand\032\024.agent.CommandResult\"\000(\0010" +
+      "\0012\352\001\n\021AgentGroupService\0225\n\013CreateGroup\022\021" +
+      ".agent.AgentGroup\032\021.agent.AgentGroup\"\000\0223" +
+      "\n\tEditGroup\022\021.agent.AgentGroup\032\021.agent.A" +
+      "gentGroup\"\000\022B\n\nListGroups\022\022.agent.ListRe" +
+      "quest\032\036.agent.ListAgentsGroupResponse\"\000\022" +
+      "%\n\013DeleteGroup\022\t.agent.Id\032\t.agent.Id\"\0002Y" +
+      "\n\020AgentTypeService\022E\n\016ListAgentTypes\022\022.a" +
+      "gent.ListRequest\032\035.agent.ListAgentsTypeR" +
+      "esponse\"\000B7\n\036com.park.utmstack.service.g" +
+      "rpcB\020AgentManagerGrpcP\001\210\001\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

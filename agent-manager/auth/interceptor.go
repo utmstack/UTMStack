@@ -20,10 +20,8 @@ import (
 )
 
 func UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	h := util.GetLogger()
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		h.ErrorF("metadata is not provided")
 		return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
 	}
 
@@ -31,18 +29,15 @@ func UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServ
 		authToken := md.Get("key")
 		authId := md.Get("id")
 		if len(authToken) == 0 {
-			h.ErrorF("authorization token is not provided")
 			return nil, status.Error(codes.Unauthenticated, "authorization token is not provided")
 		}
 		if len(authId) == 0 {
-			h.ErrorF("id is not provided")
 			return nil, status.Error(codes.Unauthenticated, "id is not provided")
 		}
 
 		token := authToken[0]
 		id, err := strconv.ParseUint(authId[0], 10, 32)
 		if err != nil {
-			h.ErrorF("id is not valid")
 			return nil, status.Error(codes.Unauthenticated, "id is not valid")
 		}
 
@@ -63,10 +58,8 @@ func UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServ
 }
 
 func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	h := util.GetLogger()
 	md, ok := metadata.FromIncomingContext(ss.Context())
 	if !ok {
-		h.ErrorF("metadata is not provided")
 		return status.Error(codes.Unauthenticated, "metadata is not provided")
 	}
 
@@ -74,18 +67,15 @@ func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamS
 		authToken := md.Get("key")
 		authId := md.Get("id")
 		if len(authToken) == 0 {
-			h.ErrorF("authorization token is not provided")
 			return status.Error(codes.Unauthenticated, "authorization token is not provided")
 		}
 		if len(authId) == 0 {
-			h.ErrorF("id is not provided")
 			return status.Error(codes.Unauthenticated, "id is not provided")
 		}
 
 		token := authToken[0]
 		id, err := strconv.ParseUint(authId[0], 10, 32)
 		if err != nil {
-			h.ErrorF("id is not valid")
 			return status.Error(codes.Unauthenticated, "id is not valid")
 		}
 
@@ -122,7 +112,6 @@ func checkKeyAuth(token string, id uint64, fullMethod string) error {
 	}
 
 	if !found {
-		h.ErrorF("invalid token")
 		return status.Error(codes.Unauthenticated, "invalid token")
 	}
 
@@ -177,7 +166,6 @@ func authenticateRequest(md metadata.MD, authName string) error {
 			return status.Error(codes.Unauthenticated, "internal key does not match")
 		}
 	} else {
-		h.ErrorF("invalid auth name")
 		return status.Error(codes.Unauthenticated, "invalid auth name")
 	}
 
