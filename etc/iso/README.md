@@ -47,7 +47,7 @@ mv '[BOOT]' ../BOOT
 
 ## Step 3: Edit the ISO grub.cfg file
 
-Edit `source-files/boot/grub/grub.cfg`:
+Copy the `grub.cfg` to `source-files/boot/grub/grub.cfg`:
 
 ...add the directory for the user-data and meta-data files
 
@@ -62,8 +62,8 @@ select the appropriate one from the boot menu during install.
 This is where you will need to read the documentation for the user-data syntax and format. I will provide a sample 
 file to get you started.
 
-Note; the meta-data file is just an empty file that cloud-init expects to be present (it would be populated with data 
-needed when using cloud services)
+`Note; the meta-data file is just an empty file that cloud-init expects to be present (it would be populated with data 
+needed when using cloud services)`
 
 touch source-files/server/meta-data && source-files/server/user-data
 
