@@ -30,7 +30,6 @@ cd ISO
 wget https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/jammy-live-server-amd64.iso
 cd ISO/source-files
 
-
 ## Step 2: Unpack files and partition images from the Ubuntu 22.04 live server ISO
 
 The Ubuntu 22.04 server ISO layout differs from the 20.04 ISO. 20.04 used a single partition on the ISO but 22.04 has separate gpt partitions for mbr, efi, and the install root image.
@@ -40,9 +39,9 @@ The Ubuntu 22.04 server ISO layout differs from the 20.04 ISO. 20.04 used a sing
 ```bash
 7z -y x jammy-live-server-amd64.iso -osource-files
 ```
-
+```
 In the source-files directory, you will see the ISO files plus a directory named '[BOOT]'. This directory contains the files `1-Boot-NoEmul.img` and `2-Boot-NoEmul.img` which are, respectively, the mbr (master boot record) and efi (UEFI) partition images from the ISO. These will be used when we create the modified ISO. There is no reason to leave the raw image files on the new ISO, so move them out of the way and give the directory a better name:
-
+```
 ```bash
 mv '[BOOT]' ../BOOT
 ```
