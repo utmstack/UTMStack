@@ -1,7 +1,3 @@
-karlbrown87: podrias formatearme este README.MD para que se vea mas bonito
-
-GitHub Copilot: Claro, aquí tienes una versión mejorada del archivo README.md con una estructura más clara y legible:
-
 ```markdown
 # UTMStack ISO / Server Autoinstall ISO
 
