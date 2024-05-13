@@ -40,37 +40,12 @@ In the source-files directory you will see the ISO files plus a directory named 
 mv  '[BOOT]' ../BOOT
 
 Step 3) Edit the ISO grub.cfg file
+
 Edit source-files/boot/grub/grub.cfg and add the following stanza above the existing menu entries,
-
-set timeout=30
-
-loadfont unicode
-
-set menu_color_normal=white/black
-set menu_color_highlight=black/light-gray
-
-menuentry "Install UTMStack Server v10-4-0" {
-    set gfxpayload=keep
-    linux   /casper/vmlinuz quiet autoinstall ds=nocloud\;s=/cdrom/server/  ---
-    initrd  /casper/initrd
-}
-grub_platform
-if [ "$grub_platform" = "efi" ]; then
-menuentry 'Boot from next volume' {
-        exit 1
-}
-menuentry 'UEFI Firmware Settings' {
-        fwsetup
-}
-else
-menuentry 'Test memory' {
-        linux16 /boot/memtest86+.bin
-}
-fi
 
 …add the directory for the user-data and meta-data files
 
-mkdir source-files/server
+mkdir ISO/source-files/server -p
 
 Note; you can create other directories to contain alternative user-data file configurations and add extra grub menu entries pointing to those directories. That way you could have multiple install configurations on the same ISO and select the appropriate one from the boot menu during install.
 

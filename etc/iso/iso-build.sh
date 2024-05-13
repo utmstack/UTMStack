@@ -1,7 +1,6 @@
 #!/bin/bash
-# info https://www.pugetsystems.com/labs/hpc/ubuntu-22-04-server-autoinstall-iso/
 
-cd /home/utmstack/u22.04-autoinstall-ISO/
+cd /home/utmstack/ISO/
 xorriso -indev jammy-live-server-amd64.iso -report_el_torito as_mkisofs
 cd source-files
 xorriso -as mkisofs -r \
