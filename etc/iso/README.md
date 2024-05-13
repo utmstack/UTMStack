@@ -1,51 +1,68 @@
-UTMStack ISO / Server Autoinstall ISO
+karlbrown87: podrias formatearme este README.MD para que se vea mas bonito
 
-Introduction
+GitHub Copilot: Claro, aquí tienes una versión mejorada del archivo README.md con una estructura más clara y legible:
 
-The Ubuntu server autoinstall method changed with the release of 20.04. Prior to that the old Debian pre-seed method was used. The new autoinstall method uses a “user-data” file similar in usage to what is done with cloud-init. The Ubuntu installer, ubiquity, was modified for this and became subiquity (server ubiquity).
+```markdown
+# UTMStack ISO / Server Autoinstall ISO
 
-The autoinstall “user-data” YAML file is a superset of the cloud-init user-data file and contains directives for the install tool curtin. 
+## Introduction
 
-Step 0) Pre-requisites
+With the release of Ubuntu 20.04, the server autoinstall method changed. Previously, the Debian pre-seed method was used. The new autoinstall method uses a "user-data" file, similar to what is done with cloud-init. The Ubuntu installer, ubiquity, was modified for this and became subiquity (server ubiquity).
 
-Building the autoinstall ISO on an Ubuntu 22.04.4 system. Here are a few packages you will need:
+The autoinstall "user-data" YAML file is a superset of the cloud-init user-data file and contains directives for the install tool curtin.
 
-* 7z sudo apt install p7zip for unpacking the source ISO (including mbr and efi partition images)
-* wget sudo apt install wget to download a fresh daily build of the 22.04 service ISO
-* xorriso sudo apt install xorriso for building the modified ISO
+## Step 0: Pre-requisites
 
-Two of the biggest sources of trouble when you are creating the user-data file for an autoinstall ISO are,
+To build the autoinstall ISO on an Ubuntu 22.04.4 system, you will need the following packages:
 
-* Syntax mistakes in user-data (read through Automated Server Installs Config File Reference)
-* Misconfigured YAML (see this post for a nice tutorial on YAML).
+- **7z**: `sudo apt install p7zip` for unpacking the source ISO (including mbr and efi partition images)
+- **wget**: `sudo apt install wget` to download a fresh daily build of the 22.04 service ISO
+- **xorriso**: `sudo apt install xorriso` for building the modified ISO
 
-Step 1) Set up the build environment
+Two of the biggest sources of trouble when creating the user-data file for an autoinstall ISO are:
 
-Make a directory to work in and get a fresh copy of the server ISO.
+- Syntax mistakes in user-data (refer to the [Automated Server Installs Config File Reference](link-to-reference))
+- Misconfigured YAML (see [this post](link-to-post) for a nice tutorial on YAML)
 
-mkdir ISO/source-files -p
+## Step 1: Set up the build environment
+
+Create a directory to work in and get a fresh copy of the server ISO:
+
+```bash
+mkdir -p ISO/source-files
 cd ISO
 wget https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/jammy-live-server-amd64.iso
 cd ISO/source-files
+```
 
-Step 2) Unpack files and partition images from the Ubuntu 22.04 live server ISO
+## Step 2: Unpack files and partition images from the Ubuntu 22.04 live server ISO
+
 The Ubuntu 22.04 server ISO layout differs from the 20.04 ISO. 20.04 used a single partition on the ISO but 22.04 has separate gpt partitions for mbr, efi, and the install root image.
 
-7zip is very nice for unpacking the ISO since it will create image files for the mbr and efi partitions for you!
+7zip is very useful for unpacking the ISO since it will create image files for the mbr and efi partitions for you:
 
+```bash
 7z -y x jammy-live-server-amd64.iso -osource-files
+```
 
-In the source-files directory you will see the ISO files plus a directory named ‘[BOOT]’. That directory contains the the files 1-Boot-NoEmul.img 2-Boot-NoEmul.img those are are, respectively, the mbr (master boot record) and efi (UEFI) partition images from the ISO. Those will be used when we create the modified ISO. There is no reason to leave the raw image files on the new ISO, so move them out of the way and give the directory a better name,
+In the source-files directory, you will see the ISO files plus a directory named '[BOOT]'. This directory contains the files `1-Boot-NoEmul.img` and `2-Boot-NoEmul.img` which are, respectively, the mbr (master boot record) and efi (UEFI) partition images from the ISO. These will be used when we create the modified ISO. There is no reason to leave the raw image files on the new ISO, so move them out of the way and give the directory a better name:
 
-mv  '[BOOT]' ../BOOT
+```bash
+mv '[BOOT]' ../BOOT
+```
 
-Step 3) Edit the ISO grub.cfg file
+## Step 3: Edit the ISO grub.cfg file
 
-Edit source-files/boot/grub/grub.cfg and add the following stanza above the existing menu entries,
+Edit `source-files/boot/grub/grub.cfg` and add the following stanza above the existing menu entries:
 
-…add the directory for the user-data and meta-data files
+```bash
+...add the directory for the user-data and meta-data files
+```
 
-mkdir ISO/source-files/server -p
+```bash
+mkdir -p ISO/source-files/server
+```
+```
 
 Note; you can create other directories to contain alternative user-data file configurations and add extra grub menu entries pointing to those directories. That way you could have multiple install configurations on the same ISO and select the appropriate one from the boot menu during install.
 
