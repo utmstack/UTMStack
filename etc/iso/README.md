@@ -3,9 +3,12 @@
 
 ## Introduction
 
-With the release of Ubuntu 20.04, the server autoinstall method changed. Previously, the Debian pre-seed method was used. The new autoinstall method uses a "user-data" file, similar to what is done with cloud-init. The Ubuntu installer, ubiquity, was modified for this and became subiquity (server ubiquity).
+With the release of Ubuntu 20.04, the server autoinstall method changed. Previously, the Debian pre-seed method 
+was used. The new autoinstall method uses a "user-data" file, similar to what is done with cloud-init. 
+The Ubuntu installer, ubiquity, was modified for this and became subiquity (server ubiquity).
 
-The autoinstall "user-data" YAML file is a superset of the cloud-init user-data file and contains directives for the install tool curtin.
+The autoinstall "user-data" YAML file is a superset of the cloud-init user-data file and contains directives 
+for the install tool curtin.
 
 ## Step 0: Pre-requisites
 
@@ -17,8 +20,8 @@ To build the autoinstall ISO on an Ubuntu 22.04.4 system, you will need the foll
 
 Two of the biggest sources of trouble when creating the user-data file for an autoinstall ISO are:
 
-- Syntax mistakes in user-data (refer to the [Automated Server Installs Config File Reference](link-to-reference))
-- Misconfigured YAML (see [this post](link-to-post) for a nice tutorial on YAML)
+- Syntax mistakes in user-data.
+- Misconfigured YAML.
 
 ## Step 1: Set up the build environment
 
@@ -49,7 +52,7 @@ mv '[BOOT]' ../BOOT
 
 ## Step 3: Edit the ISO grub.cfg file
 
-Edit `source-files/boot/grub/grub.cfg` and add the following stanza above the existing menu entries:
+Edit `source-files/boot/grub/grub.cfg`:
 
 ```bash
 ...add the directory for the user-data and meta-data files
@@ -60,19 +63,31 @@ mkdir -p ISO/source-files/server
 ```
 ```
 
-Note; you can create other directories to contain alternative user-data file configurations and add extra grub menu entries pointing to those directories. That way you could have multiple install configurations on the same ISO and select the appropriate one from the boot menu during install.
+Note; you can create other directories to contain alternative user-data file configurations and add extra grub menu 
+entries pointing to those directories. That way you could have multiple install configurations on the same ISO and 
+select the appropriate one from the boot menu during install.
+```
 
-Step 4) Create and add your custom autoinstall user-data files
-This is where you will need to read the documentation for the user-data syntax and format. I will provide a sample file to get you started.
+## Step 4: Create and add your custom autoinstall user-data files
 
-Note; the meta-data file is just an empty file that cloud-init expects to be present (it would be populated with data needed when using cloud services)
+This is where you will need to read the documentation for the user-data syntax and format. I will provide a sample 
+file to get you started.
 
+Note; the meta-data file is just an empty file that cloud-init expects to be present (it would be populated with data 
+needed when using cloud services)
+
+```bash
 touch source-files/server/meta-data && source-files/server/user-data
+```
 
-Step 5) Generate a new Ubuntu 22.04 server autoinstall ISO
-The following command is helpful when trying to setup the arguments for building an ISO. It will give flags and data to closely reproduce the source base install ISO.
+## Step 5: Generate a new Ubuntu 22.04 server autoinstall ISO
 
+The following command is helpful when trying to setup the arguments for building an ISO. It will give flags and data 
+to closely reproduce the source base install ISO.
+
+```bash
 ./iso-build.sh
+```
 
 The partition images that 7z extracted for us are being added back to the recreated ISO.
 
