@@ -25,10 +25,8 @@ Two of the biggest sources of trouble when creating the user-data file for an au
 
 ## Step 1: Set up the build environment
 
-```bash
 Create a directory to work in and get a fresh copy of the server ISO:
-
-
+```bash
 mkdir -p ISO/source-files
 cd ISO
 wget https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/jammy-live-server-amd64.iso
