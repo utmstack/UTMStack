@@ -56,7 +56,10 @@ Note; the meta-data file is just an empty file that cloud-init expects to be pre
 
 touch source-files/server/meta-data && source-files/server/user-data
 
+Step 5) Generate a new Ubuntu 22.04 server autoinstall ISO
+The following command is helpful when trying to setup the arguments for building an ISO. It will give flags and data to closely reproduce the source base install ISO.
 
+./iso-build.sh
 
 
 
