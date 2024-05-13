@@ -1,5 +1,5 @@
 ```markdown
-# UTMStack ISO / Server Autoinstall ISO
+# UTMStack / Server Autoinstall ISO
 
 ## Introduction
 
