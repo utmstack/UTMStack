@@ -32,31 +32,26 @@ cd ISO/source-files
 
 ## Step 2: Unpack files and partition images from the Ubuntu 22.04 live server ISO
 
-The Ubuntu 22.04 server ISO layout differs from the 20.04 ISO. 20.04 used a single partition on the ISO but 22.04 has separate gpt partitions for mbr, efi, and the install root image.
+The Ubuntu 22.04 server ISO layout differs from the 20.04 ISO. 20.04 used a single partition on the ISO but 22.04 has 
+separate gpt partitions for mbr, efi, and the install root image.
 
 7zip is very useful for unpacking the ISO since it will create image files for the mbr and efi partitions for you:
 
-```bash
 7z -y x jammy-live-server-amd64.iso -osource-files
-```
-```
+
 In the source-files directory, you will see the ISO files plus a directory named '[BOOT]'. This directory contains the files `1-Boot-NoEmul.img` and `2-Boot-NoEmul.img` which are, respectively, the mbr (master boot record) and efi (UEFI) partition images from the ISO. These will be used when we create the modified ISO. There is no reason to leave the raw image files on the new ISO, so move them out of the way and give the directory a better name:
-```
-```bash
+
 mv '[BOOT]' ../BOOT
-```
+
 
 ## Step 3: Edit the ISO grub.cfg file
 
 Edit `source-files/boot/grub/grub.cfg`:
 
-```bash
 ...add the directory for the user-data and meta-data files
-```
 
-```bash
-mkdir -p ISO/source-files/server
 ```
+mkdir -p ISO/source-files/server
 ```
 
 Note; you can create other directories to contain alternative user-data file configurations and add extra grub menu 
@@ -72,7 +67,7 @@ file to get you started.
 Note; the meta-data file is just an empty file that cloud-init expects to be present (it would be populated with data 
 needed when using cloud services)
 
-```bash
+```
 touch source-files/server/meta-data && source-files/server/user-data
 ```
 
@@ -81,7 +76,7 @@ touch source-files/server/meta-data && source-files/server/user-data
 The following command is helpful when trying to setup the arguments for building an ISO. It will give flags and data 
 to closely reproduce the source base install ISO.
 
-```bash
+```
 ./iso-build.sh
 ```
 
