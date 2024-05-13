@@ -5,7 +5,7 @@ go 1.21.0
 toolchain go1.22.1
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.54
+	github.com/cloudfoundry/gosigar v1.3.58
 	github.com/levigross/grequests v0.0.0-20231203190023-9c307ef1f48d
 	github.com/shirou/gopsutil/v3 v3.24.3
 	gopkg.in/yaml.v2 v2.4.0
@@ -14,16 +14,14 @@ require (
 
 require (
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/pprof v0.0.0-20240416155748-26353dc0451f // indirect
-	github.com/onsi/gomega v1.32.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/shoenig/test v1.8.0 // indirect
 	github.com/tklauser/numcpus v0.7.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
 )
 
 require (
