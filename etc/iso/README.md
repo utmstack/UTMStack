@@ -1,4 +1,4 @@
-UTMStack ISO / Ubuntu 22.04.04 Server Autoinstall ISO
+UTMStack ISO / Server Autoinstall ISO
 
 Introduction
 
@@ -61,5 +61,5 @@ The following command is helpful when trying to setup the arguments for building
 
 ./iso-build.sh
 
-
+The partition images that 7z extracted for us are being added back to the recreated ISO.
 
