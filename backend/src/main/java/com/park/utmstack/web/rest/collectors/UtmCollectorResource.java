@@ -74,7 +74,7 @@ public class UtmCollectorResource {
             collectorValidatorService.validate(collectorConfig, errors);
 
             if (errors.hasErrors()) {
-                String msg =  String.format("Validation failed for field");
+                String msg =  "Validation failed: Hostname must be unique for this collector.";
                 log.error(msg);
                 applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
                 return UtilResponse.buildPreconditionFailedResponse(msg);
