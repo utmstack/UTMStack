@@ -14,6 +14,7 @@ import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.dto.collectors.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.ListCollectorsResponseDTO;
+import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -43,10 +46,13 @@ public class UtmCollectorResource {
     private final ApplicationEventService applicationEventService;
     private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
 
-    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService, UtmModuleGroupConfigurationService moduleGroupConfigurationService) {
+    private final CollectorValidatorService collectorValidatorService;
+
+    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService, UtmModuleGroupConfigurationService moduleGroupConfigurationService, CollectorValidatorService collectorValidatorService) {
         this.collectorService = collectorService;
         this.applicationEventService = applicationEventService;
         this.moduleGroupConfigurationService = moduleGroupConfigurationService;
+        this.collectorValidatorService = collectorValidatorService;
     }
 
     /**
@@ -60,18 +66,27 @@ public class UtmCollectorResource {
     @PostMapping("/collector-config")
     public ResponseEntity<Void> upsertCollectorConfig(
             @Valid @RequestBody UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody collectorConfig,
-            CollectorDTO collectorDTO
-    ) {
+            CollectorDTO collectorDTO) {
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
 
         try {
+            Errors errors = new BeanPropertyBindingResult(collectorConfig, "updateConfigurationKeysBody");
+            collectorValidatorService.validate(collectorConfig, errors);
+
+            if (errors.hasErrors()) {
+                String msg =  String.format("Validation failed for field");
+                log.error(msg);
+                applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+                return UtilResponse.buildPreconditionFailedResponse(msg);
+            }
+
             // Get the actual configuration just in case of error when updating local db.
             CollectorConfig cacheConfig = collectorService.getCollectorConfig(
                     ConfigRequest.newBuilder().setModule(CollectorModule.valueOf(collectorDTO.getModule().toString())).build(),
-                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollectorKey()).build()
-            );
+                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollectorKey()).build());
             // Map the configurations to gRPC CollectorConfig and try to insert/update the collector config
-            collectorService.upsertCollectorConfig(collectorService.mapToCollectorConfig(collectorConfig.getKeys(), collectorDTO));
+            collectorService.upsertCollectorConfig(collectorService.mapToCollectorConfig(
+                    collectorService.mapPasswordConfiguration(collectorConfig.getKeys()), collectorDTO));
             // If the update is fine via gRPC, then update the configurations in local db.
             try {
                 moduleGroupConfigurationService.updateConfigurationKeys(collectorConfig.getModuleId(), collectorConfig.getKeys());
@@ -112,15 +127,15 @@ public class UtmCollectorResource {
      */
     @GetMapping("/collectors-list")
     public ResponseEntity<ListCollectorsResponseDTO> listCollectorsByModule(@RequestParam(required = false) Integer pageNumber,
-                                                                         @RequestParam(required = false) Integer pageSize,
-                                                                         @RequestParam(required = false) String module,
-                                                                         @RequestParam(required = false) String sortBy) {
+                                                                            @RequestParam(required = false) Integer pageSize,
+                                                                            @RequestParam(required = false) CollectorModuleEnum module,
+                                                                            @RequestParam(required = false) String sortBy) {
         final String ctx = CLASSNAME + ".listCollectorsByModule";
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 0)
-                    .setSearchQuery(module != null ? "module.Is=" + module : "")
+                    .setPageSize(pageSize != null ? pageSize : 100)
+                    .setSearchQuery(module != null ? "module.Is=" + module.name() : "")
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();
 
