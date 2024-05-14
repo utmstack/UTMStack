@@ -13,6 +13,8 @@ public class CollectorDTO {
     private CollectorModuleEnum module;
     private String lastSeen;
 
+    public CollectorDTO(){}
+
     public CollectorDTO(Collector collector) {
         this.id = collector.getId();
         this.status = CollectorStatusEnum.valueOf(collector.getStatus().toString());

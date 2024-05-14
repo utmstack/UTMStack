@@ -17,11 +17,13 @@ import agent.Common.AuthResponse;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.collectors.CollectorDTO;
+import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.utmstack.grpc.connection.GrpcConnection;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
@@ -50,12 +52,16 @@ public class CollectorOpsService {
     private final PanelCollectorService panelCollectorService;
     private final CollectorService collectorService;
     private final UtmModuleGroupService moduleGroupService;
+    private final UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository;
 
-    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService) throws GrpcConnectionException {
+    private final String ENCRYPTION_KEY = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+
+    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository) throws GrpcConnectionException {
         this.grpcConnection = grpcConnection;
         this.panelCollectorService = new PanelCollectorService(grpcConnection);
         this.collectorService = new CollectorService(grpcConnection);
         this.moduleGroupService = moduleGroupService;
+        this.utmModuleGroupConfigurationRepository = utmModuleGroupConfigurationRepository;
     }
 
     /**
@@ -287,5 +293,19 @@ public class CollectorOpsService {
             log.error(msg);
             throw new RuntimeException(msg);
         }
+    }
+
+    public List<UtmModuleGroupConfiguration> mapPasswordConfiguration( List<UtmModuleGroupConfiguration> configs) {
+
+       return configs.stream().peek(config -> {
+            if (config.getConfName().equals("Password")) {
+                final UtmModuleGroupConfiguration utmModuleGroupConfiguration = utmModuleGroupConfigurationRepository.findById(config.getId())
+                        .orElseThrow(() -> new RuntimeException(String.format("Configuration id %s not found", config.getId())));
+
+                if (config.getConfValue().equals(utmModuleGroupConfiguration.getConfValue())){
+                    config.setConfValue(CipherUtil.decrypt(utmModuleGroupConfiguration.getConfValue(), ENCRYPTION_KEY));
+                }
+            }
+       }).collect(Collectors.toList());
     }
 }
