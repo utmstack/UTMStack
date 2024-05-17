@@ -3,6 +3,7 @@ import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import * as moment from 'moment/moment';
 import {IP_HOSTNAME_REGEX} from '../../../shared/constants/regex-const';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {GroupTypeEnum} from "../../shared/enum/group-type.enum";
 
 @Component({
     selector: 'app-guide-as400',
@@ -14,6 +15,8 @@ export class GuideAs400Component implements OnInit {
     @Input() serverId: number;
     module = UtmModulesEnum;
     serverAS400FormArray: FormGroup;
+    configValidity: boolean;
+    groupType = GroupTypeEnum.COLLECTOR;
 
     constructor(private formBuilder: FormBuilder) {
         this.serverAS400FormArray = this.formBuilder.group({
@@ -80,4 +83,8 @@ export class GuideAs400Component implements OnInit {
             `--log-opt max-file=3 ` +
             `-d utmstack.azurecr.io/as400jds:v9`;
     }
+
+  configValidChange($event: boolean) {
+    this.configValidity = !$event;
+  }
 }

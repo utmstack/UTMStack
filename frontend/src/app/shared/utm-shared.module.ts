@@ -216,6 +216,7 @@ import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 
 
 @NgModule({
@@ -342,6 +343,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmAgentSelectComponent,
     UtmAgentConnectComponent,
     UtmAgentDetailComponent,
+    UtmCollectorDetailComponent,
     UtmGettingStartedComponent,
     GettingStartedModalComponent,
     GettingStartedFinishedModalComponent,
@@ -439,6 +441,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmConsoleCheckComponent,
     UtmAgentConnectComponent,
     UtmAgentDetailComponent,
+    UtmCollectorDetailComponent,
     UtmAgentSelectComponent,
     UtmSecretViewComponent,
     LogstashStatsComponent,
