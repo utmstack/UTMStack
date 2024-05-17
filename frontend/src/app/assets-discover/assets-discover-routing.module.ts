@@ -32,6 +32,14 @@ const routes: Routes = [
       authorities: [ADMIN_ROLE, USER_ROLE]
     }
   },
+  {
+    path: 'collectors-groups', component: AssetGroupsComponent,
+    canActivate: [UserRouteAccessService],
+    runGuardsAndResolvers: 'always',
+    data: {
+      authorities: [ADMIN_ROLE, USER_ROLE]
+    }
+  },
 ];
 
 @NgModule({
