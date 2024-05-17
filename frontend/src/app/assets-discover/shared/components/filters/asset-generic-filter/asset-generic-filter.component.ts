@@ -42,7 +42,6 @@ export class AssetGenericFilterComponent implements OnInit {
      * Update type values filter on type is applied to asset
      */
     this.assetTypeChangeBehavior.$assetReloadFilter.subscribe(change => {
-      console.log(change);
       if (change && this.fieldFilter.field === change) {
         this.requestParams.page = 0;
         this.fieldValues = [];
