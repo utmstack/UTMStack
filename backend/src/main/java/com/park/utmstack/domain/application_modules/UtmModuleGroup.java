@@ -2,6 +2,7 @@ package com.park.utmstack.domain.application_modules;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -109,4 +110,5 @@ public class UtmModuleGroup implements Serializable {
     public void setCollector(String collector) {
         this.collector = collector;
     }
+
 }

@@ -2,6 +2,8 @@ package com.park.utmstack.service.dto.collectors;
 
 
 import agent.CollectorOuterClass.Collector;
+import com.park.utmstack.domain.collector.UtmCollector;
+import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 
 public class CollectorDTO {
     private int id;
@@ -13,17 +15,23 @@ public class CollectorDTO {
     private CollectorModuleEnum module;
     private String lastSeen;
 
+    private String groupId;
+
+    private UtmAssetGroup group;
+
     public CollectorDTO(){}
 
-    public CollectorDTO(Collector collector) {
-        this.id = collector.getId();
-        this.status = CollectorStatusEnum.valueOf(collector.getStatus().toString());
+
+    public CollectorDTO(UtmCollector collector) {
+        this.id = collector.getId().intValue();
+        this.status = CollectorStatusEnum.valueOf(collector.getStatus());
         this.collectorKey = collector.getCollectorKey();
         this.ip = collector.getIp();
         this.hostname = collector.getHostname();
         this.version = collector.getVersion();
-        this.module = CollectorModuleEnum.valueOf(collector.getModule().toString());
-        this.lastSeen = collector.getLastSeen();
+        this.module = CollectorModuleEnum.valueOf(collector.getModule());
+        this.lastSeen = collector.getLastSeen().toString();
+        this.group = collector.getAssetGroup();
     }
 
     public int getId() {
@@ -88,5 +96,21 @@ public class CollectorDTO {
 
     public void setLastSeen(String lastSeen) {
         this.lastSeen = lastSeen;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public UtmAssetGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(UtmAssetGroup group) {
+        this.group = group;
     }
 }

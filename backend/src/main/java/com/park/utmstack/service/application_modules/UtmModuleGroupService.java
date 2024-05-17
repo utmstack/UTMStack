@@ -83,4 +83,22 @@ public class UtmModuleGroupService {
             throw new Exception(ctx + ": " + e.getMessage());
         }
     }
+
+    public List<UtmModuleGroup> findAllByCollectorId(String collectorId) throws Exception {
+        final String ctx = CLASSNAME + ".findAllByModuleName";
+        try {
+            return moduleGroupRepository.findAllByCollector(collectorId);
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    public List<UtmModuleGroup> findAllWithCollector() throws Exception {
+        final String ctx = CLASSNAME + ".findAllByModuleName";
+        try {
+            return moduleGroupRepository.findAllByCollectorIsNotNull();
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
 }

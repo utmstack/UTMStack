@@ -17,7 +17,9 @@ import agent.Common.AuthResponse;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
+import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
@@ -33,11 +35,15 @@ import com.utmstack.grpc.service.CollectorService;
 import com.utmstack.grpc.service.PanelCollectorService;
 import io.grpc.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,12 +62,17 @@ public class CollectorOpsService {
 
     private final String ENCRYPTION_KEY = System.getenv(Constants.ENV_ENCRYPTION_KEY);
 
-    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository) throws GrpcConnectionException {
+    private final UtmCollectorRepository utmCollectorRepository;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository, UtmCollectorRepository utmCollectorRepository) throws GrpcConnectionException {
         this.grpcConnection = grpcConnection;
         this.panelCollectorService = new PanelCollectorService(grpcConnection);
         this.collectorService = new CollectorService(grpcConnection);
         this.moduleGroupService = moduleGroupService;
         this.utmModuleGroupConfigurationRepository = utmModuleGroupConfigurationRepository;
+        this.utmCollectorRepository = utmCollectorRepository;
     }
 
     /**
@@ -112,7 +123,7 @@ public class CollectorOpsService {
     }
 
     /**
-     * Method to List all Collector's hostnames.
+     * Method to List all UtmCollector's hostnames.
      *
      * @param request is the request with all the pagination and search params used to list collectors.
      *                according to those params.
@@ -224,6 +235,7 @@ public class CollectorOpsService {
                     .setCollectorId(collectorDTO.getId())
                     .build()));
         });
+
         // Creating the final CollectorConfig object
         collectorConfig = CollectorConfig.newBuilder()
                 .setCollectorKey(collectorDTO.getCollectorKey())
@@ -234,10 +246,10 @@ public class CollectorOpsService {
     }
 
     /**
-     * Method to transform a Collector to CollectorDTO
+     * Method to transform a UtmCollector to CollectorDTO
      */
     private CollectorDTO protoToCollectorDto(Collector collector) {
-        return new CollectorDTO(collector);
+        return new CollectorDTO(this.saveCollector(collector));
     }
 
     /**
@@ -271,12 +283,12 @@ public class CollectorOpsService {
                     .stream().findFirst();
             try {
                 if (collectorToSearch.isEmpty()) {
-                    log.error(String.format("%1$s: Collector %2$s could not be deleted because no information was obtained from collector manager", ctx, hostname));
+                    log.error(String.format("%1$s: UtmCollector %2$s could not be deleted because no information was obtained from collector manager", ctx, hostname));
                     return;
                 }
             } catch (StatusRuntimeException e) {
                 if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
-                    log.error(String.format("%1$s: Collector %2$s could not be deleted because was not found", ctx, hostname));
+                    log.error(String.format("%1$s: UtmCollector %2$s could not be deleted because was not found", ctx, hostname));
                     return;
                 }
             }
@@ -307,5 +319,37 @@ public class CollectorOpsService {
                 }
             }
        }).collect(Collectors.toList());
+    }
+
+    public UtmCollector saveCollector(Collector collector){
+        UtmCollector utmCollector = utmCollectorRepository.findById(Long.valueOf(collector.getId()))
+                .orElse(new UtmCollector());
+
+        if (utmCollector.getId() == null) {
+            utmCollector.setId(Long.valueOf(collector.getId()));
+        }
+
+        utmCollector.setStatus(collector.getStatus().name());
+        utmCollector.setLastSeen(LocalDateTime.parse(collector.getLastSeen(), this.formatter));
+        utmCollector.setVersion(collector.getVersion());
+        utmCollector.setIp(collector.getIp());
+        utmCollector.setHostname(collector.getHostname());
+        utmCollector.setCollectorKey(collector.getCollectorKey());
+        utmCollector.setModule(collector.getModule().name());
+
+
+        return this.utmCollectorRepository.save(utmCollector);
+
+    }
+
+    @Transactional
+    public void updateGroup(List<Long> collectorsIds, Long assetGroupId) throws Exception {
+        final String ctx = CLASSNAME + ".updateGroup";
+        Assert.notEmpty(collectorsIds, ctx + ": Missing parameter [collectorsIds]");
+        try {
+            utmCollectorRepository.updateGroup(collectorsIds, assetGroupId);
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
     }
 }

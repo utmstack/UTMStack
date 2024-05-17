@@ -8,8 +8,10 @@ import agent.CollectorOuterClass.CollectorConfig;
 import agent.Common.ListRequest;
 import agent.Common.AuthResponse;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
+import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.dto.collectors.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
@@ -19,6 +21,8 @@ import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
+import com.park.utmstack.web.rest.network_scan.UtmNetworkScanResource;
+import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
 import com.utmstack.grpc.exception.CollectorServiceGrpcException;
 import org.slf4j.Logger;
@@ -31,6 +35,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 /**
@@ -48,11 +53,17 @@ public class UtmCollectorResource {
 
     private final CollectorValidatorService collectorValidatorService;
 
-    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService, UtmModuleGroupConfigurationService moduleGroupConfigurationService, CollectorValidatorService collectorValidatorService) {
+    private final UtmModuleGroupService moduleGroupService;
+
+    private final ApplicationEventService eventService;
+
+    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService, UtmModuleGroupConfigurationService moduleGroupConfigurationService, CollectorValidatorService collectorValidatorService, UtmModuleGroupService moduleGroupService, ApplicationEventService eventService) {
         this.collectorService = collectorService;
         this.applicationEventService = applicationEventService;
         this.moduleGroupConfigurationService = moduleGroupConfigurationService;
         this.collectorValidatorService = collectorValidatorService;
+        this.moduleGroupService = moduleGroupService;
+        this.eventService = eventService;
     }
 
     /**
@@ -90,6 +101,7 @@ public class UtmCollectorResource {
             // If the update is fine via gRPC, then update the configurations in local db.
             try {
                 moduleGroupConfigurationService.updateConfigurationKeys(collectorConfig.getModuleId(), collectorConfig.getKeys());
+
                 return ResponseEntity.noContent().build();
             } catch (Exception e) {
                 String msg = ctx + ": " + e.getMessage();
@@ -103,7 +115,7 @@ public class UtmCollectorResource {
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorConfigurationGrpcException | CollectorServiceGrpcException e) {
-            String msg = ctx + ": Collector manager is not available or the configuration is wrong, please check. " + e.getLocalizedMessage();
+            String msg = ctx + ": UtmCollector manager is not available or the configuration is wrong, please check. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
@@ -149,7 +161,7 @@ public class UtmCollectorResource {
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorServiceGrpcException e) {
-            String msg = ctx + ": Collector manager is not available or was an error getting the collector list. " + e.getLocalizedMessage();
+            String msg = ctx + ": UtmCollector manager is not available or was an error getting the collector list. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
@@ -186,7 +198,7 @@ public class UtmCollectorResource {
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorServiceGrpcException e) {
-            String msg = ctx + ": Collector manager is not available or the parameters are wrong, please check." + e.getLocalizedMessage();
+            String msg = ctx + ": UtmCollector manager is not available or the parameters are wrong, please check." + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
@@ -217,10 +229,53 @@ public class UtmCollectorResource {
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (CollectorServiceGrpcException e) {
-            String msg = ctx + ": Collector manager is not available or was an error getting configuration. " + e.getLocalizedMessage();
+            String msg = ctx + ": UtmCollector manager is not available or was an error getting configuration. " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
+        }
+    }
+
+    @GetMapping("/groups-by-collectors/{collectorId}")
+    public ResponseEntity<List<UtmModuleGroup>> getModuleGroups(@PathVariable String collectorId) {
+        final String ctx = CLASSNAME + ".getModuleGroups";
+        try {
+            return ResponseEntity.ok(moduleGroupService.findAllByCollectorId(collectorId));
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @GetMapping("/groups-with-collectors")
+    public ResponseEntity<List<UtmModuleGroup>> getModuleGroups() {
+        final String ctx = CLASSNAME + ".getModuleGroups";
+        try {
+            return ResponseEntity.ok(moduleGroupService.findAllWithCollector());
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @PutMapping("/updateGroup")
+    public ResponseEntity<Void> updateGroup(@Valid @RequestBody UtmNetworkScanResource.UpdateGroupRequestBody body) {
+        final String ctx = CLASSNAME + ".updateGroup";
+        try {
+            collectorService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 }

@@ -592,8 +592,25 @@ AS
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
             ALTER TABLE utm_module_group
-                ADD COLUMN collector_id VARCHAR(255);
+                ADD COLUMN collector_id VARCHAR(255)
             ]]>
         </sql>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            CREATE TABLE utm_collectors (
+                            id BIGINT NOT NULL,
+                            status VARCHAR(50) NOT NULL,
+                            collector_key VARCHAR(255) NOT NULL,
+                            ip VARCHAR(45) NOT NULL,
+                            hostname VARCHAR(255) NOT NULL,
+                            version VARCHAR(50),
+                            module VARCHAR(50) NOT NULL,
+                            last_seen TIMESTAMP,
+                            group_id BIGINT
+            );
+            ]]>
+        </sql>
+
     </changeSet>
 </databaseChangeLog>
