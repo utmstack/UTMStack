@@ -13,6 +13,8 @@ public enum PropertyFilter {
     SEVERITY("assetSeverity", "UtmNetworkScan"),
     PORTS("port", "UtmPorts"),
     GROUP("assetGroup.groupName", "UtmNetworkScan"),
+
+    COLLECTOR_IP("ip", "UtmCollector"),
     COLLECTOR_GROUP("assetGroup.groupName", "UtmCollector");
 
     private final String propertyName;

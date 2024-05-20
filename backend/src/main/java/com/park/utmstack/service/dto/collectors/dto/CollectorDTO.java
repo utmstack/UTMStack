@@ -1,9 +1,11 @@
-package com.park.utmstack.service.dto.collectors;
+package com.park.utmstack.service.dto.collectors.dto;
 
 
 import agent.CollectorOuterClass.Collector;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
+import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
+import com.park.utmstack.service.dto.collectors.CollectorStatusEnum;
 
 public class CollectorDTO {
     private int id;

@@ -9,13 +9,15 @@ import agent.Common.ListRequest;
 import agent.Common.AuthResponse;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
+import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
-import com.park.utmstack.service.dto.collectors.CollectorDTO;
+import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
-import com.park.utmstack.service.dto.collectors.ListCollectorsResponseDTO;
+import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
+import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
 import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
@@ -23,10 +25,13 @@ import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
 import com.park.utmstack.web.rest.network_scan.UtmNetworkScanResource;
 import com.park.utmstack.web.rest.util.HeaderUtil;
+import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
 import com.utmstack.grpc.exception.CollectorServiceGrpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -270,6 +275,22 @@ public class UtmCollectorResource {
         try {
             collectorService.updateGroup(body.getAssetsIds(), body.getAssetGroupId());
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @GetMapping("/searchGroupsByFilter")
+    public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
+        final String ctx = CLASSNAME + ".searchGroupsByFilter";
+        try {
+            Page<AssetGroupDTO> page = collectorService.searchGroupsByFilter(filter, pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

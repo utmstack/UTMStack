@@ -2,6 +2,7 @@ package com.park.utmstack.domain.network_scan;
 
 
 import com.park.utmstack.domain.UtmAssetMetrics;
+import com.park.utmstack.domain.collector.UtmCollector;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -40,6 +41,11 @@ public class UtmAssetGroup implements Serializable {
 
     @Transient
     private List<UtmNetworkScan> assets = new ArrayList<>();
+
+    @Transient
+    private List<UtmCollector> collectors = new ArrayList<>();
+
+    private String type;
 
     public Long getId() {
         return id;
@@ -97,5 +103,21 @@ public class UtmAssetGroup implements Serializable {
 
     public void setAssets(List<UtmNetworkScan> assets) {
         this.assets = assets;
+    }
+
+    public List<UtmCollector> getCollectors() {
+        return collectors;
+    }
+
+    public void setCollectors(List<UtmCollector> collectors) {
+        this.collectors = collectors;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
