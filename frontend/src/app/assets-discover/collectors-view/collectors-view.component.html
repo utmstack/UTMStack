@@ -62,7 +62,7 @@
 
               <app-asset-group-add
                 (applyGroupEvent)="getCollectors()"
-                [type]="'COLLECTORS'"
+                [type]="'COLLECTOR'"
                 *ngIf="assetsSelected.length>0" [assets]="assetsSelected"
                 [typeFormat]="'button'" class="ml-3 mr-3"></app-asset-group-add>
 
@@ -129,7 +129,7 @@
                     </app-assets-apply-type>-->
 
                     <app-asset-group-add (focus)="stopInterval($event)"
-                                         [type]="'COLLECTORS'"
+                                         [type]="'COLLECTOR'"
                                          (applyGroupEvent)="getCollectors()" [assets]="[asset.id]"
                                          [group]="asset.group"
                                          [typeFormat]="'icon'" class="ml-2"></app-asset-group-add>

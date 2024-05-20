@@ -12,4 +12,5 @@ export class AssetGroupFilterType {
   size?: number;
   sort?: string;
   ip?: string;
+  assetType?: string;
 }

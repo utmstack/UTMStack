@@ -54,13 +54,14 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
     page: 0,
     size: ITEMS_PER_PAGE,
     sort: 'id,desc',
-    ip: null
+    ip: null,
+    assetType: GroupTypeEnum.ASSET
   };
   groupsSelected: number[] = [];
   interval: any;
   // Init get group on time filter component trigger
   viewGroupDetail: AssetGroupType;
-  type = GroupTypeEnum.ASSETS;
+  type = GroupTypeEnum.ASSET;
 
   constructor(private utmAssetGroupService: UtmAssetGroupService,
               private modalService: NgbModal,
@@ -75,6 +76,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
       if (params.type) {
         this.type = params.type;
         this.fieldFilters = COLLECTORS_GROUP_FIELDS_FILTERS;
+        this.requestParam.assetType  = GroupTypeEnum.COLLECTOR;
       }
       this.setInitialWidth();
       this.getAssetsGroups();
@@ -110,7 +112,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
   }
 
   getAssetsGroups() {
-    if (this.type === GroupTypeEnum.ASSETS){
+    if (this.type === GroupTypeEnum.ASSET) {
       this.utmAssetGroupService.query(this.requestParam).subscribe(response => {
         this.totalItems = Number(response.headers.get('X-Total-Count'));
         this.assetGroups = response.body;

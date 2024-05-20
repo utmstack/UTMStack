@@ -1,4 +1,4 @@
 export enum GroupTypeEnum {
-  ASSETS = 'ASSETS',
-  COLLECTORS = 'COLLECTORS'
+  ASSET = 'ASSET',
+  COLLECTOR = 'COLLECTOR'
 }
