@@ -7,6 +7,7 @@ import {UtmModulesEnum} from '../enum/utm-module.enum';
 import { UtmModuleGroupType } from '../type/utm-module-group.type';
 import {UtmModuleCollectorType} from "../type/utm-module-collector.type";
 import {UtmListCollectorType} from "../type/utm-list-collector-type";
+import {AssetGroupType} from "../../../assets-discover/asset-groups/shared/type/asset-group.type";
 
 
 @Injectable({
@@ -68,5 +69,10 @@ export class UtmModuleCollectorService {
 
   updateGroup(asset: { assetGroupId: number, assetsIds: number[] }): Observable<HttpResponse<any>> {
     return this.http.put<any>(this.resourceUrl + '/updateGroup', asset, {observe: 'response'});
+  }
+
+  queryGroups(req?: any): Observable<HttpResponse<AssetGroupType[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<AssetGroupType[]>(this.resourceUrl + '/searchGroupsByFilter', {params: options, observe: 'response'});
   }
 }

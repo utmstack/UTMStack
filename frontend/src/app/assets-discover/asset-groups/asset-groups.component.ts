@@ -21,6 +21,8 @@ import {AssetGroupType} from './shared/type/asset-group.type';
 import {ActivatedRoute} from "@angular/router";
 import {GroupTypeEnum} from "../shared/enums/group-type.enum";
 import {COLLECTORS_GROUP_FIELDS_FILTERS} from "./shared/const/collector-group-field.const";
+import {CollectorFieldFilterEnum} from "../shared/enums/collector-field-filter.enum";
+import {UtmModuleCollectorService} from "../../app-module/shared/services/utm-module-collector.service";
 
 @Component({
   selector: 'app-asset-groups',
@@ -52,6 +54,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
     page: 0,
     size: ITEMS_PER_PAGE,
     sort: 'id,desc',
+    ip: null
   };
   groupsSelected: number[] = [];
   interval: any;
@@ -63,7 +66,8 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
               private modalService: NgbModal,
               private utmToastService: UtmToastService,
               private assetFiltersBehavior: AssetFiltersBehavior,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private utmModuleCollectorService: UtmModuleCollectorService) {
   }
 
   ngOnInit() {
@@ -106,11 +110,19 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
   }
 
   getAssetsGroups() {
-    this.utmAssetGroupService.query(this.requestParam).subscribe(response => {
-      this.totalItems = Number(response.headers.get('X-Total-Count'));
-      this.assetGroups = response.body;
-      this.loading = false;
-    });
+    if (this.type === GroupTypeEnum.ASSETS){
+      this.utmAssetGroupService.query(this.requestParam).subscribe(response => {
+        this.totalItems = Number(response.headers.get('X-Total-Count'));
+        this.assetGroups = response.body;
+        this.loading = false;
+      });
+    } else  {
+      this.utmModuleCollectorService.queryGroups(this.requestParam).subscribe(response => {
+        this.totalItems = Number(response.headers.get('X-Total-Count'));
+        this.assetGroups = response.body;
+        this.loading = false;
+      });
+    }
   }
 
   onItemsPerPageChange($event: number) {
@@ -163,7 +175,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
     this.getAssetsGroups();
   }
 
-  onFilterChange($event: { prop: AssetFieldFilterEnum, values: any }) {
+  onFilterChange($event: { prop, values: any }) {
     switch ($event.prop) {
       case AssetFieldFilterEnum.TYPE:
         this.requestParam.type = $event.values.length > 0 ? $event.values : null;
@@ -174,6 +186,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
       case AssetFieldFilterEnum.PROBE:
         this.requestParam.probe = $event.values.length > 0 ? $event.values : null;
         break;
+      case CollectorFieldFilterEnum.COLLECTOR_IP:
       case AssetFieldFilterEnum.IP:
         this.requestParam.assetIp = $event.values.length > 0 ? $event.values : null;
         break;

@@ -11,4 +11,5 @@ export class AssetGroupFilterType {
   page?: number;
   size?: number;
   sort?: string;
+  ip?: string;
 }
