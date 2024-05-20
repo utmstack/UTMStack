@@ -9,10 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UtmCollectorRepository extends JpaRepository<UtmCollector, Long>, JpaSpecificationExecutor<UtmCollector> {
     @Modifying
     @Query("UPDATE UtmCollector s SET s.groupId = :assetGroupId WHERE s.id IN :collectorsIds")
     void updateGroup(@Param("collectorsIds") List<Long> collectorsIds,
                      @Param("assetGroupId") Long assetGroupId);
+
+    Optional<List<UtmCollector>> findAllByGroupId(Long groupId);
 }

@@ -129,12 +129,12 @@ public class UtmAssetGroupService {
 
     private String searchQueryBuilder(AssetGroupFilter filters) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT DISTINCT utm_asset_group.* FROM utm_asset_group LEFT JOIN utm_network_scan ON utm_asset_group.id = utm_network_scan.group_id\n");
+        sb.append(String.format("SELECT DISTINCT utm_asset_group.* FROM utm_asset_group LEFT JOIN utm_network_scan ON utm_asset_group.id = utm_network_scan.group_id where type =  '%s' \n", filters.getAssetType()));
 
         if (Objects.isNull(filters))
             return sb.toString();
 
-        boolean where = true;
+        boolean where = false;
 
         // id
         if (Objects.nonNull(filters.getId())) {

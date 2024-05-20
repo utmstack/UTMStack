@@ -1,4 +1,6 @@
-package com.park.utmstack.service.dto.collectors;
+package com.park.utmstack.service.dto.collectors.dto;
+
+import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 
 import java.util.List;
 

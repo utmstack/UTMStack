@@ -16,7 +16,7 @@
 
 
             INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
-            VALUES (704, 'Collectors Groups', 'data-sources/collectors-groups', 700, 1, null, 4, true, false, null, null);
+            VALUES (704, 'Collectors Groups', 'data-sources/collectors-groups?type=collector', 700, 1, null, 4, true, false, null, null);
 
             INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (704, 'ROLE_ADMIN');
             INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (704, 'ROLE_USER');

@@ -591,8 +591,12 @@ AS
 
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
-            ALTER TABLE utm_module_group
-                ADD COLUMN collector_id VARCHAR(255)
+            ALTER TABLE utm_asset_group
+                ADD COLUMN type VARCHAR(50);
+
+            UPDATE utm_asset_group
+            SET type = 'ASSET';
+
             ]]>
         </sql>
 
@@ -609,6 +613,13 @@ AS
                             last_seen TIMESTAMP,
                             group_id BIGINT
             );
+            ]]>
+        </sql>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            ALTER TABLE utm_module_group
+                ADD COLUMN collector_id VARCHAR(255)
             ]]>
         </sql>
 
