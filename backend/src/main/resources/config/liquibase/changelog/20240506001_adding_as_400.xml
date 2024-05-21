@@ -597,6 +597,11 @@ AS
             UPDATE utm_asset_group
             SET type = 'ASSET';
 
+            ALTER TABLE utm_asset_group
+                DROP CONSTRAINT ux_group_name;
+
+            ALTER TABLE utm_asset_group
+                ADD CONSTRAINT ux_group_name UNIQUE (group_name, type);
             ]]>
         </sql>
 
