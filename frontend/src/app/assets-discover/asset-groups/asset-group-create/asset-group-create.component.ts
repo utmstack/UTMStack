@@ -64,10 +64,11 @@ export class AssetGroupCreateComponent implements OnInit {
 
   searchGroup() {
     const req = {
-      'tagName.equals': this.group.groupName
+      groupName: this.group.groupName,
+      assetType: this.group.type ? this.group.type : null
     };
     this.utmAssetGroupService.query(req).subscribe(response => {
-      this.exist = response.body.length > 0 && !this.group;
+      this.exist = response.body.length > 0;
       this.typing = false;
     });
   }
