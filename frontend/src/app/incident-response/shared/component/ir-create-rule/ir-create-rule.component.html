@@ -88,8 +88,9 @@
       </div>
       <div class="form-group">
         <label class="pb-1" for="description">Description
-          ({{ 512 - formRule.get('description').value.length }})</label>
+          ({{ maxLength - formRule.get('description').value.length }})</label>
         <textarea [ngClass]="inputClass.resolveClassInput(formRule.get('description'))"
+                  [maxLength]="maxLength"
                   class="border-1 border-grey-600 form-control" formControlName="description"
                   id="description"
                   name=""

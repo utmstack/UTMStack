@@ -1,7 +1,10 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {takeUntil, filter} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {NavBehavior} from '../../../../shared/behaviors/nav.behavior';
+import {ModuleChangeStatusBehavior} from '../../behavior/module-change-status.behavior';
 import {ModuleRefreshBehavior} from '../../behavior/module-refresh.behavior';
 import {UtmModulesEnum} from '../../enum/utm-module.enum';
 import {UtmModulesService} from '../../services/utm-modules.service';
@@ -14,7 +17,7 @@ import {AppModuleDeactivateComponent} from '../app-module-deactivate/app-module-
   templateUrl: './app-module-activate-button.component.html',
   styleUrls: ['./app-module-activate-button.component.css']
 })
-export class AppModuleActivateButtonComponent implements OnInit {
+export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
   @Input() module: UtmModulesEnum;
   @Input() type: string;
   @Input() disabled = false;
@@ -23,15 +26,21 @@ export class AppModuleActivateButtonComponent implements OnInit {
   moduleDetail: UtmModuleType;
   changingStatus: any;
   activatable: boolean;
+  destroy$: Subject<void> = new Subject<void>();
 
   constructor(private utmModulesService: UtmModulesService,
               public modalService: NgbModal,
               private toastService: UtmToastService,
               private moduleRefreshBehavior: ModuleRefreshBehavior,
-              private navBehavior: NavBehavior) {
+              private navBehavior: NavBehavior,
+              private moduleChangeStatusBehavior: ModuleChangeStatusBehavior) {
   }
 
   ngOnInit() {
+    this.moduleChangeStatusBehavior.moduleStatus$
+        .pipe(filter(value => value !== null),
+              takeUntil(this.destroy$))
+        .subscribe( value => this.changeModuleStatus(value));
     this.getModuleDetail(this.module);
   }
 
@@ -76,6 +85,11 @@ export class AppModuleActivateButtonComponent implements OnInit {
         this.toastService.showSuccessBottom('Module ' + this.moduleDetail.moduleName +
           ' has been ' + (this.moduleDetail.moduleActive ? 'enabled' : 'disabled') + ' successfully');
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }
