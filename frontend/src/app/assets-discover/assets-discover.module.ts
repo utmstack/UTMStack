@@ -42,16 +42,19 @@ import {AssetFilterIsAliveComponent} from './shared/components/filters/asset-fil
 import {AssetGenericFilterComponent} from './shared/components/filters/asset-generic-filter/asset-generic-filter.component';
 import {AssetsFilterComponent} from './shared/components/filters/assets-filter/assets-filter.component';
 import {SourceDataTypeConfigComponent} from './source-data-type-config/source-data-type-config.component';
-import {AssetsApplyTypeModule} from "./shared/components/assets-apply-type/assets-apply-type.module";
-import {AssetsApplyNoteModule} from "./shared/components/assets-apply-note/assets-apply-note.module";
-import {AssetsGroupAddModule} from "./shared/components/asset-group-add/assets-group-add.module";
-import {InlineSVGModule} from "ng-inline-svg";
+import {AssetsApplyTypeModule} from './shared/components/assets-apply-type/assets-apply-type.module';
+import {AssetsApplyNoteModule} from './shared/components/assets-apply-note/assets-apply-note.module';
+import {AssetsGroupAddModule} from './shared/components/asset-group-add/assets-group-add.module';
+import {InlineSVGModule} from 'ng-inline-svg';
+import {CollectorsViewComponent} from "./collectors-view/collectors-view.component";
+import {CollectorStatusComponent} from "./shared/components/collector-status/collector-status.component";
 
 @NgModule({
   declarations: [
     AssetsViewComponent,
     AssetsFilterComponent,
     AssetStatusComponent,
+    CollectorStatusComponent,
     AssetSeverityComponent,
     AssetFieldRenderComponent,
     AssetOsComponent,
@@ -80,7 +83,8 @@ import {InlineSVGModule} from "ng-inline-svg";
     AssetSoftwareAddComponent,
     AssetPortCreateComponent,
     AssetEditAliasComponent,
-    SourceDataTypeConfigComponent],
+    SourceDataTypeConfigComponent,
+    CollectorsViewComponent],
   entryComponents: [
     AssetSaveReportComponent,
     AssetViewHelpComponent,

@@ -65,6 +65,6 @@ export enum UtmModulesEnum {
   GITHUB = 'GITHUB',
   SALESFORCE = 'SALESFORCE',
   BITDEFENDER = 'BITDEFENDER',
-  IBM_AS_400 = 'IBM_AS_400',
+  AS_400 = 'AS_400',
   SOC_AI = 'SOC_AI'
 }

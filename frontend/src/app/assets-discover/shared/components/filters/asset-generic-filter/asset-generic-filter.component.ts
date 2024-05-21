@@ -7,6 +7,7 @@ import {AssetFieldFilterEnum} from '../../../enums/asset-field-filter.enum';
 import {AssetMapFilterFieldEnum} from '../../../enums/asset-map-filter-field.enum';
 import {UtmNetScanService} from '../../../services/utm-net-scan.service';
 import {AssetFilterType} from '../../../types/asset-filter.type';
+import {CollectorFieldFilterEnum} from "../../../enums/collector-field-filter.enum";
 
 @Component({
   selector: 'app-asset-generic-filter',
@@ -15,7 +16,7 @@ import {AssetFilterType} from '../../../types/asset-filter.type';
 })
 export class AssetGenericFilterComponent implements OnInit {
   @Input() fieldFilter: ElasticFilterType;
-  @Output() filterGenericChange = new EventEmitter<{ prop: AssetFieldFilterEnum, values: string[] }>();
+  @Output() filterGenericChange = new EventEmitter<{ prop: AssetFieldFilterEnum | CollectorFieldFilterEnum, values: string[] }>();
   @Input() forGroups = false;
   fieldValues: Array<[string, number]> = [];
   loading = true;
@@ -75,7 +76,9 @@ export class AssetGenericFilterComponent implements OnInit {
     } else {
       this.selected.splice(index, 1);
     }
-    this.filterGenericChange.emit({prop: AssetFieldFilterEnum[this.fieldFilter.field], values: this.selected});
+
+    this.filterGenericChange.emit({prop: AssetFieldFilterEnum[this.fieldFilter.field] ?
+        AssetFieldFilterEnum[this.fieldFilter.field] : CollectorFieldFilterEnum[this.fieldFilter.field], values: this.selected});
 
   }
 
@@ -88,8 +91,10 @@ export class AssetGenericFilterComponent implements OnInit {
   }
 
   setValueOfFilter(filters: AssetFilterType) {
+    console.log('setValueOfFilter');
     for (const key of Object.keys(filters)) {
-      const filterKey = AssetFieldFilterEnum[this.fieldFilter.field];
+      const filterKey = AssetFieldFilterEnum[this.fieldFilter.field] ?
+        AssetFieldFilterEnum[this.fieldFilter.field] : CollectorFieldFilterEnum[this.fieldFilter.field];
       if (!STATICS_FILTERS.includes(key)
         && key === AssetMapFilterFieldEnum[filterKey]) {
         this.selected = filters[key] === null ? [] : filters[key];

@@ -1,4 +1,4 @@
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
@@ -36,5 +36,4 @@ export class UtmModuleGroupService {
   find(id: number): Observable<HttpResponse<UtmModuleGroupType>> {
     return this.http.get<UtmModuleGroupType>(`${this.resourceUrl}/${id}`, {observe: 'response'});
   }
-
 }

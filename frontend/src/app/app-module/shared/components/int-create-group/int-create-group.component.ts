@@ -5,6 +5,10 @@ import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 import {UtmModuleGroupService} from '../../services/utm-module-group.service';
 import {UtmModuleGroupType} from '../../type/utm-module-group.type';
+import {GroupTypeEnum} from "../../enum/group-type.enum";
+import {UtmModuleCollectorService} from "../../services/utm-module-collector.service";
+import {UtmModulesEnum} from "../../enum/utm-module.enum";
+import {UtmModuleCollectorType} from "../../type/utm-module-collector.type";
 
 @Component({
   selector: 'app-int-create-group',
@@ -14,9 +18,12 @@ import {UtmModuleGroupType} from '../../type/utm-module-group.type';
 export class IntCreateGroupComponent implements OnInit {
   @Input() group: UtmModuleGroupType;
   @Input() moduleId: number;
+  @Input() collectors: UtmModuleCollectorType[];
+  @Input() groupType: number = GroupTypeEnum.TENANT;
   @Output() groupChange = new EventEmitter<UtmModuleGroupType>();
   formGroupConfig: FormGroup;
   adding = false;
+  GroupTypeEnum = GroupTypeEnum;
 
   constructor(private fb: FormBuilder,
               public activeModal: NgbActiveModal,
@@ -27,6 +34,7 @@ export class IntCreateGroupComponent implements OnInit {
 
   ngOnInit() {
     this.formGroupConfig = this.fb.group({
+      collector: [],
       groupDescription: [''],
       groupName: ['', Validators.required],
       moduleId: [this.moduleId, [Validators.required]],
@@ -72,12 +80,25 @@ export class IntCreateGroupComponent implements OnInit {
     return {
       description: this.formGroupConfig.get('groupDescription').value,
       moduleId: this.moduleId,
-      name: this.formGroupConfig.get('groupName').value
+      name: this.formGroupConfig.get('groupName').value,
+      collector: this.formGroupConfig.get('collector').value ? this.formGroupConfig.get('collector').value.id : null
     };
   }
 
   error(type: 'editing' | 'creating') {
     this.toast.showError('Error ' + type + ' tenant', 'Error ' + type + ' ,tenant group configuration');
+  }
+
+  getHeader() {
+    return ` ${this.getAction()}  ${this.getGroupType()}`;
+  }
+
+  getGroupType() {
+    return this.groupType === GroupTypeEnum.TENANT ? 'tenant' : 'collector';
+  }
+
+  getAction() {
+    return this.group ? 'Edit' : 'Add';
   }
 
 }

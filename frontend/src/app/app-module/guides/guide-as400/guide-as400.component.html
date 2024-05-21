@@ -7,7 +7,17 @@
 
     <div class="card-body">
         <ol class="setup_list">
-            <li>
+          <li>
+            <p class="step-guide mb-3">
+              <span class="step_number">6</span>
+              Add your Collectors instances.
+            </p>
+            <app-int-generic-group-config [moduleId]="integrationId"
+                                          [groupType]="groupType"
+                                          (configValidChange)="configValidChange($event)"
+                                          [serverId]="serverId"></app-int-generic-group-config>
+          </li>
+           <!-- <li>
                 <p class="step-guide mb-3">
                     <span class="step_number">1</span>
                     Fill in the form with the data from your AS400 instance and download the generated JSON
@@ -152,7 +162,7 @@
                         </button>
                     </div>
                 </form>
-            </li>
+            </li>-->
             <li>
                 <p class="step-guide mb-3">
                     <span class="step_number">2</span>
@@ -191,7 +201,7 @@
                     <span class="step_number">6</span>
                     Click on the button shown below, to activate the UTMStack features related to this integration
                 </p>
-                <app-app-module-activate-button [module]="module.IBM_AS_400"
+                <app-app-module-activate-button [module]="module.AS_400"
                                                 [type]="'integration'" class="mt-3"
                                                 [serverId]="serverId">
                 </app-app-module-activate-button>
