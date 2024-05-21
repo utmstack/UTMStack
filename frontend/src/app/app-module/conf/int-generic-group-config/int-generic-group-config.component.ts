@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {forkJoin} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {finalize, map} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ModalConfirmationComponent} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
@@ -60,25 +60,21 @@ export class IntGenericGroupConfigComponent implements OnInit {
       this.groups = response.body;
       this.configValidChange.emit(this.tenantGroupConfigValid());
       if (this.groupType === GroupTypeEnum.COLLECTOR) {
-        if (this.groupType === GroupTypeEnum.COLLECTOR) {
           this.collectorService.query({module: UtmModulesEnum.AS_400})
               .pipe(
                   map(response => {
                     response.body.collectors = response.body.collectors.filter(c => c.status === 'ONLINE');
                     return response;
-                  })
+                  }),
+                finalize(() => this.loading = false)
               )
               .subscribe(response => {
                 this.collectorList = response.body.collectors;
                 this.collectors = this.collectorService.formatCollectorResponse(this.groups, this.collectorList);
-                this.loading = false;
               });
         } else {
           this.loading = false;
         }
-      } else {
-        this.loading = false;
-      }
     });
   }
 
