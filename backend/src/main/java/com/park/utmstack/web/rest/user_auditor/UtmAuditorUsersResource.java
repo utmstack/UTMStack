@@ -36,7 +36,7 @@ public class UtmAuditorUsersResource {
     public UtmAuditorUsersResource() {
 
         if (!StringUtils.hasText(System.getenv(Constants.ENV_AD_AUDIT_SERVICE))) {
-            this.microServiceUrl = "http://localhost:8081/api";
+            this.microServiceUrl = "http://user-auditor:8080/api";
         } else{
             this.microServiceUrl = System.getenv(Constants.ENV_AD_AUDIT_SERVICE);
         }
