@@ -1,0 +1,59 @@
+#cloud-config
+autoinstall:
+  version: 1
+  refresh-installer: 
+  update: yes
+  interactive-sections: 
+    - storage
+  storage:  
+    layout:
+      name: direct
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  identity:  
+    hostname: UTMStackServer
+    password: "$6$d4b3b076eab83a8d$RQisa1lg.pKg9T2AAyDWXiI41/46rn6HcPdNMt4AVUNvCErbCV7UdMRTDtC7cex8UjvBzY9I6qTUvLrcZPRKo1"
+    username: utmstack
+  ssh:
+    allow-pw: true
+    install-server: true
+  apt:
+    sources:
+      ignored1:  # This is here to get the yaml formatting right when adding a ppa
+        source: ppa:graphics-drivers/ppa
+  packages: 
+    - build-essential
+    - network-manager
+    - dkms
+    - emacs-nox
+  package_update: true
+  package_upgrade: true
+  late-commands:
+    # Changing from networkd to NetworkManager
+    # move existing config out of the way
+    - find /target/etc/netplan/ -name "*.yaml" -exec sh -c 'mv "$1" "$1-orig"' _ {} \;
+    # Create a new netplan and enable it
+    - |
+      cat <<EOF | sudo tee /target/etc/netplan/01-netcfg.yaml
+      network:
+        version: 2
+        renderer: NetworkManager
+      EOF
+    - curtin in-target --target /target netplan generate
+    - curtin in-target --target /target netplan apply
+    - curtin in-target --target /target systemctl enable NetworkManager.service
+  user-data: 
+    runcmd:
+      - wget https://cdn.utmstack.com/iso/start.sh -O /home/utmstack/start.sh && chmod +x /home/utmstack/start.sh && cd /home/utmstack/ && bash start.sh > /home/utmstack/installer.log
+      - wget https://cdn.utmstack.com/iso/finish-install-setup.sh -O /home/utmstack/finish-install-setup.sh && chmod +x /home/utmstack/finish-install-setup.sh 
+      - |
+        #!/usr/bin/env bash
+        echo ''
+        echo '********************************************************'
+        echo ' - Default Username: utmstack                           '
+        echo ' - Default Password: utmstack                           '
+        echo 'sudo cd /home/utmstack/ && chmod +x start.sh && start.sh'
+        echo '********************************************************'
+        echo ''
+
