@@ -35,6 +35,7 @@ import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {UtmIndexPattern} from '../../shared/types/index-pattern/utm-index-pattern';
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
+import {UtmIndexPatternFields} from "../../shared/types/index-pattern/utm-index-pattern-fields";
 
 @Component({
   selector: 'app-dashboard-overview',
@@ -141,7 +142,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       this.synchronizeFields();
-    }, 100000);
+    }, 100);
 
     this.timeFilterBehavior.$time
       .pipe(takeUntil(this.destroy$))
@@ -250,17 +251,16 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   synchronizeFields() {
     this.accountService.identity(true).then(value => {
       if (value) {
-        this.indexPatternService.query({page: 0, size: 2000})
-            .pipe(map(response =>
-                    response.body.filter(f => f.active)))
-            .subscribe(responsePatterns => {
-          for (const pattern of responsePatterns) {
-            this.indexPatternFieldService.getElasticIndexField({indexPattern: pattern.pattern})
-              .subscribe(responseFields => {
-                this.localFieldService.setPatternStoredFields(pattern.pattern, responseFields.body);
+        this.indexPatternService.queryWithFields({page: 0, size: 2000, 'isActive.equals': true})
+            .pipe(
+                map(response => response.body))
+            .subscribe((values: UtmIndexPatternFields[]) => {
+              values.forEach(value => {
+                if (value.fields && value.fields.length > 0) {
+                  this.localFieldService.setPatternStoredFields(value.indexPattern, value.fields);
+                }
               });
-          }
-        });
+            });
       }
     });
   }
