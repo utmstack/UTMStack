@@ -8,7 +8,7 @@
   .ad-container {
     height: 100%;
     overflow-y: auto;
-    max-height: 90vh;
+    max-height: 75vh;
 
     ul {
       min-width: 250px;
@@ -88,4 +88,8 @@
       }
     }
   }
+}
+
+.input-search{
+  position: fixed;
 }

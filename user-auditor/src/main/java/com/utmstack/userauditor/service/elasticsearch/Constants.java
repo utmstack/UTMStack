@@ -11,7 +11,7 @@ public final class Constants {
     // - Indices common fields
     // ----------------------------------------------------------------------------------
 
-    public static final String logxWineventlogEventDataSubjectUserSidKeyword = "logx.wineventlog.event_data.SubjectUserSid.keyword";
+    public static final String logxWineventlogEventDataTargetSidKeyword = "logx.wineventlog.event_data.TargetSid.keyword";
     public static final String logxWineventlogEventDataTargetUserSidKeyword = "logx.wineventlog.event_data.TargetUserSid.keyword";
     public static final String logxWineventlogEventDataMemberSidKeyword = "logx.wineventlog.event_data.MemberSid.keyword";
 
