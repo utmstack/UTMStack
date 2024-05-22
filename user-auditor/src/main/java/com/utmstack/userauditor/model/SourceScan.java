@@ -20,7 +20,7 @@ public class SourceScan extends Base implements Auditable {
     @Column(name = "next_execution_date")
     private LocalDateTime executionDate;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_sources_id")
     @JsonIgnore
     UserSource source;
