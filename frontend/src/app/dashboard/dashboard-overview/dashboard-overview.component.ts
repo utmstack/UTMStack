@@ -142,7 +142,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       this.synchronizeFields();
-    }, 100);
+    }, 100000);
 
     this.timeFilterBehavior.$time
       .pipe(takeUntil(this.destroy$))
