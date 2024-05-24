@@ -15,13 +15,11 @@ import agent.Common;
 import agent.Common.ListRequest;
 import agent.Common.AuthResponse;
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.UtmAssetMetrics;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
-import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.security.SecurityUtils;
@@ -55,8 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -77,11 +73,11 @@ public class CollectorOpsService {
 
     private final UtmCollectorRepository utmCollectorRepository;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     private final EntityManager em;
 
-    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository, UtmCollectorRepository utmCollectorRepository, EntityManager em) throws GrpcConnectionException {
+    private final UtmCollectorService utmCollectorService;
+
+    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository, UtmCollectorRepository utmCollectorRepository, EntityManager em, UtmCollectorService utmCollectorService) throws GrpcConnectionException {
         this.grpcConnection = grpcConnection;
         this.panelCollectorService = new PanelCollectorService(grpcConnection);
         this.collectorService = new CollectorService(grpcConnection);
@@ -89,6 +85,7 @@ public class CollectorOpsService {
         this.utmModuleGroupConfigurationRepository = utmModuleGroupConfigurationRepository;
         this.utmCollectorRepository = utmCollectorRepository;
         this.em = em;
+        this.utmCollectorService = utmCollectorService;
     }
 
     /**
@@ -216,6 +213,8 @@ public class CollectorOpsService {
                     .map(this::protoToCollectorDto)
                     .collect(Collectors.toList());
 
+            this.utmCollectorService.synchronize(collectorDTOS);
+
             dto.setCollectors(collectorDTOS);
             dto.setTotal(response.getTotal());
 
@@ -265,7 +264,7 @@ public class CollectorOpsService {
      * Method to transform a UtmCollector to CollectorDTO
      */
     private CollectorDTO protoToCollectorDto(Collector collector) {
-        return new CollectorDTO(this.saveCollector(collector));
+        return new CollectorDTO(this.utmCollectorService.saveCollector(collector));
     }
 
     /**
@@ -335,27 +334,6 @@ public class CollectorOpsService {
                 }
             }
        }).collect(Collectors.toList());
-    }
-
-    public UtmCollector saveCollector(Collector collector){
-        UtmCollector utmCollector = utmCollectorRepository.findById(Long.valueOf(collector.getId()))
-                .orElse(new UtmCollector());
-
-        if (utmCollector.getId() == null) {
-            utmCollector.setId(Long.valueOf(collector.getId()));
-        }
-
-        utmCollector.setStatus(collector.getStatus().name());
-        utmCollector.setLastSeen(LocalDateTime.parse(collector.getLastSeen(), this.formatter));
-        utmCollector.setVersion(collector.getVersion());
-        utmCollector.setIp(collector.getIp());
-        utmCollector.setHostname(collector.getHostname());
-        utmCollector.setCollectorKey(collector.getCollectorKey());
-        utmCollector.setModule(collector.getModule().name());
-
-
-        return this.utmCollectorRepository.save(utmCollector);
-
     }
 
     @Transactional

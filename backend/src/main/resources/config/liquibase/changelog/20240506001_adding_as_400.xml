@@ -616,7 +616,8 @@ AS
                             version VARCHAR(50),
                             module VARCHAR(50) NOT NULL,
                             last_seen TIMESTAMP,
-                            group_id BIGINT
+                            group_id BIGINT,
+                            active BOOLEAN DEFAULT TRUE
             );
             ]]>
         </sql>
