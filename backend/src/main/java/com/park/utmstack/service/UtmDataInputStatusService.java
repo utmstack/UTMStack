@@ -259,7 +259,7 @@ public class UtmDataInputStatusService {
      * if any of them are down then create a new alert. This method is a schedule with a delay
      * of 24 hour
      */
-    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS)
+    /*@Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS)
     public void checkDatasourceDown() {
         final String ctx = CLASSNAME + ".checkDatasourceDown";
         try {
@@ -277,7 +277,7 @@ public class UtmDataInputStatusService {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
         }
-    }
+    }*/
 
     /**
      * Create the alert object for datasource down
