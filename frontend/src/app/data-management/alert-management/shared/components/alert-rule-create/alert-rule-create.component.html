@@ -97,7 +97,8 @@
         bindValue="operator"
         id="operators">
       </ng-select>
-      <input [(ngModel)]="filter.value" class="form-control">
+      <input [style.visibility]="filter.operator == ElasticOperatorsEnum.EXIST || filter.operator == ElasticOperatorsEnum.DOES_NOT_EXIST ? 'hidden' : 'visible'"
+             [(ngModel)]="filter.value" class="form-control">
       <i class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete filter field"
          placement="left"
          (click)="deleteFilter(filter)"></i>
