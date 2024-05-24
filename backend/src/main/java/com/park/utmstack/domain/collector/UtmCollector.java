@@ -40,6 +40,9 @@ public class UtmCollector {
     @JoinColumn(name = "group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmAssetGroup assetGroup;
 
+    private boolean active;
+
+
     public UtmCollector(Long id, String status, String collectorKey, String ip, String hostname, String version, String module, LocalDateTime lastSeen) {
         this.id = id;
         this.status = status;
@@ -133,6 +136,14 @@ public class UtmCollector {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
 
