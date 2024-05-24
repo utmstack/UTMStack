@@ -34,6 +34,7 @@ import {NavBehavior} from './shared/behaviors/nav.behavior';
 import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
+import {AccountService} from "./core/auth/account.service";
 
 @NgModule({
   declarations: [
@@ -84,7 +85,7 @@ import {UtmSharedModule} from './shared/utm-shared.module';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthExpiredInterceptor,
-      deps: [AuthServerProvider, HttpCancelService],
+      deps: [AuthServerProvider, HttpCancelService, AccountService],
       multi: true
     },
     {

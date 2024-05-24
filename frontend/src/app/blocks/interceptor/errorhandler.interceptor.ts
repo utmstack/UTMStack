@@ -18,10 +18,7 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
         (err: any) => {
           if (err instanceof HttpErrorResponse) {
             if (err.status === 502) {
-              this.authServerProvider.logout().subscribe(() => {
-                this.httpCancelService.cancelPendingRequests();
-                console.log('UTMStack' + err.status);
-              });
+              console.log('UTMStack' + err.status);
             }
           }
         }

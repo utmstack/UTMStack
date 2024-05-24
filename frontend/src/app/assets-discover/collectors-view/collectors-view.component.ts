@@ -289,7 +289,7 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
   onSuccess(response: HttpResponse<UtmListCollectorType>){
 
     if (this.requestParam.groups && this.requestParam.groups.length > 0){
-      this.collectors = response.body.collectors.filter(c => this.requestParam.groups.includes(c.group.groupName));
+      this.collectors = response.body.collectors.filter(c => c.group && this.requestParam.groups.includes(c.group.groupName));
     } else {
       this.collectors = response.body.collectors;
     }
