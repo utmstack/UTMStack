@@ -10,10 +10,12 @@ import agent.Common.AuthResponse;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
+import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupConfigurationService;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
+import com.park.utmstack.service.collectors.UtmCollectorService;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
@@ -30,6 +32,7 @@ import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
 import com.utmstack.grpc.exception.CollectorServiceGrpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -62,13 +65,23 @@ public class UtmCollectorResource {
 
     private final ApplicationEventService eventService;
 
-    public UtmCollectorResource(CollectorOpsService collectorService, ApplicationEventService applicationEventService, UtmModuleGroupConfigurationService moduleGroupConfigurationService, CollectorValidatorService collectorValidatorService, UtmModuleGroupService moduleGroupService, ApplicationEventService eventService) {
+    private final UtmCollectorService utmCollectorService;
+
+    public UtmCollectorResource(CollectorOpsService collectorService,
+                                ApplicationEventService applicationEventService,
+                                UtmModuleGroupConfigurationService moduleGroupConfigurationService,
+                                CollectorValidatorService collectorValidatorService,
+                                UtmModuleGroupService moduleGroupService,
+                                ApplicationEventService eventService,
+                                UtmCollectorService utmCollectorService) {
+
         this.collectorService = collectorService;
         this.applicationEventService = applicationEventService;
         this.moduleGroupConfigurationService = moduleGroupConfigurationService;
         this.collectorValidatorService = collectorValidatorService;
         this.moduleGroupService = moduleGroupService;
         this.eventService = eventService;
+        this.utmCollectorService = utmCollectorService;
     }
 
     /**
@@ -255,20 +268,6 @@ public class UtmCollectorResource {
         }
     }
 
-    @GetMapping("/groups-with-collectors")
-    public ResponseEntity<List<UtmModuleGroup>> getModuleGroups() {
-        final String ctx = CLASSNAME + ".getModuleGroups";
-        try {
-            return ResponseEntity.ok(moduleGroupService.findAllWithCollector());
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
-        }
-    }
-
     @PutMapping("/updateGroup")
     public ResponseEntity<Void> updateGroup(@Valid @RequestBody UtmNetworkScanResource.UpdateGroupRequestBody body) {
         final String ctx = CLASSNAME + ".updateGroup";
@@ -288,8 +287,32 @@ public class UtmCollectorResource {
     public ResponseEntity<List<AssetGroupDTO>> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
         final String ctx = CLASSNAME + ".searchGroupsByFilter";
         try {
+
             Page<AssetGroupDTO> page = collectorService.searchGroupsByFilter(filter, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @GetMapping("/search-by-filters")
+    public ResponseEntity<List<CollectorDTO>> searchByFilters(@ParameterObject NetworkScanFilter filters,
+                                                              @ParameterObject Pageable pageable) {
+        final String ctx = CLASSNAME + ".searchByFilters";
+        try {
+             collectorService.listCollector(ListRequest.newBuilder()
+                     .setPageNumber( 0)
+                     .setPageSize(0)
+                     .setSearchQuery("module.Is=" + CollectorModuleEnum.AS_400)
+                     .setSortBy("")
+                     .build());
+            Page<CollectorDTO> page = this.utmCollectorService.searchByFilters(filters, pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/search-by-filters");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
