@@ -122,9 +122,10 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
     this.getCollectors();
   }
   getCollectors() {
-    this.collectorService.query({module: UtmModulesEnum.AS_400})
+    this.collectorService.queryFilter(this.requestParam)
         .subscribe(response => {
-          this.onSuccess(response);
+          this.totalItems = Number(response.headers.get('X-Total-Count'));
+          this.collectors = response.body;
           this.loading = false;
         });
   }
@@ -284,17 +285,6 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
         this.getCollectors();
       }, 10000);
     }
-  }
-
-  onSuccess(response: HttpResponse<UtmListCollectorType>){
-
-    if (this.requestParam.groups && this.requestParam.groups.length > 0){
-      this.collectors = response.body.collectors.filter(c => c.group && this.requestParam.groups.includes(c.group.groupName));
-    } else {
-      this.collectors = response.body.collectors;
-    }
-
-    this.totalItems = this.collectors.length;
   }
 
   ngOnDestroy(): void {

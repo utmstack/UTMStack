@@ -66,11 +66,11 @@
        <span class="span-small-icon ml-3" *ngIf="editable">
          <i class="icon-pencil  cursor-pointer"
             (click)="editGroup(group)"
-            ngbTooltip="Edit tenant">
+            ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Edit tenant' : 'Edit collector'}}">
          </i>
             <i class="icon-cross2 ml-2 cursor-pointer"
                (click)="deleteGroup(group)"
-               ngbTooltip="Delete tenant">
+               ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Delete tenant' : 'Delete collector'}}">
          </i>
        </span>
      </span>

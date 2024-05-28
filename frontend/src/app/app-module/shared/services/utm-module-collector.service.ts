@@ -33,6 +33,11 @@ export class UtmModuleCollectorService {
     return this.http.get<UtmListCollectorType>(`${this.resourceUrl}/collectors-list`, {params: options, observe: 'response'});
   }
 
+  queryFilter(req?: any): Observable<HttpResponse<UtmModuleCollectorType[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<UtmModuleCollectorType[]>(`${this.resourceUrl}/search-by-filters`, {params: options, observe: 'response'});
+  }
+
   delete(conf: number | string): Observable<HttpResponse<any>> {
     return this.http.delete(`${this.resourceUrl + '/delete-single-module-group?groupId='}${conf}`, {observe: 'response'});
   }
@@ -41,9 +46,6 @@ export class UtmModuleCollectorService {
     return this.http.get<UtmModuleGroupType[]>(`${this.resourceUrl}/groups-by-collectors/${collectorId}`, {observe: 'response'});
   }
 
-  groupsWithCollectors() {
-    return this.http.get<UtmModuleGroupType[]>(`${this.resourceUrl}/groups-with-collectors`, {observe: 'response'});
-  }
   formatCollectorResponse(groups: UtmModuleGroupType[], collectors: UtmModuleCollectorType[]) {
     return  groups.reduce((accumulator, currentValue) => {
       const { collector } = currentValue;
