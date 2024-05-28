@@ -85,14 +85,13 @@ public class UtmCollectorService {
     private Page<UtmCollector> filter(NetworkScanFilter f, Pageable p) throws Exception {
         final String ctx = CLASSNAME + ".filter";
         try {
-            Page<UtmCollector> page = utmCollectorRepository.searchByFilters(
+            return utmCollectorRepository.searchByFilters(
                     f.getAssetIpMacName() == null ? null : "%" + f.getAssetIpMacName() + "%",
                     f.getStatus(),
                     f.getDiscoveredInitDate(),
                     f.getDiscoveredEndDate(),
                     f.getGroups(),p);
 
-            return page;
         } catch (InvalidDataAccessResourceUsageException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             throw new Exception(msg);
