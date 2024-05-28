@@ -4,6 +4,7 @@ import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {UtmIndexPattern} from '../../types/index-pattern/utm-index-pattern';
 import {createRequestOption} from '../../util/request-util';
+import {UtmIndexPatternFields} from "../../types/index-pattern/utm-index-pattern-fields";
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,14 @@ export class IndexPatternService {
   query(req?: any): Observable<HttpResponse<UtmIndexPattern[]>> {
     const options = createRequestOption(req);
     return this.http.get<UtmIndexPattern[]>(this.resourceUrl, {
+      params: options,
+      observe: 'response'
+    });
+  }
+
+  queryWithFields(req?: any): Observable<HttpResponse<UtmIndexPatternFields[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<UtmIndexPatternFields[]>(`${this.resourceUrl}/fields`, {
       params: options,
       observe: 'response'
     });
