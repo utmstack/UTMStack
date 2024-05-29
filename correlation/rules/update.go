@@ -26,7 +26,7 @@ func Update(updateReady chan bool) {
 		}
 		
 		log.Println("Rules updated")
-		time.Sleep(24 * time.Hour)
+		time.Sleep(48 * time.Hour)
 	}
 }
 
