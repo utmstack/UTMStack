@@ -77,7 +77,9 @@ public class WindowsSource implements Source {
     @Override
     public Map<String, List<EventLog>> findUsers(UserSource userSource) throws Exception {
 
-        SourceScan scan = sourceScanRepository.findBySource_Id(userSource.getId())
+        this.userEvents = new HashMap<>();
+
+        SourceScan scan = sourceScanRepository.findLatestBySourceId(userSource.getId())
                 .orElse(SourceScan.builder()
                                 .source(userSource)
                                 .executionDate(LocalDateTime.of(LocalDate.of(startYear, 1, 1), LocalTime.now()))

@@ -22,8 +22,8 @@ public class UserSource extends Base {
     @Column(name = "index_name")
     private String indexName;
 
-    @OneToOne(mappedBy = "source", cascade = CascadeType.ALL)
-    SourceScan source;
+    @OneToMany(mappedBy = "source", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<SourceScan> sources;
 
     @OneToMany(mappedBy = "source", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<SourceFilter> filters;
