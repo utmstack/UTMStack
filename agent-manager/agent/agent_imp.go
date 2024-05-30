@@ -86,6 +86,7 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 	// Update the cache
 	s.cacheMutex.Lock()
 	delete(s.AgentStreamMap, key)
+	delete(CacheAgent, id)
 	s.cacheMutex.Unlock()
 
 	h := util.GetLogger()

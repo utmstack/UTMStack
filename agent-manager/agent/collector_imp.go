@@ -78,6 +78,7 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 
 	s.cacheCollectorMutex.Lock()
 	delete(s.CollectorStreamMap, key)
+	delete(CacheCollector, id)
 	s.cacheCollectorMutex.Unlock()
 
 	h.Info("Collector with key %s deleted by %s", key, req.DeletedBy)
