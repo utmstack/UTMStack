@@ -2,6 +2,8 @@ package com.utmstack.userauditor.repository;
 
 import com.utmstack.userauditor.model.SourceScan;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -12,5 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface SourceScanRepository extends JpaRepository<SourceScan, Long> {
-    Optional<SourceScan> findBySource_Id(Long id);
+
+    @Query("SELECT ss FROM SourceScan ss WHERE ss.source.id = :sourceId ORDER BY ss.executionDate DESC")
+    Optional<SourceScan> findLatestBySourceId(@Param("sourceId") Long sourceId);
 }
