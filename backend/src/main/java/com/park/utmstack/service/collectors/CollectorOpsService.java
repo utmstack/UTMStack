@@ -325,7 +325,7 @@ public class CollectorOpsService {
     public List<UtmModuleGroupConfiguration> mapPasswordConfiguration( List<UtmModuleGroupConfiguration> configs) {
 
        return configs.stream().peek(config -> {
-            if (config.getConfName().equals("Password")) {
+            if (config.getConfDataType().equals("password")) {
                 final UtmModuleGroupConfiguration utmModuleGroupConfiguration = utmModuleGroupConfigurationRepository.findById(config.getId())
                         .orElseThrow(() -> new RuntimeException(String.format("Configuration id %s not found", config.getId())));
 

@@ -214,12 +214,12 @@ public class UtmNetworkScanService {
                 if (prop == PropertyFilter.PORTS)
                     sb.append(" AND cast(port as string) LIKE '%%%3$s%%'");
                 else
-                    sb.append(" AND %1$s LIKE '%%%3$s%%'");
+                    sb.append(" AND lower(%1$s) LIKE '%%%3$s%%'");
             }
             sb.append(" GROUP BY %1$s");
 
             String query = String.format(sb.toString(), prop.getPropertyName(),
-                prop.getFromTable(), StringUtils.hasText(value) ? value.toUpperCase() : null);
+                prop.getFromTable(), StringUtils.hasText(value) ? value.toLowerCase() : null);
 
             return em.createQuery(query).setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber())).setMaxResults(
                 pageable.getPageSize()).getResultList();

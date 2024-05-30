@@ -59,7 +59,7 @@ public class ModuleIbmAs400 implements IModule {
                 .build());
         keys.add(ModuleConfigurationKey.builder()
                 .withGroupId(groupId)
-                .withConfKey("The AS400 user's password.")
+                .withConfKey("collector.as400.hostname")
                 .withConfName("Hostname")
                 .withConfDescription("The AS400's hostname or IP address.")
                 .withConfDataType("text")
