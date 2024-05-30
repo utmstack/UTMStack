@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Subject} from 'rxjs';
-import {takeUntil, filter} from 'rxjs/operators';
+import {filter, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {NavBehavior} from '../../../../shared/behaviors/nav.behavior';
 import {ModuleChangeStatusBehavior} from '../../behavior/module-change-status.behavior';
@@ -40,7 +40,11 @@ export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
     this.moduleChangeStatusBehavior.moduleStatus$
         .pipe(filter(value => value !== null),
               takeUntil(this.destroy$))
-        .subscribe( value => this.changeModuleStatus(value));
+        .subscribe( value => {
+          if (this.moduleDetail.moduleActive) {
+            this.changeModuleStatus(value);
+          }
+        });
     this.getModuleDetail(this.module);
   }
 

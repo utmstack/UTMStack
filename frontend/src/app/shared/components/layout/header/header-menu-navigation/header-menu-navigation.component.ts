@@ -37,6 +37,13 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.navBehavior.$nav.asObservable()
+        .subscribe( value => {
+      if (value) {
+        this.loadMenus();
+      }
+    });
+
     this.loadMenus();
 
     this.navBehavior.$nav
