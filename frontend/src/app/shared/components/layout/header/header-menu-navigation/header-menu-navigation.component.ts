@@ -34,6 +34,13 @@ export class HeaderMenuNavigationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.navBehavior.$nav.asObservable()
+        .subscribe( value => {
+      if (value) {
+        this.loadMenus();
+      }
+    });
+
     this.loadMenus();
   }
 
@@ -50,7 +57,6 @@ export class HeaderMenuNavigationComponent implements OnInit {
   }
 
   loadMenus() {
-    this.menus = [];
     this.menuService.getMenuStructure(true).subscribe(reponse => {
       this.menus = reponse.body;
       this.defaultStructureMenu = reponse.body;
