@@ -44,7 +44,7 @@ public class IpInfoService {
 
             HitsMetadata<GeoIp> hits = elasticsearchService.search(sr, GeoIp.class).hits();
 
-            if (hits.total().value() < 0)
+            if (hits.total().value() <= 0)
                 return null;
 
             return hits.hits().get(0).source();

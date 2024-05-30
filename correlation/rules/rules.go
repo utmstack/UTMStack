@@ -51,7 +51,7 @@ type OneOf struct {
 type Cache struct {
 	AllOf     []AllOf      `yaml:"allOf"`
 	OneOf     []OneOf      `yaml:"oneOf"`
-	TimeLapse int64          `yaml:"timeLapse"`
+	TimeLapse int64        `yaml:"timeLapse"`
 	MinCount  int          `yaml:"minCount"`
 	Save      []SavedField `yaml:"save"`
 }

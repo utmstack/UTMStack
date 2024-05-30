@@ -1,9 +1,10 @@
+import {HttpResponse} from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {filter, map, takeUntil} from 'rxjs/operators';
 // tslint:disable-next-line:max-line-length
 import {UtmModulesEnum} from '../../app-module/shared/enum/utm-module.enum';
 import {UtmModulesService} from '../../app-module/shared/services/utm-modules.service';
@@ -32,7 +33,9 @@ import {LocalFieldService} from '../../shared/services/elasticsearch/local-field
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-value.type';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {UtmIndexPattern} from '../../shared/types/index-pattern/utm-index-pattern';
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
+import {UtmIndexPatternFields} from "../../shared/types/index-pattern/utm-index-pattern-fields";
 
 @Component({
   selector: 'app-dashboard-overview',
@@ -248,14 +251,16 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   synchronizeFields() {
     this.accountService.identity(true).then(value => {
       if (value) {
-        this.indexPatternService.query({page: 0, size: 2000}).subscribe(responsePatterns => {
-          for (const pattern of responsePatterns.body) {
-            this.indexPatternFieldService.getElasticIndexField({indexPattern: pattern.pattern})
-              .subscribe(responseFields => {
-                this.localFieldService.setPatternStoredFields(pattern.pattern, responseFields.body);
+        this.indexPatternService.queryWithFields({page: 0, size: 2000, 'isActive.equals': true})
+            .pipe(
+                map(response => response.body))
+            .subscribe((values: UtmIndexPatternFields[]) => {
+              values.forEach(value => {
+                if (value.fields && value.fields.length > 0) {
+                  this.localFieldService.setPatternStoredFields(value.indexPattern, value.fields);
+                }
               });
-          }
-        });
+            });
       }
     });
   }

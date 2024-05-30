@@ -1,6 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Subject} from 'rxjs';
 import {HttpCancelService} from '../../../../../blocks/service/httpcancel.service';
 import {DashboardBehavior} from '../../../../behaviors/dashboard.behavior';
 import {MenuBehavior} from '../../../../behaviors/menu.behavior';
@@ -10,18 +11,20 @@ import {ActiveAdModuleActiveService} from '../../../../services/active-modules/a
 import {MenuService} from '../../../../services/menu/menu.service';
 import {Menu} from '../../../../types/menu/menu.model';
 import {stringParamToQueryParams} from '../../../../util/query-params-to-filter.util';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header-menu-navigation',
   templateUrl: './header-menu-navigation.component.html',
   styleUrls: ['./header-menu-navigation.component.scss']
 })
-export class HeaderMenuNavigationComponent implements OnInit {
+export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
   menus: Menu[] = [];
   defaultStructureMenu: Menu[] = [];
   searching = false;
   iconPath = SYSTEM_MENU_ICONS_PATH;
   active: number;
+  destroy$: Subject<void> =  new Subject<void>();
 
   constructor(private adModuleActiveService: ActiveAdModuleActiveService,
               private navBehavior: NavBehavior,
@@ -42,6 +45,14 @@ export class HeaderMenuNavigationComponent implements OnInit {
     });
 
     this.loadMenus();
+
+    this.navBehavior.$nav
+        .pipe(takeUntil(this.destroy$))
+        .subscribe( value => {
+      if (value) {
+        this.loadMenus();
+      }
+    });
   }
 
   /**
@@ -123,5 +134,10 @@ export class HeaderMenuNavigationComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

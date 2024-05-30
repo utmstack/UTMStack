@@ -46,7 +46,7 @@ jobs:
             frontend: frontend/**
             bitdefender: bitdefender/**
             mutate: mutate/**
-            o365: office365/**
+            office365: office365/**
             log-auth-proxy: log-auth-proxy/**
             user-auditor: user-auditor/**
             web-pdf: web-pdf/**
@@ -72,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        service: ['agent-manager', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'o365', 'log-auth-proxy', 'user-auditor', 'web-pdf'] 
+        service: ['agent-manager', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'user-auditor', 'web-pdf'] 
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}
