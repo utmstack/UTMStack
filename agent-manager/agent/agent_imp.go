@@ -48,48 +48,52 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 	agent.AgentKey = key
 	err = agentService.Create(agent)
 	if err != nil {
+		h.ErrorF("Failed to create agent: %v", err)
 		return nil, err
 	}
-	// Update the cache
+
 	s.cacheMutex.Lock()
 	CacheAgent[agent.ID] = key
 	s.cacheMutex.Unlock()
+
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
+		h.ErrorF("Failed to set last seen: %v", err)
 		return nil, err
 	}
 	res := &AuthResponse{
 		Id:  uint32(agent.ID),
 		Key: key,
 	}
+
 	h.Info("Agent %s with id %d registered correctly", agent.Hostname, agent.ID)
 	return res, nil
 }
 
 func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse, error) {
+	h := util.GetLogger()
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return &AuthResponse{}, status.Error(codes.Internal, "unable to get metadata from context")
 	}
 
-	agentKeys, ok := md["key"]
-	if !ok || len(agentKeys) == 0 {
+	keys, ok := md["key"]
+	if !ok || len(keys) == 0 {
 		return &AuthResponse{}, status.Error(codes.Internal, "unable to get agent key from metadata")
 	}
-	key := agentKeys[0]
+	key := keys[0]
 
-	// Delete the agent from the database and get its id
 	id, err := agentService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
+		h.ErrorF("Unable to delete agent: %v", err)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
-	// Update the cache
+
 	s.cacheMutex.Lock()
 	delete(s.AgentStreamMap, key)
 	delete(CacheAgent, id)
 	s.cacheMutex.Unlock()
 
-	h := util.GetLogger()
 	h.Info("Agent with key %s deleted by %s", key, req.DeletedBy)
 
 	return &AuthResponse{
@@ -113,16 +117,14 @@ func (s *Grpc) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsRes
 }
 
 func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
-	// Authenticate the agent and get the agent's key
 	h := util.GetLogger()
 	agentKey, err := s.authenticateConnector(stream, ConnectorType_AGENT)
 	if err != nil {
 		return err
 	}
 
-	// Add the agent to the agents map
 	s.mu.Lock()
-	s.AgentStreamMap[agentKey] = &StreamAgent{key: agentKey, stream: stream}
+	s.AgentStreamMap[agentKey] = stream
 	s.mu.Unlock()
 
 	for {
@@ -132,23 +134,26 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 			s.mu.Lock()
 			delete(s.AgentStreamMap, agentKey)
 			s.mu.Unlock()
-			// Wait for the client to reconnect
-			err = waitForReconnect(s.AgentStreamMap[agentKey].stream.Context(), s)
+
+			err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
 			if err != nil {
 				h.ErrorF("failed to reconnect to client: %v", err)
+				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
 
-			// Reauthenticate the client and add it back to the agents map
 			agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
 			if err != nil {
 				return err
 			}
 			s.mu.Lock()
-			s.AgentStreamMap[agentKey] = &StreamAgent{key: agentKey, stream: stream}
+			s.AgentStreamMap[agentKey] = stream
 			s.mu.Unlock()
-			return nil
+			continue
 		}
 		if err != nil {
+			s.mu.Lock()
+			delete(s.AgentStreamMap, agentKey)
+			s.mu.Unlock()
 			return err
 		}
 
@@ -243,7 +248,7 @@ func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 
 		createHistoryCommand(cmd, cmdID)
 		// Send the command to the agent along with the command ID
-		err = agentStream.stream.Send(&BidirectionalStream{
+		err = agentStream.Send(&BidirectionalStream{
 			StreamMessage: &BidirectionalStream_Command{
 				Command: &UtmCommand{
 					AgentKey: cmd.AgentKey,
@@ -377,27 +382,6 @@ func waitForStream(ctx context.Context, stream grpc.ServerStream) error {
 	}
 }
 */
-
-// Wait for the client to reconnect
-func waitForReconnect(ctx context.Context, s *Grpc) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("context canceled: %v", ctx.Err())
-		default:
-			for _, stream := range s.AgentStreamMap {
-				// Check if the stream is still valid
-				err := stream.stream.Context().Err()
-				if err == nil {
-					// StreamAgent is still valid, wait for a moment and try again
-					time.Sleep(time.Second)
-					break
-				}
-			}
-			return nil
-		}
-	}
-}
 
 func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 	h := util.GetLogger()

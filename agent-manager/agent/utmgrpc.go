@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/service"
+	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -20,16 +22,6 @@ var (
 	CacheAgent        map[uint]string
 	CacheCollector    map[uint]string
 )
-
-type StreamAgent struct {
-	key    string
-	stream AgentService_AgentStreamServer
-}
-
-type StreamCollector struct {
-	key    string
-	stream CollectorService_CollectorStreamServer
-}
 
 type Grpc struct {
 	UnimplementedAgentServiceServer
@@ -46,8 +38,8 @@ type Grpc struct {
 	configMutex sync.Mutex
 
 	// Map to store connected agents and their gRPC streams
-	AgentStreamMap     map[string]*StreamAgent
-	CollectorStreamMap map[string]*StreamCollector
+	AgentStreamMap     map[string]AgentService_AgentStreamServer
+	CollectorStreamMap map[string]CollectorService_CollectorStreamServer
 	// AgentCache to store agentToken  and agentId
 	cacheMutex          sync.Mutex
 	cacheCollectorMutex sync.Mutex
@@ -55,7 +47,7 @@ type Grpc struct {
 	ResultChannel  map[string]chan *CommandResult
 	resultChannelM sync.Mutex
 
-	PendingConfigs map[string]*CollectorConfig
+	PendingConfigs map[string]string
 	pendingConfigM sync.Mutex
 }
 
@@ -63,10 +55,10 @@ type ResultCallback func(result *CommandResult)
 
 func InitGrpc() (*Grpc, error) {
 	gRPC := &Grpc{
-		AgentStreamMap:     make(map[string]*StreamAgent),
-		CollectorStreamMap: make(map[string]*StreamCollector),
+		AgentStreamMap:     make(map[string]AgentService_AgentStreamServer),
+		CollectorStreamMap: make(map[string]CollectorService_CollectorStreamServer),
 		ResultChannel:      make(map[string]chan *CommandResult),
-		PendingConfigs:     make(map[string]*CollectorConfig),
+		PendingConfigs:     make(map[string]string),
 	}
 	CacheAgent = make(map[uint]string)
 	CacheCollector = make(map[uint]string)
@@ -180,4 +172,35 @@ func (s *Grpc) GetStreamAuth(stream interface{}) (AuthResponse, error) {
 		Id:  uint32(id),
 		Key: key,
 	}, nil
+}
+
+// Wait for the client to reconnect
+func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
+	var stream grpc.ServerStream
+	if connectorType == ConnectorType_COLLECTOR {
+		stream = s.CollectorStreamMap[key]
+	} else {
+		stream = s.AgentStreamMap[key]
+	}
+
+	attempts := 0
+	for attempts < 10 {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context canceled: %v", ctx.Err())
+		default:
+			// Check if the stream is still valid
+			err := stream.Context().Err()
+			if err == nil {
+				// StreamAgent is still valid, return nil
+				time.Sleep(time.Second)
+				return nil
+			} else {
+				// Stream is not valid, wait for a moment and try again
+				time.Sleep(time.Second)
+				attempts++
+			}
+		}
+	}
+	return fmt.Errorf("stream is not valid")
 }
