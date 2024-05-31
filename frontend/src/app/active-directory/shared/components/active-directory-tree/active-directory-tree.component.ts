@@ -57,7 +57,7 @@ getAllInfo() {
           this.tree = arrayToTree(temArr,
             {parentId: 'parentId', id: 'id', dataField: null});
           this.tree = this.tree.filter( t => t.children.length > 0);
-          console.log('TREE:', this.tree);
+          this.deploy(this.tree[0]);
         });
       } else {
         this.noDataFound = true;
@@ -153,7 +153,8 @@ getAllInfo() {
     }
   }
 
-  deploy(item: ActiveDirectoryTreeType) {
+  deploy(item: TreeItem) {
+    console.log(item);
     const index = this.deployed.findIndex(value => value === item.id);
     if (index === -1) {
       this.deployed.push(item.id);

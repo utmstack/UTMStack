@@ -109,10 +109,11 @@ public class UtmAuditorUsersResource {
             urlParams.put("page", String.valueOf(pageable.getPageNumber()));
             urlParams.put("size", String.valueOf(pageable.getPageSize()));
             urlParams.put("id", String.valueOf(sourceId));
+            urlParams.put("sort", "name,asc");
 
             RestTemplate restTemplate = new RestTemplate();
 
-            String uri = microServiceUrl.concat("/utm-auditor-users-by-src?page={page}&size={size}&id={id}");
+            String uri = microServiceUrl.concat("/utm-auditor-users-by-src?page={page}&size={size}&sort={sort}&id={id}");
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

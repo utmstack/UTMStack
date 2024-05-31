@@ -32,6 +32,8 @@ func Status() {
 func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 	var elements []string
 	cacheStorageMutex.RLock()
+	defer cacheStorageMutex.RUnlock()
+
 	cToBreak := 0
 	ait := time.Now().UTC().Unix() - func() int64 {
 		switch seconds {
@@ -75,7 +77,7 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 			}
 		}
 	}
-	cacheStorageMutex.RUnlock()
+	
 	return elements
 }
 
@@ -107,7 +109,7 @@ func Clean() {
 	for {
 		var clean bool
 
-		if len(CacheStorage) > 500 {
+		if len(CacheStorage) > 1 {
 			if utils.AssignedMemory >= 80 {
 				clean = true
 			} else {
@@ -128,7 +130,7 @@ func Clean() {
 
 		if clean {
 			cacheStorageMutex.Lock()
-			CacheStorage = CacheStorage[500:]
+			CacheStorage = CacheStorage[1:]
 			cacheStorageMutex.Unlock()
 		} else {
 			time.Sleep(5 * time.Second)

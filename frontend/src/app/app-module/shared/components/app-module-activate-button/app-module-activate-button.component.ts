@@ -40,7 +40,11 @@ export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
     this.moduleChangeStatusBehavior.moduleStatus$
         .pipe(filter(value => value !== null),
               takeUntil(this.destroy$))
-        .subscribe( value => this.changeModuleStatus(value));
+        .subscribe( value => {
+          if (this.moduleDetail.moduleActive) {
+            this.changeModuleStatus(value);
+          }
+        });
     this.getModuleDetail(this.module);
   }
 

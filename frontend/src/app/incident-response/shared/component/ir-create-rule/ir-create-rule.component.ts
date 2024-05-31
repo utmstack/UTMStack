@@ -38,6 +38,7 @@ export class IrCreateRuleComponent implements OnInit {
   typing = true;
   rulePrefix: string = createElementPrefix(PrefixElementEnum.INCIDENT_RESPONSE_AUTOMATION);
   valuesMap: Map<string, string[]> = new Map();
+  maxLength = 512;
 
   constructor(private incidentResponseRuleService: IncidentResponseRuleService,
               public activeModal: NgbActiveModal,
