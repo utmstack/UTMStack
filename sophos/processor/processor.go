@@ -21,11 +21,11 @@ func GetSophosCentralProcessor(group types.ModuleGroup) SophosCentralProcessor {
 
 	for _, cnf := range group.Configurations {
 		switch cnf.ConfName {
-		case "sophos_x_api_key":
+		case "X-API-KEY":
 			sophosProcessor.XApiKey = cnf.ConfValue
-		case "sophos_authorization":
+		case "Authorization":
 			sophosProcessor.Authorization = cnf.ConfValue
-		case "sophos_api_url":
+		case "API Url":
 			sophosProcessor.ApiUrl = cnf.ConfValue
 		}
 	}
