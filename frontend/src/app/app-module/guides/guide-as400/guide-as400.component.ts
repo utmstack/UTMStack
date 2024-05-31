@@ -1,9 +1,16 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import * as moment from 'moment/moment';
+import {
+    FederationConnectionService
+} from '../../../app-management/connection-key/shared/services/federation-connection.service';
 import {IP_HOSTNAME_REGEX} from '../../../shared/constants/regex-const';
+import {GroupTypeEnum} from '../../shared/enum/group-type.enum';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
-import {GroupTypeEnum} from "../../shared/enum/group-type.enum";
+import {SYSLOGSTEPS} from '../guide-syslog/syslog.steps';
+import {Step} from '../shared/step';
+import {AS400STEPS} from './as400.steps';
+import {ACTIONS, PLATFORM} from './constants';
 
 @Component({
     selector: 'app-guide-as400',
@@ -17,8 +24,15 @@ export class GuideAs400Component implements OnInit {
     serverAS400FormArray: FormGroup;
     configValidity: boolean;
     groupType = GroupTypeEnum.COLLECTOR;
+    platforms = PLATFORM;
+    actions = ACTIONS;
+    steps: Step[] = AS400STEPS;
+    token: string;
+    ip: string;
+    vars: any;
 
-    constructor(private formBuilder: FormBuilder) {
+    constructor(private formBuilder: FormBuilder,
+                private federationConnectionService: FederationConnectionService) {
         this.serverAS400FormArray = this.formBuilder.group({
             serversAS400: this.formBuilder.array([
                 this.createAS400ServerFormGroup(),
@@ -27,6 +41,23 @@ export class GuideAs400Component implements OnInit {
     }
 
     ngOnInit(): void {
+        this.ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
+        this.getToken();
+    }
+
+    getToken() {
+        this.federationConnectionService.getToken().subscribe(response => {
+            if (response.body !== null && response.body !== '') {
+                this.token = response.body;
+            } else {
+                this.token = '';
+            }
+
+            this.vars = {
+                V_IP: this.ip,
+                V_TOKEN: this.token
+            };
+        });
     }
 
     get serverAS400Controls() {
