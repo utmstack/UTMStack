@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -25,6 +26,9 @@ func main() {
 		et := st.Add(299 * time.Second)
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
+			if strings.Contains(err.Error(), "invalid character '<'") {
+				continue
+			}
 			if (err.Error() != "") && (err.Error() != " ") {
 				utils.Logger.ErrorF("error getting configuration of the AWS module: %v", err)
 			}
