@@ -246,9 +246,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Datasources + ":/etc/utmstack",
 		},
 		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"DB_PASS=" + conf.Password,
+			"PANEL_SERV_NAME=backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -300,9 +299,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Datasources + ":/etc/utmstack",
 		},
 		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"DB_PASS=" + conf.Password,
+			"PANEL_SERV_NAME=backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
