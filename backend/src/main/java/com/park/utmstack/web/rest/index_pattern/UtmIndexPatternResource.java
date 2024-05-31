@@ -5,6 +5,7 @@ import com.park.utmstack.domain.index_pattern.UtmIndexPattern;
 import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.index_pattern.UtmIndexPatternCriteria;
+import com.park.utmstack.service.dto.index_pattern.UtmIndexPatternField;
 import com.park.utmstack.service.index_pattern.UtmIndexPatternQueryService;
 import com.park.utmstack.service.index_pattern.UtmIndexPatternService;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -125,6 +126,23 @@ public class UtmIndexPatternResource {
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
                 HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+        }
+    }
+
+    @GetMapping("/utm-index-patterns/fields")
+    public ResponseEntity<List<UtmIndexPatternField>> getAllUtmIndexPatternsWithFields(UtmIndexPatternCriteria criteria,
+                                                                                       Pageable pageable) {
+        final String ctx = CLASSNAME + ".getAllUtmIndexPatternsWithFields";
+        try {
+            Page<UtmIndexPatternField> page = indexPatternQueryService.findWithFieldsByCriteria(criteria, pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-index-patterns-fields");
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 

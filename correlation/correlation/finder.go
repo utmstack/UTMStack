@@ -48,7 +48,7 @@ func Finder(rule rules.Rule) {
 		}
 
 		if !execute {
-			time.Sleep(1 * time.Minute)
+			time.Sleep(sleep)
 			continue
 		}
 

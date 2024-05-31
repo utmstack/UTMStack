@@ -23,11 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +41,9 @@ public class WindowsSource implements Source {
     @Value("${app.elasticsearch.searchIntervalMonths}")
     private int searchIntervalMonths;
 
+    @Value("${app.elasticsearch.searchIntervalMinutes}")
+    private int searchIntervalMinutes;
+
     Map<String, List<EventLog>> userEvents;
     final ElasticsearchService elasticsearchService;
 
@@ -52,9 +53,14 @@ public class WindowsSource implements Source {
 
     private static final String FIELD = "logx.wineventlog.event_data.TargetUserName.keyword";
 
-    private static final int ITEMS_PER_PAGE = 100;
+    private static final int ITEMS_PER_PAGE = 1000;
+
+    private final  DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final  DateTimeFormatter longDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     private final ObjectMapper objectMapper;
+
+    final String ctx = "UserService.windowsEventsLogs";
 
     WindowsSource(ElasticsearchService elasticsearchService, SourceScanRepository sourceScanRepository) {
         this.userEvents = new HashMap<>();
@@ -71,32 +77,30 @@ public class WindowsSource implements Source {
     @Override
     public Map<String, List<EventLog>> findUsers(UserSource userSource) throws Exception {
 
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        Map<String, List<UserAttribute>> users = new HashMap<>();
-        LocalDateTime startDate = LocalDateTime.of(LocalDate.of(startYear, 1, 1), LocalTime.of(0, 0, 0));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        final String ctx = "UserService.winEventlogs";
-        List<SourceScan> scans = sourceScanRepository.findBySource_Id(userSource.getId());
+        this.userEvents = new HashMap<>();
 
-        if (!scans.isEmpty()) {
-            startDate = scans.stream()
-                    .map(SourceScan::getExecutionDate)
-                    .max(LocalDateTime::compareTo)
-                    .orElse(startDate);
-        }
+        SourceScan scan = sourceScanRepository.findLatestBySourceId(userSource.getId())
+                .orElse(SourceScan.builder()
+                                .source(userSource)
+                                .executionDate(LocalDateTime.of(LocalDate.of(startYear, 1, 1), LocalTime.now()))
+                                .build());
+
+        LocalDateTime startDate = scan.getExecutionDate();
 
         try {
             if (!elasticsearchService.indexExist(userSource.getIndexPattern()))
                 return this.userEvents;
 
-            if (startDate.toLocalDate().isBefore(currentDateTime.toLocalDate())) {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            if (startDate.isBefore(currentDateTime) && ChronoUnit.MINUTES.between(startDate, currentDateTime) >= searchIntervalMinutes) {
+                LocalDateTime nextDate = this.executionDate(startDate);
+
                 for (SourceFilter filter : userSource.getFilters()) {
-                    this.executeQuery(startDate.format(formatter), this.executionDate(startDate).format(formatter), filter);
+                    this.executeQuery(this.getRange(startDate, nextDate), filter);
                 }
-                sourceScanRepository.save(SourceScan.builder()
-                        .executionDate(this.executionDate(startDate))
-                        .source(userSource)
-                        .build());
+                scan.setExecutionDate(nextDate);
+                sourceScanRepository.save(scan);
             }
 
             return this.userEvents;
@@ -105,9 +109,9 @@ public class WindowsSource implements Source {
         }
     }
 
-    List<CompositeBucket> getBuckets(String from, String to, SourceFilter sourceFilter, String after) {
+    List<CompositeBucket> getBuckets(List<String> dateRange, SourceFilter sourceFilter, String after) {
 
-        SearchRequest.Builder srb = getBuilder(sourceFilter, from, to, after);
+        SearchRequest.Builder srb = getBuilder(sourceFilter, dateRange, after);
         SearchResponse<String> rs = elasticsearchService.search(srb.build(), String.class);
         List<CompositeBucket> buckets = rs.aggregations().get(TARGET_AGG_NAME).composite().buckets().array();
 
@@ -115,14 +119,14 @@ public class WindowsSource implements Source {
 
         if (!buckets.isEmpty()) {
             after = aggregate.afterKey().get("users").toString().replace("\"", "");
-            buckets.addAll(getBuckets(from, to, sourceFilter, after));
+            buckets.addAll(getBuckets(dateRange, sourceFilter, after));
         }
         return buckets;
     }
 
-    void executeQuery(String from, String to, SourceFilter sourceFilter) {
+    void executeQuery(List<String> dateRange, SourceFilter sourceFilter) {
 
-        getBuckets(from, to, sourceFilter, "").stream()
+        getBuckets(dateRange, sourceFilter, "").stream()
                 .map(b-> UserEvent.builder()
                         .name(getKey(b))
                         .topEvents(b.aggregations().get("top_events").topHits()).build())
@@ -137,12 +141,12 @@ public class WindowsSource implements Source {
     }
 
 
-    private static SearchRequest.Builder getBuilder(SourceFilter sourceFilter, String from, String to, String after) {
+    private static SearchRequest.Builder getBuilder(SourceFilter sourceFilter, List<String> range, String after) {
 
         List<FilterType> filters = new ArrayList<>();
 
         filters.add(new FilterType(sourceFilter.getField(), OperatorType.values()[sourceFilter.getOperator()], sourceFilter.getValue()));
-        filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, List.of(from, to)));
+        filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, range));
 
         SearchRequest.Builder srb = new SearchRequest.Builder();
         srb.size(0);
@@ -156,7 +160,6 @@ public class WindowsSource implements Source {
     }
 
     List<EventLog> getLastEvents(TopHitsAggregate topEvents) {
-        //ObjectMapper objectMapper = new ObjectMapper();
         List<EventLog> eventLogs = new ArrayList<>();
         List<Hit<JsonData>> searchHits = topEvents.hits().hits();
 
@@ -177,14 +180,15 @@ public class WindowsSource implements Source {
     private LocalDateTime executionDate(LocalDateTime startDate) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
-        Duration duration = Duration.between(startDate, currentDateTime);
 
-        long hoursDifference = duration.toHours();
-        if (currentDateTime.getMonth().equals(startDate.getMonth()) && currentDateTime.getYear() == startDate.getYear() && hoursDifference >= 24) {
-            return LocalDateTime.of(startDate.toLocalDate().plusDays(1), LocalTime.now());
-        } else {
-            return startDate.plusMonths(searchIntervalMonths);
+        if (currentDateTime.getMonth().equals(startDate.getMonth()) && currentDateTime.getYear() == startDate.getYear() ) {
+            if (ChronoUnit.MINUTES.between(startDate, currentDateTime) >= searchIntervalMinutes){
+                return LocalDateTime.of(startDate.toLocalDate(), startDate.toLocalTime()).plusMinutes(ChronoUnit.MINUTES.between(startDate, currentDateTime));
+            }
         }
+
+        return LocalDateTime.of(startDate.toLocalDate(), LocalTime.of(0,0,0)).plusMonths(searchIntervalMonths);
+
     }
 
     private String getKey(CompositeBucket bucket) {
@@ -194,5 +198,21 @@ public class WindowsSource implements Source {
             throw new RuntimeException(e);
         }
     }
+
+    private List<String> getRange(LocalDateTime startDate, LocalDateTime nextDate){
+       String from = startDate.format(shortDateFormatter);
+       String to = nextDate.format(shortDateFormatter);
+
+       return from.equals(to) ? List.of(getUTC(startDate).format(longDateFormatter), getUTC(nextDate).format(longDateFormatter)) : List.of(from, to);
+
+    }
+
+    private ZonedDateTime getUTC(LocalDateTime dateTime) {
+
+        ZonedDateTime zonaLocal = dateTime.atZone(ZoneId.systemDefault());
+
+       return zonaLocal.withZoneSameInstant(ZoneId.of("UTC"));
+    }
+
 
 }

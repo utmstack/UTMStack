@@ -28,7 +28,6 @@ export class UtmComplianceScheduleDeleteComponent implements OnInit {
       .subscribe(() => {
         this.utmToastService.showSuccessBottom('Schedule Compliance deleted successfully');
         this.activeModal.close();
-        this.navBehavior.$nav.next(true);
         this.complianceScheduleDeleted.emit('deleted');
       }, () => {
         this.utmToastService.showError('Error deleting schedule compliance',

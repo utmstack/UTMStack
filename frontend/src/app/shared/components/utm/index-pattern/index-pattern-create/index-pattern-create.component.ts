@@ -179,7 +179,9 @@ export class IndexPatternCreateComponent implements OnInit {
   }
 
   private onError(error) {
-    // this.alertService.error(error.error, error.message, null);
+    this.totalItems = 0;
+    this.indexes = [];
+    this.loading = false;
   }
 
 }

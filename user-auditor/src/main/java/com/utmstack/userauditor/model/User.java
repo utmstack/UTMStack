@@ -31,6 +31,6 @@ public class User extends Base implements Auditable {
     @JoinColumn (name = "user_sources_id")
     public UserSource source;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     List<UserAttribute> attributes;
 }
