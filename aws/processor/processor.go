@@ -57,7 +57,7 @@ func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
 			return !lastPage
 		})
 	if err != nil {
-		return nil, utils.Logger.ErrorF("error gerring log groups: %v", err)
+		return nil, utils.Logger.ErrorF("error getting log groups: %v", err)
 	}
 
 	return logGroups, nil
