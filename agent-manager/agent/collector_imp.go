@@ -40,13 +40,17 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 	collector.CollectorKey = key
 	err = collectorService.Create(collector)
 	if err != nil {
+		h.ErrorF("Failed to create collector: %v", err)
 		return nil, err
 	}
+
 	s.cacheMutex.Lock()
 	CacheCollector[collector.ID] = key
 	s.cacheMutex.Unlock()
+
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
+		h.ErrorF("Failed to set last seen: %v", err)
 		return nil, err
 	}
 	res := &AuthResponse{
@@ -73,11 +77,13 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 
 	id, err := collectorService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
+		h.ErrorF("unable to delete collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
 	}
 
 	s.cacheCollectorMutex.Lock()
 	delete(s.CollectorStreamMap, key)
+	delete(CacheCollector, id)
 	s.cacheCollectorMutex.Unlock()
 
 	h.Info("Collector with key %s deleted by %s", key, req.DeletedBy)
@@ -89,12 +95,14 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 }
 
 func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollectorResponse, error) {
+	h := util.GetLogger()
 	page := util.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 
 	filter := util.NewFilter(req.SearchQuery)
 
 	collectors, total, err := collectorService.ListCollectors(page, filter)
 	if err != nil {
+		h.ErrorF("failed to fetch collectors: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
 	return convertToCollectorResponse(collectors, total)
@@ -108,7 +116,7 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 	}
 
 	s.mu.Lock()
-	s.CollectorStreamMap[collectorKey] = &StreamCollector{key: collectorKey, stream: stream}
+	s.CollectorStreamMap[collectorKey] = stream
 	s.mu.Unlock()
 
 	go func() {
@@ -119,20 +127,28 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			select {
 			case <-ticker.C:
 				s.pendingConfigM.Lock()
-				for _, config := range s.PendingConfigs {
-					if config.CollectorKey == collectorKey {
-						// Send the configuration to the stream
-						err := stream.Send(&CollectorMessages{
-							StreamMessage: &CollectorMessages_Config{
-								Config: config,
-							},
-						})
-						if err != nil {
-							h.ErrorF("failed to send config: %v", err)
-						}
+				_, ok := s.PendingConfigs[collectorKey]
+				s.pendingConfigM.Unlock()
+
+				if ok {
+					// get config from db
+					collector, err := collectorService.GetByKey(collectorKey)
+					if err != nil {
+						h.ErrorF("unable to get collector config to send config to stream : %v", err)
+						continue
+					}
+
+					// Send the configuration to the stream
+					err = stream.Send(&CollectorMessages{
+						StreamMessage: &CollectorMessages_Config{
+							Config: convertToCollectorConfig(collector),
+						},
+					})
+					if err != nil {
+						h.ErrorF("failed to send config to collector: %v", err)
 					}
 				}
-				s.pendingConfigM.Unlock()
+
 			case <-stream.Context().Done():
 				// If the stream is done, stop the goroutine
 				return
@@ -143,14 +159,14 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			streamCollector := s.CollectorStreamMap[collectorKey]
 			s.configMutex.Lock()
 			delete(s.CollectorStreamMap, collectorKey)
 			s.configMutex.Unlock()
 
-			err = waitForReconnect(streamCollector.stream.Context(), s)
+			err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
 			if err != nil {
 				h.ErrorF("failed to reconnect to client: %v", err)
+				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
 
 			collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
@@ -158,11 +174,14 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 				return err
 			}
 			s.configMutex.Lock()
-			s.CollectorStreamMap[collectorKey] = &StreamCollector{key: collectorKey, stream: stream}
+			s.CollectorStreamMap[collectorKey] = stream
 			s.configMutex.Unlock()
-			return nil
+			continue
 		}
 		if err != nil {
+			s.configMutex.Lock()
+			delete(s.CollectorStreamMap, collectorKey)
+			s.configMutex.Unlock()
 			return err
 		}
 
@@ -171,7 +190,9 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			h.Info("Received Knowlodge: %s", msg.Result.RequestId)
 
 			s.pendingConfigM.Lock()
-			delete(s.PendingConfigs, msg.Result.RequestId)
+			if s.PendingConfigs[collectorKey] == msg.Result.RequestId {
+				delete(s.PendingConfigs, collectorKey)
+			}
 			s.pendingConfigM.Unlock()
 
 		case *CollectorMessages_Config:
@@ -210,12 +231,12 @@ func (s *Grpc) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig)
 		RequestId:    in.GetRequestId(),
 	}
 
-	key := collectorConfig.CollectorKey
-	if key == "" {
+	collectorKey := collectorConfig.CollectorKey
+	if collectorKey == "" {
 		return nil, status.Errorf(codes.NotFound, "collector key is not provided")
 	}
 
-	collector, err := collectorService.GetByKey(key)
+	collector, err := collectorService.GetByKey(collectorKey)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "collector not found in database or is deleted")
 	}
@@ -229,12 +250,7 @@ func (s *Grpc) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig)
 	}
 
 	s.pendingConfigM.Lock()
-	pConf := &CollectorConfig{
-		CollectorKey: collectorConfig.CollectorKey,
-		Groups:       collectorConfig.Groups,
-		RequestId:    collectorConfig.RequestId,
-	}
-	s.PendingConfigs[collectorConfig.RequestId] = pConf
+	s.PendingConfigs[collectorKey] = collectorConfig.RequestId
 	s.pendingConfigM.Unlock()
 
 	return &ConfigKnowledge{

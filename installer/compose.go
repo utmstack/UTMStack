@@ -236,7 +236,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 
 	awsMem := stack.ServiceResources["aws"].AssignedMemory
 	c.Services["aws"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/aws:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -246,9 +246,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Datasources + ":/etc/utmstack",
 		},
 		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"DB_PASS=" + conf.Password,
+			"PANEL_SERV_NAME=backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -259,7 +258,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				},
 			},
 		},
-		Command: []string{"python3", "-m", "utmstack.aws"},
 	}
 
 	o365Mem := stack.ServiceResources["office365"].AssignedMemory
@@ -291,7 +289,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 
 	sophosMem := stack.ServiceResources["sophos"].AssignedMemory
 	c.Services["sophos"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/datasources:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/sophos:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -301,9 +299,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			stack.Datasources + ":/etc/utmstack",
 		},
 		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"DB_PASS=" + conf.Password,
+			"PANEL_SERV_NAME=backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -314,7 +311,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 				},
 			},
 		},
-		Command: []string{"python3", "-m", "utmstack.sophos"},
 	}
 
 	bitdefemderMem := stack.ServiceResources["bitdefender"].AssignedMemory
