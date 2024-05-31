@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -22,6 +23,9 @@ func main() {
 	for {
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
+			if strings.Contains(err.Error(), "invalid character '<'") {
+				continue
+			}
 			if (err.Error() != "") && (err.Error() != " ") {
 				utils.Logger.ErrorF("error getting configuration of the SOPHOS module: %v", err)
 			}
