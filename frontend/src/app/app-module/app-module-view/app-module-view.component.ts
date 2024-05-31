@@ -12,6 +12,7 @@ import {UtmModulesService} from '../shared/services/utm-modules.service';
 import {UtmServerService} from '../shared/services/utm-server.service';
 import {UtmModuleType} from '../shared/type/utm-module.type';
 import {UtmServerType} from '../shared/type/utm-server.type';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-app-module-view',
@@ -82,9 +83,21 @@ export class AppModuleViewComponent implements OnInit {
   }
 
   getModules() {
-    this.utmModulesService.getModules(this.req).subscribe(response => {
+    this.utmModulesService.getModules(this.req)
+        .pipe(
+            map( response => {
+              response.body.map(m => {
+                if (m.moduleName === this.utmModulesEnum.BITDEFENDER){
+                   m.prettyName = m.prettyName + ' GravityZone';
+                }
+              });
+
+              return response.body;
+            })
+        )
+        .subscribe(modules => {
       this.loading = false;
-      this.modules = response.body;
+      this.modules = modules;
     });
   }
 
