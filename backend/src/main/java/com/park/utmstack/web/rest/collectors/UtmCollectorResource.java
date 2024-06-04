@@ -306,8 +306,8 @@ public class UtmCollectorResource {
         final String ctx = CLASSNAME + ".searchByFilters";
         try {
              collectorService.listCollector(ListRequest.newBuilder()
-                     .setPageNumber( 0)
-                     .setPageSize(0)
+                     .setPageNumber(0)
+                     .setPageSize(100)
                      .setSearchQuery("module.Is=" + CollectorModuleEnum.AS_400)
                      .setSortBy("")
                      .build());
