@@ -1,7 +1,7 @@
 <div class="w-100 h-100">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="card-title mb-0 text-primary">
-            Bitdefender
+            Bitdefender GravityZone
         </h4>
     </div>
 
@@ -10,7 +10,7 @@
 
         <div class="alert alert-warning alert-styled-right mb-3">
             The following IP addresses must be whitelisted to ensure end-to-end communication between the GravityZone
-            Event Push Service and the SIEM/HTTP collector:
+            Event Push Service and the SIEM/HTTP collector over port 8000:
             <ul style="list-style-type:disc" class="pl-3">
                 <li style="list-style-type:disc">34.159.83.241</li>
                 <li style="list-style-type:disc">34.159.47.15</li>
@@ -21,7 +21,7 @@
         </div>
 
         <h6 class="font-weight-semibold mb-3">
-            Get an API KEY from your Bitdefender account
+            Get an API KEY from your Bitdefender GravityZone account
         </h6>
         <ol class="setup_list">
             <li>
@@ -57,7 +57,7 @@
             </li>
         </ol>
       <h6 class="font-weight-semibold mb-3">
-        Get the company IDs of your Bitdefender account that you want to monitor.
+        Get the company IDs of your Bitdefender GravityZone account that you want to monitor.
       </h6>
       <ol class="setup_list">
         <li>
@@ -81,7 +81,7 @@
         <li>
           <p class="step-guide mb-3">
             <span class="step_number">6</span>
-            Add your Bitdefender instances.
+            Add your Bitdefender GravityZone instances.
           </p>
           <app-int-generic-group-config [moduleId]="integrationId"
                                         (configValidChange)="configValidChange($event)"

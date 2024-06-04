@@ -40,6 +40,9 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 		// Get Bitdefender module configs
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)
 		if err != nil {
+			if strings.Contains(err.Error(), "invalid character '<'") {
+				continue
+			}
 			if (err.Error() != "") && (err.Error() != " ") {
 				h.ErrorF("error getting configuration of the Bitdefender module: %v", err)
 			}

@@ -9,7 +9,7 @@ import (
 
 const delayCheck = 300
 
-var timeGroups map[int]int
+var timeGroups = make(map[int]int)
 
 func PullLogs(group types.ModuleGroup) *logger.Error {
 	epoch := time.Now().Second()

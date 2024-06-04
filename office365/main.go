@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -28,6 +29,10 @@ func main() {
 
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
+			if strings.Contains(err.Error(), "invalid character '<'") {
+				time.Sleep(time.Second * delayCheck)
+				continue
+			}
 			if (err.Error() != "") && (err.Error() != " ") {
 				utils.Logger.ErrorF("error getting configuration of the O365 module: %v", err)
 			}

@@ -3,16 +3,16 @@
     <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: groups, editable: editable }"></ng-container>
   </ng-container>
 
-  <ng-container *ngIf="groupType == GroupTypeEnum.COLLECTOR">
+  <ng-container *ngIf="groupType == GroupTypeEnum.COLLECTOR && this.groups.length > 0">
     <div class="utm-box utm-box-collector mt-4 pt-1 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-10"
          *ngFor="let collector of collectors">
 
       <span class="p-1 utm-box-label">
            {{collector.collector}}
 
-        <span class="span-small-icon ml-3" >
-          <i (click)="addConfig(collector)" class="icon-plus2 mr-2  cursor-pointer"
-             ngbTooltip="Add group">
+        <span *ngIf="collectorValid(collector.groups) || savingConfig" class="span-small-icon ml-3" >
+          <i  (click)="addConfig(collector)" class="icon-plus2 mr-2  cursor-pointer"
+             ngbTooltip="Add configuration">
          </i>
 
           <i (click)="deleteCollectorConfig(collector)" class="icon-cross2 ml-2 cursor-pointer"
