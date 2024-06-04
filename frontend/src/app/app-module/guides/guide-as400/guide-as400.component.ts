@@ -44,7 +44,6 @@ export class GuideAs400Component implements OnInit {
             } else {
                 this.token = '';
             }
-
             this.vars = {
                 V_IP: this.ip,
                 V_TOKEN: this.token
