@@ -24,6 +24,7 @@ func main() {
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
+				time.Sleep(time.Second * delayCheck)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {

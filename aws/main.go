@@ -27,6 +27,7 @@ func main() {
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
+				time.Sleep(time.Second * delayCheck)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
