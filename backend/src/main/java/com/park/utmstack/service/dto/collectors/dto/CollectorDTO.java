@@ -21,6 +21,8 @@ public class CollectorDTO {
 
     private UtmAssetGroup group;
 
+    private boolean active;
+
     public CollectorDTO(){}
 
 
@@ -34,6 +36,7 @@ public class CollectorDTO {
         this.module = CollectorModuleEnum.valueOf(collector.getModule());
         this.lastSeen = collector.getLastSeen().toString();
         this.group = collector.getAssetGroup();
+        this.active = collector.isActive();
     }
 
     public int getId() {
@@ -114,5 +117,13 @@ public class CollectorDTO {
 
     public void setGroup(UtmAssetGroup group) {
         this.group = group;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

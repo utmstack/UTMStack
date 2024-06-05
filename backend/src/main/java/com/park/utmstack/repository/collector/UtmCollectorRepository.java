@@ -20,10 +20,8 @@ public interface UtmCollectorRepository extends JpaRepository<UtmCollector, Long
     @Query(value = "SELECT ns FROM UtmCollector ns WHERE" +
             "(:assetIpMacName IS NULL OR (ns.ip LIKE :assetIpMacName OR lower(ns.hostname) LIKE lower(:assetIpMacName))) " +
             "AND ((:groups) IS NULL OR ns.groupId IN (SELECT group.id FROM UtmAssetGroup group WHERE group.groupName IN :groups)) " +
-            "AND ((:assetStatus) IS NULL OR ns.status IN :assetStatus) " +
             "AND ((cast(:initDate as timestamp) is null) or (cast(:endDate as timestamp) is null) or (ns.lastSeen BETWEEN :initDate AND :endDate)) ")
     Page<UtmCollector> searchByFilters(@Param("assetIpMacName") String assetIpMacName,
-                                         @Param("assetStatus") List<AssetStatus> assetStatus,
                                          @Param("initDate") Instant initDate,
                                          @Param("endDate") Instant endDate,
                                          @Param("groups") List<String> groups,
