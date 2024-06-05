@@ -1,6 +1,4 @@
-import {UtmModuleGroupConfType} from './utm-module-group-conf.type';
-import {UtmModuleType} from './utm-module.type';
-import {AssetGroupType} from "../../../assets-discover/asset-groups/shared/type/asset-group.type";
+import {AssetGroupType} from '../../../assets-discover/asset-groups/shared/type/asset-group.type';
 
 export class UtmModuleCollectorType {
   id: number;
@@ -12,4 +10,5 @@ export class UtmModuleCollectorType {
   module: string;
   lastSeen: string;
   group?: AssetGroupType;
+  active?: boolean;
 }

@@ -1,7 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {forkJoin, of} from 'rxjs';
-import {finalize, map, switchMap, tap} from 'rxjs/operators';
+import {catchError, finalize, map, switchMap, tap} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ModalConfirmationComponent} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
@@ -40,6 +40,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   collectors: any[];
   collectorList: UtmModuleCollectorType[] = [];
   configs: UtmModuleGroupConfType[] = [];
+  groupName = this.groupType === GroupTypeEnum.TENANT ? 'tenant' : 'collector';
 
   constructor(private utmModuleGroupService: UtmModuleGroupService,
               private toast: UtmToastService,
@@ -59,29 +60,40 @@ export class IntGenericGroupConfigComponent implements OnInit {
 
   getGroups() {
     this.loading = true;
-
     return this.utmModuleGroupService.query({ moduleId: this.moduleId }).pipe(
-      tap(response => {
-        this.groups = response.body;
-        this.configValidChange.emit(this.tenantGroupConfigValid());
-      }),
-      switchMap(response => {
-        if (this.groupType === GroupTypeEnum.COLLECTOR) {
-          return this.collectorService.query({ module: UtmModulesEnum.AS_400 }).pipe(
-            map((response: HttpResponse<UtmListCollectorType>) => {
-              response.body.collectors = response.body.collectors.filter(c => c.status === 'ONLINE');
-              return response;
-            }),
-            tap((response: HttpResponse<UtmListCollectorType>) => {
-              this.collectors = this.collectorService.formatCollectorResponse(this.groups, response.body.collectors);
-              this.collectorList = response.body.collectors;
-            })
-          );
-        } else {
+        tap(response => {
+          this.groups = response.body;
+          this.configValidChange.emit(this.tenantGroupConfigValid());
+        }),
+        switchMap(response => {
+          if (this.groupType === GroupTypeEnum.COLLECTOR) {
+            return this.collectorService.query({ module: UtmModulesEnum.AS_400 }).pipe(
+                map((response: HttpResponse<UtmListCollectorType>) => {
+                  response.body.collectors = response.body.collectors.filter(c => c.status === 'ONLINE');
+                  return response;
+                }),
+                tap((response: HttpResponse<UtmListCollectorType>) => {
+                  this.collectors = this.collectorService.formatCollectorResponse(this.groups, response.body.collectors);
+                  this.collectorList = response.body.collectors;
+                }),
+                catchError(error => {
+                  this.toast.showError('Error listing collectors',
+                      'An error occurred while trying to list collectors. Please try again.');
+
+                  return of(null);
+                })
+            );
+          } else {
+            return of(null);
+          }
+        }),
+        catchError(error => {
+          this.toast.showError('Error Listing collector configurations',
+              'An error occurred while trying to list collector configurations. Please try again.');
           return of(null);
-        }
-      }),
-      finalize(() => this.loading = false));
+        }),
+        finalize(() => this.loading = false)
+    );
   }
 
   createGroup() {
@@ -113,10 +125,10 @@ export class IntGenericGroupConfigComponent implements OnInit {
   deleteGroup(group: UtmModuleGroupType) {
     const deleteModal = this.modalService.open(ModalConfirmationComponent, {centered: true});
     deleteModal.componentInstance.header = this.groupType === GroupTypeEnum.TENANT ? 'Delete tenant' : 'Delete collector';
-    deleteModal.componentInstance.message = 'By deleting ' + group.groupName +
-        ' tenant, UTMStack will no longer receive logs from this source.' +
-        (this.groups.length === 1 ? ' Since this is the only tenant, the module associated with it will be deactivated.' : '') +
-        ' Are you sure that you want to delete this tenant?';
+    deleteModal.componentInstance.message = `By deleting ${group.groupName} ` +
+        `${this.groupName}, UTMStack will no longer receive logs from this source. ` +
+        `${this.groups.length === 1 ? ` Since this is the only ${this.groupName}, the module associated with it will be deactivated.` : ''} ` +
+        ` Are you sure that you want to delete this ${this.groupName}`;
 
     deleteModal.componentInstance.confirmBtnText = 'Delete';
     deleteModal.componentInstance.confirmBtnIcon = 'icon-stack-cancel';
@@ -131,12 +143,12 @@ export class IntGenericGroupConfigComponent implements OnInit {
       if (this.groups.length === 1) {
         this.moduleChangeStatusBehavior.setStatus(false);
       } else {
-        this.toast.showSuccessBottom('Tenant group deleted successfully');
+        this.toast.showSuccessBottom(`${this.groupName.toUpperCase()} group deleted successfully`);
       }
       this.getGroups().subscribe();
     }, error => {
-      this.toast.showError('Error deleting tenant',
-        'Error while trying to delete tenant ' + group.groupName + ' , please try again');
+      this.toast.showError(`Error deleting ${this.groupName}`,
+        `Error while trying to delete ${this.groupName} , please try again`);
     });
   }
 
@@ -270,7 +282,6 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   addConfig(collector: any) {
-    console.log(this.changes);
     const col = this.collectorList.find(c => c.hostname === collector.collector);
     this.utmModuleGroupService.create({
       description: '',
@@ -287,7 +298,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
     const deleteModal = this.modalService.open(ModalConfirmationComponent, {centered: true});
     deleteModal.componentInstance.header = 'Delete collector';
     deleteModal.componentInstance.message = 'By deleting this collector, UTMStack will no longer receive logs from this source.' +
-      (this.groups.length === 1 ? ' Since this is the only tenant, the module associated with it will be deactivated.' : '') +
+      (this.groups.length === 1 ? ' Since this is the only collector, the module associated with it will be deactivated.' : '') +
       ' Are you sure that you want to delete this collector?';
 
     deleteModal.componentInstance.confirmBtnText = 'Delete';
@@ -297,6 +308,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
         const deleteRequests = collector.groups.map( g => this.utmModuleGroupService.delete(g.id));
 
         forkJoin(deleteRequests).subscribe(() => {
+          this.moduleChangeStatusBehavior.setStatus(false);
           this.getGroups().subscribe();
         },
             (error) => {

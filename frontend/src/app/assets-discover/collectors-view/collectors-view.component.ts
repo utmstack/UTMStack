@@ -25,19 +25,15 @@ import {TimeFilterType} from '../../shared/types/time-filter.type';
 import {calcTableDimension} from '../../shared/util/screen.util';
 import {AssetFiltersBehavior} from '../shared/behavior/asset-filters.behavior';
 import {AssetSaveReportComponent} from '../shared/components/asset-save-report/asset-save-report.component';
-import {ASSETS_FIELDS, ASSETS_FIELDS_FILTERS, COLLECTORS_FIELDS_FILTERS} from '../shared/const/asset-field.const';
+import {ASSETS_FIELDS, COLLECTORS_FIELDS_FILTERS} from '../shared/const/asset-field.const';
 import {STATICS_FILTERS} from '../shared/const/filter-const';
-import {AssetFieldFilterEnum} from '../shared/enums/asset-field-filter.enum';
 import {AssetFieldEnum} from '../shared/enums/asset-field.enum';
-import {DataSourceInputService} from '../shared/services/data-source-input.service';
+import {CollectorFieldFilterEnum} from '../shared/enums/collector-field-filter.enum';
 import {UtmNetScanService} from '../shared/services/utm-net-scan.service';
 import {AssetFilterType} from '../shared/types/asset-filter.type';
 import {UtmDataInputStatus} from '../shared/types/data-source-input.type';
 import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
-import {CollectorFieldFilterEnum} from "../shared/enums/collector-field-filter.enum";
-import {HttpResponse} from "@angular/common/http";
-import {UtmListCollectorType} from "../../app-module/shared/type/utm-list-collector-type";
 
 @Component({
   selector: 'app-assets-view',
@@ -125,7 +121,7 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
     this.collectorService.queryFilter(this.requestParam)
         .subscribe(response => {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
-          this.collectors = response.body;
+          this.collectors = response.body.filter(c => c.active);
           this.loading = false;
         });
   }

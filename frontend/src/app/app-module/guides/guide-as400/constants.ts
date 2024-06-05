@@ -8,7 +8,7 @@ export const PLATFORM = [
                  `Invoke-WebRequest -Uri "https://storage.googleapis.com/utmstack-updates/collectors/windows-as400-collector.zip" ` +
                  `-OutFile ".\\windows-as400-collector.zip"; Expand-Archive -Path ".\\windows-as400-collector.zip" ` +
                  `-DestinationPath "."; Remove-Item ".\\windows-as400-collector.zip"; Start-Process ".\\utmstack_collectors_installer.exe" ` +
-                 `-ArgumentList 'install', 'as400', 'V_IP', 'V_TOKEN' -NoNewWindow -Wait`,
+                 `-ArgumentList 'install', 'as400', 'V_IP', '<secret>V_TOKEN</secret>' -NoNewWindow -Wait`,
 
         uninstall: `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
                    `Start-Process ".\\utmstack_collectors_installer.exe" -ArgumentList ` +
@@ -22,7 +22,7 @@ export const PLATFORM = [
                    `cd "C:\\Program Files"; Remove-Item 'C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400' ` +
                    `-Recurse -Force -ErrorAction Stop; Write-Host "UTMStack AS400 Collector removed successfully."`,
 
-        shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+        shell: 'Open Windows Powershell terminal as “ADMINISTRATOR”'
     },
     {
         id: 2,
@@ -32,7 +32,7 @@ export const PLATFORM = [
                  `wget https://storage.googleapis.com/utmstack-updates/collectors/linux-as400-collector.zip ` +
                  `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 777 ` +
                  `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
-                 `V_IP V_TOKEN" `,
+                 `V_IP <secret>V_TOKEN</secret> `,
 
         uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer ` +
                    `uninstall as400 && echo 'Removing UTMStack AS400 Collector dependencies...' && sleep 5 && rm ` +
