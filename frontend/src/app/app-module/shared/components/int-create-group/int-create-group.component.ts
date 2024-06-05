@@ -34,9 +34,9 @@ export class IntCreateGroupComponent implements OnInit {
 
   ngOnInit() {
     this.formGroupConfig = this.fb.group({
-      collector: [],
+      collector: this.groupType === GroupTypeEnum.COLLECTOR ? ['', Validators.required] : [''],
       groupDescription: [''],
-      groupName: ['', Validators.required],
+      groupName: this.groupType === GroupTypeEnum.TENANT ? ['', Validators.required] : [],
       moduleId: [this.moduleId, [Validators.required]],
       id: []
     });
@@ -71,7 +71,8 @@ export class IntCreateGroupComponent implements OnInit {
   }
 
   emitGroup(group: UtmModuleGroupType) {
-    this.toast.showSuccessBottom('Tenant group saved successfully');
+    this.toast.showSuccessBottom(`${this.groupType === GroupTypeEnum.TENANT ? 'Tenant' : 'Collector'} ` +
+    `group saved successfully`);
     this.groupChange.emit(group);
     this.activeModal.close();
   }
@@ -80,7 +81,8 @@ export class IntCreateGroupComponent implements OnInit {
     return {
       description: this.formGroupConfig.get('groupDescription').value,
       moduleId: this.moduleId,
-      name: this.formGroupConfig.get('groupName').value,
+      name: this.groupType === GroupTypeEnum.TENANT ? this.formGroupConfig.get('groupName').value :
+          `Configuration- ${this.formGroupConfig.get('collector').value.groups.length + 1} ${this.formGroupConfig.get('collector').value.collector}`,
       collector: this.formGroupConfig.get('collector').value ? this.formGroupConfig.get('collector').value.id : null
     };
   }

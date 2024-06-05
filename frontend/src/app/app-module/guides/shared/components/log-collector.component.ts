@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 import {ModalService} from '../../../../core/modal/modal.service';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 
 @Component({
   selector: 'app-log-colletor',
@@ -83,7 +83,6 @@ export class LogCollectorComponent {
   }
 
   get command() {
-    this.selectedPlatform.command.replace(/PORT/gi, this.selectedProtocol.name.toLowerCase());
     return this.replaceAll(this.selectedPlatform.command, {
       PORT: this.selectedProtocol.name.toLowerCase(),
       AGENTNAME: this.agentName(),

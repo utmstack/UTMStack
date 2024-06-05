@@ -22,11 +22,11 @@ func GetAWSProcessor(group types.ModuleGroup) AWSProcessor {
 	awsPro := AWSProcessor{}
 	for _, cnf := range group.Configurations {
 		switch cnf.ConfName {
-		case "aws_default_region":
+		case "Default Region":
 			awsPro.RegionName = cnf.ConfValue
-		case "aws_access_key_id":
+		case "Access Key":
 			awsPro.AccessKey = cnf.ConfValue
-		case "aws_secret_access_key":
+		case "Secret Key":
 			awsPro.SecretAccessKey = cnf.ConfValue
 		}
 	}

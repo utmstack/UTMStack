@@ -67,6 +67,7 @@ public class UtmCollectorService {
 
             if (!Objects.nonNull(collectorDTO)) {
                 collector.setActive(false);
+                collector.setStatus("OFFLINE");
                 this.utmCollectorRepository.save(collector);
             }
         }

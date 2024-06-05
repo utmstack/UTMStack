@@ -47,6 +47,15 @@ export class UtmModuleCollectorService {
   }
 
   formatCollectorResponse(groups: UtmModuleGroupType[], collectors: UtmModuleCollectorType[]) {
+
+    if (!groups || groups.length === 0) {
+      return collectors.map(collector => ({
+        id: collector.id,
+        collector: this.getCollectorName(collector.id, collectors),
+        groups: []
+      }));
+    }
+
     return  groups.reduce((accumulator, currentValue) => {
       const { collector } = currentValue;
 
@@ -56,6 +65,7 @@ export class UtmModuleCollectorService {
         existingGroup.groups.push(currentValue);
       } else {
         accumulator.push({
+          id: Number(collector),
           collector: this.getCollectorName(Number(collector), collectors),
           groups: [currentValue]
         });

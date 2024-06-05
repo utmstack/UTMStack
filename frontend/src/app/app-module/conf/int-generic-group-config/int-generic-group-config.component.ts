@@ -1,3 +1,4 @@
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {forkJoin, of} from 'rxjs';
 import {finalize, map, switchMap, tap} from 'rxjs/operators';
@@ -12,6 +13,7 @@ import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 import {UtmModuleCollectorService} from '../../shared/services/utm-module-collector.service';
 import {UtmModuleGroupConfService} from '../../shared/services/utm-module-group-conf.service';
 import {UtmModuleGroupService} from '../../shared/services/utm-module-group.service';
+import {UtmListCollectorType} from '../../shared/type/utm-list-collector-type';
 import {UtmModuleCollectorType} from '../../shared/type/utm-module-collector.type';
 import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.type';
 import {UtmModuleGroupType} from '../../shared/type/utm-module-group.type';
@@ -49,40 +51,16 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getGroups();
+    this.getGroups().subscribe();
     this.changes = {keys: [], moduleId: this.moduleId};
     this.btnTittle = this.groupType === GroupTypeEnum.TENANT ?
       'Add tenant' : 'Add collector';
   }
 
   getGroups() {
-    /*this.utmModuleGroupService.query({moduleId: this.moduleId})
-      .subscribe(response => {
-      this.groups = response.body;
-      this.configValidChange.emit(this.tenantGroupConfigValid());
-      if (this.groupType === GroupTypeEnum.COLLECTOR) {
-          this.collectorService.query({module: UtmModulesEnum.AS_400})
-              .pipe(
-                  map(response => {
-                    response.body.collectors = response.body.collectors.filter(c => c.status === 'ONLINE');
-                    return response;
-                  }),
-                tap((response) =>
-                  this.collectors = this.collectorService.formatCollectorResponse(this.groups, response.body.collectors)
-                ),
-                finalize(() => this.loading = false)
-              )
-              .subscribe(response => {
-                this.collectorList = response.body.collectors;
-              });
-        } else {
-          this.loading = false;
-        }
-    });*/
-
     this.loading = true;
 
-    this.utmModuleGroupService.query({ moduleId: this.moduleId }).pipe(
+    return this.utmModuleGroupService.query({ moduleId: this.moduleId }).pipe(
       tap(response => {
         this.groups = response.body;
         this.configValidChange.emit(this.tenantGroupConfigValid());
@@ -90,45 +68,53 @@ export class IntGenericGroupConfigComponent implements OnInit {
       switchMap(response => {
         if (this.groupType === GroupTypeEnum.COLLECTOR) {
           return this.collectorService.query({ module: UtmModulesEnum.AS_400 }).pipe(
-            map(response => {
+            map((response: HttpResponse<UtmListCollectorType>) => {
               response.body.collectors = response.body.collectors.filter(c => c.status === 'ONLINE');
               return response;
             }),
-            tap(response => {
+            tap((response: HttpResponse<UtmListCollectorType>) => {
               this.collectors = this.collectorService.formatCollectorResponse(this.groups, response.body.collectors);
               this.collectorList = response.body.collectors;
             })
           );
         } else {
-          return of(null); // Emitir un valor nulo para seguir con el flujo sin hacer otra llamada API
+          return of(null);
         }
       }),
-      finalize(() => this.loading = false)).subscribe();
+      finalize(() => this.loading = false));
   }
 
   createGroup() {
-    const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
-    modal.componentInstance.moduleId = this.moduleId;
-    modal.componentInstance.groupType = this.groupType;
-    modal.componentInstance.collectors = this.collectorList;
-    modal.componentInstance.groupChange.subscribe(group => {
-      this.getGroups();
+    this.getGroups().subscribe(res => {
+      const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
+      modal.componentInstance.moduleId = this.moduleId;
+      modal.componentInstance.groupType = this.groupType;
+      modal.componentInstance.collectors = this.collectors;
+      modal.componentInstance.groupChange.subscribe(group => {
+        this.getGroups().subscribe();
+      });
     });
   }
 
   editGroup(group: UtmModuleGroupType) {
+    if(this.groupType === GroupTypeEnum.COLLECTOR){
+      group.collector = this.collectorList.find( c => c.id === Number(group.collector)).hostname;
+    }
     const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
     modal.componentInstance.moduleId = this.moduleId;
     modal.componentInstance.group = group;
+    modal.componentInstance.groupType = this.groupType;
+    modal.componentInstance.collectors = this.collectors;
     modal.componentInstance.groupChange.subscribe(groupResponse => {
-      this.getGroups();
+      this.getGroups().subscribe();
     });
   }
 
   deleteGroup(group: UtmModuleGroupType) {
     const deleteModal = this.modalService.open(ModalConfirmationComponent, {centered: true});
-    deleteModal.componentInstance.header = 'Delete tenant';
-    deleteModal.componentInstance.message = 'By deleting ' + group.groupName + ' tenant, UTMStack will no longer receive logs from this source.' +
+    deleteModal.componentInstance.header = this.groupType === GroupTypeEnum.TENANT ? 'Delete tenant' : 'Delete collector';
+    deleteModal.componentInstance.message = 'By deleting ' + group.groupName +
+        ' tenant, UTMStack will no longer receive logs from this source.' +
         (this.groups.length === 1 ? ' Since this is the only tenant, the module associated with it will be deactivated.' : '') +
         ' Are you sure that you want to delete this tenant?';
 
@@ -147,7 +133,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
       } else {
         this.toast.showSuccessBottom('Tenant group deleted successfully');
       }
-      this.getGroups();
+      this.getGroups().subscribe();
     }, error => {
       this.toast.showError('Error deleting tenant',
         'Error while trying to delete tenant ' + group.groupName + ' , please try again');
@@ -272,19 +258,27 @@ export class IntGenericGroupConfigComponent implements OnInit {
       collector: this.collectorList.find(c => c.hostname === collector.collector),
     };
     this.collectorService.create(body).subscribe(response => {
-      console.log(response);
+      this.savingConfig = false;
+      this.pendingChanges = false;
+      this.changes = {keys: [], moduleId: this.moduleId};
+      this.configValidChange.emit(this.tenantGroupConfigValid());
+      this.toast.showSuccessBottom('Configuration saved successfully');
+    }, () => {
+      this.toast.showError('Error saving configuration',
+          'Error while trying to save collector configuration , please try again');
     });
   }
 
   addConfig(collector: any) {
+    console.log(this.changes);
     const col = this.collectorList.find(c => c.hostname === collector.collector);
     this.utmModuleGroupService.create({
       description: '',
       moduleId: this.moduleId,
-      name: `Group ${collector.groups.length} ${collector.collector}`,
+      name: `Configuration- ${collector.groups.length + 1} ${collector.collector}`,
       collector: col.id
     }).subscribe(response => {
-      this.getGroups();
+      this.getGroups().subscribe();
     }, () => {
     });
   }
@@ -303,12 +297,13 @@ export class IntGenericGroupConfigComponent implements OnInit {
         const deleteRequests = collector.groups.map( g => this.utmModuleGroupService.delete(g.id));
 
         forkJoin(deleteRequests).subscribe(() => {
-          this.getGroups();
+          this.getGroups().subscribe();
         },
             (error) => {
-                console.error('Error al procesar las solicitudes de eliminación:', error);
-            }
-        );
+              this.toast.showError('Error saving configuration',
+                  'Error processing deletion requests , please try again');
+            });
+
     });
   }
 
