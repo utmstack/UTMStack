@@ -33,7 +33,13 @@ func GetAWSProcessor(group types.ModuleGroup) AWSProcessor {
 	return awsPro
 }
 
-func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
+func (p *AWSProcessor) createAWSSession() (*session.Session, *logger.Error) {
+	if p.RegionName == "" {
+		return nil, utils.Logger.ErrorF("Region is not configured")
+	}
+
+	utils.Logger.Info("Creating AWS session in region: %s", p.RegionName)
+
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(p.RegionName),
 		Credentials: credentials.NewStaticCredentialsFromCreds(
@@ -47,9 +53,18 @@ func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
 		return nil, utils.Logger.ErrorF("error creating aws session: %v", err)
 	}
 
+	return sess, nil
+}
+
+func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
+	sess, sessionErr := p.createAWSSession()
+	if sessionErr != nil {
+		return nil, sessionErr
+	}
+
 	cwl := cloudwatchlogs.New(sess)
 	var logGroups []string
-	err = cwl.DescribeLogGroupsPages(&cloudwatchlogs.DescribeLogGroupsInput{},
+	err := cwl.DescribeLogGroupsPages(&cloudwatchlogs.DescribeLogGroupsInput{},
 		func(page *cloudwatchlogs.DescribeLogGroupsOutput, lastPage bool) bool {
 			for _, group := range page.LogGroups {
 				logGroups = append(logGroups, aws.StringValue(group.LogGroupName))
@@ -57,29 +72,21 @@ func (p *AWSProcessor) DescribeLogGroups() ([]string, *logger.Error) {
 			return !lastPage
 		})
 	if err != nil {
-		return nil, utils.Logger.ErrorF("error gerring log groups: %v", err)
+		return nil, utils.Logger.ErrorF("error getting log groups: %v", err)
 	}
 
 	return logGroups, nil
 }
 
 func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, *logger.Error) {
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(p.RegionName),
-		Credentials: credentials.NewStaticCredentialsFromCreds(
-			credentials.Value{
-				AccessKeyID:     p.AccessKey,
-				SecretAccessKey: p.SecretAccessKey,
-			},
-		),
-	})
-	if err != nil {
-		return nil, utils.Logger.ErrorF("error creating aws session: %v", err)
+	sess, sessionErr := p.createAWSSession()
+	if sessionErr != nil {
+		return nil, sessionErr
 	}
 
 	cwl := cloudwatchlogs.New(sess)
 	var logStreams []string
-	err = cwl.DescribeLogStreamsPages(&cloudwatchlogs.DescribeLogStreamsInput{
+	err := cwl.DescribeLogStreamsPages(&cloudwatchlogs.DescribeLogStreamsInput{
 		LogGroupName: aws.String(logGroup),
 		OrderBy:      aws.String("LastEventTime"),
 		Descending:   aws.Bool(true),
@@ -100,17 +107,9 @@ func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, *logger.Er
 func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleGroup) ([]TransformedLog, *logger.Error) {
 	transformedLogs := []TransformedLog{}
 
-	sess, serr := session.NewSession(&aws.Config{
-		Region: aws.String(p.RegionName),
-		Credentials: credentials.NewStaticCredentialsFromCreds(
-			credentials.Value{
-				AccessKeyID:     p.AccessKey,
-				SecretAccessKey: p.SecretAccessKey,
-			},
-		),
-	})
-	if serr != nil {
-		return nil, utils.Logger.ErrorF("error creating aws session: %v", serr)
+	sess, sessionErr := p.createAWSSession()
+	if sessionErr != nil {
+		return nil, sessionErr
 	}
 
 	cwl := cloudwatchlogs.New(sess)
@@ -136,14 +135,14 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time, group types.ModuleG
 				StartFromHead: aws.Bool(true),
 			}
 
-			serr = cwl.GetLogEventsPages(params,
+			err := cwl.GetLogEventsPages(params,
 				func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
 					cleanLogs := ETLProcess(page.Events, group, logGroup, stream)
 					transformedLogs = append(transformedLogs, cleanLogs...)
 					return !lastPage
 				})
-			if serr != nil {
-				return nil, utils.Logger.ErrorF("error getting log pages: %v", serr)
+			if err != nil {
+				return nil, utils.Logger.ErrorF("error getting log pages: %v", err)
 			}
 		}
 	}

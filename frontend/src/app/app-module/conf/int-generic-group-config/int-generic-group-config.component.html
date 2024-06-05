@@ -10,7 +10,7 @@
       <span class="p-1 utm-box-label">
            {{collector.collector}}
 
-        <span *ngIf="collectorValid(collector.groups) || savingConfig" class="span-small-icon ml-3" >
+        <span *ngIf="(collectorValid(collector.groups) && this.changes.keys.length === 0)" class="span-small-icon ml-3" >
           <i  (click)="addConfig(collector)" class="icon-plus2 mr-2  cursor-pointer"
              ngbTooltip="Add configuration">
          </i>
@@ -48,7 +48,8 @@
 
 
   <div class="pt-3 d-flex justify-content-center align-items-center" *ngIf="allowAdd">
-    <button class="btn utm-button utm-button-primary" (click)="createGroup()">
+    <button [disabled]="(!tenantGroupConfigValid() && this.groups.length > 0) || (changes && changes.keys.length > 0)"
+            class="btn utm-button utm-button-primary" (click)="createGroup()">
       <i class="icon-plus2 mr-1"></i>
       {{ btnTittle }}
     </button>

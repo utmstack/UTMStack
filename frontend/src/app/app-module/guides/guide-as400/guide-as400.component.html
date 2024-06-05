@@ -9,61 +9,6 @@
         <div class="alert alert-warning alert-styled-right mb-3">
             The UTMStack AS400 Collector communicate over ports 9000 and 50051. Please make sure these ports are open.
         </div>
-        <!--<ol class="setup_list">
-          <li>
-            <p class="step-guide mb-3">
-              <span class="step_number">6</span>
-              Add your Collectors instances.
-            </p>
-            <app-int-generic-group-config [moduleId]="integrationId"
-                                          [groupType]="groupType"
-                                          (configValidChange)="configValidChange($event)"
-                                          [serverId]="serverId"></app-int-generic-group-config>
-          </li>
-            <li>
-                <p class="step-guide mb-3">
-                    <span class="step_number">2</span>
-                    Connect to the master via SSH using a <strong>root</strong> account
-                </p>
-            </li>
-            <li>
-                <p class="step-guide mb-3">
-                    <span class="step_number">3</span>
-                    Create the integration configuration folder.
-                </p>
-                <app-utm-code-view [allowCopy]="serverAS400FormArray.valid"
-                                   [code]="'mkdir -p /utmstack/as400jds/'"></app-utm-code-view>
-            </li>
-            <li>
-                <p class="step-guide mb-3">
-                    <span class="step_number">4</span>
-                    Copy the JSON configuration file to "/utmstack/as400jds/"
-                </p>
-            </li>
-            <li>
-                <p class="step-guide mb-3">
-                    <span class="step_number">5</span>
-                    Run the command shown below to run the integration.
-                </p>
-                <div class="alert alert-warning alert-styled-right mb-3" *ngIf="!serverAS400FormArray.valid">
-                    To obtain the command, please fill out the previous form and ensure all required fields are
-                    completed. Once completed, you will be able to copy the command.
-                </div>
-
-                <app-utm-code-view [allowCopy]="serverAS400FormArray.valid"
-                                   [code]="generateDockerCommand()"></app-utm-code-view>
-            </li>
-            <li>
-                <p class="step-guide mb-3">
-                    <span class="step_number">6</span>
-                    Click on the button shown below, to activate the UTMStack features related to this integration
-                </p>
-                <app-app-module-activate-button [module]="module.AS_400"
-                                                [type]="'integration'" class="mt-3"
-                                                [serverId]="serverId">
-                </app-app-module-activate-button>
-            </li>
-        </ol>-->
         <ol class="setup_list">
             <app-utm-list [items]="steps">
                 <ng-template stepTemplateRef let-step>

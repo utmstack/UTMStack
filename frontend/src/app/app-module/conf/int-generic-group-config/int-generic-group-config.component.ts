@@ -51,7 +51,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getGroups();
+    this.getGroups().subscribe();
     this.changes = {keys: [], moduleId: this.moduleId};
     this.btnTittle = this.groupType === GroupTypeEnum.TENANT ?
       'Add tenant' : 'Add collector';
@@ -60,7 +60,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   getGroups() {
     this.loading = true;
 
-    this.utmModuleGroupService.query({ moduleId: this.moduleId }).pipe(
+    return this.utmModuleGroupService.query({ moduleId: this.moduleId }).pipe(
       tap(response => {
         this.groups = response.body;
         this.configValidChange.emit(this.tenantGroupConfigValid());
@@ -81,17 +81,18 @@ export class IntGenericGroupConfigComponent implements OnInit {
           return of(null);
         }
       }),
-      finalize(() => this.loading = false)).subscribe();
+      finalize(() => this.loading = false));
   }
 
   createGroup() {
-    console.log(this.collectors);
-    const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
-    modal.componentInstance.moduleId = this.moduleId;
-    modal.componentInstance.groupType = this.groupType;
-    modal.componentInstance.collectors = this.collectors;
-    modal.componentInstance.groupChange.subscribe(group => {
-      this.getGroups();
+    this.getGroups().subscribe(res => {
+      const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
+      modal.componentInstance.moduleId = this.moduleId;
+      modal.componentInstance.groupType = this.groupType;
+      modal.componentInstance.collectors = this.collectors;
+      modal.componentInstance.groupChange.subscribe(group => {
+        this.getGroups().subscribe();
+      });
     });
   }
 
@@ -105,7 +106,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
     modal.componentInstance.groupType = this.groupType;
     modal.componentInstance.collectors = this.collectors;
     modal.componentInstance.groupChange.subscribe(groupResponse => {
-      this.getGroups();
+      this.getGroups().subscribe();
     });
   }
 
@@ -132,7 +133,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
       } else {
         this.toast.showSuccessBottom('Tenant group deleted successfully');
       }
-      this.getGroups();
+      this.getGroups().subscribe();
     }, error => {
       this.toast.showError('Error deleting tenant',
         'Error while trying to delete tenant ' + group.groupName + ' , please try again');
@@ -274,10 +275,10 @@ export class IntGenericGroupConfigComponent implements OnInit {
     this.utmModuleGroupService.create({
       description: '',
       moduleId: this.moduleId,
-      name: `Configuration- ${collector.groups.length} ${collector.collector}`,
+      name: `Configuration- ${collector.groups.length + 1} ${collector.collector}`,
       collector: col.id
     }).subscribe(response => {
-      this.getGroups();
+      this.getGroups().subscribe();
     }, () => {
     });
   }
@@ -296,7 +297,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
         const deleteRequests = collector.groups.map( g => this.utmModuleGroupService.delete(g.id));
 
         forkJoin(deleteRequests).subscribe(() => {
-          this.getGroups();
+          this.getGroups().subscribe();
         },
             (error) => {
               this.toast.showError('Error saving configuration',
