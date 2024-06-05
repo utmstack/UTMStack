@@ -88,7 +88,6 @@ public class UtmCollectorService {
         try {
             return utmCollectorRepository.searchByFilters(
                     f.getAssetIpMacName() == null ? null : "%" + f.getAssetIpMacName() + "%",
-                    f.getStatus(),
                     f.getDiscoveredInitDate(),
                     f.getDiscoveredEndDate(),
                     f.getGroups(),p);
