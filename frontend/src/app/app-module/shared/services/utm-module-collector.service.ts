@@ -2,12 +2,12 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
+import {AssetGroupType} from '../../../assets-discover/asset-groups/shared/type/asset-group.type';
 import {createRequestOption} from '../../../shared/util/request-util';
 import {UtmModulesEnum} from '../enum/utm-module.enum';
+import {UtmListCollectorType} from '../type/utm-list-collector-type';
+import {UtmModuleCollectorType} from '../type/utm-module-collector.type';
 import { UtmModuleGroupType } from '../type/utm-module-group.type';
-import {UtmModuleCollectorType} from "../type/utm-module-collector.type";
-import {UtmListCollectorType} from "../type/utm-list-collector-type";
-import {AssetGroupType} from "../../../assets-discover/asset-groups/shared/type/asset-group.type";
 
 
 @Injectable({
@@ -46,15 +46,7 @@ export class UtmModuleCollectorService {
     return this.http.get<UtmModuleGroupType[]>(`${this.resourceUrl}/groups-by-collectors/${collectorId}`, {observe: 'response'});
   }
 
-  formatCollectorResponse(groups: UtmModuleGroupType[], collectors: UtmModuleCollectorType[]) {
-
-    if (!groups || groups.length === 0) {
-      return collectors.map(collector => ({
-        id: collector.id,
-        collector: this.getCollectorName(collector.id, collectors),
-        groups: []
-      }));
-    }
+  getCollectorGroupConfig(groups: UtmModuleGroupType[], collectors: UtmModuleCollectorType[]) {
 
     return  groups.reduce((accumulator, currentValue) => {
       const { collector } = currentValue;
@@ -72,6 +64,18 @@ export class UtmModuleCollectorService {
       }
       return accumulator;
     }, []);
+  }
+
+  getCollectors(groups: UtmModuleGroupType[], collectors: UtmModuleCollectorType[]) {
+
+    return  collectors.map(collector  => {
+
+      return {
+          id: collector.id,
+          collector: collector.hostname,
+          groups: groups.filter( g => Number(g.collector) === collector.id)
+        };
+      });
   }
 
   private getCollectorName(id: number, collectors: UtmModuleCollectorType[]) {

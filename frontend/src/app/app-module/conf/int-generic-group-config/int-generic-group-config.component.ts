@@ -73,7 +73,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
                   return response;
                 }),
                 tap((response: HttpResponse<UtmListCollectorType>) => {
-                  this.collectors = this.collectorService.formatCollectorResponse(this.groups, response.body.collectors);
+                  this.collectors = this.collectorService.getCollectorGroupConfig(this.groups, response.body.collectors);
                   this.collectorList = response.body.collectors;
                 }),
                 catchError(error => {
@@ -101,7 +101,8 @@ export class IntGenericGroupConfigComponent implements OnInit {
       const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
       modal.componentInstance.moduleId = this.moduleId;
       modal.componentInstance.groupType = this.groupType;
-      modal.componentInstance.collectors = this.collectors;
+      modal.componentInstance.collectors = this.collectorService.getCollectors(this.groups, this.collectorList);
+
       modal.componentInstance.groupChange.subscribe(group => {
         this.getGroups().subscribe();
       });

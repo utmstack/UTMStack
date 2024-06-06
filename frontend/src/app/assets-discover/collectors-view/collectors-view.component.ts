@@ -121,7 +121,7 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
     this.collectorService.queryFilter(this.requestParam)
         .subscribe(response => {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
-          this.collectors = response.body.filter(c => c.active);
+          this.collectors = response.body;
           this.loading = false;
         });
   }

@@ -4,6 +4,7 @@ import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
+import {generate} from "rxjs";
 
 @Component({
   selector: 'app-install-log-collector',
@@ -26,7 +27,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
     </div>
     <ng-container *ngIf="selectedPlatform && selectedAction">
       <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
-      <app-utm-code-view class="" [code]=command></app-utm-code-view>
+      <app-utm-code-view class="" [code]="generateCommand()"></app-utm-code-view>
     </ng-container>
   `,
   styles: [`
@@ -56,7 +57,7 @@ export class InstallLogCollectorComponent {
   constructor(private modalService: ModalService) {
   }
 
-  get command() {
+  generateCommand() {
     return this.replaceAll(this.getCommand());
   }
 
@@ -117,4 +118,6 @@ export class InstallLogCollectorComponent {
 
     });
   }
+
+  protected readonly generate = generate;
 }

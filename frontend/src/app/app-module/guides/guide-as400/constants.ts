@@ -12,7 +12,7 @@ export const PLATFORM = [
 
         uninstall: `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
                    `Start-Process ".\\utmstack_collectors_installer.exe" -ArgumentList ` +
-                   `'uninstall', 'as400' -NoNewWindow -Wait -ErrorAction SilentlyContinue ` +
+                   ` 'uninstall', 'as400' -NoNewWindow -Wait -ErrorAction SilentlyContinue ` +
                    `| Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop', ` +
                    `'UTMStackAS400Collector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
                    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackAS400Collector' ` +
