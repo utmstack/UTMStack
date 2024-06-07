@@ -322,4 +322,18 @@ public class UtmCollectorResource {
                     HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
+
+    @DeleteMapping("/collectors/{id}")
+    public ResponseEntity<Void> deleteCollector(@PathVariable Long id) {
+
+        try {
+            log.debug("REST request to delete UtmCollector : {}", id);
+            collectorService.deleteCollector(id);
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("UtmCollector", id.toString())).build();
+        } catch (Exception e) {
+            applicationEventService.createEvent(e.getMessage(), ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("UtmCollector", null, e.getMessage())).body(null);
+        }
+    }
 }

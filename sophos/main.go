@@ -36,8 +36,6 @@ func main() {
 			continue
 		}
 
-		utils.Logger.Info("getting logs for groups")
-
 		var wg sync.WaitGroup
 		wg.Add(len(moduleConfig.ConfigurationGroups))
 
@@ -61,7 +59,6 @@ func main() {
 			}(group)
 		}
 
-		utils.Logger.Info("waiting %d seconds until sync completes", delayCheck)
 		wg.Wait()
 		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
 		time.Sleep(time.Second * delayCheck)

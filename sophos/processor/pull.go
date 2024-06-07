@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/logger"
+	"github.com/utmstack/UTMStack/sophos/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -12,6 +13,8 @@ const delayCheck = 300
 var timeGroups = make(map[int]int)
 
 func PullLogs(group types.ModuleGroup) *logger.Error {
+	utils.Logger.Info("starting log sync for : %s", group.GroupName)
+
 	epoch := int(time.Now().Unix())
 
 	_, ok := timeGroups[group.ModuleID]

@@ -1,26 +1,21 @@
 package com.park.utmstack.service.collectors;
 
 import agent.CollectorOuterClass;
-import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
-import com.park.utmstack.domain.network_scan.UtmNetworkScan;
-import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
-import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class UtmCollectorService {
@@ -29,6 +24,8 @@ public class UtmCollectorService {
 
     private final UtmCollectorRepository utmCollectorRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private final Logger log = LoggerFactory.getLogger(UtmCollectorService.class);
 
     public UtmCollectorService(UtmCollectorRepository utmCollectorRepository) {
         this.utmCollectorRepository = utmCollectorRepository;

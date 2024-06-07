@@ -25,4 +25,6 @@ public interface UtmModuleGroupRepository extends JpaRepository<UtmModuleGroup, 
     List<UtmModuleGroup> findAllByCollectorIsNotNull();
 
     void deleteAllByModuleId(Long moduleId);
+
+    void deleteAllByCollector(String id);
 }
