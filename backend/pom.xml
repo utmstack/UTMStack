@@ -326,7 +326,7 @@
         <dependency>
             <groupId>com.utmstack.grpc.jclient</groupId>
             <artifactId>collector-client-4j</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.5</version>
         </dependency>
 
         <!-- WebSocket dependency -->

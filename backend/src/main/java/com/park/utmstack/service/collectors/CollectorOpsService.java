@@ -15,15 +15,19 @@ import agent.Common;
 import agent.Common.ListRequest;
 import agent.Common.AuthResponse;
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 import com.park.utmstack.repository.UtmModuleGroupConfigurationRepository;
+import com.park.utmstack.repository.UtmModuleGroupRepository;
+import com.park.utmstack.repository.application_modules.UtmModuleRepository;
 import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
+import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
@@ -73,19 +77,28 @@ public class CollectorOpsService {
 
     private final UtmCollectorRepository utmCollectorRepository;
 
+    private final UtmModuleGroupRepository utmModuleGroupRepository;
+
     private final EntityManager em;
 
     private final UtmCollectorService utmCollectorService;
 
-    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository, UtmCollectorRepository utmCollectorRepository, EntityManager em, UtmCollectorService utmCollectorService) throws GrpcConnectionException {
+    private final UtmModuleService utmModuleService;
+
+    private final UtmModuleRepository utmModuleRepository;
+
+    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository, UtmCollectorRepository utmCollectorRepository, UtmModuleGroupRepository utmModuleGroupRepository, EntityManager em, UtmCollectorService utmCollectorService, UtmModuleService utmModuleService, UtmModuleRepository utmModuleRepository) throws GrpcConnectionException {
         this.grpcConnection = grpcConnection;
         this.panelCollectorService = new PanelCollectorService(grpcConnection);
         this.collectorService = new CollectorService(grpcConnection);
         this.moduleGroupService = moduleGroupService;
         this.utmModuleGroupConfigurationRepository = utmModuleGroupConfigurationRepository;
         this.utmCollectorRepository = utmCollectorRepository;
+        this.utmModuleGroupRepository = utmModuleGroupRepository;
         this.em = em;
         this.utmCollectorService = utmCollectorService;
+        this.utmModuleService = utmModuleService;
+        this.utmModuleRepository = utmModuleRepository;
     }
 
     /**
@@ -447,5 +460,34 @@ public class CollectorOpsService {
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
+    }
+
+    @Transactional
+    public void deleteCollector(Long id) throws Exception {
+        Optional<UtmCollector> collector = utmCollectorRepository.findById(id);
+        if (collector.isEmpty()) {
+            log.error(String.format("Collector with %1$s not found", id));
+            throw new RuntimeException(String.format("Collector with %1$s not found", id));
+        } else if (collector.get().isActive()) {
+            this.deleteCollector(collector.get().getHostname(), CollectorModuleEnum.AS_400);
+
+            List<UtmModuleGroup> modules = this.utmModuleGroupRepository.findAllByCollector(id.toString());
+            if(!modules.isEmpty()){
+                UtmModule module = utmModuleRepository.findById(modules.get(0).getModuleId()).get();
+
+                if(module.getModuleActive()){
+                    modules = this.utmModuleGroupRepository.findAllByModuleId(module.getId())
+                            .stream().filter( m -> !m.getCollector().equals(id.toString()))
+                            .collect(Collectors.toList());
+
+                    if(modules.isEmpty()){
+                        this.utmModuleService.activateDeactivate(module.getServerId(), module.getModuleName(), false);
+                    }
+                }
+            }
+            this.utmModuleGroupRepository.deleteAllByCollector(id.toString());
+        }
+
+        utmCollectorRepository.deleteById(id);
     }
 }
