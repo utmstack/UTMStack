@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/aws/aws-sdk-go v1.53.3
 	github.com/threatwinds/logger v1.1.9
-	github.com/utmstack/config-client-go v1.2.4
+	github.com/utmstack/config-client-go v1.2.5
 )
 
 require (

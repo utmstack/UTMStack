@@ -38,8 +38,6 @@ func (p *AWSProcessor) createAWSSession() (*session.Session, *logger.Error) {
 		return nil, utils.Logger.ErrorF("Region is not configured")
 	}
 
-	utils.Logger.Info("Creating AWS session in region: %s", p.RegionName)
-
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(p.RegionName),
 		Credentials: credentials.NewStaticCredentialsFromCreds(
