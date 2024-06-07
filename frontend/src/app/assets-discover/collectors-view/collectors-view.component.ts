@@ -1,23 +1,16 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
-import * as moment from 'moment';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {map} from 'rxjs/operators';
-import {UtmModulesEnum} from '../../app-module/shared/enum/utm-module.enum';
+import {of} from 'rxjs';
+import {catchError, finalize, map} from 'rxjs/operators';
 import {UtmModuleCollectorService} from '../../app-module/shared/services/utm-module-collector.service';
 import {UtmModuleCollectorType} from '../../app-module/shared/type/utm-module-collector.type';
 import {UtmModuleGroupConfType} from '../../app-module/shared/type/utm-module-group-conf.type';
-import {UtmModuleGroupType} from '../../app-module/shared/type/utm-module-group.type';
 import {AccountService} from '../../core/auth/account.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {ALERT_SENSOR_FIELD} from '../../shared/constants/alert/alert-field.constant';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
-import {ChartValueSeparator} from '../../shared/enums/chart-value-separator';
-import {ElasticOperatorsEnum} from '../../shared/enums/elastic-operators.enum';
 import {IncidentOriginTypeEnum} from '../../shared/enums/incident-response/incident-origin-type.enum';
 import {IncidentCommandType} from '../../shared/types/incident/incident-command.type';
 import {UtmFieldType} from '../../shared/types/table/utm-field.type';
@@ -87,7 +80,8 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
               private utmToastService: UtmToastService,
               private accountService: AccountService,
               private assetFiltersBehavior: AssetFiltersBehavior,
-              private collectorService: UtmModuleCollectorService) {
+              private collectorService: UtmModuleCollectorService,
+              private toast: UtmToastService) {
   }
 
   // Init get asset on time filter component trigger
@@ -119,10 +113,17 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
   }
   getCollectors() {
     this.collectorService.queryFilter(this.requestParam)
+        .pipe(
+            catchError(error => {
+              this.toast.showError('Error listing collectors',
+                  'An error occurred while trying to list the collectors. Please try again.');
+              return of(null);
+            }),
+            finalize(() => this.loading = false)
+        )
         .subscribe(response => {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
           this.collectors = response.body;
-          this.loading = false;
         });
   }
 
@@ -204,17 +205,6 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
     this.requestParam.page = 0;
     this.getCollectors();
   }
-
-  delete(asset: NetScanType) {
-    this.utmNetScanService.deleteCustomAsset(asset.id).subscribe(() => {
-      this.utmToastService.showSuccessBottom('Asset deleted successfully');
-      this.getCollectors();
-    }, () => {
-      this.utmToastService.showError('Error deleting asset',
-        'Error while trying to delete asset, please try again');
-    });
-  }
-
   getCollectorSource(asset: UtmModuleCollectorType) {
     if (asset.hostname && asset.ip) {
       return asset.hostname + ' (' + asset.ip + ')';
@@ -283,8 +273,40 @@ export class CollectorsViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  deleteCollector($event: MouseEvent, collector: UtmModuleCollectorType) {
+    event.stopPropagation();
+    const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
+    deleteModalRef.componentInstance.header = 'Delete collector';
+    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete this collector?';
+    deleteModalRef.componentInstance.confirmBtnText = 'Delete';
+    deleteModalRef.componentInstance.confirmBtnIcon = 'icon-display';
+    deleteModalRef.componentInstance.confirmBtnType = 'delete';
+    deleteModalRef.result.then(() => {
+      this.delete(collector);
+    });
+  }
+
+  delete(collector: UtmModuleCollectorType) {
+    this.loading = true;
+    this.collectorService.deleteCollector(collector.id)
+            .pipe(
+                catchError(error => {
+                  this.toast.showError('Error deleting collector',
+                      'An error occurred while trying to delete the collector. Please try again.');
+
+                  return of(null);
+                }),
+                finalize(() => this.loading = false)
+            )
+            .subscribe(() => {
+              this.getCollectors();
+              this.toast.showSuccessBottom(`${collector.hostname} deleted successfully`);
+            });
+  }
+
   ngOnDestroy(): void {
     this.stopInterval(true);
     this.assetFiltersBehavior.$assetFilter.next(null);
   }
+
 }

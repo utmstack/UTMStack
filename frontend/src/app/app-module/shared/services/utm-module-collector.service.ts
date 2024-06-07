@@ -42,6 +42,10 @@ export class UtmModuleCollectorService {
     return this.http.delete(`${this.resourceUrl + '/delete-single-module-group?groupId='}${conf}`, {observe: 'response'});
   }
 
+  deleteCollector(id: number | string): Observable<HttpResponse<any>> {
+    return this.http.delete(`${this.resourceUrl}/collectors/${id}`, {observe: 'response'});
+  }
+
   groups(collectorId: string): Observable<HttpResponse<UtmModuleGroupType[]>> {
     return this.http.get<UtmModuleGroupType[]>(`${this.resourceUrl}/groups-by-collectors/${collectorId}`, {observe: 'response'});
   }

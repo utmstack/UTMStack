@@ -34,7 +34,7 @@ export class IntCreateGroupComponent implements OnInit {
 
   ngOnInit() {
     this.formGroupConfig = this.fb.group({
-      collector: this.groupType === GroupTypeEnum.COLLECTOR ? ['', Validators.required] : [''],
+      collector: this.groupType === GroupTypeEnum.COLLECTOR ? ['', Validators.required] : [],
       groupDescription: [''],
       groupName: this.groupType === GroupTypeEnum.TENANT ? ['', Validators.required] : [],
       moduleId: [this.moduleId, [Validators.required]],
