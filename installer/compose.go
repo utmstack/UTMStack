@@ -248,6 +248,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"LOG_LEVEL=200",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -275,6 +276,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"LOG_LEVEL=200",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -301,6 +303,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"LOG_LEVEL=200",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
