@@ -163,20 +163,22 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			delete(s.CollectorStreamMap, collectorKey)
 			s.configMutex.Unlock()
 
-			err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
-			if err != nil {
-				h.ErrorF("failed to reconnect to client: %v", err)
-				return fmt.Errorf("failed to reconnect to client: %v", err)
-			}
+			return nil
 
-			collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
-			if err != nil {
-				return err
-			}
-			s.configMutex.Lock()
-			s.CollectorStreamMap[collectorKey] = stream
-			s.configMutex.Unlock()
-			continue
+			//err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
+			//if err != nil {
+			//	h.ErrorF("failed to reconnect to client: %v", err)
+			//	return fmt.Errorf("failed to reconnect to client: %v", err)
+			//}
+
+			// collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
+			// if err != nil {
+			// 	return err
+			// }
+			// s.configMutex.Lock()
+			// s.CollectorStreamMap[collectorKey] = stream
+			// s.configMutex.Unlock()
+			// continue
 		}
 		if err != nil {
 			s.configMutex.Lock()

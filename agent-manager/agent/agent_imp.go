@@ -135,20 +135,22 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 			delete(s.AgentStreamMap, agentKey)
 			s.mu.Unlock()
 
-			err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
-			if err != nil {
-				h.ErrorF("failed to reconnect to client: %v", err)
-				return fmt.Errorf("failed to reconnect to client: %v", err)
-			}
+			// err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
+			// if err != nil {
+			// 	h.ErrorF("failed to reconnect to client: %v", err)
+			// 	return fmt.Errorf("failed to reconnect to client: %v", err)
+			// }
 
-			agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
-			if err != nil {
-				return err
-			}
-			s.mu.Lock()
-			s.AgentStreamMap[agentKey] = stream
-			s.mu.Unlock()
-			continue
+			// agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
+			// if err != nil {
+			// 	return err
+			// }
+			// s.mu.Lock()
+			// s.AgentStreamMap[agentKey] = stream
+			// s.mu.Unlock()
+			// continue
+
+			return nil
 		}
 		if err != nil {
 			s.mu.Lock()
