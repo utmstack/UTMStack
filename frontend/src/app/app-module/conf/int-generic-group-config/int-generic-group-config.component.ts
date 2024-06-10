@@ -110,7 +110,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   editGroup(group: UtmModuleGroupType) {
-    if (this.groupType === GroupTypeEnum.COLLECTOR){
+    if (this.groupType === GroupTypeEnum.COLLECTOR) {
       group.collector = this.collectorList.find( c => c.id === Number(group.collector)).hostname;
     }
     const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
@@ -258,6 +258,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   saveCollectorConfig(collector: any) {
+    const collectorDto = this.collectorList.find(c => c.hostname === collector.collector);
     this.configs = [];
     collector.groups.forEach((item: { moduleGroupConfigurations: any; }) => {
       const configurations = item.moduleGroupConfigurations;
@@ -268,7 +269,10 @@ export class IntGenericGroupConfigComponent implements OnInit {
         moduleId: this.moduleId,
         keys: this.configs
       },
-      collector: this.collectorList.find(c => c.hostname === collector.collector),
+      collector: {
+        ... collectorDto,
+        group: null,
+      },
     };
     this.collectorService.create(body).subscribe(response => {
       this.savingConfig = false;
