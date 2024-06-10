@@ -52,13 +52,12 @@ func (s *LastSeenService) flushCacheToDB() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	lastSeenObj := &models.LastSeen{}
 	// Update the existing records in the database based on the cache data
 	for key, lastSeen := range s.cache {
-		agentLastSeen := &models.LastSeen{
-			Key:      key,
-			LastPing: lastSeen,
-		}
-		err := s.repo.Update(agentLastSeen)
+		lastSeenObj.Key = key
+		lastSeenObj.LastPing = lastSeen
+		err := s.repo.Update(lastSeenObj)
 		if err != nil {
 			return err
 		}
