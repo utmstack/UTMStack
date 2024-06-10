@@ -110,7 +110,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   editGroup(group: UtmModuleGroupType) {
-    if(this.groupType === GroupTypeEnum.COLLECTOR){
+    if (this.groupType === GroupTypeEnum.COLLECTOR){
       group.collector = this.collectorList.find( c => c.id === Number(group.collector)).hostname;
     }
     const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
