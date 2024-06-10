@@ -38,7 +38,8 @@
         </button>
         <button class="btn utm-button utm-button-primary"
                 (click)="saveCollectorConfig(collector)"
-        [disabled]="!collectorValid(collector.groups) || savingConfig">
+        [disabled]="(!collectorValid(collector.groups) || savingConfig) ||
+        (collectorValid(collector.groups) && changes && changes.keys.length === 0)">
           <i class="icon-cog5 mr-1"></i>
           Save collector
         </button>

@@ -4,6 +4,7 @@ import (
 	"path"
 
 	"github.com/utmstack/UTMStack/installer/templates"
+	"github.com/utmstack/UTMStack/installer/types"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
@@ -21,12 +22,8 @@ func InstallNginx() error {
 	return nil
 }
 
-type NginxConfig struct {
-	SharedKey string
-}
-
-func ConfigureNginx(conf *Config, stack *StackConfig) error {
-	c := NginxConfig{
+func ConfigureNginx(conf *types.Config, stack *types.StackConfig) error {
+	c := types.NginxConfig{
 		SharedKey: conf.InternalKey,
 	}
 

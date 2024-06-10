@@ -5,10 +5,11 @@ import (
 	"path"
 	"time"
 
+	"github.com/utmstack/UTMStack/installer/types"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Master(c *Config) error {
+func Master(c *types.Config) error {
 	if err := utils.CheckCPU(2); err != nil {
 		return err
 	}
@@ -19,7 +20,7 @@ func Master(c *Config) error {
 
 	fmt.Println("Generating Stack configuration")
 
-	var stack = new(StackConfig)
+	var stack = new(types.StackConfig)
 	if err := stack.Populate(c); err != nil {
 		return err
 	}
