@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/utmstack/UTMStack/installer/utils"
+	"github.com/utmstack/UTMStack/installer/types"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	var config = new(Config)
+	var config = new(types.Config)
 	config.Get()
 
 	mainIP, err := utils.GetMainIP()
