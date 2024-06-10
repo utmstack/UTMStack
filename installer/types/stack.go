@@ -54,7 +54,7 @@ func (s *StackConfig) Populate(c *Config) error {
 		{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
 		{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 		{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
-		{Name: "agentmanager", Priority: 3, MinMemory: 100, MaxMemory: 1024},
+		{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 		{Name: "mutate", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "aws", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 512},
