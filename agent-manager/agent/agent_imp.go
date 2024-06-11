@@ -127,6 +127,10 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 	}
 
 	s.agentStreamMutex.Lock()
+	if _, ok := s.AgentStreamMap[agentKey]; ok {
+		s.agentStreamMutex.Unlock()
+		return fmt.Errorf("agent already connected")
+	}
 	s.AgentStreamMap[agentKey] = stream
 	s.agentStreamMutex.Unlock()
 

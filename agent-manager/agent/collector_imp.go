@@ -161,6 +161,10 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 	}
 
 	s.collectorStreamMutex.Lock()
+	if _, ok := s.CollectorStreamMap[collectorKey]; ok {
+		s.collectorStreamMutex.Unlock()
+		return fmt.Errorf("client %s is already connected", collectorKey)
+	}
 	s.CollectorStreamMap[collectorKey] = stream
 	s.collectorStreamMutex.Unlock()
 
