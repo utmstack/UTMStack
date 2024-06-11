@@ -163,8 +163,8 @@ public class UserJWTController {
             if (tokenInfo.length != 2)
                 throw new InvalidConnectionKeyException("Connection key is corrupt, length is invalid");
 
-            if (!tokenInfo[0].equals(System.getenv(Constants.ENV_SERVER_NAME)))
-                throw new InvalidConnectionKeyException("Connection key is corrupt, unrecognized instance");
+            /*if (!tokenInfo[0].equals(System.getenv(Constants.ENV_SERVER_NAME)))
+                throw new InvalidConnectionKeyException("Connection key is corrupt, unrecognized instance");*/
 
             UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(Constants.FS_USER, CipherUtil.decrypt(tokenInfo[1], System.getenv(Constants.ENV_ENCRYPTION_KEY)));
