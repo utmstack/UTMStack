@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/service"
+	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -173,32 +175,32 @@ func (s *Grpc) GetStreamAuth(stream interface{}) (AuthResponse, error) {
 }
 
 // Wait for the client to reconnect
-// func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
-// 	var stream grpc.ServerStream
-// 	if connectorType == ConnectorType_COLLECTOR {
-// 		stream = s.CollectorStreamMap[key]
-// 	} else {
-// 		stream = s.AgentStreamMap[key]
-// 	}
+func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
+	var stream grpc.ServerStream
+	if connectorType == ConnectorType_COLLECTOR {
+		stream = s.CollectorStreamMap[key]
+	} else {
+		stream = s.AgentStreamMap[key]
+	}
 
-// 	attempts := 0
-// 	for attempts < 10 {
-// 		select {
-// 		case <-ctx.Done():
-// 			return fmt.Errorf("context canceled: %v", ctx.Err())
-// 		default:
-// 			// Check if the stream is still valid
-// 			err := stream.Context().Err()
-// 			if err == nil {
-// 				// StreamAgent is still valid, return nil
-// 				time.Sleep(time.Second)
-// 				return nil
-// 			} else {
-// 				// Stream is not valid, wait for a moment and try again
-// 				time.Sleep(time.Second)
-// 				attempts++
-// 			}
-// 		}
-// 	}
-// 	return fmt.Errorf("stream is not valid")
-// }
+	attempts := 0
+	for attempts < 10 {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context canceled: %v", ctx.Err())
+		default:
+			// Check if the stream is still valid
+			err := stream.Context().Err()
+			if err == nil {
+				// StreamAgent is still valid, return nil
+				time.Sleep(time.Second)
+				return nil
+			} else {
+				// Stream is not valid, wait for a moment and try again
+				time.Sleep(time.Second)
+				attempts++
+			}
+		}
+	}
+	return fmt.Errorf("stream is not valid")
+}

@@ -119,6 +119,9 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 	s.CollectorStreamMap[collectorKey] = stream
 	s.mu.Unlock()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)
 		defer ticker.Stop()
@@ -152,6 +155,10 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			case <-stream.Context().Done():
 				// If the stream is done, stop the goroutine
 				return
+
+			case <-ctx.Done():
+				// If the context is done, stop the goroutine
+				return
 			}
 		}
 	}()
@@ -159,26 +166,26 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			s.configMutex.Lock()
-			delete(s.CollectorStreamMap, collectorKey)
-			s.configMutex.Unlock()
+			err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
+			if err != nil {
+				s.configMutex.Lock()
+				delete(s.CollectorStreamMap, collectorKey)
+				s.configMutex.Unlock()
 
-			return nil
+				h.ErrorF("failed to reconnect to client: %v", err)
+				return fmt.Errorf("failed to reconnect to client: %v", err)
+			}
 
-			//err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
-			//if err != nil {
-			//	h.ErrorF("failed to reconnect to client: %v", err)
-			//	return fmt.Errorf("failed to reconnect to client: %v", err)
-			//}
+			collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
+			if err != nil {
+				s.configMutex.Lock()
+				delete(s.CollectorStreamMap, collectorKey)
+				s.configMutex.Unlock()
 
-			// collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
-			// if err != nil {
-			// 	return err
-			// }
-			// s.configMutex.Lock()
-			// s.CollectorStreamMap[collectorKey] = stream
-			// s.configMutex.Unlock()
-			// continue
+				return err
+			}
+
+			continue
 		}
 		if err != nil {
 			s.configMutex.Lock()
