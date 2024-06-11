@@ -52,9 +52,9 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 		return nil, err
 	}
 
-	s.cacheMutex.Lock()
+	s.cacheAgentMutex.Lock()
 	CacheAgent[agent.ID] = key
-	s.cacheMutex.Unlock()
+	s.cacheAgentMutex.Unlock()
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
@@ -89,10 +89,13 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
-	s.cacheMutex.Lock()
-	delete(s.AgentStreamMap, key)
+	s.cacheAgentMutex.Lock()
 	delete(CacheAgent, id)
-	s.cacheMutex.Unlock()
+	s.cacheAgentMutex.Unlock()
+
+	s.agentStreamMutex.Lock()
+	delete(s.AgentStreamMap, key)
+	s.agentStreamMutex.Unlock()
 
 	h.Info("Agent with key %s deleted by %s", key, req.DeletedBy)
 
@@ -123,18 +126,18 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 		return err
 	}
 
-	s.mu.Lock()
+	s.agentStreamMutex.Lock()
 	s.AgentStreamMap[agentKey] = stream
-	s.mu.Unlock()
+	s.agentStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
 			err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
 			if err != nil {
-				s.mu.Lock()
+				s.agentStreamMutex.Lock()
 				delete(s.AgentStreamMap, agentKey)
-				s.mu.Unlock()
+				s.agentStreamMutex.Unlock()
 
 				h.ErrorF("failed to reconnect to client: %v", err)
 				return fmt.Errorf("failed to reconnect to client: %v", err)
@@ -142,9 +145,9 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 
 			agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
 			if err != nil {
-				s.mu.Lock()
+				s.agentStreamMutex.Lock()
 				delete(s.AgentStreamMap, agentKey)
-				s.mu.Unlock()
+				s.agentStreamMutex.Unlock()
 
 				return err
 			}
@@ -152,9 +155,9 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 			continue
 		}
 		if err != nil {
-			s.mu.Lock()
+			s.agentStreamMutex.Lock()
 			delete(s.AgentStreamMap, agentKey)
-			s.mu.Unlock()
+			s.agentStreamMutex.Unlock()
 			return err
 		}
 

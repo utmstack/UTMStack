@@ -59,6 +59,7 @@ func main() {
 
 	pb.RegisterCollectorServiceServer(grpcServer, s)
 	pb.RegisterPanelCollectorServiceServer(grpcServer, s)
+	s.ProcessPendingConfigs()
 
 	pb.RegisterPingServiceServer(grpcServer, s)
 

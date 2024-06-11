@@ -34,14 +34,14 @@ type Grpc struct {
 	UnimplementedPanelCollectorServiceServer
 	UnimplementedPingServiceServer
 	// Mutex to protect concurrent access to the agents map
-	mu          sync.Mutex
-	configMutex sync.Mutex
+	agentStreamMutex     sync.Mutex
+	collectorStreamMutex sync.Mutex
 
 	// Map to store connected agents and their gRPC streams
 	AgentStreamMap     map[string]AgentService_AgentStreamServer
 	CollectorStreamMap map[string]CollectorService_CollectorStreamServer
 	// AgentCache to store agentToken  and agentId
-	cacheMutex          sync.Mutex
+	cacheAgentMutex     sync.Mutex
 	cacheCollectorMutex sync.Mutex
 
 	ResultChannel  map[string]chan *CommandResult
@@ -113,9 +113,9 @@ func (s *Grpc) getAuthCacheMutex(connectorType ConnectorType) *sync.Mutex {
 	case ConnectorType_COLLECTOR:
 		return &s.cacheCollectorMutex
 	case ConnectorType_AGENT:
-		return &s.cacheMutex
+		return &s.cacheAgentMutex
 	default:
-		return &s.cacheMutex // or &s.cacheMutex as a fallback
+		return &s.cacheAgentMutex // or &s.cacheMutex as a fallback
 	}
 }
 
