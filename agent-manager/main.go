@@ -4,6 +4,9 @@ import (
 	"context"
 	"net"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	pb "github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/auth"
 	"github.com/utmstack/UTMStack/agent-manager/config"
@@ -17,6 +20,11 @@ import (
 )
 
 func main() {
+	go func() {
+		// http://localhost:6060/debug/pprof/
+		http.ListenAndServe("0.0.0.0:6060", nil)
+	}()
+
 	h := util.GetLogger()
 
 	defer func() {
@@ -51,6 +59,7 @@ func main() {
 
 	pb.RegisterCollectorServiceServer(grpcServer, s)
 	pb.RegisterPanelCollectorServiceServer(grpcServer, s)
+	s.ProcessPendingConfigs()
 
 	pb.RegisterPingServiceServer(grpcServer, s)
 

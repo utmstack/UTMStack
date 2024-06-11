@@ -52,9 +52,9 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 		return nil, err
 	}
 
-	s.cacheMutex.Lock()
+	s.cacheAgentMutex.Lock()
 	CacheAgent[agent.ID] = key
-	s.cacheMutex.Unlock()
+	s.cacheAgentMutex.Unlock()
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
@@ -89,10 +89,13 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
-	s.cacheMutex.Lock()
-	delete(s.AgentStreamMap, key)
+	s.cacheAgentMutex.Lock()
 	delete(CacheAgent, id)
-	s.cacheMutex.Unlock()
+	s.cacheAgentMutex.Unlock()
+
+	s.agentStreamMutex.Lock()
+	delete(s.AgentStreamMap, key)
+	s.agentStreamMutex.Unlock()
 
 	h.Info("Agent with key %s deleted by %s", key, req.DeletedBy)
 
@@ -123,39 +126,42 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 		return err
 	}
 
-	s.mu.Lock()
+	s.agentStreamMutex.Lock()
+	if _, ok := s.AgentStreamMap[agentKey]; ok {
+		s.agentStreamMutex.Unlock()
+		return fmt.Errorf("agent already connected")
+	}
 	s.AgentStreamMap[agentKey] = stream
-	s.mu.Unlock()
+	s.agentStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			// Remove the agent from the agents map if the connection is closed
-			s.mu.Lock()
-			delete(s.AgentStreamMap, agentKey)
-			s.mu.Unlock()
+			err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
+			if err != nil {
+				s.agentStreamMutex.Lock()
+				delete(s.AgentStreamMap, agentKey)
+				s.agentStreamMutex.Unlock()
 
-			// err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
-			// if err != nil {
-			// 	h.ErrorF("failed to reconnect to client: %v", err)
-			// 	return fmt.Errorf("failed to reconnect to client: %v", err)
-			// }
+				h.ErrorF("failed to reconnect to client: %v", err)
+				return fmt.Errorf("failed to reconnect to client: %v", err)
+			}
 
-			// agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
-			// if err != nil {
-			// 	return err
-			// }
-			// s.mu.Lock()
-			// s.AgentStreamMap[agentKey] = stream
-			// s.mu.Unlock()
-			// continue
+			agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
+			if err != nil {
+				s.agentStreamMutex.Lock()
+				delete(s.AgentStreamMap, agentKey)
+				s.agentStreamMutex.Unlock()
 
-			return nil
+				return err
+			}
+
+			continue
 		}
 		if err != nil {
-			s.mu.Lock()
+			s.agentStreamMutex.Lock()
 			delete(s.AgentStreamMap, agentKey)
-			s.mu.Unlock()
+			s.agentStreamMutex.Unlock()
 			return err
 		}
 
