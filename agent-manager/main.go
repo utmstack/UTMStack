@@ -21,9 +21,8 @@ import (
 
 func main() {
 	go func() {
-		// Inicia un servidor HTTP en el puerto 6060 (puedes cambiar esto a cualquier puerto que prefieras)
-		// Las rutas de pprof estarán disponibles en http://localhost:6060/debug/pprof/
-		http.ListenAndServe("localhost:6060", nil)
+		// http://localhost:6060/debug/pprof/
+		http.ListenAndServe("0.0.0.0:6060", nil)
 	}()
 
 	h := util.GetLogger()
