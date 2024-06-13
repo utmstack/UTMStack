@@ -15,7 +15,8 @@
              ngbTooltip="Add configuration">
          </i>
 
-          <i (click)="deleteCollectorConfig(collector)" class="icon-cross2 ml-2 cursor-pointer"
+          <i *ngIf="(collectorValid(collector.groups) && this.changes.keys.length === 0)"
+             (click)="deleteCollectorConfig(collector)" class="icon-cross2 ml-2 cursor-pointer"
              ngbTooltip="Delete collector">
          </i>
        </span>
