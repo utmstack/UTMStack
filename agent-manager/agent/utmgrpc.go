@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/service"
+	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -32,14 +34,14 @@ type Grpc struct {
 	UnimplementedPanelCollectorServiceServer
 	UnimplementedPingServiceServer
 	// Mutex to protect concurrent access to the agents map
-	mu          sync.Mutex
-	configMutex sync.Mutex
+	agentStreamMutex     sync.Mutex
+	collectorStreamMutex sync.Mutex
 
 	// Map to store connected agents and their gRPC streams
 	AgentStreamMap     map[string]AgentService_AgentStreamServer
 	CollectorStreamMap map[string]CollectorService_CollectorStreamServer
 	// AgentCache to store agentToken  and agentId
-	cacheMutex          sync.Mutex
+	cacheAgentMutex     sync.Mutex
 	cacheCollectorMutex sync.Mutex
 
 	ResultChannel  map[string]chan *CommandResult
@@ -111,9 +113,9 @@ func (s *Grpc) getAuthCacheMutex(connectorType ConnectorType) *sync.Mutex {
 	case ConnectorType_COLLECTOR:
 		return &s.cacheCollectorMutex
 	case ConnectorType_AGENT:
-		return &s.cacheMutex
+		return &s.cacheAgentMutex
 	default:
-		return &s.cacheMutex // or &s.cacheMutex as a fallback
+		return &s.cacheAgentMutex // or &s.cacheMutex as a fallback
 	}
 }
 
@@ -173,32 +175,32 @@ func (s *Grpc) GetStreamAuth(stream interface{}) (AuthResponse, error) {
 }
 
 // Wait for the client to reconnect
-// func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
-// 	var stream grpc.ServerStream
-// 	if connectorType == ConnectorType_COLLECTOR {
-// 		stream = s.CollectorStreamMap[key]
-// 	} else {
-// 		stream = s.AgentStreamMap[key]
-// 	}
+func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
+	var stream grpc.ServerStream
+	if connectorType == ConnectorType_COLLECTOR {
+		stream = s.CollectorStreamMap[key]
+	} else {
+		stream = s.AgentStreamMap[key]
+	}
 
-// 	attempts := 0
-// 	for attempts < 10 {
-// 		select {
-// 		case <-ctx.Done():
-// 			return fmt.Errorf("context canceled: %v", ctx.Err())
-// 		default:
-// 			// Check if the stream is still valid
-// 			err := stream.Context().Err()
-// 			if err == nil {
-// 				// StreamAgent is still valid, return nil
-// 				time.Sleep(time.Second)
-// 				return nil
-// 			} else {
-// 				// Stream is not valid, wait for a moment and try again
-// 				time.Sleep(time.Second)
-// 				attempts++
-// 			}
-// 		}
-// 	}
-// 	return fmt.Errorf("stream is not valid")
-// }
+	attempts := 0
+	for attempts < 10 {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context canceled: %v", ctx.Err())
+		default:
+			// Check if the stream is still valid
+			err := stream.Context().Err()
+			if err == nil {
+				// StreamAgent is still valid, return nil
+				time.Sleep(time.Second)
+				return nil
+			} else {
+				// Stream is not valid, wait for a moment and try again
+				time.Sleep(time.Second)
+				attempts++
+			}
+		}
+	}
+	return fmt.Errorf("stream is not valid")
+}

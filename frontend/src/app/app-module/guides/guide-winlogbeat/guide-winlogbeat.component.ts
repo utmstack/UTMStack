@@ -41,8 +41,8 @@ export class GuideWinlogbeatComponent implements OnInit {
       `-ArgumentList 'install', '` + ip  + `', '<secret>` + this.token + `</secret>', 'yes' -NoNewWindow -Wait`;
   }
   getUninstallCommand(): string {
-    return `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_installer.exe" -ArgumentList` +
-            `uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+    return `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_installer.exe" -ArgumentList ` +
+            `'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
             `-ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
             `-ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
             `-ArgumentList 'stop','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +

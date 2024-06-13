@@ -32,7 +32,7 @@ export const PLATFORM = [
                  `wget https://storage.googleapis.com/utmstack-updates/collectors/linux-as400-collector.zip ` +
                  `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 777 ` +
                  `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
-                 `V_IP <secret>V_TOKEN</secret> `,
+                 `V_IP <secret>V_TOKEN</secret>"`,
 
         uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer ` +
                    `uninstall as400 && echo 'Removing UTMStack AS400 Collector dependencies...' && sleep 5 && rm ` +

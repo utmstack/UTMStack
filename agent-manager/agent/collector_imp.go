@@ -44,9 +44,9 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 		return nil, err
 	}
 
-	s.cacheMutex.Lock()
+	s.cacheCollectorMutex.Lock()
 	CacheCollector[collector.ID] = key
-	s.cacheMutex.Unlock()
+	s.cacheCollectorMutex.Unlock()
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
@@ -82,9 +82,12 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 	}
 
 	s.cacheCollectorMutex.Lock()
-	delete(s.CollectorStreamMap, key)
 	delete(CacheCollector, id)
 	s.cacheCollectorMutex.Unlock()
+
+	s.collectorStreamMutex.Lock()
+	delete(s.CollectorStreamMap, key)
+	s.collectorStreamMutex.Unlock()
 
 	h.Info("Collector with key %s deleted by %s", key, req.DeletedBy)
 
@@ -108,37 +111,34 @@ func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollec
 	return convertToCollectorResponse(collectors, total)
 }
 
-func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) error {
+func (s *Grpc) ProcessPendingConfigs() {
 	h := util.GetLogger()
-	collectorKey, err := s.authenticateConnector(stream, ConnectorType_COLLECTOR)
-	if err != nil {
-		return err
-	}
-
-	s.mu.Lock()
-	s.CollectorStreamMap[collectorKey] = stream
-	s.mu.Unlock()
 
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)
 		defer ticker.Stop()
 
-		for {
-			select {
-			case <-ticker.C:
-				s.pendingConfigM.Lock()
-				_, ok := s.PendingConfigs[collectorKey]
-				s.pendingConfigM.Unlock()
+		for range ticker.C {
+			s.pendingConfigM.Lock()
+			copyPendingConfigs := make(map[string]string)
+			for key, value := range s.PendingConfigs {
+				copyPendingConfigs[key] = value
+			}
+			s.pendingConfigM.Unlock()
+
+			for key := range copyPendingConfigs {
+
+				s.collectorStreamMutex.Lock()
+				stream, ok := s.CollectorStreamMap[key]
+				s.collectorStreamMutex.Unlock()
 
 				if ok {
-					// get config from db
-					collector, err := collectorService.GetByKey(collectorKey)
+					collector, err := collectorService.GetByKey(key)
 					if err != nil {
 						h.ErrorF("unable to get collector config to send config to stream : %v", err)
 						continue
 					}
 
-					// Send the configuration to the stream
 					err = stream.Send(&CollectorMessages{
 						StreamMessage: &CollectorMessages_Config{
 							Config: convertToCollectorConfig(collector),
@@ -148,42 +148,54 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 						h.ErrorF("failed to send config to collector: %v", err)
 					}
 				}
-
-			case <-stream.Context().Done():
-				// If the stream is done, stop the goroutine
-				return
 			}
 		}
 	}()
+}
+
+func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) error {
+	h := util.GetLogger()
+	collectorKey, err := s.authenticateConnector(stream, ConnectorType_COLLECTOR)
+	if err != nil {
+		return err
+	}
+
+	s.collectorStreamMutex.Lock()
+	if _, ok := s.CollectorStreamMap[collectorKey]; ok {
+		s.collectorStreamMutex.Unlock()
+		return fmt.Errorf("client %s is already connected", collectorKey)
+	}
+	s.CollectorStreamMap[collectorKey] = stream
+	s.collectorStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			s.configMutex.Lock()
-			delete(s.CollectorStreamMap, collectorKey)
-			s.configMutex.Unlock()
+			err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
+			if err != nil {
+				s.collectorStreamMutex.Lock()
+				delete(s.CollectorStreamMap, collectorKey)
+				s.collectorStreamMutex.Unlock()
 
-			return nil
+				h.ErrorF("failed to reconnect to client: %v", err)
+				return fmt.Errorf("failed to reconnect to client: %v", err)
+			}
 
-			//err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
-			//if err != nil {
-			//	h.ErrorF("failed to reconnect to client: %v", err)
-			//	return fmt.Errorf("failed to reconnect to client: %v", err)
-			//}
+			collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
+			if err != nil {
+				s.collectorStreamMutex.Lock()
+				delete(s.CollectorStreamMap, collectorKey)
+				s.collectorStreamMutex.Unlock()
 
-			// collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
-			// if err != nil {
-			// 	return err
-			// }
-			// s.configMutex.Lock()
-			// s.CollectorStreamMap[collectorKey] = stream
-			// s.configMutex.Unlock()
-			// continue
+				return err
+			}
+
+			continue
 		}
 		if err != nil {
-			s.configMutex.Lock()
+			s.collectorStreamMutex.Lock()
 			delete(s.CollectorStreamMap, collectorKey)
-			s.configMutex.Unlock()
+			s.collectorStreamMutex.Unlock()
 			return err
 		}
 
