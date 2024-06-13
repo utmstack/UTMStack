@@ -62,6 +62,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
   // Init get group on time filter component trigger
   viewGroupDetail: AssetGroupType;
   type = GroupTypeEnum.ASSET;
+  GroupTypeEnum = GroupTypeEnum;
 
   constructor(private utmAssetGroupService: UtmAssetGroupService,
               private modalService: NgbModal,
@@ -74,7 +75,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params.type) {
-        this.type = params.type;
+        this.type = GroupTypeEnum.COLLECTOR;
         this.fieldFilters = COLLECTORS_GROUP_FIELDS_FILTERS;
         this.requestParam.assetType  = GroupTypeEnum.COLLECTOR;
       }
@@ -229,6 +230,11 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
 
   addGroup() {
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
+    modalGroup.componentInstance.group = {
+      groupDescription: '',
+      groupName: '',
+      type: this.type
+    };
     modalGroup.componentInstance.addGroup.subscribe(() => {
       this.getAssetsGroups();
     });
@@ -236,7 +242,10 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
 
   editGroup(group: AssetGroupType) {
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
-    modalGroup.componentInstance.group = group;
+    modalGroup.componentInstance.group = {
+      ...group,
+      type: this.type
+    };
     modalGroup.componentInstance.addGroup.subscribe(() => {
       this.getAssetsGroups();
     });
