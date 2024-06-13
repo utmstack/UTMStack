@@ -40,6 +40,84 @@ AS
             ]]>
         </createProcedure>
         <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_fortiweb(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('FortiWeb',
+                    'FortiWeb is a web application firewall (WAF) developed by Fortinet. It provides protection for web applications against various types of attacks, including SQL injection, cross-site scripting (XSS), and other common web exploits.',
+                    FALSE,
+                    'fortigate.svg',
+                    'FORTIWEB',
+                    srv_id,
+                    'Device',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'FortiWeb',
+                                                            module_icon        = 'fortigate.svg',
+                                                            module_name        = 'FORTIWEB',
+                                                            module_category    = 'Device',
+                                                            module_description = 'FortiWeb is a web application firewall (WAF) developed by Fortinet. It provides protection for web applications against various types of attacks, including SQL injection, cross-site scripting (XSS), and other common web exploits.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_aix(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('IBM AIX',
+                    'AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms.',
+                    FALSE,
+                    'aix.svg',
+                    'AIX',
+                    srv_id,
+                    'Device',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'IBM AIX',
+                                                            module_icon        = 'aix.svg',
+                                                            module_name        = 'AIX',
+                                                            module_category    = 'Device',
+                                                            module_description = 'AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
             <![CDATA[
                 create or replace function register_integrations(srv_id integer, srv_type character varying)
                     returns void
