@@ -9,7 +9,7 @@
         <i class="icon-cog3 mr-1"></i> Manage source view
       </button>-->
       <button class="btn utm-button utm-button-primary ml-2"
-              routerLink="/data-sources/sources-groups">
+              routerLink="/data-sources/collectors-groups" [queryParams]="{ type: 'collector' }">
         <i class="icon-grid-alt mr-1"></i> Manage groups
       </button>
      <!-- <button class="btn utm-button utm-button-primary ml-2"
