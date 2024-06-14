@@ -649,9 +649,6 @@ AS
                     INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
                     VALUES (67,'log-ibm-as400-*', 'AS_400', true, true);
 
-                    INSERT INTO utm_data_source_config (data_type, data_type_name, system_owner, included)
-                    VALUES ( 'as_400', 'AS_400', true, true);
-
                     INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
                     VALUES (265, 'AS_400', 'discover/log-analyzer?patternId=66&indexPattern=log-ibm-as400-*', 200, 1, null, 65, false, false, null, 'AS_400');
 
