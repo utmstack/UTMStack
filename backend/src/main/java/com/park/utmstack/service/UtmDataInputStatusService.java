@@ -194,11 +194,9 @@ public class UtmDataInputStatusService {
     public void synchronizeSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
-            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalseOrDataType(DataSourceConstants.IBM_AS400_TYPE).stream()
-                    .map(UtmDataSourceConfig::getDataType)
-                    .collect(Collectors.toList());
-
-            excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack"));
+            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalse().stream()
+                    .map(UtmDataSourceConfig::getDataType).collect(Collectors.toList());
+            excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
             List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
             if (CollectionUtils.isEmpty(sources))
