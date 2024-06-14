@@ -13,6 +13,7 @@ import com.park.utmstack.repository.UtmDataSourceConfigRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
@@ -52,8 +53,6 @@ public class UtmDataInputStatusService {
     private final ElasticsearchService elasticsearchService;
     private final UtmDataSourceConfigRepository dataSourceConfigRepository;
     private final UtmNetworkScanRepository networkScanRepository;
-
-    private static final String IBM_AS400_TYPE = "ibm-as400";
 
 
     public UtmDataInputStatusService(UtmDataInputStatusRepository dataInputStatusRepository,
@@ -195,7 +194,7 @@ public class UtmDataInputStatusService {
     public void synchronizeSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
-            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalseOrDataType(IBM_AS400_TYPE).stream()
+            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalseOrDataType(DataSourceConstants.IBM_AS400_TYPE).stream()
                     .map(UtmDataSourceConfig::getDataType)
                     .collect(Collectors.toList());
 

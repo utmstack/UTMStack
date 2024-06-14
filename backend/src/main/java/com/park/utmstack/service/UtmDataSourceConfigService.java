@@ -7,6 +7,7 @@ import com.park.utmstack.repository.UtmDataSourceConfigRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmDataSourceConfigDTO;
+import com.park.utmstack.service.network_scan.DataSourceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -104,7 +105,7 @@ public class UtmDataSourceConfigService {
         final String ctx = CLASSNAME + ".synchronizeDatasourceConfigurations";
         try {
             // Getting data sources that are not configured
-            List<String> newDataSources = dataInputStatusRepository.findDataSourcesToConfigure();
+            List<String> newDataSources = dataInputStatusRepository.findDataSourcesToConfigure(DataSourceConstants.IBM_AS400_TYPE);
 
             // Getting all orphan data sources configuration
             List<UtmDataSourceConfig> orphanConfigurations = dataSourceConfigRepository.findOrphanDataSourceConfigurations();
