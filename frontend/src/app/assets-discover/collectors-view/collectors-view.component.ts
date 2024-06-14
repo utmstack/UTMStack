@@ -29,7 +29,7 @@ import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
 
 @Component({
-  selector: 'app-assets-view',
+  selector: 'app-collectors-view',
   templateUrl: './collectors-view.component.html',
   styleUrls: ['./collectors-view.component.scss']
 })

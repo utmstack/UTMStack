@@ -1,12 +1,16 @@
 <div class="container-fluid pr-3 pl-3 pt-2">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 text-uppercase label-header">
-      Sources Groups
+      {{type === GroupTypeEnum.ASSET ? 'Sources Groups' : 'Collectors Groups'}}
     </h5>
     <div class="header-elements">
-      <button class="btn utm-button utm-button-primary ml-2"
+      <button *ngIf="type === GroupTypeEnum.ASSET" class="btn utm-button utm-button-primary ml-2"
               routerLink="/data-sources/sources">
         <i class="icon-display mr-2"></i> View sources
+      </button>
+      <button *ngIf="type === GroupTypeEnum.COLLECTOR" class="btn utm-button utm-button-primary ml-2"
+              routerLink="/data-sources/collectors">
+        <i class="icon-display mr-2"></i> View collectors
       </button>
       <button (click)="addGroup()"
               class="btn utm-button utm-button-primary ml-2">

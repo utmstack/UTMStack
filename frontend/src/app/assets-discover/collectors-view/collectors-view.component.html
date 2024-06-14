@@ -9,7 +9,7 @@
         <i class="icon-cog3 mr-1"></i> Manage source view
       </button>-->
       <button class="btn utm-button utm-button-primary ml-2"
-              routerLink="/data-sources/sources-groups">
+              routerLink="/data-sources/collectors-groups" [queryParams]="{ type: 'collector' }">
         <i class="icon-grid-alt mr-1"></i> Manage groups
       </button>
      <!-- <button class="btn utm-button utm-button-primary ml-2"
@@ -257,7 +257,7 @@
     <div class="title d-flex justify-content-between  align-items-center border-bottom-1
      border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">
-        Agent {{agent}} detail
+        Collector {{agent}} detail
       </h6>
       <button (click)="closeDetail()" aria-label="Close"
               class="close button-close" type="button">

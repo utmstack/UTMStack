@@ -71,7 +71,7 @@
             (click)="editGroup(group)"
             ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Edit tenant' : 'Edit collector'}}">
          </i>
-            <i *ngIf="(collectorValid(groups) && this.changes.keys.length === 0)"
+            <i *ngIf="showClose(group, groups)"
                class="icon-cross2 ml-2 cursor-pointer"
                (click)="deleteGroup(group)"
                ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Delete tenant' : 'Delete collector'}}">

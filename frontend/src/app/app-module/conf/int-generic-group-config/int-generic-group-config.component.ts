@@ -26,7 +26,7 @@ import {UtmModuleGroupType} from '../../shared/type/utm-module-group.type';
 export class IntGenericGroupConfigComponent implements OnInit {
   @Input() serverId: number;
   @Input() moduleId: number;
-  @Input() groupType: number = GroupTypeEnum.TENANT;
+  @Input() groupType = GroupTypeEnum.TENANT;
   @Input() allowAdd = true;
   @Input() editable = true;
   @Output() configValidChange = new EventEmitter<boolean>();
@@ -40,7 +40,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
   collectors: any[];
   collectorList: UtmModuleCollectorType[] = [];
   configs: UtmModuleGroupConfType[] = [];
-  groupName = this.groupType === GroupTypeEnum.TENANT ? 'tenant' : 'collector';
+  groupName: string;
 
   constructor(private utmModuleGroupService: UtmModuleGroupService,
               private toast: UtmToastService,
@@ -56,6 +56,8 @@ export class IntGenericGroupConfigComponent implements OnInit {
     this.changes = {keys: [], moduleId: this.moduleId};
     this.btnTittle = this.groupType === GroupTypeEnum.TENANT ?
       'Add tenant' : 'Add collector';
+    this.groupName = this.groupType === GroupTypeEnum.TENANT ? 'tenant' : 'collector';
+
   }
 
   getGroups() {
@@ -291,7 +293,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
     this.utmModuleGroupService.create({
       description: '',
       moduleId: this.moduleId,
-      name: `Configuration- ${collector.groups.length + 1} ${collector.collector}`,
+      name: this.collectorService.generateUniqueName(collector.collector, collector.groups),
       collector: col.id
     }).subscribe(response => {
       this.getGroups().subscribe();
@@ -336,5 +338,19 @@ export class IntGenericGroupConfigComponent implements OnInit {
       });
 
       return configs.some(c => c.confName === 'Hostname' && c.confValue === config.confValue);
+  }
+
+  showClose(group: UtmModuleGroupType, groups: UtmModuleGroupType[]) {
+
+    const start = groups.length - 1;
+    const index = groups.findIndex(g => g.id === group.id);
+
+    if (group.id === groups[start].id) {
+      return true;
+    } else if (groups.length === 2) {
+      return this.tenantIsConfigValid(groups[index + 1]) && !this.pendingChangesForGroup(groups[index + 1]);
+    } else {
+      return true;
+    }
   }
 }

@@ -95,4 +95,18 @@ export class UtmModuleCollectorService {
     const options = createRequestOption(req);
     return this.http.get<AssetGroupType[]>(this.resourceUrl + '/searchGroupsByFilter', {params: options, observe: 'response'});
   }
+
+  generateUniqueName(collectorName: string, groups: UtmModuleGroupType[]): string {
+    const baseName = `Configuration-`;
+    let count = 1;
+    let newName = `${baseName} ${count} ${collectorName}`;
+    const existingNames = groups.map(group => group.groupName);
+
+    while (existingNames.includes(newName)) {
+      count++;
+      newName = `${baseName} ${count} ${collectorName}`;
+    }
+
+    return newName;
+  }
 }
