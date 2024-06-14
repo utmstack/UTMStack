@@ -17,7 +17,7 @@ import java.util.UUID;
 public interface UtmDataSourceConfigRepository extends JpaRepository<UtmDataSourceConfig, UUID> {
     Optional<UtmDataSourceConfig> findOneByDataType(String dataType);
 
-    List<UtmDataSourceConfig> findAllByIncludedFalse();
+    List<UtmDataSourceConfig> findAllByIncludedFalseOrDataType(String dataType);
 
     @Query("select dsCfg from UtmDataSourceConfig dsCfg where dsCfg.systemOwner is false and dsCfg.dataType not in (select ds.dataType from UtmDataInputStatus ds)")
     List<UtmDataSourceConfig> findOrphanDataSourceConfigurations();

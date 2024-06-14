@@ -53,6 +53,9 @@ public class UtmDataInputStatusService {
     private final UtmDataSourceConfigRepository dataSourceConfigRepository;
     private final UtmNetworkScanRepository networkScanRepository;
 
+    private static final String IBM_AS400_TYPE = "ibm-as400";
+
+
     public UtmDataInputStatusService(UtmDataInputStatusRepository dataInputStatusRepository,
                                      UtmServerModuleService serverModuleService,
                                      ApplicationEventService applicationEventService,
@@ -192,8 +195,10 @@ public class UtmDataInputStatusService {
     public void synchronizeSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
-            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalse().stream()
-                    .map(UtmDataSourceConfig::getDataType).collect(Collectors.toList());
+            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalseOrDataType(IBM_AS400_TYPE).stream()
+                    .map(UtmDataSourceConfig::getDataType)
+                    .collect(Collectors.toList());
+
             excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack"));
 
             List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
