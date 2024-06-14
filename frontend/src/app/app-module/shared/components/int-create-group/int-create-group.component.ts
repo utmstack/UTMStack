@@ -29,7 +29,8 @@ export class IntCreateGroupComponent implements OnInit {
               public activeModal: NgbActiveModal,
               private groupService: UtmModuleGroupService,
               private toast: UtmToastService,
-              public inputClass: InputClassResolve) {
+              public inputClass: InputClassResolve,
+              private collectorService: UtmModuleCollectorService) {
   }
 
   ngOnInit() {
@@ -78,11 +79,13 @@ export class IntCreateGroupComponent implements OnInit {
   }
 
   getFormValue() {
+    const collector = this.formGroupConfig.get('collector').value;
+
     return {
       description: this.formGroupConfig.get('groupDescription').value,
       moduleId: this.moduleId,
       name: this.groupType === GroupTypeEnum.TENANT ? this.formGroupConfig.get('groupName').value :
-          `Configuration- ${this.formGroupConfig.get('collector').value.groups.length + 1} ${this.formGroupConfig.get('collector').value.collector}`,
+          this.collectorService.generateUniqueName(collector.collector, collector.groups),
       collector: this.formGroupConfig.get('collector').value ? this.formGroupConfig.get('collector').value.id : null
     };
   }
