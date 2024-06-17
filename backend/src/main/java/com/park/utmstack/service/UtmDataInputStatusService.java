@@ -13,6 +13,7 @@ import com.park.utmstack.repository.UtmDataSourceConfigRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
@@ -52,6 +53,7 @@ public class UtmDataInputStatusService {
     private final ElasticsearchService elasticsearchService;
     private final UtmDataSourceConfigRepository dataSourceConfigRepository;
     private final UtmNetworkScanRepository networkScanRepository;
+
 
     public UtmDataInputStatusService(UtmDataInputStatusRepository dataInputStatusRepository,
                                      UtmServerModuleService serverModuleService,
@@ -194,7 +196,7 @@ public class UtmDataInputStatusService {
         try {
             final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalse().stream()
                     .map(UtmDataSourceConfig::getDataType).collect(Collectors.toList());
-            excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack"));
+            excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
             List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
             if (CollectionUtils.isEmpty(sources))
@@ -259,7 +261,7 @@ public class UtmDataInputStatusService {
      * if any of them are down then create a new alert. This method is a schedule with a delay
      * of 24 hour
      */
-    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS)
+    /*@Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS)
     public void checkDatasourceDown() {
         final String ctx = CLASSNAME + ".checkDatasourceDown";
         try {
@@ -277,7 +279,7 @@ public class UtmDataInputStatusService {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
         }
-    }
+    }*/
 
     /**
      * Create the alert object for datasource down

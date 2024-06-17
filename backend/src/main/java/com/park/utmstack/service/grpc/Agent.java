@@ -171,19 +171,19 @@ private static final long serialVersionUID = 0L;
   public static final int STATUS_FIELD_NUMBER = 4;
   private int status_ = 0;
   /**
-   * <code>.agent.AgentStatus status = 4;</code>
+   * <code>.agent.Status status = 4;</code>
    * @return The enum numeric value on the wire for status.
    */
   @java.lang.Override public int getStatusValue() {
     return status_;
   }
   /**
-   * <code>.agent.AgentStatus status = 4;</code>
+   * <code>.agent.Status status = 4;</code>
    * @return The status.
    */
-  @java.lang.Override public com.park.utmstack.service.grpc.AgentStatus getStatus() {
-    com.park.utmstack.service.grpc.AgentStatus result = com.park.utmstack.service.grpc.AgentStatus.forNumber(status_);
-    return result == null ? com.park.utmstack.service.grpc.AgentStatus.UNRECOGNIZED : result;
+  @java.lang.Override public com.park.utmstack.service.grpc.Status getStatus() {
+    com.park.utmstack.service.grpc.Status result = com.park.utmstack.service.grpc.Status.forNumber(status_);
+    return result == null ? com.park.utmstack.service.grpc.Status.UNRECOGNIZED : result;
   }
 
   public static final int PLATFORM_FIELD_NUMBER = 5;
@@ -571,7 +571,7 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(os_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 3, os_);
     }
-    if (status_ != com.park.utmstack.service.grpc.AgentStatus.ONLINE.getNumber()) {
+    if (status_ != com.park.utmstack.service.grpc.Status.ONLINE.getNumber()) {
       output.writeEnum(4, status_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(platform_)) {
@@ -622,7 +622,7 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(os_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, os_);
     }
-    if (status_ != com.park.utmstack.service.grpc.AgentStatus.ONLINE.getNumber()) {
+    if (status_ != com.park.utmstack.service.grpc.Status.ONLINE.getNumber()) {
       size += com.google.protobuf.CodedOutputStream
         .computeEnumSize(4, status_);
     }
@@ -1401,14 +1401,14 @@ private static final long serialVersionUID = 0L;
 
     private int status_ = 0;
     /**
-     * <code>.agent.AgentStatus status = 4;</code>
+     * <code>.agent.Status status = 4;</code>
      * @return The enum numeric value on the wire for status.
      */
     @java.lang.Override public int getStatusValue() {
       return status_;
     }
     /**
-     * <code>.agent.AgentStatus status = 4;</code>
+     * <code>.agent.Status status = 4;</code>
      * @param value The enum numeric value on the wire for status to set.
      * @return This builder for chaining.
      */
@@ -1419,20 +1419,20 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.agent.AgentStatus status = 4;</code>
+     * <code>.agent.Status status = 4;</code>
      * @return The status.
      */
     @java.lang.Override
-    public com.park.utmstack.service.grpc.AgentStatus getStatus() {
-      com.park.utmstack.service.grpc.AgentStatus result = com.park.utmstack.service.grpc.AgentStatus.forNumber(status_);
-      return result == null ? com.park.utmstack.service.grpc.AgentStatus.UNRECOGNIZED : result;
+    public com.park.utmstack.service.grpc.Status getStatus() {
+      com.park.utmstack.service.grpc.Status result = com.park.utmstack.service.grpc.Status.forNumber(status_);
+      return result == null ? com.park.utmstack.service.grpc.Status.UNRECOGNIZED : result;
     }
     /**
-     * <code>.agent.AgentStatus status = 4;</code>
+     * <code>.agent.Status status = 4;</code>
      * @param value The status to set.
      * @return This builder for chaining.
      */
-    public Builder setStatus(com.park.utmstack.service.grpc.AgentStatus value) {
+    public Builder setStatus(com.park.utmstack.service.grpc.Status value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -1442,7 +1442,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.agent.AgentStatus status = 4;</code>
+     * <code>.agent.Status status = 4;</code>
      * @return This builder for chaining.
      */
     public Builder clearStatus() {

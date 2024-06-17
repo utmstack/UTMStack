@@ -8,6 +8,10 @@ import {AssetReloadFilterBehavior} from '../../behavior/asset-reload-filter-beha
 import {AssetFieldFilterEnum} from '../../enums/asset-field-filter.enum';
 import {UtmAssetGroupService} from '../../services/utm-asset-group.service';
 import {UtmNetScanService} from '../../services/utm-net-scan.service';
+import {UtmModuleCollectorService} from "../../../../app-module/shared/services/utm-module-collector.service";
+import {HttpResponse} from "@angular/common/http";
+import {CollectorFieldFilterEnum} from "../../enums/collector-field-filter.enum";
+import {GroupTypeEnum} from "../../enums/group-type.enum";
 
 @Component({
   selector: 'app-asset-group-add',
@@ -19,6 +23,7 @@ export class AssetGroupAddComponent implements OnInit {
   @Input() showTypeLabel: boolean;
   @Input() assets: number[];
   @Input() group: AssetGroupType;
+  @Input() type = GroupTypeEnum.ASSET;
   @Output() applyGroupEvent = new EventEmitter<AssetGroupType>();
   @Output() focus = new EventEmitter<boolean>();
 
@@ -33,7 +38,8 @@ export class AssetGroupAddComponent implements OnInit {
     private utmNetScanService: UtmNetScanService,
     private utmToastService: UtmToastService,
     private utmAssetGroupService: UtmAssetGroupService,
-    private assetReloadFilterBehavior: AssetReloadFilterBehavior
+    private assetReloadFilterBehavior: AssetReloadFilterBehavior,
+    private utmModuleCollectorService: UtmModuleCollectorService
   ) {
   }
 
@@ -47,7 +53,8 @@ export class AssetGroupAddComponent implements OnInit {
     if (event) {
       event.stopPropagation();
     }
-    this.utmAssetGroupService.query({page: 0, size: 1000}).subscribe(response => {
+    this.utmAssetGroupService.query({page: 0, size: 1000, assetType: this.type})
+      .subscribe(response => {
       this.groups = response.body;
       this.loading = false;
     });
@@ -57,19 +64,26 @@ export class AssetGroupAddComponent implements OnInit {
   applyGroup() {
     this.creating = true;
     const id = this.group ? this.group.id : null;
-    this.utmNetScanService.updateGroup({assetsIds: this.assets, assetGroupId: id})
-      .subscribe(response => {
-        this.utmToastService.showSuccessBottom('Group changed successfully');
-        this.applyGroupEvent.emit(response.body);
-        this.assetReloadFilterBehavior.$assetReloadFilter.next(AssetFieldFilterEnum.GROUP);
-        this.creating = false;
-        this.closePopover();
-      }, error => {
-        this.utmToastService.showError('Error changing group',
-          'Error changing group, please try again');
-        this.creating = false;
-        this.closePopover();
-      });
+
+    if (this.type === 'ASSET') {
+      this.utmNetScanService.updateGroup({assetsIds: this.assets, assetGroupId: id})
+        .subscribe(response => this.onSuccess(response),
+          error => {
+            this.utmToastService.showError('Error changing group',
+              'Error changing group, please try again');
+            this.creating = false;
+            this.closePopover();
+          });
+    } else {
+      this.utmModuleCollectorService.updateGroup({assetsIds: this.assets, assetGroupId: id})
+        .subscribe(response => this.onSuccess(response),
+          error => {
+            this.utmToastService.showError('Error changing group',
+              'Error changing group, please try again');
+            this.creating = false;
+            this.closePopover();
+          });
+    }
   }
 
   getIcon(group: AssetGroupType) {
@@ -79,6 +93,11 @@ export class AssetGroupAddComponent implements OnInit {
   addNewGroup() {
     this.closePopover();
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
+    modalGroup.componentInstance.group = {
+      groupDescription: '',
+      groupName: '',
+      type: this.type
+      };
   }
 
   handleClear(select: NgSelectComponent) {
@@ -102,5 +121,14 @@ export class AssetGroupAddComponent implements OnInit {
 
   onShown() {
     this.focus.emit(true);
+  }
+
+  onSuccess(response: HttpResponse<any>) {
+    this.utmToastService.showSuccessBottom('Group changed successfully');
+    this.applyGroupEvent.emit(response.body);
+    this.assetReloadFilterBehavior.$assetReloadFilter.next(this.type === 'ASSET' ? AssetFieldFilterEnum.GROUP
+      : CollectorFieldFilterEnum.COLLECTOR_GROUP);
+    this.creating = false;
+    this.closePopover();
   }
 }

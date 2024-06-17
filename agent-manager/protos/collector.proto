@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+option go_package = "github.com/utmstack/UTMStack/agent-manager/agent";
+import "common.proto";
+
+package agent;
+
+service CollectorService {
+  rpc RegisterCollector(RegisterRequest) returns (AuthResponse) {}
+  rpc DeleteCollector(CollectorDelete) returns (AuthResponse) {}
+  rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
+  rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
+  rpc ListCollectorHostnames (ListRequest) returns (CollectorHostnames) {}
+  rpc GetCollectorsByHostnameAndModule (FilterByHostAndModule) returns (ListCollectorResponse) {}
+  rpc GetCollectorConfig (ConfigRequest) returns (CollectorConfig) {}
+}
+
+service PanelCollectorService {
+  rpc RegisterCollectorConfig(CollectorConfig) returns (ConfigKnowledge) {}
+}
+
+enum CollectorModule{
+  AS_400 = 0;
+}
+
+message CollectorMessages {
+  oneof stream_message {
+    CollectorConfig config = 1;
+    ConfigKnowledge result = 2;
+  }
+}
+
+message CollectorHostnames{
+  repeated string hostname = 1;
+}
+
+message FilterByHostAndModule{
+  string hostname = 1;
+  CollectorModule module = 2;
+}
+
+message ConfigKnowledge{
+  string accepted = 1;
+  string request_id = 2;
+}
+
+message RegisterRequest {
+  string ip = 1;
+  string hostname = 2;
+  string version = 3;
+  CollectorModule collector = 4;
+}
+
+message ConfigRequest {
+  CollectorModule module = 1;
+}
+
+message Collector {
+  int32 id = 1;
+  Status status = 2;
+  string collector_key = 3;
+  string ip = 4;
+  string hostname = 5;
+  string version = 6;
+  CollectorModule module = 7;
+  repeated CollectorConfigGroup groups = 8;
+  string last_seen = 9;
+}
+
+message CollectorConfig {
+  string collector_key = 1;
+  repeated CollectorConfigGroup groups = 2;
+  string request_id = 3;
+}
+
+message CollectorConfigGroup {
+  int32 id = 1;
+  string group_name = 3;
+  string group_description = 4;
+  repeated CollectorGroupConfigurations configurations = 5;
+  int32 collector_id = 6;
+}
+
+message CollectorGroupConfigurations {
+  int32 group_id = 2;
+  string conf_key = 3;
+  string conf_value = 4;
+  string conf_name = 5;
+  string conf_description = 6;
+  string conf_data_type = 7;
+  bool conf_required = 8;
+}
+
+message CollectorDelete {
+  string deleted_by = 1;
+}
+
+message ListCollectorResponse {
+  repeated Collector rows = 1;
+  int32 total = 2;
+}
+
+
+

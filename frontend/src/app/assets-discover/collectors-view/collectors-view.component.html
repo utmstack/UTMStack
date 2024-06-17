@@ -1,0 +1,276 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">
+      Collectors
+    </h5>
+    <div class="header-elements">
+     <!-- <button class="btn utm-button utm-button-primary ml-2"
+              (click)="showDataTypeModal()">
+        <i class="icon-cog3 mr-1"></i> Manage source view
+      </button>-->
+      <button class="btn utm-button utm-button-primary ml-2"
+              routerLink="/data-sources/collectors-groups" [queryParams]="{ type: 'collector' }">
+        <i class="icon-grid-alt mr-1"></i> Manage groups
+      </button>
+     <!-- <button class="btn utm-button utm-button-primary ml-2"
+              routerLink="/integrations/explore">
+        <i class="icon-plus-circle2 mr-1"></i> Add device
+      </button>-->
+    </div>
+  </div>
+
+  <!--TABLE-->
+  <div class="d-flex flex-nowrap m-0 align-items-start h-100">
+    <div (resizeEnd)="onResize($event)"
+         (resizing)="onResize($event)"
+         [enableGhostResize]="true"
+         [ngStyle]="{'width':filterWidth+'px'}"
+         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+         class="resizable-filter-container mr-2"
+         mwlResizable>
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+          <div class="d-flex">
+            <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
+                  ngbTooltip="Reset filters"
+                  placement="top" tooltipClass="utm-tooltip-top">
+               <i class="icon-filter4"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
+          <div *ngFor="let filter of fieldFilters" class="w-100">
+            <div *ngIf="filter.visible" class="w-100 mb-2">
+              <app-asset-generic-filter (filterGenericChange)="onFilterChange($event)"
+                                        [fieldFilter]="filter">
+              </app-asset-generic-filter>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="flex-grow-1">
+      <div class="card h-100">
+        <div class="card-header p-2 w-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <app-asset-filter-applying (filterApplyingChange)="onFilterChange($event)"
+                                       [assetsFilters]="requestParam"></app-asset-filter-applying>
+            <div class="d-flex justify-content-end align-items-center">
+
+              <app-asset-group-add
+                (applyGroupEvent)="getCollectors()"
+                [type]="'COLLECTOR'"
+                *ngIf="assetsSelected.length>0" [assets]="assetsSelected"
+                [typeFormat]="'button'" class="ml-3 mr-3"></app-asset-group-add>
+
+              <div class="ml-3">
+                <app-utm-search-input (searchFor)="onSearch($event)"
+                                      [placeholder]="'Search by source'"></app-utm-search-input>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+        <div [ngStyle]="{'max-width':tableWidth+'px'}"
+             class="table-responsive resizable-table-responsive h-100">
+          <table class="table text-nowrap">
+            <thead>
+            <tr>
+              <th class="text-left" style="width: 10px;padding-left: 10px;}">
+                <i (click)="toggleCheck()"
+                   [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                   [ngbTooltip]="'Add page to selected'"
+                   class="cursor-pointer mr-3"
+                   container="body"
+                   style="font-size: small"
+                   tooltipClass="utm-tooltip-top"></i>
+              </th>
+              <th class="font-weight-semibold cursor-pointer">
+                Status
+              </th>
+              <th (sort)="onSortBy($event)"
+                  [isSortable]="true"
+                  [sortEvent]="sortEvent"
+                  [sortable]="'assetIp'"
+                  appColumnSortable
+                  class="font-weight-semibold cursor-pointer">
+                Source
+              </th>
+             <!-- <th class="font-weight-semibold cursor-pointer">
+                Types
+              </th>-->
+              <th class="font-weight-semibold cursor-pointer">
+                Last input
+              </th>
+              <th class="font-weight-semibold cursor-pointer" style="width: 20px">
+                Action
+              </th>
+            </tr>
+            </thead>
+            <tbody *ngIf="collectors && collectors.length>0">
+            <ng-container *ngFor="let asset of collectors">
+              <tr (click)="viwAgentDetail($event, asset)" class="cursor-pointer">
+                <td class="text-center">
+                  <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
+                    <div class="list-icons span-small-icon">
+                      <i (click)="addToSelected($event, asset)"
+                         [ngClass]="isSelected(asset)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                         [ngbTooltip]="'Add to selected'"
+                         class="cursor-pointer"
+                         container="body"
+                         tooltipClass="utm-tooltip-top"></i>
+                    </div>
+                    <!--<app-assets-apply-type (applyTypeEvent)="getCollectors()" (focus)="stopInterval($event)" [assets]="[asset.id]" [typeFormat]="'icon'"
+                                           [type]="asset.assetType" class="ml-2">
+                    </app-assets-apply-type>-->
+
+                    <app-asset-group-add (focus)="stopInterval($event)"
+                                         [type]="'COLLECTOR'"
+                                         (applyGroupEvent)="getCollectors()" [assets]="[asset.id]"
+                                         [group]="asset.group"
+                                         [typeFormat]="'icon'" class="ml-2"></app-asset-group-add>
+
+                    <!--<app-assets-apply-note (focus)="stopInterval($event)" [asset]="asset" class="ml-2"></app-assets-apply-note>-->
+                  </div>
+                </td>
+                <td>
+                  <app-collector-status [collector]="asset"></app-collector-status>
+                </td>
+                <td>
+                  {{getCollectorSource(asset)}}
+                </td>
+                <!--<td>
+                  <div class="d-flex justify-content-start align-items-start flex-wrap w-100 h-100"
+                       *ngIf="asset.dataInputList && asset.dataInputList.length>0">
+                  <span *ngFor="let dat of asset.dataInputList;"
+                        [ngClass]="isSourceConnected(asset, dat)?'bg-success-300':'bg-warning-800'"
+                        [ngbTooltip]="dataTypeDetail"
+                        placement="auto"
+                        container="body"
+                        class="badge p-1 border-1 m-1">
+                    {{dat.dataType}}
+                    <i class="ml-2 text-white cursor-pointer" (click)="deleteDataType($event, dat)"
+                       *ngIf="!isSourceConnected(asset, dat)"
+                       [ngClass]="deleting.includes(dat.id)?'icon-spinner2 spinner':'icon-cross'"></i>
+                 <ng-template #dataTypeDetail>
+                   <div>
+                        <span
+                          [ngClass]="isSourceConnected(asset, dat)?'text-success':'text-warning-800'"
+                          class="span-small-icon d-flex justify-content-start align-items-center mt-2">
+                        <i
+                          [ngClass]="'icon-circle2'"
+                          class="mr-2"></i>
+                          <span class="flex-wrap" style="max-width: 280px">
+                          {{dat.dataType + ' is ' + (isSourceConnected(asset, dat) ? 'up' : 'taking longer than usual to send logs')}}
+                          </span>
+                       </span>
+                       <span class="span-small-icon d-flex justify-content-start align-items-center mt-2 mb-2">
+                        <i
+                          [ngClass]="'icon-sort-time-desc'"
+                          class="mr-2"></i>
+                            <span>
+                              Last input: {{formatTimestampToDate(dat.timestamp) | date }}
+                            </span>
+                       </span>
+                     </div>
+                  </ng-template>
+                 </span>
+
+                  </div>
+                </td>-->
+                <td (click)="viwAgentDetail(asset)" >
+                  {{ asset.lastSeen }}
+                </td>
+                <td></td>
+
+                <td class="td-action">
+                  <div
+                    class="d-flex justify-content-end align-items-center medium-icon">
+
+                    <i (click)="viwAgentDetail($event, asset)" class="icon-display cursor-pointer ml-2"
+                       *ngIf="asset"
+                       ngbTooltip="View collector detail"
+                       container="body"
+                       placement="left"></i>
+
+                    <i (click)="deleteCollector($event, asset)" class="icon-cross2 cursor-pointer ml-2"
+                       ngbTooltip="Delete collector"
+                       container="body"
+                       placement="auto"></i>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+            </tbody>
+            <tbody *ngIf="(collectors && collectors.length === 0)  && !loading">
+            <tr>
+              <td [attr.colspan]="assetsFields.length +1">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+              <td [attr.colspan]="assetsFields.length +1">
+                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                  <app-utm-spinner [height]="'35px'"
+                                   [label]="'Loading...'"
+                                   [loading]="loading"
+                                   [width]="'35px'">
+                  </app-utm-spinner>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="collectors && collectors.length > 0" class="mb-3 mt-3">
+          <div class="row justify-content-center">
+            <ngb-pagination (pageChange)="loadPage($event)"
+                            [(page)]="page"
+                            [boundaryLinks]="true"
+                            [collectionSize]="totalItems"
+                            [maxSize]="10"
+                            [pageSize]="itemsPerPage"
+                            [rotate]="true"
+                            [size]="'sm'"></ngb-pagination>
+            <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                    class="ml-3">
+            </app-utm-items-per-page>
+          </div>
+          <!-- TABLE END-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--ASSET DETAIL-->
+<div *ngIf="showDetail" class="utm-right-container">
+  <div (click)="closeDetail()" class="overlay overlay-lg col-md-6"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        Collector {{agent}} detail
+      </h6>
+      <button (click)="closeDetail()" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <div class="p-3">
+      <div class="w-100">
+        <app-utm-collector-detail [agent]="viewAssetDetail"
+                                  [hosts]="getHostnames()">
+        </app-utm-collector-detail>
+      </div>
+
+    </div>
+  </div>
+</div>

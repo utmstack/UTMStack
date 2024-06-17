@@ -1,0 +1,44 @@
+<div class="w-100" *ngIf="agent">
+  <div class="agent-details w-100 d-flex justify-content-start mb-2"
+       *ngIf="agent.ip">
+    <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
+    {{agent.ip}}
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.hostname">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Name:</span>&nbsp;
+    {{agent.hostname}}
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.version">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Version:</span>&nbsp;
+    {{agent.version}}
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Status:</span>&nbsp;
+    <span [ngClass]="agent.status === agentStatusEnum.ONLINE?'text-success-800':'text-warning-800'"
+          class="span-small-icon d-flex justify-content-start align-items-center">
+      <i [ngClass]="'icon-circle2'" class="mr-2"></i>
+      {{agent.status}}
+    </span>
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.lastSeen">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Last seen:</span>&nbsp;
+    {{agent.lastSeen}}
+  </div>
+  <div class="agent-details w-100 mb-2" *ngIf="hosts.length > 0">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Hosts:</span>&nbsp;
+    <div class="d-flex justify-content-start align-items-center flex-wrap">
+     <span *ngFor="let host of hosts" class="badge border-blue-800 border-1 mr-1 mb-1 p-1 text-blue-800">
+       {{host}}
+     </span>
+    </div>
+  </div>
+  <!--<div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Group Source:</span>&nbsp;
+    <app-asset-group-add *ngIf="asset" [assets]="[asset.id]"
+                         [group]="asset.group"
+                         [typeFormat]="'icon'" class="ml-2">
+    </app-asset-group-add>
+  </div>-->
+</div>
+
+

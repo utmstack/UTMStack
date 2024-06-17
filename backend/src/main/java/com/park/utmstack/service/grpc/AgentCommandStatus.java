@@ -112,7 +112,7 @@ public enum AgentCommandStatus
   }
   public static final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptor() {
-    return com.park.utmstack.service.grpc.AgentManagerGrpc.getDescriptor().getEnumTypes().get(1);
+    return com.park.utmstack.service.grpc.AgentManagerGrpc.getDescriptor().getEnumTypes().get(0);
   }
 
   private static final AgentCommandStatus[] VALUES = values();

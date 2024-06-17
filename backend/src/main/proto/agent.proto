@@ -8,16 +8,17 @@ option java_outer_classname = "AgentManagerGrpc";
 option java_package = "com.park.utmstack.service.grpc";
 
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 service AgentService {
-    rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
+    rpc DeleteAgent(AgentDelete) returns (AuthResponse) {}
     rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+    rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
     rpc UpdateAgentType (AgentTypeUpdate) returns (Agent) {}
     rpc UpdateAgentGroup (AgentGroupUpdate) returns (Agent) {}
     rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
     rpc GetAgentByHostname (Hostname) returns (Agent) {}
     rpc ListAgentsWithCommands (ListRequest) returns (ListAgentsResponse) {}
-    rpc DeleteAgent(AgentDelete) returns (AgentResponse) {}
 }
 
 service PanelService {
@@ -39,15 +40,11 @@ message Id{
     int64 id = 1;
 }
 
-message Hostname{
-    string hostname = 1;
-}
-
 message Agent {
     string ip = 1;
     string hostname = 2;
     string os = 3;
-    AgentStatus status = 4;
+    Status status = 4;
     string platform = 5;
     string version = 6;
     string agent_key = 7;
@@ -70,12 +67,6 @@ message AgentGroupUpdate {
     uint32 agent_group = 3;
 }
 
-enum AgentStatus {
-    ONLINE = 0;
-    OFFLINE = 1;
-    UNKNOWN = 2;
-}
-
 message AgentRequest {
     string ip = 1;
     string hostname = 2;
@@ -90,14 +81,8 @@ message AgentRequest {
     string addresses = 11;  // IP secondary ips
 }
 
-message AgentResponse {
-    uint32  id = 1;
-    string agent_key = 2;
-}
-
 message AgentDelete {
     string deleted_by = 1;
-    string agent_key = 2;
 }
 
 
@@ -118,33 +103,12 @@ message CommandResult {
     string cmd_id = 4;
 }
 
-message PingRequest {
-    string agent_key = 1;
-}
-
-message PingResponse {
-    bool is_alive = 1;
-    string  agent_key = 2;
-}
 
 message BidirectionalStream {
     oneof stream_message {
         UtmCommand command = 1;
         CommandResult result = 2;
-        AuthResponse auth_response = 3;
     }
-}
-
-message AuthResponse {
-    uint64 agent_id = 1;
-    string agent_key = 2;
-}
-
-message ListRequest {
-    int32 page_number = 1;
-    int32 page_size = 2;
-    string search_query = 3;
-    string sort_by = 4;
 }
 
 message ListAgentsResponse {

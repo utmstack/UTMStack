@@ -46,7 +46,6 @@ private static final long serialVersionUID = 0L;
           com.google.protobuf.AbstractMessage.InternalOneOfEnum {
     COMMAND(1),
     RESULT(2),
-    AUTH_RESPONSE(3),
     STREAMMESSAGE_NOT_SET(0);
     private final int value;
     private StreamMessageCase(int value) {
@@ -66,7 +65,6 @@ private static final long serialVersionUID = 0L;
       switch (value) {
         case 1: return COMMAND;
         case 2: return RESULT;
-        case 3: return AUTH_RESPONSE;
         case 0: return STREAMMESSAGE_NOT_SET;
         default: return null;
       }
@@ -144,37 +142,6 @@ private static final long serialVersionUID = 0L;
     return com.park.utmstack.service.grpc.CommandResult.getDefaultInstance();
   }
 
-  public static final int AUTH_RESPONSE_FIELD_NUMBER = 3;
-  /**
-   * <code>.agent.AuthResponse auth_response = 3;</code>
-   * @return Whether the authResponse field is set.
-   */
-  @java.lang.Override
-  public boolean hasAuthResponse() {
-    return streamMessageCase_ == 3;
-  }
-  /**
-   * <code>.agent.AuthResponse auth_response = 3;</code>
-   * @return The authResponse.
-   */
-  @java.lang.Override
-  public com.park.utmstack.service.grpc.AuthResponse getAuthResponse() {
-    if (streamMessageCase_ == 3) {
-       return (com.park.utmstack.service.grpc.AuthResponse) streamMessage_;
-    }
-    return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
-  }
-  /**
-   * <code>.agent.AuthResponse auth_response = 3;</code>
-   */
-  @java.lang.Override
-  public com.park.utmstack.service.grpc.AuthResponseOrBuilder getAuthResponseOrBuilder() {
-    if (streamMessageCase_ == 3) {
-       return (com.park.utmstack.service.grpc.AuthResponse) streamMessage_;
-    }
-    return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -195,9 +162,6 @@ private static final long serialVersionUID = 0L;
     if (streamMessageCase_ == 2) {
       output.writeMessage(2, (com.park.utmstack.service.grpc.CommandResult) streamMessage_);
     }
-    if (streamMessageCase_ == 3) {
-      output.writeMessage(3, (com.park.utmstack.service.grpc.AuthResponse) streamMessage_);
-    }
     getUnknownFields().writeTo(output);
   }
 
@@ -214,10 +178,6 @@ private static final long serialVersionUID = 0L;
     if (streamMessageCase_ == 2) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(2, (com.park.utmstack.service.grpc.CommandResult) streamMessage_);
-    }
-    if (streamMessageCase_ == 3) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(3, (com.park.utmstack.service.grpc.AuthResponse) streamMessage_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -244,10 +204,6 @@ private static final long serialVersionUID = 0L;
         if (!getResult()
             .equals(other.getResult())) return false;
         break;
-      case 3:
-        if (!getAuthResponse()
-            .equals(other.getAuthResponse())) return false;
-        break;
       case 0:
       default:
     }
@@ -270,10 +226,6 @@ private static final long serialVersionUID = 0L;
       case 2:
         hash = (37 * hash) + RESULT_FIELD_NUMBER;
         hash = (53 * hash) + getResult().hashCode();
-        break;
-      case 3:
-        hash = (37 * hash) + AUTH_RESPONSE_FIELD_NUMBER;
-        hash = (53 * hash) + getAuthResponse().hashCode();
         break;
       case 0:
       default:
@@ -415,9 +367,6 @@ private static final long serialVersionUID = 0L;
       if (resultBuilder_ != null) {
         resultBuilder_.clear();
       }
-      if (authResponseBuilder_ != null) {
-        authResponseBuilder_.clear();
-      }
       streamMessageCase_ = 0;
       streamMessage_ = null;
       return this;
@@ -466,10 +415,6 @@ private static final long serialVersionUID = 0L;
       if (streamMessageCase_ == 2 &&
           resultBuilder_ != null) {
         result.streamMessage_ = resultBuilder_.build();
-      }
-      if (streamMessageCase_ == 3 &&
-          authResponseBuilder_ != null) {
-        result.streamMessage_ = authResponseBuilder_.build();
       }
     }
 
@@ -526,10 +471,6 @@ private static final long serialVersionUID = 0L;
           mergeResult(other.getResult());
           break;
         }
-        case AUTH_RESPONSE: {
-          mergeAuthResponse(other.getAuthResponse());
-          break;
-        }
         case STREAMMESSAGE_NOT_SET: {
           break;
         }
@@ -574,13 +515,6 @@ private static final long serialVersionUID = 0L;
               streamMessageCase_ = 2;
               break;
             } // case 18
-            case 26: {
-              input.readMessage(
-                  getAuthResponseFieldBuilder().getBuilder(),
-                  extensionRegistry);
-              streamMessageCase_ = 3;
-              break;
-            } // case 26
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -895,148 +829,6 @@ private static final long serialVersionUID = 0L;
       streamMessageCase_ = 2;
       onChanged();
       return resultBuilder_;
-    }
-
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.park.utmstack.service.grpc.AuthResponse, com.park.utmstack.service.grpc.AuthResponse.Builder, com.park.utmstack.service.grpc.AuthResponseOrBuilder> authResponseBuilder_;
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     * @return Whether the authResponse field is set.
-     */
-    @java.lang.Override
-    public boolean hasAuthResponse() {
-      return streamMessageCase_ == 3;
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     * @return The authResponse.
-     */
-    @java.lang.Override
-    public com.park.utmstack.service.grpc.AuthResponse getAuthResponse() {
-      if (authResponseBuilder_ == null) {
-        if (streamMessageCase_ == 3) {
-          return (com.park.utmstack.service.grpc.AuthResponse) streamMessage_;
-        }
-        return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
-      } else {
-        if (streamMessageCase_ == 3) {
-          return authResponseBuilder_.getMessage();
-        }
-        return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
-      }
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    public Builder setAuthResponse(com.park.utmstack.service.grpc.AuthResponse value) {
-      if (authResponseBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        streamMessage_ = value;
-        onChanged();
-      } else {
-        authResponseBuilder_.setMessage(value);
-      }
-      streamMessageCase_ = 3;
-      return this;
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    public Builder setAuthResponse(
-        com.park.utmstack.service.grpc.AuthResponse.Builder builderForValue) {
-      if (authResponseBuilder_ == null) {
-        streamMessage_ = builderForValue.build();
-        onChanged();
-      } else {
-        authResponseBuilder_.setMessage(builderForValue.build());
-      }
-      streamMessageCase_ = 3;
-      return this;
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    public Builder mergeAuthResponse(com.park.utmstack.service.grpc.AuthResponse value) {
-      if (authResponseBuilder_ == null) {
-        if (streamMessageCase_ == 3 &&
-            streamMessage_ != com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance()) {
-          streamMessage_ = com.park.utmstack.service.grpc.AuthResponse.newBuilder((com.park.utmstack.service.grpc.AuthResponse) streamMessage_)
-              .mergeFrom(value).buildPartial();
-        } else {
-          streamMessage_ = value;
-        }
-        onChanged();
-      } else {
-        if (streamMessageCase_ == 3) {
-          authResponseBuilder_.mergeFrom(value);
-        } else {
-          authResponseBuilder_.setMessage(value);
-        }
-      }
-      streamMessageCase_ = 3;
-      return this;
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    public Builder clearAuthResponse() {
-      if (authResponseBuilder_ == null) {
-        if (streamMessageCase_ == 3) {
-          streamMessageCase_ = 0;
-          streamMessage_ = null;
-          onChanged();
-        }
-      } else {
-        if (streamMessageCase_ == 3) {
-          streamMessageCase_ = 0;
-          streamMessage_ = null;
-        }
-        authResponseBuilder_.clear();
-      }
-      return this;
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    public com.park.utmstack.service.grpc.AuthResponse.Builder getAuthResponseBuilder() {
-      return getAuthResponseFieldBuilder().getBuilder();
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    @java.lang.Override
-    public com.park.utmstack.service.grpc.AuthResponseOrBuilder getAuthResponseOrBuilder() {
-      if ((streamMessageCase_ == 3) && (authResponseBuilder_ != null)) {
-        return authResponseBuilder_.getMessageOrBuilder();
-      } else {
-        if (streamMessageCase_ == 3) {
-          return (com.park.utmstack.service.grpc.AuthResponse) streamMessage_;
-        }
-        return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
-      }
-    }
-    /**
-     * <code>.agent.AuthResponse auth_response = 3;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.park.utmstack.service.grpc.AuthResponse, com.park.utmstack.service.grpc.AuthResponse.Builder, com.park.utmstack.service.grpc.AuthResponseOrBuilder> 
-        getAuthResponseFieldBuilder() {
-      if (authResponseBuilder_ == null) {
-        if (!(streamMessageCase_ == 3)) {
-          streamMessage_ = com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
-        }
-        authResponseBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            com.park.utmstack.service.grpc.AuthResponse, com.park.utmstack.service.grpc.AuthResponse.Builder, com.park.utmstack.service.grpc.AuthResponseOrBuilder>(
-                (com.park.utmstack.service.grpc.AuthResponse) streamMessage_,
-                getParentForChildren(),
-                isClean());
-        streamMessage_ = null;
-      }
-      streamMessageCase_ = 3;
-      onChanged();
-      return authResponseBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

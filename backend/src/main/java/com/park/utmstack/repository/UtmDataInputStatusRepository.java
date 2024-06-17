@@ -47,6 +47,6 @@ public interface UtmDataInputStatusRepository extends JpaRepository<UtmDataInput
      * Extract data sources that are not already configured
      * @return A list of ${@link UtmDataInputStatus}
      */
-    @Query("select distinct ds.dataType from UtmDataInputStatus ds where ds.dataType not in (select dsCfg.dataType from UtmDataSourceConfig dsCfg)")
-    List<String> findDataSourcesToConfigure();
+    @Query("select distinct ds.dataType from UtmDataInputStatus ds where ds.dataType not in (select dsCfg.dataType from UtmDataSourceConfig dsCfg) and ds.dataType != :dataType")
+    List<String> findDataSourcesToConfigure(@Param("dataType") String dataType);
 }

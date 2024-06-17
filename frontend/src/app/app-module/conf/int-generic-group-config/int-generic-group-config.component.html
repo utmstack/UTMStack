@@ -1,4 +1,66 @@
-<div class="w-100" *ngIf="!loading;else loadingGroups">
+<div class="w-100" *ngIf="!loading; else loadingGroups">
+  <ng-container *ngIf="groupType == GroupTypeEnum.TENANT">
+    <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: groups, editable: editable }"></ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="groupType == GroupTypeEnum.COLLECTOR && this.groups.length > 0">
+    <div class="utm-box utm-box-collector mt-4 pt-1 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-10"
+         *ngFor="let collector of collectors">
+
+      <span class="p-1 utm-box-label">
+           {{collector.collector}}
+
+        <span *ngIf="(collectorValid(collector.groups) && this.changes.keys.length === 0)" class="span-small-icon ml-3" >
+          <i  (click)="addConfig(collector)" class="icon-plus2 mr-2  cursor-pointer"
+             ngbTooltip="Add configuration">
+         </i>
+
+          <i *ngIf="(collectorValid(collector.groups) && this.changes.keys.length === 0)"
+             (click)="deleteCollectorConfig(collector)" class="icon-cross2 ml-2 cursor-pointer"
+             ngbTooltip="Delete collector">
+         </i>
+       </span>
+     </span>
+      <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: collector.groups, editable: editable}"></ng-container>
+      <div *ngIf="pendingChangesForCollector(collector.groups) && changes && changes.keys.length > 0"
+           class="w-100 alert alert-info alert-styled-right mb-3 mt-3">
+       <span class="font-weight-semibold">
+          Detect unsaved changes in configuration, do not forget save changes when you finish!
+       </span>
+      </div>
+      <div *ngIf="collectorConfigValid(collector.groups) && !loading"
+           class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
+        <span class="font-weight-semibold">Warning! </span>
+        <span>Required param configuration must be set to save this section</span>
+      </div>
+      <div class="d-flex justify-content-end align-items-center mb-2 mt-2">
+        <button class="btn utm-button utm-button-danger mr-3" (click)="cancelCollectorConfig(collector.groups)" *ngIf="changes.keys.length>0">
+          Cancel changes
+        </button>
+        <button class="btn utm-button utm-button-primary"
+                (click)="saveCollectorConfig(collector)"
+        [disabled]="(!collectorValid(collector.groups) || savingConfig) ||
+        (collectorValid(collector.groups) && changes && changes.keys.length === 0)">
+          <i class="icon-cog5 mr-1"></i>
+          Save collector
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+
+  <div class="pt-3 d-flex justify-content-center align-items-center" *ngIf="allowAdd">
+    <button [disabled]="(!tenantGroupConfigValid() && this.groups.length > 0) || (changes && changes.keys.length > 0)"
+            class="btn utm-button utm-button-primary" (click)="createGroup()">
+      <i class="icon-plus2 mr-1"></i>
+      {{ btnTittle }}
+    </button>
+  </div>
+</div>
+
+
+
+<ng-template #groupTemplate let-groups let-editable="editable">
   <div class="utm-box mt-4 pt-3 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-100"
        *ngFor="let group of groups">
      <span class="p-1 utm-box-label">
@@ -7,11 +69,12 @@
        <span class="span-small-icon ml-3" *ngIf="editable">
          <i class="icon-pencil  cursor-pointer"
             (click)="editGroup(group)"
-            ngbTooltip="Edit tenant">
+            ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Edit tenant' : 'Edit collector'}}">
          </i>
-            <i class="icon-cross2 ml-2 cursor-pointer"
+            <i *ngIf="showClose(group, groups)"
+               class="icon-cross2 ml-2 cursor-pointer"
                (click)="deleteGroup(group)"
-               ngbTooltip="Delete tenant">
+               ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Delete tenant' : 'Delete collector'}}">
          </i>
        </span>
      </span>
@@ -74,36 +137,29 @@
         </div>
       </div>
     </div>
-    <div *ngIf="pendingChangesForGroup(group) && changes && changes.keys.length>0"
+    <div *ngIf="groupType === GroupTypeEnum.TENANT && pendingChangesForGroup(group) && changes && changes.keys.length > 0"
          class="w-100 alert alert-info alert-styled-right mb-3">
        <span class="font-weight-semibold">
           Detect unsaved changes in configuration, do not forget save changes when you finish!
        </span>
     </div>
-    <div *ngIf="!tenantIsConfigValid(group) && !loading"
+    <div *ngIf="groupType === GroupTypeEnum.TENANT && !tenantIsConfigValid(group) && !loading"
          class="w-100 alert alert-warning alert-styled-right mb-3 alert-dismissible">
       <span class="font-weight-semibold">Warning! </span>
       <span>Required param configuration must be set to save this section</span>
     </div>
-    <div class="d-flex justify-content-end align-items-center mb-2">
+    <div *ngIf="groupType === GroupTypeEnum.TENANT" class="d-flex justify-content-end align-items-center mb-2">
       <button class="btn utm-button utm-button-danger mr-3" (click)="cancelConfig(group)" *ngIf="changes.keys.length>0">
         Cancel changes
       </button>
-      <button class="btn utm-button utm-button-primary" (click)="saveConfig()"
+      <button class="btn utm-button utm-button-primary" (click)="saveConfig(group)"
               [disabled]="!tenantIsConfigValid(group) || (changes && changes.keys.length===0) || savingConfig">
         <i class="icon-cog5 mr-1"></i>
         Save configuration
       </button>
     </div>
   </div>
-
-  <div class="pt-3 d-flex justify-content-center align-items-center" *ngIf="allowAdd">
-    <button class="btn utm-button utm-button-primary" (click)="createGroup()">
-      <i class="icon-plus2 mr-1"></i>
-      Add tenant
-    </button>
-  </div>
-</div>
+</ng-template>
 <ng-template #loadingGroups>
   <div class="w-100 d-flex justify-content-center align-items-center">
     <app-utm-spinner [loading]="true" label="Loading module configuration"></app-utm-spinner>

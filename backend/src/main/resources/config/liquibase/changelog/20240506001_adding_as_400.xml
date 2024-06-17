@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240506001" author="Manuel">
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_ibm_as_400(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('IBM AS/400',
+                    'The IBM AS/400 is a family of midrange computers from IBM announced in June 1988 and released in August 1988. It was the successor to the System/36 and System/38 platforms, and ran the OS/400 operating system',
+                    FALSE, 'ibm-as-400.svg', 'AS_400', srv_id, 'Device', FALSE, TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'AS/400',
+                                                            module_icon        = 'ibm-as-400.svg',
+                                                            module_name        = 'AS_400',
+                                                            module_category    = 'Device',
+                                                            module_description = 'The IBM AS/400 is a family of midrange computers from IBM announced in June 1988 and released in August 1988. It was the successor to the System/36 and System/38 platforms, and ran the OS/400 operating system',
+                                                            lite_version       = TRUE,
+                                                            is_activatable     = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_fortiweb(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('FortiWeb',
+                    'FortiWeb is a web application firewall (WAF) developed by Fortinet. It provides protection for web applications against various types of attacks, including SQL injection, cross-site scripting (XSS), and other common web exploits.',
+                    FALSE,
+                    'fortigate.svg',
+                    'FORTIWEB',
+                    srv_id,
+                    'Device',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'FortiWeb',
+                                                            module_icon        = 'fortigate.svg',
+                                                            module_name        = 'FORTIWEB',
+                                                            module_category    = 'Device',
+                                                            module_description = 'FortiWeb is a web application firewall (WAF) developed by Fortinet. It provides protection for web applications against various types of attacks, including SQL injection, cross-site scripting (XSS), and other common web exploits.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+        <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_aix(srv_id integer)
+    RETURNS void
+    LANGUAGE plpgsql
+AS
+            $function$
+            declare
+            grp_id integer;
+    mod_id
+            bigint;
+
+            begin
+            INSERT INTO utm_module (pretty_name, module_description, module_active, module_icon, module_name,
+                                    server_id, module_category, needs_restart, lite_version, is_activatable)
+            VALUES ('IBM AIX',
+                    'AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms.',
+                    FALSE,
+                    'aix.svg',
+                    'AIX',
+                    srv_id,
+                    'Device',
+                    FALSE,
+                    TRUE,
+                    TRUE)
+                ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'IBM AIX',
+                                                            module_icon        = 'aix.svg',
+                                                            module_name        = 'AIX',
+                                                            module_category    = 'Device',
+                                                            module_description = 'AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for several of its computer platforms.',
+                                                            lite_version       = TRUE,
+                                                            server_id          = srv_id;
+
+            end;
+
+            $function$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+                create or replace function register_integrations(srv_id integer, srv_type character varying)
+                    returns void
+                    language plpgsql
+                    as
+                $$
+                BEGIN
+
+                    perform public.register_integration_netflow(srv_id);
+
+                    perform public.register_integration_window_agent(srv_id);
+
+                    perform public.register_integration_syslog(srv_id);
+
+                    perform public.register_integration_vmware(srv_id);
+
+                    perform public.register_integration_linux_agent(srv_id);
+
+                    perform public.register_integration_apache(srv_id);
+
+                    perform public.register_integration_linux_audit_demon(srv_id);
+
+                    perform public.register_integration_elasticsearch(srv_id);
+
+                    perform public.register_integration_hap(srv_id);
+
+                    perform public.register_integration_kafka(srv_id);
+
+                    perform public.register_integration_kibana(srv_id);
+
+                    perform public.register_integration_logstash(srv_id);
+
+                    perform public.register_integration_mongodb(srv_id);
+
+                    perform public.register_integration_mysql(srv_id);
+
+                    perform public.register_integration_nats(srv_id);
+
+                    perform public.register_integration_nginx(srv_id);
+
+                    perform public.register_integration_osquery(srv_id);
+
+                    perform public.register_integration_postgresql(srv_id);
+
+                    perform public.register_integration_redis(srv_id);
+
+                    perform public.register_integration_traefik(srv_id);
+
+                    perform public.register_integration_cisco(srv_id);
+
+                    perform public.register_integration_cisco_meraki(srv_id);
+
+                    perform public.register_integration_json(srv_id);
+
+                    perform public.register_integration_iis(srv_id);
+
+                    perform public.register_integration_kaspersky(srv_id);
+
+                    perform public.register_integration_eset(srv_id);
+
+                    perform public.register_integration_sentinel_one(srv_id);
+
+                    perform public.register_integration_fortigate(srv_id);
+
+                    perform public.register_integration_sophosxg(srv_id);
+
+                    perform public.register_integration_macos(srv_id);
+
+
+                IF srv_type = 'aio' THEN
+
+                    perform public.register_integration_file_integrity(srv_id);
+
+                    perform public.register_integration_azure(srv_id);
+
+                    perform public.register_integration_o365(srv_id);
+
+                    perform public.register_integration_aws(srv_id);
+
+                    perform public.register_integration_sophos_central(srv_id);
+
+                    perform public.register_integration_gcp(srv_id);
+
+                    perform public.register_integration_fire_power(srv_id);
+
+                    perform public.register_integration_mikrotik(srv_id);
+
+                    perform public.register_integration_palo_alto(srv_id);
+
+                    perform public.register_integration_cisco_switch(srv_id);
+
+                    perform public.register_integration_sonic_wall(srv_id);
+
+                    perform public.register_integration_deceptive_bytes(srv_id);
+
+                    perform public.register_integration_github(srv_id);
+
+                    perform public.register_integration_bitdefender(srv_id);
+
+                    perform public.register_integration_soc_ai(srv_id);
+
+                    perform public.register_integration_pfsense(srv_id);
+
+                    perform public.register_integration_fortiweb(srv_id);
+
+                    perform public.register_integration_aix(srv_id);
+
+                    perform public.register_integration_ibm_as_400(srv_id);
+
+                END IF;
+
+                perform public.update_module_dependencies();
+            END;
+            $$;
+            ]]>
+        </createProcedure>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+                perform public.execute_register_integration_function();
+            end;
+            $$
+            language plpgsql;
+        </createProcedure>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version)
+                VALUES (1526, 'filter {
+
+# IBM AS 400 filter version 2.0.1
+# Support Syslog CEF and LEEF format, and Java Agent Syslog messsages
+# Based on https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm (may 2022)
+# https://www.ibm.com/docs/en/dsm?topic=leef-overview (may 2022)
+# https://www.ibm.com/docs/en/dsm?topic=overview-leef-event-components (may 2022)
+# https://www.ibm.com/docs/en/dsm?topic=overview-predefined-leef-event-attributes (may 2022)
+# LEEF:Version|Vendor|Product|Version|EventID|(DelimiterCharacter) disponible en 2.0|
+# LEEF:1.0|Microsoft|MSExchange|4.0 SP1|15345|
+# LEEF:2.0|Lancope|StealthWatch|1.0|41|x5E|
+
+    split {
+      field => "message"
+      terminator => "<utm-log-separator>"
+    }
+
+    #Looking for datasource generated by an agent and parse original message
+    if [message]=~/\[utm_stack_collector_ds=(.+)\]-(.+)/ {
+      grok {
+       match => {
+          "message" => [ "\[utm_stack_collector_ds=%{DATA:dataSourceCollector}\]-%{GREEDYDATA:original_log_message}" ]
+        }
+      }
+    }
+    if [original_log_message] {
+      mutate {
+        update => { "message" => "%{[original_log_message]}" }
+      }
+    }
+
+  if ![dataType] {
+#......................................................................#
+#Generating dataSource field required by CurrelationRulesEngine
+#Checks if exists, if not evaluate to the host variable
+            if (![dataSource]){
+              if ([dataSourceCollector]){
+                mutate {
+                    rename => { "[dataSourceCollector]" => "[dataSource]" }
+                }
+              } else {
+                mutate {
+                    add_field => { "dataSource" => "%{host}" }
+                }
+              }
+            }
+           if (![dataSource]){
+              mutate {
+               add_field => { "dataSource" => "%{host}" }
+              }
+           }
+#......................................................................#
+#Generating dataType field required by CurrelationRulesEngine
+          mutate {
+            add_field => { "dataType" => "ibm-as400" }
+          }
+#First, search to define the entry point contain CEF: or LEEF:, contain |something, or look for IBM
+    if [message] and ( (("CEF:" in [message] or "LEEF:" in [message]) and [message] =~/\|(\w+)?(\s)?IBM(\s)?(\w+)?\|/ ) or [message] =~/(\w+)?(\s)IBM(\s)(\w+)?/ ) {
+#......................................................................#
+#If CEF or LEEF formatted log do the parsing of the message mark as undefined syslog format
+        if ("CEF:" in [message] or "LEEF:" in [message] ) {
+#......................................................................#
+#Using grok to parse header of the message
+            grok {
+              match => {
+                "message" => [
+                   "(\[DEVICE_TYPE=AS400, LOG_GEN_COLLECTOR=UTMStack\](\s))?(%{INT:not_defined})?(\s)?(<%{NUMBER:priority}>)?(%{INT:syslog_version})?((\s)%{GREEDYDATA:syslog_date_host}(\s))?(?<format_type>(CEF|LEEF)):(\s)?(?<format_version>(%{INT}\.%{INT}|%{INT}))%{GREEDYDATA:cef_or_leef_msg_all}"
+                ]
+              }
+            }
+        }
+        if ("CEF:" in [message] ) {
+#......................................................................#
+#Using grok to parse components of the cef_message
+          if [cef_or_leef_msg_all] {
+            grok {
+              match => {
+                "cef_or_leef_msg_all" => [
+                   "\|%{DATA:embDeviceVendor}\|%{DATA:embDeviceProduct}\|%{DATA:embDeviceVersion}\|%{DATA:signatureID}\|%{DATA:act_msg}\|%{DATA:severity}\|%{GREEDYDATA:cef_or_leef_msg}",
+                   "\|%{DATA:embDeviceVendor}\|%{DATA:embDeviceProduct}\|%{DATA:signatureID}\|%{DATA:act_msg}\|%{DATA:severity}\|%{GREEDYDATA:cef_or_leef_msg}",
+                   "\|%{DATA:embDeviceVendor}\|%{DATA:embDeviceProduct}\|%{GREEDYDATA:cef_or_leef_msg}"
+                ]
+              }
+            }
+          }
+        } else if ("LEEF:" in [message] ) {
+#......................................................................#
+#Using grok to parse components of the leef_message
+          if [cef_or_leef_msg_all] {
+            grok {
+              match => {
+                "cef_or_leef_msg_all" => [
+                   "\|%{DATA:embDeviceVendor}\|%{DATA:embDeviceProduct}\|%{DATA:embDeviceVersion}\|%{DATA:eventID}\|%{DATA:DelimiterCharacter}\|%{GREEDYDATA:cef_or_leef_msg}",
+                   "\|%{DATA:embDeviceVendor}\|%{DATA:embDeviceProduct}\|%{DATA:eventID}\|%{DATA:DelimiterCharacter}\|%{GREEDYDATA:cef_or_leef_msg}",
+                   "\|%{DATA:embDeviceVendor}\|%{DATA:embDeviceProduct}\|%{GREEDYDATA:cef_or_leef_msg}"
+                ]
+              }
+            }
+          }
+        }
+#......................................................................#
+#First, replace whitespaces with default string after = to avoid kv issues, example:
+#gattServices= manufacturerName=MFN, generates -> gattServices="manufacturerName=MFN"
+#and should generate two fields: gattServices and manufacturerName
+    if [cef_or_leef_msg] {
+      mutate {
+        gsub => [
+          "cef_or_leef_msg", "(\w+)= ", "\1=X0X "
+        ]
+      }
+#......................................................................#
+#Using the kv filter with default config, usefull in key-value logs
+      kv {
+        source => "cef_or_leef_msg"
+        allow_duplicate_values => false
+        target => "kv_field"
+      }
+    }
+#......................................................................#
+#Remove fields that have issues with kv filter (spaces or = in value)
+#then generate them by parsing, filtered by CEF and LEEF format
+#......................................................................#
+    if [kv_field] {
+       mutate {
+         remove_field => ["[kv_field][rt]","[kv_field][destinationZoneURI]","[kv_field][msg]",
+         "[kv_field][customerURI]","[kv_field][destinationZoneExternalID]","[kv_field][cs1]",
+         "[kv_field][cs2]","[kv_field][cs3]","[kv_field][cs4]","[kv_field][cs5]","[kv_field][cs6]",
+         "[kv_field][originalAgentZoneURI]","[kv_field][flexString1]","[kv_field][cat]",
+         "[kv_field][cs1Label]","[kv_field][cs2Label]","[kv_field][cs3Label]","[kv_field][cs4Label]",
+         "[kv_field][cs5Label]","[kv_field][cs6Label]","[kv_field][cn1]","[kv_field][cn2]",
+         "[kv_field][cn3]","[kv_field][cn4]","[kv_field][cn5]","[kv_field][cn6]","[kv_field][cn1Label]",
+         "[kv_field][cn2Label]","[kv_field][cn3Label]","[kv_field][cn4Label]","[kv_field][cn5Label]",
+         "[kv_field][cn6Label]","[kv_field][suser]","[kv_field][ruleName]","[kv_field][duser]",
+         "[kv_field][accountName]","[kv_field][eventDesc]","[kv_field][endpointDeviceControlDeviceName]",
+         "[kv_field][sourceAgentLastActivityTimestamp]","[kv_field][sourceAgentRegisterTimestamp]",
+         "[kv_field][manufacturerName]","[kv_field][sourceUserName]","[kv_field][sourceGroupName]",
+         "[kv_field][siteName]","[kv_field][deviceRuleType]","[kv_field][reason]","[kv_field][identHostName]",
+         "[kv_field][identNetBios]","[kv_field][identGrpName]","[kv_field][vSrcName]","[kv_field][role]",
+         "[kv_field][realm]","[kv_field][policy]","[kv_field][resource]","[kv_field][url]",
+         "[kv_field][usrName]","[kv_field][filePath]","[kv_field][changedData]",
+         "[kv_field][pgmName]","[kv_field][memberName]","[kv_field][rowData]",
+         "[kv_field][updatedColumnNames]","[kv_field][rowDataBefore]","[kv_field][rowDataAfter]"]
+       }
+    }
+#......................................................................#
+#Using grok to parse kv issued fields
+    if [cef_or_leef_msg] {
+       grok { match => { "cef_or_leef_msg" => ["rt=%{DATA:rt} %{WORD}=","rt=%{GREEDYDATA:rt}"] } }
+       grok { match => { "cef_or_leef_msg" => ["pgmName=%{DATA:pgmName} %{WORD}=","pgmName=%{GREEDYDATA:pgmName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["memberName=%{DATA:memberName} %{WORD}=","memberName=%{GREEDYDATA:memberName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["rowData=%{DATA:rowData} %{WORD}=","rowData=%{GREEDYDATA:rowData}"] } }
+       grok { match => { "cef_or_leef_msg" => ["updatedColumnNames=%{DATA:updatedColumnNames} %{WORD}=","updatedColumnNames=%{GREEDYDATA:updatedColumnNames}"] } }
+       grok { match => { "cef_or_leef_msg" => ["rowDataBefore=%{DATA:rowDataBefore} %{WORD}=","rowDataBefore=%{GREEDYDATA:rowDataBefore}"] } }
+       grok { match => { "cef_or_leef_msg" => ["rowDataAfter=%{DATA:rowDataAfter} %{WORD}=","rowDataAfter=%{GREEDYDATA:rowDataAfter}"] } }
+       grok { match => { "cef_or_leef_msg" => ["destinationZoneURI=%{DATA:destinationZoneURI} %{WORD}=","destinationZoneURI=%{GREEDYDATA:destinationZoneURI}"] } }
+       grok { match => { "cef_or_leef_msg" => ["msg=%{DATA:msg} %{WORD}=","msg=%{GREEDYDATA:msg}"] } }
+       grok { match => { "cef_or_leef_msg" => ["customerURI=%{DATA:customerURI} %{WORD}=","customerURI=%{GREEDYDATA:customerURI}"] } }
+       grok { match => { "cef_or_leef_msg" => ["destinationZoneExternalID=%{DATA:destinationZoneExternalID} %{WORD}=","destinationZoneExternalID=%{GREEDYDATA:destinationZoneExternalID}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs1=%{DATA:cs1} %{WORD}=","cs1=%{GREEDYDATA:cs1}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs2=%{DATA:cs2} %{WORD}=","cs2=%{GREEDYDATA:cs2}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs3=%{DATA:cs3} %{WORD}=","cs3=%{GREEDYDATA:cs3}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs4=%{DATA:cs4} %{WORD}=","cs4=%{GREEDYDATA:cs4}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs5=%{DATA:cs5} %{WORD}=","cs5=%{GREEDYDATA:cs5}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs6=%{DATA:cs6} %{WORD}=","cs6=%{GREEDYDATA:cs6}"] } }
+       grok { match => { "cef_or_leef_msg" => ["originalAgentZoneURI=%{DATA:originalAgentZoneURI} %{WORD}=","originalAgentZoneURI=%{GREEDYDATA:originalAgentZoneURI}"] } }
+       grok { match => { "cef_or_leef_msg" => ["flexString1=%{DATA:flexString1} %{WORD}=","flexString1=%{GREEDYDATA:flexString1}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cat=%{DATA:cat} %{WORD}=","cat=%{GREEDYDATA:cat}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs1Label=%{DATA:cs1Label} %{WORD}=","cs1Label=%{GREEDYDATA:cs1Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs2Label=%{DATA:cs2Label} %{WORD}=","cs2Label=%{GREEDYDATA:cs2Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs3Label=%{DATA:cs3Label} %{WORD}=","cs3Label=%{GREEDYDATA:cs3Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs4Label=%{DATA:cs4Label} %{WORD}=","cs4Label=%{GREEDYDATA:cs4Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs5Label=%{DATA:cs5Label} %{WORD}=","cs5Label=%{GREEDYDATA:cs5Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cs6Label=%{DATA:cs6Label} %{WORD}=","cs6Label=%{GREEDYDATA:cs6Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn1=%{DATA:cn1} %{WORD}=","cn1=%{GREEDYDATA:cn1}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn2=%{DATA:cn2} %{WORD}=","cn2=%{GREEDYDATA:cn2}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn3=%{DATA:cn3} %{WORD}=","cn3=%{GREEDYDATA:cn3}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn4=%{DATA:cn4} %{WORD}=","cn4=%{GREEDYDATA:cn4}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn5=%{DATA:cn5} %{WORD}=","cn5=%{GREEDYDATA:cn5}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn6=%{DATA:cn6} %{WORD}=","cn6=%{GREEDYDATA:cn6}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn1Label=%{DATA:cn1Label} %{WORD}=","cn1Label=%{GREEDYDATA:cn1Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn2Label=%{DATA:cn2Label} %{WORD}=","cn2Label=%{GREEDYDATA:cn2Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn3Label=%{DATA:cn3Label} %{WORD}=","cn3Label=%{GREEDYDATA:cn3Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn4Label=%{DATA:cn4Label} %{WORD}=","cn4Label=%{GREEDYDATA:cn4Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn5Label=%{DATA:cn5Label} %{WORD}=","cn5Label=%{GREEDYDATA:cn5Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["cn6Label=%{DATA:cn6Label} %{WORD}=","cn6Label=%{GREEDYDATA:cn6Label}"] } }
+       grok { match => { "cef_or_leef_msg" => ["suser=%{DATA:suser} %{WORD}=","suser=%{GREEDYDATA:suser}"] } }
+       grok { match => { "cef_or_leef_msg" => ["ruleName=%{DATA:ruleName} %{WORD}=","ruleName=%{GREEDYDATA:ruleName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["duser=%{DATA:duser} %{WORD}=","duser=%{GREEDYDATA:duser}"] } }
+       grok { match => { "cef_or_leef_msg" => ["accountName=%{DATA:accountName} %{WORD}="] } }
+       grok { match => { "cef_or_leef_msg" => ["eventDesc=%{DATA:eventDesc} %{WORD}=","eventDesc=%{GREEDYDATA:eventDesc}"] } }
+       grok { match => { "cef_or_leef_msg" => ["endpointDeviceControlDeviceName=%{DATA:endpointDeviceControlDeviceName} %{WORD}=","endpointDeviceControlDeviceName=%{GREEDYDATA:endpointDeviceControlDeviceName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["sourceAgentLastActivityTimestamp=%{DATA:sourceAgentLastActivityTimestamp} %{WORD}=","sourceAgentLastActivityTimestamp=%{GREEDYDATA:sourceAgentLastActivityTimestamp}"] } }
+       grok { match => { "cef_or_leef_msg" => ["sourceAgentRegisterTimestamp=%{DATA:sourceAgentRegisterTimestamp} %{WORD}=","sourceAgentRegisterTimestamp=%{GREEDYDATA:sourceAgentRegisterTimestamp}"] } }
+       grok { match => { "cef_or_leef_msg" => ["manufacturerName=%{DATA:manufacturerName} %{WORD}=","manufacturerName=%{GREEDYDATA:manufacturerName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["sourceUserName=%{DATA:sourceUserName} %{WORD}=","sourceUserName=%{GREEDYDATA:sourceUserName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["sourceGroupName=%{DATA:sourceGroupName} %{WORD}=","sourceGroupName=%{GREEDYDATA:sourceGroupName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["siteName=%{DATA:siteName} %{WORD}=","siteName=%{GREEDYDATA:siteName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["deviceRuleType=%{DATA:deviceRuleType} %{WORD}=","deviceRuleType=%{GREEDYDATA:deviceRuleType}"] } }
+       grok { match => { "cef_or_leef_msg" => ["reason=%{DATA:reason} %{WORD}=","reason=%{GREEDYDATA:reason}"] } }
+       grok { match => { "cef_or_leef_msg" => ["identHostName=%{DATA:identHostName} %{WORD}=","identHostName=%{GREEDYDATA:identHostName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["identNetBios=%{DATA:identNetBios} %{WORD}=","identNetBios=%{GREEDYDATA:identNetBios}"] } }
+       grok { match => { "cef_or_leef_msg" => ["identGrpName=%{DATA:identGrpName} %{WORD}=","identGrpName=%{GREEDYDATA:identGrpName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["vSrcName=%{DATA:vSrcName} %{WORD}=","vSrcName=%{GREEDYDATA:vSrcName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["role=%{DATA:role} %{WORD}=","role=%{GREEDYDATA:role}"] } }
+       grok { match => { "cef_or_leef_msg" => ["realm=%{DATA:realm} %{WORD}=","realm=%{GREEDYDATA:realm}"] } }
+       grok { match => { "cef_or_leef_msg" => ["policy=%{DATA:policy} %{WORD}=","policy=%{GREEDYDATA:policy}"] } }
+       grok { match => { "cef_or_leef_msg" => ["resource=%{DATA:resource} %{WORD}=","resource=%{GREEDYDATA:resource}"] } }
+       grok { match => { "cef_or_leef_msg" => ["url=%{DATA:url} %{WORD}=","url=%{GREEDYDATA:url}"] } }
+       grok { match => { "cef_or_leef_msg" => ["usrName=%{DATA:usrName} %{WORD}=","usrName=%{GREEDYDATA:usrName}"] } }
+       grok { match => { "cef_or_leef_msg" => ["filePath=%{DATA:filePath} %{WORD}=","filePath=%{GREEDYDATA:filePath}"] } }
+       grok { match => { "cef_or_leef_msg" => ["changedData=%{DATA:changedData} %{WORD}=","changedData=%{GREEDYDATA:changedData}"] } }
+    }
+       mutate {
+         #Rename fields with kv issues (individual groks)
+          rename => { "[pgmName]" => "[kv_field][pgmName]" }
+          rename => { "[memberName]" => "[kv_field][memberName]" }
+          rename => { "[rowData]" => "[kv_field][rowData]" }
+          rename => { "[updatedColumnNames]" => "[kv_field][updatedColumnNames]" }
+          rename => { "[rowDataBefore]" => "[kv_field][rowDataBefore]" }
+          rename => { "[rowDataAfter]" => "[kv_field][rowDataAfter]" }
+          rename => { "[cs1]" => "[kv_field][cs1]" }
+          rename => { "[cs2]" => "[kv_field][cs2]" }
+          rename => { "[cs3]" => "[kv_field][cs3]" }
+          rename => { "[cs4]" => "[kv_field][cs4]" }
+          rename => { "[cs5]" => "[kv_field][cs5]" }
+          rename => { "[cs6]" => "[kv_field][cs6]" }
+          rename => { "[cs1Label]" => "[kv_field][cs1Label]" }
+          rename => { "[cs2Label]" => "[kv_field][cs2Label]" }
+          rename => { "[cs3Label]" => "[kv_field][cs3Label]" }
+          rename => { "[cs4Label]" => "[kv_field][cs4Label]" }
+          rename => { "[cs5Label]" => "[kv_field][cs5Label]" }
+          rename => { "[cs6Label]" => "[kv_field][cs6Label]" }
+          rename => { "[cn1]" => "[kv_field][cn1]" }
+          rename => { "[cn2]" => "[kv_field][cn2]" }
+          rename => { "[cn3]" => "[kv_field][cn3]" }
+          rename => { "[cn4]" => "[kv_field][cn4]" }
+          rename => { "[cn5]" => "[kv_field][cn5]" }
+          rename => { "[cn6]" => "[kv_field][cn6]" }
+          rename => { "[cn1Label]" => "[kv_field][cn1Label]" }
+          rename => { "[cn2Label]" => "[kv_field][cn2Label]" }
+          rename => { "[cn3Label]" => "[kv_field][cn3Label]" }
+          rename => { "[cn4Label]" => "[kv_field][cn4Label]" }
+          rename => { "[cn5Label]" => "[kv_field][cn5Label]" }
+          rename => { "[cn6Label]" => "[kv_field][cn6Label]" }
+          rename => { "[msg]" => "[kv_field][msg]" }
+          rename => { "[customerURI]" => "[kv_field][customerURI]" }
+          rename => { "[cat]" => "[kv_field][cat]" }
+          rename => { "[rt]" => "[kv_field][rt]" }
+          rename => { "[destinationZoneURI]" => "[kv_field][destinationZoneURI]" }
+          rename => { "[destinationZoneExternalID]" => "[kv_field][destinationZoneExternalID]" }
+          rename => { "[message]" => "[kv_field][message]" }
+          rename => { "[duser]" => "[kv_field][duser]" }
+          rename => { "[suser]" => "[kv_field][suser]" }
+          rename => { "[originalAgentZoneURI]" => "[kv_field][originalAgentZoneURI]" }
+          rename => { "[flexString1]" => "[kv_field][flexString1]" }
+          rename => { "[ruleName]" => "[kv_field][ruleName]" }
+          rename => { "[accountName]" => "[kv_field][accountName]" }
+          rename => { "[eventDesc]" => "[kv_field][eventDesc]" }
+          rename => { "[endpointDeviceControlDeviceName]" => "[kv_field][endpointDeviceControlDeviceName]" }
+          rename => { "[sourceAgentLastActivityTimestamp]" => "[kv_field][sourceAgentLastActivityTimestamp]" }
+          rename => { "[sourceAgentRegisterTimestamp]" => "[kv_field][sourceAgentRegisterTimestamp]" }
+          rename => { "[manufacturerName]" => "[kv_field][manufacturerName]" }
+          rename => { "[sourceUserName]" => "[kv_field][sourceUserName]" }
+          rename => { "[sourceGroupName]" => "[kv_field][sourceGroupName]" }
+          rename => { "[siteName]" => "[kv_field][siteName]" }
+          rename => { "[deviceRuleType]" => "[kv_field][deviceRuleType]" }
+          rename => { "[reason]" => "[kv_field][reason]" }
+          rename => { "[identHostName]" => "[kv_field][identHostName]" }
+          rename => { "[identNetBios]" => "[kv_field][identNetBios]" }
+          rename => { "[identGrpName]" => "[kv_field][identGrpName]" }
+          rename => { "[vSrcName]" => "[kv_field][vSrcName]" }
+          rename => { "[role]" => "[kv_field][role]" }
+          rename => { "[realm]" => "[kv_field][realm]" }
+          rename => { "[policy]" => "[kv_field][policy]" }
+          rename => { "[resource]" => "[kv_field][resource]" }
+          rename => { "[url]" => "[kv_field][url]" }
+          rename => { "[usrName]" => "[kv_field][usrName]" }
+          rename => { "[filePath]" => "[kv_field][filePath]" }
+          rename => { "[changedData]" => "[kv_field][changedData]" }
+       }
+#......................................................................#
+#Add fields to the tree structure
+#......................................................................#
+        mutate {
+          #Rename the filds out of kv results
+          rename => { "[signatureID]" => "[kv_field][signatureID]" }
+          rename => { "[eventID]" => "[kv_field][eventID]" }
+          rename => { "[embDeviceVendor]" => "[kv_field][embDeviceVendor]" }
+          rename => { "[embDeviceProduct]" => "[kv_field][embDeviceProduct]" }
+          rename => { "[act_msg]" => "[kv_field][act_msg]" }
+          rename => { "[format_version]" => "[kv_field][format_version]" }
+          rename => { "[embDeviceVersion]" => "[kv_field][embDeviceVersion]" }
+          rename => { "[priority]" => "[kv_field][priority]" }
+          rename => { "[severity]" => "[kv_field][severity]" }
+          rename => { "[end_msg]" => "[kv_field][end_msg]" }
+          rename => { "[format_type]" => "[kv_field][format_type]" }
+          rename => { "[DelimiterCharacter]" => "[kv_field][DelimiterCharacter]" }
+        }
+
+#......................................................................#
+#Correlation standard fields
+#......................................................................#
+    #src can be in multiple fields
+    if [kv_field][src] {
+        mutate {
+          rename => { "[kv_field][src]" => "[kv_field][src_ip]" }
+        }
+    } else if ([kv_field][cs4Label]) and ("clientIp" in [kv_field][cs4Label]) {
+        mutate {
+          rename => { "[kv_field][cs4]" => "[kv_field][src_ip]" }
+        }
+    } else if [kv_field][FromIPAddress] {
+        mutate {
+          rename => { "[kv_field][FromIPAddress]" => "[kv_field][src_ip]" }
+        }
+    }
+
+        mutate {
+          rename => { "[kv_field][dst]" => "[kv_field][dest_ip]" }
+          rename => { "[kv_field][srcPort]" => "[kv_field][src_port]" }
+          rename => { "[kv_field][dstPort]" => "[kv_field][dest_port]" }
+        }
+#......................................................................#
+
+#......................................................................#
+#Set null the fields with de X0X value (default string for null), and replace simple and double quotation
+#also generate logx tree structure dynamically
+          if ([kv_field]) {
+            ruby {
+                code => ''
+                    event.get("[kv_field]").each do |k, v|
+                          if (v == "X0X")
+                            event.set("[logx][ibm_as400][#{k}]",nil)
+                          elsif (k=~/(\W)$/)
+                              event.remove(k)
+                          elsif !(v.kind_of?(Array))
+                              new_v = v.to_s.gsub(/\"/, "")
+                              new_v = new_v.gsub(/\''/, "")
+                              event.set("[logx][ibm_as400][#{k}]",new_v)
+                          else
+                              event.set("[logx][ibm_as400][#{k}]",v)
+                          end
+                       end
+                    ''
+            }
+          }
+#......................................................................#
+   #Finally, remove unnecessary fields
+   mutate {
+      remove_field => ["@version","path","tags","type","syslog_version","kv_field",
+      "not_defined","cef_or_leef_msg_all","cef_or_leef_msg","syslog_date_host","irrelevant","init_msg"]
+   }
+
+#......................................................................#
+# Java Agent Syslog filtering
+#......................................................................#
+  } else if [message] and ( "[DEVICE_TYPE=AS400, LOG_GEN_COLLECTOR=UTMStack]" in [message] ) {
+#......................................................................#
+#Generating dataSource field required by CurrelationRulesEngine
+#Checks if exists, if not evaluate to the host variable
+           grok {
+              match => {
+                "message" => [
+                   "\[DEVICE_TYPE=AS400, LOG_GEN_COLLECTOR=UTMStack\] %{GREEDYDATA:msg}"
+                ]
+              }
+           }
+
+#......................................................................#
+#Then add all possible fields to the json tree structure
+   mutate {
+      remove_field => ["message"]
+   }
+   mutate {
+      rename => { "msg" => "[logx][ibm_as400][message]" }
+   }
+  }
+#......................................................................#
+#Finally, remove unnecessary fields
+   mutate {
+      remove_field => ["@version","path","tags","type","original_log_message","headers"]
+   }
+ }
+}', 'as_400', null, true, 'AS_400', false, '2.0.1');
+            ]]>
+        </sql>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                    INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
+                    VALUES (51, 'as_400', 'AS_400', null, 'up', 'AS_400', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+
+                    INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
+                    VALUES (1526, 51, 'PIPELINE_FILTER');
+
+                    INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
+                    VALUES (67, 51, 'HTTP', 'http', false, true);
+
+                    INSERT INTO utm_logstash_input_configuration (id, input_id, conf_key, conf_value, conf_type, conf_required, conf_validation_regex, system_owner)
+                    VALUES (67 ,67, 'http_port', '10047', 'port', true, '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$', true);
+
+                    INSERT INTO utm_index_pattern (id, pattern, pattern_module, pattern_system, is_active)
+                    VALUES (67,'log-ibm-as400-*', 'AS_400', true, true);
+
+                    INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+                    VALUES (265, 'AS_400', 'discover/log-analyzer?patternId=66&indexPattern=log-ibm-as400-*', 200, 1, null, 65, false, false, null, 'AS_400');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 265, 'ROLE_USER');
+
+                    INSERT INTO utm_menu_authority (menu_id, authority_name)
+                    VALUES ( 265, 'ROLE_ADMIN');
+
+
+            ]]>
+
+
+        </sql>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            ALTER TABLE utm_asset_group
+                ADD COLUMN type VARCHAR(50);
+
+            UPDATE utm_asset_group
+            SET type = 'ASSET';
+
+            ALTER TABLE utm_asset_group
+                DROP CONSTRAINT ux_group_name;
+
+            ALTER TABLE utm_asset_group
+                ADD CONSTRAINT ux_group_name UNIQUE (group_name, type);
+            ]]>
+        </sql>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            CREATE TABLE utm_collectors (
+                            id BIGINT NOT NULL,
+                            status VARCHAR(50) NOT NULL,
+                            collector_key VARCHAR(255) NOT NULL,
+                            ip VARCHAR(45) NOT NULL,
+                            hostname VARCHAR(255) NOT NULL,
+                            version VARCHAR(50),
+                            module VARCHAR(50) NOT NULL,
+                            last_seen TIMESTAMP,
+                            group_id BIGINT,
+                            active BOOLEAN DEFAULT TRUE
+            );
+            ]]>
+        </sql>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            ALTER TABLE utm_module_group
+                ADD COLUMN collector_id VARCHAR(255)
+            ]]>
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

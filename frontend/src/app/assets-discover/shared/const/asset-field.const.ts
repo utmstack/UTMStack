@@ -2,6 +2,7 @@ import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enu
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {AssetFieldFilterEnum} from '../enums/asset-field-filter.enum';
 import {AssetFieldEnum} from '../enums/asset-field.enum';
+import {CollectorFieldFilterEnum} from '../enums/collector-field-filter.enum';
 
 export const ASSETS_FIELDS: UtmFieldType[] = [
   // {
@@ -130,5 +131,14 @@ export const ASSETS_FIELDS_FILTERS: UtmFieldType[] = [
   //   type: ElasticDataTypesEnum.STRING,
   //   visible: true
   // },
+];
+
+export const COLLECTORS_FIELDS_FILTERS: UtmFieldType[] = [
+  {
+    label: 'Group',
+    field: CollectorFieldFilterEnum.COLLECTOR_GROUP,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true
+  },
 ];
 

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240517001" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+
+
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (703, 'Collectors', 'data-sources/collectors', 700, 1, null, 3, true, false, null, null);
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (703, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (703, 'ROLE_USER');
+
+
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (704, 'Collectors Groups', 'data-sources/collectors-groups?type=collector', 700, 1, null, 4, true, false, null, null);
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (704, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (704, 'ROLE_USER');
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

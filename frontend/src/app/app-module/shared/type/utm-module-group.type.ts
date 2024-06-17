@@ -8,4 +8,5 @@ export class UtmModuleGroupType {
   module: UtmModuleType;
   moduleId: number;
   moduleGroupConfigurations: UtmModuleGroupConfType[];
+  collector: string;
 }

@@ -5,15 +5,14 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
-	"github.com/utmstack/UTMStack/log-auth-proxy/model"
 	"github.com/utmstack/UTMStack/log-auth-proxy/panelservice"
+	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 )
 
 var transport = &http.Transport{
@@ -27,7 +26,7 @@ var transport = &http.Transport{
 }
 
 type LogOutputService struct {
-	Connections map[model.LogType]string
+	Connections map[config.LogType]string
 	Mutex       sync.Mutex
 	Ticker      *time.Ticker
 	Client      *http.Client
@@ -41,19 +40,21 @@ func NewLogOutputService() *LogOutputService {
 	}
 }
 
-func (out *LogOutputService) SendLog(logType model.LogType, logData string) {
+func (out *LogOutputService) SendLog(logType config.LogType, logData string) {
+	h := utils.GetLogger()
 	out.Mutex.Lock()
 	defer out.Mutex.Unlock()
 	port, err := out.getConnectionPort(logType)
 	if err != nil {
-		log.Println(err)
+		h.ErrorF("error getting connection port: %v", err)
 		return
 	}
 	singleLog := logData + config.UTMLogSeparator
 	out.sendLogsToLogstash(port, singleLog)
 }
 
-func (out *LogOutputService) SendBulkLog(logType model.LogType, logDataArray []string) {
+func (out *LogOutputService) SendBulkLog(logType config.LogType, logDataArray []string) {
+	h := utils.GetLogger()
 	out.Mutex.Lock()
 	defer out.Mutex.Unlock()
 
@@ -64,19 +65,19 @@ func (out *LogOutputService) SendBulkLog(logType model.LogType, logDataArray []s
 
 	port, err := out.getConnectionPort(logType)
 	if err != nil {
-		log.Println(err)
+		h.ErrorF("error getting connection port: %v", err)
 		return
 	}
 
 	out.sendLogsToLogstash(port, logs)
 }
 
-func (out *LogOutputService) getConnectionPort(logType model.LogType) (string, error) {
+func (out *LogOutputService) getConnectionPort(logType config.LogType) (string, error) {
 	port, existLogType := out.Connections[logType]
 	if !existLogType {
-		portGeneric, isGenericUp := out.Connections[model.Generic]
+		portGeneric, isGenericUp := out.Connections[config.Generic]
 		if !isGenericUp {
-			return "", fmt.Errorf("neither %s or %s connections are available", logType, model.Generic)
+			return "", fmt.Errorf("neither %s or %s connections are available", logType, config.Generic)
 		}
 		port = portGeneric
 	}
@@ -88,30 +89,31 @@ func (out *LogOutputService) getConnectionPort(logType model.LogType) (string, e
 }
 
 func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
+	h := utils.GetLogger()
 	url := fmt.Sprintf(config.LogstashPipelinesEndpoint, config.LogstashHost(), port)
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
 	if err != nil {
-		log.Printf("error creating request: %v", err.Error())
+		h.ErrorF("error creating request: %v", err)
 	}
 
 	resp, err := out.Client.Do(req)
 	if err != nil {
 		if !strings.Contains(err.Error(), "Client.Timeout exceeded while awaiting headers") {
-			log.Printf("error sending logs with error: %v", err.Error())
+			h.ErrorF("error sending logs with error: %v", err.Error())
 		}
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("error sending logs with http code %d", resp.StatusCode)
+		h.ErrorF("error sending logs with http code %d", resp.StatusCode)
 		return
 	}
 }
 
-func getServiceMap() (map[model.LogType]string, error) {
-	logTypesMap := make(map[model.LogType]string)
+func getServiceMap() (map[config.LogType]string, error) {
+	logTypesMap := make(map[config.LogType]string)
 	pipelines, err := panelservice.GetPipelines()
 	if err != nil {
-		return logTypesMap, errors.New("unable to get the pipelines")
+		return logTypesMap, errors.New("unable to get the pipelines: " + err.Error())
 	}
 	for _, pipeline := range pipelines {
 		logTypesMap[pipeline.InputId] = pipeline.Port
@@ -120,12 +122,13 @@ func getServiceMap() (map[model.LogType]string, error) {
 }
 
 func (out *LogOutputService) SyncOutputs() {
+	h := utils.GetLogger()
 	out.Ticker = time.NewTicker(60 * time.Second)
 	go func() {
 		for range out.Ticker.C {
 			serviceMap, err := getServiceMap()
 			if err != nil {
-				fmt.Println("error getting service map:", err)
+				h.ErrorF("error getting service map: %v", err)
 				continue
 			}
 			out.Mutex.Lock()

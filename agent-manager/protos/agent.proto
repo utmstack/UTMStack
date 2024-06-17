@@ -1,18 +1,17 @@
 syntax = "proto3";
 
-option go_package = "github.com/utmstack/UTMStack/agent";
+option go_package = "github.com/utmstack/UTMStack/agent-manager/agent";
 
 package agent;
 
 import "google/protobuf/timestamp.proto";
-import "agent_config.proto";
+import "common.proto";
 
 service AgentService {
-  rpc RegisterAgent(AgentRequest) returns (AgentResponse) {}
-  rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
-  rpc DeleteAgent(AgentDelete) returns (AgentResponse) {}
-  rpc Ping(stream PingResponse) returns (stream  PingRequest) {}
+  rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
+  rpc DeleteAgent(AgentDelete) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+  rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
   rpc UpdateAgentType (AgentTypeUpdate) returns (Agent) {}
   rpc UpdateAgentGroup (AgentGroupUpdate) returns (Agent) {}
   rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
@@ -39,15 +38,11 @@ message Id{
   int64 id = 1;
 }
 
-message Hostname{
-  string hostname = 1;
-}
-
 message Agent {
   string ip = 1;
   string hostname = 2;
   string os = 3;
-  AgentStatus status = 4;
+  Status status = 4;
   string platform = 5;
   string version = 6;
   string agent_key = 7;
@@ -70,12 +65,6 @@ message AgentGroupUpdate {
   uint32 agent_group = 3;
 }
 
-enum AgentStatus {
-  ONLINE = 0;
-  OFFLINE = 1;
-  UNKNOWN = 2;
-}
-
 message AgentRequest {
   string ip = 1;
   string hostname = 2;
@@ -90,14 +79,8 @@ message AgentRequest {
   string addresses = 11;  // IP secondary ips
 }
 
-message AgentResponse {
-  uint32  id = 1;
-  string agent_key = 2;
-}
-
 message AgentDelete {
   string deleted_by = 1;
-  string agent_key = 2;
 }
 
 
@@ -109,7 +92,6 @@ message UtmCommand {
   string origin_type = 5;
   string origin_id = 6;
   string reason = 7;
-  string internal_key = 8;
 }
 
 message CommandResult {
@@ -119,34 +101,12 @@ message CommandResult {
   string cmd_id = 4;
 }
 
-message PingRequest {
-  string agent_key = 1;
-}
-
-message PingResponse {
-  bool is_alive = 1;
-  string  agent_key = 2;
-}
 
 message BidirectionalStream {
   oneof stream_message {
     UtmCommand command = 1;
     CommandResult result = 2;
-    AuthResponse auth_response = 3;
-    UpdateAgentModule config = 4;
   }
-}
-
-message AuthResponse {
-  uint64 agent_id = 1;
-  string agent_key = 2;
-}
-
-message ListRequest {
-  int32 page_number = 1;
-  int32 page_size = 2;
-  string search_query = 3;
-  string sort_by = 4;
 }
 
 message ListAgentsResponse {

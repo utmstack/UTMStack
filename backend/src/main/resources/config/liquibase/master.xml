@@ -61,5 +61,9 @@
 
     <include file="/config/liquibase/changelog/20240424001_updating_category_aix_fortiweb.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240506001_adding_as_400.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20240517001_add_collectors_source_menu.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

@@ -6,4 +6,5 @@ export interface AssetGroupType {
   groupDescription?: string;
   metrics?: NetScanMetricsType;
   createdDate?: Date;
+  type?: string;
 }

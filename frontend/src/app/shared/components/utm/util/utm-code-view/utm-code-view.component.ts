@@ -13,12 +13,10 @@ export class UtmCodeViewComponent implements OnInit, OnChanges {
     str: string;
 
     constructor(private utmToastService: UtmToastService) {
-    }
-
-    ngOnInit() {
         this.str = this.code;
-
     }
+
+    ngOnInit() {}
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.code) {
@@ -55,6 +53,7 @@ export class UtmCodeViewComponent implements OnInit, OnChanges {
     }
 
     removeSecretsTags(str) {
+        console.log(str);
         const regex = /<\/?secret>/g;
         return str.replace(regex, '');
     }

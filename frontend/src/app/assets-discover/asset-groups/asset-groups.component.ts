@@ -2,8 +2,12 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {ElasticFilterDefaultTime} from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
-import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {
+  ElasticFilterDefaultTime
+} from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {
+  ModalConfirmationComponent
+} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {AssetFiltersBehavior} from '../shared/behavior/asset-filters.behavior';
@@ -14,6 +18,11 @@ import {ASSETS_GROUP_FIELDS_FILTERS} from './shared/const/asset-group-field.cons
 import {GROUP_STATIC_FILTER} from './shared/const/asset-group.const';
 import {AssetGroupFilterType} from './shared/type/asset-group-filter.type';
 import {AssetGroupType} from './shared/type/asset-group.type';
+import {ActivatedRoute} from "@angular/router";
+import {GroupTypeEnum} from "../shared/enums/group-type.enum";
+import {COLLECTORS_GROUP_FIELDS_FILTERS} from "./shared/const/collector-group-field.const";
+import {CollectorFieldFilterEnum} from "../shared/enums/collector-field-filter.enum";
+import {UtmModuleCollectorService} from "../../app-module/shared/services/utm-module-collector.service";
 
 @Component({
   selector: 'app-asset-groups',
@@ -45,21 +54,34 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
     page: 0,
     size: ITEMS_PER_PAGE,
     sort: 'id,desc',
+    ip: null,
+    assetType: GroupTypeEnum.ASSET
   };
   groupsSelected: number[] = [];
   interval: any;
   // Init get group on time filter component trigger
   viewGroupDetail: AssetGroupType;
+  type = GroupTypeEnum.ASSET;
+  GroupTypeEnum = GroupTypeEnum;
 
   constructor(private utmAssetGroupService: UtmAssetGroupService,
               private modalService: NgbModal,
               private utmToastService: UtmToastService,
-              private assetFiltersBehavior: AssetFiltersBehavior) {
+              private assetFiltersBehavior: AssetFiltersBehavior,
+              private route: ActivatedRoute,
+              private utmModuleCollectorService: UtmModuleCollectorService) {
   }
 
   ngOnInit() {
-    this.setInitialWidth();
-    this.getAssetsGroups();
+    this.route.queryParams.subscribe(params => {
+      if (params.type) {
+        this.type = GroupTypeEnum.COLLECTOR;
+        this.fieldFilters = COLLECTORS_GROUP_FIELDS_FILTERS;
+        this.requestParam.assetType  = GroupTypeEnum.COLLECTOR;
+      }
+      this.setInitialWidth();
+      this.getAssetsGroups();
+    });
   }
 
   ngOnDestroy(): void {
@@ -91,11 +113,19 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
   }
 
   getAssetsGroups() {
-    this.utmAssetGroupService.query(this.requestParam).subscribe(response => {
-      this.totalItems = Number(response.headers.get('X-Total-Count'));
-      this.assetGroups = response.body;
-      this.loading = false;
-    });
+    if (this.type === GroupTypeEnum.ASSET) {
+      this.utmAssetGroupService.query(this.requestParam).subscribe(response => {
+        this.totalItems = Number(response.headers.get('X-Total-Count'));
+        this.assetGroups = response.body;
+        this.loading = false;
+      });
+    } else  {
+      this.utmModuleCollectorService.queryGroups(this.requestParam).subscribe(response => {
+        this.totalItems = Number(response.headers.get('X-Total-Count'));
+        this.assetGroups = response.body;
+        this.loading = false;
+      });
+    }
   }
 
   onItemsPerPageChange($event: number) {
@@ -148,7 +178,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
     this.getAssetsGroups();
   }
 
-  onFilterChange($event: { prop: AssetFieldFilterEnum, values: any }) {
+  onFilterChange($event: { prop, values: any }) {
     switch ($event.prop) {
       case AssetFieldFilterEnum.TYPE:
         this.requestParam.type = $event.values.length > 0 ? $event.values : null;
@@ -159,6 +189,7 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
       case AssetFieldFilterEnum.PROBE:
         this.requestParam.probe = $event.values.length > 0 ? $event.values : null;
         break;
+      case CollectorFieldFilterEnum.COLLECTOR_IP:
       case AssetFieldFilterEnum.IP:
         this.requestParam.assetIp = $event.values.length > 0 ? $event.values : null;
         break;
@@ -199,6 +230,11 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
 
   addGroup() {
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
+    modalGroup.componentInstance.group = {
+      groupDescription: '',
+      groupName: '',
+      type: this.type
+    };
     modalGroup.componentInstance.addGroup.subscribe(() => {
       this.getAssetsGroups();
     });
@@ -206,7 +242,10 @@ export class AssetGroupsComponent implements OnInit, OnDestroy {
 
   editGroup(group: AssetGroupType) {
     const modalGroup = this.modalService.open(AssetGroupCreateComponent, {centered: true});
-    modalGroup.componentInstance.group = group;
+    modalGroup.componentInstance.group = {
+      ...group,
+      type: this.type
+    };
     modalGroup.componentInstance.addGroup.subscribe(() => {
       this.getAssetsGroups();
     });

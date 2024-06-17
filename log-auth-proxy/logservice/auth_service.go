@@ -2,7 +2,6 @@ package logservice
 
 import (
 	"context"
-	"log"
 	"os"
 	"sync"
 	"time"
@@ -10,7 +9,9 @@ import (
 	"github.com/utmstack/UTMStack/log-auth-proxy/agent"
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/panelservice"
+	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -18,6 +19,7 @@ const maxMessageSize = 1024 * 1024 * 1024
 
 type LogAuthService struct {
 	Mutex              *sync.Mutex
+	CollectorKeyCache  []string
 	AgentKeyCache      []string
 	ConnectionKeyCache string
 }
@@ -25,12 +27,14 @@ type LogAuthService struct {
 func NewLogAuthService() *LogAuthService {
 	authService := &LogAuthService{
 		Mutex:              &sync.Mutex{},
+		CollectorKeyCache:  make([]string, 0),
 		AgentKeyCache:      make([]string, 0),
 		ConnectionKeyCache: "",
 	}
 
 	authService.syncConnectionKey()
-	authService.syncAgentsKeys()
+	authService.syncKeys(agent.ConnectorType_AGENT)
+	authService.syncKeys(agent.ConnectorType_COLLECTOR)
 
 	return authService
 }
@@ -39,58 +43,82 @@ func (auth *LogAuthService) SyncAuth() {
 	ticker := time.NewTicker(20 * time.Second)
 	defer ticker.Stop()
 
-	for {
-		select {
-		case <-ticker.C:
-			auth.syncAgentsKeys()
-			auth.syncConnectionKey()
-		}
+	for range ticker.C {
+		auth.syncKeys(agent.ConnectorType_COLLECTOR)
+		auth.syncKeys(agent.ConnectorType_AGENT)
+		auth.syncConnectionKey()
 	}
 }
 
-func (auth *LogAuthService) syncAgentsKeys() {
+func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
+	h := utils.GetLogger()
 	serverAddress := os.Getenv(config.UTMAgentManagerHostEnv)
 	if serverAddress == "" {
-		log.Fatalf("Failed to get the SERVER_ADDRESS ")
+		h.Fatal("Failed to get the SERVER_ADDRESS ")
 	}
 
-	conn, err := grpc.Dial(serverAddress, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+	conn, err := grpc.Dial(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
-		log.Printf("Failed to connect to gRPC server: %v", err)
+		h.ErrorF("Failed to connect to gRPC server: %v", err)
+		return
 	}
 	defer conn.Close()
 
-	agentClient := agent.NewAgentServiceClient(conn)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
 	ctx = metadata.AppendToOutgoingContext(ctx, "internal-key", os.Getenv(config.UTMSharedKeyEnv))
 
-	response, err := agentClient.ListAgents(ctx, &agent.ListRequest{
-		PageNumber:  1,
-		PageSize:    100000,
-		SearchQuery: "",
-		SortBy:      "",
-	})
+	switch typ {
+	case agent.ConnectorType_COLLECTOR:
+		collectorClient := agent.NewCollectorServiceClient(conn)
+		response, err := collectorClient.ListCollector(ctx, &agent.ListRequest{
+			PageNumber:  1,
+			PageSize:    100000,
+			SearchQuery: "",
+			SortBy:      "",
+		})
+		if err != nil {
+			h.ErrorF("Error sync collector keys: %v", err)
+			return
+		}
 
-	if err != nil {
-		log.Printf("Error sync agent keys: %v", err)
-		return
-	}
+		collectorKeys := make([]string, 0, len(response.Rows))
+		for _, row := range response.Rows {
+			collectorKeys = append(collectorKeys, row.CollectorKey)
+		}
 
-	agentKeys := make([]string, 0, len(response.Rows))
-	for _, row := range response.Rows {
-		agentKeys = append(agentKeys, row.AgentKey)
+		auth.Mutex.Lock()
+		auth.CollectorKeyCache = collectorKeys
+		auth.Mutex.Unlock()
+
+	case agent.ConnectorType_AGENT:
+		agentClient := agent.NewAgentServiceClient(conn)
+		response, err := agentClient.ListAgents(ctx, &agent.ListRequest{
+			PageNumber:  1,
+			PageSize:    100000,
+			SearchQuery: "",
+			SortBy:      "",
+		})
+		if err != nil {
+			h.ErrorF("Error sync agent keys: %v", err)
+			return
+		}
+
+		agentKeys := make([]string, 0, len(response.Rows))
+		for _, row := range response.Rows {
+			agentKeys = append(agentKeys, row.AgentKey)
+		}
+		auth.Mutex.Lock()
+		auth.AgentKeyCache = agentKeys
+		auth.Mutex.Unlock()
 	}
-	auth.Mutex.Lock()
-	auth.AgentKeyCache = agentKeys
-	auth.Mutex.Unlock()
 }
 
 func (auth *LogAuthService) syncConnectionKey() {
+	h := utils.GetLogger()
 	panelKey, err := panelservice.GetConnectionKey()
 	if err != nil {
+		h.ErrorF("Failed to get connection key: %v", err)
 		return
 	}
 	auth.Mutex.Lock()
@@ -98,12 +126,22 @@ func (auth *LogAuthService) syncConnectionKey() {
 	auth.Mutex.Unlock()
 }
 
-func (auth *LogAuthService) IsAgentKeyValid(agentKey string) bool {
-	for _, a := range auth.AgentKeyCache {
-		if a == agentKey {
-			return true
+func (auth *LogAuthService) IsKeyValid(key string, typ agent.ConnectorType) bool {
+	switch typ {
+	case agent.ConnectorType_AGENT:
+		for _, a := range auth.AgentKeyCache {
+			if a == key {
+				return true
+			}
+		}
+	case agent.ConnectorType_COLLECTOR:
+		for _, c := range auth.CollectorKeyCache {
+			if c == key {
+				return true
+			}
 		}
 	}
+
 	return false
 }
 

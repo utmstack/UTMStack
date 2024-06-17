@@ -94,6 +94,7 @@ export class AlertRuleCreateComponent implements OnInit {
   viewFieldDetail = false;
   uuid = UUID.UUID();
   tagging = false;
+  ElasticOperatorsEnum = ElasticOperatorsEnum;
 
   constructor(public activeModal: NgbActiveModal,
               public inputClass: InputClassResolve,

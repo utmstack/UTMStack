@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {UtmSharedModule} from '../../shared/utm-shared.module';
@@ -10,6 +10,7 @@ import {AppModuleCardComponent} from './components/app-module-card/app-module-ca
 import {AppModuleChecksComponent} from './components/app-module-checks/app-module-checks.component';
 import {AppModuleDeactivateComponent} from './components/app-module-deactivate/app-module-deactivate.component';
 import {IntCreateGroupComponent} from './components/int-create-group/int-create-group.component';
+import {NgSelectModule} from "@ng-select/ng-select";
 
 @NgModule({
   declarations: [AppModuleActivateModalComponent, AppModuleChecksComponent,
@@ -20,7 +21,9 @@ import {IntCreateGroupComponent} from './components/int-create-group/int-create-
     UtmSharedModule,
     InlineSVGModule,
     NgbModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgSelectModule,
+    FormsModule
   ],
   exports: [AppModuleActivateButtonComponent, AppModuleCardComponent,
     IntCreateGroupComponent],

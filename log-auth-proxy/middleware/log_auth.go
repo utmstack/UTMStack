@@ -7,14 +7,14 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
+	"io"
 	"net/http"
 	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/log-auth-proxy/config"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
+	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -39,26 +39,34 @@ func (interceptor *LogAuthInterceptor) GrpcAuthInterceptor(ctx context.Context, 
 		return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
 	}
 	// Get the authorization token from the metadata
-	authToken := md.Get("agent-key")
+	authToken := md.Get("key")
 	if len(authToken) == 0 {
 		return nil, status.Error(codes.Unauthenticated, "authorization token is not provided")
 	}
 	key := authToken[0]
-	if !interceptor.AuthService.IsAgentKeyValid(key) {
+
+	message, ok := req.(*logservice.LogMessage)
+	if !ok {
+		return nil, status.Error(codes.InvalidArgument, "invalid message type")
+	}
+
+	if !interceptor.AuthService.IsKeyValid(key, message.GetType()) {
 		return nil, status.Error(codes.Unauthenticated, "invalid agent key")
 	}
 	return handler(ctx, req)
 }
+
 func (interceptor *LogAuthInterceptor) GrpcRecoverInterceptor(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
+	h := utils.GetLogger()
 	defer func() {
 		if r := recover(); r != nil {
 			// Handle the panic here
-			log.Printf("Panic occurred: %v", r)
+			h.ErrorF("Panic occurred: %v", r)
 			err = status.Errorf(codes.Internal, "Internal server error")
 		}
 	}()
@@ -83,9 +91,11 @@ func (interceptor *LogAuthInterceptor) HTTPAuthInterceptor() gin.HandlerFunc {
 	}
 }
 func (interceptor *LogAuthInterceptor) HTTPGitHubAuthInterceptor() gin.HandlerFunc {
+	h := utils.GetLogger()
 	return func(c *gin.Context) {
-		body, err := ioutil.ReadAll(c.Request.Body)
+		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
+			h.ErrorF("error reading request body: %v", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, "error reading request body")
 			return
 		}
@@ -94,7 +104,7 @@ func (interceptor *LogAuthInterceptor) HTTPGitHubAuthInterceptor() gin.HandlerFu
 			c.AbortWithStatusJSON(http.StatusBadRequest, "Missing X-Hub-Signature-256")
 			return
 		}
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 		key := interceptor.AuthService.GetConnectionKey()
 		err = verifySignature(body, key, sig)
 		if err != nil {

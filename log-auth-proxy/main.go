@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"path/filepath"
@@ -13,26 +11,27 @@ import (
 	"github.com/utmstack/UTMStack/log-auth-proxy/handlers"
 	"github.com/utmstack/UTMStack/log-auth-proxy/logservice"
 	"github.com/utmstack/UTMStack/log-auth-proxy/middleware"
+	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
+	h := utils.GetLogger()
 	autService := logservice.NewLogAuthService()
 	go autService.SyncAuth()
 	authInterceptor := middleware.NewLogAuthInterceptor(autService)
 
 	cert, key, err := loadCerts()
 	if err != nil {
-		log.Fatal(err)
+		h.Fatal("Failed to load certificates: %v", err)
 	}
 
 	logOutputService := logservice.NewLogOutputService()
 	go logOutputService.SyncOutputs()
 
 	go startHTTPServer(authInterceptor, logOutputService, cert, key)
-	// go startTCPServer(authInterceptor, logOutputService, cert, key)
 	go startGRPCServer(authInterceptor, logOutputService)
 
 	// Block the main thread until an interrupt is received
@@ -40,6 +39,7 @@ func main() {
 }
 
 func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService, cert string, key string) {
+	h := utils.GetLogger()
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.POST("/v1/log", interceptor.HTTPAuthInterceptor(), handlers.HttpLog(logOutputService))
@@ -47,32 +47,10 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 	router.POST("/v1/github-webhook", interceptor.HTTPGitHubAuthInterceptor(), handlers.HttpGitHubHandler(logOutputService))
 	router.GET("/v1/ping", handlers.HttpPing)
 	err := router.RunTLS(":8080", cert, key)
-	log.Println("Starting HTTP server on 0.0.0.0:8080")
+	h.Info("Starting HTTP server on 0.0.0.0:8080")
 	if err != nil {
+		h.ErrorF("Failed to start HTTP server: %v", err)
 		return
-	}
-}
-
-func startTCPServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService, certFile string, keyFile string) {
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tcpTLSConfig := &tls.Config{Certificates: []tls.Certificate{cert}}
-
-	l, err := tls.Listen("tcp", ":2056", tcpTLSConfig)
-	if err != nil {
-		log.Fatal("Error listening:", err.Error())
-	}
-	defer l.Close()
-
-	log.Println("Starting TCP server on 0.0.0.0:8081")
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			log.Fatal("Error accepting: ", err.Error())
-		}
-		go handlers.HandleRequest(conn, interceptor, logOutputService)
 	}
 }
 
@@ -91,10 +69,10 @@ func loadCerts() (string, string, error) {
 }
 
 func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
-
+	h := utils.GetLogger()
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		h.Fatal("failed to listen grpc server: %v", err)
 	}
 
 	s := &logservice.Grpc{
@@ -108,11 +86,11 @@ func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 	// Register the health check service
 	healthServer := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
-
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+
 	// Start the gRPC server
-	log.Println("Starting gRPC server on 0.0.0.0:50051")
+	h.Info("Starting gRPC server on 0.0.0.0:50051")
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
+		h.Fatal("Failed to serve grpc: %v", err)
 	}
 }

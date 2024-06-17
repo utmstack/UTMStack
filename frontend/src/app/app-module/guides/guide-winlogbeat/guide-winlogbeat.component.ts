@@ -42,19 +42,19 @@ export class GuideWinlogbeatComponent implements OnInit {
   }
   getUninstallCommand(): string {
     return `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_installer.exe" -ArgumentList ` +
-      `'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'stop','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'delete','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'stop','UTMStackUpdater' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'delete','UTMStackUpdater' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
-      `-ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
-      `Write-Host "Removing UTMStack Agent dependencies..."; Start-Sleep -Seconds 10; Remove-Item 'C:\\Program Files\\UTMStack' ` +
-      `-Recurse -Force -ErrorAction Stop; Write-Host "UTMStack Agent removed successfully."`;
+            `'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'stop','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'delete','UTMStackRedline' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'stop','UTMStackUpdater' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'delete','UTMStackUpdater' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath "sc.exe" ` +
+            `-ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+            `Write-Host "Removing UTMStack Agent dependencies..."; Start-Sleep -Seconds 10; Remove-Item 'C:\\Program Files\\UTMStack\\UTMStack Agent' ` +
+            `-Recurse -Force -ErrorAction Stop; Write-Host "UTMStack Agent removed successfully."`;
   }
 
 }

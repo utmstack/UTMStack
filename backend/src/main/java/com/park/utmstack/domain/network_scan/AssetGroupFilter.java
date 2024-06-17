@@ -14,6 +14,8 @@ public class AssetGroupFilter {
     private List<String> assetIp;
     private List<String> assetName;
 
+    private String assetType;
+
     public Long getId() {
         return id;
     }
@@ -84,5 +86,13 @@ public class AssetGroupFilter {
 
     public void setOs(List<String> os) {
         this.os = os;
+    }
+
+    public String getAssetType() {
+        return assetType;
+    }
+
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
     }
 }

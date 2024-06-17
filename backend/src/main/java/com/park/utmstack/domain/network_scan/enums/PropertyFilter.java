@@ -12,7 +12,10 @@ public enum PropertyFilter {
     TYPE("assetType.typeName", "UtmNetworkScan"),
     SEVERITY("assetSeverity", "UtmNetworkScan"),
     PORTS("port", "UtmPorts"),
-    GROUP("assetGroup.groupName", "UtmNetworkScan");
+    GROUP("assetGroup.groupName", "UtmNetworkScan"),
+
+    COLLECTOR_IP("ip", "UtmCollector"),
+    COLLECTOR_GROUP("assetGroup.groupName", "UtmCollector");
 
     private final String propertyName;
     private final String fromTable;

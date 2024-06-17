@@ -9,5 +9,6 @@ export enum AssetMapFilterFieldEnum {
   TYPE = 'type',
   PROBE = 'probe',
   GROUPS = 'groups',
+  COLLECTOR_GROUP = 'groups',
   IP = 'assetIp'
 }

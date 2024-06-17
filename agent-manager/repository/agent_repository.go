@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -147,7 +146,7 @@ func (r *AgentRepository) UpdateAgentType(id uint, agentType uint) (models.Agent
 	}
 	err := r.db.Model(&models.Agent{}).Where("id = ?", id).Update("agent_type_id", agentType).Error
 	if err != nil {
-		return models.Agent{}, errors.New(fmt.Sprintf("unable to update agent type with id:%d", id))
+		return models.Agent{}, fmt.Errorf("unable to update agent type with id:%d", id)
 	}
 	return agent, nil
 }
@@ -160,7 +159,7 @@ func (r *AgentRepository) UpdateAgentGroup(id uint, agentGroup uint) (models.Age
 	}
 	err := r.db.Model(&models.Agent{}).Where("id = ?", id).Update("agent_group_id", agentGroup).Error
 	if err != nil {
-		return models.Agent{}, errors.New(fmt.Sprintf("unable to update agent type with id:%d", id))
+		return models.Agent{}, fmt.Errorf("unable to update agent type with id:%d", id)
 	}
 	return agent, nil
 }
