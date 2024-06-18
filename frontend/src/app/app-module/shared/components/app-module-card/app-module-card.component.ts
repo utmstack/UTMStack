@@ -15,7 +15,6 @@ export class AppModuleCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.module.prettyName, this.module.moduleActive);
   }
 
   showIntegration() {

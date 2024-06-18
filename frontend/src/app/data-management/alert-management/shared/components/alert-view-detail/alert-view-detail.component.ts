@@ -88,7 +88,6 @@ export class AlertViewDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.alert);
     this.viewLog = this.fullScreen;
     // @ts-ignore
     this.logs = this.alert.logs.reverse();
