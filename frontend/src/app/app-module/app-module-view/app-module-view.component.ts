@@ -2,7 +2,7 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {combineLatest, Observable, throwError, of} from 'rxjs';
+import {combineLatest, Observable, of} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {SYSTEM_MENU_ICONS_PATH} from '../../shared/constants/menu_icons.constants';
@@ -12,11 +12,6 @@ import {UtmModulesService} from '../shared/services/utm-modules.service';
 import {UtmServerService} from '../shared/services/utm-server.service';
 import {UtmModuleType} from '../shared/type/utm-module.type';
 import {UtmServerType} from '../shared/type/utm-server.type';
-
-interface ModuleData {
-  modules: UtmModuleType[];
-  categories: string[];
-}
 
 @Component({
   selector: 'app-app-module-view',
@@ -47,8 +42,6 @@ export class AppModuleViewComponent implements OnInit {
   };
   server: UtmServerType;
   servers: UtmServerType[];
-
-  moduleData$: Observable<ModuleData>;
 
   constructor(public modalService: NgbModal,
               private activatedRoute: ActivatedRoute,
@@ -87,17 +80,6 @@ export class AppModuleViewComponent implements OnInit {
                 })
             );
   }
-
- /* getServers() {
-    this.utmServerService.query({page: 0, size: 100}).subscribe(response => {
-      this.servers = response.body;
-      console.log(this.servers);
-      this.server = this.servers[0];
-      this.req['serverId.equals'] = this.server.id;
-      this.getCategories();
-      this.getModules();
-    });
-  }*/
 
   loadData() {
      this.utmServerService.query({page: 0, size: 100})
