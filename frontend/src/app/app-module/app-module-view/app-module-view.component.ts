@@ -2,7 +2,7 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {combineLatest, Observable, throwError} from 'rxjs';
+import {combineLatest, Observable, throwError, of} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {SYSTEM_MENU_ICONS_PATH} from '../../shared/constants/menu_icons.constants';
@@ -68,23 +68,24 @@ export class AppModuleViewComponent implements OnInit {
   }
 
   ngOnInit() {
-  /* this.modules$ = this.getDataModule();
-   this.categories$ = this.getCategories();*/
-
-    this.moduleData$ = this.getDataModule();
+    this.loadData();
   }
 
   getCategories() {
-    return this.utmModulesService.getModuleCategories(
-        {
-              serverId: this.server.id,
-              sort: 'moduleCategory,asc'
-        })
-        .pipe(
-            tap(() => this.loading = !this.loading),
-            map( res => {
-              return res.body.sort((a, b) => a > b ? 1 : -1);
-            }));
+      this.categories$ = this.utmModulesService
+          .getModuleCategories({serverId: this.server.id, sort: 'moduleCategory,asc'})
+            .pipe(
+                tap(() => this.loading = !this.loading),
+                map( res => {
+                  return res.body ? res.body.sort((a, b) => a > b ? 1 : -1) : [];
+                }),
+                catchError(error => {
+                    console.log(error);
+                    this.utmToastService.showError('Failed to fetch categories',
+                        'An error occurred while fetching module data.');
+                    return of([]);
+                })
+            );
   }
 
  /* getServers() {
@@ -98,65 +99,46 @@ export class AppModuleViewComponent implements OnInit {
     });
   }*/
 
-  getDataModule(): Observable<ModuleData> {
-    return this.utmServerService.query({page: 0, size: 100})
+  loadData() {
+     this.utmServerService.query({page: 0, size: 100})
         .pipe(
+            catchError(error => {
+                console.log(error);
+                this.utmToastService.showError('Failed to fetch servers',
+                    'An error occurred while fetching module data.');
+                return [];
+            }),
             map((resp: HttpResponse<UtmServerType[]>) => resp.body),
-            switchMap(servers => {
+            tap(servers => {
               this.server = servers[0];
               this.req['serverId.equals'] = servers[0].id;
-              return combineLatest(this.getModules(), this.getCategories())
-                  .pipe(
-                      map(([modules, categories]) => {
-                        return {
-                          modules,
-                          categories
-                        };
-                      }),
-                  catchError(error => {
-                    console.log(error);
-                    this.utmToastService.showError('Failed to list modules',
-                        'An error occurred while fetching module data.');
-                    return [];
-                  })
-              );
+              this.getModules();
+              this.getCategories();
             })
-        );
+        ).subscribe();
   }
 
-  /*getModules() {
-    this.utmModulesService.getModules(this.req)
+  getModules() {
+    this.loading = true;
+    this.modules$ = this.utmModulesService
+        .getModules(this.req)
         .pipe(
             map( response => {
               response.body.map(m => {
-                if (m.moduleName === this.utmModulesEnum.BITDEFENDER){
+                if (m.moduleName === this.utmModulesEnum.BITDEFENDER) {
                    m.prettyName = m.prettyName + ' GravityZone';
                 }
               });
-
-              return response.body;
-            })
-        )
-        .subscribe(modules => {
-      this.loading = false;
-      this.modules = modules;
-    });
-  }*/
-
-  getModules(): Observable<UtmModuleType[]> {
-    return this.utmModulesService.getModules(this.req)
-        .pipe(
-            map( response => {
-              response.body.map(m => {
-                if (m.moduleName === this.utmModulesEnum.BITDEFENDER){
-                   m.prettyName = m.prettyName + ' GravityZone';
-                }
-              });
-
               return response.body;
             }),
             tap ((modules) => {
               this.loading = false;
+            }),
+            catchError(error => {
+                console.log(error);
+                this.utmToastService.showError('Failed to fetch modules',
+                    'An error occurred while fetching module data.');
+                return [];
             })
         );
   }
