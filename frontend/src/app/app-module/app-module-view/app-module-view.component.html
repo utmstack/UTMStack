@@ -1,4 +1,4 @@
-<div class="container-fluid pr-2 pl-2 pt-2">
+<div *ngIf="moduleData$ | async as data" class="container-fluid pr-2 pl-2 pt-2">
   <div class="d-flex justify-content-between align-items-center mb-2 pl-3 pr-3">
     <h5 class="card-title label-header mb-0 text-uppercase label-header">
       Application modules
@@ -10,9 +10,9 @@
                  [(ngModel)]="category"
                  [clearable]="true"
                  placeholder="Category"
-                 [items]="categories"
+                 [items]="data.categories"
                  [loadingText]="'Loading categories...'"
-                 [loading]="!categories"
+                 [loading]="!data?.categories"
                  id="id"
                  class="mr-3"
                  style="width: 180px">
@@ -22,7 +22,7 @@
     </div>
   </div>
   <div class="d-flex justify-content-center align-items-center flex-wrap mt-2">
-    <app-app-module-card *ngFor="let mod of modules" [module]="mod"
+    <app-app-module-card *ngFor="let mod of data?.modules; trackBy: trackByFn" [module]="mod"
                          (showModuleIntegration)="showModule($event)"
                          class="module-card m-1"></app-app-module-card>
   </div>

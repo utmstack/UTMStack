@@ -15,7 +15,7 @@
   <button class="btn utm-button mb-3 " (click)="showIntegration()"
           [ngClass]="module.moduleActive?'utm-button-success':'utm-button-primary'">
     <i class="mr-1 icon-puzzle2"></i>
-    {{module.moduleActive ? 'Enabled' : 'View integration'}}
+    {{!module.moduleActive ? 'Enabled' : 'View integration'}}
 
   </button>
 </div>
