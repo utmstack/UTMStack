@@ -17,6 +17,10 @@ type Config struct {
 	InternalKey string `yaml:"internal_key"`
 }
 
+type ModuleConfig struct {
+	Branch string `yaml:"branch"`
+}
+
 var configPath = path.Join("/root", "utmstack.yml")
 
 func (c *Config) Get() {
@@ -35,6 +39,20 @@ func (c *Config) Set() error {
 	}
 
 	err = os.WriteFile(configPath, config, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Config) SetModulesConfig() error {
+	mconfig, err := yaml.Marshal(&ModuleConfig{Branch: c.Branch})
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(path.Join(c.DataDir, "agent_manager", "config.yml"), mconfig, 0644)
 	if err != nil {
 		return err
 	}

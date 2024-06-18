@@ -148,8 +148,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
-			//stack.Datasources + ":/etc/utmstack",
-			"agent_manager:/data",
+			stack.AgentManager + ":/data",
 		},
 		Ports: []string{
 			"9000:50051",
