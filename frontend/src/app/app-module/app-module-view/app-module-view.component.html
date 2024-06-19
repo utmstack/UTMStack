@@ -22,12 +22,10 @@
     </div>
   </div>
   <div class="d-flex justify-content-center align-items-center flex-wrap mt-2">
-    <ng-container *ngIf="modules$ | async as modules">
-      <app-app-module-card *ngFor="let mod of modules; trackBy: trackByFn" [module]="mod"
+      <app-app-module-card *ngFor="let mod of modules$ | async; trackBy: trackByFn" [module]="mod"
                            (showModuleIntegration)="showModule($event)"
                            class="module-card m-1">
       </app-app-module-card>
-    </ng-container>
   </div>
 </div>
 
