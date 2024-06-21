@@ -152,6 +152,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Ports: []string{
 			"9000:50051",
+			"10002:8080",
 		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
