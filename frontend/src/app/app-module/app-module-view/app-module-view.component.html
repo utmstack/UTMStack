@@ -6,7 +6,7 @@
     <div class="header-elements d-flex justify-content-end align-items-center">
       <!--            <app-utm-server-select (serverChange)="filterByServer($event)"-->
       <!--                                   [selectFirst]="true"></app-utm-server-select>-->
-      <ng-select (change)="filterByCategory($event)"
+      <ng-select *ngIf="categories$ | async as categories" (change)="filterByCategory($event)"
                  [(ngModel)]="category"
                  [clearable]="true"
                  placeholder="Category"
@@ -22,9 +22,10 @@
     </div>
   </div>
   <div class="d-flex justify-content-center align-items-center flex-wrap mt-2">
-    <app-app-module-card *ngFor="let mod of modules" [module]="mod"
-                         (showModuleIntegration)="showModule($event)"
-                         class="module-card m-1"></app-app-module-card>
+      <app-app-module-card *ngFor="let mod of modules$ | async; trackBy: trackByFn" [module]="mod"
+                           (showModuleIntegration)="showModule($event)"
+                           class="module-card m-1">
+      </app-app-module-card>
   </div>
 </div>
 
