@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/util"
@@ -18,6 +19,22 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
+
+func HTTPAuthInterceptor() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		connectionKey := c.GetHeader(config.ProxyAPIKeyHeader)
+		if connectionKey == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Connection key not provided"})
+			return
+		}
+		isValid := validateToken(connectionKey)
+		if !isValid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid connection key"})
+			return
+		}
+		c.Next()
+	}
+}
 
 func UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)

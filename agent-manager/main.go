@@ -7,10 +7,13 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
+	"github.com/gin-gonic/gin"
 	pb "github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/auth"
 	"github.com/utmstack/UTMStack/agent-manager/config"
+	"github.com/utmstack/UTMStack/agent-manager/handlers"
 	"github.com/utmstack/UTMStack/agent-manager/migration"
+	"github.com/utmstack/UTMStack/agent-manager/updates"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -59,9 +62,18 @@ func main() {
 
 	pb.RegisterCollectorServiceServer(grpcServer, s)
 	pb.RegisterPanelCollectorServiceServer(grpcServer, s)
+
 	s.ProcessPendingConfigs()
 
+	agentUpdater := updates.NewAgentUpdater()
+	as400Updater := updates.NewAs400Updater()
+	collectorInstallerUpdater := updates.NewCollectorUpdater()
+	go agentUpdater.UpdateDependencies()
+	go as400Updater.UpdateDependencies()
+	go collectorInstallerUpdater.UpdateDependencies()
+
 	pb.RegisterPingServiceServer(grpcServer, s)
+	pb.RegisterUpdatesServiceServer(grpcServer, s)
 
 	// Register the health check service
 	healthServer := health.NewServer()
@@ -70,6 +82,8 @@ func main() {
 	// Set the health status to SERVING
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 	s.InitPingSync()
+
+	go StartHttpServer()
 
 	// Start the gRPC server
 	h.Info("Starting gRPC server on 0.0.0.0:50051")
@@ -95,4 +109,17 @@ func recoverInterceptor(
 
 	// Call the gRPC handler
 	return handler(ctx, req)
+}
+
+func StartHttpServer() {
+	h := util.GetLogger()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.Default()
+	router.GET("/dependencies/installer/:installerType/:os", auth.HTTPAuthInterceptor(), handlers.HandleInstallerRequest)
+	h.Info("Starting HTTP server on port 8080")
+	err := router.Run(":8080")
+	if err != nil {
+		h.ErrorF("Error starting HTTP server: %v", err)
+		return
+	}
 }

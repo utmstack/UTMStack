@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option go_package = "github.com/utmstack/UTMStack/agent-manager/agent";
+
+package agent;
+
+service UpdatesService {
+  rpc CheckAgentUpdates(UpdateAgentRequest) returns (UpdateResponse) {}
+  rpc CheckCollectorUpdates(UpdateCollectorRequest) returns (UpdateResponse) {}
+}
+
+enum OSystem {
+  OS_WINDOWS = 0;
+  OS_LINUX = 1;
+}
+
+enum DependType {
+  DEPEND_TYPE_SERVICE = 0;
+  DEPEND_TYPE_DEPEND_ZIP = 1;
+}
+
+enum CollectorType{
+  AS_400_COLLECTOR = 0;
+}
+
+message UpdateAgentRequest {
+  DependType dependType = 1;
+  OSystem os = 2;
+  string currentVersion = 3;
+}
+
+message UpdateCollectorRequest {
+  CollectorType collectorType = 1;
+  DependType dependType = 2;
+  OSystem os = 3;
+  string currentVersion = 4;
+}
+
+message UpdateResponse {
+  string message = 1;
+  bytes file = 2;
+}

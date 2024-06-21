@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"time"
+)
 
 func KeyAuthRoutes() []string {
 	return []string{
@@ -12,6 +15,9 @@ func KeyAuthRoutes() []string {
 		"/agent.CollectorService/GetCollectorConfig",
 
 		"/agent.PingService/Ping",
+
+		"/agent.UpdatesService/CheckAgentUpdate",
+		"/agent.UpdatesService/CheckCollectorUpdate",
 	}
 }
 
@@ -40,11 +46,24 @@ func InternalKeyRoutes() []string {
 	}
 }
 
-const PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
-const UTMSharedKeyEnv = "INTERNAL_KEY"
-const UTMEncryptionKeyEnv = "ENCRYPTION_KEY"
-const UTMHostEnv = "UTM_HOST"
+const (
+	PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
+	UTMSharedKeyEnv       = "INTERNAL_KEY"
+	UTMEncryptionKeyEnv   = "ENCRYPTION_KEY"
+	UTMPanelServiceEnv    = "PANEL_SERV_NAME"
+	UTMHostEnv            = "UTM_HOST"
+	ProxyAPIKeyHeader     = "Utm-Connection-Key"
+	MASTERVERSIONENDPOINT = "/management/info"
+	Bucket                = "https://cdn.utmstack.com/"
+	VOLPATH               = "/data"
+	VersionsFile          = "versions.json"
+	CHECK_EVERY           = 5 * time.Minute
+)
 
 func GetInternalKey() string {
 	return os.Getenv(UTMSharedKeyEnv)
+}
+
+func GetPanelServiceName() string {
+	return os.Getenv(UTMPanelServiceEnv)
 }

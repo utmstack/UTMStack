@@ -163,6 +163,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"DB_HOST=postgres",
 			"DB_PORT=5432",
 			"DB_NAME=agentmanager",
+			"PANEL_SERV_NAME=http://backend:8080",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
