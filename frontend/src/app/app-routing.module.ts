@@ -145,6 +145,12 @@ const routes: Routes = [
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
+  {
+    path: 'rules-management',
+    loadChildren: './rule-management/rule-management.module#RuleManagementModule',
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [ADMIN_ROLE, USER_ROLE]}
+  },
   {path: '', component: LoginComponent},
   {path: 'totp', component: TotpComponent},
   {path: 'reset/finish', component: PasswordResetFinishComponent},

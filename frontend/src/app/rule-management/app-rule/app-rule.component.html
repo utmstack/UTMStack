@@ -1,0 +1,24 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Manage Rules</h5>
+    <div class="header-elements">
+      <button (click)="addRule()" class="btn utm-button utm-button-primary">
+        <i class="icon-stack-text mr-1"></i> Add new rule
+      </button>
+    </div>
+  </div>
+  <!--TABLE-->
+  <div class="d-flex flex-nowrap m-0 align-items-start">
+    <div mwlResizable
+         [enableGhostResize]="true"
+         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+         class="alert-filter-container resizable-filter-container mr-2">
+      <!--<app-alert-filter (filterChange)="onFilterChange($event)"
+                        [dataType]="dataType"
+                        (filterReset)="onFilterReset($event)"></app-alert-filter>-->
+    </div>
+    <div class="flex-grow-1">
+      <app-rule-list [rules] = "rules$ | async" ></app-rule-list>
+    </div>
+  </div>
+</div>
