@@ -2,35 +2,49 @@ package configuration
 
 import (
 	"path/filepath"
+	"runtime"
 
-	"github.com/utmstack/UTMStack/agent/runner/utils"
+	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
-type ServicesBin struct {
-	AgentServiceBin   string
-	RedlineServiceBin string
-	UpdaterServiceBin string
-}
-
 const (
-	MASTERVERSIONENDPOINT = "/management/info"
-	INSTALLER_LOG_FILE    = "utmstack_agent_installer.log"
-	Bucket                = "https://cdn.utmstack.com/agent_updates/"
-	AgentManagerPort      = "9000"
-	LogAuthProxyPort      = "50051"
+	INSTALLER_LOG_FILE = "utmstack_agent_installer.log"
+	AgentManagerPort   = "9000"
+	LogAuthProxyPort   = "50051"
 )
 
 func GetCertPath() string {
-	path, _ := utils.GetMyPath()
+	path := utils.GetMyPath()
 	return filepath.Join(path, "certs", "utm.crt")
 }
 
-func GetKeyPath() string {
-	path, _ := utils.GetMyPath()
-	return filepath.Join(path, "certs", "utm.key")
+func GetServiceBin() string {
+	switch runtime.GOOS {
+	case "windows":
+		return "utmstack_agent_service.exe"
+	case "linux":
+		return "utmstack_agent_service"
+	}
+	return ""
 }
 
-func GetCaPath() string {
-	path, _ := utils.GetMyPath()
-	return filepath.Join(path, "certs", "ca.crt")
+func GetDownloadFilePath(typ string) string {
+	path := utils.GetMyPath()
+	switch typ {
+	case "service":
+		switch runtime.GOOS {
+		case "windows":
+			return filepath.Join(path, "utmstack_agent_service.exe")
+		case "linux":
+			return filepath.Join(path, "utmstack_agent_service")
+		}
+	case "dependencies":
+		return filepath.Join(path, "dependencies.zip")
+	}
+	return ""
+}
+
+func GetVersionPath() string {
+	path := utils.GetMyPath()
+	return filepath.Join(path, "versions.json")
 }
