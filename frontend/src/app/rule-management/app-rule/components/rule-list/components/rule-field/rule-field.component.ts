@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import { Rule } from 'src/app/rule-management/models/rule.model';
-import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
-import {RULE_DATA_TYPES, RULE_REFERENCES} from '../../../../models/rule.constant';
+import {UtmFieldType} from '../../../../../../shared/types/table/utm-field.type';
+import {RULE_DATA_TYPES, RULE_REFERENCES} from '../../../../../models/rule.constant';
 
 @Component({
     selector: 'app-rule-field',

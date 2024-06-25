@@ -2,8 +2,11 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 text-uppercase label-header">Manage Rules</h5>
     <div class="header-elements">
-      <button (click)="addRule()" class="btn utm-button utm-button-primary">
-        <i class="icon-stack-text mr-1"></i> Add new rule
+      <button routerLink="/explore/manage-correlation" class="btn utm-button utm-button-primary">
+        <i class="icon-cog3 mr-1"></i> Configuration
+      </button>
+      <button (click)="addRule()" class="btn utm-button utm-button-primary ml-2">
+        <i class="icon-plus-circle2 mr-1"></i> Add new rule
       </button>
     </div>
   </div>

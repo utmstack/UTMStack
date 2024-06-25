@@ -29,12 +29,12 @@ const routes: Routes = [
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
-  {
+ /* {
     path: 'explore',
     loadChildren: './filebrowser/filebrowser.module#FileBrowserModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
-  },
+  },*/
   {
     path: 'profile',
     loadChildren: './account/account.module#UtmAccountModule',
@@ -146,7 +146,7 @@ const routes: Routes = [
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   {
-    path: 'rules-management',
+    path: 'explore',
     loadChildren: './rule-management/rule-management.module#RuleManagementModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
