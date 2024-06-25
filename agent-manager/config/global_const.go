@@ -16,8 +16,8 @@ func KeyAuthRoutes() []string {
 
 		"/agent.PingService/Ping",
 
-		"/agent.UpdatesService/CheckAgentUpdate",
-		"/agent.UpdatesService/CheckCollectorUpdate",
+		"/agent.UpdatesService/CheckAgentUpdates",
+		"/agent.UpdatesService/CheckCollectorUpdates",
 	}
 }
 
@@ -25,6 +25,9 @@ func ConnectionKeyRoutes() []string {
 	return []string{
 		"/agent.AgentService/RegisterAgent",
 		"/agent.CollectorService/RegisterCollector",
+
+		"/agent.UpdatesService/CheckAgentUpdates",
+		"/agent.UpdatesService/CheckCollectorUpdates",
 	}
 }
 

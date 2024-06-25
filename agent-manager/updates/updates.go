@@ -68,7 +68,7 @@ func (u *Updater) UpdateDependencies() {
 	h := util.GetLogger()
 
 	for {
-		h.Info("Checking for updates for %s...", u.Name)
+		//h.Info("Checking for updates for %s...", u.Name)
 		u.updateCycle(h)
 		time.Sleep(config.CHECK_EVERY)
 	}
@@ -108,7 +108,7 @@ func (u *Updater) updateCycle(h *logger.Logger) {
 
 func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 	if u.LatestVersions.ServiceVersion != "" && IsVersionGreater(u.CurrentVersions.ServiceVersion, u.LatestVersions.ServiceVersion) {
-		h.Info("New version available for %s service", u.Name)
+		h.Info("Updating new version for %s service...", u.Name)
 		windowsFileName, _ := u.GetFileName("OS_WINDOWS", "DEPEND_TYPE_SERVICE")
 		linuxFileName, _ := u.GetFileName("OS_LINUX", "DEPEND_TYPE_SERVICE")
 		if windowsFileName != "" {
@@ -121,9 +121,10 @@ func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 				return fmt.Errorf("error updating %s linux service: %v", u.Name, err)
 			}
 		}
+		h.Info("New version for %s service downloaded.", u.Name)
 	}
 	if u.LatestVersions.DependenciesVersion != "" && IsVersionGreater(u.CurrentVersions.DependenciesVersion, u.LatestVersions.DependenciesVersion) {
-		h.Info("New version available for %s dependencies", u.Name)
+		h.Info("Updating new version for %s dependencies...", u.Name)
 		windowsFileName, _ := u.GetFileName("OS_WINDOWS", "DEPEND_TYPE_DEPEND_ZIP")
 		linuxFileName, _ := u.GetFileName("OS_LINUX", "DEPEND_TYPE_DEPEND_ZIP")
 		if windowsFileName != "" {
@@ -136,9 +137,10 @@ func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 				return fmt.Errorf("error updating %s linux dependencies: %v", u.Name, err)
 			}
 		}
+		h.Info("New version for %s dependencies downloaded.", u.Name)
 	}
 	if u.LatestVersions.InstallerVersion != "" && IsVersionGreater(u.CurrentVersions.InstallerVersion, u.LatestVersions.InstallerVersion) {
-		h.Info("New version available for %s installer", u.Name)
+		h.Info("Updating new version for %s installer...", u.Name)
 		windowsFileName, _ := u.GetFileName("OS_WINDOWS", "DEPEND_TYPE_INSTALLER")
 		linuxFileName, _ := u.GetFileName("OS_LINUX", "DEPEND_TYPE_INSTALLER")
 		if windowsFileName != "" {
@@ -151,6 +153,7 @@ func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 				return fmt.Errorf("error updating %s linux installer: %v", u.Name, err)
 			}
 		}
+		h.Info("New version for %s installer downloaded.", u.Name)
 	}
 	return nil
 
