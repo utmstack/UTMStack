@@ -1,10 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
-import {RULE_FIELDS} from '../models/rule.constant';
-import { Rule } from '../models/rule.model';
-import {ALERT_STATUS_FIELD, ALERT_TIMESTAMP_FIELD} from '../../shared/constants/alert/alert-field.constant';
-import {UtmFieldType} from "../../shared/types/table/utm-field.type";
+import {ALERT_TIMESTAMP_FIELD} from '../../../shared/constants/alert/alert-field.constant';
+import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
+import {RULE_FIELDS} from '../../models/rule.constant';
+import { Rule } from '../../models/rule.model';
 
 
 @Component({

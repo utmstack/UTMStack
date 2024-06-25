@@ -5,31 +5,40 @@ import {ResizableModule} from 'angular-resizable-element';
 import {AlertManagementSharedModule} from '../data-management/alert-management/shared/alert-management-shared.module';
 import {UtmSharedModule} from '../shared/utm-shared.module';
 import {AppRuleComponent} from './app-rule/app-rule.component';
-import { RuleListComponent } from './rule-list/rule-list.component';
+import {AddRuleComponent} from './components/add-rule/add-rule.component';
+import {RuleDetailComponent} from './components/rule-list/components/rule-detail/rule-detail.component';
+import {RuleFieldComponent} from './components/rule-list/components/rule-field/rule-field.component';
+import { RuleListComponent } from './components/rule-list/rule-list.component';
 import {RuleManagementRoutingModule} from './rule-management.routing.module';
 import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
-import {RuleFieldComponent} from "./rule-list/components/rule-field/rule-field.component";
-import {RuleDetailComponent} from "./rule-list/components/rule-detail/rule-detail.component";
+import {ReactiveFormsModule} from "@angular/forms";
+import {NgSelectModule} from "@ng-select/ng-select";
 
 @NgModule({
   declarations: [
       AppRuleComponent,
       RuleListComponent,
       RuleFieldComponent,
-      RuleDetailComponent
+      RuleDetailComponent,
+      AddRuleComponent
   ],
-  imports: [
-    CommonModule,
-    NgbModule,
-    AlertManagementSharedModule,
-    ResizableModule,
-    UtmSharedModule,
-    RuleManagementRoutingModule
-  ],
+    imports: [
+        CommonModule,
+        NgbModule,
+        AlertManagementSharedModule,
+        ResizableModule,
+        UtmSharedModule,
+        RuleManagementRoutingModule,
+        ReactiveFormsModule,
+        NgSelectModule
+    ],
   providers: [
       RuleService,
       RulesResolverService
-  ]
+  ],
+   entryComponents: [
+      AddRuleComponent
+   ]
 })
 export class RuleManagementModule { }

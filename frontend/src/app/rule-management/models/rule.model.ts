@@ -15,9 +15,15 @@ export interface Definition {
     expression: string;
 }
 
+export interface DataType {
+    id: number;
+    name: string;
+}
+
+
 export interface Rule {
     id: number;
-    data_types: string[];
+    data_types: DataType[];
     name: string;
     impact: Impact;
     category: string;

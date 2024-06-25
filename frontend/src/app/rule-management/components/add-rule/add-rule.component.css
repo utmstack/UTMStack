@@ -1,0 +1,14 @@
+.btn-close {
+    height: 36px;
+}
+.btn-danger .icon-trash-alt,
+.btn-close .icon-trash-alt:before{
+    color: white;
+}
+.utm-box .utm-box-label{
+    left: -1px!important;
+}
+
+.utm-box.mt-4{
+    margin-top: 2rem!important;
+}

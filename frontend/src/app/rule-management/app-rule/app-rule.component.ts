@@ -1,9 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import {Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {EventDataTypeEnum} from '../../data-management/alert-management/shared/enums/event-data-type.enum';
+import {AddRuleComponent} from '../components/add-rule/add-rule.component';
 import {Rule} from '../models/rule.model';
 
 @Component({
@@ -16,7 +18,8 @@ export class AppRuleComponent implements OnInit {
     dataType: EventDataTypeEnum = EventDataTypeEnum.ALERT;
     rules$: Observable<Rule[]>;
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private route: ActivatedRoute,
+                private modalService: NgbModal) {
     }
 
     ngOnInit() {
@@ -29,6 +32,8 @@ export class AppRuleComponent implements OnInit {
     }
 
     addRule() {
+
+        const modalGroup = this.modalService.open(AddRuleComponent, {centered: true});
 
     }
 

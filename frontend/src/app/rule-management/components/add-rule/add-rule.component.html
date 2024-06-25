@@ -1,0 +1,100 @@
+<app-utm-modal-header [name]="'Create new Rule'"></app-utm-modal-header>
+<div class="container-fluid p-3">
+    <div class="d-flex flex-column justify-content-start align-items-start">
+        <form [formGroup]="ruleForm" (ngSubmit)="saveRule()" class="form-container w-100">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input id="name" formControlName="name" type="text" class="form-control">
+            </div>
+            <fieldset formGroupName="impact" class="form-fieldset">
+                <legend>Impact</legend>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="confidentiality">Confidentiality:</label>
+                            <input id="confidentiality" formControlName="confidentiality" type="number" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="integrity">Integrity:</label>
+                            <input id="integrity" formControlName="integrity" type="number" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="availability">Availability:</label>
+                            <input id="availability" formControlName="availability" type="number" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <input id="category" formControlName="category" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="technique">Technique:</label>
+                <input id="technique" formControlName="technique" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <input id="description" formControlName="description" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Data Types:</label>
+                <ng-select [items]="types"
+                           bindLabel="name"
+                           multiple="true"
+                           formControlName="dataTypes"
+                           addTagText="Create New"
+                           [addTag]="true"
+                           (add)="addType($event)"
+                           (change)="onDataTypeChange($event)"
+                           placeholder="Select collector"
+                           class="flex-item">
+                </ng-select>
+            </div>
+            <div formGroupName="references" class="utm-box mt-4 pt-1 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-1">
+                <div class="form-group">
+                    <span class="p-1 utm-box-label">
+                        <label>References:</label>
+                        <span  class="span-small-icon ml-3" >
+                          <i (click)="addReference()" class="icon-plus2 mr-2  cursor-pointer"
+                             ngbTooltip="Add configuration">
+                         </i>
+                     </span>
+                    </span>
+                    <div *ngFor="let reference of references.controls; let i = index" class="input-group mt-2">
+                        <input [formControlName]="i" type="text" class="form-control">
+                        <div class="input-group-append">
+                            <button class="btn btn-danger btn-close text-white" type="button" (click)="removeReference(i)">
+                                <i class="icon-trash-alt text-white"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <fieldset formGroupName="definition" class="form-fieldset">
+                <legend>Definition</legend>
+                <div class="form-group">
+                    <label>Variables:</label>
+                    <button type="button" (click)="addVariable({get: '', as: '', of_type: ''})"
+                            class="btn btn-primary btn-sm">Add Variable
+                    </button>
+                    <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i"
+                         class="form-inline">
+                        <input formControlName="get" type="text" placeholder="get" class="form-control mr-2">
+                        <input formControlName="as" type="text" placeholder="as" class="form-control mr-2">
+                        <input formControlName="of_type" type="text" placeholder="of_type" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="expression">Expression:</label>
+                    <input id="expression" formControlName="expression" type="text" class="form-control">
+                </div>
+            </fieldset>
+            <button type="submit" class="btn btn-success">Save Rule</button>
+        </form>
+    </div>
+</div>
