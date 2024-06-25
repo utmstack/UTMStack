@@ -6,7 +6,7 @@
                 <label for="name">Name:</label>
                 <input id="name" formControlName="name" type="text" class="form-control">
             </div>
-            <fieldset formGroupName="impact" class="form-fieldset">
+            <fieldset formGroupName="impact" class="form-fieldset border p-3">
                 <legend>Impact</legend>
                 <div class="row">
                     <div class="col-md-4">
@@ -55,16 +55,16 @@
                            class="flex-item">
                 </ng-select>
             </div>
-            <div formGroupName="references" class="utm-box mt-4 pt-1 pr-3 pl-3 pb-1 border-1 border-blue-800 position-relative w-1">
-                <div class="form-group">
-                    <span class="p-1 utm-box-label">
-                        <label>References:</label>
-                        <span  class="span-small-icon ml-3" >
+            <fieldset formGroupName="references" class="form-fieldset border p-3">
+                <legend>
+                    <label>References:</label>
+                    <span  class="span-small-icon ml-3" >
                           <i (click)="addReference()" class="icon-plus2 mr-2  cursor-pointer"
-                             ngbTooltip="Add configuration">
+                             ngbTooltip="Add reference">
                          </i>
-                     </span>
                     </span>
+                </legend>
+                <div class="form-group">
                     <div *ngFor="let reference of references.controls; let i = index" class="input-group mt-2">
                         <input [formControlName]="i" type="text" class="form-control">
                         <div class="input-group-append">
@@ -74,14 +74,17 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <fieldset formGroupName="definition" class="form-fieldset">
-                <legend>Definition</legend>
+            </fieldset>
+            <fieldset formGroupName="definition" class="form-fieldset border p-3">
+                <legend>
+                    <label>Definition</label>
+                    <span  class="span-small-icon ml-3" >
+                          <i (click)="addVariable({get: '', as: '', of_type: ''})" class="icon-plus2 mr-2  cursor-pointer"
+                             ngbTooltip="Add variable">
+                         </i>
+                    </span>
+                </legend>
                 <div class="form-group">
-                    <label>Variables:</label>
-                    <button type="button" (click)="addVariable({get: '', as: '', of_type: ''})"
-                            class="btn btn-primary btn-sm">Add Variable
-                    </button>
                     <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i"
                          class="form-inline">
                         <input formControlName="get" type="text" placeholder="get" class="form-control mr-2">

@@ -12,3 +12,14 @@
 .utm-box.mt-4{
     margin-top: 2rem!important;
 }
+
+legend {
+    width: auto;
+    border-bottom: 0;
+    font-size: .75rem;
+    font-weight: 400;
+}
+
+fieldset {
+    margin-bottom: 1rem;
+}

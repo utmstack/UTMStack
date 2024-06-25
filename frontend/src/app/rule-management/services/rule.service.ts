@@ -9,7 +9,9 @@ export class RuleService {
     rules: Rule[] = [
         {
             id: 200001,
-            data_types: ['linux'],
+            data_types: [{
+                id: 1, name: 'linux'
+            }],
             name: 'Testing Linux rule',
             impact: {
                 confidentiality: 3,
