@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DataType, Rule, Variable } from '../../models/rule.model';
+import { DataType, Rule, Variable } from '../../../models/rule.model';
+
+const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.required] , of_type: ['', Validators.required]};
 
 @Component({
     selector: 'app-add-rule',
@@ -17,7 +19,7 @@ export class AddRuleComponent implements OnInit {
 
     ngOnInit() {
         this.ruleForm = this.fb.group({
-            id: [null, Validators.required],
+            /*id: [null, Validators.required],*/
             dataTypes: ['', Validators.required],
             name: ['', Validators.required],
             impact: this.fb.group({
@@ -28,9 +30,9 @@ export class AddRuleComponent implements OnInit {
             category: ['', Validators.required],
             technique: ['', Validators.required],
             description: ['', Validators.required],
-            references: this.fb.array([this.fb.control('')], Validators.required),
+            references: this.fb.array([this.fb.control('', Validators.required)], this.minLengthArray(1)),
             definition: this.fb.group({
-                variables: this.fb.array([], Validators.required),
+                variables: this.fb.array([this.fb.group(variableTemplate)], this.minLengthArray(1)),
                 expression: ['', Validators.required]
             })
         });
@@ -49,21 +51,24 @@ export class AddRuleComponent implements OnInit {
     }
 
     addReference() {
-        this.references.push(this.fb.control(''));
+        this.references.push(this.fb.control('', Validators.required));
     }
 
     get variables() {
         return this.ruleForm.get('definition').get('variables') as FormArray;
     }
 
-    addVariable(variable: Variable) {
-        this.variables.push(this.fb.group(variable));
+    addVariable() {
+        this.variables.push(this.fb.group(variableTemplate));
+    }
+
+    removeVariable(index: number) {
+        this.variables.removeAt(index);
     }
 
     saveRule() {
         if (this.ruleForm.valid) {
             const newRule: Rule = this.ruleForm.value;
-            // Aquí deberías enviar 'newRule' al backend para guardarlo
             console.log('Saving rule:', JSON.stringify(newRule));
         } else {
             console.error('Form is invalid. Cannot save rule.');
@@ -78,5 +83,14 @@ export class AddRuleComponent implements OnInit {
             return newDataType;
         }
         return null;
+    }
+
+    minLengthArray(min: number) {
+        return (control: FormArray): { [key: string]: boolean } | null => {
+            if (control.length >= min) {
+                return null;
+            }
+            return { minLengthArray: true };
+        };
     }
 }

@@ -39,3 +39,18 @@ export const RULE_FIELDS: UtmFieldType[] = [
         visible: true,
     },
 ];
+
+export const FILTER_RULE_FIELDS: UtmFieldType[] = [
+    {
+        label: 'Types',
+        field: RULE_DATA_TYPES,
+        type: ElasticDataTypesEnum.OBJECT,
+        visible: true,
+    },
+    {
+        label: 'Category',
+        field: RULE_CATEGORY,
+        type: ElasticDataTypesEnum.OBJECT,
+        visible: true,
+    },
+];

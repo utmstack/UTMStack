@@ -2,10 +2,10 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 text-uppercase label-header">Manage Rules</h5>
     <div class="header-elements">
-      <button routerLink="/explore/manage-correlation" class="btn utm-button utm-button-primary">
+      <button routerLink="/correlation/manage" class="btn utm-button utm-button-primary">
         <i class="icon-cog3 mr-1"></i> Configuration
       </button>
-      <button (click)="addRule()" class="btn utm-button utm-button-primary ml-2">
+      <button routerLink="/correlation/rule" class="btn utm-button utm-button-primary ml-2">
         <i class="icon-plus-circle2 mr-1"></i> Add new rule
       </button>
     </div>
@@ -16,9 +16,28 @@
          [enableGhostResize]="true"
          [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
          class="alert-filter-container resizable-filter-container mr-2">
-      <!--<app-alert-filter (filterChange)="onFilterChange($event)"
-                        [dataType]="dataType"
-                        (filterReset)="onFilterReset($event)"></app-alert-filter>-->
+      <div class="card h-100">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Filters</label>
+          <div class="d-flex">
+            <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
+                  ngbTooltip="Reset filters"
+                  placement="top" tooltipClass="utm-tooltip-top">
+               <i class="icon-filter4"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
+          <div *ngFor="let filter of fieldFilters" class="w-100">
+            <div *ngIf="filter.visible" class="w-100 mb-2">
+              <app-rule-generic-filter (filterGenericChange)="onFilterChange($event)"
+                                        [fieldFilter]="filter">
+              </app-rule-generic-filter>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="flex-grow-1">
       <app-rule-list [rules] = "rules$ | async" ></app-rule-list>

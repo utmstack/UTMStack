@@ -1,16 +1,11 @@
+
 .btn-close {
     height: 36px;
 }
-.btn-danger .icon-trash-alt,
-.btn-close .icon-trash-alt:before{
-    color: white;
-}
-.utm-box .utm-box-label{
-    left: -1px!important;
-}
 
-.utm-box.mt-4{
-    margin-top: 2rem!important;
+.btn-danger .icon-trash-alt,
+.btn-close .icon-trash-alt:before {
+    color: white;
 }
 
 legend {
@@ -22,4 +17,72 @@ legend {
 
 fieldset {
     margin-bottom: 1rem;
+}
+
+.container-fluid {
+    padding: 0.5rem 1rem;
+}
+
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+
+.alert-filter-container {
+    min-width: 300px;
+    max-width: 400px;
+    resize: horizontal;
+    overflow: auto;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    flex-shrink: 0;
+}
+
+
+.utm-button-back {
+    left: 250px;
+}
+
+/*.references-container {
+    max-height: 132px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+}*/
+
+.content-height{
+    min-height: 82vh;
+}
+
+.form-group-select input {
+    height: 28px!important;
+}
+
+
+@media (max-width: 4000px) {
+    .alert-filter-container {
+        width: 350px;
+    }
+}
+
+@media (min-width: 4001px) {
+    .alert-filter-container {
+        width: 400px;
+    }
+
+    .utm-button-back {
+        left: 350px;
+    }
 }

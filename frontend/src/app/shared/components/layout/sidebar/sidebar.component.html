@@ -12,14 +12,14 @@
              [inlineSVG]="iconPath+ 'SOLUTIONS.svg'"></span>
       </a>
     </li>
-    <li (click)="closeMenu();navigateTo('/explore/correlation-rules')" *appHasAnyAuthority="roleAdmin"
+    <li (click)="closeMenu();navigateTo('/correlation/rules')" *appHasAnyAuthority="roleAdmin"
         class="nav-item p-1"
         routerLinkActive="active-link-sidebar">
       <a class="nav-link" container="body" ngbTooltip="Manage correlation rules"
          placement="left"
          tooltipClass="utm-tooltip">
           <span class="svg-icon svg-icon-md"
-                [ngClass]="isActive('/explore/correlation-rules')?'svg-icon-active':'svg-icon-primary'"
+                [ngClass]="isActive('/correlation/rules')?'svg-icon-active':'svg-icon-primary'"
                 [inlineSVG]="iconPath+ 'CORRELATION_RULES.svg'"></span>
       </a>
     </li>

@@ -20,6 +20,9 @@ import {AssetsComponent} from "./app-correlation-management/components/assets/as
 import {TypesComponent} from "./app-correlation-management/components/types/types.component";
 import {PatternsComponent} from "./app-correlation-management/components/patterns/patterns.component";
 import {RuleGenericFilterComponent} from "./app-rule/components/rule-generic-filter/rule-generic-filter.component";
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import {RuleFieldBrowserComponent} from "../filebrowser/rule-field-browser/rule-field-browser.component";
+import {FileBrowserModule} from "../filebrowser/filebrowser.module";
 
 
 @NgModule({
@@ -44,7 +47,9 @@ import {RuleGenericFilterComponent} from "./app-rule/components/rule-generic-fil
         UtmSharedModule,
         RuleManagementRoutingModule,
         ReactiveFormsModule,
-        NgSelectModule
+        NgSelectModule,
+        InfiniteScrollModule,
+        FileBrowserModule
     ],
   providers: [
       RuleService,

@@ -5,8 +5,10 @@ import {ResizeEvent} from 'angular-resizable-element';
 import {Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {EventDataTypeEnum} from '../../data-management/alert-management/shared/enums/event-data-type.enum';
+import {FILTER_RULE_FIELDS} from '../models/rule.constant';
 import {Rule} from '../models/rule.model';
 import {AddRuleComponent} from './components/add-rule/add-rule.component';
+
 
 @Component({
     selector: 'app-rules',
@@ -15,12 +17,14 @@ import {AddRuleComponent} from './components/add-rule/add-rule.component';
 })
 export class AppRuleComponent implements OnInit {
 
-    dataType: EventDataTypeEnum = EventDataTypeEnum.ALERT;
-    rules$: Observable<Rule[]>;
-
     constructor(private route: ActivatedRoute,
                 private modalService: NgbModal) {
     }
+
+    dataType: EventDataTypeEnum = EventDataTypeEnum.ALERT;
+    rules$: Observable<Rule[]>;
+    fieldFilters = FILTER_RULE_FIELDS;
+
 
     ngOnInit() {
         this.rules$ = this.route.data.pipe(
@@ -33,7 +37,7 @@ export class AppRuleComponent implements OnInit {
 
     addRule() {
 
-        const modalGroup = this.modalService.open(AddRuleComponent, {centered: true});
+        // const modalGroup = this.modalService.open(AddRuleComponent, {centered: true});
 
     }
 
@@ -46,6 +50,11 @@ export class AppRuleComponent implements OnInit {
     }
 
     onItemsPerPageChange($event: number) {
+
+    }
+
+
+    resetAllFilters() {
 
     }
 }

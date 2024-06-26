@@ -1,13 +1,20 @@
+import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
-import {AssetFiltersBehavior} from '../../../behavior/asset-filters.behavior';
-import {AssetReloadFilterBehavior} from '../../../behavior/asset-reload-filter-behavior.service';
-import {STATICS_FILTERS} from '../../../const/filter-const';
-import {AssetFieldFilterEnum} from '../../../enums/asset-field-filter.enum';
-import {AssetMapFilterFieldEnum} from '../../../enums/asset-map-filter-field.enum';
-import {UtmNetScanService} from '../../../services/utm-net-scan.service';
-import {AssetFilterType} from '../../../types/asset-filter.type';
-import {CollectorFieldFilterEnum} from "../../../enums/collector-field-filter.enum";
+import {errorHandler} from '@angular/platform-browser/src/browser';
+import { of } from 'rxjs';
+import {catchError} from 'rxjs/operators';
+import {AssetFiltersBehavior} from '../../../../assets-discover/shared/behavior/asset-filters.behavior';
+import {
+  AssetReloadFilterBehavior
+} from '../../../../assets-discover/shared/behavior/asset-reload-filter-behavior.service';
+import {STATICS_FILTERS} from '../../../../assets-discover/shared/const/filter-const';
+import {AssetFieldFilterEnum} from '../../../../assets-discover/shared/enums/asset-field-filter.enum';
+import {AssetMapFilterFieldEnum} from '../../../../assets-discover/shared/enums/asset-map-filter-field.enum';
+import {CollectorFieldFilterEnum} from '../../../../assets-discover/shared/enums/collector-field-filter.enum';
+import {UtmNetScanService} from '../../../../assets-discover/shared/services/utm-net-scan.service';
+import {AssetFilterType} from '../../../../assets-discover/shared/types/asset-filter.type';
+import {ElasticFilterType} from '../../../../shared/types/filter/elastic-filter.type';
+
 
 @Component({
   selector: 'app-rule-generic-filter',
@@ -52,7 +59,13 @@ export class RuleGenericFilterComponent implements OnInit {
   }
 
   getPropertyValues() {
-    this.utmNetScanService.getFieldValues(this.requestParams).subscribe(response => {
+    this.utmNetScanService.getFieldValues(this.requestParams)
+        .pipe(
+            catchError((err) => {
+              return of(new HttpResponse({ body: [] }));
+            })
+        )
+        .subscribe(response => {
       this.fieldValues = this.fieldValues.concat(response.body);
       this.loading = false;
       this.searching = false;

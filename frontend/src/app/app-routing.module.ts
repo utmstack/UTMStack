@@ -146,7 +146,7 @@ const routes: Routes = [
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   {
-    path: 'explore',
+    path: 'correlation',
     loadChildren: './rule-management/rule-management.module#RuleManagementModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}

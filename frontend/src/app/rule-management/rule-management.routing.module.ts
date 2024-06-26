@@ -3,17 +3,18 @@ import { NgModule } from '@angular/core';
 import {RouterModule} from '@angular/router';
 import {UserRouteAccessService} from '../core/auth/user-route-access-service';
 import {ADMIN_ROLE, USER_ROLE} from '../shared/constants/global.constant';
-import {AppRuleComponent} from './app-rule/app-rule.component';
-import {RulesResolverService} from './services/rules.resolver.service';
 import {AppCorrelationManagementComponent} from './app-correlation-management/app-correlation-management.component';
-import {AssetsComponent} from "./app-correlation-management/components/assets/assets.component";
-import {TypesComponent} from "./app-correlation-management/components/types/types.component";
-import {PatternsComponent} from "./app-correlation-management/components/patterns/patterns.component";
+import {AssetsComponent} from './app-correlation-management/components/assets/assets.component';
+import {PatternsComponent} from './app-correlation-management/components/patterns/patterns.component';
+import {TypesComponent} from './app-correlation-management/components/types/types.component';
+import {AppRuleComponent} from './app-rule/app-rule.component';
+import {AddRuleComponent} from './app-rule/components/add-rule/add-rule.component';
+import {RulesResolverService} from './services/rules.resolver.service';
 
 const routes = [
-  {path: '', redirectTo: 'correlation-rules', pathMatch: 'full'},
+  {path: '', redirectTo: 'rules', pathMatch: 'full'},
   {
-    path: 'correlation-rules',
+    path: 'rules',
     component:  AppRuleComponent,
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]},
@@ -22,7 +23,16 @@ const routes = [
     }
   },
   {
-    path: 'manage-correlation',
+    path: 'rule',
+    component:  AddRuleComponent,
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]},
+    resolve: {
+      rules: RulesResolverService
+    }
+  },
+  {
+    path: 'manage',
     component:  AppCorrelationManagementComponent,
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]},
