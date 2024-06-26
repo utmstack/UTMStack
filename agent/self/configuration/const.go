@@ -3,21 +3,17 @@ package configuration
 import "runtime"
 
 const (
-	SERV_NAME         = "UTMStackUpdaterSelf"
-	SERV_LOG          = "utmstack_updater_self.log"
-	UPDATER_SERV_NAME = "UTMStackUpdater"
-	UPDATER_SERV_LOCK = "utmstack_updater.lock"
-	Bucket            = "https://cdn.utmstack.com/agent_updates/"
-	SERV_LOCK         = "utmstack_updater.lock"
+	SERV_LOG  = "utmstack_updater_self.log"
+	SERV_NAME = "UTMStackAgent"
 )
 
-func GetUpdaterBin() string {
-	var bin string
-	switch runtime.GOOS {
-	case "windows":
-		bin = "utmstack_updater_service.exe"
-	case "linux":
-		bin = "utmstack_updater_service"
+func GetAgentBin(typ string) string {
+	var bin string = "utmstack_updater_service"
+	if typ == "new" {
+		bin = bin + "_new"
+	}
+	if runtime.GOOS == "windows" {
+		bin = bin + ".exe"
 	}
 	return bin
 }

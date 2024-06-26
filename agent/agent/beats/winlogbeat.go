@@ -14,10 +14,7 @@ import (
 type Winlogbeat struct{}
 
 func (w Winlogbeat) Install() error {
-	path, err := utils.GetMyPath()
-	if err != nil {
-		return fmt.Errorf("error getting current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	winlogPath := filepath.Join(path, "beats", "winlogbeat")
 	beatConfig := BeatConfig{
@@ -65,10 +62,7 @@ func (w Winlogbeat) Install() error {
 
 func (w Winlogbeat) SendSystemLogs(h *logger.Logger) {
 	logLinesChan := make(chan []string)
-	path, err := utils.GetMyPath()
-	if err != nil {
-		h.ErrorF("error getting current path: %v", err)
-	}
+	path := utils.GetMyPath()
 	winbLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
 
 	go utils.WatchFolder("windowscollector", winbLogPath, logLinesChan, configuration.BatchCapacity, h)

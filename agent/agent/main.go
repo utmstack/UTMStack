@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -20,13 +19,7 @@ import (
 )
 
 func main() {
-	// Get current path
-	path, err := utils.GetMyPath()
-	if err != nil {
-		log.Fatalf("Failed to get current path: %v", err)
-	}
-
-	// Configuring log saving
+	path := utils.GetMyPath()
 	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
 
 	if len(os.Args) > 1 {
@@ -37,21 +30,8 @@ func main() {
 		case "install":
 			h.Info("Installing UTMStack Agent service...")
 
-			// Generate Certificates
-			certsPath := filepath.Join(path, "certs")
-			err = utils.CreatePathIfNotExist(certsPath)
-			if err != nil {
-				h.Fatal("error creating path: %s", err)
-			}
-
-			err = utils.GenerateCerts(certsPath)
-			if err != nil {
-				h.Fatal("error generating certificates: %v", err)
-			}
-
 			cnf, utmKey := configuration.GetInitialConfig()
 
-			// Connect to Agent Manager
 			conn, err := conn.ConnectToServer(cnf, h, cnf.Server, configuration.AGENTMANAGERPORT)
 			if err != nil {
 				h.Fatal("error connecting to Agent Manager: %v", err)
@@ -59,12 +39,10 @@ func main() {
 			defer conn.Close()
 			h.Info("Connection to Agent Manager successful!!!")
 
-			// Register Agent
 			if err = pb.RegisterAgent(conn, cnf, utmKey, h); err != nil {
 				h.Fatal("%v", err)
 			}
 
-			// Write config in config.yml
 			if err = configuration.SaveConfig(cnf); err != nil {
 				h.Fatal("error writing config file: %v", err)
 			}
@@ -73,7 +51,6 @@ func main() {
 				h.Fatal("error configuring syslog server: %v", err)
 			}
 
-			// Install Beats
 			if err = beats.InstallBeats(*cnf, h); err != nil {
 				h.Fatal("error installing beats: %v", err)
 			}

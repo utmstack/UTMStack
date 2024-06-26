@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -110,27 +111,27 @@ var (
 )
 
 func GetCertPath() string {
-	path, _ := utils.GetMyPath()
+	path := utils.GetMyPath()
 	return filepath.Join(path, "certs", "utm.crt")
 }
 
 func GetKeyPath() string {
-	path, _ := utils.GetMyPath()
+	path := utils.GetMyPath()
 	return filepath.Join(path, "certs", "utm.key")
 }
 
 func GetCaPath() string {
-	path, _ := utils.GetMyPath()
+	path := utils.GetMyPath()
 	return filepath.Join(path, "certs", "ca.crt")
 }
 
 func GetCollectorConfigPath() string {
-	path, _ := utils.GetMyPath()
+	path := utils.GetMyPath()
 	return filepath.Join(path, CollectorFileName)
 }
 
 func GetCollectorConfigPathOld() string {
-	path, _ := utils.GetMyPath()
+	path := utils.GetMyPath()
 	return filepath.Join(path, CollectorFileNameOld)
 }
 
@@ -164,4 +165,59 @@ func ValidateModuleType(typ LogType) string {
 	default:
 		return "nil"
 	}
+}
+
+func GetDependenPaths() []string {
+	path := utils.GetMyPath()
+	self := "utmstack_updater_self"
+	if runtime.GOOS == "windows" {
+		self += ".exe"
+	}
+	return []string{
+		filepath.Join(path, "beats"),
+		filepath.Join(path, "templates"),
+		filepath.Join(path, self),
+	}
+}
+
+func GetDownloadFilePath(typ string, subfix string) string {
+	path := utils.GetMyPath()
+	switch typ {
+	case "service":
+		switch runtime.GOOS {
+		case "windows":
+			return filepath.Join(path, fmt.Sprintf("utmstack_agent_service%s.exe", subfix))
+		case "linux":
+			return filepath.Join(path, fmt.Sprintf("utmstack_agent_service%s", subfix))
+		}
+	case "dependencies":
+		return filepath.Join(path, "dependencies.zip")
+	}
+	return ""
+}
+
+func GetVersionPath() string {
+	path := utils.GetMyPath()
+	return filepath.Join(path, "version.json")
+}
+
+func GetVersionOldPath() string {
+	path := utils.GetMyPath()
+	return filepath.Join(path, "versions.json")
+}
+
+func GetSelfUpdaterPath() string {
+	path := utils.GetMyPath()
+	if runtime.GOOS == "windows" {
+		return filepath.Join(path, "utmstack_updater_self.exe")
+	}
+	return filepath.Join(path, "utmstack_updater_self")
+}
+
+func GetDependenciesServices() []string {
+	services := []string{"UTMStackModulesLogsCollector"}
+	if runtime.GOOS == "windows" {
+		services = append(services, "UTMStackWindowsLogsCollector")
+	}
+	return services
 }

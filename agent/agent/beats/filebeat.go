@@ -15,10 +15,7 @@ import (
 type Filebeat struct{}
 
 func (f Filebeat) Install() error {
-	path, err := utils.GetMyPath()
-	if err != nil {
-		return fmt.Errorf("error getting current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	filebLogPath := filepath.Join(path, "beats", "filebeat")
 	beatConfig := BeatConfig{
@@ -117,10 +114,7 @@ func (f Filebeat) Install() error {
 
 func (f Filebeat) SendSystemLogs(h *logger.Logger) {
 	logLinesChan := make(chan []string)
-	path, err := utils.GetMyPath()
-	if err != nil {
-		h.ErrorF("error getting current path: %v", err)
-	}
+	path := utils.GetMyPath()
 	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
 
 	parser := parser.GetParser("beats")

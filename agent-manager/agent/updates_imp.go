@@ -18,11 +18,13 @@ func (s *Grpc) CheckAgentUpdates(ctx context.Context, in *UpdateAgentRequest) (*
 	if latestVersion == "" {
 		return &UpdateResponse{
 			Message: "Dependency not found",
+			Version: "",
 			File:    []byte{},
 		}, nil
 	} else if latestVersion == currentVersion {
 		return &UpdateResponse{
 			Message: "Dependency already up to date",
+			Version: latestVersion,
 			File:    []byte{},
 		}, nil
 	} else {
@@ -30,11 +32,13 @@ func (s *Grpc) CheckAgentUpdates(ctx context.Context, in *UpdateAgentRequest) (*
 		if err != nil {
 			return &UpdateResponse{
 				Message: fmt.Sprintf("Error getting dependency file: %v", err),
+				Version: latestVersion,
 				File:    []byte{},
 			}, nil
 		}
 		return &UpdateResponse{
-			Message: fmt.Sprintf("Dependency update available: v%s", latestVersion),
+			Message: "Dependency update available",
+			Version: latestVersion,
 			File:    file,
 		}, nil
 	}
@@ -53,6 +57,7 @@ func (s *Grpc) CheckCollectorUpdates(ctx context.Context, in *UpdateCollectorReq
 	default:
 		return &UpdateResponse{
 			Message: "Invalid collector type",
+			Version: "",
 			File:    []byte{},
 		}, fmt.Errorf("invalid collector type")
 	}
@@ -61,11 +66,13 @@ func (s *Grpc) CheckCollectorUpdates(ctx context.Context, in *UpdateCollectorReq
 	if latestVersion == "" {
 		return &UpdateResponse{
 			Message: "Dependency not found",
+			Version: "",
 			File:    []byte{},
 		}, nil
 	} else if latestVersion == currentVersion {
 		return &UpdateResponse{
 			Message: "Dependency already up to date",
+			Version: latestVersion,
 			File:    []byte{},
 		}, nil
 	} else {
@@ -73,11 +80,13 @@ func (s *Grpc) CheckCollectorUpdates(ctx context.Context, in *UpdateCollectorReq
 		if err != nil {
 			return &UpdateResponse{
 				Message: fmt.Sprintf("Error getting dependency file: %v", err),
+				Version: latestVersion,
 				File:    []byte{},
 			}, nil
 		}
 		return &UpdateResponse{
-			Message: fmt.Sprintf("Dependency update available: v%s", latestVersion),
+			Message: "Dependency update available",
+			Version: latestVersion,
 			File:    file,
 		}, nil
 	}

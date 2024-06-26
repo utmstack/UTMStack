@@ -38,5 +38,6 @@ message UpdateCollectorRequest {
 
 message UpdateResponse {
   string message = 1;
-  bytes file = 2;
+  string version = 2;
+  bytes file = 3;
 }

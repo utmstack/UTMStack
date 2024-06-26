@@ -45,22 +45,17 @@ var (
 func GetCurrentConfig() (*Config, error) {
 	var errR error
 	confOnce.Do(func() {
-		path, err := utils.GetMyPath()
-		if err != nil {
-			errR = fmt.Errorf("failed to get current path: %v", err)
-			return
-		}
-
+		path := utils.GetMyPath()
 		uuidExists := utils.CheckIfPathExist(filepath.Join(path, UUIDFileName))
 
 		var encryptConfig Config
-		if err = utils.ReadYAML(filepath.Join(path, "config.yml"), &encryptConfig); err != nil {
+		if err := utils.ReadYAML(filepath.Join(path, "config.yml"), &encryptConfig); err != nil {
 			errR = fmt.Errorf("error reading config file: %v", err)
 			return
 		}
 
-		// Get key
 		var key []byte
+		var err error
 		if uuidExists {
 			uuid, err := GetUUID()
 			if err != nil {
@@ -81,7 +76,6 @@ func GetCurrentConfig() (*Config, error) {
 			}
 		}
 
-		// Decrypt config
 		agentKey, err := aesCrypt.AESDecrypt(encryptConfig.AgentKey, key)
 		if err != nil {
 			errR = fmt.Errorf("error encoding agent key: %v", err)
@@ -107,11 +101,7 @@ func GetCurrentConfig() (*Config, error) {
 }
 
 func SaveConfig(cnf *Config) error {
-	// Get current path
-	path, err := utils.GetMyPath()
-	if err != nil {
-		return fmt.Errorf("failed to get current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	uuid, err := GenerateNewUUID()
 	if err != nil {
@@ -154,10 +144,7 @@ func GenerateNewUUID() (string, error) {
 		UUID: uuid.String(),
 	}
 
-	path, err := utils.GetMyPath()
-	if err != nil {
-		return "", fmt.Errorf("failed to get current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	if err = utils.WriteYAML(filepath.Join(path, UUIDFileName), InstallationUUID); err != nil {
 		return "", fmt.Errorf("error writing uuid file: %v", err)
@@ -169,14 +156,10 @@ func GenerateNewUUID() (string, error) {
 func GetUUID() (string, error) {
 	var errR error
 	instuuidOnce.Do(func() {
-		path, err := utils.GetMyPath()
-		if err != nil {
-			errR = fmt.Errorf("failed to get current path: %v", err)
-			return
-		}
+		path := utils.GetMyPath()
 
 		var uuid = InstallationUUID{}
-		if err = utils.ReadYAML(filepath.Join(path, UUIDFileName), &uuid); err != nil {
+		if err := utils.ReadYAML(filepath.Join(path, UUIDFileName), &uuid); err != nil {
 			errR = fmt.Errorf("error reading uuid file: %v", err)
 			return
 		}

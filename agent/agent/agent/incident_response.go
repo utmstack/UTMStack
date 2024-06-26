@@ -13,11 +13,7 @@ import (
 )
 
 func IncidentResponseStream(client AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
-	// Get current path
-	path, err := utils.GetMyPath()
-	if err != nil {
-		h.Fatal("Failed to get current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	connectionTime := 0 * time.Second
 	reconnectDelay := configuration.InitialReconnectDelay

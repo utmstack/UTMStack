@@ -36,11 +36,11 @@ func DownloadDependencies(address, authKey, skip string, h *logger.Logger) error
 	if err != nil {
 		return fmt.Errorf("error checking agent service: %v", err)
 	}
-	v, err := processUpdateResponse(resp, configuration.GetDownloadFilePath("service"))
+	newVersion, _, err := processUpdateResponse(resp, configuration.GetDownloadFilePath("service"), true)
 	if err != nil {
 		return fmt.Errorf("error processing agent service: %v", err)
 	}
-	Version.ServiceVersion = v
+	Version.ServiceVersion = newVersion
 
 	resp, err = dependClient.CheckAgentUpdates(ctx, &UpdateAgentRequest{
 		DependType:     DependType_DEPEND_TYPE_DEPEND_ZIP,
@@ -50,11 +50,11 @@ func DownloadDependencies(address, authKey, skip string, h *logger.Logger) error
 	if err != nil {
 		return fmt.Errorf("error checking agent dependencies: %v", err)
 	}
-	v, err = processUpdateResponse(resp, configuration.GetDownloadFilePath("dependencies"))
+	newVersion, _, err = processUpdateResponse(resp, configuration.GetDownloadFilePath("dependencies"), true)
 	if err != nil {
 		return fmt.Errorf("error processing agent dependencies: %v", err)
 	}
-	Version.DependenciesVersion = v
+	Version.DependenciesVersion = newVersion
 
 	if err := utils.WriteJSON(configuration.GetVersionPath(), &Version); err != nil {
 		return fmt.Errorf("error writing version file: %v", err)
@@ -80,18 +80,22 @@ func DownloadDependencies(address, authKey, skip string, h *logger.Logger) error
 
 }
 
-func processUpdateResponse(updateResponse *UpdateResponse, filepath string) (string, error) {
+func processUpdateResponse(updateResponse *UpdateResponse, filepath string, download bool) (string, bool, error) {
 	switch {
-	case updateResponse.Message == "Dependency not found", strings.Contains(updateResponse.Message, "Error getting dependency file"), updateResponse.Message == "Dependency already up to date":
-		return "", fmt.Errorf("error getting dependency file: %v", updateResponse.Message)
+	case updateResponse.Message == "Dependency not found", strings.Contains(updateResponse.Message, "Error getting dependency file"):
+		return updateResponse.Version, false, fmt.Errorf("error getting dependency file: %v", updateResponse.Message)
+	case updateResponse.Message == "Dependency already up to date":
+		return updateResponse.Version, false, nil
 	case strings.Contains(updateResponse.Message, "Dependency update available: v"):
 		version := strings.TrimPrefix(updateResponse.Message, "Dependency update available: v")
-		if err := utils.WriteBytesToFile(filepath, updateResponse.File); err != nil {
-			return "", fmt.Errorf("error writing dependency file %s: %v", filepath, err)
+		if download {
+			if err := utils.WriteBytesToFile(filepath, updateResponse.File); err != nil {
+				return "", false, fmt.Errorf("error writing dependency file %s: %v", filepath, err)
+			}
 		}
-		return version, nil
+		return version, true, nil
 	default:
-		return "", fmt.Errorf("error processing update response: %v", updateResponse.Message)
+		return "", false, fmt.Errorf("error processing update response: %v", updateResponse.Message)
 	}
 }
 

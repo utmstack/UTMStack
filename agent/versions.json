@@ -1,5 +1,4 @@
 {
-    "agent_version": "10.5.0",
-    "updater_version": "10.1.4",
-    "redline_version": "10.1.2"
+    "service_version": "10.6.0",
+    "dependencies_version": "10.1.0"
 }

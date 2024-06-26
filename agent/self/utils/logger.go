@@ -11,7 +11,6 @@ var (
 	loggerOnceInstance sync.Once
 )
 
-// CreateLogger returns a single instance of a Logger configured to save logs to a rotating file.
 func CreateLogger(filename string) *logger.Logger {
 	loggerOnceInstance.Do(func() {
 		selfLogger = logger.NewLogger(

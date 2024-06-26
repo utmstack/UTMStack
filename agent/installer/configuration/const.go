@@ -46,5 +46,5 @@ func GetDownloadFilePath(typ string) string {
 
 func GetVersionPath() string {
 	path := utils.GetMyPath()
-	return filepath.Join(path, "versions.json")
+	return filepath.Join(path, "version.json")
 }

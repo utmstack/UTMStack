@@ -131,10 +131,7 @@ func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogService
 }
 
 func SaveCountedLogs(h *logger.Logger, logsProcessCounter map[string]int) {
-	path, err := utils.GetMyPath()
-	if err != nil {
-		h.Fatal("Failed to get current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	filePath := filepath.Join(path, "logs_process")
 	logFile := filepath.Join(filePath, "processed_logs.txt")
