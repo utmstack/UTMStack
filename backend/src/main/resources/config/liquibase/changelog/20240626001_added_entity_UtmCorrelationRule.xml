@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240626001" author="Freddy">
+        <createTable tableName="utm_correlation_rules">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="rule_name" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_confidentiality" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_integrity" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_availability" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_category" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_technique" type="varchar(500)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_description" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="rule_references_def" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="rule_definition" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="rule_last_update" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="rule_active" type="bool">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="system_owner" type="bool">
+                <constraints nullable="false"/>
+            </column>
+
+
+        </createTable>
+
+        <dropDefaultValue tableName="utm_correlation_rules" columnName="rule_last_update" columnDataType="datetime"/>
+
+        <createTable tableName="utm_group_rules_data_type">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="rule_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="data_type_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_update" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <dropDefaultValue tableName="utm_group_rules_data_type" columnName="last_update" columnDataType="datetime"/>
+
+        <createTable tableName="utm_data_types">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="data_type" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_update" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="system_owner" type="bool">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <dropDefaultValue tableName="utm_data_types" columnName="last_update" columnDataType="datetime"/>
+
+        <addForeignKeyConstraint baseColumnNames="rule_id"
+                                 baseTableName="utm_group_rules_data_type"
+                                 constraintName="fk_utm_correlation_rules"
+                                 referencedColumnNames="id"
+                                 referencedTableName="utm_correlation_rules"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseColumnNames="data_type_id"
+                                 baseTableName="utm_group_rules_data_type"
+                                 constraintName="fk_utm_data_types"
+                                 referencedColumnNames="id"
+                                 referencedTableName="utm_data_types"
+                                 onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>
