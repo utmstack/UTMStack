@@ -59,7 +59,7 @@ const (
 	MASTERVERSIONENDPOINT = "/management/info"
 	Bucket                = "https://cdn.utmstack.com/"
 	VOLPATH               = "/data"
-	VersionsFile          = "versions.json"
+	VersionsFile          = "version.json"
 	CHECK_EVERY           = 5 * time.Minute
 )
 
