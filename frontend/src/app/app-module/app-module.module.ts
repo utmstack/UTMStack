@@ -55,7 +55,7 @@ import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {ModuleIntegrationComponent} from './module-integration/module-integration.component';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
 import {LogCollectorComponent} from './guides/shared/components/log-collector.component';
-import {InstallLogCollectorComponent} from "./guides/shared/components/install-log-collector.component";
+import {InstallLogCollectorComponent} from './guides/shared/components/install-log-collector.component';
 
 
 @NgModule({

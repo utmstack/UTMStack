@@ -1,0 +1,42 @@
+<div class="card sidebar-app-management h-100">
+    <div class="card-header p-2 w-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title mb-0 text-uppercase label-header">Manage Correlation Rules</h5>
+        </div>
+    </div>
+    <div class="list-group p-3">
+        <a *appHasAnyAuthority="adminAuth"
+           class="list-group-item"
+           routerLink="/explore/manage-correlation/assets"
+           routerLinkActive="router-link-active">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="font-weight-semibold">
+                    <i class="icon-key font-size-sm"></i>&nbsp;
+                        Assets
+                </span>
+            </div>
+        </a>
+        <a *appHasAnyAuthority="adminAuth"
+           class="list-group-item"
+           routerLink="/explore/manage-correlation/types"
+           routerLinkActive="router-link-active">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="font-weight-semibold">
+                    <i class="icon-key font-size-sm"></i>&nbsp;
+                        Data Types
+                </span>
+            </div>
+        </a>
+        <a *appHasAnyAuthority="adminAuth"
+           class="list-group-item"
+           routerLink="/explore/manage-correlation/patterns"
+           routerLinkActive="router-link-active">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="font-weight-semibold">
+                    <i class="icon-key font-size-sm"></i>&nbsp;
+                        Patterns
+                </span>
+            </div>
+        </a>
+    </div>
+</div>

@@ -16,6 +16,9 @@ import {RuleFileManagementComponent} from './rule-file-management/rule-file-mana
     UtmSharedModule,
     InfiniteScrollModule,
     NgbModule
+  ],
+  exports: [
+    RuleFieldBrowserComponent
   ]
 })
 export class FileBrowserModule {

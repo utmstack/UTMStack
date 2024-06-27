@@ -1,0 +1,32 @@
+<div class="p-3">
+    <div class="w-100 mt-2">
+        <span class="font-weight-semibold">Name:</span>
+        <p [innerHTML]="rule.name" class="font-weight-light">
+        </p>
+    </div>
+
+    <div *ngIf="rule.data_types.length > 0" class="mt-2 d-flex flex-column">
+        <span class="font-weight-semibold">{{rule.data_types.length > 1 ? 'Types' : 'Type'}}:</span>
+        <div *ngFor="let type of rule.data_types">
+            <span [ngbTooltip]="type"
+                   placement="auto"
+                   container="body"
+                   class="bg-success-300 badge p-1 border-1 m-1">
+                        {{type}}
+             </span>
+        </div>
+    </div>
+
+
+    <div class="w-100 mt-2">
+        <span class="font-weight-semibold">Description:</span>
+        <p [innerHTML]="rule.description" class="font-weight-light">
+        </p>
+    </div>
+
+    <div *ngIf="rule.references.length > 0" class="w-100 mt-2 d-flex flex-column">
+        <span class="font-weight-semibold">{{rule.references.length > 1 ? 'References' : 'Reference'}}:</span>
+        <a *ngFor="let ref of rule.references, let index=index;" [href]="ref" class="font-weight-light text-blue-800"
+           target="_blank">{{(index + 1) + '. ' + ref}}</a>
+    </div>
+</div>
