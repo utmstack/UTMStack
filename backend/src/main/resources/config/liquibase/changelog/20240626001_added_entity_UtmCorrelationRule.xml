@@ -62,25 +62,9 @@
 
         <dropDefaultValue tableName="utm_correlation_rules" columnName="rule_last_update" columnDataType="datetime"/>
 
-        <createTable tableName="utm_group_rules_data_type">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-
-            <column name="rule_id" type="bigint" autoIncrement="true">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="data_type_id" type="bigint" autoIncrement="true">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="last_update" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-        </createTable>
-
-        <dropDefaultValue tableName="utm_group_rules_data_type" columnName="last_update" columnDataType="datetime"/>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            perform setval('public.utm_correlation_rules_id_seq', 5000);
+        </sql>
 
         <createTable tableName="utm_data_types">
             <column name="id" type="bigint" autoIncrement="true">
@@ -101,6 +85,30 @@
         </createTable>
 
         <dropDefaultValue tableName="utm_data_types" columnName="last_update" columnDataType="datetime"/>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            perform setval('public.utm_data_types_id_seq', 5000);
+        </sql>
+
+        <createTable tableName="utm_group_rules_data_type">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="rule_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="data_type_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_update" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <dropDefaultValue tableName="utm_group_rules_data_type" columnName="last_update" columnDataType="datetime"/>
 
         <addForeignKeyConstraint baseColumnNames="rule_id"
                                  baseTableName="utm_group_rules_data_type"
