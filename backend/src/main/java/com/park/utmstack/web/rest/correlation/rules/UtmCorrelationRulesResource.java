@@ -2,10 +2,9 @@ package com.park.utmstack.web.rest.correlation.rules;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
-import com.park.utmstack.domain.network_scan.NetworkScanFilter;
+import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
-import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -127,6 +126,22 @@ public class UtmCorrelationRulesResource {
             Page<UtmCorrelationRulesVM> page = rulesService.searchByFilters(filters, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/correlation-rule/search-by-filters");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @GetMapping("/correlation-rule/search-property-values")
+    public ResponseEntity<List<?>> searchPropertyValues(@RequestParam PropertyFilter prop,
+                                                        @RequestParam(required = false) String value,
+                                                        Pageable pageable) {
+        final String ctx = CLASSNAME + ".searchPropertyValues";
+        try {
+            return ResponseEntity.ok(rulesService.searchPropertyValues(prop, value, pageable));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

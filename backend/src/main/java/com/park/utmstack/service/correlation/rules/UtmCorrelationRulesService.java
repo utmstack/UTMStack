@@ -1,16 +1,12 @@
 package com.park.utmstack.service.correlation.rules;
 
-import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.correlation.rules.UtmGroupRulesDataType;
-import com.park.utmstack.domain.logstash_pipeline.UtmLogstashPipeline;
-import com.park.utmstack.domain.logstash_pipeline.types.PipelinePortConfiguration;
-import com.park.utmstack.domain.network_scan.NetworkScanFilter;
-import com.park.utmstack.domain.network_scan.UtmNetworkScan;
+import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.repository.correlation.rules.UtmCorrelationRulesRepository;
 import com.park.utmstack.repository.correlation.rules.UtmGroupRulesDataTypeRepository;
-import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
+import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.web.rest.vm.UtmCorrelationRulesVM;
 import io.undertow.util.BadRequestException;
 import org.slf4j.Logger;
@@ -36,10 +32,12 @@ public class UtmCorrelationRulesService {
 
     private final UtmCorrelationRulesRepository utmCorrelationRulesRepository;
     private final UtmGroupRulesDataTypeRepository utmGroupRulesDataTypeRepository;
+    private final UtmNetworkScanService utmNetworkScanService;
 
-    public UtmCorrelationRulesService(UtmCorrelationRulesRepository utmCorrelationRulesRepository, UtmGroupRulesDataTypeRepository utmGroupRulesDataTypeRepository) {
+    public UtmCorrelationRulesService(UtmCorrelationRulesRepository utmCorrelationRulesRepository, UtmGroupRulesDataTypeRepository utmGroupRulesDataTypeRepository, UtmNetworkScanService utmNetworkScanService) {
         this.utmCorrelationRulesRepository = utmCorrelationRulesRepository;
         this.utmGroupRulesDataTypeRepository = utmGroupRulesDataTypeRepository;
+        this.utmNetworkScanService = utmNetworkScanService;
     }
 
     /**
@@ -201,6 +199,23 @@ public class UtmCorrelationRulesService {
         } catch (InvalidDataAccessResourceUsageException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             throw new Exception(msg);
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Search all no repeated values for a property field
+     *
+     * @param prop     Property field to get the values
+     * @param pageable For paginate the result
+     * @return A list with values of the property field
+     * @throws Exception In case of any error
+     */
+    public List<?> searchPropertyValues(PropertyFilter prop, String value, Pageable pageable) throws Exception {
+        final String ctx = CLASSNAME + ".searchPropertyValues";
+        try {
+            return utmNetworkScanService.searchPropertyValues(prop, value, false, pageable);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }

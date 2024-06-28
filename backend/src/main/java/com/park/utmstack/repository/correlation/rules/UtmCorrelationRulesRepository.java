@@ -1,10 +1,5 @@
 package com.park.utmstack.repository.correlation.rules;
 
-import com.park.utmstack.domain.network_scan.UtmNetworkScan;
-import com.park.utmstack.domain.network_scan.enums.AssetRegisteredMode;
-import com.park.utmstack.domain.network_scan.enums.AssetStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
