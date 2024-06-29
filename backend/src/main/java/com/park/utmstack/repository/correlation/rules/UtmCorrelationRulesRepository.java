@@ -21,15 +21,15 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
 
     @Query(value = "SELECT cr FROM UtmCorrelationRules cr WHERE " +
             "(:ruleName IS NULL OR (cr.ruleName LIKE :ruleName OR lower(cr.ruleName) LIKE lower(:ruleName))) " +
-            "AND ((:ruleConfidentiality) IS NULL OR cr.ruleConfidentiality IN :ruleConfidentiality) " +
-            "AND ((:ruleIntegrity) IS NULL OR cr.ruleIntegrity IN :ruleIntegrity) " +
-            "AND ((:ruleAvailability) IS NULL OR cr.ruleAvailability IN :ruleAvailability) " +
-            "AND (:ruleCategory IS NULL OR (cr.ruleCategory LIKE :ruleCategory OR lower(cr.ruleCategory) LIKE lower(:ruleCategory))) " +
-            "AND (:ruleTechnique IS NULL OR (cr.ruleTechnique LIKE :ruleTechnique OR lower(cr.ruleTechnique) LIKE lower(:ruleTechnique))) " +
-            "AND ((:ruleActive) IS NULL OR cr.ruleActive IN :ruleActive) " +
-            "AND ((:systemOwner) IS NULL OR cr.systemOwner IN :systemOwner) " +
+            "AND ((:ruleConfidentiality) IS NULL OR cr.ruleConfidentiality IN (:ruleConfidentiality)) " +
+            "AND ((:ruleIntegrity) IS NULL OR cr.ruleIntegrity IN (:ruleIntegrity)) " +
+            "AND ((:ruleAvailability) IS NULL OR cr.ruleAvailability IN (:ruleAvailability)) " +
+            "AND ((:ruleCategory) IS NULL OR cr.ruleCategory IN (:ruleCategory)) " +
+            "AND ((:ruleTechnique) IS NULL OR cr.ruleTechnique IN (:ruleTechnique)) " +
+            "AND ((:ruleActive) IS NULL OR cr.ruleActive IN (:ruleActive)) " +
+            "AND ((:systemOwner) IS NULL OR cr.systemOwner IN (:systemOwner)) " +
             "AND ((cast(:ruleInitDate as timestamp) is null) or (cast(:ruleEndDate as timestamp) is null) or (cr.ruleLastUpdate BETWEEN :ruleInitDate AND :ruleEndDate)) " +
-            "AND ((:dataTypes) IS NULL OR cr.id IN (SELECT DISTINCT g.ruleId FROM UtmGroupRulesDataType g WHERE g.dataTypeId IN :dataTypes))")
+            "AND ((:dataTypes) IS NULL OR cr.id IN (SELECT DISTINCT g.ruleId FROM UtmGroupRulesDataType g WHERE g.dataTypeId IN (:dataTypes)))")
     List<UtmCorrelationRules> searchByFilters(@Param("ruleName") String ruleName,
                                          @Param("ruleConfidentiality") List<Integer> ruleConfidentiality,
                                          @Param("ruleIntegrity") List<Integer> ruleIntegrity,

@@ -1,5 +1,6 @@
 package com.park.utmstack.service.correlation.rules;
 
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.correlation.rules.UtmGroupRulesDataType;
@@ -41,7 +42,7 @@ public class UtmCorrelationRulesService {
     }
 
     /**
-     * Save a utmLogstashPipeline.
+     * Save a correlation rule.
      *
      * @param rule the entity to save.
      * @return the persisted entity.
@@ -70,11 +71,15 @@ public class UtmCorrelationRulesService {
         try {
             UtmCorrelationRules rule = rulesVM.getRule();
             rule.setSystemOwner(false);
-            List<UtmGroupRulesDataType> dataTypes = rulesVM.getDataTypeRelations();
 
             // Saving relations with datatypes
+            Long ruleId = this.save(rule).getId();
+            List<UtmGroupRulesDataType> dataTypes = rulesVM.getDataTypeRelations();
+            dataTypes.forEach(d-> {
+                d.setRuleId(ruleId);
+                d.setLastUpdate();
+            });
             utmGroupRulesDataTypeRepository.saveAll(dataTypes);
-            this.save(rule);
         } catch (Exception ex) {
             throw new RuntimeException(ctx + ": An error occurred while adding a rule.", ex);
         }
@@ -113,6 +118,10 @@ public class UtmCorrelationRulesService {
             utmGroupRulesDataTypeRepository.deleteAll(dataTypesCurrent.stream().filter(f-> dataTypesUpdated.stream()
                     .noneMatch(d-> Objects.equals(d.getId(), f.getId()))).collect(Collectors.toList()));
             // Saving relations with datatypes
+            dataTypesUpdated.forEach(d-> {
+                d.setRuleId(rule.getId());
+                d.setLastUpdate();
+            });
             utmGroupRulesDataTypeRepository.saveAll(dataTypesUpdated);
             this.save(rule);
         } catch (Exception ex) {
@@ -154,6 +163,14 @@ public class UtmCorrelationRulesService {
      * */
     @Transactional
     public void deleteRule (Long id) throws Exception {
+        final String ctx = CLASSNAME + ".deleteRule";
+        Optional<UtmCorrelationRules> find = utmCorrelationRulesRepository.findById(id);
+        if (find.isEmpty()) {
+            throw new BadRequestException(ctx + ": The rule you're trying to delete is not present in database.");
+        }
+        if(find.get().getSystemOwner()) {
+            throw new BadRequestException(ctx + ": System's rules can't be removed.");
+        }
         utmCorrelationRulesRepository.deleteById(id);
     }
 
@@ -179,7 +196,7 @@ public class UtmCorrelationRulesService {
         final String ctx = CLASSNAME + ".filter";
         try {
             List<UtmCorrelationRules> rulesList = utmCorrelationRulesRepository.searchByFilters(
-                    f.getRuleName(),f.getRuleConfidentiality(),f.getRuleIntegrity(),f.getRuleAvailability(),
+                    f.getRuleName() == null ? null : "%" + f.getRuleName() + "%",f.getRuleConfidentiality(),f.getRuleIntegrity(),f.getRuleAvailability(),
                     f.getRuleCategory(),f.getRuleTechnique(),f.getRuleActive(),f.getSystemOwner(),f.getDataTypes(),
                     f.getRuleInitDate(),f.getRuleEndDate());
 
@@ -189,13 +206,14 @@ public class UtmCorrelationRulesService {
                     UtmCorrelationRulesVM vm = new UtmCorrelationRulesVM();
                     vm.setRule(l);
                     vm.setDataTypeRelations(utmGroupRulesDataTypeRepository.findByRuleId(l.getId()));
+                    rulesVMList.add(vm);
                 });
             }
             PagedListHolder<UtmCorrelationRulesVM> pageDefinition = new PagedListHolder<>();
             pageDefinition.setSource(rulesVMList);
             pageDefinition.setPageSize(p.getPageSize());
             pageDefinition.setPage(p.getPageNumber());
-            return PageableExecutionUtils.getPage(pageDefinition.getPageList(), p, rulesVMList::size);
+            return PageableExecutionUtils.getPage(pageDefinition.getPageList(), p, rulesList::size);
         } catch (InvalidDataAccessResourceUsageException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             throw new Exception(msg);
@@ -220,6 +238,39 @@ public class UtmCorrelationRulesService {
             throw new Exception(ctx + ": " + e.getMessage());
         }
     }
+
+    /**
+     * Get one UtmCorrelationRulesVM by rule id.
+     *
+     * @param id the id of the entity
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public Optional<UtmCorrelationRulesVM> findOne(Long id) {
+        final String ctx = CLASSNAME + ".findOne";
+        try {
+            UtmCorrelationRulesVM vm = new UtmCorrelationRulesVM();
+            Optional<UtmCorrelationRules> optVm = utmCorrelationRulesRepository.findById(id);
+            if (optVm.isPresent()) {
+                vm.setRule(optVm.get());
+                vm.setDataTypeRelations(utmGroupRulesDataTypeRepository.findByRuleId(optVm.get().getId()));
+                return Optional.of(vm);
+            }
+
+            return Optional.empty();
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }
+
+    /*public Page<UtmDataTypes> findAll(Pageable p) {
+        final String ctx = CLASSNAME + ".findAll";
+        try {
+            return utmCorrelationRulesRepository.findAll(p);
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+    }*/
 
 
 }

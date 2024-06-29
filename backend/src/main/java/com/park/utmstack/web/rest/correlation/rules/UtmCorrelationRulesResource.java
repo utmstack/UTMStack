@@ -1,6 +1,7 @@
 package com.park.utmstack.web.rest.correlation.rules;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -19,9 +20,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -149,6 +152,19 @@ public class UtmCorrelationRulesResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
                     HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
+    }
+
+    /**
+     * GET  /correlation-rule/:id : The id of the datatype.
+     *
+     * @param id the id of the correlation rule to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the rule with its relations, or with status 404 (Not Found)
+     */
+    @GetMapping("/correlation-rule/{id}")
+    public ResponseEntity<UtmCorrelationRulesVM> getRule(@PathVariable Long id) {
+        log.debug("REST request to get UtmDataTypes : {}", id);
+        Optional<UtmCorrelationRulesVM> datatype = rulesService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(datatype);
     }
 
     /**

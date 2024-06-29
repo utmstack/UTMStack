@@ -62,9 +62,14 @@
 
         <dropDefaultValue tableName="utm_correlation_rules" columnName="rule_last_update" columnDataType="datetime"/>
 
-        <sql dbms="postgresql" splitStatements="true" stripComments="true">
-            perform setval('public.utm_correlation_rules_id_seq', 5000);
-        </sql>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+               perform setval('public.utm_correlation_rules_id_seq', 5000);
+            end;
+            $$ language plpgsql;
+        </createProcedure>
 
         <createTable tableName="utm_data_types">
             <column name="id" type="bigint" autoIncrement="true">
@@ -86,9 +91,14 @@
 
         <dropDefaultValue tableName="utm_data_types" columnName="last_update" columnDataType="datetime"/>
 
-        <sql dbms="postgresql" splitStatements="true" stripComments="true">
-            perform setval('public.utm_data_types_id_seq', 5000);
-        </sql>
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+               perform setval('public.utm_data_types_id_seq', 5000);
+            end;
+            $$ language plpgsql;
+        </createProcedure>
 
         <createTable tableName="utm_group_rules_data_type">
             <column name="id" type="bigint" autoIncrement="true">
