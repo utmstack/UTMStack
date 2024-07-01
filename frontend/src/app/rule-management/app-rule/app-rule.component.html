@@ -31,16 +31,17 @@
         <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
           <div *ngFor="let filter of fieldFilters" class="w-100">
             <div *ngIf="filter.visible" class="w-100 mb-2">
-              <app-rule-generic-filter (filterGenericChange)="onFilterChange($event)"
-                                        [fieldFilter]="filter">
-              </app-rule-generic-filter>
+              <app-generic-filter [fieldFilter]="filter"
+                                  (filterGenericChange)=""
+              >
+              </app-generic-filter>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="flex-grow-1">
-      <app-rule-list [rules] = "rules$ | async" ></app-rule-list>
+      <app-rule-list></app-rule-list>
     </div>
   </div>
 </div>

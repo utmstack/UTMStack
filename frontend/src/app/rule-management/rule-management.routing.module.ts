@@ -10,6 +10,7 @@ import {TypesComponent} from './app-correlation-management/components/types/type
 import {AppRuleComponent} from './app-rule/app-rule.component';
 import {AddRuleComponent} from './app-rule/components/add-rule/add-rule.component';
 import {RulesResolverService} from './services/rules.resolver.service';
+import {RuleResolverService} from './services/rule.resolver.service';
 
 const routes = [
   {path: '', redirectTo: 'rules', pathMatch: 'full'},
@@ -19,7 +20,7 @@ const routes = [
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]},
     resolve: {
-      rules: RulesResolverService
+      response: RulesResolverService
     }
   },
   {
@@ -27,8 +28,14 @@ const routes = [
     component:  AddRuleComponent,
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]},
+  },
+  {
+    path: 'rule/:id',
+    component:  AddRuleComponent,
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]},
     resolve: {
-      rules: RulesResolverService
+      response: RuleResolverService
     }
   },
   {

@@ -13,44 +13,36 @@ export const RULE_FIELDS: UtmFieldType[] = [
         field: RULE_NAME_FIELD,
         type: ElasticDataTypesEnum.STRING,
         visible: true,
+        filter: false
     },
     {
         label: 'Types',
         field: RULE_DATA_TYPES,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
+        filter: true
     },
     {
         label: 'Category',
         field: RULE_CATEGORY,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
+        filter: true
     },
     {
         label: 'Technique',
         field: RULE_TECHNIQUE,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
+        filter: true
     },
     {
         label: 'References',
         field: RULE_REFERENCES,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
+        filter: true
     },
 ];
 
-export const FILTER_RULE_FIELDS: UtmFieldType[] = [
-    {
-        label: 'Types',
-        field: RULE_DATA_TYPES,
-        type: ElasticDataTypesEnum.OBJECT,
-        visible: true,
-    },
-    {
-        label: 'Category',
-        field: RULE_CATEGORY,
-        type: ElasticDataTypesEnum.OBJECT,
-        visible: true,
-    },
-];
+export const FILTER_RULE_FIELDS = RULE_FIELDS.filter(f => f.filter);

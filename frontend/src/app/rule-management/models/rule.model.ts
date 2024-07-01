@@ -20,7 +20,6 @@ export interface DataType {
     name: string;
 }
 
-
 export interface Rule {
     id: number;
     data_types: DataType[];
@@ -32,3 +31,5 @@ export interface Rule {
     references: string[];
     definition: Definition;
 }
+
+export type Mode = 'ADD' | 'EDIT';
