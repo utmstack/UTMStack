@@ -1,0 +1,61 @@
+/* Estilos generales */
+.container-fluid {
+    padding-right: 1rem;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+}
+
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+.alert-filter-container {
+    min-width: 300px;
+    max-width: 400px;
+    resize: horizontal;
+    overflow: auto;
+}
+
+.table-responsive {
+    overflow: auto;
+    flex-grow: 1;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    flex-shrink: 0;
+}
+
+@media (max-width: 1980px) {
+    .alert-filter-container {
+        width: 300px;
+    }
+}
+
+@media (min-width: 1981px) and (max-width: 2500px) {
+    .alert-filter-container {
+        width: 350px;
+    }
+}
+
+@media (min-width: 2501px) and (max-width: 4000px) {
+    .alert-filter-container {
+        width: 350px;
+    }
+}
+
+@media (min-width: 4001px) {
+    .alert-filter-container {
+        width: 400px;
+    }
+}

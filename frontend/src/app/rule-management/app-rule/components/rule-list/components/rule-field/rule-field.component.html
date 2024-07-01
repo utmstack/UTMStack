@@ -1,0 +1,22 @@
+<ng-container [ngSwitch]="column.field">
+    <span *ngSwitchDefault>
+        {{ rule[column.field] }}
+    </span>
+    <ng-container *ngSwitchCase="RULE_DATA_TYPES">
+         <span  *ngFor="let type of rule[column.field]"
+                [ngbTooltip]="type"
+                placement="auto"
+                container="body"
+                class="bg-success-300 badge p-1 border-1 m-1">
+                    {{type}}
+         </span>
+    </ng-container>
+    <ng-container *ngSwitchCase="RULE_REFERENCES">
+        <ul>
+            <li *ngFor="let ref of rule[column.field]">
+                <a [href]="ref" class="text-blue-800 font-size-sm" target="_blank">{{ ref }}</a>
+            </li>
+        </ul>
+    </ng-container>
+
+</ng-container>

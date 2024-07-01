@@ -15,8 +15,10 @@ public enum PropertyFilter {
     GROUP("assetGroup.groupName", "UtmNetworkScan"),
 
     COLLECTOR_IP("ip", "UtmCollector"),
-    COLLECTOR_GROUP("assetGroup.groupName", "UtmCollector");
+    COLLECTOR_GROUP("assetGroup.groupName", "UtmCollector"),
 
+    RULE_TECHNIQUE("ruleTechnique","UtmCorrelationRules"),
+    RULE_CATEGORY("ruleCategory","UtmCorrelationRules");
     private final String propertyName;
     private final String fromTable;
 

@@ -29,12 +29,12 @@ const routes: Routes = [
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
-  {
+ /* {
     path: 'explore',
     loadChildren: './filebrowser/filebrowser.module#FileBrowserModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
-  },
+  },*/
   {
     path: 'profile',
     loadChildren: './account/account.module#UtmAccountModule',
@@ -142,6 +142,12 @@ const routes: Routes = [
   {
     path: 'threat-intelligence',
     loadChildren: './threatwind/threatwind.module#ThreatWindModule',
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [ADMIN_ROLE, USER_ROLE]}
+  },
+  {
+    path: 'correlation',
+    loadChildren: './rule-management/rule-management.module#RuleManagementModule',
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
