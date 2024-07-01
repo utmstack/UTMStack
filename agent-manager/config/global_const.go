@@ -15,9 +15,6 @@ func KeyAuthRoutes() []string {
 		"/agent.CollectorService/GetCollectorConfig",
 
 		"/agent.PingService/Ping",
-
-		"/agent.UpdatesService/CheckAgentUpdates",
-		"/agent.UpdatesService/CheckCollectorUpdates",
 	}
 }
 
@@ -25,9 +22,6 @@ func ConnectionKeyRoutes() []string {
 	return []string{
 		"/agent.AgentService/RegisterAgent",
 		"/agent.CollectorService/RegisterCollector",
-
-		"/agent.UpdatesService/CheckAgentUpdates",
-		"/agent.UpdatesService/CheckCollectorUpdates",
 	}
 }
 
@@ -55,7 +49,6 @@ const (
 	UTMEncryptionKeyEnv   = "ENCRYPTION_KEY"
 	UTMPanelServiceEnv    = "PANEL_SERV_NAME"
 	UTMHostEnv            = "UTM_HOST"
-	ProxyAPIKeyHeader     = "Utm-Connection-Key"
 	MASTERVERSIONENDPOINT = "/management/info"
 	Bucket                = "https://cdn.utmstack.com/"
 	VOLPATH               = "/data"

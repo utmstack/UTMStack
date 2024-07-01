@@ -43,13 +43,12 @@ func NewAs400Updater() *AS400Updater {
 				},
 				LatestVersions: models.Version{},
 				FileLookup: map[string]map[string]string{
-					"OS_WINDOWS": {
-						"DEPEND_TYPE_SERVICE":    "utmstack_collector_as400_service_v%s.jar",
-						"DEPEND_TYPE_DEPEND_ZIP": "utmstack_collector_as400_dependencies_v%s_windows.zip",
+					"windows": {
+						"service":    "utmstack_collector_as400_service%s.jar",
+						"depend_zip": "utmstack_collector_as400_dependencies%s_windows.zip",
 					},
-					"OS_LINUX": {
-						"DEPEND_TYPE_SERVICE":    "utmstack_collector_as400_service_v%s.jar",
-						"DEPEND_TYPE_DEPEND_ZIP": "utmstack_collector_as400_dependencies_v%s_linux.zip",
+					"linux": {
+						"service": "utmstack_collector_as400_service%s.jar",
 					},
 				},
 			},
@@ -75,11 +74,11 @@ func NewCollectorUpdater() *CollectorUpdater {
 				},
 				LatestVersions: models.Version{},
 				FileLookup: map[string]map[string]string{
-					"OS_WINDOWS": {
-						"DEPEND_TYPE_INSTALLER": "utmstack_collector_installer_v%s_windows.exe",
+					"windows": {
+						"installer": "utmstack_collector_installer%s_windows.exe",
 					},
-					"OS_LINUX": {
-						"DEPEND_TYPE_INSTALLER": "utmstack_collector_installer_v%s_linux",
+					"linux": {
+						"installer": "utmstack_collector_installer%s_linux",
 					},
 				},
 			},

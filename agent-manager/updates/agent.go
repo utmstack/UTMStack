@@ -38,15 +38,15 @@ func NewAgentUpdater() *AgentUpdater {
 				},
 				LatestVersions: models.Version{},
 				FileLookup: map[string]map[string]string{
-					"OS_WINDOWS": {
-						"DEPEND_TYPE_INSTALLER":  "utmstack_agent_installer_v%s_windows.exe",
-						"DEPEND_TYPE_SERVICE":    "utmstack_agent_service_v%s_windows.exe",
-						"DEPEND_TYPE_DEPEND_ZIP": "utmstack_agent_dependencies_v%s_windows.zip",
+					"windows": {
+						"installer":  "utmstack_agent_installer%s_windows.exe",
+						"service":    "utmstack_agent_service%s_windows.exe",
+						"depend_zip": "utmstack_agent_dependencies%s_windows.zip",
 					},
-					"OS_LINUX": {
-						"DEPEND_TYPE_INSTALLER":  "utmstack_agent_installer_v%s_linux",
-						"DEPEND_TYPE_SERVICE":    "utmstack_agent_service_v%s_linux",
-						"DEPEND_TYPE_DEPEND_ZIP": "utmstack_agent_dependencies_v%s_linux.zip",
+					"linux": {
+						"installer":  "utmstack_agent_installer%s_linux",
+						"service":    "utmstack_agent_service%s_linux",
+						"depend_zip": "utmstack_agent_dependencies%s_linux.zip",
 					},
 				},
 			},

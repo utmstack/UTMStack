@@ -1,48 +1,94 @@
 package handlers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/updates"
 )
 
-func HandleInstallerRequest(c *gin.Context) {
-	installerType := c.Param("installerType")
-	os := c.Param("os")
+func validateParams(version, os, dependencytype string) error {
+	if version == "" || os == "" || dependencytype == "" {
+		return errors.New("missing required parameters")
+	} else {
+		if os != "windows" && os != "linux" {
+			return errors.New("invalid os parameter")
+		}
+		if dependencytype != "installer" && dependencytype != "service" && dependencytype != "depend_zip" {
+			return errors.New("invalid dependency type parameter")
+		}
+	}
 
-	if (installerType != "agent" && installerType != "collector") || (os != "windows" && os != "linux") {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid installer type or os"})
+	return nil
+}
+
+func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, dependencyType string) {
+	latestVersion := updater.GetLatestVersion(dependencyType)
+	if latestVersion == "" {
+		c.JSON(http.StatusNotFound, models.DependencyUpdateResponse{Message: "dependency not found"})
+		return
+	}
+	if latestVersion == version {
+		c.JSON(http.StatusOK, models.DependencyUpdateResponse{
+			Message: "dependency already up to date",
+			Version: latestVersion,
+		})
 		return
 	}
 
-	filepath := getFile(installerType, os)
-	if filepath == "file not found" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "file not found"})
+	fileContent, err := updater.GetFileContent(os, dependencyType)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.DependencyUpdateResponse{Message: fmt.Sprintf("error getting dependency file: %v", err)})
 		return
 	}
 
-	c.File(filepath)
+	c.JSON(http.StatusOK, models.DependencyUpdateResponse{
+		Message:     "dependency update available",
+		Version:     latestVersion,
+		FileContent: fileContent,
+	})
 }
 
-func getFile(installerType, os string) string {
-	switch installerType {
-	case "agent":
-		updater := updates.NewAgentUpdater()
-		file, path := updater.GetFileName(fixOS(os), "DEPEND_TYPE_INSTALLER")
-		return filepath.Join(path, file)
-	case "collector":
-		updater := updates.NewCollectorUpdater()
-		file, path := updater.GetFileName(fixOS(os), "DEPEND_TYPE_INSTALLER")
-		return filepath.Join(path, file)
+func HandleAgentUpdates(c *gin.Context) {
+	version := c.Query("version")
+	os := c.Query("os")
+	dependencyType := c.Query("type")
+
+	if err := validateParams(version, os, dependencyType); err != nil {
+		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
+		return
 	}
-	return "file not found"
+
+	updater := updates.NewAgentUpdater()
+	handleUpdate(c, updater, version, os, dependencyType)
 }
 
-func fixOS(os string) string {
-	if os == "windows" {
-		return "OS_WINDOWS"
+func HandleCollectorUpdates(c *gin.Context) {
+	collectorType := c.Query("collectorType")
+	version := c.Query("version")
+	os := c.Query("os")
+	dependencytype := c.Query("type")
+
+	if err := validateParams(version, os, dependencytype); err != nil {
+		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
+		return
 	}
-	return "OS_LINUX"
+
+	var updater updates.UpdaterInterf
+	if dependencytype == "installer" {
+		updater = updates.NewCollectorUpdater()
+	} else {
+		switch collectorType {
+		case "as400":
+			updater = updates.NewAs400Updater()
+		default:
+			c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: "invalid collector type"})
+			return
+		}
+	}
+
+	handleUpdate(c, updater, version, os, dependencytype)
 }

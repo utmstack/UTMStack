@@ -73,7 +73,6 @@ func main() {
 	go collectorInstallerUpdater.UpdateDependencies()
 
 	pb.RegisterPingServiceServer(grpcServer, s)
-	pb.RegisterUpdatesServiceServer(grpcServer, s)
 
 	// Register the health check service
 	healthServer := health.NewServer()
@@ -114,8 +113,12 @@ func recoverInterceptor(
 func StartHttpServer() {
 	h := util.GetLogger()
 	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
-	router.GET("/dependencies/installer/:installerType/:os", auth.HTTPAuthInterceptor(), handlers.HandleInstallerRequest)
+	router := gin.New()
+	router.Use(gin.Recovery())
+
+	router.GET("/dependencies/agent", auth.HTTPAuthInterceptor(), handlers.HandleAgentUpdates)
+	router.GET("/dependencies/collector", auth.HTTPAuthInterceptor(), handlers.HandleCollectorUpdates)
+
 	h.Info("Starting HTTP server on port 8080")
 	err := router.Run(":8080")
 	if err != nil {

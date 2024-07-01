@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/utmstack/UTMStack/agent/installer/agent"
 	"github.com/utmstack/UTMStack/agent/installer/configuration"
+	"github.com/utmstack/UTMStack/agent/installer/updates"
 	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
@@ -47,7 +47,7 @@ func main() {
 			}
 
 			beautyLogger.WriteSimpleMessage("Downloading UTMStack dependencies...")
-			err = agent.DownloadDependencies(ip, utmKey, skip, h)
+			err = updates.DownloadDependencies(ip, utmKey)
 			if err != nil {
 				beautyLogger.WriteError("error downloading dependencies", err)
 				h.Fatal("error downloading dependencies: %v", err)
@@ -55,13 +55,13 @@ func main() {
 			beautyLogger.WriteSuccessfull("UTMStack dependencies downloaded correctly.")
 
 			beautyLogger.WriteSimpleMessage("Installing service...")
-			err = agent.ConfigureService(ip, utmKey, skip, "install")
+			err = configuration.ConfigureService(ip, utmKey, skip, "install")
 			if err != nil {
-				beautyLogger.WriteError("error installing UTMStack services", err)
-				h.Fatal("error installing UTMStack services: %v", err)
+				beautyLogger.WriteError("error installing UTMStack service", err)
+				h.Fatal("error installing UTMStack service: %v", err)
 			}
 
-			beautyLogger.WriteSuccessfull("Services installed correctly")
+			beautyLogger.WriteSuccessfull("Service installed correctly")
 			beautyLogger.WriteSuccessfull("UTMStack Agent installed correctly.")
 
 			time.Sleep(5 * time.Second)
@@ -74,14 +74,14 @@ func main() {
 				beautyLogger.WriteError("error checking UTMStackAgent service", err)
 				h.Fatal("error checking UTMStackAgent service: %v", err)
 			} else if isInstalled {
-				beautyLogger.WriteSimpleMessage("Uninstalling UTMStack services...")
-				err = agent.ConfigureService("", "", "", "uninstall")
+				beautyLogger.WriteSimpleMessage("Uninstalling UTMStack service...")
+				err = configuration.ConfigureService("", "", "", "uninstall")
 				if err != nil {
-					beautyLogger.WriteError("error uninstalling UTMStack services", err)
-					h.Fatal("error uninstalling UTMStack services: %v", err)
+					beautyLogger.WriteError("error uninstalling UTMStack service", err)
+					h.Fatal("error uninstalling UTMStack service: %v", err)
 				}
 
-				beautyLogger.WriteSuccessfull("UTMStack services uninstalled correctly.")
+				beautyLogger.WriteSuccessfull("UTMStack service uninstalled correctly.")
 				time.Sleep(5 * time.Second)
 				os.Exit(0)
 

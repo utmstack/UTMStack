@@ -38,3 +38,9 @@ type Dependency struct {
 	CurrentDependVersion  string
 	LatestDependVersion   string
 }
+
+type DependencyUpdateResponse struct {
+	Message     string `json:"message"`
+	Version     string `json:"version"`
+	FileContent []byte `json:"fileContent,omitempty"`
+}

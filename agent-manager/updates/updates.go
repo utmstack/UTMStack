@@ -16,7 +16,8 @@ import (
 type UpdaterInterf interface {
 	GetLatestVersion(typ string) string
 	GetFileName(osType, typ string) (string, string)
-	GetFile(osType, typ string) ([]byte, error)
+	GetFileNameWithVersion(osType, typ string) (string, string)
+	GetFileContent(osType, typ string) ([]byte, error)
 	UpdateDependencies()
 }
 
@@ -31,15 +32,15 @@ type Updater struct {
 
 func (u *Updater) GetLatestVersion(typ string) string {
 	switch typ {
-	case "DEPEND_TYPE_INSTALLER":
+	case "installer":
 		if u.LatestVersions.InstallerVersion != "" {
 			return u.LatestVersions.InstallerVersion
 		}
-	case "DEPEND_TYPE_SERVICE":
+	case "service":
 		if u.LatestVersions.ServiceVersion != "" {
 			return u.LatestVersions.ServiceVersion
 		}
-	case "DEPEND_TYPE_DEPEND_ZIP":
+	case "depend_zip":
 		if u.LatestVersions.DependenciesVersion != "" {
 			return u.LatestVersions.DependenciesVersion
 		}
@@ -47,16 +48,27 @@ func (u *Updater) GetLatestVersion(typ string) string {
 	return ""
 }
 
+func (u *Updater) GetFileNameWithVersion(osType, typ string) (string, string) {
+	file, ok := u.FileLookup[osType][typ]
+	if !ok {
+		return "", ""
+	}
+	return fmt.Sprintf(file, fmt.Sprintf("_v%s", strings.ReplaceAll(u.GetLatestVersion(typ), ".", "_"))), u.DownloadPath
+}
+
 func (u *Updater) GetFileName(osType, typ string) (string, string) {
 	file, ok := u.FileLookup[osType][typ]
 	if !ok {
 		return "", ""
 	}
-	return fmt.Sprintf(file, strings.ReplaceAll(u.GetLatestVersion(typ), ".", "_")), u.DownloadPath
+	return fmt.Sprintf(file, ""), u.DownloadPath
 }
 
-func (u *Updater) GetFile(osType, typ string) ([]byte, error) {
+func (u *Updater) GetFileContent(osType, typ string) ([]byte, error) {
 	fileName, _ := u.GetFileName(osType, typ)
+	if fileName == "" {
+		return nil, fmt.Errorf("file not found")
+	}
 	content, err := os.ReadFile(filepath.Join(u.DownloadPath, fileName))
 	if err != nil {
 		return nil, err
@@ -109,15 +121,17 @@ func (u *Updater) updateCycle(h *logger.Logger) {
 func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 	if u.LatestVersions.ServiceVersion != "" && IsVersionGreater(u.CurrentVersions.ServiceVersion, u.LatestVersions.ServiceVersion) {
 		h.Info("Updating new version for %s service...", u.Name)
-		windowsFileName, _ := u.GetFileName("OS_WINDOWS", "DEPEND_TYPE_SERVICE")
-		linuxFileName, _ := u.GetFileName("OS_LINUX", "DEPEND_TYPE_SERVICE")
-		if windowsFileName != "" {
-			if err := downloadAndUpdateFile(env, u.Name, windowsFileName, u.DownloadPath, h); err != nil {
+		windowsFileNameWithVersion, _ := u.GetFileNameWithVersion("windows", "service")
+		windowsFileName, _ := u.GetFileName("windows", "service")
+		linuxFileNameWithVersion, _ := u.GetFileNameWithVersion("linux", "service")
+		linuxFileName, _ := u.GetFileName("linux", "service")
+		if windowsFileNameWithVersion != "" && windowsFileName != "" {
+			if err := downloadAndUpdateFile(env, u.Name, windowsFileNameWithVersion, filepath.Join(u.DownloadPath, windowsFileName), h); err != nil {
 				return fmt.Errorf("error updating %s windows service: %v", u.Name, err)
 			}
 		}
-		if linuxFileName != "" {
-			if err := downloadAndUpdateFile(env, u.Name, linuxFileName, u.DownloadPath, h); err != nil {
+		if linuxFileNameWithVersion != "" && linuxFileName != "" {
+			if err := downloadAndUpdateFile(env, u.Name, linuxFileNameWithVersion, filepath.Join(u.DownloadPath, linuxFileName), h); err != nil {
 				return fmt.Errorf("error updating %s linux service: %v", u.Name, err)
 			}
 		}
@@ -125,15 +139,17 @@ func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 	}
 	if u.LatestVersions.DependenciesVersion != "" && IsVersionGreater(u.CurrentVersions.DependenciesVersion, u.LatestVersions.DependenciesVersion) {
 		h.Info("Updating new version for %s dependencies...", u.Name)
-		windowsFileName, _ := u.GetFileName("OS_WINDOWS", "DEPEND_TYPE_DEPEND_ZIP")
-		linuxFileName, _ := u.GetFileName("OS_LINUX", "DEPEND_TYPE_DEPEND_ZIP")
-		if windowsFileName != "" {
-			if err := downloadAndUpdateFile(env, u.Name, windowsFileName, u.DownloadPath, h); err != nil {
+		windowsFileNameWithVersion, _ := u.GetFileNameWithVersion("OS_WINDOWS", "depend_zip")
+		windowsFileName, _ := u.GetFileName("windows", "depend_zip")
+		linuxFileNameWithVersion, _ := u.GetFileNameWithVersion("linux", "depend_zip")
+		linuxFileName, _ := u.GetFileName("linux", "depend_zip")
+		if windowsFileNameWithVersion != "" && windowsFileName != "" {
+			if err := downloadAndUpdateFile(env, u.Name, windowsFileNameWithVersion, filepath.Join(u.DownloadPath, windowsFileName), h); err != nil {
 				return fmt.Errorf("error updating %s windows dependencies: %v", u.Name, err)
 			}
 		}
-		if linuxFileName != "" {
-			if err := downloadAndUpdateFile(env, u.Name, linuxFileName, u.DownloadPath, h); err != nil {
+		if linuxFileNameWithVersion != "" && linuxFileName != "" {
+			if err := downloadAndUpdateFile(env, u.Name, linuxFileNameWithVersion, filepath.Join(u.DownloadPath, linuxFileName), h); err != nil {
 				return fmt.Errorf("error updating %s linux dependencies: %v", u.Name, err)
 			}
 		}
@@ -141,15 +157,17 @@ func (u *Updater) CheckAvailablesUpdates(env string, h *logger.Logger) error {
 	}
 	if u.LatestVersions.InstallerVersion != "" && IsVersionGreater(u.CurrentVersions.InstallerVersion, u.LatestVersions.InstallerVersion) {
 		h.Info("Updating new version for %s installer...", u.Name)
-		windowsFileName, _ := u.GetFileName("OS_WINDOWS", "DEPEND_TYPE_INSTALLER")
-		linuxFileName, _ := u.GetFileName("OS_LINUX", "DEPEND_TYPE_INSTALLER")
-		if windowsFileName != "" {
-			if err := downloadAndUpdateFile(env, u.Name, windowsFileName, u.DownloadPath, h); err != nil {
+		windowsFileNameWithVersion, _ := u.GetFileNameWithVersion("windows", "installer")
+		windowsFileName, _ := u.GetFileName("windows", "installer")
+		linuxFileNameWithVersion, _ := u.GetFileNameWithVersion("linux", "installer")
+		linuxFileName, _ := u.GetFileName("linux", "installer")
+		if windowsFileNameWithVersion != "" && windowsFileName != "" {
+			if err := downloadAndUpdateFile(env, u.Name, windowsFileNameWithVersion, filepath.Join(u.DownloadPath, windowsFileName), h); err != nil {
 				return fmt.Errorf("error updating %s windows installer: %v", u.Name, err)
 			}
 		}
-		if linuxFileName != "" {
-			if err := downloadAndUpdateFile(env, u.Name, linuxFileName, u.DownloadPath, h); err != nil {
+		if linuxFileNameWithVersion != "" && linuxFileName != "" {
+			if err := downloadAndUpdateFile(env, u.Name, linuxFileNameWithVersion, filepath.Join(u.DownloadPath, linuxFileName), h); err != nil {
 				return fmt.Errorf("error updating %s linux installer: %v", u.Name, err)
 			}
 		}
@@ -199,7 +217,7 @@ func updateLatestVersions(env string, dependType string, downloadPath string, ma
 
 func downloadAndUpdateFile(env, name, filename, downloadPath string, h *logger.Logger) error {
 	url := config.Bucket + env + "/" + name + "/" + filename
-	err := util.DownloadFile(url, filepath.Join(downloadPath, filename), h)
+	err := util.DownloadFile(url, downloadPath, h)
 	if err != nil {
 		return fmt.Errorf("error downloading new %s: %v", filename, err)
 	}

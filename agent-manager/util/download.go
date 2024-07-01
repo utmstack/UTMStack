@@ -21,8 +21,18 @@ func DownloadFile(url string, fileName string, utmLogger *logger.Logger) error {
 	var err error
 	var attempts = 0
 
+	client := &http.Client{}
+
 	for {
-		resp, err = http.Get(url)
+		urlUniq := fmt.Sprintf("%s?%d", url, time.Now().UnixNano())
+		req, err := http.NewRequest("GET", urlUniq, nil)
+		if err != nil {
+			return fmt.Errorf("error creating request: %v", err)
+		}
+
+		req.Header.Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
+		resp, err = client.Do(req)
 		if err != nil || resp.StatusCode != http.StatusOK {
 			if resp != nil {
 				resp.Body.Close()

@@ -22,16 +22,36 @@ import (
 
 func HTTPAuthInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		connectionKey := c.GetHeader(config.ProxyAPIKeyHeader)
-		if connectionKey == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Connection key not provided"})
+		connectionKey := c.GetHeader("connection-key")
+		id := c.GetHeader("id")
+		key := c.GetHeader("key")
+
+		if connectionKey == "" && id == "" && key == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "authentication is not provided"})
+			return
+		} else if connectionKey != "" {
+			isValid := validateToken(connectionKey)
+			if !isValid {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid connection key"})
+				return
+			}
+		} else if id != "" && key != "" {
+			idInt, err := strconv.ParseUint(id, 10, 32)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
+				return
+			}
+
+			err = checkKeyAuth(key, idInt, c.FullPath(), "http")
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+				return
+			}
+		} else {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid auth type"})
 			return
 		}
-		isValid := validateToken(connectionKey)
-		if !isValid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid connection key"})
-			return
-		}
+
 		c.Next()
 	}
 }
@@ -97,7 +117,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 			return status.Error(codes.Unauthenticated, "id is not valid")
 		}
 
-		err = checkKeyAuth(key, id, fullMethod)
+		err = checkKeyAuth(key, id, fullMethod, "grpc")
 		if err != nil {
 			return err
 		}
@@ -113,9 +133,9 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 	return nil
 }
 
-func checkKeyAuth(token string, id uint64, fullMethod string) error {
+func checkKeyAuth(token string, id uint64, fullMethod string, proto string) error {
 	h := util.GetLogger()
-	authCache := getAuthCache(fullMethod)
+	authCache := getAuthCache(fullMethod, proto)
 	if authCache == nil {
 		h.ErrorF("unable to resolve auth cache")
 		return status.Error(codes.Unauthenticated, "unable to resolve auth cache")
@@ -141,13 +161,22 @@ type AuthResponse struct {
 	Key string
 }
 
-func getAuthCache(method string) []AuthResponse {
-	if strings.Contains(method, "agent.AgentService") {
-		return convertMapToAuthResponses(agent.CacheAgent)
-	} else if strings.Contains(method, "agent.CollectorService") {
-		return convertMapToAuthResponses(agent.CacheCollector)
-	} else if strings.Contains(method, "agent.PingService") {
-		return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)
+func getAuthCache(method string, proto string) []AuthResponse {
+	switch proto {
+	case "grpc":
+		if strings.Contains(method, "agent.AgentService") {
+			return convertMapToAuthResponses(agent.CacheAgent)
+		} else if strings.Contains(method, "agent.CollectorService") {
+			return convertMapToAuthResponses(agent.CacheCollector)
+		} else if strings.Contains(method, "agent.PingService") {
+			return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)
+		}
+	case "http":
+		if strings.Contains(method, "agent") {
+			return convertMapToAuthResponses(agent.CacheAgent)
+		} else if strings.Contains(method, "collector") {
+			return convertMapToAuthResponses(agent.CacheCollector)
+		}
 	}
 	return nil
 }

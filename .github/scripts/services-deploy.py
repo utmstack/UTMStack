@@ -60,8 +60,8 @@ def main(environment, depend):
 	
 	# Create blobs and upload services
 	if depend == "agent":
-		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "agent", "utmstack_" + depend.replace("-", "_") + "_service")
-		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "installer", "utmstack_" + depend.replace("-", "_") + "_installer")
+		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service")
+		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer")
 	else:
 		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_" + depend.replace("-", "_") + "_service")
 		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_" + depend.replace("-", "_") + "_installer")
@@ -80,7 +80,7 @@ def main(environment, depend):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update UTMStack Dependencies in Google Cloud Storage")
     parser.add_argument("environment", type=str, help="Environment(dev, qa, rc, release)")
-    parser.add_argument("depend", type=str, help="Dependencies to update")
+    parser.add_argument("depend", type=str, help="Dependencies to update(agent, collector-installer)")
     
     args = parser.parse_args()
     main(args.environment, args.depend)

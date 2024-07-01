@@ -33,7 +33,6 @@ type Grpc struct {
 	UnimplementedCollectorServiceServer
 	UnimplementedPanelCollectorServiceServer
 	UnimplementedPingServiceServer
-	UnimplementedUpdatesServiceServer
 	// Mutex to protect concurrent access to the agents map
 	agentStreamMutex     sync.Mutex
 	collectorStreamMutex sync.Mutex

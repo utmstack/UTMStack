@@ -1,4 +1,4 @@
-package agent
+package configuration
 
 import (
 	"fmt"
@@ -7,12 +7,11 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/utmstack/UTMStack/agent/installer/configuration"
 	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
 func ConfigureService(ip, utmKey, skip, config string) error {
-	bin := configuration.GetServiceBin()
+	bin := GetServiceBin()
 	err := execBin(bin, config, ip, utmKey, skip)
 	if err != nil {
 		if strings.Contains(err.Error(), "exit status 1") {

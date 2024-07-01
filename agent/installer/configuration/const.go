@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	DEPEND_URL         = "https://%s:%s/dependencies/agent?version=%s&os=%s&type=%s"
 	INSTALLER_LOG_FILE = "utmstack_agent_installer.log"
 	AgentManagerPort   = "9000"
 	LogAuthProxyPort   = "50051"

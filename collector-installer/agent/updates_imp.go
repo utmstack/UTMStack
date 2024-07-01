@@ -7,15 +7,24 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/installer/configuration"
-	"github.com/utmstack/UTMStack/agent/installer/models"
-	"github.com/utmstack/UTMStack/agent/installer/utils"
+	"github.com/utmstack/UTMStack/collector-installer/config"
+	"github.com/utmstack/UTMStack/collector-installer/models"
+	"github.com/utmstack/UTMStack/collector-installer/utils"
 	"google.golang.org/grpc/metadata"
 )
 
-func DownloadDependencies(address, authKey, skip string, h *logger.Logger) error {
-	conn, err := ConnectToServer(h, address, configuration.AgentManagerPort, skip)
+func GetCollectorType(collectorType config.Collector) CollectorType {
+	switch collectorType {
+	case config.AS400:
+		return CollectorType_AS_400_COLLECTOR
+	}
+	return CollectorType_AS_400_COLLECTOR
+}
+
+func DownloadDependencies(address, authKey string, collectorType config.Collector, h *utils.BeautyLogger) error {
+	collect := GetCollectorType(collectorType)
+
+	conn, err := ConnectToServer(h, address, config.AgentManagerPort)
 	if err != nil {
 		return fmt.Errorf("error connecting to server to download dependencies: %v", err)
 	}
@@ -28,56 +37,53 @@ func DownloadDependencies(address, authKey, skip string, h *logger.Logger) error
 
 	Version := models.Version{}
 
-	resp, err := dependClient.CheckAgentUpdates(ctx, &UpdateAgentRequest{
+	resp, err := dependClient.CheckCollectorUpdates(ctx, &UpdateCollectorRequest{
+		CollectorType:  collect,
 		DependType:     DependType_DEPEND_TYPE_SERVICE,
 		Os:             getOS(),
 		CurrentVersion: "0",
 	})
 	if err != nil {
-		return fmt.Errorf("error checking agent service: %v", err)
+		return fmt.Errorf("error checking collector service: %v", err)
 	}
-	newVersion, _, err := processUpdateResponse(resp, configuration.GetDownloadFilePath("service"), true)
+	newVersion, _, err := processUpdateResponse(resp, config.GetDownloadFilePath("service", config.AS400), true)
 	if err != nil {
-		return fmt.Errorf("error processing agent service: %v", err)
+		return fmt.Errorf("error processing collector service: %v", err)
 	}
 	Version.ServiceVersion = newVersion
 
-	resp, err = dependClient.CheckAgentUpdates(ctx, &UpdateAgentRequest{
+	resp, err = dependClient.CheckCollectorUpdates(ctx, &UpdateCollectorRequest{
+		CollectorType:  collect,
 		DependType:     DependType_DEPEND_TYPE_DEPEND_ZIP,
 		Os:             getOS(),
 		CurrentVersion: "0",
 	})
 	if err != nil {
-		return fmt.Errorf("error checking agent dependencies: %v", err)
+		return fmt.Errorf("error checking collector dependencies: %v", err)
 	}
-	newVersion, _, err = processUpdateResponse(resp, configuration.GetDownloadFilePath("dependencies"), true)
+
+	downloadDepend := config.CheckIfNecessaryDownloadDependencies(collectorType)
+	newVersion, _, err = processUpdateResponse(resp, config.GetDownloadFilePath("dependencies", config.AS400), downloadDepend)
 	if err != nil {
-		return fmt.Errorf("error processing agent dependencies: %v", err)
+		return fmt.Errorf("error processing collector dependencies: %v", err)
 	}
 	Version.DependenciesVersion = newVersion
 
-	if err := utils.WriteJSON(configuration.GetVersionPath(), &Version); err != nil {
+	if err := utils.WriteJSON(config.GetVersionPath(), &Version); err != nil {
 		return fmt.Errorf("error writing version file: %v", err)
 	}
 
-	err = utils.Unzip(configuration.GetDownloadFilePath("dependencies"), utils.GetMyPath())
+	err = utils.Unzip(config.GetDownloadFilePath("dependencies", config.AS400), utils.GetMyPath())
 	if err != nil {
 		return fmt.Errorf("error unzipping dependencies.zip: %v", err)
 	}
 
-	if runtime.GOOS == "linux" {
-		if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "777", "utmstack_updater_self"); err != nil {
-			return fmt.Errorf("error executing chmod: %v", err)
-		}
-	}
-
-	err = os.Remove(configuration.GetDownloadFilePath("dependencies"))
+	err = os.Remove(config.GetDownloadFilePath("dependencies", config.AS400))
 	if err != nil {
-		utils.GetBeautyLogger().WriteError("error deleting dependencies.zip file", err)
+		h.WriteError("error deleting dependencies.zip file", err)
 	}
 
 	return nil
-
 }
 
 func processUpdateResponse(updateResponse *UpdateResponse, filepath string, download bool) (string, bool, error) {
