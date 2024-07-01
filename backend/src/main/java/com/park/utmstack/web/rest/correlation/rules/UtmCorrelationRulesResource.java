@@ -11,6 +11,7 @@ import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.park.utmstack.web.rest.vm.UtmCorrelationRulesVM;
+import io.undertow.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.api.annotations.ParameterObject;
@@ -57,7 +58,7 @@ public class UtmCorrelationRulesResource {
         try {
             rulesService.addRule(rulesVM);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -83,7 +84,7 @@ public class UtmCorrelationRulesResource {
         try {
             rulesService.setRuleActivation(rulesVM, active);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -108,7 +109,7 @@ public class UtmCorrelationRulesResource {
         try {
             rulesService.updateRule(rulesVM);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);

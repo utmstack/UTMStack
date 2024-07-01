@@ -50,9 +50,9 @@ public class UtmDataTypesService {
      * Add a new datatype
      *
      * @param dataTypes The datatype to add
-     * @throws Exception Bad Request if the datatype has an id or generic if some error occurs when inserting in DB
+     * @throws BadRequestException Bad Request if the datatype has an id or generic if some error occurs when inserting in DB
      * */
-    public void addDataType(UtmDataTypes dataTypes) throws Exception {
+    public void addDataType(UtmDataTypes dataTypes) throws BadRequestException {
         final String ctx = CLASSNAME + ".addDataType";
         if (dataTypes.getId() != null) {
             throw new BadRequestException(ctx + ": A new datatype can't have an id.");
@@ -69,11 +69,11 @@ public class UtmDataTypesService {
      * Update a datatype
      *
      * @param dataTypes The datatype to update
-     * @throws Exception Bad Request if the rule don't have an id, or is a system rule, or isn't present in database,
+     * @throws BadRequestException Bad Request if the rule don't have an id, or is a system rule, or isn't present in database,
      *         or generic error if some error occurs when updating in DB
      * */
     @Transactional
-    public void updateDataType(UtmDataTypes dataTypes) throws Exception {
+    public void updateDataType(UtmDataTypes dataTypes) throws BadRequestException {
         final String ctx = CLASSNAME + ".updateDataType";
         if (dataTypes.getId() == null) {
             throw new BadRequestException(ctx + ": The datatype must have an id to update.");
@@ -96,8 +96,9 @@ public class UtmDataTypesService {
      * Delete the UtmDataTypes by id.
      *
      * @param id the id of the entity
+     * @throws BadRequestException Bad Request if the rule is not present in database or is a system rule
      */
-    public void delete(Long id) throws Exception{
+    public void delete(Long id) throws BadRequestException{
         final String ctx = CLASSNAME + ".delete";
         Optional<UtmDataTypes> find = utmDataTypesRepository.findById(id);
         if (find.isEmpty()) {
