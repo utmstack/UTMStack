@@ -31,9 +31,7 @@
         <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
           <div *ngFor="let filter of fieldFilters" class="w-100">
             <div *ngIf="filter.visible" class="w-100 mb-2">
-              <app-generic-filter [fieldFilter]="filter"
-                                  (filterGenericChange)=""
-              >
+              <app-generic-filter [fieldFilter]="filter">
               </app-generic-filter>
             </div>
           </div>

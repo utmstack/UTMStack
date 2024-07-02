@@ -15,7 +15,7 @@ export class RulesResolverService implements Resolve<Observable<HttpResponse<Rul
                 private spinner: NgxSpinnerService) {}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<HttpResponse<Rule[]>> {
         this.spinner.show('loadingSpinner');
-        return this.ruleService.getRules()
+        return this.ruleService.getRules({})
             .pipe(tap(() => this.spinner.hide('loadingSpinner')));
     }
 }

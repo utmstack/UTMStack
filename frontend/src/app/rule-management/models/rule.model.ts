@@ -17,19 +17,22 @@ export interface Definition {
 
 export interface DataType {
     id: number;
-    name: string;
+    dataType: string;
 }
 
 export interface Rule {
     id: number;
-    data_types: DataType[];
+    dataTypes: DataType[];
     name: string;
-    impact: Impact;
+    confidentiality: number;
+    integrity: number;
+    availability: number;
     category: string;
     technique: string;
     description: string;
     references: string[];
-    definition: Definition;
+    variables: Variable[];
+    expression: string;
 }
 
 export type Mode = 'ADD' | 'EDIT';

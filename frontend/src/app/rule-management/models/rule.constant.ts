@@ -2,7 +2,7 @@ import {ElasticDataTypesEnum} from '../../shared/enums/elastic-data-types.enum';
 import {UtmFieldType} from '../../shared/types/table/utm-field.type';
 
 export const RULE_NAME_FIELD = 'name';
-export const RULE_DATA_TYPES = 'data_types';
+export const RULE_DATA_TYPES = 'dataTypes';
 export const RULE_CATEGORY = 'category';
 export const RULE_TECHNIQUE = 'technique';
 export const RULE_REFERENCES = 'references';

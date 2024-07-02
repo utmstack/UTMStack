@@ -3,7 +3,6 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {createRequestOption} from '../../../shared/util/request-util';
-import {UtmModulesEnum} from '../enum/utm-module.enum';
 import { UtmModuleGroupType } from '../type/utm-module-group.type';
 
 

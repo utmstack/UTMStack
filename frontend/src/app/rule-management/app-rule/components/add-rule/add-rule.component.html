@@ -60,16 +60,18 @@
                             <div class="col-6">
                                 <div class="form-group-select">
                                     <label>Data Types:</label>
-                                    <ng-select [items]="types"
-                                               bindLabel="name"
+                                    <ng-select [items]="types$ | async"
+                                               bindLabel="dataType"
                                                multiple="true"
                                                formControlName="dataTypes"
                                                addTagText="Create New"
                                                [addTag]="true"
-                                               (add)="addType($event)"
                                                (change)="onDataTypeChange($event)"
                                                placeholder="Choose or add types"
                                                class="flex-item type-select"
+                                               [loading]="loadingDataTypes"
+                                               [virtualScroll]="true"
+                                               (scrollToEnd)="loadMoreDataTypes()"
                                                [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}">
                                     </ng-select>
                                     <div *ngIf="ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched" class="invalid-feedback">
@@ -111,7 +113,7 @@
                                 </fieldset>
                             </div>
                             <div class="col-6">
-                                <fieldset formGroupName="impact" class="form-fieldset border p-3">
+                                <fieldset class="form-fieldset border p-3">
                                     <legend>
                                         <label>
                                             Impact
@@ -122,9 +124,10 @@
                                             <div class="form-group">
                                                 <label for="confidentiality">Confidentiality:</label>
                                                 <input id="confidentiality" formControlName="confidentiality" type="number"
-                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('impact').get('confidentiality').invalid && ruleForm.get('impact').get('confidentiality').touched}">
-                                                <div *ngIf="ruleForm.get('impact').get('confidentiality').invalid && ruleForm.get('impact').get('confidentiality').touched" class="invalid-feedback">
-                                                    Value must be between 0 and 100.
+                                                       class="form-control"
+                                                       [ngClass]="{'is-invalid': ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched}">
+                                                <div *ngIf="ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched" class="invalid-feedback">
+                                                    Value must be between 0 and 5.
                                                 </div>
                                             </div>
                                         </div>
@@ -132,9 +135,9 @@
                                             <div class="form-group">
                                                 <label for="integrity">Integrity:</label>
                                                 <input id="integrity" formControlName="integrity" type="number"
-                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('impact').get('integrity').invalid && ruleForm.get('impact').get('integrity').touched}">
-                                                <div *ngIf="ruleForm.get('impact').get('integrity').invalid && ruleForm.get('impact').get('integrity').touched" class="invalid-feedback">
-                                                    Value must be between 0 and 100.
+                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched}">
+                                                <div *ngIf="ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched" class="invalid-feedback">
+                                                    Value must be between 1 and 5.
                                                 </div>
                                             </div>
                                         </div>
@@ -142,9 +145,9 @@
                                             <div class="form-group">
                                                 <label for="availability">Availability:</label>
                                                 <input id="availability" formControlName="availability" type="number"
-                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('impact').get('availability').invalid && ruleForm.get('impact').get('availability').touched}">
-                                                <div *ngIf="ruleForm.get('impact').get('availability').invalid && ruleForm.get('impact').get('availability').touched" class="invalid-feedback">
-                                                    Value must be between 0 and 100.
+                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('availability').invalid && ruleForm.get('availability').touched}">
+                                                <div *ngIf="ruleForm.get('availability').invalid && ruleForm.get('availability').touched" class="invalid-feedback">
+                                                    Value must be between 1 and 5.
                                                 </div>
                                             </div>
                                         </div>
@@ -162,7 +165,7 @@
                             </div>
                         </div>
 
-                        <fieldset formGroupName="definition" class="form-fieldset border p-3">
+                        <fieldset class="form-fieldset border p-3">
                             <legend>
                                 <label>Definition</label>
                                 <span class="span-small-icon ml-2">
@@ -231,14 +234,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="expression">Expression:</label>
-                                <input id="expression" formControlName="expression" type="text" class="form-control" [ngClass]="{'is-invalid': ruleForm.get('definition').get('expression').invalid && ruleForm.get('definition').get('expression').touched}">
-                                <div *ngIf="ruleForm.get('definition').get('expression').invalid && ruleForm.get('definition').get('expression').touched" class="invalid-feedback">
+                                <input id="expression" formControlName="expression" type="text" class="form-control" [ngClass]="{'is-invalid': ruleForm.get('expression').invalid && ruleForm.get('expression').touched}">
+                                <div *ngIf="ruleForm.get('expression').invalid && ruleForm.get('expression').touched" class="invalid-feedback">
                                     Expression is required.
                                 </div>
                             </div>
                         </fieldset>
                         <div class="d-flex mt-5 justify-content-end">
-                            <button type="submit" class="btn utm-button utm-button-primary">Save Rule</button>
+                            <button type="submit" class="btn utm-button utm-button-primary">
+                                {{ mode === 'EDIT' ? 'Edit Rule' : 'Save Rule' }}
+                            </button>
                         </div>
                     </form>
                 </div>

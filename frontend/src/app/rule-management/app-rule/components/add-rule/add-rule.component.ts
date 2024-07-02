@@ -1,9 +1,13 @@
 import {HttpResponse} from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {map, tap} from 'rxjs/operators';
+import {ActivatedRoute, Router} from '@angular/router';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {concatMap, filter, map, take, tap} from 'rxjs/operators';
+import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
+import {DataTypeService} from '../../../services/data-type.service';
+import {RuleService} from '../../../services/rule.service';
 
 const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.required] , of_type: ['', Validators.required]};
 
@@ -14,22 +18,35 @@ const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.r
 })
 export class AddRuleComponent implements OnInit {
     ruleForm: FormGroup;
-    types: DataType[] = [
-        { id: 1, name: 'Linux' }
-    ];
     mode: Mode = 'ADD';
+    loadingDataTypes = false;
+    daTypeRequest: {page: number, size: number} = {
+        page: -1,
+        size: 10
+    };
+    typesBehavior = new BehaviorSubject<DataType[]>([]);
+    types$ = this.typesBehavior.asObservable();
 
     constructor(private fb: FormBuilder,
-                private route: ActivatedRoute) {
+                private route: ActivatedRoute,
+                private dataTypeService: DataTypeService,
+                private ruleService: RuleService,
+                private router: Router,
+                private utmToastService: UtmToastService) {
         this.initializeForm();
     }
 
     ngOnInit() {
         this.route.data
             .pipe(
+                filter((data: {response: HttpResponse<Rule>}) => !!data.response),
                 map((data: {response: HttpResponse<Rule>}) => data.response.body),
                 tap((rule: Rule) => {
                     this.mode = 'EDIT';
+                    this.daTypeRequest = {
+                        page: -1,
+                        size: 10
+                    };
                     this.initializeForm(rule);
                 })
             ).subscribe();
@@ -52,7 +69,7 @@ export class AddRuleComponent implements OnInit {
     }
 
     get variables() {
-        return this.ruleForm.get('definition').get('variables') as FormArray;
+        return this.ruleForm.get('variables') as FormArray;
     }
 
     addVariable() {
@@ -65,40 +82,41 @@ export class AddRuleComponent implements OnInit {
 
     saveRule() {
         if (this.ruleForm.valid) {
-            const newRule: Rule = this.ruleForm.value;
-            console.log('Saving rule:', JSON.stringify(newRule));
+            const rule: Rule = this.ruleForm.value;
+            this.ruleService.saveRule(this.mode, rule)
+                .subscribe({
+                    next: response => {
+                        console.log('Rule saved successfully', response);
+                        this.router.navigate(['/correlation/rules'])
+                            .then(() =>  this.utmToastService.showSuccessBottom(this.mode === 'ADD'
+                                ? 'Rule saved successfully' : 'Rule edited successfully'));
+                    },
+                    error: err => {
+                        this.utmToastService.showError('Error',this.mode === 'ADD'
+                            ? 'Error saving rule' : 'Error editing rule');
+                        console.error('Error saving rule:', err.message);
+                    }
+                });
         } else {
             console.error('Form is invalid. Cannot save rule.');
         }
     }
 
-    addType(newType: DataType): DataType | null {
-        const exists = this.types.find(type => type.name.toLowerCase() === newType.name.toLowerCase());
-        if (!exists) {
-            const newDataType: DataType = { id: this.types.length + 1, name: newType.name };
-            this.types = [...this.types, newDataType];
-            return newDataType;
-        }
-        return null;
-    }
-
     initializeForm(rule?: Rule) {
+        this.loadMoreDataTypes();
         this.ruleForm = this.fb.group({
-            dataTypes: [rule ? rule.data_types : '', Validators.required],
+            id: [rule ? rule.id : ''],
+            dataTypes: [rule ? rule.dataTypes : '', Validators.required],
             name: [rule ? rule.name : '', Validators.required],
-            impact: this.fb.group({
-                confidentiality: [rule ? rule.impact.confidentiality : null, Validators.required],
-                integrity: [rule ? rule.impact.integrity : null, Validators.required],
-                availability: [rule ? rule.impact.availability : null, Validators.required]
-            }),
+            confidentiality: [rule ? rule.confidentiality : null, Validators.required],
+            integrity: [rule ? rule.integrity : null, Validators.required],
+            availability: [rule ? rule.availability : null, Validators.required],
             category: [rule ? rule.category : '', Validators.required],
             technique: [rule ? rule.technique : '', Validators.required],
             description: [rule ? rule.description : '', Validators.required],
             references: this.initReferences(rule ? rule.references : []),
-            definition: this.fb.group({
-                variables: this.initVariables(rule ? rule.definition.variables : []),
-                expression: [rule ? rule.definition.expression : '', Validators.required]
-            })
+            variables: this.initVariables(rule ? rule.variables : []),
+            expression: [rule ? rule.expression : '', Validators.required]
         });
     }
 
@@ -123,5 +141,16 @@ export class AddRuleComponent implements OnInit {
             }
             return { minLengthArray: true };
         };
+    }
+
+    loadMoreDataTypes() {
+        this.daTypeRequest.page = this.daTypeRequest.page + 1;
+        this.loadingDataTypes = true;
+
+        this.types$ = this.dataTypeService.getAll(this.daTypeRequest)
+            .pipe(
+                    map(response => response.body),
+                    tap((types) => this.loadingDataTypes = false),
+        );
     }
 }
