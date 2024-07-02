@@ -1,12 +1,10 @@
 package com.park.utmstack.service.correlation.rules;
 
-import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.correlation.rules.UtmGroupRulesDataType;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.repository.correlation.rules.UtmCorrelationRulesRepository;
-import com.park.utmstack.repository.correlation.rules.UtmGroupRulesDataTypeRepository;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.web.rest.vm.UtmCorrelationRulesVM;
 import io.undertow.util.BadRequestException;
@@ -20,6 +18,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,12 +31,10 @@ public class UtmCorrelationRulesService {
     private static final String CLASSNAME = "UtmCorrelationRulesService";
 
     private final UtmCorrelationRulesRepository utmCorrelationRulesRepository;
-    private final UtmGroupRulesDataTypeRepository utmGroupRulesDataTypeRepository;
     private final UtmNetworkScanService utmNetworkScanService;
 
-    public UtmCorrelationRulesService(UtmCorrelationRulesRepository utmCorrelationRulesRepository, UtmGroupRulesDataTypeRepository utmGroupRulesDataTypeRepository, UtmNetworkScanService utmNetworkScanService) {
+    public UtmCorrelationRulesService(UtmCorrelationRulesRepository utmCorrelationRulesRepository, UtmNetworkScanService utmNetworkScanService) {
         this.utmCorrelationRulesRepository = utmCorrelationRulesRepository;
-        this.utmGroupRulesDataTypeRepository = utmGroupRulesDataTypeRepository;
         this.utmNetworkScanService = utmNetworkScanService;
     }
 
@@ -52,7 +49,7 @@ public class UtmCorrelationRulesService {
         if (rule.getId() == null) {
             rule.setId(utmCorrelationRulesRepository.getNextId());
         }
-        rule.setRuleLastUpdate();
+
         return utmCorrelationRulesRepository.save(rule);
     }
 
@@ -62,7 +59,7 @@ public class UtmCorrelationRulesService {
      * @param rulesVM VM with rule and its relations
      * @throws Exception Bad Request if the rule has an id or generic if some error occurs when inserting in DB
      * */
-    @Transactional
+    /*@Transactional
     public void addRule(UtmCorrelationRulesVM rulesVM) throws Exception {
         final String ctx = CLASSNAME + ".addRule";
         if (rulesVM.getRule().getId() != null) {
@@ -83,7 +80,7 @@ public class UtmCorrelationRulesService {
         } catch (Exception ex) {
             throw new RuntimeException(ctx + ": An error occurred while adding a rule.", ex);
         }
-    }
+    }*/
 
     /**
      * Update correlation rule definition
@@ -111,18 +108,18 @@ public class UtmCorrelationRulesService {
         try {
             UtmCorrelationRules rule = rulesVM.getRule();
 
-            List<UtmGroupRulesDataType> dataTypesCurrent = utmGroupRulesDataTypeRepository.findByRuleId(rule.getId());
+            //List<UtmGroupRulesDataType> dataTypesCurrent = utmGroupRulesDataTypeRepository.findByRuleId(rule.getId());
             List<UtmGroupRulesDataType> dataTypesUpdated = rulesVM.getDataTypeRelations();
 
             // Removing deleted relations
-            utmGroupRulesDataTypeRepository.deleteAll(dataTypesCurrent.stream().filter(f-> dataTypesUpdated.stream()
+           /* utmGroupRulesDataTypeRepository.deleteAll(dataTypesCurrent.stream().filter(f-> dataTypesUpdated.stream()
                     .noneMatch(d-> Objects.equals(d.getId(), f.getId()))).collect(Collectors.toList()));
             // Saving relations with datatypes
             dataTypesUpdated.forEach(d-> {
                 d.setRuleId(rule.getId());
                 d.setLastUpdate();
-            });
-            utmGroupRulesDataTypeRepository.saveAll(dataTypesUpdated);
+            });*/
+            //utmGroupRulesDataTypeRepository.saveAll(dataTypesUpdated);
             this.save(rule);
         } catch (Exception ex) {
             throw new RuntimeException(ctx + ": An error occurred while adding a rule.", ex);
@@ -205,7 +202,7 @@ public class UtmCorrelationRulesService {
                 rulesList.forEach(l -> {
                     UtmCorrelationRulesVM vm = new UtmCorrelationRulesVM();
                     vm.setRule(l);
-                    vm.setDataTypeRelations(utmGroupRulesDataTypeRepository.findByRuleId(l.getId()));
+                    //vm.setDataTypeRelations(utmGroupRulesDataTypeRepository.findByRuleId(l.getId()));
                     rulesVMList.add(vm);
                 });
             }
@@ -253,7 +250,7 @@ public class UtmCorrelationRulesService {
             Optional<UtmCorrelationRules> optVm = utmCorrelationRulesRepository.findById(id);
             if (optVm.isPresent()) {
                 vm.setRule(optVm.get());
-                vm.setDataTypeRelations(utmGroupRulesDataTypeRepository.findByRuleId(optVm.get().getId()));
+                //vm.setDataTypeRelations(utmGroupRulesDataTypeRepository.findByRuleId(optVm.get().getId()));
                 return Optional.of(vm);
             }
 

@@ -1,5 +1,7 @@
 package com.park.utmstack.domain.correlation.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -7,6 +9,8 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Datatypes entity template.
@@ -31,6 +35,14 @@ public class UtmDataTypes implements Serializable {
 
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "dataTypes")
+    @JsonIgnore
+    private Set<UtmCorrelationRules> utmCorrelationRules = new HashSet<>();
 
     public Long getId() {
         return id;
