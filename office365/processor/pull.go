@@ -12,11 +12,13 @@ func PullLogs(startTime string, endTime string, group types.ModuleGroup) {
 
 	err := agent.GetAuth()
 	if err != nil {
+		utils.Logger.ErrorF("error getting auth token: %v", err)
 		return
 	}
 
 	err = agent.StartSubscriptions()
 	if err != nil {
+		utils.Logger.ErrorF("error starting subscriptions: %v", err)
 		return
 	}
 
