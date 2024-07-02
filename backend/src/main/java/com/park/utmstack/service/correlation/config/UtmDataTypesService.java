@@ -39,7 +39,6 @@ public class UtmDataTypesService {
             dataType.setId(utmDataTypesRepository.getNextId());
         }
         try {
-            dataType.setLastUpdate();
             return utmDataTypesRepository.save(dataType);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
