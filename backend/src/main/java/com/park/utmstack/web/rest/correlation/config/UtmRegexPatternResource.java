@@ -1,11 +1,10 @@
 package com.park.utmstack.web.rest.correlation.config;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
-import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.correlation.config.UtmRegexPattern;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.correlation.config.UtmDataTypesService;
+import com.park.utmstack.service.correlation.config.UtmRegexPatternService;
 import com.park.utmstack.util.UtilResponse;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.undertow.util.BadRequestException;
@@ -24,32 +23,32 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * REST controller for managing {@link UtmDataTypesResource}.
+ * REST controller for managing {@link UtmRegexPatternResource}.
  */
 @RestController
 @RequestMapping("/api")
-public class UtmDataTypesResource {
-    private static final String CLASSNAME = "UtmDataTypesResource";
-    private final Logger log = LoggerFactory.getLogger(UtmDataTypesResource.class);
+public class UtmRegexPatternResource {
+    private static final String CLASSNAME = "UtmRegexPatternResource";
+    private final Logger log = LoggerFactory.getLogger(UtmRegexPatternResource.class);
 
     private final ApplicationEventService applicationEventService;
-    private final UtmDataTypesService dataTypesService;
+    private final UtmRegexPatternService regexPatternService;
 
-    public UtmDataTypesResource(ApplicationEventService applicationEventService, UtmDataTypesService dataTypesService) {
+    public UtmRegexPatternResource(ApplicationEventService applicationEventService, UtmRegexPatternService regexPatternService) {
         this.applicationEventService = applicationEventService;
-        this.dataTypesService = dataTypesService;
+        this.regexPatternService = regexPatternService;
     }
     /**
-     * {@code POST  /data-types} : Add a new datatype.
+     * {@code POST  /regex-pattern} : Add a new regex pattern.
      *
-     * @param dataTypes the datatype to insert.
+     * @param pattern the regex pattern to insert.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @PostMapping("/data-types")
-    public ResponseEntity<Void> addDataType(@Valid @RequestBody UtmDataTypes dataTypes) {
-        final String ctx = CLASSNAME + ".addDataType";
+    @PostMapping("/regex-pattern")
+    public ResponseEntity<Void> addRegexPattern(@Valid @RequestBody UtmRegexPattern pattern) {
+        final String ctx = CLASSNAME + ".addRegexPattern";
         try {
-            dataTypesService.addDataType(dataTypes);
+            regexPatternService.addRegexPattern(pattern);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -65,16 +64,16 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * {@code PUT  /data-types} : Update a datatype.
+     * {@code PUT  /regex-pattern} : Update a regex pattern.
      *
-     * @param dataTypes the datatype to update.
+     * @param pattern the regex pattern to update.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @PutMapping("/data-types")
-    public ResponseEntity<Void> updateDataTypes(@Valid @RequestBody UtmDataTypes dataTypes) {
-        final String ctx = CLASSNAME + ".updateDataTypes";
+    @PutMapping("/regex-pattern")
+    public ResponseEntity<Void> updateRegexPattern(@Valid @RequestBody UtmRegexPattern pattern) {
+        final String ctx = CLASSNAME + ".updateRegexPattern";
         try {
-            dataTypesService.updateDataType(dataTypes);
+            regexPatternService.updateRegexPattern(pattern);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -90,16 +89,16 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * {@code DELETE  /data-types/:id} : Remove a datatype.
+     * {@code DELETE  /regex-pattern/:id} : Remove a regex pattern.
      *
-     * @param id the id of the datatype to remove.
+     * @param id the id of the regex pattern to remove.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @DeleteMapping("/data-types/{id}")
-    public ResponseEntity<Void> removeDataTypes(@PathVariable Long id) {
-        final String ctx = CLASSNAME + ".removeDataTypes";
+    @DeleteMapping("/regex-pattern/{id}")
+    public ResponseEntity<Void> removeRegexPattern(@PathVariable Long id) {
+        final String ctx = CLASSNAME + ".removeRegexPattern";
         try {
-            dataTypesService.delete(id);
+            regexPatternService.delete(id);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -115,17 +114,17 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * GET  /data-types : get all the datatypes.
+     * GET  /regex-pattern : get all the regex patterns.
      *
      * @param pageable the pagination information
-     * @return the ResponseEntity with status 200 (OK) and the list of datatypes in body
+     * @return the {@link List} of {@link UtmRegexPattern} in body with status {@code 200 (OK)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @GetMapping("/data-types")
-    public ResponseEntity<List<UtmDataTypes>> getAllDataTypes(Pageable pageable) {
-        final String ctx = CLASSNAME + ".getAllDataTypes";
+    @GetMapping("/regex-pattern")
+    public ResponseEntity<List<UtmRegexPattern>> getAllRegexPatterns(Pageable pageable) {
+        final String ctx = CLASSNAME + ".getAllRegexPatterns";
         try {
-            Page<UtmDataTypes> page = dataTypesService.findAll(pageable);
-            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/data-types");
+            Page<UtmRegexPattern> page = regexPatternService.findAll(pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/regex-pattern");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -137,15 +136,15 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * GET  /data-types/:id : The id of the datatype.
+     * GET  /regex-pattern/:id : The id of the regex pattern.
      *
-     * @param id the id of the datatype to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the datatype, or with status 404 (Not Found)
+     * @param id the id of the regex pattern to retrieve
+     * @return the {@link ResponseEntity} of {@link UtmRegexPattern} with status 200 (OK) and with body the regex pattern, or with status 404 (Not Found)
      */
-    @GetMapping("/data-types/{id}")
-    public ResponseEntity<UtmDataTypes> getDataType(@PathVariable Long id) {
-        log.debug("REST request to get UtmDataTypes : {}", id);
-        Optional<UtmDataTypes> datatype = dataTypesService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(datatype);
+    @GetMapping("/regex-pattern/{id}")
+    public ResponseEntity<UtmRegexPattern> getRegexPattern(@PathVariable Long id) {
+        log.debug("REST request to get UtmRegexPattern : {}", id);
+        Optional<UtmRegexPattern> pattern = regexPatternService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(pattern);
     }
 }

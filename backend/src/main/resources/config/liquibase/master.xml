@@ -67,5 +67,7 @@
 
     <include file="/config/liquibase/changelog/20240626001_added_entity_UtmCorrelationRule.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240701001_added_entity_UtmRegexPattern_UtmTenantConfig.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
