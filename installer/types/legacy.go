@@ -48,6 +48,12 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		return err
 	}
 
+	customRulesDir := filepath.Join(stack.EventsEngineWorkdir, "custom_rules")
+	err = os.MkdirAll(customRulesDir, 0777)
+	if err != nil {
+		return err
+	}
+
 	pipelineDir := utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline")
 
 	err = os.WriteFile(filepath.Join(pipelineDir, "plugins_legacy.yaml"), config, 0644)
