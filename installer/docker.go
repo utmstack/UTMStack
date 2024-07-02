@@ -53,7 +53,12 @@ func InitSwarm(mainIP string) error {
 
 func StackUP(c *types.Config, stack *types.StackConfig) error {
 	var compose = new(types.Compose)
-	d, err := compose.Populate(c, stack).Encode()
+	err := compose.Populate(c, stack)
+	if err != nil {
+		return err
+	}
+
+	d, err := compose.Encode()
 	if err != nil {
 		return err
 	}

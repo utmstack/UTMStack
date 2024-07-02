@@ -3,6 +3,9 @@ package com.park.utmstack.domain.correlation.rules;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.park.utmstack.domain.AbstractAuditingEntity;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.correlation.config.UtmVariable;
 import com.park.utmstack.util.UtilSerializer;
 import com.park.utmstack.util.exceptions.UtmSerializationException;
 import org.hibernate.annotations.GenericGenerator;
@@ -14,7 +17,9 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Correlation rules entity template.
@@ -64,8 +69,8 @@ public class UtmCorrelationRules implements Serializable {
     @JsonDeserialize
     private List<String> ruleReferences;
 
-    @Column(name = "rule_definition", nullable = false)
-    private String ruleDefinition;
+    @Column(name = "rule_expression", nullable = false)
+    private String ruleExpression;
 
     @Column(name = "rule_last_update")
     private Instant ruleLastUpdate;
@@ -75,6 +80,21 @@ public class UtmCorrelationRules implements Serializable {
 
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
+
+    @JsonIgnore
+    @Column(name = "rule_variables_def")
+    private String ruleVariablesDef;
+
+    @Transient
+    @JsonSerialize
+    @JsonDeserialize
+    private List<UtmVariable> ruleVariables;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @JoinTable(name = "utm_group_rules_data_type",
+            joinColumns = @JoinColumn(name = "rule_id"),
+            inverseJoinColumns = @JoinColumn(name = "data_type_id"))
+    private Set<UtmDataTypes> dataTypes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -159,15 +179,16 @@ public class UtmCorrelationRules implements Serializable {
             this.ruleReferencesDef = null;
         else
             this.ruleReferencesDef = UtilSerializer.jsonSerialize(ruleReferences);
+
         this.ruleReferences = ruleReferences;
     }
 
-    public String getRuleDefinition() {
-        return ruleDefinition;
+    public String getRuleExpression() {
+        return ruleExpression;
     }
 
-    public void setRuleDefinition(String ruleDefinition) {
-        this.ruleDefinition = ruleDefinition;
+    public void setRuleExpression(String ruleExpression) {
+        this.ruleExpression = ruleExpression;
     }
 
     public Instant getRuleLastUpdate() {
@@ -192,5 +213,32 @@ public class UtmCorrelationRules implements Serializable {
 
     public void setSystemOwner(Boolean systemOwner) {
         this.systemOwner = systemOwner == null ? Boolean.FALSE : systemOwner;
+    }
+
+    public void setRuleLastUpdate(Instant ruleLastUpdate) {
+        this.ruleLastUpdate = ruleLastUpdate;
+    }
+
+    public Set<UtmDataTypes> getDataTypes() {
+        return dataTypes;
+    }
+
+    public void setDataTypes(Set<UtmDataTypes> dataTypes) {
+        this.dataTypes = dataTypes;
+    }
+
+    public List<UtmVariable> getRuleVariables() throws UtmSerializationException {
+        if (StringUtils.hasText(ruleVariablesDef))
+            ruleVariables = UtilSerializer.jsonDeserializeList(UtmVariable.class, ruleVariablesDef);
+        return ruleVariables;
+    }
+
+    public void setRuleVariables(List<UtmVariable> ruleVariables) throws UtmSerializationException {
+        if (CollectionUtils.isEmpty(ruleVariables))
+            this.ruleVariablesDef = null;
+        else
+            this.ruleVariablesDef = UtilSerializer.jsonSerialize(ruleVariables);
+
+        this.ruleVariables = ruleVariables;
     }
 }

@@ -27,6 +27,8 @@ func main() {
 		startTime := st.UTC().Format("2006-01-02T15:04:05")
 		endTime := et.UTC().Format("2006-01-02T15:04:05")
 
+		utils.Logger.Info("syncing logs from %s to %s", startTime, endTime)
+
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
@@ -35,9 +37,9 @@ func main() {
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
 				utils.Logger.ErrorF("error getting configuration of the O365 module: %v", err)
+			} else {
+				utils.Logger.Info("program not configured yet")
 			}
-
-			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
 
 			time.Sleep(time.Second * delayCheck)
 
@@ -71,8 +73,6 @@ func main() {
 				wg.Done()
 			}(group)
 		}
-
-		utils.Logger.Info("waiting %d seconds until sync completes", delayCheck)
 
 		wg.Wait()
 

@@ -7,18 +7,18 @@ import (
 )
 
 type StackConfig struct {
-	FrontEndNginx     string
-	LogstashPipelines string
-	LogstashConfig    string
-	ServiceResources  map[string]*utils.ServiceConfig
-	Threads           int
-	ESData            string
-	ESBackups         string
-	Cert              string
-	Datasources       string
-	Rules             string
-	LocksDir          string
-	ShmFolder         string
+	FrontEndNginx       string
+	LogstashPipelines   string
+	LogstashConfig      string
+	ServiceResources    map[string]*utils.ServiceConfig
+	Threads             int
+	ESData              string
+	ESBackups           string
+	Cert                string
+	Datasources         string
+	EventsEngineWorkdir string
+	LocksDir            string
+	ShmFolder           string
 }
 
 func (s *StackConfig) Populate(c *Config) error {
@@ -37,7 +37,7 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.Cert = utils.MakeDir(0777, c.DataDir, "cert")
 	s.FrontEndNginx = utils.MakeDir(0777, c.DataDir, "front-end", "nginx")
 	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
-	s.Rules = utils.MakeDir(0777, c.DataDir, "rules")
+	s.EventsEngineWorkdir = utils.MakeDir(0777, c.DataDir, "events-engine-workdir")
 	s.LogstashPipelines = utils.MakeDir(0777, c.DataDir, "logstash", "pipelines")
 	s.LogstashConfig = utils.MakeDir(0777, c.DataDir, "logstash", "config")
 	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
@@ -57,7 +57,6 @@ func (s *StackConfig) Populate(c *Config) error {
 		{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 		{Name: "mutate", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "aws", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 512},
 		{Name: "sophos", Priority: 3, MinMemory: 50, MaxMemory: 1024},
 		{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
 		{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 1024},

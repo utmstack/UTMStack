@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240701001" author="Freddy">
+        <createTable tableName="utm_regex_pattern">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="pattern_id" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="pattern_description" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="pattern_definition" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="system_owner" type="bool">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_update" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+
+
+        </createTable>
+
+        <dropDefaultValue tableName="utm_regex_pattern" columnName="last_update" columnDataType="datetime"/>
+
+        <createProcedure dbms="postgresql">
+            do
+            $$
+            begin
+               perform setval('public.utm_regex_pattern_id_seq', 5000);
+            end;
+            $$ language plpgsql;
+        </createProcedure>
+
+        <createTable tableName="utm_tenant_config">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="asset_name" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="asset_hostname_list_def" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="asset_ip_list_def" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="asset_confidentiality" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="asset_integrity" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="asset_availability" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_update" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+
+        </createTable>
+
+        <dropDefaultValue tableName="utm_tenant_config" columnName="last_update" columnDataType="datetime"/>
+
+    </changeSet>
+
+</databaseChangeLog>
