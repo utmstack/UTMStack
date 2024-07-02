@@ -1,11 +1,10 @@
 package com.park.utmstack.web.rest.correlation.config;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
-import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.correlation.config.UtmTenantConfig;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.correlation.config.UtmDataTypesService;
+import com.park.utmstack.service.correlation.config.UtmTenantConfigService;
 import com.park.utmstack.util.UtilResponse;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.undertow.util.BadRequestException;
@@ -24,32 +23,32 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * REST controller for managing {@link UtmDataTypesResource}.
+ * REST controller for managing {@link UtmTenantConfigResource}.
  */
 @RestController
 @RequestMapping("/api")
-public class UtmDataTypesResource {
-    private static final String CLASSNAME = "UtmDataTypesResource";
-    private final Logger log = LoggerFactory.getLogger(UtmDataTypesResource.class);
+public class UtmTenantConfigResource {
+    private static final String CLASSNAME = "UtmTenantConfigResource";
+    private final Logger log = LoggerFactory.getLogger(UtmTenantConfigResource.class);
 
     private final ApplicationEventService applicationEventService;
-    private final UtmDataTypesService dataTypesService;
+    private final UtmTenantConfigService tenantConfigService;
 
-    public UtmDataTypesResource(ApplicationEventService applicationEventService, UtmDataTypesService dataTypesService) {
+    public UtmTenantConfigResource(ApplicationEventService applicationEventService, UtmTenantConfigService tenantConfigService) {
         this.applicationEventService = applicationEventService;
-        this.dataTypesService = dataTypesService;
+        this.tenantConfigService = tenantConfigService;
     }
     /**
-     * {@code POST  /data-types} : Add a new datatype.
+     * {@code POST  /tenant-config} : Add a new tenant configuration.
      *
-     * @param dataTypes the datatype to insert.
+     * @param tenantConfig the tenant configuration to insert.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @PostMapping("/data-types")
-    public ResponseEntity<Void> addDataType(@Valid @RequestBody UtmDataTypes dataTypes) {
-        final String ctx = CLASSNAME + ".addDataType";
+    @PostMapping("/tenant-config")
+    public ResponseEntity<Void> addTenantConfig(@Valid @RequestBody UtmTenantConfig tenantConfig) {
+        final String ctx = CLASSNAME + ".addTenantConfig";
         try {
-            dataTypesService.addDataType(dataTypes);
+            tenantConfigService.addTenantConfig(tenantConfig);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -65,16 +64,16 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * {@code PUT  /data-types} : Update a datatype.
+     * {@code PUT  /tenant-config} : Update a tenant configuration.
      *
-     * @param dataTypes the datatype to update.
+     * @param tenantConfig the tenant configuration to update.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @PutMapping("/data-types")
-    public ResponseEntity<Void> updateDataTypes(@Valid @RequestBody UtmDataTypes dataTypes) {
-        final String ctx = CLASSNAME + ".updateDataTypes";
+    @PutMapping("/tenant-config")
+    public ResponseEntity<Void> updateTenantConfig(@Valid @RequestBody UtmTenantConfig tenantConfig) {
+        final String ctx = CLASSNAME + ".updateTenantConfig";
         try {
-            dataTypesService.updateDataType(dataTypes);
+            tenantConfigService.updateTenantConfig(tenantConfig);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -90,16 +89,16 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * {@code DELETE  /data-types/:id} : Remove a datatype.
+     * {@code DELETE  /tenant-config/:id} : Remove a tenant configuration.
      *
-     * @param id the id of the datatype to remove.
+     * @param id the id of the tenant configuration to remove.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @DeleteMapping("/data-types/{id}")
-    public ResponseEntity<Void> removeDataTypes(@PathVariable Long id) {
-        final String ctx = CLASSNAME + ".removeDataTypes";
+    @DeleteMapping("/tenant-config/{id}")
+    public ResponseEntity<Void> removeTenantConfig(@PathVariable Long id) {
+        final String ctx = CLASSNAME + ".removeTenantConfig";
         try {
-            dataTypesService.delete(id);
+            tenantConfigService.delete(id);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -115,17 +114,17 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * GET  /data-types : get all the datatypes.
+     * GET  /tenant-config : get all the tenant configuration.
      *
      * @param pageable the pagination information
-     * @return the ResponseEntity with status 200 (OK) and the list of datatypes in body
+     * @return the ResponseEntity with status 200 (OK) and the list of tenant configuration in body
      */
-    @GetMapping("/data-types")
-    public ResponseEntity<List<UtmDataTypes>> getAllDataTypes(Pageable pageable) {
-        final String ctx = CLASSNAME + ".getAllDataTypes";
+    @GetMapping("/tenant-config")
+    public ResponseEntity<List<UtmTenantConfig>> getAllTenantConfig(Pageable pageable) {
+        final String ctx = CLASSNAME + ".getAllTenantConfig";
         try {
-            Page<UtmDataTypes> page = dataTypesService.findAll(pageable);
-            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/data-types");
+            Page<UtmTenantConfig> page = tenantConfigService.findAll(pageable);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/tenant-config");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -137,15 +136,15 @@ public class UtmDataTypesResource {
     }
 
     /**
-     * GET  /data-types/:id : The id of the datatype.
+     * GET  /tenant-config/:id : The id of the tenant configuration.
      *
-     * @param id the id of the datatype to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the datatype, or with status 404 (Not Found)
+     * @param id the id of the tenant configuration to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the tenant configuration, or with status 404 (Not Found)
      */
-    @GetMapping("/data-types/{id}")
-    public ResponseEntity<UtmDataTypes> getDataType(@PathVariable Long id) {
-        log.debug("REST request to get UtmDataTypes : {}", id);
-        Optional<UtmDataTypes> datatype = dataTypesService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(datatype);
+    @GetMapping("/tenant-config/{id}")
+    public ResponseEntity<UtmTenantConfig> getTenantConfig(@PathVariable Long id) {
+        log.debug("REST request to get UtmTenantConfig : {}", id);
+        Optional<UtmTenantConfig> tenantConfig = tenantConfigService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(tenantConfig);
     }
 }
