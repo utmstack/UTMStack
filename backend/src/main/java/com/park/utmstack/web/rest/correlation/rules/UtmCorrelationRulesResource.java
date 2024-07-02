@@ -15,6 +15,7 @@ import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import com.park.utmstack.web.rest.vm.UtmCorrelationRulesVM;
+import io.undertow.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.api.annotations.ParameterObject;
@@ -57,7 +58,7 @@ public class UtmCorrelationRulesResource {
     /**
      * {@code POST  /correlation-rule} : Add a new correlation rule definition with its datatypes.
      *
-     * @param rulesVM the correlation rule definition to insert.
+     * @param utmCorrelationRulesDTO the correlation rule definition to insert.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PostMapping("/correlation-rule")
@@ -66,11 +67,6 @@ public class UtmCorrelationRulesResource {
         try {
             rulesService.save(this.utmCorrelationRulesMapper.toEntity(utmCorrelationRulesDTO));
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
@@ -92,7 +88,7 @@ public class UtmCorrelationRulesResource {
         try {
             rulesService.setRuleActivation(rulesVM, active);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -117,7 +113,7 @@ public class UtmCorrelationRulesResource {
         try {
             rulesService.updateRule(this.utmCorrelationRulesMapper.toEntity(correlationRulesDTO));
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);

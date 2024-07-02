@@ -2,7 +2,9 @@ package types
 
 import (
 	"os"
+	"path/filepath"
 
+	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -11,9 +13,9 @@ type PluginsConfig struct {
 }
 
 type PluginConfig struct {
-	RulesFolder   string `yaml:"rulesFolder"`
-	GeoIPFolder   string `yaml:"geoipFolder"`
-	Elasticsearch string `yaml:"elasticsearch"`
+	RulesFolder   string        `yaml:"rulesFolder"`
+	GeoIPFolder   string        `yaml:"geoipFolder"`
+	Elasticsearch string        `yaml:"elasticsearch"`
 	PostgreSQL    PostgreConfig `yaml:"postgresql"`
 }
 
@@ -25,28 +27,36 @@ type PostgreConfig struct {
 	Database string `yaml:"database"`
 }
 
-func (c *PluginsConfig) Set(conf *Config) error {
+func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 	c.Plugins = make(map[string]PluginConfig)
 
-	c.Plugins["com.utmstack.legacy"]= PluginConfig{
-		RulesFolder : "/workdir/rules",
-		GeoIPFolder : "/workdir/geolocation",
-		Elasticsearch : "http://node1:9200",
+	c.Plugins["com.utmstack.legacy"] = PluginConfig{
+		RulesFolder:   "/workdir/rules",
+		GeoIPFolder:   "/workdir/geolocation",
+		Elasticsearch: "http://node1:9200",
 		PostgreSQL: PostgreConfig{
-			Server: "postgres",
-			Port: "5432",
-			User: "postgres",
+			Server:   "postgres",
+			Port:     "5432",
+			User:     "postgres",
 			Password: conf.Password,
 			Database: "utmstack",
 		},
 	}
-	
+
 	config, err := yaml.Marshal(c)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile("/workdir/pipeline/plugins_legacy.yaml", config, 0644)
+	customRulesDir := filepath.Join(stack.EventsEngineWorkdir, "custom_rules")
+	err = os.MkdirAll(customRulesDir, 0777)
+	if err != nil {
+		return err
+	}
+
+	pipelineDir := utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline")
+
+	err = os.WriteFile(filepath.Join(pipelineDir, "plugins_legacy.yaml"), config, 0644)
 	if err != nil {
 		return err
 	}
