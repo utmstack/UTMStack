@@ -15,13 +15,10 @@ public class UtmGroupRulesDataType implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
     @Column(name = "rule_id", nullable = false)
     private Long ruleId;
 
+    @Id
     @Column(name = "data_type_id", nullable = false)
     private Long dataTypeId;
 
@@ -29,21 +26,12 @@ public class UtmGroupRulesDataType implements Serializable {
     private Instant lastUpdate;
 
     public UtmGroupRulesDataType(Long id, Long ruleId, Long dataTypeId, Instant lastUpdate) {
-        this.id = id;
         this.ruleId = ruleId;
         this.dataTypeId = dataTypeId;
         this.lastUpdate = lastUpdate;
     }
 
     public UtmGroupRulesDataType() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getRuleId() {
@@ -68,5 +56,9 @@ public class UtmGroupRulesDataType implements Serializable {
 
     public void setLastUpdate() {
         this.lastUpdate = Instant.now(Clock.systemUTC());
+    }
+
+    public void setLastUpdate(Instant lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

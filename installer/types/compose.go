@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"path"
 
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
@@ -59,10 +60,16 @@ func (c *Compose) Encode() ([]byte, error) {
 	return b, nil
 }
 
-func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
+func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	err := CreateLogstashConfig(stack.LogstashConfig)
 	if err != nil {
-		fmt.Println(err)
+		return err
+	}
+
+	var legacyConfig PluginsConfig
+	err = legacyConfig.Set(conf, stack)
+	if err != nil {
+		return err
 	}
 
 	c.Version = utils.Str("3.8")
@@ -391,30 +398,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 	}
 
-	fileBrowserMem := stack.ServiceResources["filebrowser"].AssignedMemory
-	c.Services["filebrowser"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/filebrowser/filebrowser:" + conf.Branch),
-		Volumes: []string{
-			stack.Rules + ":/srv",
-		},
-		Environment: []string{
-			"PASSWORD=" + conf.Password,
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", fileBrowserMem)),
-				},
-			},
-		},
-	}
-
 	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
 	correlationMin := stack.ServiceResources["correlation"].MinMemory
 	c.Services["correlation"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/correlation:" + conf.Branch),
+		Image: utils.Str("ghcr.io/threatwinds/eventprocessor/utmstack:" + conf.Branch),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
 				"postgres",
@@ -423,6 +410,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			},
 			"cloud": []string{
 				"postgres",
+				"node1",
 				"backend",
 			},
 		}).([]string),
@@ -430,19 +418,16 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"10000:8080",
 		},
 		Volumes: []string{
-			stack.Rules + ":/app/rulesets",
-			"geoip_data:/app/geosets",
+			path.Join(stack.EventsEngineWorkdir, "custom_rules") + ":/workdir/rules/custom",
+			path.Join(stack.EventsEngineWorkdir, "pipeline", "plugins_legacy.yaml") + ":/workdir/pipeline/plugins_legacy.yaml",
+			"geoip_data:/workdir/geolocation",
 		},
 		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"POSTGRESQL_USER=postgres",
-			"POSTGRESQL_PASSWORD=" + conf.Password,
-			"POSTGRESQL_HOST=postgres",
-			"POSTGRESQL_PORT=5432",
-			"POSTGRESQL_DATABASE=utmstack",
-			"ELASTICSEARCH_HOST=node1",
-			"ELASTICSEARCH_PORT=9200",
-			"ERROR_LEVEL=info",
+			"WORK_DIR=/workdir",
+			"LOG_LEVEL=100",
+			"GIN_MODE=release",
+			"NODE_GROUPS=main",
+			"NODE_NAME=node1",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -623,5 +608,5 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		"external": false,
 	}
 
-	return c
+	return nil
 }

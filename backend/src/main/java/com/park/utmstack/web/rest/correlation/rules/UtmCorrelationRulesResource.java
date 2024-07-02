@@ -6,6 +6,8 @@ import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
+import com.park.utmstack.service.correlation.rules.dto.UtmCorrelationRulesDTO;
+import com.park.utmstack.service.correlation.rules.dto.UtmCorrelationRulesMapper;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -41,9 +43,14 @@ public class UtmCorrelationRulesResource {
 
     private final UtmCorrelationRulesService rulesService;
 
-    public UtmCorrelationRulesResource(ApplicationEventService applicationEventService, UtmCorrelationRulesService rulesService) {
+    private final UtmCorrelationRulesMapper utmCorrelationRulesMapper;
+
+    public UtmCorrelationRulesResource(ApplicationEventService applicationEventService,
+                                       UtmCorrelationRulesService rulesService,
+                                       UtmCorrelationRulesMapper utmCorrelationRulesMapper) {
         this.applicationEventService = applicationEventService;
         this.rulesService = rulesService;
+        this.utmCorrelationRulesMapper = utmCorrelationRulesMapper;
     }
 
     /**
@@ -53,10 +60,10 @@ public class UtmCorrelationRulesResource {
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PostMapping("/correlation-rule")
-    public ResponseEntity<Void> addCorrelationRule(@Valid @RequestBody UtmCorrelationRulesVM rulesVM) {
+    public ResponseEntity<Void> addCorrelationRule(@Valid @RequestBody UtmCorrelationRulesDTO utmCorrelationRulesDTO) {
         final String ctx = CLASSNAME + ".addCorrelationRule";
         try {
-            rulesService.addRule(rulesVM);
+            rulesService.save(this.utmCorrelationRulesMapper.toEntity(utmCorrelationRulesDTO));
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
