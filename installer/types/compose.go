@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	"path"
+	"path/filepath"
 
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
@@ -418,8 +418,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"10000:8080",
 		},
 		Volumes: []string{
-			path.Join(stack.EventsEngineWorkdir, "custom_rules") + ":/workdir/rules/custom",
-			path.Join(stack.EventsEngineWorkdir, "pipeline", "plugins_legacy.yaml") + ":/workdir/pipeline/plugins_legacy.yaml",
+			filepath.Join(stack.EventsEngineWorkdir, "custom_rules") + ":/workdir/rules/custom",
+			filepath.Join(stack.EventsEngineWorkdir, "pipeline", "plugins_legacy.yaml") + ":/workdir/pipeline/plugins_legacy.yaml",
 			"geoip_data:/workdir/geolocation",
 		},
 		Environment: []string{
