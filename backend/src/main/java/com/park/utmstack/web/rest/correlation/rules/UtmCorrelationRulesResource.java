@@ -1,7 +1,9 @@
 package com.park.utmstack.web.rest.correlation.rules;
 
+import com.park.utmstack.domain.UtmAlertLog;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -110,10 +112,10 @@ public class UtmCorrelationRulesResource {
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PutMapping("/correlation-rule")
-    public ResponseEntity<Void> updateCorrelationRule(@Valid @RequestBody UtmCorrelationRulesVM rulesVM) {
+    public ResponseEntity<Void> updateCorrelationRule(@Valid @RequestBody UtmCorrelationRulesDTO correlationRulesDTO) {
         final String ctx = CLASSNAME + ".updateCorrelationRule";
         try {
-            rulesService.updateRule(rulesVM);
+            rulesService.updateRule(this.utmCorrelationRulesMapper.toEntity(correlationRulesDTO));
             return ResponseEntity.noContent().build();
         } catch (BadRequestAlertException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -129,11 +131,11 @@ public class UtmCorrelationRulesResource {
     }
 
     @GetMapping("/correlation-rule/search-by-filters")
-    public ResponseEntity<List<UtmCorrelationRulesVM>> searchByFilters(@ParameterObject UtmCorrelationRulesFilter filters,
+    public ResponseEntity<List<UtmCorrelationRulesDTO>> searchByFilters(@ParameterObject UtmCorrelationRulesFilter filters,
                                                                 @ParameterObject Pageable pageable) {
         final String ctx = CLASSNAME + ".searchByFilters";
         try {
-            Page<UtmCorrelationRulesVM> page = rulesService.searchByFilters(filters, pageable);
+            Page<UtmCorrelationRulesDTO> page = rulesService.searchByFilters(filters, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/correlation-rule/search-by-filters");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
@@ -168,10 +170,23 @@ public class UtmCorrelationRulesResource {
      * @return the ResponseEntity with status 200 (OK) and with body the rule with its relations, or with status 404 (Not Found)
      */
     @GetMapping("/correlation-rule/{id}")
-    public ResponseEntity<UtmCorrelationRulesVM> getRule(@PathVariable Long id) {
-        log.debug("REST request to get UtmDataTypes : {}", id);
-        Optional<UtmCorrelationRulesVM> datatype = rulesService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(datatype);
+    public ResponseEntity<UtmCorrelationRulesDTO> getRule(@PathVariable Long id) {
+        final String ctx = CLASSNAME + ".getRule";
+        try {
+            Optional<UtmCorrelationRules> utmCorrelationRule = rulesService.findOne(id);
+            if (utmCorrelationRule.isPresent()) {
+                UtmCorrelationRulesDTO dto = utmCorrelationRulesMapper.toDto(utmCorrelationRule.get());
+                return ResponseUtil.wrapOrNotFound(Optional.of(dto));
+            } else {
+                return ResponseUtil.wrapOrNotFound(Optional.empty());
+            }
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
     }
 
     /**
