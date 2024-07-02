@@ -2,6 +2,7 @@ package types
 
 import (
 	"os"
+	"path"
 
 	"gopkg.in/yaml.v3"
 )
@@ -25,7 +26,7 @@ type PostgreConfig struct {
 	Database string `yaml:"database"`
 }
 
-func (c *PluginsConfig) Set(conf *Config) error {
+func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 	c.Plugins = make(map[string]PluginConfig)
 
 	c.Plugins["com.utmstack.legacy"]= PluginConfig{
@@ -46,7 +47,7 @@ func (c *PluginsConfig) Set(conf *Config) error {
 		return err
 	}
 
-	err = os.WriteFile("/workdir/pipeline/plugins_legacy.yaml", config, 0644)
+	err = os.WriteFile(path.Join(stack.EventsEngineWorkdir, "pipeline", "plugins_legacy.yaml"), config, 0644)
 	if err != nil {
 		return err
 	}

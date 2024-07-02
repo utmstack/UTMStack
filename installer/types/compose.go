@@ -67,7 +67,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	}
 
 	var legacyConfig PluginsConfig
-	err = legacyConfig.Set(conf)
+	err = legacyConfig.Set(conf, stack)
 	if err != nil {
 		return err
 	}
