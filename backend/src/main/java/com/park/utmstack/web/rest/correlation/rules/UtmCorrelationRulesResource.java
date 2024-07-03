@@ -78,15 +78,15 @@ public class UtmCorrelationRulesResource {
     /**
      * {@code POST  /correlation-rule/activate-deactivate} : Activate or deactivate a correlation rule.
      *
-     * @param rulesVM the correlation rule definition to activate or deactivate.
+     * @param id the correlation rule definition to activate or deactivate.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
-    @PostMapping("/correlation-rule/activate-deactivate")
-    public ResponseEntity<Void> activateOrDeactivateCorrelationRule(@Valid @RequestBody UtmCorrelationRulesVM rulesVM,
+    @PutMapping("/correlation-rule/activate-deactivate")
+    public ResponseEntity<Void> activateOrDeactivateCorrelationRule(@RequestParam Long id,
                                                                     @RequestParam Boolean active) {
         final String ctx = CLASSNAME + ".activateOrDeactivateCorrelationRule";
         try {
-            rulesService.setRuleActivation(rulesVM, active);
+            rulesService.setRuleActivation(id, active);
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
@@ -104,7 +104,7 @@ public class UtmCorrelationRulesResource {
     /**
      * {@code PUT  /correlation-rule} : Update a correlation rule definition with its datatypes.
      *
-     * @param rulesVM the correlation rule definition to update.
+     * @param correlationRulesDTO the correlation rule definition to update.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, with status {@code 400 (Bad Request)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @PutMapping("/correlation-rule")

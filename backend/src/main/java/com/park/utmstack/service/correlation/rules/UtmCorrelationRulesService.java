@@ -96,7 +96,7 @@ public class UtmCorrelationRulesService {
     /**
      * Update correlation rule definition
      *
-     * @param rulesVM The rule to update with its relations
+     * @param correlationRule The rule to update with its relations
      * @throws Exception Bad Request if the rule don't have an id, or is a system rule, or isn't present in database,
      *         or generic error if some error occurs when updating in DB
      * */
@@ -156,17 +156,17 @@ public class UtmCorrelationRulesService {
     /**
      * Activate or deactivate correlation rule
      *
-     * @param rulesVM The rule to activate or deactivate
+     * @param ruleId The rule's id to activate or deactivate
      * @throws Exception Bad Request if the rule don't have an id, or isn't present in database,
      *         or generic error if some error occurs when updating in DB
      * */
     @Transactional
-    public void setRuleActivation(UtmCorrelationRulesVM rulesVM, boolean setActive) throws Exception {
-        final String ctx = CLASSNAME + ".updateRule";
-        if (rulesVM.getRule().getId() == null) {
+    public void setRuleActivation(Long ruleId, boolean setActive) throws Exception {
+        final String ctx = CLASSNAME + ".setRuleActivation";
+        if (ruleId == null) {
             throw new BadRequestException(ctx + ": The rule must have an id to activate or deactivate.");
         }
-        Optional<UtmCorrelationRules> find = utmCorrelationRulesRepository.findById(rulesVM.getRule().getId());
+        Optional<UtmCorrelationRules> find = utmCorrelationRulesRepository.findById(ruleId);
         if (find.isEmpty()) {
             throw new BadRequestException(ctx + ": The rule you're trying to activate or deactivate is not present in database.");
         }
