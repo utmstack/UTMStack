@@ -1,8 +1,8 @@
-package com.park.utmstack.domain.correlation.config;
+package com.park.utmstack.domain.correlation.rules;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UtmVariable {
+public class RuleVariable {
     @JsonProperty("get")
     private String field;
 
@@ -12,7 +12,7 @@ public class UtmVariable {
     @JsonProperty("of_type")
     private String type;
 
-    public UtmVariable() {
+    public RuleVariable() {
     }
 
     public String getField() {

@@ -1,20 +1,17 @@
 package com.park.utmstack.web.rest.correlation.rules;
 
-import com.park.utmstack.domain.UtmAlertLog;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
-import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
-import com.park.utmstack.service.correlation.rules.dto.UtmCorrelationRulesDTO;
-import com.park.utmstack.service.correlation.rules.dto.UtmCorrelationRulesMapper;
+import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
+import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
-import com.park.utmstack.web.rest.vm.UtmCorrelationRulesVM;
 import io.undertow.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +21,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.ResponseUtil;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -64,9 +63,29 @@ public class UtmCorrelationRulesResource {
     @PostMapping("/correlation-rule")
     public ResponseEntity<Void> addCorrelationRule(@Valid @RequestBody UtmCorrelationRulesDTO utmCorrelationRulesDTO) {
         final String ctx = CLASSNAME + ".addCorrelationRule";
+
         try {
+            if(utmCorrelationRulesDTO.getId()!=null) {
+                throw new BadRequestException(ctx + ": A new rule can't have an id.");
+            }
+            if (utmCorrelationRulesDTO.getDataTypes().isEmpty()) {
+                throw new BadRequestException(ctx + ": The rule must have at least one data type.");
+            }
+            if (utmCorrelationRulesDTO.getDefinition() == null) {
+                throw new BadRequestException(ctx + ": The rule's definition field can't be null.");
+            } else {
+                if (utmCorrelationRulesDTO.getDefinition().getRuleVariables().isEmpty()
+                        || !StringUtils.hasText(utmCorrelationRulesDTO.getDefinition().getRuleExpression())) {
+                    throw new BadRequestException(ctx + ": The rule's definition variables or expression field is null or empty, please check.");
+                }
+            }
             rulesService.save(this.utmCorrelationRulesMapper.toEntity(utmCorrelationRulesDTO));
             return ResponseEntity.noContent().build();
+        } catch (BadRequestException e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
@@ -111,13 +130,26 @@ public class UtmCorrelationRulesResource {
     public ResponseEntity<Void> updateCorrelationRule(@Valid @RequestBody UtmCorrelationRulesDTO correlationRulesDTO) {
         final String ctx = CLASSNAME + ".updateCorrelationRule";
         try {
+            if (correlationRulesDTO.getDefinition() == null) {
+                throw new BadRequestException(ctx + ": The rule's definition field can't be null.");
+            } else {
+                if (correlationRulesDTO.getDefinition().getRuleVariables().isEmpty()
+                        || !StringUtils.hasText(correlationRulesDTO.getDefinition().getRuleExpression())) {
+                    throw new BadRequestException(ctx + ": The rule's definition variables or expression field is null or empty, please check.");
+                }
+            }
             rulesService.updateRule(this.utmCorrelationRulesMapper.toEntity(correlationRulesDTO));
             return ResponseEntity.noContent().build();
-        } catch (BadRequestException e) {
+        }  catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+        }  catch (EntityNotFoundException e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildErrorResponse(HttpStatus.NOT_FOUND, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
