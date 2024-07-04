@@ -6,18 +6,61 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/updates"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
+
+func HandleAgentUpdates(c *gin.Context) {
+	version := c.Query("version")
+	os := c.Query("os")
+	dependencyType := c.Query("type")
+
+	if err := validateParams(version, os, dependencyType); err != nil {
+		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
+		return
+	}
+
+	updater := updates.NewAgentUpdater()
+	handleUpdate(c, updater, version, os, dependencyType)
+}
+
+func HandleCollectorUpdates(c *gin.Context) {
+	collectorType := c.Query("collectorType")
+	version := c.Query("version")
+	os := c.Query("os")
+	dependencytype := c.Query("type")
+
+	if err := validateParams(version, os, dependencytype); err != nil {
+		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
+		return
+	}
+
+	var updater updates.UpdaterInterf
+	if dependencytype == config.DependInstallerLabel {
+		updater = updates.NewCollectorUpdater()
+	} else {
+		switch collectorType {
+		case "as400":
+			updater = updates.NewAs400Updater()
+		default:
+			c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: "invalid collector type"})
+			return
+		}
+	}
+
+	handleUpdate(c, updater, version, os, dependencytype)
+}
 
 func validateParams(version, os, dependencytype string) error {
 	if version == "" || os == "" || dependencytype == "" {
 		return errors.New("missing required parameters")
 	} else {
-		if os != "windows" && os != "linux" {
+		if !utils.ValueExistsInList(os, config.DependOsAllows) {
 			return errors.New("invalid os parameter")
 		}
-		if dependencytype != "installer" && dependencytype != "service" && dependencytype != "depend_zip" {
+		if !utils.ValueExistsInList(dependencytype, config.DependTypes) {
 			return errors.New("invalid dependency type parameter")
 		}
 	}
@@ -50,45 +93,4 @@ func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, de
 		Version:     latestVersion,
 		FileContent: fileContent,
 	})
-}
-
-func HandleAgentUpdates(c *gin.Context) {
-	version := c.Query("version")
-	os := c.Query("os")
-	dependencyType := c.Query("type")
-
-	if err := validateParams(version, os, dependencyType); err != nil {
-		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
-		return
-	}
-
-	updater := updates.NewAgentUpdater()
-	handleUpdate(c, updater, version, os, dependencyType)
-}
-
-func HandleCollectorUpdates(c *gin.Context) {
-	collectorType := c.Query("collectorType")
-	version := c.Query("version")
-	os := c.Query("os")
-	dependencytype := c.Query("type")
-
-	if err := validateParams(version, os, dependencytype); err != nil {
-		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
-		return
-	}
-
-	var updater updates.UpdaterInterf
-	if dependencytype == "installer" {
-		updater = updates.NewCollectorUpdater()
-	} else {
-		switch collectorType {
-		case "as400":
-			updater = updates.NewAs400Updater()
-		default:
-			c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: "invalid collector type"})
-			return
-		}
-	}
-
-	handleUpdate(c, updater, version, os, dependencytype)
 }

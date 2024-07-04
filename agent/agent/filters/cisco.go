@@ -3,16 +3,16 @@ package filters
 import (
 	"regexp"
 
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
-var RegexspCisco = map[configuration.LogType]string{
-	configuration.LogTypeCiscoAsa:       `%ASA-`,
-	configuration.LogTypeCiscoFirepower: `%FTD-`,
-	configuration.LogTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
+var RegexspCisco = map[config.LogType]string{
+	config.LogTypeCiscoAsa:       `%ASA-`,
+	config.LogTypeCiscoFirepower: `%FTD-`,
+	config.LogTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
 }
 
-func indentifyCiscoLogSource(log string) (configuration.LogType, error) {
+func indentifyCiscoLogSource(log string) (config.LogType, error) {
 	for logType, regp := range RegexspCisco {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
@@ -22,7 +22,7 @@ func indentifyCiscoLogSource(log string) (configuration.LogType, error) {
 			return logType, nil
 		}
 	}
-	return configuration.LogTypeCiscoMeraki, nil
+	return config.LogTypeCiscoMeraki, nil
 }
 
 func ProcessCiscoData(logBatch []string) (map[string][]string, error) {

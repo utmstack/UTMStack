@@ -9,14 +9,14 @@ import (
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
-func GetMasterVersion() (string, error) {
+func getMasterVersion() (string, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: true,
 	}
-	resp, status, err := util.DoReq[models.InfoResponse](config.GetPanelServiceName()+config.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{}, tlsConfig)
+	resp, status, err := utils.DoReq[models.InfoResponse](config.GetPanelServiceName()+config.MASTERVERSIONENDPOINT, nil, http.MethodGet, map[string]string{}, tlsConfig)
 	if err != nil {
 		return "", err
 	} else if status != http.StatusOK {
@@ -25,16 +25,16 @@ func GetMasterVersion() (string, error) {
 	return resp.Build.Version, nil
 }
 
-func FindLatestVersion(versions models.DataVersions, masterVersion string) models.Version {
+func findLatestVersion(versions models.DataVersions, masterVersion string) (models.Version, bool) {
 	for _, vers := range versions.Versions {
 		if vers.MasterVersion == masterVersion {
-			return vers
+			return vers, true
 		}
 	}
-	return models.Version{}
+	return models.Version{}, false
 }
 
-func IsVersionGreater(oldVersion, newVersion string) bool {
+func isVersionGreater(oldVersion, newVersion string) bool {
 	oldParts := strings.Split(oldVersion, ".")
 	newParts := strings.Split(newVersion, ".")
 

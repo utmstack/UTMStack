@@ -4,18 +4,16 @@ import (
 	"fmt"
 
 	"github.com/utmstack/UTMStack/collector-installer/config"
-	"github.com/utmstack/UTMStack/collector-installer/utils"
 
 	"github.com/kardianos/service"
 )
 
-func RunService(cnf config.ServiceConfig, logger *utils.BeautyLogger) error {
+func RunService(cnf config.ServiceConfig) error {
 	svcConfig := getConfigServ(cnf.Name, cnf.DisplayName, cnf.Description)
 	prg := &program{
 		cmdRun:  cnf.CMDRun,
 		cmdArgs: cnf.CMDArgs,
 		path:    cnf.CMDPath,
-		logger:  logger,
 	}
 	newService, err := service.New(prg, svcConfig)
 	if err != nil {

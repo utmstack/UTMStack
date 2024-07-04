@@ -1,9 +1,10 @@
-package util
+package utils
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type Operator string

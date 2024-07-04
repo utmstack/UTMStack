@@ -8,6 +8,5 @@ The UTMStack agent performs the following tasks:
 - Creates a client for the Agent Service and the Log Service.
 - Processes the logs.
 - Reads the Beats logs.
-- Checks the Redline service.
 - Starts the ping and the incident response stream.
 - Starts the update process.

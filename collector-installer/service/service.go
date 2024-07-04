@@ -16,7 +16,6 @@ type program struct {
 	cmdRun  string
 	cmdArgs []string
 	path    string
-	logger  *utils.BeautyLogger
 }
 
 func (p *program) Start(s service.Service) error {
@@ -32,7 +31,7 @@ func (p *program) run() {
 	go func() {
 		err := utils.Execute(p.cmdRun, p.path, p.cmdArgs...)
 		if err != nil {
-			p.logger.WriteFatal(fmt.Sprintf("Failed to execute command: %s %s: ", p.cmdRun, strings.Join(p.cmdArgs, " ")), err)
+			utils.Logger.WriteFatal(fmt.Sprintf("failed to execute command: %s %s: ", p.cmdRun, strings.Join(p.cmdArgs, " ")), err)
 		}
 	}()
 

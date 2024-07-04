@@ -54,6 +54,14 @@ const (
 	VOLPATH               = "/data"
 	VersionsFile          = "version.json"
 	CHECK_EVERY           = 5 * time.Minute
+	DependInstallerLabel  = "installer"
+	DependServiceLabel    = "service"
+	DependZipLabel        = "depend_zip"
+)
+
+var (
+	DependOsAllows = []string{"windows", "linux"}
+	DependTypes    = []string{DependInstallerLabel, DependServiceLabel, DependZipLabel}
 )
 
 func GetInternalKey() string {

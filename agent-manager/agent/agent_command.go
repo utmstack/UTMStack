@@ -3,20 +3,19 @@ package agent
 import (
 	"context"
 
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Grpc) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAgentsCommandsResponse, error) {
-	h := util.GetLogger()
-	page := util.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
+	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 
-	filter := util.NewFilter(req.SearchQuery)
+	filter := utils.NewFilter(req.SearchQuery)
 
 	commands, total, err := agentCommandService.ListAgentCommands(page, filter)
 	if err != nil {
-		h.ErrorF("failed to fetch agents: %v", err)
+		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
@@ -30,7 +29,7 @@ func (s *Grpc) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAg
 			Result:        command.Result,
 			ExecutedBy:    command.ExecutedBy,
 			CmdId:         command.CmdId,
-			CreatedAt:     util.ConvertToTimestamp(command.CreatedAt),
+			CreatedAt:     utils.ConvertToTimestamp(command.CreatedAt),
 			Agent:         parseAgentToProto(command.Agent),
 			Reason:        command.Reason,
 			OriginId:      command.OriginId,

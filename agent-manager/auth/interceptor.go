@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -32,7 +32,7 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 		} else if connectionKey != "" {
 			isValid := validateToken(connectionKey)
 			if !isValid {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid connection key"})
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid connection key"})
 				return
 			}
 		} else if id != "" && key != "" {
@@ -44,7 +44,7 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 
 			err = checkKeyAuth(key, idInt, c.FullPath(), "http")
 			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 				return
 			}
 		} else {
@@ -134,10 +134,9 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 }
 
 func checkKeyAuth(token string, id uint64, fullMethod string, proto string) error {
-	h := util.GetLogger()
 	authCache := getAuthCache(fullMethod, proto)
 	if authCache == nil {
-		h.ErrorF("unable to resolve auth cache")
+		utils.ALogger.ErrorF("unable to resolve auth cache")
 		return status.Error(codes.Unauthenticated, "unable to resolve auth cache")
 	}
 
@@ -193,17 +192,15 @@ func convertMapToAuthResponses(m map[uint]string) []AuthResponse {
 }
 
 func authenticateRequest(authValue, authName string) error {
-	h := util.GetLogger()
-
 	if authName == "connection-key" && authValue != "" {
 		if !validateToken(authValue) {
-			h.ErrorF("authentication failed or unable to connect with the panel")
+			utils.ALogger.ErrorF("authentication failed or unable to connect with the panel")
 			return status.Error(codes.Unauthenticated, "authentication failed or unable to connect with the panel")
 		}
 	} else if authName == "internal-key" && authValue != "" {
 		internalKey := os.Getenv(config.UTMSharedKeyEnv)
 		if authValue != internalKey {
-			h.ErrorF("internal key does not match")
+			utils.ALogger.ErrorF("internal key does not match")
 			return status.Error(codes.Unauthenticated, "internal key does not match")
 		}
 	} else {

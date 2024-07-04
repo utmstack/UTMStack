@@ -1,101 +1,112 @@
 package updates
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strings"
 	"time"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/beats"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/models"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
-	"google.golang.org/grpc"
 )
 
 const (
 	checkEvery = 5 * time.Minute
 )
 
-func UpdateDependencies(conn *grpc.ClientConn, cnf *configuration.Config, h *logger.Logger) {
+func UpdateDependencies(cnf *config.Config) {
 	RemoveOldServices()
 
 	for {
 		time.Sleep(checkEvery)
 		versions := models.Version{}
-		prepareForUpdate(h, &versions)
+		prepareForUpdate(&versions)
 
-		mapResponses, err := agent.UpdateDependencies(conn, cnf, versions)
+		zipDependencyResponse, err := getDependency(cnf, versions.DependenciesVersion, config.DEPEND_ZIP_LABEL)
 		if err != nil {
-			h.ErrorF("error checking dependencies: %v", err)
+			utils.Logger.ErrorF("error checking dependencies: %v", err)
 			continue
 		}
 
-		err = updateDependencies(mapResponses["dependencies"], cnf, &versions, h)
+		serviceDependencyResponse, err := getDependency(cnf, versions.ServiceVersion, config.DEPEND_SERVICE_LABEL)
 		if err != nil {
-			h.ErrorF("error updating dependencies: %v", err)
+			utils.Logger.ErrorF("error checking service: %v", err)
 			continue
 		}
 
-		err = updateService(mapResponses["service"], &versions, h)
+		err = updateDependencies(&zipDependencyResponse, cnf, &versions)
 		if err != nil {
-			h.ErrorF("error updating service: %v", err)
+			utils.Logger.ErrorF("error updating dependencies: %v", err)
+			continue
+		}
+
+		err = updateService(&serviceDependencyResponse, &versions)
+		if err != nil {
+			utils.Logger.ErrorF("error updating service: %v", err)
 			continue
 		}
 	}
 }
 
-func prepareForUpdate(h *logger.Logger, versions *models.Version) {
-	isRecentAgentUpgradeDone := !utils.CheckIfPathExist(configuration.GetVersionPath())
+func prepareForUpdate(versions *models.Version) {
+	isRecentAgentUpgradeDone := !utils.CheckIfPathExist(config.GetVersionPath())
 	if isRecentAgentUpgradeDone {
 		versions.ServiceVersion = "0.0.0"
 		versions.DependenciesVersion = "0.0.0"
-		os.RemoveAll(configuration.GetVersionOldPath())
+		os.RemoveAll(config.GetVersionOldPath())
 	} else {
-		err := utils.ReadJson(configuration.GetVersionPath(), versions)
+		err := utils.ReadJson(config.GetVersionPath(), versions)
 		if err != nil {
-			h.ErrorF("error reading version file: %v", err)
+			utils.Logger.ErrorF("error reading version file: %v", err)
 		}
 	}
 }
 
-func updateService(response *agent.UpdateResponse, versions *models.Version, h *logger.Logger) error {
-	newVersion, newUpdate, err := processUpdateResponse(response, configuration.GetDownloadFilePath("service", "_new"), true)
+func updateService(response *models.DependencyUpdateResponse, versions *models.Version) error {
+	newUpdate, err := processUpdateResponse(response, config.GetDownloadFilePath(config.DEPEND_SERVICE_LABEL, "_new"))
 	if err != nil {
 		return fmt.Errorf("error processing agent service response: %v", err)
 	}
 
 	if newUpdate {
-		h.Info("New version of agent service found: %s", newVersion)
-		versions.ServiceVersion = newVersion
-		err = utils.WriteJSON(configuration.GetVersionPath(), versions)
+		utils.Logger.Info("New version of agent service found: %s", response.Version)
+		versions.ServiceVersion = response.Version
+		err = utils.WriteJSON(config.GetVersionPath(), versions)
 		if err != nil {
 			return fmt.Errorf("error writing version file: %v", err)
 		}
-		utils.Execute(configuration.GetSelfUpdaterPath(), utils.GetMyPath())
+		if runtime.GOOS == "linux" {
+			if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "777", config.GetDownloadFilePath(config.DEPEND_SERVICE_LABEL, "_new")); err != nil {
+				utils.Logger.ErrorF("error executing chmod: %v", err)
+			}
+		}
+		utils.Execute(config.GetSelfUpdaterPath(), utils.GetMyPath())
 	}
 	return nil
 }
 
-func updateDependencies(response *agent.UpdateResponse, cnf *configuration.Config, versions *models.Version, h *logger.Logger) error {
-	newVersion, newUpdate, err := processUpdateResponse(response, configuration.GetDownloadFilePath("dependencies", ""), true)
+func updateDependencies(response *models.DependencyUpdateResponse, cnf *config.Config, versions *models.Version) error {
+	newUpdate, err := processUpdateResponse(response, config.GetDownloadFilePath(config.DEPEND_ZIP_LABEL, ""))
 	if err != nil {
 		return fmt.Errorf("error processing dependencies response: %v", err)
 	}
 
 	if newUpdate {
-		h.Info("New version of dependencies found: %s", newVersion)
-		if err = beats.UninstallBeats(h); err != nil {
+		utils.Logger.Info("New version of dependencies found: %s", response.Version)
+		if err = beats.UninstallBeats(); err != nil {
 			return fmt.Errorf("error uninstalling beats: %v", err)
 		}
 		err = removeDependencies()
 		if err != nil {
 			return fmt.Errorf("error removing dependencies: %v", err)
 		}
-		err = utils.Unzip(configuration.GetDownloadFilePath("dependencies", ""), utils.GetMyPath())
+		err = utils.Unzip(config.GetDownloadFilePath(config.DEPEND_ZIP_LABEL, ""), utils.GetMyPath())
 		if err != nil {
 			return fmt.Errorf("error unzipping dependencies: %v", err)
 		}
@@ -104,17 +115,17 @@ func updateDependencies(response *agent.UpdateResponse, cnf *configuration.Confi
 				return fmt.Errorf("error executing chmod: %v", err)
 			}
 		}
-		err = os.Remove(configuration.GetDownloadFilePath("dependencies", ""))
+		err = os.Remove(config.GetDownloadFilePath(config.DEPEND_ZIP_LABEL, ""))
 		if err != nil {
-			h.ErrorF("error removing dependencies file: %v", err)
+			utils.Logger.ErrorF("error removing dependencies file: %v", err)
 		}
-		err = beats.InstallBeats(*cnf, h)
+		err = beats.InstallBeats(*cnf)
 		if err != nil {
 			return fmt.Errorf("error installing beats: %v", err)
 		}
 
-		versions.DependenciesVersion = newVersion
-		err = utils.WriteJSON(configuration.GetVersionPath(), &versions)
+		versions.DependenciesVersion = response.Version
+		err = utils.WriteJSON(config.GetVersionPath(), &versions)
 		if err != nil {
 			return fmt.Errorf("error writing version file: %v", err)
 		}
@@ -122,27 +133,24 @@ func updateDependencies(response *agent.UpdateResponse, cnf *configuration.Confi
 	return nil
 }
 
-func processUpdateResponse(updateResponse *agent.UpdateResponse, filepath string, download bool) (string, bool, error) {
+func processUpdateResponse(updateResponse *models.DependencyUpdateResponse, filepath string) (bool, error) {
 	switch {
-	case updateResponse.Message == "Dependency not found", strings.Contains(updateResponse.Message, "Error getting dependency file"):
-		return updateResponse.Version, false, fmt.Errorf("error getting dependency file: %v", updateResponse.Message)
-	case updateResponse.Message == "Dependency already up to date":
-		return updateResponse.Version, false, nil
-	case strings.Contains(updateResponse.Message, "Dependency update available: v"):
-		version := strings.TrimPrefix(updateResponse.Message, "Dependency update available: v")
-		if download {
-			if err := utils.WriteBytesToFile(filepath, updateResponse.File); err != nil {
-				return "", false, fmt.Errorf("error writing dependency file %s: %v", filepath, err)
-			}
+	case updateResponse.Message == "dependency not found", strings.Contains(updateResponse.Message, "error getting dependency file"):
+		return false, fmt.Errorf("error getting dependency file: %v", updateResponse.Message)
+	case updateResponse.Message == "dependency already up to date":
+		return false, nil
+	case updateResponse.Message == "dependency update available":
+		if err := utils.WriteBytesToFile(filepath, updateResponse.FileContent); err != nil {
+			return false, fmt.Errorf("error writing dependency file %s: %v", filepath, err)
 		}
-		return version, true, nil
+		return true, nil
 	default:
-		return "", false, fmt.Errorf("error processing update response: %v", updateResponse.Message)
+		return false, fmt.Errorf("error processing update response: %v", updateResponse.Message)
 	}
 }
 
 func removeDependencies() error {
-	dependPaths := configuration.GetDependenPaths()
+	dependPaths := config.GetDependenPaths()
 	for _, dep := range dependPaths {
 		err := os.RemoveAll(dep)
 		if err != nil {
@@ -150,4 +158,30 @@ func removeDependencies() error {
 		}
 	}
 	return nil
+}
+
+func getDependency(cnf *config.Config, version, dependencyType string) (models.DependencyUpdateResponse, error) {
+	queryParams := url.Values{}
+	queryParams.Add("version", version)
+	queryParams.Add("os", runtime.GOOS)
+	queryParams.Add("type", dependencyType)
+
+	headers := map[string]string{
+		"key": cnf.AgentKey,
+		"id":  string(cnf.AgentID),
+	}
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+
+	resp, status, err := utils.DoReq[models.DependencyUpdateResponse](fmt.Sprintf("%s/dependencies/agent?%s", cnf.Server, queryParams.Encode()), nil, http.MethodGet, headers, tlsConfig)
+	if err != nil {
+		return models.DependencyUpdateResponse{}, fmt.Errorf("error downloading dependencies: %v", err)
+	}
+	if status != http.StatusOK {
+		return models.DependencyUpdateResponse{}, fmt.Errorf("error downloading dependencies: %v", resp.Message)
+	}
+
+	return resp, nil
 }

@@ -7,7 +7,7 @@ import (
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 var (
@@ -21,7 +21,7 @@ type AgentUpdater struct {
 
 func NewAgentUpdater() *AgentUpdater {
 	agentUpdaterOnce.Do(func() {
-		err := util.CreatePathIfNotExist(filepath.Join(config.VOLPATH, "agent"))
+		err := utils.CreatePathIfNotExist(filepath.Join(config.VOLPATH, "agent"))
 		if err != nil {
 			fmt.Printf("Error creating agent path: %v\n", err)
 		}
@@ -39,14 +39,14 @@ func NewAgentUpdater() *AgentUpdater {
 				LatestVersions: models.Version{},
 				FileLookup: map[string]map[string]string{
 					"windows": {
-						"installer":  "utmstack_agent_installer%s_windows.exe",
-						"service":    "utmstack_agent_service%s_windows.exe",
-						"depend_zip": "utmstack_agent_dependencies%s_windows.zip",
+						config.DependInstallerLabel: "utmstack_agent_installer%s_windows.exe",
+						config.DependServiceLabel:   "utmstack_agent_service%s_windows.exe",
+						config.DependZipLabel:       "utmstack_agent_dependencies%s_windows.zip",
 					},
 					"linux": {
-						"installer":  "utmstack_agent_installer%s_linux",
-						"service":    "utmstack_agent_service%s_linux",
-						"depend_zip": "utmstack_agent_dependencies%s_linux.zip",
+						config.DependInstallerLabel: "utmstack_agent_installer%s_linux",
+						config.DependServiceLabel:   "utmstack_agent_service%s_linux",
+						config.DependZipLabel:       "utmstack_agent_dependencies%s_linux.zip",
 					},
 				},
 			},

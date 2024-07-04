@@ -4,15 +4,15 @@ import (
 	"context"
 
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Grpc) ListGroups(ctx context.Context, req *ListRequest) (*ListAgentsGroupResponse, error) {
-	page := util.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
+	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 
-	filter := util.NewFilter(req.SearchQuery)
+	filter := utils.NewFilter(req.SearchQuery)
 
 	groups, total, err := agentGroupService.ListAgentsGroups(page, filter)
 	if err != nil {

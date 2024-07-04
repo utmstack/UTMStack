@@ -17,6 +17,9 @@ const (
 	LogAuthProxyPort    = "50051"
 	CollectorConfigFile = "collector-config.yaml"
 	SERV_LOG            = "utmstack_collector.log"
+	DEPEND_URL          = "https://%s:%s/dependencies/collector?version=%s&os=%s&type=%s&collectorType=%s"
+	DependServiceLabel  = "service"
+	DependZipLabel      = "depend_zip"
 )
 
 type ServiceConfig struct {
@@ -65,10 +68,13 @@ func GetDownloadFilePath(typ string, module Collector) string {
 	switch module {
 	case AS400:
 		switch typ {
-		case "service":
+		case DependServiceLabel:
 			return filepath.Join(path, "utmstack_collector_as400_service.jar")
-		case "dependencies":
-			return filepath.Join(path, "dependencies.zip")
+		case DependZipLabel:
+			switch runtime.GOOS {
+			case "windows":
+				return filepath.Join(path, "dependencies.zip")
+			}
 		}
 	}
 	return ""

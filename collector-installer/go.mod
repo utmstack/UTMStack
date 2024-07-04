@@ -2,15 +2,13 @@ module github.com/utmstack/UTMStack/collector-installer
 
 go 1.22.3
 
-toolchain go1.22.4
+toolchain go1.22.5
 
 require (
 	github.com/kardianos/service v1.2.2
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/threatwinds/logger v1.1.10
 	github.com/threatwinds/validations v1.0.5
-	google.golang.org/grpc v1.64.0
-	google.golang.org/protobuf v1.34.2
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -41,7 +39,7 @@ require (
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

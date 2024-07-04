@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -45,7 +45,7 @@ func (s *AgentCommandService) UpdateCommandStatusAndResult(agentID uint, cmdID s
 }
 
 // ListAgentCommands retrieves a paginated list of agents commands based on the provided search criteria.
-func (s *AgentCommandService) ListAgentCommands(p util.Pagination, f []util.Filter) ([]models.AgentCommand, int64, error) {
+func (s *AgentCommandService) ListAgentCommands(p utils.Pagination, f []utils.Filter) ([]models.AgentCommand, int64, error) {
 	commands, totalCount, err := s.repo.GetByFilter(p, f)
 	if err != nil {
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve agents: %v", err)

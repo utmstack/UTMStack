@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"gorm.io/gorm"
 )
 
@@ -99,11 +99,11 @@ func (r *AgentRepository) DeleteByKey(key uuid.UUID, deletedBy string) (uint, er
 }
 
 // GetByFilter GetAgentsWithFilters returns a paginated list of agents filtered by search query and sorted by provided fields
-func (r *AgentRepository) GetByFilter(p util.Pagination, f []util.Filter) ([]models.Agent, int64, error) {
+func (r *AgentRepository) GetByFilter(p utils.Pagination, f []utils.Filter) ([]models.Agent, int64, error) {
 	var agents []models.Agent
 	var count int64
 	db := r.db
-	tx := db.Model(models.Agent{}).Scopes(util.FilterScope(f)).Count(&count).Scopes(p.PagingScope).Find(&agents)
+	tx := db.Model(models.Agent{}).Scopes(utils.FilterScope(f)).Count(&count).Scopes(p.PagingScope).Find(&agents)
 	if tx.Error != nil {
 		return nil, 0, tx.Error
 	}
@@ -111,12 +111,12 @@ func (r *AgentRepository) GetByFilter(p util.Pagination, f []util.Filter) ([]mod
 }
 
 // GetAgentsWithCommands returns a paginated list of agents filtered where at least one command has been executed
-func (r *AgentRepository) GetAgentsWithCommands(p util.Pagination, f []util.Filter) ([]models.Agent, int64, error) {
+func (r *AgentRepository) GetAgentsWithCommands(p utils.Pagination, f []utils.Filter) ([]models.Agent, int64, error) {
 	var agents []models.Agent
 	var count int64
 	db := r.db
 	tx := db.Model(models.Agent{}).
-		Scopes(util.FilterScope(f)).
+		Scopes(utils.FilterScope(f)).
 		Count(&count).
 		Scopes(p.PagingScope).
 		Unscoped().

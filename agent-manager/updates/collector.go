@@ -7,7 +7,7 @@ import (
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 var (
@@ -27,7 +27,7 @@ type CollectorUpdater struct {
 
 func NewAs400Updater() *AS400Updater {
 	as400UpdaterOnce.Do(func() {
-		err := util.CreatePathIfNotExist(filepath.Join(config.VOLPATH, "collector_as400"))
+		err := utils.CreatePathIfNotExist(filepath.Join(config.VOLPATH, "collector_as400"))
 		if err != nil {
 			fmt.Printf("Error creating as400 path: %v\n", err)
 		}
@@ -44,11 +44,11 @@ func NewAs400Updater() *AS400Updater {
 				LatestVersions: models.Version{},
 				FileLookup: map[string]map[string]string{
 					"windows": {
-						"service":    "utmstack_collector_as400_service%s.jar",
-						"depend_zip": "utmstack_collector_as400_dependencies%s_windows.zip",
+						config.DependServiceLabel: "utmstack_collector_as400_service%s.jar",
+						config.DependZipLabel:     "utmstack_collector_as400_dependencies%s_windows.zip",
 					},
 					"linux": {
-						"service": "utmstack_collector_as400_service%s.jar",
+						config.DependServiceLabel: "utmstack_collector_as400_service%s.jar",
 					},
 				},
 			},
@@ -59,7 +59,7 @@ func NewAs400Updater() *AS400Updater {
 
 func NewCollectorUpdater() *CollectorUpdater {
 	collectorUpdaterOnce.Do(func() {
-		err := util.CreatePathIfNotExist(filepath.Join(config.VOLPATH, "collector_installer"))
+		err := utils.CreatePathIfNotExist(filepath.Join(config.VOLPATH, "collector_installer"))
 		if err != nil {
 			fmt.Printf("Error creating collector path: %v\n", err)
 		}
@@ -75,10 +75,10 @@ func NewCollectorUpdater() *CollectorUpdater {
 				LatestVersions: models.Version{},
 				FileLookup: map[string]map[string]string{
 					"windows": {
-						"installer": "utmstack_collector_installer%s_windows.exe",
+						config.DependInstallerLabel: "utmstack_collector_installer%s_windows.exe",
 					},
 					"linux": {
-						"installer": "utmstack_collector_installer%s_linux",
+						config.DependInstallerLabel: "utmstack_collector_installer%s_linux",
 					},
 				},
 			},

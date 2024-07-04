@@ -6,7 +6,6 @@ import (
 	"runtime"
 )
 
-// CheckIfServiceIsInstalled checks if a service is installed
 func CheckIfServiceIsInstalled(serv string) (bool, error) {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {

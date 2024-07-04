@@ -5,20 +5,17 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey string, h *logger.Logger) error {
-	// Create a client for AgentService
+func RegisterAgent(conn *grpc.ClientConn, cnf *config.Config, UTMKey string) error {
 	agentClient := NewAgentServiceClient(conn)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Register the agent and store the result in a file
 	ip, err := utils.GetIPAddress()
 	if err != nil {
 		return err
@@ -55,7 +52,7 @@ func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey stri
 	cnf.AgentID = uint(response.Id)
 	cnf.AgentKey = response.Key
 
-	h.Info("successfully registered agent")
+	utils.Logger.Info("successfully registered agent")
 
 	return nil
 }

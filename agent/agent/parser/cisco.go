@@ -5,17 +5,16 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
 var (
 	ciscoParser     = CiscoParser{}
 	ciscoParserOnce sync.Once
-	RegexspCisco    = map[configuration.LogType]string{
-		configuration.LogTypeCiscoAsa:       `%ASA-`,
-		configuration.LogTypeCiscoFirepower: `%FTD-`,
-		configuration.LogTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
+	RegexspCisco    = map[config.LogType]string{
+		config.LogTypeCiscoAsa:       `%ASA-`,
+		config.LogTypeCiscoFirepower: `%FTD-`,
+		config.LogTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
 	}
 )
 
@@ -28,7 +27,7 @@ func GetCiscoParser() *CiscoParser {
 	return &ciscoParser
 }
 
-func (p *CiscoParser) IdentifySource(log string) (configuration.LogType, error) {
+func (p *CiscoParser) IdentifySource(log string) (config.LogType, error) {
 	for logType, regp := range RegexspCisco {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
@@ -38,10 +37,10 @@ func (p *CiscoParser) IdentifySource(log string) (configuration.LogType, error) 
 			return logType, nil
 		}
 	}
-	return configuration.LogTypeCiscoMeraki, nil
+	return config.LogTypeCiscoMeraki, nil
 }
 
-func (p *CiscoParser) ProcessData(logBatch interface{}, h *logger.Logger) (map[string][]string, error) {
+func (p *CiscoParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
 	classifiedLogs := make(map[string][]string)
 	batch, ok := logBatch.([]string)
 	if !ok {

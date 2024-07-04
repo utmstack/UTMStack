@@ -6,36 +6,35 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func IncidentResponseStream(client AgentServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
+func IncidentResponseStream(client AgentServiceClient, ctx context.Context, cnf *config.Config) {
 	path := utils.GetMyPath()
 
 	connectionTime := 0 * time.Second
-	reconnectDelay := configuration.InitialReconnectDelay
+	reconnectDelay := config.InitialReconnectDelay
 	var connErrMsgWritten bool
 
 	for {
-		if connectionTime >= configuration.MaxConnectionTime {
+		if connectionTime >= config.MaxConnectionTime {
 			connectionTime = 0 * time.Second
-			reconnectDelay = configuration.InitialReconnectDelay
+			reconnectDelay = config.InitialReconnectDelay
 			continue
 		}
 
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
 			if !connErrMsgWritten {
-				h.ErrorF("failed to start AgentStream: %v", err)
+				utils.Logger.ErrorF("failed to start AgentStream: %v", err)
 				connErrMsgWritten = true
 			}
 
 			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, configuration.MaxReconnectDelay)
+			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
+			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
 			continue
 		}
 
@@ -49,30 +48,30 @@ func IncidentResponseStream(client AgentServiceClient, ctx context.Context, cnf 
 				break
 			}
 			if err != nil {
-				h.ErrorF("error receiving command from server: %v", err)
+				utils.Logger.ErrorF("error receiving command from server: %v", err)
 				break
 			}
 
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
 				// Handle the received command
-				err = commandProcessor(h, path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
+				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
 				if err == io.EOF {
 					break
 				}
 				if err != nil {
-					h.ErrorF("failed to send result to server: %v", err)
+					utils.Logger.ErrorF("failed to send result to server: %v", err)
 				}
 			}
 		}
 	}
 }
 
-func commandProcessor(h *logger.Logger, path string, stream AgentService_AgentStreamClient, cnf *configuration.Config, commandPair []string) error {
+func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, commandPair []string) error {
 	var result string
 	var errB bool
 
-	h.Info("Received command: %s", commandPair[0])
+	utils.Logger.Info("Received command: %s", commandPair[0])
 
 	switch runtime.GOOS {
 	case "windows":
@@ -80,13 +79,13 @@ func commandProcessor(h *logger.Logger, path string, stream AgentService_AgentSt
 	case "linux":
 		result, errB = utils.ExecuteWithResult("sh", path, "-c", commandPair[0])
 	default:
-		h.Fatal("unsupported operating system: %s", runtime.GOOS)
+		utils.Logger.Fatal("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	if errB {
-		h.ErrorF("error executing command %s: %s", commandPair[0], result)
+		utils.Logger.ErrorF("error executing command %s: %s", commandPair[0], result)
 	} else {
-		h.Info("Result when executing the command %s: %s", commandPair[0], result)
+		utils.Logger.Info("Result when executing the command %s: %s", commandPair[0], result)
 	}
 
 	// Send the result back to the server
@@ -97,7 +96,7 @@ func commandProcessor(h *logger.Logger, path string, stream AgentService_AgentSt
 	}); err != nil {
 		return err
 	} else {
-		h.Info("Result sent to server successfully!!!")
+		utils.Logger.Info("Result sent to server successfully!!!")
 	}
 	return nil
 }

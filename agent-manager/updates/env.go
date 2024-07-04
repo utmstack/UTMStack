@@ -5,20 +5,20 @@ import (
 	"path"
 
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 type Environment struct {
 	Branch string `yaml:"branch"`
 }
 
-func ReadEnv() (string, error) {
+func readEnv() (string, error) {
 	var env Environment
 	configPath := path.Join(config.VOLPATH, "config.yml")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return "release", nil
 	} else {
-		err = util.ReadYAML(configPath, &env)
+		err = utils.ReadYAML(configPath, &env)
 		if err != nil {
 			return "", err
 		}

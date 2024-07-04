@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 )
 
-// Unzip function unzip a zip file to a specified destination path
 func Unzip(zipFile, destPath string) error {
 	archive, err := zip.OpenReader(zipFile)
 	if err != nil {

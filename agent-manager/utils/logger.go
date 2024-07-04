@@ -1,4 +1,4 @@
-package util
+package utils
 
 import (
 	"sync"
@@ -7,15 +7,14 @@ import (
 )
 
 var (
-	aLogger            *logger.Logger
+	ALogger            *logger.Logger
 	loggerOnceInstance sync.Once
 )
 
-func GetLogger() *logger.Logger {
+func InitLogger() {
 	loggerOnceInstance.Do(func() {
-		aLogger = logger.NewLogger(
+		ALogger = logger.NewLogger(
 			&logger.Config{Format: "text", Level: 200, Output: "stdout"},
 		)
 	})
-	return aLogger
 }

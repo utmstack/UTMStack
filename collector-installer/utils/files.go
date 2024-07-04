@@ -101,3 +101,15 @@ func WriteJSON(path string, data interface{}) error {
 
 	return nil
 }
+
+func ReadJson(fileName string, data interface{}) error {
+	content, err := os.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(content, data)
+	if err != nil {
+		return err
+	}
+	return nil
+}

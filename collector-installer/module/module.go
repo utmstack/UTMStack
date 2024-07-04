@@ -2,12 +2,10 @@ package module
 
 import (
 	"github.com/utmstack/UTMStack/collector-installer/config"
-	"github.com/utmstack/UTMStack/collector-installer/utils"
 )
 
 type ProcessConfig struct {
 	ServiceInfo config.ServiceConfig
-	Logger      *utils.BeautyLogger
 }
 
 type CollectorProcess interface {
@@ -16,10 +14,10 @@ type CollectorProcess interface {
 	Uninstall() error
 }
 
-func GetCollectorProcess(collector config.Collector, logger *utils.BeautyLogger) CollectorProcess {
+func GetCollectorProcess(collector config.Collector) CollectorProcess {
 	switch collector {
 	case config.AS400:
-		return getAS400Collector(logger)
+		return getAS400Collector()
 	default:
 		return nil
 	}

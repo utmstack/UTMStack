@@ -1,4 +1,4 @@
-package configuration
+package config
 
 import (
 	"path/filepath"
@@ -10,8 +10,11 @@ import (
 const (
 	DEPEND_URL         = "https://%s:%s/dependencies/agent?version=%s&os=%s&type=%s"
 	INSTALLER_LOG_FILE = "utmstack_agent_installer.log"
+	UpdaterSelfLinux   = "utmstack_agent_updater"
 	AgentManagerPort   = "9000"
 	LogAuthProxyPort   = "50051"
+	DependServiceLabel = "service"
+	DependZipLabel     = "depend_zip"
 )
 
 func GetCertPath() string {
@@ -32,14 +35,14 @@ func GetServiceBin() string {
 func GetDownloadFilePath(typ string) string {
 	path := utils.GetMyPath()
 	switch typ {
-	case "service":
+	case DependServiceLabel:
 		switch runtime.GOOS {
 		case "windows":
 			return filepath.Join(path, "utmstack_agent_service.exe")
 		case "linux":
 			return filepath.Join(path, "utmstack_agent_service")
 		}
-	case "dependencies":
+	case DependZipLabel:
 		return filepath.Join(path, "dependencies.zip")
 	}
 	return ""

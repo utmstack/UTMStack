@@ -10,9 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent/agent/agent"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
@@ -39,41 +38,41 @@ func GetLogProcessor() LogProcessor {
 	return processor
 }
 
-func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) {
+func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context, cnf *config.Config) {
 	connectionTime := 0 * time.Second
-	reconnectDelay := configuration.InitialReconnectDelay
+	reconnectDelay := config.InitialReconnectDelay
 	invalidKeyCounter := 0
 
 	logsProcessCounter := map[string]int{}
 	go func() {
 		for {
 			time.Sleep(MinutesForReportLogsCounted)
-			SaveCountedLogs(h, logsProcessCounter)
+			SaveCountedLogs(logsProcessCounter)
 			logsProcessCounter = map[string]int{}
 		}
 	}()
 
 	for {
-		if connectionTime >= configuration.MaxConnectionTime {
+		if connectionTime >= config.MaxConnectionTime {
 			connectionTime = 0 * time.Second
-			reconnectDelay = configuration.InitialReconnectDelay
+			reconnectDelay = config.InitialReconnectDelay
 			continue
 		}
 
 		newLog := <-LogQueue
 		rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: newLog.Src, Data: newLog.Logs})
 		if err != nil {
-			h.ErrorF("Error sending logs to Log Auth Proxy: %v", err)
+			utils.Logger.ErrorF("error sending logs to Log Auth Proxy: %v", err)
 			for _, log := range newLog.Logs {
-				h.ErrorF("log with errors: %s", log)
+				utils.Logger.ErrorF("log with errors: %s", log)
 			}
 			if strings.Contains(err.Error(), "invalid agent key") {
 				invalidKeyCounter++
 				if invalidKeyCounter >= 20 {
-					h.Info("Uninstalling agent: reason: agent has been removed from the panel...")
+					utils.Logger.Info("Uninstalling agent: reason: agent has been removed from the panel...")
 					err := agent.UninstallAll()
 					if err != nil {
-						h.ErrorF("Error uninstalling agent: %s", err)
+						utils.Logger.ErrorF("error uninstalling agent: %s", err)
 					}
 				}
 			} else {
@@ -81,22 +80,22 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 			}
 
 			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, configuration.MaxReconnectDelay)
+			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
+			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
 			continue
 		} else if !rcv.Received {
-			h.ErrorF("Error sending logs to Log Auth Proxy: %s", rcv.Message)
-			h.Info("logs with errors: ")
+			utils.Logger.ErrorF("error sending logs to Log Auth Proxy: %s", rcv.Message)
+			utils.Logger.Info("logs with errors: ")
 			for _, log := range newLog.Logs {
-				h.Info("log: %s", log)
+				utils.Logger.Info("log: %s", log)
 			}
 			if strings.Contains(rcv.Message, "invalid agent key") {
 				invalidKeyCounter++
 				if invalidKeyCounter >= 20 {
-					h.Info("Uninstalling agent: reason: agent has been removed from the panel...")
+					utils.Logger.Info("Uninstalling agent: reason: agent has been removed from the panel...")
 					err := agent.UninstallAll()
 					if err != nil {
-						h.ErrorF("Error uninstalling agent: %s", err)
+						utils.Logger.ErrorF("error uninstalling agent: %s", err)
 					}
 				}
 			} else {
@@ -104,8 +103,8 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 			}
 
 			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, configuration.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, configuration.MaxReconnectDelay)
+			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
+			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
 			continue
 		}
 
@@ -114,13 +113,13 @@ func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context,
 	}
 }
 
-func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogServiceClient, ctx context.Context, cnf *configuration.Config, h *logger.Logger) error {
+func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogServiceClient, ctx context.Context, cnf *config.Config) error {
 	host, err := os.Hostname()
 	if err != nil {
 		return fmt.Errorf("error getting hostname: %v", err)
 	}
 
-	rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: string(configuration.LogTypeGeneric), Data: []string{configuration.GetMessageFormated(host, msg)}})
+	rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: string(config.LogTypeGeneric), Data: []string{config.GetMessageFormated(host, msg)}})
 	if err != nil {
 		return fmt.Errorf("error sending logs to Log Auth Proxy: %v", err)
 	}
@@ -130,7 +129,7 @@ func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogService
 	return nil
 }
 
-func SaveCountedLogs(h *logger.Logger, logsProcessCounter map[string]int) {
+func SaveCountedLogs(logsProcessCounter map[string]int) {
 	path := utils.GetMyPath()
 
 	filePath := filepath.Join(path, "logs_process")
@@ -139,7 +138,7 @@ func SaveCountedLogs(h *logger.Logger, logsProcessCounter map[string]int) {
 
 	file, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		h.ErrorF("error opening processed_logs.txt file: %s", err)
+		utils.Logger.ErrorF("error opening processed_logs.txt file: %s", err)
 		return
 	}
 	defer file.Close()
@@ -155,19 +154,19 @@ func SaveCountedLogs(h *logger.Logger, logsProcessCounter map[string]int) {
 	if firstLine != "" {
 		firstLogTime, err = time.Parse("2006/01/02 15:04:05.9999999 -0700 MST", strings.Split(firstLine, " - ")[0])
 		if err != nil {
-			h.ErrorF("error parsing first log time: %s", err)
+			utils.Logger.ErrorF("error parsing first log time: %s", err)
 			return
 		}
 
 		if !firstLogTime.IsZero() && time.Since(firstLogTime).Minutes() >= float64(MinutesForCleanLog) {
 			file.Close()
 			if err := os.Remove(logFile); err != nil {
-				h.ErrorF("error removing processed_logs.txt file: %s", err)
+				utils.Logger.ErrorF("error removing processed_logs.txt file: %s", err)
 				return
 			}
 			file, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 			if err != nil {
-				h.ErrorF("error opening processed_logs.txt file: %s", err)
+				utils.Logger.ErrorF("error opening processed_logs.txt file: %s", err)
 				return
 			}
 		}
@@ -177,7 +176,7 @@ func SaveCountedLogs(h *logger.Logger, logsProcessCounter map[string]int) {
 		if counter > 0 {
 			_, err = file.WriteString(fmt.Sprintf("%v - %d logs from %s have been processed\n", time.Now().Format("2006/01/02 15:04:05.9999999 -0700 MST"), counter, name))
 			if err != nil {
-				h.ErrorF("error writing to processed_logs.txt file: %s", err)
+				utils.Logger.ErrorF("error writing to processed_logs.txt file: %s", err)
 				continue
 			}
 		}

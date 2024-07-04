@@ -5,32 +5,32 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/threatwinds/logger"
 	"github.com/threatwinds/validations"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 var (
 	beatsParser     = BeatsParser{}
 	beatsParserOnce sync.Once
-	RegexspBeats    = map[configuration.LogType]string{
-		configuration.LogTypeApacheModule:        `"type":"apache"|"module":"apache"`,
-		configuration.LogTypeLinuxAuditdModule:   `"type":"auditd"|"module":"auditd"`,
-		configuration.LogTypeElasticsearchModule: `"type":"elasticsearch"|"module":"elasticsearch"`,
-		configuration.LogTypeKafkaModule:         `"type":"kafka"|"module":"kafka"`,
-		configuration.LogTypeKibanaModule:        `"type":"kibana"|"module":"kibana"`,
-		configuration.LogTypeLogstashModule:      `"type":"logstash"|"module":"logstash"`,
-		configuration.LogTypeMongodbModule:       `"type":"mongodb"|"module":"mongodb"`,
-		configuration.LogTypeMysqlModule:         `"type":"mysql"|"module":"mysql"`,
-		configuration.LogTypeNginxModule:         `"type":"nginx"|"module":"nginx"`,
-		configuration.LogTypeOsqueryModule:       `"type":"osquery"|"module":"osquery"`,
-		configuration.LogTypePostgresqlModule:    `"type":"postgresql"|"module":"postgresql"`,
-		configuration.LogTypeRedisModule:         `"type":"redis"|"module":"redis"`,
-		configuration.LogTypeLinuxAgent:          `"type":"system"|"module":"system"`,
-		configuration.LogTypeIisModule:           `"type":"iis"|"module":"iis"`,
-		configuration.LogTypeTraefikModule:       `"type":"traefik"|"module":"traefik"`,
-		configuration.LogTypeNatsModule:          `"type":"nats"|"module":"nats"`,
-		configuration.LogTypeHaproxyModule:       `"type":"haproxy"|"module":"haproxy"`,
+	RegexspBeats    = map[config.LogType]string{
+		config.LogTypeApacheModule:        `"type":"apache"|"module":"apache"`,
+		config.LogTypeLinuxAuditdModule:   `"type":"auditd"|"module":"auditd"`,
+		config.LogTypeElasticsearchModule: `"type":"elasticsearch"|"module":"elasticsearch"`,
+		config.LogTypeKafkaModule:         `"type":"kafka"|"module":"kafka"`,
+		config.LogTypeKibanaModule:        `"type":"kibana"|"module":"kibana"`,
+		config.LogTypeLogstashModule:      `"type":"logstash"|"module":"logstash"`,
+		config.LogTypeMongodbModule:       `"type":"mongodb"|"module":"mongodb"`,
+		config.LogTypeMysqlModule:         `"type":"mysql"|"module":"mysql"`,
+		config.LogTypeNginxModule:         `"type":"nginx"|"module":"nginx"`,
+		config.LogTypeOsqueryModule:       `"type":"osquery"|"module":"osquery"`,
+		config.LogTypePostgresqlModule:    `"type":"postgresql"|"module":"postgresql"`,
+		config.LogTypeRedisModule:         `"type":"redis"|"module":"redis"`,
+		config.LogTypeLinuxAgent:          `"type":"system"|"module":"system"`,
+		config.LogTypeIisModule:           `"type":"iis"|"module":"iis"`,
+		config.LogTypeTraefikModule:       `"type":"traefik"|"module":"traefik"`,
+		config.LogTypeNatsModule:          `"type":"nats"|"module":"nats"`,
+		config.LogTypeHaproxyModule:       `"type":"haproxy"|"module":"haproxy"`,
 	}
 )
 
@@ -43,7 +43,7 @@ func GetBeatsParser() *BeatsParser {
 	return &beatsParser
 }
 
-func (p *BeatsParser) IdentifySource(log string) (configuration.LogType, error) {
+func (p *BeatsParser) IdentifySource(log string) (config.LogType, error) {
 	for logType, regp := range RegexspBeats {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
@@ -53,10 +53,10 @@ func (p *BeatsParser) IdentifySource(log string) (configuration.LogType, error) 
 			return logType, nil
 		}
 	}
-	return configuration.LogTypeGeneric, nil
+	return config.LogTypeGeneric, nil
 }
 
-func (p *BeatsParser) ProcessData(logBatch interface{}, h *logger.Logger) (map[string][]string, error) {
+func (p *BeatsParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
 	classifiedLogs := make(map[string][]string)
 	batch, ok := logBatch.([]string)
 	if !ok {
@@ -69,7 +69,7 @@ func (p *BeatsParser) ProcessData(logBatch interface{}, h *logger.Logger) (map[s
 			if logType != "" {
 				validatedLog, _, err := validations.ValidateString(log, false)
 				if err != nil {
-					h.ErrorF("error validating log: %s: %v", log, err)
+					utils.Logger.ErrorF("error validating log: %s: %v", log, err)
 					continue
 				}
 				classifiedLogs[string(logType)] = append(classifiedLogs[string(logType)], validatedLog)

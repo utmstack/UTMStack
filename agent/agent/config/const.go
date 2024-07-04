@@ -1,4 +1,4 @@
-package configuration
+package config
 
 import (
 	"fmt"
@@ -25,11 +25,11 @@ const (
 	WinServName          = "UTMStackWindowsLogsCollector"
 	ModulesLockName      = "utmstack_modules_collector.lock"
 	WinLockName          = "utmstack_windows_collector.lock"
-	RedlineLockName      = "utmstack_redline.lock"
-	RedlineServName      = "UTMStackRedline"
 	CollectorFileName    = "log-collector-configuration.json"
 	CollectorFileNameOld = "log-collector-config.json"
 	UUIDFileName         = "uuid.yml"
+	DEPEND_ZIP_LABEL     = "depend_zip"
+	DEPEND_SERVICE_LABEL = "service"
 	MESSAGE_HEADER       = "utm_stack_agent_ds"
 	BatchToSend          = 5
 	PortRangeMin         = "7000"
@@ -183,14 +183,14 @@ func GetDependenPaths() []string {
 func GetDownloadFilePath(typ string, subfix string) string {
 	path := utils.GetMyPath()
 	switch typ {
-	case "service":
+	case DEPEND_SERVICE_LABEL:
 		switch runtime.GOOS {
 		case "windows":
 			return filepath.Join(path, fmt.Sprintf("utmstack_agent_service%s.exe", subfix))
 		case "linux":
 			return filepath.Join(path, fmt.Sprintf("utmstack_agent_service%s", subfix))
 		}
-	case "dependencies":
+	case DEPEND_ZIP_LABEL:
 		return filepath.Join(path, "dependencies.zip")
 	}
 	return ""

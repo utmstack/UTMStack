@@ -2,18 +2,18 @@ package serv
 
 import (
 	"github.com/kardianos/service"
-	"github.com/threatwinds/logger"
+	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
-func RunService(h *logger.Logger) {
+func RunService() {
 	svcConfig := GetConfigServ()
 	prg := new(program)
 	newService, err := service.New(prg, svcConfig)
 	if err != nil {
-		h.Fatal("error creating new service: %v", err)
+		utils.Logger.Fatal("error creating new service: %v", err)
 	}
 	err = newService.Run()
 	if err != nil {
-		h.Fatal("error running new service: %v", err)
+		utils.Logger.Fatal("error running new service: %v", err)
 	}
 }
