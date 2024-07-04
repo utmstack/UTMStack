@@ -41,12 +41,8 @@
                 <constraints nullable="true"/>
             </column>
 
-            <column name="rule_variables_def" type="text">
+            <column name="rule_definition_def" type="text">
                 <constraints nullable="true"/>
-            </column>
-
-            <column name="rule_expression" type="text">
-                <constraints nullable="false"/>
             </column>
 
             <column name="rule_last_update" type="datetime">

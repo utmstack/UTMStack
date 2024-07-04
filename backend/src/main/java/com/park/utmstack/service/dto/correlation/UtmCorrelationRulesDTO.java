@@ -1,8 +1,12 @@
-package com.park.utmstack.service.correlation.rules.dto;
+package com.park.utmstack.service.dto.correlation;
 
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
-import com.park.utmstack.domain.correlation.config.UtmVariable;
+import com.park.utmstack.domain.correlation.rules.RuleDefinition;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -12,17 +16,27 @@ public class UtmCorrelationRulesDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    @NotBlank
     private String name;
+    @Min(value = 0)
+    @Max(value = 3)
     private Integer confidentiality;
+    @Min(value = 0)
+    @Max(value = 3)
     private Integer integrity;
+    @Min(value = 0)
+    @Max(value = 3)
     private Integer availability;
+    @NotBlank
     private String category;
+    @NotBlank
     private String technique;
     private String description;
     private List<String>references;
-    private String expression;
+    @NotEmpty
     private Set<UtmDataTypes> dataTypes;
-    private List<UtmVariable> variables;
+    private RuleDefinition definition;
+    private Boolean systemOwner;
 
     public Long getId() {
         return id;
@@ -96,14 +110,6 @@ public class UtmCorrelationRulesDTO implements Serializable {
         this.references = rReferences;
     }
 
-    public String getExpression() {
-        return expression;
-    }
-
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
-
     public Set<UtmDataTypes> getDataTypes() {
         return dataTypes;
     }
@@ -112,12 +118,20 @@ public class UtmCorrelationRulesDTO implements Serializable {
         this.dataTypes = dataTypes;
     }
 
-    public List<UtmVariable> getVariables() {
-        return variables;
+    public RuleDefinition getDefinition() {
+        return definition;
     }
 
-    public void setVariables(List<UtmVariable> variables) {
-        this.variables = variables;
+    public void setDefinition(RuleDefinition definition) {
+        this.definition = definition;
+    }
+
+    public Boolean getSystemOwner() {
+        return systemOwner;
+    }
+
+    public void setSystemOwner(Boolean systemOwner) {
+        this.systemOwner = systemOwner;
     }
 }
 

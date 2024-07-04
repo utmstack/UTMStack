@@ -1,7 +1,6 @@
-package com.park.utmstack.service.correlation.rules.dto;
+package com.park.utmstack.service.dto.correlation;
 
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
-import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.util.exceptions.UtmSerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +28,9 @@ public class UtmCorrelationRulesMapper {
             dto.setTechnique(entity.getRuleTechnique());
             dto.setDescription(entity.getRuleDescription());
             dto.setReferences(entity.getRuleReferences());
-            dto.setVariables(entity.getRuleVariables());
-            dto.setExpression(entity.getRuleExpression());
+            dto.setDefinition(entity.getRuleDefinition());
             dto.setDataTypes(entity.getDataTypes());
+            dto.setSystemOwner(entity.getSystemOwner());
             return dto;
         } catch (UtmSerializationException e) {
             logger.error("Error serializing rule references", e);
@@ -51,12 +50,11 @@ public class UtmCorrelationRulesMapper {
             entity.setRuleTechnique(dto.getTechnique());
             entity.setRuleDescription(dto.getDescription());
             entity.setRuleReferences(dto.getReferences());
-            entity.setRuleExpression(dto.getExpression());
+            entity.setRuleDefinition(dto.getDefinition());
             entity.setDataTypes(dto.getDataTypes());
             entity.setRuleActive(false);
             entity.setSystemOwner(false);
             entity.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
-            entity.setRuleVariables(dto.getVariables());
 
             return entity;
         } catch (UtmSerializationException e) {
