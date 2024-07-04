@@ -12,10 +12,7 @@ import (
 
 func SentLog(msg string) error {
 	// Get current path
-	path, err := GetMyPath()
-	if err != nil {
-		return fmt.Errorf("failed to get current path: %v", err)
-	}
+	path := GetMyPath()
 	switch runtime.GOOS {
 	case "windows":
 		err := Execute("eventcreate", path, "/T", "INFORMATION", "/ID", "1000", "/SO", "UTMStackAgent", "/D", msg)

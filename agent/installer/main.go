@@ -1,32 +1,20 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/utmstack/UTMStack/agent/runner/checkversion"
-	"github.com/utmstack/UTMStack/agent/runner/configuration"
-	"github.com/utmstack/UTMStack/agent/runner/depend"
-	"github.com/utmstack/UTMStack/agent/runner/services"
-	"github.com/utmstack/UTMStack/agent/runner/utils"
+	"github.com/utmstack/UTMStack/agent/installer/config"
+	"github.com/utmstack/UTMStack/agent/installer/updates"
+	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
 func main() {
-	beautyLogger := utils.GetBeautyLogger()
-	beautyLogger.PrintBanner()
-
-	path, err := utils.GetMyPath()
-	if err != nil {
-		beautyLogger.WriteError("failed to get current path", err)
-		log.Fatalf("Failed to get current path: %v", err)
-	}
-
-	servBins := depend.GetServicesBins()
-
-	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.INSTALLER_LOG_FILE))
+	path := utils.GetMyPath()
+	utils.InitBeautyLogger("UTMStack Agent Installer", filepath.Join(utils.GetMyPath(), "logs", config.INSTALLER_LOG_FILE))
+	utils.Logger.PrintBanner()
 
 	if len(os.Args) > 1 {
 		mode := os.Args[1]
@@ -35,86 +23,66 @@ func main() {
 			ip, utmKey, skip := os.Args[2], os.Args[3], os.Args[4]
 
 			if strings.Count(utmKey, "*") == len(utmKey) {
-				beautyLogger.WriteError("The connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.", nil)
-				h.Fatal("The connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.")
+				utils.Logger.WriteFatal("the connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.")
 			}
 
-			beautyLogger.WriteSimpleMessage("Installing UTMStack Agent...")
-			if !utils.IsPortOpen(ip, configuration.AgentManagerPort) || !utils.IsPortOpen(ip, configuration.LogAuthProxyPort) {
-				beautyLogger.WriteError("one or more of the requiered ports are closed. Please open ports 9000 and 50051.", nil)
-				h.Fatal("Error installing the UTMStack Agent: one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
+			utils.Logger.WriteSimpleMessage("Installing UTMStack Agent...")
+			if !utils.IsPortOpen(ip, config.AgentManagerPort) || !utils.IsPortOpen(ip, config.LogAuthProxyPort) {
+				utils.Logger.WriteFatal("one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
 			}
 
-			err := utils.CreatePathIfNotExist(filepath.Join(path, "locks"))
+			certsPath := filepath.Join(path, "certs")
+			err := utils.CreatePathIfNotExist(certsPath)
 			if err != nil {
-				beautyLogger.WriteError("error creating locks path", err)
-				h.Fatal("error creating locks path: %v", err)
+				utils.Logger.WriteFatal("error creating path: %s", err)
 			}
 
-			err = utils.SetLock(filepath.Join(path, "locks", "setup.lock"))
+			err = utils.GenerateCerts(certsPath)
 			if err != nil {
-				beautyLogger.WriteError("error setting setup.lock", err)
-				h.Fatal("error setting setup.lock: %v", err)
+				utils.Logger.WriteFatal("error generating certificates: %s", err)
 			}
 
-			err = checkversion.CleanOldVersions(h)
+			utils.Logger.WriteSimpleMessage("Downloading UTMStack dependencies...")
+			err = updates.DownloadDependencies(ip, utmKey)
 			if err != nil {
-				beautyLogger.WriteError("error cleaning old versions", err)
-				h.Fatal("error cleaning old versions: %v", err)
+				utils.Logger.WriteFatal("error downloading dependencies", err)
 			}
+			utils.Logger.WriteSuccessfull("UTMStack dependencies downloaded correctly.")
 
-			beautyLogger.WriteSimpleMessage("Downloading UTMStack dependencies...")
-			err = depend.DownloadDependencies(servBins, ip, skip)
+			utils.Logger.WriteSimpleMessage("Installing service...")
+			err = config.ConfigureService(ip, utmKey, skip, "install")
 			if err != nil {
-				beautyLogger.WriteError("error downloading dependencies", err)
-				h.Fatal("error downloading dependencies: %v", err)
-			}
-			beautyLogger.WriteSuccessfull("UTMStack dependencies downloaded correctly.")
-
-			beautyLogger.WriteSimpleMessage("Installing services...")
-			err = services.ConfigureServices(servBins, ip, utmKey, skip, "install")
-			if err != nil {
-				beautyLogger.WriteError("error installing UTMStack services", err)
-				h.Fatal("error installing UTMStack services: %v", err)
+				utils.Logger.WriteFatal("error installing UTMStack service", err)
 			}
 
-			err = utils.RemoveLock(filepath.Join(path, "locks", "setup.lock"))
-			if err != nil {
-				beautyLogger.WriteError("error removing setup.lock", err)
-				h.Fatal("error removing setup.lock: %v", err)
-			}
-
-			beautyLogger.WriteSuccessfull("Services installed correctly")
-			beautyLogger.WriteSuccessfull("UTMStack Agent installed correctly.")
+			utils.Logger.WriteSuccessfull("Service installed correctly")
+			utils.Logger.WriteSuccessfull("UTMStack Agent installed correctly.")
 
 			time.Sleep(5 * time.Second)
 			os.Exit(0)
 
 		case "uninstall":
-			beautyLogger.WriteSimpleMessage("Uninstalling UTMStack Agent...")
+			utils.Logger.WriteSimpleMessage("Uninstalling UTMStack Agent...")
 
 			if isInstalled, err := utils.CheckIfServiceIsInstalled("UTMStackAgent"); err != nil {
-				beautyLogger.WriteError("error checking UTMStackAgent service", err)
-				h.Fatal("error checking UTMStackAgent service: %v", err)
+				utils.Logger.WriteFatal("error checking UTMStackAgent service", err)
 			} else if isInstalled {
-				beautyLogger.WriteSimpleMessage("Uninstalling UTMStack services...")
-				err = services.ConfigureServices(servBins, "", "", "", "uninstall")
+				utils.Logger.WriteSimpleMessage("Uninstalling UTMStack service...")
+				err = config.ConfigureService("", "", "", "uninstall")
 				if err != nil {
-					beautyLogger.WriteError("error uninstalling UTMStack services", err)
-					h.Fatal("error uninstalling UTMStack services: %v", err)
+					utils.Logger.WriteFatal("error uninstalling UTMStack service", err)
 				}
 
-				beautyLogger.WriteSuccessfull("UTMStack services uninstalled correctly.")
+				utils.Logger.WriteSuccessfull("UTMStack service uninstalled correctly.")
 				time.Sleep(5 * time.Second)
 				os.Exit(0)
 
 			} else {
-				beautyLogger.WriteError("UTMStackAgent not installed", nil)
-				h.Fatal("UTMStackAgent not installed")
+				utils.Logger.WriteFatal("UTMStackAgent not installed", nil)
 			}
 
 		default:
-			beautyLogger.WriteError("unknown option", nil)
+			utils.Logger.WriteError("unknown option", nil)
 		}
 	}
 }

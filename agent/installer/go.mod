@@ -1,11 +1,10 @@
-module github.com/utmstack/UTMStack/agent/runner
+module github.com/utmstack/UTMStack/agent/installer
 
 go 1.21.1
 
 require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/threatwinds/logger v1.1.9
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -19,6 +18,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.19.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect

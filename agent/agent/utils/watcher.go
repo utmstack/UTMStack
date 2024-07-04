@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"regexp"
 	"time"
-
-	"github.com/threatwinds/logger"
 )
 
 const maxBatchWait = 5 * time.Second
 
-func TailLogFile(filePath string, logLinesChan chan []string, stopChan chan bool, batchCapacity int, h *logger.Logger) {
+func TailLogFile(filePath string, logLinesChan chan []string, stopChan chan bool, batchCapacity int) {
 	latestline := "null"
 	batch := make([]string, 0, batchCapacity)
 	ticker := time.NewTicker(maxBatchWait)
@@ -32,7 +30,7 @@ loop:
 		default:
 			lines, err := ReadFileLines(filePath)
 			if err != nil {
-				h.Info("error reading file %s: %v\n", filePath, err)
+				Logger.Info("error reading file %s: %v\n", filePath, err)
 				continue
 			}
 			if len(lines) <= 1 {
@@ -64,7 +62,7 @@ loop:
 	}
 }
 
-func WatchFolder(logType string, logsPath string, logLinesChan chan []string, batchCapacity int, h *logger.Logger) {
+func WatchFolder(logType string, logsPath string, logLinesChan chan []string, batchCapacity int) {
 	stopChan := make(chan bool)
 	latestLog := ""
 	pattern := regexp.MustCompile(fmt.Sprintf(`%s-(\d+)(?:-(\d+))?\.ndjson`, logType))
@@ -74,13 +72,13 @@ func WatchFolder(logType string, logsPath string, logLinesChan chan []string, ba
 	for range ticker.C {
 		isEmpty, err := IsDirEmpty(logsPath)
 		if err != nil {
-			h.Info("error checking if %s is empty: %v\n", logsPath, err)
+			Logger.Info("error checking if %s is empty: %v\n", logsPath, err)
 			continue
 		}
 		if !isEmpty {
 			newLatestLog, err := FindLatestLog(logsPath, pattern)
 			if err != nil {
-				h.Info("error getting latest log name: %v", err)
+				Logger.Info("error getting latest log name: %v", err)
 				continue
 			}
 			if newLatestLog != latestLog && newLatestLog != "" {
@@ -88,7 +86,7 @@ func WatchFolder(logType string, logsPath string, logLinesChan chan []string, ba
 					stopChan <- true
 				}
 				latestLog = newLatestLog
-				go TailLogFile(latestLog, logLinesChan, stopChan, batchCapacity, h)
+				go TailLogFile(latestLog, logLinesChan, stopChan, batchCapacity)
 			}
 		}
 	}

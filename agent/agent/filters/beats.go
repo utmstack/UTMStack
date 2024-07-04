@@ -3,30 +3,30 @@ package filters
 import (
 	"regexp"
 
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
-var RegexspBeats = map[configuration.LogType]string{
-	configuration.LogTypeApacheModule:        `"type":"apache"|"module":"apache"`,
-	configuration.LogTypeLinuxAuditdModule:   `"type":"auditd"|"module":"auditd"`,
-	configuration.LogTypeElasticsearchModule: `"type":"elasticsearch"|"module":"elasticsearch"`,
-	configuration.LogTypeKafkaModule:         `"type":"kafka"|"module":"kafka"`,
-	configuration.LogTypeKibanaModule:        `"type":"kibana"|"module":"kibana"`,
-	configuration.LogTypeLogstashModule:      `"type":"logstash"|"module":"logstash"`,
-	configuration.LogTypeMongodbModule:       `"type":"mongodb"|"module":"mongodb"`,
-	configuration.LogTypeMysqlModule:         `"type":"mysql"|"module":"mysql"`,
-	configuration.LogTypeNginxModule:         `"type":"nginx"|"module":"nginx"`,
-	configuration.LogTypeOsqueryModule:       `"type":"osquery"|"module":"osquery"`,
-	configuration.LogTypePostgresqlModule:    `"type":"postgresql"|"module":"postgresql"`,
-	configuration.LogTypeRedisModule:         `"type":"redis"|"module":"redis"`,
-	configuration.LogTypeLinuxAgent:          `"type":"system"|"module":"system"`,
-	configuration.LogTypeIisModule:           `"type":"iis"|"module":"iis"`,
-	configuration.LogTypeTraefikModule:       `"type":"traefik"|"module":"traefik"`,
-	configuration.LogTypeNatsModule:          `"type":"nats"|"module":"nats"`,
-	configuration.LogTypeHaproxyModule:       `"type":"haproxy"|"module":"haproxy"`,
+var RegexspBeats = map[config.LogType]string{
+	config.LogTypeApacheModule:        `"type":"apache"|"module":"apache"`,
+	config.LogTypeLinuxAuditdModule:   `"type":"auditd"|"module":"auditd"`,
+	config.LogTypeElasticsearchModule: `"type":"elasticsearch"|"module":"elasticsearch"`,
+	config.LogTypeKafkaModule:         `"type":"kafka"|"module":"kafka"`,
+	config.LogTypeKibanaModule:        `"type":"kibana"|"module":"kibana"`,
+	config.LogTypeLogstashModule:      `"type":"logstash"|"module":"logstash"`,
+	config.LogTypeMongodbModule:       `"type":"mongodb"|"module":"mongodb"`,
+	config.LogTypeMysqlModule:         `"type":"mysql"|"module":"mysql"`,
+	config.LogTypeNginxModule:         `"type":"nginx"|"module":"nginx"`,
+	config.LogTypeOsqueryModule:       `"type":"osquery"|"module":"osquery"`,
+	config.LogTypePostgresqlModule:    `"type":"postgresql"|"module":"postgresql"`,
+	config.LogTypeRedisModule:         `"type":"redis"|"module":"redis"`,
+	config.LogTypeLinuxAgent:          `"type":"system"|"module":"system"`,
+	config.LogTypeIisModule:           `"type":"iis"|"module":"iis"`,
+	config.LogTypeTraefikModule:       `"type":"traefik"|"module":"traefik"`,
+	config.LogTypeNatsModule:          `"type":"nats"|"module":"nats"`,
+	config.LogTypeHaproxyModule:       `"type":"haproxy"|"module":"haproxy"`,
 }
 
-func indentifyBeatLogSource(log string) (configuration.LogType, error) {
+func indentifyBeatLogSource(log string) (config.LogType, error) {
 	for logType, regp := range RegexspBeats {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
@@ -36,7 +36,7 @@ func indentifyBeatLogSource(log string) (configuration.LogType, error) {
 			return logType, nil
 		}
 	}
-	return configuration.LogTypeGeneric, nil
+	return config.LogTypeGeneric, nil
 }
 
 func ProcessBeatData(logBatch []string) (map[string][]string, error) {

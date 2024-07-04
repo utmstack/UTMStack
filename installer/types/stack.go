@@ -15,6 +15,7 @@ type StackConfig struct {
 	ESData              string
 	ESBackups           string
 	Cert                string
+	AgentManager        string
 	Datasources         string
 	EventsEngineWorkdir string
 	LocksDir            string
@@ -35,6 +36,7 @@ func (s *StackConfig) Populate(c *Config) error {
 
 	s.Threads = cores
 	s.Cert = utils.MakeDir(0777, c.DataDir, "cert")
+	s.AgentManager = utils.MakeDir(0777, c.DataDir, "agent_manager")
 	s.FrontEndNginx = utils.MakeDir(0777, c.DataDir, "front-end", "nginx")
 	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
 	s.EventsEngineWorkdir = utils.MakeDir(0777, c.DataDir, "events-engine-workdir")
@@ -44,6 +46,10 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
 	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
 	s.ShmFolder = utils.MakeDir(0777, c.DataDir, "tmpfs")
+
+	if err = c.SetModulesConfig(); err != nil {
+		return err
+	}
 
 	services := []utils.ServiceConfig{
 		{Name: "correlation", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},

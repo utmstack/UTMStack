@@ -6,15 +6,10 @@ import (
 	"strings"
 )
 
-// CheckIfServiceIsActive checks if a service is active or running
 func CheckIfServiceIsActive(serv string) (bool, error) {
 	var errB bool
 	var output string
-
-	path, err := GetMyPath()
-	if err != nil {
-		return false, fmt.Errorf("error getting current path: %v", err)
-	}
+	path := GetMyPath()
 
 	switch runtime.GOOS {
 	case "windows":
@@ -39,13 +34,8 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 	return false, fmt.Errorf("unsupported operating system")
 }
 
-// RestartService restarts a service
 func RestartService(serv string) error {
-	path, err := GetMyPath()
-	if err != nil {
-		return fmt.Errorf("error getting current path: %v", err)
-	}
-
+	path := GetMyPath()
 	isRunning, err := CheckIfServiceIsActive(serv)
 	if err != nil {
 		return fmt.Errorf("error checking if %s service is active: %v", serv, err)
@@ -81,10 +71,7 @@ func RestartService(serv string) error {
 }
 
 func StopService(name string) error {
-	path, err := GetMyPath()
-	if err != nil {
-		return err
-	}
+	path := GetMyPath()
 	switch runtime.GOOS {
 	case "windows":
 		err := Execute("sc", path, "stop", name)

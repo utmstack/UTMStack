@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -30,7 +30,7 @@ func (s *AgentGroupService) DeleteGroup(id uint) (uint, error) {
 }
 
 // ListAgentsGroups retrieves a paginated list of agents based on the provided search criteria.
-func (s *AgentGroupService) ListAgentsGroups(p util.Pagination, f []util.Filter) ([]models.AgentGroup, int64, error) {
+func (s *AgentGroupService) ListAgentsGroups(p utils.Pagination, f []utils.Filter) ([]models.AgentGroup, int64, error) {
 	agents, totalCount, err := s.repo.GetByFilter(p, f)
 	if err != nil {
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve agents: %v", err)

@@ -3,8 +3,8 @@ package modules
 import (
 	"time"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 const (
@@ -24,26 +24,26 @@ type Module interface {
 	DisablePort(proto string)
 }
 
-func GetModule(typ configuration.LogType, h *logger.Logger) Module {
-	switch configuration.ValidateModuleType(typ) {
+func GetModule(typ config.LogType) Module {
+	switch config.ValidateModuleType(typ) {
 	case "syslog":
-		return GetSyslogModule(string(typ), configuration.ProtoPorts[typ], h)
+		return GetSyslogModule(string(typ), config.ProtoPorts[typ])
 	case "netflow":
-		return GetNetflowModule(h)
+		return GetNetflowModule()
 	default:
 		return nil
 	}
 }
 
-func ModulesUp(h *logger.Logger) {
+func ModulesUp() {
 	for {
 		time.Sleep(delayCheckSyslogCnfig)
 		logCollectorConfig, err := ReadCollectorConfig()
 		if err != nil {
-			h.Fatal("error reading collector configuration: %v", err)
+			utils.Logger.Fatal("error reading collector config: %v", err)
 		}
 
-		for intType, config := range logCollectorConfig.Integrations {
+		for intType, cnf := range logCollectorConfig.Integrations {
 			index := -1
 			for i, mod := range moCache {
 				if mod.GetDataType() == intType {
@@ -53,14 +53,14 @@ func ModulesUp(h *logger.Logger) {
 			}
 
 			if index == -1 {
-				newModule := GetModule(configuration.LogType(intType), h)
+				newModule := GetModule(config.LogType(intType))
 				moCache = append(moCache, newModule)
 				index = len(moCache) - 1
 			}
 
-			configs, err := processConfigs(moCache[index], config)
+			configs, err := processConfigs(moCache[index], cnf)
 			if err != nil {
-				h.ErrorF("error processing configs: %v", err)
+				utils.Logger.ErrorF("error processing configs: %v", err)
 				continue
 			}
 
@@ -70,13 +70,13 @@ func ModulesUp(h *logger.Logger) {
 
 				switch proto {
 				case "tcp":
-					port = config.TCP.Port
+					port = cnf.TCP.Port
 				case "udp":
-					port = config.UDP.Port
+					port = cnf.UDP.Port
 				}
 
 				if port != "" && moCache[index].GetPort(proto) != port {
-					changeAllowed = ValidateChangeInPort(port, configuration.LogType(intType))
+					changeAllowed = ValidateChangeInPort(port, config.LogType(intType))
 				}
 				if conf[0] {
 					moCache[index].DisablePort(proto)
@@ -87,10 +87,10 @@ func ModulesUp(h *logger.Logger) {
 						moCache[index].EnablePort(proto)
 					}
 				} else {
-					h.Info("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, intType, configuration.PortRangeMin, configuration.PortRangeMax)
-					err := WriteCollectorConfigFromModules(moCache, configuration.GetCollectorConfigPath())
+					utils.Logger.Info("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, intType, config.PortRangeMin, config.PortRangeMax)
+					err := WriteCollectorConfigFromModules(moCache, config.GetCollectorConfigPath())
 					if err != nil {
-						h.ErrorF("error fixing collector configuration: %v", err)
+						utils.Logger.ErrorF("error fixing collector config: %v", err)
 						continue
 					}
 				}
@@ -131,11 +131,11 @@ func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 }
 
 // Return true if the port change is allowed
-func ValidateChangeInPort(newPort string, dataType configuration.LogType) bool {
-	for _, logType := range configuration.ProhibitedPortsChange {
+func ValidateChangeInPort(newPort string, dataType config.LogType) bool {
+	for _, logType := range config.ProhibitedPortsChange {
 		if logType == dataType {
 			return false
 		}
 	}
-	return configuration.PortRangeMin <= newPort && newPort <= configuration.PortRangeMax
+	return config.PortRangeMin <= newPort && newPort <= config.PortRangeMax
 }

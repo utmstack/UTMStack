@@ -7,7 +7,7 @@ import (
 
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 type LastSeenService struct {
@@ -29,11 +29,10 @@ func NewLastSeenService() *LastSeenService {
 }
 
 func (s *LastSeenService) Start() {
-	h := util.GetLogger()
 	// Populate cache from the database
 	pings, err := s.repo.GetAll()
 	if err != nil {
-		h.ErrorF("Failed to populate LastSeen cache: %v", err)
+		utils.ALogger.ErrorF("failed to populate LastSeen cache: %v", err)
 	} else {
 		s.Populate(pings)
 	}
@@ -67,14 +66,13 @@ func (s *LastSeenService) flushCacheToDB() error {
 }
 
 func (s *LastSeenService) flushCachePeriodically() {
-	h := util.GetLogger()
 	for {
 		select {
 		case <-s.ticker.C:
 			// Flush the cache to the database
 			err := s.flushCacheToDB()
 			if err != nil {
-				h.ErrorF("Failed to flush LastSeen cache to database: %v", err)
+				utils.ALogger.ErrorF("failed to flush LastSeen cache to database: %v", err)
 			}
 		case <-s.stopCh:
 			return

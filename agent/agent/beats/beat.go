@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 type BeatConfig struct {
@@ -15,7 +15,7 @@ type BeatConfig struct {
 
 type Beat interface {
 	Install() error
-	SendSystemLogs(h *logger.Logger)
+	SendSystemLogs()
 	Uninstall() error
 }
 
@@ -32,7 +32,7 @@ func getBeatsInstances() []Beat {
 	return beatsInstance
 }
 
-func InstallBeats(cnf configuration.Config, h *logger.Logger) error {
+func InstallBeats(cnf config.Config) error {
 	beatsInstances := getBeatsInstances()
 
 	for _, beat := range beatsInstances {
@@ -42,19 +42,19 @@ func InstallBeats(cnf configuration.Config, h *logger.Logger) error {
 		}
 	}
 
-	h.Info("beats installed correctly")
+	utils.Logger.Info("beats installed correctly")
 
 	return nil
 }
 
-func BeatsLogsReader(h *logger.Logger) {
+func BeatsLogsReader() {
 	beatsInstances := getBeatsInstances()
 	for _, beat := range beatsInstances {
-		go beat.SendSystemLogs(h)
+		go beat.SendSystemLogs()
 	}
 }
 
-func UninstallBeats(h *logger.Logger) error {
+func UninstallBeats() error {
 	beatsInstances := getBeatsInstances()
 
 	for _, beat := range beatsInstances {
@@ -64,6 +64,6 @@ func UninstallBeats(h *logger.Logger) error {
 		}
 	}
 
-	h.Info("beats uninstalled correctly")
+	utils.Logger.Info("beats uninstalled correctly")
 	return nil
 }

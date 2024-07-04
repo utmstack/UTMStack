@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"time"
+)
 
 func KeyAuthRoutes() []string {
 	return []string{
@@ -40,11 +43,31 @@ func InternalKeyRoutes() []string {
 	}
 }
 
-const PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
-const UTMSharedKeyEnv = "INTERNAL_KEY"
-const UTMEncryptionKeyEnv = "ENCRYPTION_KEY"
-const UTMHostEnv = "UTM_HOST"
+const (
+	PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
+	UTMSharedKeyEnv       = "INTERNAL_KEY"
+	UTMEncryptionKeyEnv   = "ENCRYPTION_KEY"
+	UTMPanelServiceEnv    = "PANEL_SERV_NAME"
+	UTMHostEnv            = "UTM_HOST"
+	MASTERVERSIONENDPOINT = "/management/info"
+	Bucket                = "https://cdn.utmstack.com/"
+	VOLPATH               = "/data"
+	VersionsFile          = "version.json"
+	CHECK_EVERY           = 5 * time.Minute
+	DependInstallerLabel  = "installer"
+	DependServiceLabel    = "service"
+	DependZipLabel        = "depend_zip"
+)
+
+var (
+	DependOsAllows = []string{"windows", "linux"}
+	DependTypes    = []string{DependInstallerLabel, DependServiceLabel, DependZipLabel}
+)
 
 func GetInternalKey() string {
 	return os.Getenv(UTMSharedKeyEnv)
+}
+
+func GetPanelServiceName() string {
+	return os.Getenv(UTMPanelServiceEnv)
 }

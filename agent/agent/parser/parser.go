@@ -1,9 +1,7 @@
 package parser
 
-import "github.com/threatwinds/logger"
-
 type Parser interface {
-	ProcessData(logBatch interface{}, h *logger.Logger) (map[string][]string, error)
+	ProcessData(logBatch interface{}) (map[string][]string, error)
 }
 
 func GetParser(typ string) Parser {

@@ -12,10 +12,7 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 	var errB bool
 	var output string
 
-	path, err := GetMyPath()
-	if err != nil {
-		return false, fmt.Errorf("error getting current path: %v", err)
-	}
+	path := GetMyPath()
 
 	switch runtime.GOOS {
 	case "windows":
@@ -42,10 +39,7 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 
 // RestartService restarts a service
 func RestartService(serv string) error {
-	path, err := GetMyPath()
-	if err != nil {
-		return fmt.Errorf("error getting current path: %v", err)
-	}
+	path := GetMyPath()
 
 	isRunning, err := CheckIfServiceIsActive(serv)
 	if err != nil {
@@ -82,10 +76,7 @@ func RestartService(serv string) error {
 }
 
 func StopService(name string) error {
-	path, err := GetMyPath()
-	if err != nil {
-		return err
-	}
+	path := GetMyPath()
 	switch runtime.GOOS {
 	case "windows":
 		err := Execute("sc", path, "stop", name)
@@ -102,10 +93,7 @@ func StopService(name string) error {
 }
 
 func UninstallService(name string) error {
-	path, err := GetMyPath()
-	if err != nil {
-		return err
-	}
+	path := GetMyPath()
 	switch runtime.GOOS {
 	case "windows":
 		err := Execute("sc", path, "delete", name)
@@ -127,10 +115,8 @@ func UninstallService(name string) error {
 
 // CheckIfServiceIsInstalled checks if a service is installed
 func CheckIfServiceIsInstalled(serv string) (bool, error) {
-	path, err := GetMyPath()
-	if err != nil {
-		return false, err
-	}
+	path := GetMyPath()
+	var err error
 	switch runtime.GOOS {
 	case "windows":
 		err = Execute("sc", path, "query", serv)

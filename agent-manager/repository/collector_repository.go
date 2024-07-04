@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"gorm.io/gorm"
 )
 
@@ -84,7 +84,7 @@ func (r *CollectorRepository) GetByKey(key uuid.UUID) (*models.Collector, error)
 	for i, group := range collector.Groups {
 		for j, config := range group.Configurations {
 			if config.ConfDataType == "password" {
-				decrypted, err := util.DecryptValue(config.ConfValue)
+				decrypted, err := utils.DecryptValue(config.ConfValue)
 				if err != nil {
 					return nil, err
 				}
@@ -141,12 +141,12 @@ func (r *CollectorRepository) DeleteConfigsByGroupID(groupID uint) error {
 }
 
 // GetCollectorByFilter returns a paginated list of collectors filtered by search query and sorted by provided fields
-func (r *CollectorRepository) GetCollectorByFilter(p util.Pagination, f []util.Filter) ([]models.Collector, int64, error) {
+func (r *CollectorRepository) GetCollectorByFilter(p utils.Pagination, f []utils.Filter) ([]models.Collector, int64, error) {
 	var collectors []models.Collector
 	var count int64
 	db := r.db
 	tx := db.Model(models.Collector{}).
-		Scopes(util.FilterScope(f)).
+		Scopes(utils.FilterScope(f)).
 		Count(&count).
 		Scopes(p.PagingScope).
 		Preload("Groups").
@@ -180,7 +180,7 @@ func (r *CollectorRepository) UpdateCollectorConfig(groups []models.CollectorCon
 		for _, groupConfig := range group.Configurations {
 			groupConfig.ConfigGroupID = group.ID
 			if groupConfig.ConfDataType == "password" {
-				secret, _ := util.EncryptValue(groupConfig.ConfValue)
+				secret, _ := utils.EncryptValue(groupConfig.ConfValue)
 				groupConfig.ConfValue = secret
 			}
 			if err := r.db.Save(&groupConfig).Error; err != nil {

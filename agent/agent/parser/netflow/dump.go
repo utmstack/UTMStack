@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
 func Dump(metrics []Metric, remote string) []string {
@@ -23,7 +23,7 @@ func Dump(metrics []Metric, remote string) []string {
 			header := field.Tag.Get("header")
 			kvPairs = append(kvPairs, fmt.Sprintf("%s=\"%v\"", header, value))
 		}
-		allKVPairs = append(allKVPairs, configuration.GetMessageFormated(remote, strings.Join(kvPairs, " ")))
+		allKVPairs = append(allKVPairs, config.GetMessageFormated(remote, strings.Join(kvPairs, " ")))
 	}
 	return allKVPairs
 }

@@ -2,31 +2,26 @@ package update
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
-	"runtime"
 
-	"github.com/utmstack/UTMStack/agent/self/configuration"
+	"github.com/utmstack/UTMStack/agent/self/config"
 	"github.com/utmstack/UTMStack/agent/self/utils"
 )
 
-func UpdateUpdaterService(version, env string) error {
-	path, err := utils.GetMyPath()
+func UpdateService() error {
+	path := utils.GetMyPath()
+
+	newbin := config.GetAgentBin("new")
+	oldbin := config.GetAgentBin("old")
+	err := os.Remove(filepath.Join(path, oldbin))
 	if err != nil {
-		return fmt.Errorf("failed to get current path: %v", err)
+		return fmt.Errorf("error removing old %s: %v", oldbin, err)
 	}
 
-	// Download new bin
-	bin := configuration.GetUpdaterBin()
-	url := configuration.Bucket + env + "/updater_service/v" + version + "/" + bin + "?time=" + utils.GetCurrentTime()
-	err = utils.DownloadFile(url, filepath.Join(path, bin))
+	err = os.Rename(filepath.Join(path, newbin), filepath.Join(path, oldbin))
 	if err != nil {
-		return fmt.Errorf("error downloading new %s: %v", bin, err)
-	}
-
-	if runtime.GOOS == "linux" {
-		if err = utils.Execute("chmod", path, "-R", "777", bin); err != nil {
-			return fmt.Errorf("error executing chmod: %v", err)
-		}
+		return fmt.Errorf("error renaming new %s: %v", newbin, err)
 	}
 
 	return nil

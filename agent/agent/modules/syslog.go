@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/logger"
 	"github.com/threatwinds/validations"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/parser"
+	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 type SyslogModule struct {
@@ -22,7 +22,6 @@ type SyslogModule struct {
 	TCPListener listenerTCP
 	UDPListener listenerUDP
 	Parser      parser.Parser
-	h           *logger.Logger
 }
 
 type listenerTCP struct {
@@ -41,7 +40,7 @@ type listenerUDP struct {
 	Port      string
 }
 
-func GetSyslogModule(dataType string, protoPorts configuration.ProtoPort, h *logger.Logger) *SyslogModule {
+func GetSyslogModule(dataType string, protoPorts config.ProtoPort) *SyslogModule {
 	return &SyslogModule{
 		DataType: dataType,
 		TCPListener: listenerTCP{
@@ -53,7 +52,6 @@ func GetSyslogModule(dataType string, protoPorts configuration.ProtoPort, h *log
 			Port:      protoPorts.UDP,
 		},
 		Parser: parser.GetParser(dataType),
-		h:      h,
 	}
 }
 
@@ -113,18 +111,18 @@ func (m *SyslogModule) DisablePort(proto string) {
 
 func (m *SyslogModule) enableTCP() {
 	if !m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
-		m.h.Info("Server %s listening in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+		utils.Logger.Info("Server %s listening in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
 		m.TCPListener.IsEnabled = true
 
 		listener, err := net.Listen("tcp", "0.0.0.0"+":"+m.TCPListener.Port)
 		if err != nil {
-			m.h.ErrorF("error listening TCp in port %s: %v", m.TCPListener.Port, err)
+			utils.Logger.ErrorF("error listening TCp in port %s: %v", m.TCPListener.Port, err)
 			return
 		}
 
 		tcpListener, ok := listener.(*net.TCPListener)
 		if !ok {
-			m.h.ErrorF("Could not assert to *net.TCPListener")
+			utils.Logger.ErrorF("could not assert to *net.TCPListener")
 			return
 		}
 
@@ -135,7 +133,7 @@ func (m *SyslogModule) enableTCP() {
 			defer func() {
 				err = m.TCPListener.Listener.Close()
 				if err != nil {
-					m.h.ErrorF("error closing tcp listener: %v", err)
+					utils.Logger.ErrorF("error closing tcp listener: %v", err)
 				}
 			}()
 			for {
@@ -155,7 +153,7 @@ func (m *SyslogModule) enableTCP() {
 							continue
 						}
 
-						m.h.ErrorF("error connecting with tcp listener: %v", err)
+						utils.Logger.ErrorF("error connecting with tcp listener: %v", err)
 						continue
 					}
 					go m.handleConnectionTCP(conn)
@@ -168,18 +166,18 @@ func (m *SyslogModule) enableTCP() {
 
 func (m *SyslogModule) enableUDP() {
 	if !m.UDPListener.IsEnabled && m.UDPListener.Port != "" {
-		m.h.Info("Server %s listening in port: %s protocol: UDP\n", m.DataType, m.UDPListener.Port)
+		utils.Logger.Info("Server %s listening in port: %s protocol: UDP\n", m.DataType, m.UDPListener.Port)
 		m.UDPListener.IsEnabled = true
 
 		listener, err := net.ListenPacket("udp", "0.0.0.0"+":"+m.UDPListener.Port)
 		if err != nil {
-			m.h.ErrorF("error listening UDP in port %s: %v", m.UDPListener.Port, err)
+			utils.Logger.ErrorF("error listening UDP in port %s: %v", m.UDPListener.Port, err)
 			return
 		}
 
 		udpListener, ok := listener.(*net.UDPConn)
 		if !ok {
-			m.h.ErrorF("Could not assert to *net.UDPConn")
+			utils.Logger.ErrorF("could not assert to *net.UDPConn")
 			return
 		}
 
@@ -195,7 +193,7 @@ func (m *SyslogModule) enableUDP() {
 			defer func() {
 				err = m.UDPListener.Listener.Close()
 				if err != nil {
-					m.h.ErrorF("error closing udp listener: %v", err)
+					utils.Logger.ErrorF("error closing udp listener: %v", err)
 				}
 			}()
 			for {
@@ -216,23 +214,23 @@ func (m *SyslogModule) enableUDP() {
 							continue
 						}
 
-						m.h.ErrorF("error connecting with udp listener: %v", err)
+						utils.Logger.ErrorF("error connecting with udp listener: %v", err)
 						continue
 					}
 					remoteAddr := add.String()
 					remoteAddr, _, err = net.SplitHostPort(remoteAddr)
 					if err != nil {
-						m.h.ErrorF("error getting remote addr: %v", err)
+						utils.Logger.ErrorF("error getting remote addr: %v", err)
 						continue
 					}
 					if remoteAddr == "127.0.0.1" {
 						remoteAddr, err = os.Hostname()
 						if err != nil {
-							m.h.ErrorF("error getting hostname: %v\n", err)
+							utils.Logger.ErrorF("error getting hostname: %v\n", err)
 							continue
 						}
 					}
-					messageWithIP := configuration.GetMessageFormated(remoteAddr, string(buffer[:n]))
+					messageWithIP := config.GetMessageFormated(remoteAddr, string(buffer[:n]))
 					msgChannel <- messageWithIP
 				}
 			}
@@ -242,7 +240,7 @@ func (m *SyslogModule) enableUDP() {
 
 func (m *SyslogModule) disableTCP() {
 	if m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
-		m.h.Info("Server %s closed in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
+		utils.Logger.Info("Server %s closed in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
 		m.TCPListener.Cancel()
 		m.TCPListener.Listener.Close()
 		m.TCPListener.IsEnabled = false
@@ -251,7 +249,7 @@ func (m *SyslogModule) disableTCP() {
 
 func (m *SyslogModule) disableUDP() {
 	if m.UDPListener.IsEnabled && m.UDPListener.Port != "" {
-		m.h.Info("Server %s closed in port: %s protocol: UDP", m.DataType, m.UDPListener.Port)
+		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, m.UDPListener.Port)
 		m.UDPListener.Cancel()
 		m.UDPListener.Listener.Close()
 		m.UDPListener.IsEnabled = false
@@ -266,13 +264,13 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 	var err error
 	remoteAddr, _, err = net.SplitHostPort(remoteAddr)
 	if err != nil {
-		m.h.ErrorF("error spliting host and port: %v", err)
+		utils.Logger.ErrorF("error spliting host and port: %v", err)
 	}
 
 	if remoteAddr == "127.0.0.1" {
 		remoteAddr, err = os.Hostname()
 		if err != nil {
-			m.h.ErrorF("error getting hostname: %v\n", err)
+			utils.Logger.ErrorF("error getting hostname: %v\n", err)
 		}
 	}
 
@@ -289,10 +287,10 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 				if err == io.EOF || err.(net.Error).Timeout() {
 					return
 				}
-				m.h.ErrorF("error reading tcp data: %v", err)
+				utils.Logger.ErrorF("error reading tcp data: %v", err)
 				return
 			}
-			message = configuration.GetMessageFormated(remoteAddr, message)
+			message = config.GetMessageFormated(remoteAddr, message)
 			msgChannel <- message
 		}
 	}
@@ -307,9 +305,9 @@ func (m *SyslogModule) handleMessageTCP(logsChannel chan string) {
 		case <-ticker.C:
 			if len(logBatch) > 0 {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch, m.h)
+					logs, err := m.Parser.ProcessData(logBatch)
 					if err != nil {
-						m.h.ErrorF("error parsing data: %v", err)
+						utils.Logger.ErrorF("error parsing data: %v", err)
 						continue
 					}
 					for typ, bulk := range logs {
@@ -331,15 +329,15 @@ func (m *SyslogModule) handleMessageTCP(logsChannel chan string) {
 			message = strings.TrimSuffix(message, "\n")
 			message, _, err := validations.ValidateString(message, false)
 			if err != nil {
-				m.h.ErrorF("error validating string: %v: message: %s", err, message)
+				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 			}
 			logBatch = append(logBatch, message)
 
-			if len(logBatch) == configuration.BatchCapacity {
+			if len(logBatch) == config.BatchCapacity {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch, m.h)
+					logs, err := m.Parser.ProcessData(logBatch)
 					if err != nil {
-						m.h.ErrorF("error parsing data: %v", err)
+						utils.Logger.ErrorF("error parsing data: %v", err)
 						continue
 					}
 					for typ, bulk := range logs {
@@ -369,9 +367,9 @@ func (m *SyslogModule) handleConnectionUDP(logsChannel chan string) {
 		case <-ticker.C:
 			if len(logBatch) > 0 {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch, m.h)
+					logs, err := m.Parser.ProcessData(logBatch)
 					if err != nil {
-						m.h.ErrorF("error parsing data: %v", err)
+						utils.Logger.ErrorF("error parsing data: %v", err)
 						continue
 					}
 					for typ, bulk := range logs {
@@ -396,15 +394,15 @@ func (m *SyslogModule) handleConnectionUDP(logsChannel chan string) {
 			message = strings.TrimSuffix(message, "\n")
 			message, _, err := validations.ValidateString(message, false)
 			if err != nil {
-				m.h.ErrorF("error validating string: %v: message: %s", err, message)
+				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 			}
 			logBatch = append(logBatch, message)
 
-			if len(logBatch) == configuration.BatchCapacity {
+			if len(logBatch) == config.BatchCapacity {
 				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch, m.h)
+					logs, err := m.Parser.ProcessData(logBatch)
 					if err != nil {
-						m.h.ErrorF("error parsing data: %v", err)
+						utils.Logger.ErrorF("error parsing data: %v", err)
 						continue
 					}
 					for typ, bulk := range logs {

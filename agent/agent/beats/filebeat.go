@@ -5,8 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/parser"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
@@ -15,10 +14,7 @@ import (
 type Filebeat struct{}
 
 func (f Filebeat) Install() error {
-	path, err := utils.GetMyPath()
-	if err != nil {
-		return fmt.Errorf("error getting current path: %v", err)
-	}
+	path := utils.GetMyPath()
 
 	filebLogPath := filepath.Join(path, "beats", "filebeat")
 	beatConfig := BeatConfig{
@@ -26,8 +22,8 @@ func (f Filebeat) Install() error {
 		LogFileName: "modulescollector",
 	}
 
-	if isInstalled, err := utils.CheckIfServiceIsInstalled(configuration.ModulesServName); err != nil {
-		return fmt.Errorf("error checking if %s service is installed: %v", configuration.ModulesServName, err)
+	if isInstalled, err := utils.CheckIfServiceIsInstalled(config.ModulesServName); err != nil {
+		return fmt.Errorf("error checking if %s service is installed: %v", config.ModulesServName, err)
 	} else if !isInstalled {
 		if err = utils.CreatePathIfNotExist(beatConfig.LogsPath); err != nil {
 			return fmt.Errorf("error creating %s folder", beatConfig.LogsPath)
@@ -36,30 +32,30 @@ func (f Filebeat) Install() error {
 		configFile := filepath.Join(filebLogPath, "filebeat.yml")
 		templateFile := filepath.Join(path, "templates", "filebeat.yml")
 		if err = utils.GenerateFromTemplate(beatConfig, templateFile, configFile); err != nil {
-			return fmt.Errorf("error configuration from %s: %v", templateFile, err)
+			return fmt.Errorf("error config from %s: %v", templateFile, err)
 		}
 		switch runtime.GOOS {
 		case "windows":
 			err = utils.Execute("sc",
 				filebLogPath,
 				"create",
-				configuration.ModulesServName,
+				config.ModulesServName,
 				"binPath=",
 				fmt.Sprintf("\"%s\\filebeat.exe\" --environment=windows_service -c \"%s\\filebeat.yml\" --path.home \"%s\" --path.data \"C:\\ProgramData\\filebeat\" --path.logs \"C:\\ProgramData\\filebeat\\logs\" -E logging.files.redirect_stderr=true", filebLogPath, filebLogPath, filebLogPath),
 				"DisplayName=",
-				configuration.ModulesServName,
+				config.ModulesServName,
 				"start=",
 				"auto")
 			if err != nil {
-				return fmt.Errorf("error installing %s service: %s", configuration.ModulesServName, err)
+				return fmt.Errorf("error installing %s service: %s", config.ModulesServName, err)
 			}
 
-			err = utils.Execute("sc", filebLogPath, "start", configuration.ModulesServName)
+			err = utils.Execute("sc", filebLogPath, "start", config.ModulesServName)
 			if err != nil {
-				return fmt.Errorf("error starting %s service: %s", configuration.ModulesServName, err)
+				return fmt.Errorf("error starting %s service: %s", config.ModulesServName, err)
 			}
 		case "linux":
-			if err = utils.CreateLinuxService(configuration.ModulesServName, fmt.Sprintf(
+			if err = utils.CreateLinuxService(config.ModulesServName, fmt.Sprintf(
 				"%s -c %s -path.home %s -path.config %s -path.data /var/lib/filebeat -path.logs /var/log/filebeat",
 				filepath.Join(filebLogPath, "filebeat"),
 				filepath.Join(filebLogPath, "filebeat.yml"),
@@ -67,7 +63,7 @@ func (f Filebeat) Install() error {
 				filebLogPath,
 			),
 			); err != nil {
-				return fmt.Errorf("error creating %s service: %v", configuration.ModulesServName, err)
+				return fmt.Errorf("error creating %s service: %v", config.ModulesServName, err)
 			}
 
 			if err = utils.Execute("chmod", filebLogPath, "-R", "777", "filebeat"); err != nil {
@@ -84,12 +80,12 @@ func (f Filebeat) Install() error {
 			}
 
 			if family == "debian" || family == "rhel" {
-				err := utils.Execute("systemctl", filebLogPath, "enable", configuration.ModulesServName)
+				err := utils.Execute("systemctl", filebLogPath, "enable", config.ModulesServName)
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
 
-				err = utils.Execute("systemctl", filebLogPath, "start", configuration.ModulesServName)
+				err = utils.Execute("systemctl", filebLogPath, "start", config.ModulesServName)
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
@@ -104,7 +100,7 @@ func (f Filebeat) Install() error {
 					return fmt.Errorf("%s", err)
 				}
 
-				err = utils.Execute("systemctl", filebLogPath, "restart", configuration.ModulesServName)
+				err = utils.Execute("systemctl", filebLogPath, "restart", config.ModulesServName)
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
@@ -115,21 +111,18 @@ func (f Filebeat) Install() error {
 	return nil
 }
 
-func (f Filebeat) SendSystemLogs(h *logger.Logger) {
+func (f Filebeat) SendSystemLogs() {
 	logLinesChan := make(chan []string)
-	path, err := utils.GetMyPath()
-	if err != nil {
-		h.ErrorF("error getting current path: %v", err)
-	}
+	path := utils.GetMyPath()
 	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
 
 	parser := parser.GetParser("beats")
 
-	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, configuration.BatchCapacity, h)
+	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, config.BatchCapacity)
 	for logLine := range logLinesChan {
-		beatsData, err := parser.ProcessData(logLine, h)
+		beatsData, err := parser.ProcessData(logLine)
 		if err != nil {
-			h.ErrorF("error processing beats data: %v", err)
+			utils.Logger.ErrorF("error processing beats data: %v", err)
 			continue
 		}
 		for typ, logB := range beatsData {
@@ -142,17 +135,17 @@ func (f Filebeat) SendSystemLogs(h *logger.Logger) {
 }
 
 func (f Filebeat) Uninstall() error {
-	if isInstalled, err := utils.CheckIfServiceIsInstalled(configuration.ModulesServName); err != nil {
-		return fmt.Errorf("error checking if %s is running: %v", configuration.ModulesServName, err)
+	if isInstalled, err := utils.CheckIfServiceIsInstalled(config.ModulesServName); err != nil {
+		return fmt.Errorf("error checking if %s is running: %v", config.ModulesServName, err)
 	} else if isInstalled {
-		err = utils.StopService(configuration.ModulesServName)
+		err = utils.StopService(config.ModulesServName)
 		if err != nil {
-			return fmt.Errorf("error stopping %s: %v", configuration.ModulesServName, err)
+			return fmt.Errorf("error stopping %s: %v", config.ModulesServName, err)
 		}
 
-		err = utils.UninstallService(configuration.ModulesServName)
+		err = utils.UninstallService(config.ModulesServName)
 		if err != nil {
-			return fmt.Errorf("error uninstalling %s: %v", configuration.ModulesServName, err)
+			return fmt.Errorf("error uninstalling %s: %v", config.ModulesServName, err)
 		}
 	}
 	return nil

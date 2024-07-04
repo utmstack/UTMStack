@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -56,7 +56,7 @@ func (s *AgentService) FindByHostname(hostname string) (*models.Agent, error) {
 }
 
 // ListAgents retrieves a paginated list of agents based on the provided search criteria.
-func (s *AgentService) ListAgents(p util.Pagination, f []util.Filter) ([]models.Agent, int64, error) {
+func (s *AgentService) ListAgents(p utils.Pagination, f []utils.Filter) ([]models.Agent, int64, error) {
 	agents, totalCount, err := s.repo.GetByFilter(p, f)
 	if err != nil {
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve agents: %v", err)
@@ -66,7 +66,7 @@ func (s *AgentService) ListAgents(p util.Pagination, f []util.Filter) ([]models.
 }
 
 // ListAgentWithCommands retrieves a paginated list of agents with commands based on the provided search criteria.
-func (s *AgentService) ListAgentWithCommands(p util.Pagination, f []util.Filter) ([]models.Agent, int64, error) {
+func (s *AgentService) ListAgentWithCommands(p utils.Pagination, f []utils.Filter) ([]models.Agent, int64, error) {
 	agents, totalCount, err := s.repo.GetAgentsWithCommands(p, f)
 	if err != nil {
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve agents: %v", err)

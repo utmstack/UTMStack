@@ -3,7 +3,7 @@ package repository
 import (
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"gorm.io/gorm"
 )
 
@@ -37,11 +37,11 @@ func (r *AgentCommandsRepository) FindById(id uint) (*models.AgentCommand, error
 }
 
 // GetByFilter GetAgentsWithFilters returns a paginated list of agents filtered by search query and sorted by provided fields
-func (r *AgentCommandsRepository) GetByFilter(p util.Pagination, f []util.Filter) ([]models.AgentCommand, int64, error) {
+func (r *AgentCommandsRepository) GetByFilter(p utils.Pagination, f []utils.Filter) ([]models.AgentCommand, int64, error) {
 	var commands []models.AgentCommand
 	var count int64
 	db := r.db
-	tx := db.Model(models.AgentCommand{}).Scopes(util.FilterScope(f)).Count(&count).Scopes(p.PagingScope).Preload("Agent").Unscoped().Find(&commands)
+	tx := db.Model(models.AgentCommand{}).Scopes(utils.FilterScope(f)).Count(&count).Scopes(p.PagingScope).Preload("Agent").Unscoped().Find(&commands)
 	if tx.Error != nil {
 		println(tx.Error)
 		return nil, 0, tx.Error

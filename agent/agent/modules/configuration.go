@@ -5,7 +5,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/utmstack/UTMStack/agent/agent/configuration"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
@@ -37,20 +37,20 @@ type CollectorConfigurationOld struct {
 
 func ReadCollectorConfig() (CollectorConfiguration, error) {
 	cnf := CollectorConfiguration{}
-	if !utils.CheckIfPathExist(configuration.GetCollectorConfigPath()) {
+	if !utils.CheckIfPathExist(config.GetCollectorConfigPath()) {
 		cnfOld := CollectorConfigurationOld{}
-		err := utils.ReadJson(configuration.GetCollectorConfigPathOld(), &cnfOld)
+		err := utils.ReadJson(config.GetCollectorConfigPathOld(), &cnfOld)
 		if err != nil {
 			return CollectorConfiguration{}, err
 		}
 		cnf = MigrateOldConfig(cnfOld)
-		err = WriteCollectorConfig(cnf.Integrations, configuration.GetCollectorConfigPath())
+		err = WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
 		if err != nil {
 			return CollectorConfiguration{}, err
 		}
-		os.Remove(configuration.GetCollectorConfigPathOld())
+		os.Remove(config.GetCollectorConfigPathOld())
 	} else {
-		err := utils.ReadJson(configuration.GetCollectorConfigPath(), &cnf)
+		err := utils.ReadJson(config.GetCollectorConfigPath(), &cnf)
 		if err != nil {
 			return cnf, err
 		}
@@ -61,7 +61,7 @@ func ReadCollectorConfig() (CollectorConfiguration, error) {
 
 func ConfigureCollectorFirstTime() error {
 	integrations := make(map[string]Integration)
-	for logTyp, ports := range configuration.ProtoPorts {
+	for logTyp, ports := range config.ProtoPorts {
 		newIntegration := Integration{}
 		newIntegration.TCP.IsListen = false
 		newIntegration.TCP.Port = ports.TCP
@@ -69,7 +69,7 @@ func ConfigureCollectorFirstTime() error {
 		newIntegration.UDP.Port = ports.UDP
 		integrations[string(logTyp)] = newIntegration
 	}
-	return WriteCollectorConfig(integrations, configuration.GetCollectorConfigPath())
+	return WriteCollectorConfig(integrations, config.GetCollectorConfigPath())
 }
 
 func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (string, error) {
@@ -82,7 +82,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	if proto != "tcp" && proto != "udp" {
 		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
-	if valid := configuration.ValidateModuleType(configuration.LogType(logTyp)); valid == "nil" {
+	if valid := config.ValidateModuleType(config.LogType(logTyp)); valid == "nil" {
 		return "", fmt.Errorf("invalid integration: %s", logTyp)
 	}
 
@@ -97,7 +97,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	}
 
 	cnf.Integrations[logTyp] = integration
-	return port, WriteCollectorConfig(cnf.Integrations, configuration.GetCollectorConfigPath())
+	return port, WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
 }
 
 func ChangePort(logTyp string, proto string, port string) (string, error) {
@@ -110,11 +110,11 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 	if proto != "tcp" && proto != "udp" {
 		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
-	if valid := configuration.ValidateModuleType(configuration.LogType(logTyp)); valid == "nil" {
+	if valid := config.ValidateModuleType(config.LogType(logTyp)); valid == "nil" {
 		return "", fmt.Errorf("invalid integration: %s", logTyp)
 	}
-	if changeValid := ValidateChangeInPort(port, configuration.LogType(logTyp)); !changeValid {
-		return "", fmt.Errorf("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, logTyp, configuration.PortRangeMin, configuration.PortRangeMax)
+	if changeValid := ValidateChangeInPort(port, config.LogType(logTyp)); !changeValid {
+		return "", fmt.Errorf("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, logTyp, config.PortRangeMin, config.PortRangeMax)
 	}
 	if !IsPortAvailable(port, proto, &cnf, logTyp) {
 		return "", fmt.Errorf("port %s is already in use", port)
@@ -131,7 +131,7 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 	}
 
 	cnf.Integrations[logTyp] = integration
-	return old, WriteCollectorConfig(cnf.Integrations, configuration.GetCollectorConfigPath())
+	return old, WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
 }
 
 func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, currentIntegration string) bool {
@@ -154,7 +154,7 @@ func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, cur
 
 func MigrateOldConfig(old CollectorConfigurationOld) CollectorConfiguration {
 	integrations := make(map[string]Integration)
-	for logTyp, ports := range configuration.ProtoPorts {
+	for logTyp, ports := range config.ProtoPorts {
 		newIntegration := Integration{}
 		if logTyp == "syslog" && old.LogCollectorIsenabled {
 			newIntegration.TCP.IsListen = true

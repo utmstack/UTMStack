@@ -1,64 +1,38 @@
 package main
 
 import (
-	"log"
 	"path/filepath"
 
-	"github.com/utmstack/UTMStack/agent/self/configuration"
+	"github.com/utmstack/UTMStack/agent/self/config"
 	"github.com/utmstack/UTMStack/agent/self/update"
 	"github.com/utmstack/UTMStack/agent/self/utils"
 )
 
 func main() {
-	// Get current path
-	path, err := utils.GetMyPath()
-	if err != nil {
-		log.Fatalf("Failed to get current path: %v", err)
-	}
+	path := utils.GetMyPath()
+	utils.InitLogger(filepath.Join(path, "logs", config.SERV_LOG))
 
-	// Configuring log saving
-	var h = utils.CreateLogger(filepath.Join(path, "logs", configuration.SERV_LOG))
+	utils.SelfLogger.Info("Updating %s...", config.SERV_NAME)
 
-	// Save data from versions.json
-	allVersions := update.Version{}
-	err = utils.ReadJson(filepath.Join(path, "versions.json"), &allVersions)
-	if err != nil {
-		h.Fatal("error reading current versions.json: %v", err)
-	}
-
-	// Select environment
-	env, err := configuration.ReadEnv()
-	if err != nil {
-		h.Fatal("Failed to get current path: %v", err)
-	}
-
-	h.Info("Updating UTMStackUpdater...")
-
-	if isRunning, err := utils.CheckIfServiceIsActive(configuration.UPDATER_SERV_NAME); err != nil {
-		h.Fatal("error checking %s service: %v", configuration.UPDATER_SERV_NAME, err)
+	if isRunning, err := utils.CheckIfServiceIsActive(config.SERV_NAME); err != nil {
+		utils.SelfLogger.Fatal("error checking %s service: %v", config.SERV_NAME, err)
 	} else if isRunning {
-		err = utils.StopService(configuration.UPDATER_SERV_NAME)
+		err = utils.StopService(config.SERV_NAME)
 		if err != nil {
-			h.Fatal("error stopping %s service: %v", configuration.UPDATER_SERV_NAME, err)
+			utils.SelfLogger.Fatal("error stopping %s service: %v", config.SERV_NAME, err)
 		}
-		h.Info("UTMStackUpdater stopped correctly")
+		utils.SelfLogger.Info("%s stopped correctly", config.SERV_NAME)
 	}
 
-	err = update.UpdateUpdaterService(allVersions.UpdaterVersion, env.Branch)
+	err := update.UpdateService()
 	if err != nil {
-		h.Fatal("error downloading new %s service: %v", configuration.UPDATER_SERV_NAME, err)
+		utils.SelfLogger.Fatal("error updating new %s service: %v", config.SERV_NAME, err)
 	}
-	h.Info("New UTMStackUpdater downloaded correctly")
+	utils.SelfLogger.Info("New %s downloaded correctly", config.SERV_NAME)
 
-	err = utils.RestartService(configuration.UPDATER_SERV_NAME)
+	err = utils.RestartService(config.SERV_NAME)
 	if err != nil {
-		h.Fatal("error restarting %s service: %v", configuration.UPDATER_SERV_NAME, err)
+		utils.SelfLogger.Fatal("error restarting %s service: %v", config.SERV_NAME, err)
 	}
-	h.Info("UTMStackUpdater restarted correctly")
-
-	err = utils.RemoveLock(filepath.Join(path, "locks", configuration.SERV_LOCK))
-	if err != nil {
-		h.Fatal("error removing %s: %v", configuration.SERV_LOCK, err)
-	}
-	h.Info("UTMStackUpdater updated correctly")
+	utils.SelfLogger.Info("%s updated correctly", config.SERV_NAME)
 }

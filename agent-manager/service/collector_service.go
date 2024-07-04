@@ -5,7 +5,7 @@ import (
 
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/repository"
-	"github.com/utmstack/UTMStack/agent-manager/util"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -49,7 +49,7 @@ func (s *CollectorService) FindAll() ([]models.Collector, error) {
 	return s.repo.GetAllCollectors()
 }
 
-func (s *CollectorService) GetHostnames(p util.Pagination, f []util.Filter) ([]string, int64, error) {
+func (s *CollectorService) GetHostnames(p utils.Pagination, f []utils.Filter) ([]string, int64, error) {
 	collectors, totalCount, err := s.repo.GetCollectorByFilter(p, f)
 	if err != nil {
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve collectors: %v", err)
@@ -64,7 +64,7 @@ func (s *CollectorService) GetHostnames(p util.Pagination, f []util.Filter) ([]s
 }
 
 // ListCollectors retrieves a paginated list of collectors based on the provided search criteria.
-func (s *CollectorService) ListCollectors(p util.Pagination, f []util.Filter) ([]models.Collector, int64, error) {
+func (s *CollectorService) ListCollectors(p utils.Pagination, f []utils.Filter) ([]models.Collector, int64, error) {
 	collectors, totalCount, err := s.repo.GetCollectorByFilter(p, f)
 	if err != nil {
 		return nil, 0, status.Errorf(codes.Internal, "failed to retrieve collectors: %v", err)

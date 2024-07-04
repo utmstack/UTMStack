@@ -62,24 +62,18 @@ jobs:
         run: |
           $env:DEPLOY_ENV = '${{ needs.check.outputs.env_version }}'
 
-          cd ${{ github.workspace }}/agent/agent/configuration; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          cd ${{ github.workspace }}/agent/agent/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
           
           $env:GOOS = "linux"
           $env:GOARCH = "amd64"
           cd ${{ github.workspace }}/agent/agent; go build -o utmstack_agent_service -v .
           cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer -v .
-          cd ${{ github.workspace }}/agent/redline; go build -o utmstack_redline_service -v .
-          cd ${{ github.workspace }}/agent/updater; go build -o utmstack_updater_service -v .
           
           $env:GOOS = "windows"
           cd ${{ github.workspace }}/agent/agent; go build -o utmstack_agent_service.exe -v .
           signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
           cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
           signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_installer.exe"
-          cd ${{ github.workspace }}/agent/redline; go build -o utmstack_redline_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_redline_service.exe"
-          cd ${{ github.workspace }}/agent/updater; go build -o utmstack_updater_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_updater_service.exe"
 
           Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.12.1/python-3.12.1-amd64.exe" -OutFile "python-installer.exe"
           Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
@@ -88,7 +82,7 @@ jobs:
           pip install requests google-cloud-storage pyyaml
 
           $env:GCP_KEY = '${{ secrets.GCP_KEY }}'
-          cd ${{ github.workspace }}/.github/scripts; & 'C:\Program Files\Python312\python.exe' 'agent-deploy.py'  $env:DEPLOY_ENV
+          cd ${{ github.workspace }}/.github/scripts; & 'C:\Program Files\Python312\python.exe' 'services-deploy.py'  $env:DEPLOY_ENV 'agent'
 
           cd ${{ github.workspace }}; Remove-Item -Path "./*" -Recurse -Force
       

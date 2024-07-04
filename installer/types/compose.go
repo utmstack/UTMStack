@@ -155,11 +155,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
-			//stack.Datasources + ":/etc/utmstack",
-			"agent_manager:/data",
+			stack.AgentManager + ":/data",
 		},
 		Ports: []string{
 			"9000:50051",
+			"10002:8080",
 		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
@@ -171,6 +171,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"DB_HOST=postgres",
 			"DB_PORT=5432",
 			"DB_NAME=agentmanager",
+			"PANEL_SERV_NAME=http://backend:8080",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
