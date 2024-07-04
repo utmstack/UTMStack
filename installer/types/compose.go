@@ -401,7 +401,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
 	correlationMin := stack.ServiceResources["correlation"].MinMemory
 	c.Services["correlation"] = Service{
-		Image: utils.Str("ghcr.io/threatwinds/eventprocessor/utmstack:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/eventprocessor:" + conf.Branch),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
 				"postgres",
@@ -415,11 +415,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			},
 		}).([]string),
 		Ports: []string{
-			"10000:8080",
+			"50051:50051",
+			"8080:8080",
 		},
 		Volumes: []string{
+			stack.Cert + ":/cert",
 			filepath.Join(stack.EventsEngineWorkdir, "custom_rules") + ":/workdir/rules/custom",
-			filepath.Join(stack.EventsEngineWorkdir, "pipeline", "plugins_legacy.yaml") + ":/workdir/pipeline/plugins_legacy.yaml",
+			filepath.Join(stack.EventsEngineWorkdir, "pipeline", "utmstack_plugins.yaml") + ":/workdir/pipeline/utmstack_plugins.yaml",
 			"geoip_data:/workdir/geolocation",
 		},
 		Environment: []string{
@@ -509,38 +511,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Resources: &Resources{
 				Limits: &Res{
 					Memory: utils.Str(fmt.Sprintf("%vM", socAIMem)),
-				},
-			},
-		},
-	}
-
-	logAuthProxyMem := stack.ServiceResources["log-auth-proxy"].AssignedMemory
-	c.Services["log-auth-proxy"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/log-auth-proxy:" + conf.Branch),
-		DependsOn: []string{
-			"logstash",
-		},
-		Ports: []string{
-			"50051:50051",
-			"8080:8080",
-		},
-		Volumes: []string{
-			stack.Cert + ":/cert",
-		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"UTM_AGENT_MANAGER_HOST=agentmanager:50051",
-			"UTM_HOST=http://backend:8080",
-			"UTM_LOGSTASH_HOST=logstash",
-			"UTM_CERTS_LOCATION=/cert",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", logAuthProxyMem)),
 				},
 			},
 		},

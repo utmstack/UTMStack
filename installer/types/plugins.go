@@ -13,10 +13,16 @@ type PluginsConfig struct {
 }
 
 type PluginConfig struct {
-	RulesFolder   string        `yaml:"rulesFolder"`
-	GeoIPFolder   string        `yaml:"geoipFolder"`
+	RulesFolder   string        `yaml:"rules_folder"`
+	GeoIPFolder   string        `yaml:"geoip_folder"`
 	Elasticsearch string        `yaml:"elasticsearch"`
 	PostgreSQL    PostgreConfig `yaml:"postgresql"`
+	ServerName    string        `yaml:"server_name"`
+	InternalKey   string        `yaml:"internal_key"`
+	AgentManager  string        `yaml:"agent_manager"`
+	Backend       string        `yaml:"backend"`
+	Logstash      string        `yaml:"logstash"`
+	CertsFolder   string        `yaml:"certs_folder"`
 }
 
 type PostgreConfig struct {
@@ -30,7 +36,7 @@ type PostgreConfig struct {
 func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 	c.Plugins = make(map[string]PluginConfig)
 
-	c.Plugins["com.utmstack.legacy"] = PluginConfig{
+	c.Plugins["com.utmstack"] = PluginConfig{
 		RulesFolder:   "/workdir/rules",
 		GeoIPFolder:   "/workdir/geolocation",
 		Elasticsearch: "http://node1:9200",
@@ -41,6 +47,12 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 			Password: conf.Password,
 			Database: "utmstack",
 		},
+		ServerName:   conf.ServerName,
+		InternalKey:  conf.InternalKey,
+		AgentManager: "agentmanager:50051",
+		Backend:      "http://backend:8080",
+		Logstash:     "logstash",
+		CertsFolder:  "/cert",
 	}
 
 	config, err := yaml.Marshal(c)
@@ -56,7 +68,7 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 
 	pipelineDir := utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline")
 
-	err = os.WriteFile(filepath.Join(pipelineDir, "plugins_legacy.yaml"), config, 0644)
+	err = os.WriteFile(filepath.Join(pipelineDir, "utmstack_plugins.yaml"), config, 0644)
 	if err != nil {
 		return err
 	}
