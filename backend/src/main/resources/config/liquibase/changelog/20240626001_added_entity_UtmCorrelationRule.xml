@@ -41,8 +41,8 @@
                 <constraints nullable="true"/>
             </column>
 
-            <column name="rule_definition" type="text">
-                <constraints nullable="false"/>
+            <column name="rule_definition_def" type="text">
+                <constraints nullable="true"/>
             </column>
 
             <column name="rule_last_update" type="datetime">
@@ -101,9 +101,6 @@
         </createProcedure>
 
         <createTable tableName="utm_group_rules_data_type">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
 
             <column name="rule_id" type="bigint">
                 <constraints nullable="false"/>
@@ -119,6 +116,8 @@
         </createTable>
 
         <dropDefaultValue tableName="utm_group_rules_data_type" columnName="last_update" columnDataType="datetime"/>
+
+        <addPrimaryKey columnNames="rule_id, data_type_id" constraintName="pk_utm_group_rules_data_type" tableName="utm_group_rules_data_type"/>
 
         <addForeignKeyConstraint baseColumnNames="rule_id"
                                  baseTableName="utm_group_rules_data_type"

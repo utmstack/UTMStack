@@ -3,6 +3,7 @@ package types
 import (
 	"os"
 	"path"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,7 +22,7 @@ type ModuleConfig struct {
 	Branch string `yaml:"branch"`
 }
 
-var configPath = path.Join("/root", "utmstack.yml")
+var configPath = filepath.Join("/root", "utmstack.yml")
 
 func (c *Config) Get() {
 	config, err := os.ReadFile(configPath)

@@ -3,8 +3,9 @@
     height: 36px;
 }
 
-.btn-danger .icon-trash-alt,
-.btn-close .icon-trash-alt:before {
+.btn-danger .icon-trash,
+.btn-close .icon-trash:before {
+    font-size: 14px;
     color: white;
 }
 
@@ -32,7 +33,6 @@ fieldset {
 .flex-nowrap {
     flex-wrap: nowrap;
 }
-
 
 .alert-filter-container {
     min-width: 300px;
@@ -66,8 +66,8 @@ fieldset {
     min-height: 82vh;
 }
 
-.form-group-select input {
-    height: 28px!important;
+.type-select .ng-select-container {
+    height: 36px!important;
 }
 
 

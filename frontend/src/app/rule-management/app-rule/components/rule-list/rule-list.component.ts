@@ -1,10 +1,14 @@
+import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import {ResizeEvent} from 'angular-resizable-element';
+import {Observable} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
 import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
 import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
 import {UtmFieldType} from '../../../../shared/types/table/utm-field.type';
 import {RULE_FIELDS} from '../../../models/rule.constant';
 import {Rule} from '../../../models/rule.model';
+import {ActivatedRoute, Router} from '@angular/router';
 
 
 @Component({
@@ -15,7 +19,8 @@ import {Rule} from '../../../models/rule.model';
 export class RuleListComponent implements OnInit {
 
   @Input()
-  rules: Rule[];
+  // rulesResponse$: Observable<HttpResponse<Rule[]>>;
+  rules$: Observable<Rule[]>;
 
   sortEvent: SortEvent;
   sortBy = ALERT_TIMESTAMP_FIELD + ',desc';
@@ -31,9 +36,17 @@ export class RuleListComponent implements OnInit {
   loading: any;
   viewRuleDetail: any;
   ruleDetail: Rule;
-  constructor() { }
+  constructor(private route: ActivatedRoute,
+              private router: Router) { }
 
   ngOnInit() {
+    this.rules$ = this.route.data
+        .pipe(
+          tap((data: { response: HttpResponse<Rule[]> }) => {
+            this.totalItems = parseInt(data.response.headers.get('X-Total-Count') || '0', 10);
+          }),
+          map((data: { response: HttpResponse<Rule[]> }) =>  data.response.body)
+    );
   }
 
   addRule() {
@@ -73,12 +86,12 @@ export class RuleListComponent implements OnInit {
     this.sortBy = $event.column + ',' + $event.direction;
     // this.getAlert('on sort by');
   }
-  toggleCheck() {
+  toggleCheck(rules: Rule[]) {
     this.checkbox = !this.checkbox;
     if (!this.checkbox) {
       this.rulesSelected = [];
     } else {
-      for (const rule of this.rules) {
+      for (const rule of rules) {
         const index = this.rulesSelected.indexOf(rule);
         if (index === -1) {
           this.rulesSelected.push(rule);
@@ -100,8 +113,25 @@ export class RuleListComponent implements OnInit {
     return this.rulesSelected.findIndex(value => value.id === alert.id) !== -1;
   }
 
-  viewDetailAlert(rule: any, td: UtmFieldType) {
+  viewDetailRule(rule: Rule) {
     this.ruleDetail = rule;
     this.viewRuleDetail = true;
+  }
+
+  trackByFn(index: number, rule: Rule): any {
+    return rule.id;
+  }
+
+  onSearch($event: string | number) {
+
+  }
+
+  deleteRule(rule: Rule) {
+
+  }
+
+  editRule(rule: Rule) {
+    const {id} = rule;
+    this.router.navigate(['correlation/rule', id]);
   }
 }

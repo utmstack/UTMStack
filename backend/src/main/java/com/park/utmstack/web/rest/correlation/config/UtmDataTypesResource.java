@@ -8,6 +8,7 @@ import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
+import io.undertow.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -50,7 +51,7 @@ public class UtmDataTypesResource {
         try {
             dataTypesService.addDataType(dataTypes);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -75,7 +76,7 @@ public class UtmDataTypesResource {
         try {
             dataTypesService.updateDataType(dataTypes);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -100,7 +101,7 @@ public class UtmDataTypesResource {
         try {
             dataTypesService.delete(id);
             return ResponseEntity.noContent().build();
-        } catch (BadRequestAlertException e) {
+        } catch (BadRequestException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
@@ -121,7 +122,7 @@ public class UtmDataTypesResource {
      */
     @GetMapping("/data-types")
     public ResponseEntity<List<UtmDataTypes>> getAllDataTypes(Pageable pageable) {
-        final String ctx = CLASSNAME + ".getAllLogstashFilters";
+        final String ctx = CLASSNAME + ".getAllDataTypes";
         try {
             Page<UtmDataTypes> page = dataTypesService.findAll(pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/data-types");
