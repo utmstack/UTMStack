@@ -48,7 +48,6 @@ func main() {
 
 	middlewares := NewMiddlewares(autService)
 
-	// Load certificates
 	cert, key, err := loadCerts()
 	if err != nil {
 		helpers.Logger().ErrorF("failed to load certificates: %v", err)

@@ -7,7 +7,7 @@ toolchain go1.22.5
 require (
 	github.com/kardianos/service v1.2.2
 	github.com/logrusorgru/aurora v2.0.3+incompatible
-	github.com/threatwinds/logger v1.1.10
+	github.com/threatwinds/logger v1.1.9
 	github.com/threatwinds/validations v1.0.5
 	gopkg.in/yaml.v2 v2.4.0
 )

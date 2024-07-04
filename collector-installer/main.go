@@ -39,7 +39,7 @@ func main() {
 			ip, utmKey := os.Args[3], os.Args[4]
 
 			if strings.Count(utmKey, "*") == len(utmKey) {
-				utils.Logger.WriteFatal("the connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value", nil)
+				utils.Logger.WriteFatal("the connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value.", nil)
 			}
 
 			utils.Logger.WriteSimpleMessage(fmt.Sprintf("Installing %s collector...", collectorType))
