@@ -1,14 +1,18 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import { Observable } from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {SERVER_API_URL} from '../../app.constants';
 import {createRequestOption} from '../../shared/util/request-util';
 import {DataType} from '../models/rule.model';
+import {switchMap, tap} from "rxjs/operators";
 
 const resourceUrl = `${SERVER_API_URL}api/data-types`;
 
 @Injectable()
 export class DataTypeService {
+
+    private typesSubject = new BehaviorSubject<DataType[]>([]);
+    type$ = this.typesSubject.asObservable();
 
     request: {
         page: 0,
@@ -18,8 +22,12 @@ export class DataTypeService {
     constructor(private http: HttpClient) {
     }
 
+    resetTypes() {
+        this.typesSubject.next([]);
+    }
+
     save(body: Partial<DataType>): Observable<HttpResponse<any>> {
-      return this.http.post<HttpResponse<any>>(resourceUrl, body, {observe: 'response'});
+        return this.http.post<HttpResponse<any>>(resourceUrl, body, {observe: 'response'});
     }
 
     getById(id: number): Observable<HttpResponse<DataType>> {
@@ -28,6 +36,11 @@ export class DataTypeService {
 
     getAll(req: any): Observable<HttpResponse<DataType[]>> {
         const options = createRequestOption(req);
-        return this.http.get<DataType[]>(resourceUrl, {params: options, observe: 'response'});
+        return this.http.get<DataType[]>(resourceUrl, {params: options, observe: 'response'})
+            .pipe(
+                tap(response => {
+                    this.typesSubject.next([...this.typesSubject.value, ...response.body]);
+                })
+            );
     }
 }

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {ResizableModule} from 'angular-resizable-element';
@@ -53,7 +53,8 @@ import { DataTypeService } from './services/data-type.service';
         ReactiveFormsModule,
         NgSelectModule,
         InfiniteScrollModule,
-        FileBrowserModule
+        FileBrowserModule,
+        FormsModule
     ],
   providers: [
       RuleService,

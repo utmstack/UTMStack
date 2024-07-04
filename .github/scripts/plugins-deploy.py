@@ -1,11 +1,10 @@
 import argparse
 import json
 import os
-import requests
 from google.cloud import storage
-import yaml
 
 def main(environment):
+	print("Deploying plugins to Google Cloud Storage")
 	if environment.startswith("v10-"):
 		environment = environment.replace("v10-", "")
 		

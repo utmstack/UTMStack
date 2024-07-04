@@ -59,24 +59,24 @@ def main(environment, depend):
 	version_blob.upload_from_string(json.dumps({'versions': remote_versions}, indent=4))
 	
 	# Create blobs and upload services
-	if depend == "agent":
-		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service")
-		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer")
-	else:
-		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_" + depend.replace("-", "_") + "_service")
-		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_" + depend.replace("-", "_") + "_installer")
-
 	if "service_version" in local_versions:
-		service_windows_blob = bucket.blob(endp + "/utmstack_" + depend.replace("-", "_") + "_service_v" + local_versions["service_version"].replace(".","_") + "_windows.exe")
-		service_linux_blob = bucket.blob(endp + "/utmstack_" + depend.replace("-", "_") + "_service_v" + local_versions["service_version"].replace(".","_") + "_linux")
-		service_windows_blob.upload_from_filename(service_path + ".exe")
-		service_linux_blob.upload_from_filename(service_path)
+		if depend == "agent":
+			service_windows_blob = bucket.blob(endp + "/utmstack_agent_service_v" + local_versions["service_version"].replace(".","_") + "_windows.exe")
+			service_linux_blob = bucket.blob(endp + "/utmstack_agent_service_v" + local_versions["service_version"].replace(".","_") + "_linux")
+			service_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service.exe"))
+			service_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service"))
 	if "installer_version" in local_versions:
-		installer_windows_blob = bucket.blob(endp + "/utmstack_" + depend.replace("-", "_") + "_installer_v" + local_versions["installer_version"].replace(".","_") + "_windows.exe")
-		installer_linux_blob = bucket.blob(endp + "/utmstack_" + depend.replace("-", "_") + "_installer_v" + local_versions["installer_version"].replace(".","_") + "_linux")
-		installer_windows_blob.upload_from_filename(installer_path + ".exe")
-		installer_linux_blob.upload_from_filename(installer_path)
-		
+		if depend == "agent":
+			installer_windows_blob = bucket.blob(endp + "/utmstack_agent_installer_v" + local_versions["installer_version"].replace(".","_") + "_windows.exe")
+			installer_linux_blob = bucket.blob(endp + "/utmstack_agent_installer_v" + local_versions["installer_version"].replace(".","_") + "_linux")
+			installer_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer.exe"))
+			installer_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer"))
+		if depend == "collector-installer":
+			installer_windows_blob = bucket.blob(endp + "/utmstack_collector_installer_v" + local_versions["installer_version"].replace(".","_") + "_windows.exe")
+			installer_linux_blob = bucket.blob(endp + "/utmstack_collector_installer_v" + local_versions["installer_version"].replace(".","_") + "_linux")
+			installer_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_collector_installer.exe"))
+			installer_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_collector_installer"))
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update UTMStack Dependencies in Google Cloud Storage")
     parser.add_argument("environment", type=str, help="Environment(dev, qa, rc, release)")

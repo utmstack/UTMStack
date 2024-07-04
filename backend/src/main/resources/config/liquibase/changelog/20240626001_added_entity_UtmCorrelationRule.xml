@@ -80,6 +80,10 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="data_type_description" type="text">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="last_update" type="datetime">
                 <constraints nullable="true"/>
             </column>

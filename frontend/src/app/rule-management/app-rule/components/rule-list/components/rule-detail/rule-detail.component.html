@@ -5,14 +5,14 @@
         </p>
     </div>
 
-    <div *ngIf="rule.data_types.length > 0" class="mt-2 d-flex flex-column">
-        <span class="font-weight-semibold">{{rule.data_types.length > 1 ? 'Types' : 'Type'}}:</span>
-        <div *ngFor="let type of rule.data_types">
-            <span [ngbTooltip]="type"
+    <div *ngIf="rule.dataTypes.length > 0" class="mt-2 d-flex flex-column">
+        <span class="font-weight-semibold">{{rule.dataTypes.length > 1 ? 'Types' : 'Type'}}:</span>
+        <div *ngFor="let type of rule.dataTypes">
+            <span [ngbTooltip]="type.dataType"
                    placement="auto"
                    container="body"
                    class="bg-success-300 badge p-1 border-1 m-1">
-                        {{type}}
+                        {{type.dataType}}
              </span>
         </div>
     </div>

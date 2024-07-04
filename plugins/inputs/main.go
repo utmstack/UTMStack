@@ -50,7 +50,7 @@ func main() {
 
 	cert, key, err := loadCerts()
 	if err != nil {
-		helpers.Logger().ErrorF("Failed to load certificates: %v", err)
+		helpers.Logger().ErrorF("failed to load certificates: %v", err)
 		os.Exit(1)
 	}
 

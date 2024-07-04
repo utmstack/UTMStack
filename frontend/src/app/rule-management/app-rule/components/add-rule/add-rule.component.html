@@ -2,35 +2,37 @@
     <div class="d-flex justify-content-start mb-2">
         <h5 class="card-title mb-0 text-uppercase label-header">Manage Rules</h5>
         <div class="header-elements">
-            <button routerLink="/correlation/rules" class="btn utm-button utm-button-primary utm-button-back ml-2">
+            <button class="btn utm-button utm-button-primary utm-button-back ml-2" routerLink="/correlation/rules">
                 <i class="icon-arrow-left7 mr-1"></i> Go to rules
             </button>
         </div>
     </div>
     <!--TABLE-->
     <div class="d-flex flex-nowrap m-0 align-items-start">
-        <div mwlResizable
-             [enableGhostResize]="true"
+        <div [enableGhostResize]="true"
              [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
-             class="alert-filter-container resizable-filter-container mr-2">
+             class="alert-filter-container resizable-filter-container mr-2"
+             mwlResizable>
             <app-rule-field-browser></app-rule-field-browser>
         </div>
         <div class="flex-grow-1">
             <div class="card h-100 pt-2 pb-2 pr-4 pl-4 content-height">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="card-title mb-0 text-uppercase label-header">
-                        {{ mode +' rule' }}
+                        {{ mode + ' rule' }}
                     </h6>
                 </div>
                 <div class="card-body">
-                    <form [formGroup]="ruleForm" (ngSubmit)="saveRule()" class="form-container w-100">
+                    <form (ngSubmit)="saveRule()" [formGroup]="ruleForm" class="form-container w-100">
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="name">Name:</label>
-                                    <input id="name" formControlName="name" type="text" class="form-control"
-                                           [ngClass]="{'is-invalid': ruleForm.get('name').invalid && ruleForm.get('name').touched}">
-                                    <div *ngIf="ruleForm.get('name').invalid && ruleForm.get('name').touched" class="invalid-feedback">
+                                    <input [ngClass]="{'is-invalid': ruleForm.get('name').invalid && ruleForm.get('name').touched}"
+                                           class="form-control" formControlName="name" id="name"
+                                           type="text">
+                                    <div *ngIf="ruleForm.get('name').invalid && ruleForm.get('name').touched"
+                                         class="invalid-feedback">
                                         Name is required.
                                     </div>
                                 </div>
@@ -38,9 +40,11 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="category">Category:</label>
-                                    <input id="category" formControlName="category" type="text" class="form-control"
-                                           [ngClass]="{'is-invalid': ruleForm.get('category').invalid && ruleForm.get('category').touched}">
-                                    <div *ngIf="ruleForm.get('category').invalid && ruleForm.get('category').touched" class="invalid-feedback">
+                                    <input [ngClass]="{'is-invalid': ruleForm.get('category').invalid && ruleForm.get('category').touched}"
+                                           class="form-control" formControlName="category" id="category"
+                                           type="text">
+                                    <div *ngIf="ruleForm.get('category').invalid && ruleForm.get('category').touched"
+                                         class="invalid-feedback">
                                         Category is required.
                                     </div>
                                 </div>
@@ -50,9 +54,11 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="technique">Technique:</label>
-                                    <input id="technique" formControlName="technique" type="text" class="form-control"
-                                           [ngClass]="{'is-invalid': ruleForm.get('technique').invalid && ruleForm.get('technique').touched}">
-                                    <div *ngIf="ruleForm.get('technique').invalid && ruleForm.get('technique').touched" class="invalid-feedback">
+                                    <input [ngClass]="{'is-invalid': ruleForm.get('technique').invalid && ruleForm.get('technique').touched}"
+                                           class="form-control" formControlName="technique" id="technique"
+                                           type="text">
+                                    <div *ngIf="ruleForm.get('technique').invalid && ruleForm.get('technique').touched"
+                                         class="invalid-feedback">
                                         Technique is required.
                                     </div>
                                 </div>
@@ -60,21 +66,23 @@
                             <div class="col-6">
                                 <div class="form-group-select">
                                     <label>Data Types:</label>
-                                    <ng-select [items]="types$ | async"
-                                               bindLabel="dataType"
-                                               multiple="true"
-                                               formControlName="dataTypes"
-                                               addTagText="Create New"
+                                    <ng-select (change)="onDataTypeChange($event)"
+                                               (scrollToEnd)="loadDataTypes()"
                                                [addTag]="true"
-                                               (change)="onDataTypeChange($event)"
-                                               placeholder="Choose or add types"
-                                               class="flex-item type-select"
+                                               [items]="(types$ | async)"
                                                [loading]="loadingDataTypes"
+                                               [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}"
+                                               [trackByFn]="trackByFn"
                                                [virtualScroll]="true"
-                                               (scrollToEnd)="loadMoreDataTypes()"
-                                               [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}">
+                                               addTagText="Create New"
+                                               bindLabel="dataType"
+                                               class="flex-item type-select"
+                                               formControlName="dataTypes"
+                                               multiple="true"
+                                               placeholder="Choose or add types">
                                     </ng-select>
-                                    <div *ngIf="ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched" class="invalid-feedback">
+                                    <div *ngIf="ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched"
+                                         class="invalid-feedback">
                                         At least one data type is required.
                                     </div>
                                 </div>
@@ -83,7 +91,8 @@
 
                         <div class="row">
                             <div class="col-6">
-                                <fieldset formGroupName="references" class="form-fieldset references-container border p-3">
+                                <fieldset class="form-fieldset references-container border p-3"
+                                          formGroupName="references">
                                     <legend>
                                         <label>References:</label>
                                         <span class="span-small-icon ml-2">
@@ -92,22 +101,30 @@
                                             </i>
                                     </span>
                                     </legend>
-                                    <div class="form-group" *ngFor="let reference of references.controls; let i = index">
+                                    <div *ngFor="let reference of references.controls; let i = index"
+                                         class="form-group">
                                         <label> {{ 'Reference ' + (i + 1)}}</label>
                                         <div class="input-group">
-                                            <input [formControlName]="i" type="text" class="form-control"
-                                                   [ngClass]="{'is-invalid': reference.invalid && reference.touched}">
+                                            <input [formControlName]="i"
+                                                   [ngClass]="{'is-invalid': reference.invalid && reference.touched}"
+                                                   class="form-control"
+                                                   type="text">
                                             <div class="input-group-append">
-                                                <button class="btn btn-danger btn-close text-white" type="button" (click)="removeReference(i)">
+                                                <button (click)="removeReference(i)"
+                                                        [disabled]="references.length === 1"
+                                                        class="btn btn-danger btn-close text-white"
+                                                        type="button">
                                                     <i class="icon-trash text-white"></i>
                                                 </button>
                                             </div>
-                                            <div *ngIf="reference.invalid && reference.touched" class="invalid-feedback">
+                                            <div *ngIf="reference.invalid && reference.touched"
+                                                 class="invalid-feedback">
                                                 Reference is required.
                                             </div>
                                         </div>
                                     </div>
-                                    <div *ngIf="references.invalid && references.touched" class="invalid-feedback d-block">
+                                    <div *ngIf="references.invalid && references.touched"
+                                         class="invalid-feedback d-block">
                                         At least one reference is required.
                                     </div>
                                 </fieldset>
@@ -123,10 +140,13 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="confidentiality">Confidentiality:</label>
-                                                <input id="confidentiality" formControlName="confidentiality" type="number"
+                                                <input [ngClass]="{'is-invalid': ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched}"
                                                        class="form-control"
-                                                       [ngClass]="{'is-invalid': ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched}">
-                                                <div *ngIf="ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched" class="invalid-feedback">
+                                                       formControlName="confidentiality"
+                                                       id="confidentiality"
+                                                       type="number">
+                                                <div *ngIf="ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched"
+                                                     class="invalid-feedback">
                                                     Value must be between 0 and 5.
                                                 </div>
                                             </div>
@@ -134,9 +154,12 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="integrity">Integrity:</label>
-                                                <input id="integrity" formControlName="integrity" type="number"
-                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched}">
-                                                <div *ngIf="ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched" class="invalid-feedback">
+                                                <input [ngClass]="{'is-invalid': ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched}"
+                                                       class="form-control" formControlName="integrity"
+                                                       id="integrity"
+                                                       type="number">
+                                                <div *ngIf="ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched"
+                                                     class="invalid-feedback">
                                                     Value must be between 1 and 5.
                                                 </div>
                                             </div>
@@ -144,9 +167,12 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="availability">Availability:</label>
-                                                <input id="availability" formControlName="availability" type="number"
-                                                       class="form-control" [ngClass]="{'is-invalid': ruleForm.get('availability').invalid && ruleForm.get('availability').touched}">
-                                                <div *ngIf="ruleForm.get('availability').invalid && ruleForm.get('availability').touched" class="invalid-feedback">
+                                                <input [ngClass]="{'is-invalid': ruleForm.get('availability').invalid && ruleForm.get('availability').touched}"
+                                                       class="form-control" formControlName="availability"
+                                                       id="availability"
+                                                       type="number">
+                                                <div *ngIf="ruleForm.get('availability').invalid && ruleForm.get('availability').touched"
+                                                     class="invalid-feedback">
                                                     Value must be between 1 and 5.
                                                 </div>
                                             </div>
@@ -158,9 +184,13 @@
 
                         <div class="form-group">
                             <label for="description">Description:</label>
-                            <textarea id="description" formControlName="description" rows="2"
-                                      class="form-control" [ngClass]="{'is-invalid': ruleForm.get('description').invalid && ruleForm.get('description').touched}"></textarea>
-                            <div *ngIf="ruleForm.get('description').invalid && ruleForm.get('description').touched" class="invalid-feedback">
+                            <textarea
+                                    [ngClass]="{'is-invalid': ruleForm.get('description').invalid && ruleForm.get('description').touched}"
+                                    class="form-control" formControlName="description"
+                                    id="description"
+                                    rows="2"></textarea>
+                            <div *ngIf="ruleForm.get('description').invalid && ruleForm.get('description').touched"
+                                 class="invalid-feedback">
                                 Description is required.
                             </div>
                         </div>
@@ -169,79 +199,108 @@
                             <legend>
                                 <label>Definition</label>
                                 <span class="span-small-icon ml-2">
-                              <i (click)="addVariable()"
-                                 class="icon-plus2 mr-1 cursor-pointer"
-                                 ngbTooltip="Add variable">
-                             </i>
-                             </span>
+                                    <i (click)="addVariable()" *ngIf="variables.length === 0"
+                                       class="icon-plus2 mr-1 cursor-pointer"
+                                       ngbTooltip="Add variable">
+                                    </i>
+                                </span>
                             </legend>
-                            <div formGroupName="variables" class="form-group">
-                                <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i">
-                                    <div class="input-group">
-                                        <fieldset class="border p-3">
-                                            <legend>
-                                                <label>{{'Variable ' + (i + 1)}}
-                                                    <span class="span-small-icon ml-2">
-                                                  <i (click)="removeVariable(i)"
-                                                     class="icon-cross2 mr-1  cursor-pointer"
-                                                     ngbTooltip="Delete variable">
-                                                 </i>
-                                                </span>
-                                                </label>
-                                            </legend>
-                                            <div class="row">
-                                                <div class="col-4">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            Variable name
-                                                        </label>
-                                                        <input formControlName="as" type="text" class="form-control mr-2"
-                                                               [ngClass]="{'is-invalid': variable.get('as').invalid && variable.get('as').touched}">
-                                                        <div *ngIf="variable.get('as').invalid && variable.get('as').touched" class="invalid-feedback">
-                                                            Variable name is required.
+                            <div formGroupName="definition">
+                                <div class="form-group" formArrayName="ruleVariables">
+                                    <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i">
+                                        <div class="input-group">
+                                            <fieldset class="border p-3">
+                                                <legend>
+                                                    <label>{{'Variable ' + (i + 1)}}
+                                                        <span class="span-small-icon ml-2">
+                                                            <i (click)="removeVariable(i)"
+                                                               class="icon-cross2 mr-1 cursor-pointer"
+                                                               ngbTooltip="Delete variable">
+                                                            </i>
+                                                        </span>
+                                                    </label>
+                                                </legend>
+                                                <div class="row">
+                                                    <div class="col-3">
+                                                        <div class="form-group">
+                                                            <label>Variable name</label>
+                                                            <input [ngClass]="{'is-invalid': variable.get('as').invalid && variable.get('as').touched}"
+                                                                   class="form-control mr-2"
+                                                                   formControlName="as"
+                                                                   type="text">
+                                                            <div *ngIf="variable.get('as').invalid && variable.get('as').touched"
+                                                                 class="invalid-feedback">
+                                                                Variable name is required.
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            Field name
-                                                        </label>
-                                                        <input formControlName="get" type="text" class="form-control mr-2" [ngClass]="{'is-invalid': variable.get('get').invalid && variable.get('get').touched}">
-                                                        <div *ngIf="variable.get('get').invalid && variable.get('get').touched" class="invalid-feedback">
-                                                            Field name is required.
+                                                    <div class="col-3">
+                                                        <div class="form-group">
+                                                            <label>Field name</label>
+                                                            <input [ngClass]="{'is-invalid': variable.get('get').invalid && variable.get('get').touched}"
+                                                                   class="form-control mr-2"
+                                                                   formControlName="get"
+                                                                   type="text">
+                                                            <div *ngIf="variable.get('get').invalid && variable.get('get').touched"
+                                                                 class="invalid-feedback">
+                                                                Field name is required.
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            Type
-                                                        </label>
-                                                        <input formControlName="of_type" type="text" class="form-control" [ngClass]="{'is-invalid': variable.get('of_type').invalid && variable.get('of_type').touched}">
-                                                        <div *ngIf="variable.get('of_type').invalid && variable.get('of_type').touched" class="invalid-feedback">
-                                                            Type is required.
+                                                    <div class="col-3">
+                                                        <div class="form-group">
+                                                            <label>Type</label>
+                                                            <input [ngClass]="{'is-invalid': variable.get('of_type').invalid && variable.get('of_type').touched}"
+                                                                   class="form-control"
+                                                                   formControlName="of_type"
+                                                                   type="text">
+                                                            <div *ngIf="variable.get('of_type').invalid && variable.get('of_type').touched"
+                                                                 class="invalid-feedback">
+                                                                Type is required.
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                    <div class="col-3 d-flex justify-content-center align-items-center pt-3">
+                                                        <button (click)="saveVariable(i)"
+                                                                class="btn utm-button utm-button-primary"
+                                                                type="button">Save
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </fieldset>
+                                            </fieldset>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div *ngIf="variables.invalid && variables.touched" class="invalid-feedback d-block">
-                                At least one variable is required.
-                            </div>
-                            <div class="form-group">
-                                <label for="expression">Expression:</label>
-                                <input id="expression" formControlName="expression" type="text" class="form-control" [ngClass]="{'is-invalid': ruleForm.get('expression').invalid && ruleForm.get('expression').touched}">
-                                <div *ngIf="ruleForm.get('expression').invalid && ruleForm.get('expression').touched" class="invalid-feedback">
-                                    Expression is required.
+                                <div class="form-group">
+                                    <label for="expression">Expression:</label>
+                                    <input [ngClass]="{'is-invalid': ruleForm.get('definition').get('ruleExpression').invalid && ruleForm.get('definition').get('ruleExpression').touched}"
+                                           class="form-control" formControlName="ruleExpression" id="expression"
+                                           type="text">
+                                    <div *ngIf="ruleForm.get('definition').get('ruleExpression').invalid && ruleForm.get('definition').get('ruleExpression').touched"
+                                         class="invalid-feedback">
+                                        Expression is required.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Saved Variables:</label>
+                                    <ul>
+                                        <li *ngFor="let savedVariable of savedVariables; let j = index">
+                                            <div *ngIf="!savedVariable.isEditing">
+                                                <span (click)="copyVariable(savedVariable.as)" class="cursor-pointer">
+                                                    <i class="mr-1 font-size-sm icon-cog7"></i>
+                                                    {{ savedVariable.as }}
+                                                </span>
+                                                <span (click)="editVariable(j)" class="cursor-pointer ml-2">Edit</span>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </fieldset>
+
                         <div class="d-flex mt-5 justify-content-end">
-                            <button type="submit" class="btn utm-button utm-button-primary">
+                            <button [disabled]="isSubmitting" class="btn utm-button utm-button-primary" type="submit">
+                                <i *ngIf="isSubmitting" class="icon-spinner2 spinner"></i>
                                 {{ mode === 'EDIT' ? 'Edit Rule' : 'Save Rule' }}
                             </button>
                         </div>
