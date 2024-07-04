@@ -27,7 +27,7 @@ func main() {
 		case "run":
 			serv.RunService()
 		case "install":
-			utils.Logger.Info("Installing UTMStack Agent service...")
+			utils.Logger.Info("Installing UTMStack Agent service ...")
 
 			cnf, utmKey := config.GetInitialConfig()
 
