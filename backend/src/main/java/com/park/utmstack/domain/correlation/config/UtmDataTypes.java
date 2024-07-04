@@ -30,6 +30,9 @@ public class UtmDataTypes implements Serializable {
     @Column(name = "data_type", length = 250, nullable = false)
     private String dataType;
 
+    @Column(name = "data_type_description")
+    private String dataTypeDescription;
+
     @Column(name = "last_update")
     private Instant lastUpdate;
 
@@ -58,6 +61,14 @@ public class UtmDataTypes implements Serializable {
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
+    }
+
+    public String getDataTypeDescription() {
+        return dataTypeDescription;
+    }
+
+    public void setDataTypeDescription(String dataTypeDescription) {
+        this.dataTypeDescription = dataTypeDescription;
     }
 
     public Instant getLastUpdate() {
