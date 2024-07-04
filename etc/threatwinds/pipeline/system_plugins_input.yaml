@@ -1,0 +1,5 @@
+plugins:
+  http-input:
+    port: 8082
+  grpc-input:
+    port: 8083

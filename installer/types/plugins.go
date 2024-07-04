@@ -1,0 +1,77 @@
+package types
+
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/utmstack/UTMStack/installer/utils"
+	"gopkg.in/yaml.v3"
+)
+
+type PluginsConfig struct {
+	Plugins map[string]PluginConfig `yaml:"plugins"`
+}
+
+type PluginConfig struct {
+	RulesFolder   string        `yaml:"rules_folder"`
+	GeoIPFolder   string        `yaml:"geoip_folder"`
+	Elasticsearch string        `yaml:"elasticsearch"`
+	PostgreSQL    PostgreConfig `yaml:"postgresql"`
+	ServerName    string        `yaml:"server_name"`
+	InternalKey   string        `yaml:"internal_key"`
+	AgentManager  string        `yaml:"agent_manager"`
+	Backend       string        `yaml:"backend"`
+	Logstash      string        `yaml:"logstash"`
+	CertsFolder   string        `yaml:"certs_folder"`
+}
+
+type PostgreConfig struct {
+	Server   string `yaml:"server"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
+}
+
+func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
+	c.Plugins = make(map[string]PluginConfig)
+
+	c.Plugins["com.utmstack"] = PluginConfig{
+		RulesFolder:   "/workdir/rules",
+		GeoIPFolder:   "/workdir/geolocation",
+		Elasticsearch: "http://node1:9200",
+		PostgreSQL: PostgreConfig{
+			Server:   "postgres",
+			Port:     "5432",
+			User:     "postgres",
+			Password: conf.Password,
+			Database: "utmstack",
+		},
+		ServerName:   conf.ServerName,
+		InternalKey:  conf.InternalKey,
+		AgentManager: "agentmanager:50051",
+		Backend:      "http://backend:8080",
+		Logstash:     "logstash",
+		CertsFolder:  "/cert",
+	}
+
+	config, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	customRulesDir := filepath.Join(stack.EventsEngineWorkdir, "custom_rules")
+	err = os.MkdirAll(customRulesDir, 0777)
+	if err != nil {
+		return err
+	}
+
+	pipelineDir := utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline")
+
+	err = os.WriteFile(filepath.Join(pipelineDir, "utmstack_plugins.yaml"), config, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
