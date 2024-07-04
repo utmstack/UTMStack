@@ -1,0 +1,11 @@
+plugins:
+  parsing:
+    order:
+    - kv
+    - grok
+    - trim
+    - rename
+    - reformat
+    - cast
+    - delete
+    - com.utmstack.geolocation
