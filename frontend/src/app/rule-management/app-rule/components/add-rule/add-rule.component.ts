@@ -1,9 +1,9 @@
 import {HttpResponse} from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {concatMap, filter, map, take, tap} from 'rxjs/operators';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {catchError, filter, finalize, map, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
@@ -14,7 +14,7 @@ const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.r
 @Component({
     selector: 'app-add-rule',
     templateUrl: './add-rule.component.html',
-    styleUrls: ['./add-rule.component.css']
+    styleUrls: ['./add-rule.component.css'],
 })
 export class AddRuleComponent implements OnInit {
     ruleForm: FormGroup;
@@ -24,8 +24,9 @@ export class AddRuleComponent implements OnInit {
         page: -1,
         size: 10
     };
-    typesBehavior = new BehaviorSubject<DataType[]>([]);
-    types$ = this.typesBehavior.asObservable();
+    types$: Observable<DataType[]>;
+    isSubmitting = false;
+    savedVariables = [];
 
     constructor(private fb: FormBuilder,
                 private route: ActivatedRoute,
@@ -50,6 +51,9 @@ export class AddRuleComponent implements OnInit {
                     this.initializeForm(rule);
                 })
             ).subscribe();
+
+        this.types$ = this.dataTypeService.type$;
+        this.loadDataTypes();
     }
 
     removeReference(index: number) {
@@ -69,7 +73,7 @@ export class AddRuleComponent implements OnInit {
     }
 
     get variables() {
-        return this.ruleForm.get('variables') as FormArray;
+        return this.ruleForm.get('definition').get('ruleVariables') as FormArray;
     }
 
     addVariable() {
@@ -82,17 +86,30 @@ export class AddRuleComponent implements OnInit {
 
     saveRule() {
         if (this.ruleForm.valid) {
-            const rule: Rule = this.ruleForm.value;
+            const variables = this.savedVariables.map(variable => ({
+                as: variable.as,
+                get: variable.get,
+                of_type: variable.of_type
+            }));
+            const expression =
+            this.isSubmitting = true;
+            const rule: Rule = {
+                ...this.ruleForm.value,
+            };
+            rule.definition.ruleVariables = variables;
             this.ruleService.saveRule(this.mode, rule)
                 .subscribe({
                     next: response => {
                         console.log('Rule saved successfully', response);
+                        this.dataTypeService.resetTypes();
+                        this.isSubmitting = false;
                         this.router.navigate(['/correlation/rules'])
                             .then(() =>  this.utmToastService.showSuccessBottom(this.mode === 'ADD'
                                 ? 'Rule saved successfully' : 'Rule edited successfully'));
                     },
                     error: err => {
-                        this.utmToastService.showError('Error',this.mode === 'ADD'
+                        this.isSubmitting = false;
+                        this.utmToastService.showError('Error', this.mode === 'ADD'
                             ? 'Error saving rule' : 'Error editing rule');
                         console.error('Error saving rule:', err.message);
                     }
@@ -103,7 +120,6 @@ export class AddRuleComponent implements OnInit {
     }
 
     initializeForm(rule?: Rule) {
-        this.loadMoreDataTypes();
         this.ruleForm = this.fb.group({
             id: [rule ? rule.id : ''],
             dataTypes: [rule ? rule.dataTypes : '', Validators.required],
@@ -115,9 +131,13 @@ export class AddRuleComponent implements OnInit {
             technique: [rule ? rule.technique : '', Validators.required],
             description: [rule ? rule.description : '', Validators.required],
             references: this.initReferences(rule ? rule.references : []),
-            variables: this.initVariables(rule ? rule.variables : []),
-            expression: [rule ? rule.expression : '', Validators.required]
+            definition: this.fb.group({
+                ruleVariables: rule ? this.fb.array([]) : this.fb.array([this.fb.group(variableTemplate)]),
+                ruleExpression: [rule ? rule.definition.ruleExpression : '', Validators.required]
+            })
         });
+
+        this.savedVariables = rule && rule.definition ? rule.definition.ruleVariables : [];
     }
 
     initReferences(references: string[]): FormArray {
@@ -131,7 +151,7 @@ export class AddRuleComponent implements OnInit {
             as: [variable.as, Validators.required],
             of_type: [variable.of_type, Validators.required]
         }));
-        return this.fb.array(formArray.length > 0 ? formArray : [this.fb.group(variableTemplate)], this.minLengthArray(1));
+        return this.fb.array(formArray.length > 0 ? formArray : [this.fb.group(variableTemplate)]);
     }
 
     minLengthArray(min: number) {
@@ -143,14 +163,41 @@ export class AddRuleComponent implements OnInit {
         };
     }
 
-    loadMoreDataTypes() {
+    loadDataTypes() {
         this.daTypeRequest.page = this.daTypeRequest.page + 1;
         this.loadingDataTypes = true;
 
-        this.types$ = this.dataTypeService.getAll(this.daTypeRequest)
-            .pipe(
-                    map(response => response.body),
-                    tap((types) => this.loadingDataTypes = false),
-        );
+        this.dataTypeService.getAll(this.daTypeRequest)
+            .subscribe( data => {
+                this.loadingDataTypes = false;
+            });
+    }
+
+    trackByFn(type: DataType) {
+        return type.id;
+    }
+
+    saveVariable(index: number): void {
+        const variable = { ...this.variables.at(index).value, isEditing: false };
+        this.savedVariables.push(variable);
+        this.variables.removeAt(index);
+    }
+
+    editVariable(index: number): void {
+        const variable = this.savedVariables[index];
+        if (this.variables.length === 0) {
+            this.addVariable();
+        }
+        this.variables.at(0).patchValue(variable);
+        this.savedVariables.splice(index, 1);
+    }
+
+    updateVariable(index: number): void {
+        this.savedVariables[index].isEditing = false;
+    }
+
+    copyVariable(variableName) {
+        const expressionControl = this.ruleForm.get('definition').get('ruleExpression');
+        expressionControl.setValue(expressionControl.value + variableName);
     }
 }
