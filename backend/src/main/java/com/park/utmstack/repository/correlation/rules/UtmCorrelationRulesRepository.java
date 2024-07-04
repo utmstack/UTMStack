@@ -19,7 +19,9 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
     @Query(nativeQuery = true, value = "SELECT nextval('utm_correlation_rules_id_seq')")
     Long getNextId();
 
-    @Query(value = "SELECT cr FROM UtmCorrelationRules cr WHERE " +
+    @Query(value = "SELECT DISTINCT cr FROM UtmCorrelationRules cr " +
+            "LEFT JOIN cr.dataTypes dt " +
+            "WHERE " +
             "(:ruleName IS NULL OR (cr.ruleName LIKE :ruleName OR lower(cr.ruleName) LIKE lower(:ruleName))) " +
             "AND ((:ruleConfidentiality) IS NULL OR cr.ruleConfidentiality IN (:ruleConfidentiality)) " +
             "AND ((:ruleIntegrity) IS NULL OR cr.ruleIntegrity IN (:ruleIntegrity)) " +
@@ -29,7 +31,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
             "AND ((:ruleActive) IS NULL OR cr.ruleActive IN (:ruleActive)) " +
             "AND ((:systemOwner) IS NULL OR cr.systemOwner IN (:systemOwner)) " +
             "AND ((cast(:ruleInitDate as timestamp) is null) or (cast(:ruleEndDate as timestamp) is null) or (cr.ruleLastUpdate BETWEEN :ruleInitDate AND :ruleEndDate)) " +
-            "AND ((:dataTypes) IS NULL OR cr.id IN (SELECT DISTINCT g.ruleId FROM UtmGroupRulesDataType g WHERE g.dataTypeId IN (:dataTypes)))")
+            "AND ((:dataTypes) IS NULL OR dt.dataType IN (:dataTypes))")
     List<UtmCorrelationRules> searchByFilters(@Param("ruleName") String ruleName,
                                          @Param("ruleConfidentiality") List<Integer> ruleConfidentiality,
                                          @Param("ruleIntegrity") List<Integer> ruleIntegrity,
@@ -38,7 +40,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
                                          @Param("ruleTechnique") List<String> ruleTechnique,
                                          @Param("ruleActive") List<Boolean> ruleActive,
                                          @Param("systemOwner") List<Boolean> systemOwner,
-                                         @Param("dataTypes") List<Long> dataTypes,
+                                         @Param("dataTypes") List<String> dataTypes,
                                          @Param("ruleInitDate") Instant ruleInitDate,
                                          @Param("ruleEndDate") Instant ruleEndDate);
 }

@@ -205,7 +205,14 @@ public class UtmNetworkScanService {
     public List<?> searchPropertyValues(PropertyFilter prop, String value, boolean forGroups, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".searchPropertyValues";
         try {
-            StringBuilder sb = new StringBuilder("SELECT %1$s, COUNT(*) AS num FROM %2$s WHERE (%1$s IS NOT NULL)");
+            StringBuilder sb = new StringBuilder("SELECT %1$s, COUNT(*) AS num FROM %2$s as p");
+
+
+            if (!prop.getJoinTable().isEmpty()){
+               sb.append(" LEFT JOIN p.%4$s jt");
+            }
+
+            sb.append(" WHERE (%1$s IS NOT NULL)");
 
             if (forGroups)
                 sb.append(" AND (groupId IS NOT NULL)");
@@ -218,8 +225,7 @@ public class UtmNetworkScanService {
             }
             sb.append(" GROUP BY %1$s");
 
-            String query = String.format(sb.toString(), prop.getPropertyName(),
-                prop.getFromTable(), StringUtils.hasText(value) ? value.toLowerCase() : null);
+            String query = String.format(sb.toString(), prop.getPropertyName(), prop.getFromTable(), StringUtils.hasText(value) ? value.toLowerCase() : null, prop.getJoinTable());
 
             return em.createQuery(query).setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber())).setMaxResults(
                 pageable.getPageSize()).getResultList();

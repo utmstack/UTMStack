@@ -6,88 +6,88 @@ import java.util.List;
 
 public class UtmCorrelationRulesFilter {
 
-    private String ruleName;
-    private List<Integer> ruleConfidentiality;
-    private List<Integer> ruleIntegrity;
-    private List<Integer> ruleAvailability;
-    private List<String> ruleCategory;
-    private List<String> ruleTechnique;
-    private Instant ruleInitDate;
-    private Instant ruleEndDate;
-    private List<Boolean> ruleActive;
+    private String name;
+    private List<Integer> confidentiality;
+    private List<Integer> integrity;
+    private List<Integer> availability;
+    private List<String> category;
+    private List<String> technique;
+    private Instant initDate;
+    private Instant endDate;
+    private List<Boolean> active;
     private List<Boolean> systemOwner;
-    private List<Long> dataTypes;
+    private List<String> dataTypes;
 
-    public String getRuleName() {
-        return ruleName;
+    public String getName() {
+        return name;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public List<Integer> getRuleConfidentiality() {
-        return ruleConfidentiality;
+    public List<Integer> getConfidentiality() {
+        return confidentiality;
     }
 
-    public void setRuleConfidentiality(List<Integer> ruleConfidentiality) {
-        this.ruleConfidentiality = ruleConfidentiality;
+    public void setConfidentiality(List<Integer> confidentiality) {
+        this.confidentiality = confidentiality;
     }
 
-    public List<Integer> getRuleIntegrity() {
-        return ruleIntegrity;
+    public List<Integer> getIntegrity() {
+        return integrity;
     }
 
-    public void setRuleIntegrity(List<Integer> ruleIntegrity) {
-        this.ruleIntegrity = ruleIntegrity;
+    public void setIntegrity(List<Integer> integrity) {
+        this.integrity = integrity;
     }
 
-    public List<Integer> getRuleAvailability() {
-        return ruleAvailability;
+    public List<Integer> getAvailability() {
+        return availability;
     }
 
-    public void setRuleAvailability(List<Integer> ruleAvailability) {
-        this.ruleAvailability = ruleAvailability;
+    public void setAvailability(List<Integer> availability) {
+        this.availability = availability;
     }
 
-    public List<String> getRuleCategory() {
-        return ruleCategory;
+    public List<String> getCategory() {
+        return category;
     }
 
-    public void setRuleCategory(List<String> ruleCategory) {
-        this.ruleCategory = ruleCategory;
+    public void setCategory(List<String> category) {
+        this.category = category;
     }
 
-    public List<String> getRuleTechnique() {
-        return ruleTechnique;
+    public List<String> getTechnique() {
+        return technique;
     }
 
-    public void setRuleTechnique(List<String> ruleTechnique) {
-        this.ruleTechnique = ruleTechnique;
+    public void setTechnique(List<String> technique) {
+        this.technique = technique;
     }
 
-    public Instant getRuleInitDate() {
-        return ruleInitDate;
+    public Instant getInitDate() {
+        return initDate;
     }
 
-    public void setRuleInitDate(Instant ruleInitDate) {
-        this.ruleInitDate = ruleInitDate;
+    public void setInitDate(Instant initDate) {
+        this.initDate = initDate;
     }
 
-    public Instant getRuleEndDate() {
-        return ruleEndDate;
+    public Instant getEndDate() {
+        return endDate;
     }
 
-    public void setRuleEndDate(Instant ruleEndDate) {
-        this.ruleEndDate = ruleEndDate;
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 
-    public List<Boolean> getRuleActive() {
-        return ruleActive;
+    public List<Boolean> getActive() {
+        return active;
     }
 
-    public void setRuleActive(List<Boolean> ruleActive) {
-        this.ruleActive = ruleActive;
+    public void setActive(List<Boolean> active) {
+        this.active = active;
     }
 
     public List<Boolean> getSystemOwner() {
@@ -98,11 +98,11 @@ public class UtmCorrelationRulesFilter {
         this.systemOwner = systemOwner;
     }
 
-    public List<Long> getDataTypes() {
+    public List<String> getDataTypes() {
         return dataTypes;
     }
 
-    public void setDataTypes(List<Long> dataTypes) {
+    public void setDataTypes(List<String> dataTypes) {
         this.dataTypes = dataTypes;
     }
 }
