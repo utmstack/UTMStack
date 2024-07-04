@@ -11,8 +11,8 @@ export interface Variable {
 }
 
 export interface Definition {
-    variables: Variable[];
-    expression: string;
+    ruleVariables: Variable[];
+    ruleExpression: string;
 }
 
 export interface DataType {
@@ -33,8 +33,7 @@ export interface Rule {
     technique: string;
     description: string;
     references: string[];
-    variables: Variable[];
-    expression: string;
+    definition: Definition;
 }
 
 export type Mode = 'ADD' | 'EDIT';

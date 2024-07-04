@@ -33,8 +33,7 @@ export class AddRuleComponent implements OnInit {
                 private dataTypeService: DataTypeService,
                 private ruleService: RuleService,
                 private router: Router,
-                private utmToastService: UtmToastService,
-                private cdr: ChangeDetectorRef) {
+                private utmToastService: UtmToastService) {
         this.initializeForm();
     }
 
@@ -74,7 +73,7 @@ export class AddRuleComponent implements OnInit {
     }
 
     get variables() {
-        return this.ruleForm.get('variables') as FormArray;
+        return this.ruleForm.get('definition').get('ruleVariables') as FormArray;
     }
 
     addVariable() {
@@ -92,11 +91,12 @@ export class AddRuleComponent implements OnInit {
                 get: variable.get,
                 of_type: variable.of_type
             }));
+            const expression =
             this.isSubmitting = true;
             const rule: Rule = {
                 ...this.ruleForm.value,
-                variables
             };
+            rule.definition.ruleVariables = variables;
             this.ruleService.saveRule(this.mode, rule)
                 .subscribe({
                     next: response => {
@@ -131,11 +131,13 @@ export class AddRuleComponent implements OnInit {
             technique: [rule ? rule.technique : '', Validators.required],
             description: [rule ? rule.description : '', Validators.required],
             references: this.initReferences(rule ? rule.references : []),
-            variables: this.initVariables([]),
-            expression: [rule ? rule.expression : '', Validators.required]
+            definition: this.fb.group({
+                ruleVariables: rule ? this.fb.array([]) : this.fb.array([this.fb.group(variableTemplate)]),
+                ruleExpression: [rule ? rule.definition.ruleExpression : '', Validators.required]
+            })
         });
 
-        this.savedVariables = rule ? rule.variables : [];
+        this.savedVariables = rule && rule.definition ? rule.definition.ruleVariables : [];
     }
 
     initReferences(references: string[]): FormArray {
@@ -194,7 +196,8 @@ export class AddRuleComponent implements OnInit {
         this.savedVariables[index].isEditing = false;
     }
 
-    copyVariable(name) {
-        this.ruleForm.patchValue({ expression: this.ruleForm.get('expression').value + name });
+    copyVariable(variableName) {
+        const expressionControl = this.ruleForm.get('definition').get('ruleExpression');
+        expressionControl.setValue(expressionControl.value + variableName);
     }
 }
