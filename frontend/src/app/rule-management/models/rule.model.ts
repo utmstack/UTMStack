@@ -18,6 +18,8 @@ export interface Definition {
 export interface DataType {
     id: number;
     dataType: string;
+    lastUpdate?: string;
+    systemOwner: boolean;
 }
 
 export interface Rule {
