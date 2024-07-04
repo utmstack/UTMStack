@@ -63,8 +63,7 @@ def main(environment, depend):
 		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service")
 		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer")
 	else:
-		service_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_" + depend.replace("-", "_") + "_service")
-		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_" + depend.replace("-", "_") + "_installer")
+		installer_path = os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_collector_installer")
 
 	if "service_version" in local_versions:
 		service_windows_blob = bucket.blob(endp + "/utmstack_" + depend.replace("-", "_") + "_service_v" + local_versions["service_version"].replace(".","_") + "_windows.exe")

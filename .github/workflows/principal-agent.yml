@@ -62,7 +62,7 @@ jobs:
         run: |
           $env:DEPLOY_ENV = '${{ needs.check.outputs.env_version }}'
 
-          cd ${{ github.workspace }}/agent/agent/configuration; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          cd ${{ github.workspace }}/agent/agent/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
           
           $env:GOOS = "linux"
           $env:GOARCH = "amd64"
