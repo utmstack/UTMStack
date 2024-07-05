@@ -54,7 +54,7 @@ func (s *StackConfig) Populate(c *Config) error {
 	services := []utils.ServiceConfig{
 		{Name: "correlation", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
 		{Name: "logstash", Priority: 1, MinMemory: 2700, MaxMemory: 60 * 1024},
-		{Name: "opensearch", Priority: 1, MinMemory: 3700, MaxMemory: 60 * 1024},
+		{Name: "opensearch", Priority: 1, MinMemory: 4350, MaxMemory: 60 * 1024},
 		{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
 		{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
 		{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
