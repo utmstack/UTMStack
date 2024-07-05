@@ -371,7 +371,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
 	correlationMin := stack.ServiceResources["correlation"].MinMemory
 	c.Services["correlation"] = Service{
-		Image: utils.Str("ghcr.io/threatwinds/threatwinds/base:1.0.0-beta"),
+		Image: utils.Str("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
 				"postgres",
