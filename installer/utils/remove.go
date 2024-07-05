@@ -1,11 +1,17 @@
 package utils
 
-import "time"
+import (
+	"time"
+
+	"github.com/threatwinds/logger"
+)
 
 func RemoveServices(services []string) error {
 	for _, service := range services {
 		if err := RunCmd("docker", "service", "rm", service); err != nil {
-			return err
+			if !logger.Is(err, "not found"){
+				return err
+			}
 		}
 	}
 
