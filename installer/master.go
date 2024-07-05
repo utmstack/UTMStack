@@ -130,7 +130,7 @@ func Master(c *types.Config) error {
 
 	fmt.Println("Downloading Plugins and Base Configurations")
 
-	if err := Downloads(c.Branch); err != nil {
+	if err := Downloads(c, stack); err != nil {
 		return err
 	}
 

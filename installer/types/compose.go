@@ -390,10 +390,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 		Volumes: []string{
 			"rules:/workdir/rules/utmstack",
-			"pipeline:/workdir/pipeline/utmstack",
 			"geoip_data:/workdir/geolocation",
 			stack.Cert + ":/cert",
-			filepath.Join(stack.EventsEngineWorkdir, "pipeline", "utmstack_plugins.yaml") + ":/workdir/pipeline/utmstack_plugins.yaml",
+			filepath.Join(stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
 			filepath.Join(stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 		},
 		Environment: []string{
@@ -547,10 +546,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	}
 
 	c.Volumes["rules"] = Volume{
-		"external": false,
-	}
-
-	c.Volumes["pipeline"] = Volume{
 		"external": false,
 	}
 

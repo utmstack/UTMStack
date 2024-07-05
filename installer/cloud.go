@@ -131,7 +131,7 @@ func Cloud(c *types.Config, update bool) error {
 	if utils.GetLock(11, stack.LocksDir) || update {
 		fmt.Println("Downloading Plugins and Base Configurations")
 
-		if err := Downloads(c.Branch); err != nil {
+		if err := Downloads(c, stack); err != nil {
 			return err
 		}
 

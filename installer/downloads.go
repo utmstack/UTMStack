@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/threatwinds/go-sdk/helpers"
+	"github.com/utmstack/UTMStack/installer/types"
 )
 
-func Downloads(tag string) error {
+func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	var branch string
 
-	switch tag {
+	switch conf.Branch {
 	case "v10-dev":
 		branch = "dev"
 	case "v10-qa":
@@ -20,18 +23,30 @@ func Downloads(tag string) error {
 		branch = "release"
 	}
 
+	pluginsFolder := filepath.Join(stack.EventsEngineWorkdir, "plugins")
+	err := os.MkdirAll(pluginsFolder, 0777)
+	if err != nil {
+		return err
+	}
+
+	pipelineFolder := filepath.Join(stack.EventsEngineWorkdir, "pipeline")
+	err = os.MkdirAll(pipelineFolder, 0777)
+	if err != nil {
+		return err
+	}
+
 	var downloads = map[string]string{
 		// Plugins
-		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.inputs.plugin", branch):      "/workdir/plugins/utmstack/com.utmstack.inputs.plugin",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.alerts.plugin", branch):      "/workdir/plugins/utmstack/com.utmstack.alerts.plugin",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.events.plugin", branch):      "/workdir/plugins/utmstack/com.utmstack.events.plugin",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.geolocation.plugin", branch): "/workdir/plugins/utmstack/com.utmstack.geolocation.plugin",
+		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.inputs.plugin", branch):      filepath.Join(pluginsFolder, "com.utmstack.inputs.plugin"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.alerts.plugin", branch):      filepath.Join(pluginsFolder, "com.utmstack.alerts.plugin"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.events.plugin", branch):      filepath.Join(pluginsFolder, "com.utmstack.events.plugin"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.geolocation.plugin", branch): filepath.Join(pluginsFolder, "com.utmstack.geolocation.plugin"),
 		// Base Configurations
-		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_analysis.yaml", branch):     "/workdir/pipeline/utmstack/system_plugins_analysis.yaml",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_correlation.yaml", branch):  "/workdir/pipeline/utmstack/system_plugins_correlation.yaml",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_input.yaml", branch):        "/workdir/pipeline/utmstack/system_plugins_input.yaml",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_notification.yaml", branch): "/workdir/pipeline/utmstack/system_plugins_notification.yaml",
-		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_parsing.yaml", branch):      "/workdir/pipeline/utmstack/system_plugins_parsing.yaml",
+		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_analysis.yaml", branch):     filepath.Join(pipelineFolder, "system_plugins_analysis.yaml"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_correlation.yaml", branch):  filepath.Join(pipelineFolder, "system_plugins_correlation.yaml"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_input.yaml", branch):        filepath.Join(pipelineFolder, "system_plugins_input.yaml"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_notification.yaml", branch): filepath.Join(pipelineFolder, "system_plugins_notification.yaml"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_parsing.yaml", branch):      filepath.Join(pipelineFolder, "system_plugins_parsing.yaml"),
 	}
 
 	for k, v := range downloads {
