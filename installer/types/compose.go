@@ -160,7 +160,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
+		Image: utils.Str("postgres:13"),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
