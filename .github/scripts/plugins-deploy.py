@@ -13,17 +13,30 @@ def main(environment):
 
 	bucket_name = "utmstack-updates"
 	bucket = storage_client.bucket(bucket_name)
-	endp = environment + "/plugins/"
+	endpPlugins = environment + "/plugins/"
+	endPipeline = environment + "/pipeline/"
 	
-	alerts_blob = bucket.blob(endp + "com.utmstack.alerts.plugin")
-	events_blob = bucket.blob(endp + "com.utmstack.events.plugin")
-	geolocation_blob = bucket.blob(endp + "com.utmstack.geolocation.plugin")
-	inputs_blob = bucket.blob(endp + "com.utmstack.inputs.plugin")
+	plugin_alerts_blob = bucket.blob(endpPlugins + "com.utmstack.alerts.plugin")
+	plugin_events_blob = bucket.blob(endpPlugins + "com.utmstack.events.plugin")
+	plugin_geolocation_blob = bucket.blob(endpPlugins + "com.utmstack.geolocation.plugin")
+	plugin_inputs_blob = bucket.blob(endpPlugins + "com.utmstack.inputs.plugin")
+
+	pipeline_analysis_blob = bucket.blob(endPipeline + "system_plugins_analysis.yaml")
+	pipeline_correlation_blob = bucket.blob(endPipeline + "system_plugins_correlation.yaml")
+	pipeline_input_blob = bucket.blob(endPipeline + "system_plugins_input.yaml")
+	pipeline_notification_blob = bucket.blob(endPipeline + "system_plugins_notification.yaml")
+	pipeline_parsing_blob = bucket.blob(endPipeline + "system_plugins_parsing.yaml")
 	
-	alerts_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "alerts", "com.utmstack.alerts.plugin"))
-	events_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "events", "com.utmstack.events.plugin"))
-	geolocation_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "geolocation", "com.utmstack.geolocation.plugin"))
-	inputs_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "inputs", "com.utmstack.inputs.plugin"))
+	plugin_alerts_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "alerts", "com.utmstack.alerts.plugin"))
+	plugin_events_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "events", "com.utmstack.events.plugin"))
+	plugin_geolocation_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "geolocation", "com.utmstack.geolocation.plugin"))
+	plugin_inputs_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "inputs", "com.utmstack.inputs.plugin"))
+
+	pipeline_analysis_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_analysis.yaml"))
+	pipeline_correlation_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_correlation.yaml"))
+	pipeline_input_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_input.yaml"))
+	pipeline_notification_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_notification.yaml"))
+	pipeline_parsing_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_parsing.yaml"))
 		
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update UTMStack Dependencies in Google Cloud Storage")

@@ -74,7 +74,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 	router.POST("/v1/github-webhook", middlewares.GitHubAuth(), GitHub)
 	router.GET("/v1/ping", Ping)
 	err := router.RunTLS(":8080", cert, key)
-	helpers.Logger().Info("starting HTTP server on 0.0.0.0:8080")
+	helpers.Logger().Info("starting HTTP server on 0.0.0.0:8080...")
 	if err != nil {
 		helpers.Logger().ErrorF("failed to start HTTP server: %v", err)
 		return
@@ -116,7 +116,7 @@ func startGRPCServer(middlewares *Middlewares) {
 		os.Exit(1)
 	}
 
-	helpers.Logger().Info("starting gRPC server on 0.0.0.0:50051")
+	helpers.Logger().Info("starting gRPC server on 0.0.0.0:50051...")
 	if err := server.Serve(listener); err != nil {
 		helpers.Logger().Fatal("failed to serve grpc: %v", err)
 		os.Exit(1)

@@ -181,13 +181,14 @@ func getAuthCache(method string, proto string) []AuthResponse {
 }
 
 func convertMapToAuthResponses(m map[uint]string) []AuthResponse {
-	var responses []AuthResponse
+	responses := []AuthResponse{}
 	for id, key := range m {
 		responses = append(responses, AuthResponse{
 			Id:  id,
 			Key: key,
 		})
 	}
+
 	return responses
 }
 
