@@ -1,9 +1,9 @@
 import {HttpResponse} from '@angular/common/http';
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {catchError, filter, finalize, map, switchMap, tap} from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { filter, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
@@ -16,7 +16,7 @@ const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.r
     templateUrl: './add-rule.component.html',
     styleUrls: ['./add-rule.component.css'],
 })
-export class AddRuleComponent implements OnInit {
+export class AddRuleComponent implements OnInit, OnDestroy {
     ruleForm: FormGroup;
     mode: Mode = 'ADD';
     loadingDataTypes = false;
@@ -196,8 +196,12 @@ export class AddRuleComponent implements OnInit {
         this.savedVariables[index].isEditing = false;
     }
 
-    copyVariable(variableName) {
+    copyVariable(variableName: string | number) {
         const expressionControl = this.ruleForm.get('definition').get('ruleExpression');
         expressionControl.setValue(expressionControl.value + variableName);
+    }
+
+    ngOnDestroy() {
+        this.dataTypeService.resetTypes();
     }
 }

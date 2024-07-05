@@ -7,6 +7,15 @@ export const RULE_CATEGORY = 'category';
 export const RULE_TECHNIQUE = 'technique';
 export const RULE_REFERENCES = 'references';
 
+// FILTERS FIELDS
+
+export const RULE_FILTER_NAME_FIELD = 'name';
+export const RULE_FILTER_DATA_TYPES = 'RULE_DATA_TYPES';
+export const RULE_FILTER_CATEGORY = 'RULE_CATEGORY';
+export const RULE_FILTER_TECHNIQUE = 'RULE_TECHNIQUE';
+export const RULE_FILTER_REFERENCES = 'references';
+
+
 export const RULE_FIELDS: UtmFieldType[] = [
     {
         label: 'Rule name',
@@ -20,21 +29,24 @@ export const RULE_FIELDS: UtmFieldType[] = [
         field: RULE_DATA_TYPES,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
-        filter: true
+        filter: true,
+        filterField: RULE_FILTER_DATA_TYPES
     },
     {
         label: 'Category',
         field: RULE_CATEGORY,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
-        filter: true
+        filter: true,
+        filterField: RULE_FILTER_CATEGORY
     },
     {
         label: 'Technique',
         field: RULE_TECHNIQUE,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
-        filter: true
+        filter: true,
+        filterField: RULE_FILTER_TECHNIQUE
     },
     {
         label: 'References',
@@ -46,3 +58,21 @@ export const RULE_FIELDS: UtmFieldType[] = [
 ];
 
 export const FILTER_RULE_FIELDS = RULE_FIELDS.filter(f => f.filter);
+
+export interface RuleFilterType {
+    ruleName?: string;
+    ruleConfidentiality?: number[];
+    ruleIntegrity?: number[];
+    ruleAvailability?: number[];
+    ruleCategory?: string[];
+    ruleTechnique?: string[];
+    ruleInitDate?: Date;
+    ruleEndDate?: Date;
+    ruleActive?: boolean[];
+    systemOwner?: boolean[];
+    dataTypes?: number[];
+    page: number;
+    size: number;
+    sort: string;
+}
+

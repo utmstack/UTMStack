@@ -50,16 +50,15 @@ export class RuleService {
     }
 
     getFieldValue(params: any) {
-        return of(new HttpResponse({
-            body: this.getUniqueValues(params.prop)
-        })).pipe(
-            delay(2000),
-            catchError((error: any): Observable<HttpResponse<Array<[string, number]>>> => {
-                console.error('Error loading rules', error);
-                return of(new HttpResponse({
-                    body: undefined
-                }));
-            })
+        const options = createRequestOption(params);
+        return this.http.get<Rule[]>(`${resourceUrl}/search-property-values`, {params: options, observe: 'response'})
+            .pipe(
+                catchError((error: any): Observable<HttpResponse<Array<[string, number]>>> => {
+                    console.error('Error loading rules', error);
+                    return of(new HttpResponse({
+                        body: undefined
+                    }));
+                })
         );
     }
 

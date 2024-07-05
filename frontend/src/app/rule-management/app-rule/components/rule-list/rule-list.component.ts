@@ -1,14 +1,17 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ResizeEvent} from 'angular-resizable-element';
-import {Observable} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {filter, map, takeUntil, tap} from 'rxjs/operators';
 import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
 import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
 import {UtmFieldType} from '../../../../shared/types/table/utm-field.type';
 import {RULE_FIELDS} from '../../../models/rule.constant';
 import {Rule} from '../../../models/rule.model';
-import {ActivatedRoute, Router} from '@angular/router';
+import {FilterService} from '../../../services/filter.service';
+import {RuleService} from '../../../services/rule.service';
+import {itemsPerPage} from '../../../services/rules.resolver.service';
 
 
 @Component({
@@ -16,11 +19,12 @@ import {ActivatedRoute, Router} from '@angular/router';
   templateUrl: './rule-list.component.html',
   styleUrls: ['./rule-list.component.css']
 })
-export class RuleListComponent implements OnInit {
+export class RuleListComponent implements OnInit, OnDestroy {
 
   @Input()
   // rulesResponse$: Observable<HttpResponse<Rule[]>>;
   rules$: Observable<Rule[]>;
+  rules: Rule[];
 
   sortEvent: SortEvent;
   sortBy = ALERT_TIMESTAMP_FIELD + ',desc';
@@ -28,25 +32,71 @@ export class RuleListComponent implements OnInit {
   checkbox: any;
   rulesSelected: Rule[] = [];
 
-  page: number;
+  page = 0;
   totalItems: number;
-  itemsPerPage: number;
+  itemsPerPage = itemsPerPage;
 
   dataType: any;
   loading: any;
   viewRuleDetail: any;
   ruleDetail: Rule;
+  isInitialized = false;
+  request: any;
+  destroy$: Subject<void> = new Subject<void>();
+
   constructor(private route: ActivatedRoute,
-              private router: Router) { }
+              private router: Router,
+              private filterService: FilterService,
+              private ruleService: RuleService) { }
 
   ngOnInit() {
+    this.request = {
+      page: this.page,
+      size: this.itemsPerPage
+    };
+
     this.rules$ = this.route.data
         .pipe(
           tap((data: { response: HttpResponse<Rule[]> }) => {
+            this.rules = data.response.body;
             this.totalItems = parseInt(data.response.headers.get('X-Total-Count') || '0', 10);
+            this.isInitialized = true;
           }),
           map((data: { response: HttpResponse<Rule[]> }) =>  data.response.body)
     );
+
+    this.filterService.filterChange
+        .pipe(
+            takeUntil(this.destroy$),
+            filter( (request: { prop: string, values: any }) => !!request),
+            tap((request) => {
+              if (request && Object.keys(request).length === 0) {
+                this.request = {
+                  page: 0,
+                  size: this.itemsPerPage
+                };
+              } else {
+                this.request = {
+                  ...this.request,
+                  [request.prop]: request.values.length > 0 ? request.values : null
+                };
+              }
+
+              this.loadRules();
+            })
+        ).subscribe();
+  }
+
+  loadRules() {
+    this.loading = true;
+    this.rules$ = this.ruleService.getRules(this.request)
+        .pipe(
+            tap(( response: HttpResponse<Rule[]> ) => {
+              this.rules = response.body;
+              this.totalItems = parseInt(response.headers.get('X-Total-Count') || '0', 10);
+              this.loading = false;
+            }),
+            map((response: HttpResponse<Rule[]> ) =>  response.body));
   }
 
   addRule() {
@@ -58,7 +108,16 @@ export class RuleListComponent implements OnInit {
   }
 
   loadPage($event: number) {
-
+    if (this.isInitialized) {
+      this.isInitialized = false;
+      return;
+    }
+    const page = $event - 1;
+    this.request = {
+      ...this.request,
+      page
+    };
+    this.loadRules();
   }
 
   onItemsPerPageChange($event: number) {
@@ -86,12 +145,12 @@ export class RuleListComponent implements OnInit {
     this.sortBy = $event.column + ',' + $event.direction;
     // this.getAlert('on sort by');
   }
-  toggleCheck(rules: Rule[]) {
+  toggleCheck() {
     this.checkbox = !this.checkbox;
     if (!this.checkbox) {
       this.rulesSelected = [];
     } else {
-      for (const rule of rules) {
+      for (const rule of this.rules) {
         const index = this.rulesSelected.indexOf(rule);
         if (index === -1) {
           this.rulesSelected.push(rule);
@@ -133,5 +192,10 @@ export class RuleListComponent implements OnInit {
   editRule(rule: Rule) {
     const {id} = rule;
     this.router.navigate(['correlation/rule', id]);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

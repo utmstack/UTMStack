@@ -1,4 +1,4 @@
-<div *ngIf="rules$ | async as rules" class="card h-100">
+<div class="card h-100">
     <div class="card-header p-2 w-100">
       <div class="d-flex justify-content-end align-items-center">
         <div class="ml-3">
@@ -12,7 +12,7 @@
         <thead>
         <tr>
           <th class="text-left" style="width: 50px;padding-left: 10px;}">
-            <i (click)="toggleCheck(rules)"
+            <i (click)="toggleCheck()"
                [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
                [ngbTooltip]="'Add page to selected'"
                class="cursor-pointer mr-3"
@@ -42,7 +42,7 @@
         </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let rule of rules; trackBy: trackByFn" class="cursor-pointer">
+          <tr *ngFor="let rule of rules$ | async; trackBy: trackByFn" class="cursor-pointer">
           <td class="text-center">
             <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
               <div class="list-icons">

@@ -20,12 +20,12 @@ import {RuleDetailComponent} from './app-rule/components/rule-list/components/ru
 import {RuleFieldComponent} from './app-rule/components/rule-list/components/rule-field/rule-field.component';
 import {RuleListComponent} from './app-rule/components/rule-list/rule-list.component';
 import {RuleManagementRoutingModule} from './rule-management.routing.module';
+import { DataTypeService } from './services/data-type.service';
+import {FilterService} from './services/filter.service';
 import {RuleResolverService} from './services/rule.resolver.service';
 import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {GenericFilterComponent} from './share/generic-filter/generic-filter.component';
-import {FilterService} from './services/filter.service';
-import { DataTypeService } from './services/data-type.service';
 
 
 @NgModule({

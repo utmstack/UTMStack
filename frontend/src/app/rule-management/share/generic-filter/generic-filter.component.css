@@ -1,0 +1,4 @@
+.filter-value-field-container {
+    max-height: 160px;
+    overflow-y: auto;
+}

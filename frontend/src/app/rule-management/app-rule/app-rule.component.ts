@@ -5,12 +5,15 @@ import {ResizeEvent} from 'angular-resizable-element';
 import {Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {EventDataTypeEnum} from '../../data-management/alert-management/shared/enums/event-data-type.enum';
-import {FILTER_RULE_FIELDS} from '../models/rule.constant';
+import {FILTER_RULE_FIELDS, RuleFilterType} from '../models/rule.constant';
 import {Rule} from '../models/rule.model';
 
 import {HttpResponse} from "@angular/common/http";
 import {FilterService} from "../services/filter.service";
 import {AssetFieldFilterEnum} from "../../assets-discover/shared/enums/asset-field-filter.enum";
+import {SERVER_API_URL} from "../../app.constants";
+import {AssetFilterType} from "../../assets-discover/shared/types/asset-filter.type";
+import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
 
 
 @Component({
@@ -25,7 +28,12 @@ export class AppRuleComponent implements OnInit {
 
     dataType: EventDataTypeEnum = EventDataTypeEnum.ALERT;
     fieldFilters = FILTER_RULE_FIELDS;
-
+    filterUrl = `${SERVER_API_URL}api/correlation-rule/search-property-values`;
+    requestParam = {
+        page: 0,
+        size: ITEMS_PER_PAGE,
+        sort: 'id,desc',
+    };
 
     ngOnInit() {}
 
@@ -52,38 +60,15 @@ export class AppRuleComponent implements OnInit {
         this.filterService.resetAllFilters();
     }
 
-    onFilterChange($event: { prop: AssetFieldFilterEnum, values: any }) {
-        /*switch ($event.prop) {
-            case AssetFieldFilterEnum.PORTS:
-                this.requestParam.openPorts = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.SEVERITY:
-                this.requestParam.severity = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.TYPE:
-                this.requestParam.type = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.STATUS:
-                this.requestParam.status = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.ALIAS:
-                this.requestParam.alias = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.OS:
-                this.requestParam.os = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.ALIVE:
-                this.requestParam.alive = $event.values;
-                break;
-            case AssetFieldFilterEnum.PROBE:
-                this.requestParam.probe = $event.values.length > 0 ? $event.values : null;
-                break;
-            case AssetFieldFilterEnum.GROUP:
-                this.requestParam.groups = $event.values.length > 0 ? $event.values : null;
-                break;
-        }
-        this.assetFiltersBehavior.$assetAppliedFilter.next(this.requestParam);
-        this.assetFiltersBehavior.$assetFilter.next(this.requestParam);
-        this.getAssets();*/
-    }
+    /*onFilterChange($event: { prop: string, values: any }) {
+        this.requestParam = {
+            ...this.requestParam,
+            [$event.prop]: $event.values.length > 0 ? $event.values : null
+        };
+        console.log(this.requestParam);
+
+       /!* this.assetFiltersBehavior.$assetAppliedFilter.next(this.requestParam);
+        this.assetFiltersBehavior.$assetFilter.next(this.requestParam);*!/
+        this.getAssets();
+    }*/
 }

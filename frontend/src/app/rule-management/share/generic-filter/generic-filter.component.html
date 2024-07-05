@@ -1,4 +1,4 @@
-<div *ngIf="fieldValues$ | async as fieldValues" class="card p-0 m-0 ">
+<div class="card p-0 m-0 ">
     <div class="card-header header-elements-sm-inline bg-white card-header-title p-2 pb-1 w-100">
         <span class="font-weight-light span-small-icon">
           {{fieldFilter.label ? fieldFilter.label : fieldFilter.field}}
@@ -11,19 +11,21 @@
                          [width]="'5px'">
         </app-utm-spinner>
     </div>
-    <div *ngIf="fieldValues.length===0 && !loading"
-         class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
-        <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
+    <div *ngIf="totalItems == 0">
+        <div class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
+            <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
+        </div>
     </div>
-    <div *ngIf="fieldValues.length > 0 && !loading" class="w-100">
+
+    <div class="w-100">
         <div (scrolled)="onScroll()"
              [fromRoot]="true"
              [infiniteScrollDistance]="1"
-             [infiniteScrollThrottle]="50"
+             [infiniteScrollThrottle]="80"
              [scrollWindow]="false"
              class="filter-value-field-container"
              infiniteScroll>
-            <div *ngFor="let value of fieldValues ;let i=index "
+            <div *ngFor="let value of fieldValues$ | async; trackBy: trackByFn; let i=index "
                  class="d-flex justify-content-start align-items-center p-2 ">
                 <input (change)="selectValue(value[0])"
                        [attr.id]="'g-check-box-'+fieldFilter.field+'-'+i"
