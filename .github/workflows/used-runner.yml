@@ -28,8 +28,6 @@ jobs:
             tech="java-11"
           elif [[ "$folder_changed" == "frontend" ]]; then
             tech="frontend"
-          elif [[ "$folder_changed" == "mutate" ]]; then
-            tech="basic"
           elif [[ "$folder_changed" == "user-auditor" || "web-pdf" ]]; then
             tech="java"
           else
