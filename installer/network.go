@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -32,7 +31,7 @@ func checkRenderer() (string, error) {
 			return "", err
 		}
 
-		if strings.Contains(fmt.Sprintf("%s", bytes), "NetworkManager") {
+		if strings.Contains(string(bytes), "NetworkManager") {
 			return "NetworkManager", nil
 		}
 	}

@@ -129,6 +129,14 @@ func Cloud(c *types.Config, update bool) error {
 	}
 
 	if utils.GetLock(11, stack.LocksDir) || update {
+		fmt.Println("Downloading Plugins and Base Configurations")
+
+		if err := Downloads(c.Branch); err != nil {
+			return err
+		}
+
+		fmt.Println("Downloading Plugins and Base Configurations [OK]")
+
 		fmt.Println("Installing Stack. This may take a while.")
 
 		if err := StackUP(c, stack); err != nil {

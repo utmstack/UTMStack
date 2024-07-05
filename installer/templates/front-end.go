@@ -12,7 +12,7 @@ const FrontEnd string = `server {
     }
 
     set $utmstack_backend http://backend:8080;
-    set $utmstack_filebrowser http://filebrowser:9091;
+    set $utmstack_agent_manager http://agentmanager:8080;
     set $utmstack_backend_auth http://backend:8080/api/authenticate;
     set $utmstack_ws http://backend:8080/ws;
     set $shared_key {{.SharedKey}};
@@ -49,7 +49,6 @@ const FrontEnd string = `server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-
    location /management {
         proxy_pass  $utmstack_backend;
         proxy_set_header Host $host;
@@ -68,29 +67,17 @@ const FrontEnd string = `server {
         proxy_cache_bypass $http_upgrade;
     }
 
-    location /kill {
-        set $auth_token "Bearer $cookie_utmauth";
-        proxy_pass $utmstack_backend_auth;
-        proxy_http_version 1.1;
-        proxy_pass_request_body off;
-        proxy_set_header Authorization $auth_token;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-    }
-
-    location /srv {
-        auth_request /kill;
-        proxy_pass $utmstack_filebrowser;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
     location /swagger-ui {
         proxy_pass  $utmstack_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 900;
+    }
+
+    location /dependencies {
+        proxy_pass  $utmstack_agent_manager;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

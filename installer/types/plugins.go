@@ -60,8 +60,8 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		return err
 	}
 
-	customRulesDir := filepath.Join(stack.EventsEngineWorkdir, "custom_rules")
-	err = os.MkdirAll(customRulesDir, 0777)
+	pluginsFolder := filepath.Join(stack.EventsEngineWorkdir, "plugins")
+	err = os.MkdirAll(pluginsFolder, 0777)
 	if err != nil {
 		return err
 	}

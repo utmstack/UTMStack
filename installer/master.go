@@ -128,6 +128,14 @@ func Master(c *types.Config) error {
 		fmt.Println("Initializing Swarm [OK]")
 	}
 
+	fmt.Println("Downloading Plugins and Base Configurations")
+
+	if err := Downloads(c.Branch); err != nil {
+		return err
+	}
+
+	fmt.Println("Downloading Plugins and Base Configurations [OK]")
+
 	fmt.Println("Installing Stack. This may take a while.")
 
 	if err := StackUP(c, stack); err != nil {
