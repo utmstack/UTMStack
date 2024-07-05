@@ -128,6 +128,33 @@ func Master(c *types.Config) error {
 		fmt.Println("Initializing Swarm [OK]")
 	}
 
+	fmt.Println("Downloading Plugins and Base Configurations")
+
+	if err := Downloads(c, stack); err != nil {
+		return err
+	}
+
+	fmt.Println("Downloading Plugins and Base Configurations [OK]")
+
+	if !utils.GetLock(5, stack.LocksDir) && utils.GetLock(202407051241, stack.LocksDir) {
+		fmt.Println("Removing old services")
+		
+		if err := utils.RemoveServices([]string{
+			"utmstack_log-auth-proxy",
+			"utmstack_mutate",
+			"utmstack_filebrowser",
+			"utmstack_correlation",
+		}); err != nil {
+			return err
+		}
+
+		if err := utils.SetLock(202407051241, stack.LocksDir); err != nil {
+			return err
+		}
+
+		fmt.Println("Removing old services [OK]")
+	}
+
 	fmt.Println("Installing Stack. This may take a while.")
 
 	if err := StackUP(c, stack); err != nil {

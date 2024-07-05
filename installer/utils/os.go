@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,9 +15,16 @@ func RunEnvCmd(env []string, command string, arg ...string) error {
 	cmd.Env = append(os.Environ(), env...)
 
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error running command: %v, %v", err, stderr.String())
+	}
+
+	return nil
 }
 
 func RunCmd(command string, arg ...string) error {

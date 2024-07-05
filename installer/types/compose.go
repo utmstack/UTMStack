@@ -120,36 +120,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		Logging: &dLogging,
 	}
 
-	mutateMem := stack.ServiceResources["mutate"].AssignedMemory
-	c.Services["mutate"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/mutate:" + conf.Branch),
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
-			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
-		},
-		Environment: []string{
-			"SERVER_NAME=" + conf.ServerName,
-			"SERVER_TYPE=" + conf.ServerType,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"DB_HOST=postgres",
-			"DB_PASSWORD=" + conf.Password,
-			"DB_USER=postgres",
-			"DB_NAME=utmstack",
-			"DB_PORT=5432",
-			"CORRELATION_URL=http://correlation:8080/v1/newlog",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", mutateMem)),
-				},
-			},
-		},
-	}
-
 	agentManagerMem := stack.ServiceResources["agentmanager"].AssignedMemory
 	c.Services["agentmanager"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
@@ -159,7 +129,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 		Ports: []string{
 			"9000:50051",
-			"10002:8080",
 		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
@@ -191,7 +160,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
+		Image: utils.Str("postgres:13"),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
@@ -402,7 +371,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
 	correlationMin := stack.ServiceResources["correlation"].MinMemory
 	c.Services["correlation"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/eventprocessor:" + conf.Branch),
+		Image: utils.Str("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
 				"postgres",
@@ -420,10 +389,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"8080:8080",
 		},
 		Volumes: []string{
-			stack.Cert + ":/cert",
-			filepath.Join(stack.EventsEngineWorkdir, "custom_rules") + ":/workdir/rules/custom",
-			filepath.Join(stack.EventsEngineWorkdir, "pipeline", "utmstack_plugins.yaml") + ":/workdir/pipeline/utmstack_plugins.yaml",
+			"rules:/workdir/rules/utmstack",
 			"geoip_data:/workdir/geolocation",
+			stack.Cert + ":/cert",
+			filepath.Join(stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			filepath.Join(stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
@@ -452,7 +422,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
-			Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
+			Image: utils.Str("opensearchproject/opensearch:2"),
 			Ports: []string{
 				"9200:9200",
 			},
@@ -572,6 +542,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	}
 
 	c.Volumes["geoip_data"] = Volume{
+		"external": false,
+	}
+
+	c.Volumes["rules"] = Volume{
 		"external": false,
 	}
 

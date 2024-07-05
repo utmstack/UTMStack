@@ -162,9 +162,9 @@ public class UtmCorrelationRulesService {
         final String ctx = CLASSNAME + ".filter";
         try {
             List<UtmCorrelationRules> rulesList = utmCorrelationRulesRepository.searchByFilters(
-                    f.getRuleName() == null ? null : "%" + f.getRuleName() + "%",f.getRuleConfidentiality(),f.getRuleIntegrity(),f.getRuleAvailability(),
-                    f.getRuleCategory(),f.getRuleTechnique(),f.getRuleActive(),f.getSystemOwner(),f.getDataTypes(),
-                    f.getRuleInitDate(),f.getRuleEndDate());
+                    f.getName() == null ? null : "%" + f.getName() + "%",f.getConfidentiality(),f.getIntegrity(),f.getAvailability(),
+                    f.getCategory(),f.getTechnique(),f.getActive(),f.getSystemOwner(),f.getDataTypes(),
+                    f.getInitDate(),f.getEndDate());
 
 
             PagedListHolder<UtmCorrelationRulesDTO> pageDefinition = new PagedListHolder<>();

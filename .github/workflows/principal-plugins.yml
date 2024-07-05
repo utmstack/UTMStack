@@ -7,10 +7,12 @@ on:
     branches: [ 'main', 'feature/**' ]
     paths:
       - 'plugins/**'
+      - 'etc/threatwinds/pipeline/**'
   pull_request_review:
     types: [submitted]
     paths: 
       - 'plugins/**'
+      - 'etc/threatwinds/pipeline/**'
 
 jobs:
   check:
@@ -69,4 +71,4 @@ jobs:
 
           export GCP_KEY='${{ secrets.GCP_KEY }}'
           cd ${{ github.workspace }}/.github/scripts
-          python plugins-deploy.py $DEPLOY_ENV    
+          python plugins-deploy.py $DEPLOY_ENV
