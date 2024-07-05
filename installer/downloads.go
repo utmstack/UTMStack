@@ -7,6 +7,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/utmstack/UTMStack/installer/types"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func Downloads(conf *types.Config, stack *types.StackConfig) error {
@@ -53,6 +54,10 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		if err := helpers.Download(k, v); err != nil {
 			return fmt.Errorf(err.Message)
 		}
+	}
+
+	if err := utils.RunCmd("chmod", "+x", filepath.Join(pluginsFolder, "*")); err != nil {
+		return err
 	}
 
 	return nil
