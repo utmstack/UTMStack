@@ -56,7 +56,7 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		}
 	}
 
-	if err := utils.RunCmd("chmod", "+x", filepath.Join(pluginsFolder, "*")); err != nil {
+	if err := utils.RunCmd("chmod", "+x", "-R", filepath.Join(pluginsFolder)); err != nil {
 		return err
 	}
 
