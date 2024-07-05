@@ -58,15 +58,6 @@ const FrontEnd string = `server {
         proxy_read_timeout 900;
     }
 
-    location /health {
-        proxy_pass $utmstack_filebrowser;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
     location /swagger-ui {
         proxy_pass  $utmstack_backend;
         proxy_set_header Host $host;
