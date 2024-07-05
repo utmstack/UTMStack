@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/utmstack/UTMStack/installer/types"
@@ -50,6 +51,10 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_parsing.yaml", branch):      filepath.Join(pipelineFolder, "system_plugins_parsing.yaml"),
 	}
 
+	if err := utils.RunCmd("systemctl", "stop", "docker"); err != nil {
+		return err
+	}
+
 	for k, v := range downloads {
 		if err := helpers.Download(k, v); err != nil {
 			return fmt.Errorf(err.Message)
@@ -59,6 +64,12 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	if err := utils.RunCmd("chmod", "+x", "-R", filepath.Join(pluginsFolder)); err != nil {
 		return err
 	}
+
+	if err := utils.RunCmd("systemctl", "start", "docker"); err != nil {
+		return err
+	}
+
+	time.Sleep(60 * time.Second)
 
 	return nil
 }
