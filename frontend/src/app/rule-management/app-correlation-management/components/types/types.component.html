@@ -1,1 +1,100 @@
-{{ 'ytpes !!!' }}
+<div class="card h-100">
+    <div class="card-header p-2 w-100">
+        <div class="d-flex justify-content-end align-items-center">
+            <div class="ml-3">
+                <app-utm-search-input (searchFor)="onSearch($event)"
+                                      [placeholder]="'Search by rule'"></app-utm-search-input>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive resizable-table-responsive h-100">
+        <table class="table text-nowrap">
+            <thead>
+            <tr>
+                <th (sort)="onSortBy($event)"
+                    [isSortable]="true"
+                    [sortEvent]="sortEvent"
+                    [sortable]="'dataType'"
+                    appColumnSortable
+                    class="font-weight-semibold cursor-pointer pl-4">
+                    Name
+                </th>
+                <th (sort)="onSortBy($event)"
+                    [isSortable]="true"
+                    [sortEvent]="sortEvent"
+                    [sortable]="'dataTypeDescription'"
+                    appColumnSortable
+                    class="font-weight-semibold cursor-pointer">
+                    Description
+                </th>
+                <th class="font-weight-semibold cursor-pointer pr-4" style="width: 20px">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let type of types$ | async; trackBy: trackByFn" class="cursor-pointer">
+
+                <td class="pl-4" (click)="viewDetailDataType(type)">
+                    {{ type.dataType }}
+                </td>
+                <td (click)="viewDetailDataType(type)">
+                    {{ type.dataTypeDescription }}
+                </td>
+
+                <td class="td-action pr-4">
+                    <div class="d-flex justify-content-end align-items-center medium-icon">
+
+                        <i (click)="editDataType(type)" class="icon-pencil cursor-pointer ml-2"
+                           ngbTooltip="Edit"
+                           container="body"
+                           placement="left"></i>
+
+                        <i *ngIf="!type.systemOwner" (click)="deleteType($event, type)" class="icon-cross2 cursor-pointer ml-2"
+                           ngbTooltip="Delete"
+                           container="body"
+                           placement="auto"></i>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="types.length === 0">
+            <tr>
+                <td [attr.colspan]="fields.length + 1">
+                    <app-no-data-found></app-no-data-found>
+                </td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="loading">
+            <tr>
+                <td [attr.colspan]="fields.length + 1">
+                    <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                        <app-utm-spinner [height]="'35px'"
+                                         [label]="'Loading...'"
+                                         [loading]="loading"
+                                         [width]="'35px'">
+                        </app-utm-spinner>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="mb-3 mt-3">
+        <div class="row justify-content-center">
+            <ngb-pagination (pageChange)="loadPage($event)"
+                            [(page)]="page"
+                            [boundaryLinks]="true"
+                            [collectionSize]="totalItems"
+                            [maxSize]="10"
+                            [pageSize]="itemsPerPage"
+                            [rotate]="true"
+                            [size]="'sm'"></ngb-pagination>
+            <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                    class="ml-3">
+            </app-utm-items-per-page>
+        </div>
+    </div>
+</div>
+
+

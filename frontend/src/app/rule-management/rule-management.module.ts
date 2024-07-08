@@ -26,6 +26,9 @@ import {RuleResolverService} from './services/rule.resolver.service';
 import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {GenericFilterComponent} from './share/generic-filter/generic-filter.component';
+import {TypesResolverService} from "./services/types.resolver.service";
+import {ConfigService} from "./app-correlation-management/services/config.service";
+import {AddTypeComponent} from "./app-correlation-management/components/types/components/add-type.component";
 
 
 @NgModule({
@@ -41,7 +44,8 @@ import {GenericFilterComponent} from './share/generic-filter/generic-filter.comp
       TypesComponent,
       PatternsComponent,
       RuleGenericFilterComponent,
-      GenericFilterComponent
+      GenericFilterComponent,
+      AddTypeComponent
   ],
     imports: [
         CommonModule,
@@ -61,10 +65,12 @@ import {GenericFilterComponent} from './share/generic-filter/generic-filter.comp
       RulesResolverService,
       RuleResolverService,
       FilterService,
-      DataTypeService
+      DataTypeService,
+      TypesResolverService,
+      ConfigService
   ],
    entryComponents: [
-      AddRuleComponent
+       AddTypeComponent
    ]
 })
 export class RuleManagementModule { }

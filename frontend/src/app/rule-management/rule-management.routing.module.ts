@@ -11,6 +11,7 @@ import {AppRuleComponent} from './app-rule/app-rule.component';
 import {AddRuleComponent} from './app-rule/components/add-rule/add-rule.component';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {RuleResolverService} from './services/rule.resolver.service';
+import {TypesResolverService} from "./services/types.resolver.service";
 
 const routes = [
   {path: '', redirectTo: 'rules', pathMatch: 'full'},
@@ -56,6 +57,9 @@ const routes = [
         component:  TypesComponent,
         canActivate: [UserRouteAccessService],
         data: {authorities: [USER_ROLE, ADMIN_ROLE]},
+        resolve: {
+          response: TypesResolverService
+        }
       },
       {
         path: 'patterns',

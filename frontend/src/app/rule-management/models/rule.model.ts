@@ -18,6 +18,7 @@ export interface Definition {
 export interface DataType {
     id: number;
     dataType: string;
+    dataTypeDescription?: string;
     lastUpdate?: string;
     systemOwner: boolean;
 }

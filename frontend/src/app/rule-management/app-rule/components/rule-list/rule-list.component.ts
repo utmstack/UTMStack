@@ -142,8 +142,12 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   onSortBy($event: SortEvent) {
-    this.sortBy = $event.column + ',' + $event.direction;
-    // this.getAlert('on sort by');
+    const sort =  $event.column + ',' + $event.direction;
+    this.request = {
+      ...this.request,
+      sort
+    };
+    this.loadRules();
   }
   toggleCheck() {
     this.checkbox = !this.checkbox;

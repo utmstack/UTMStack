@@ -30,8 +30,20 @@ export class DataTypeService {
         return this.http.post<HttpResponse<any>>(resourceUrl, body, {observe: 'response'});
     }
 
+    update(body: Partial<DataType>): Observable<HttpResponse<any>> {
+        return this.http.post<HttpResponse<any>>(resourceUrl, body, {observe: 'response'});
+    }
+
     getById(id: number): Observable<HttpResponse<DataType>> {
       return this.http.get<DataType>(`${resourceUrl}/${id}`, {observe: 'response'});
+    }
+
+    delete(id: number): Observable<HttpResponse<any>> {
+       return this.http.delete<any>(`${resourceUrl}/${id}`, {observe: 'response'});
+    }
+
+    public saveDataType( mode: string, type: Partial<DataType>){
+        return mode === 'ADD' ? this.save(type) : this.update(type);
     }
 
     getAll(req: any): Observable<HttpResponse<DataType[]>> {
