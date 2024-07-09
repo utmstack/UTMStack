@@ -52,9 +52,13 @@ export class AddPatternComponent implements OnInit {
   onSubmit() {
     if (this.patternForm.valid) {
       this.loading = true;
-      const pattern: RegexPattern = this.patternForm.value;
+      const formPattern: RegexPattern = this.patternForm.value;
+      const patternToSave = this.mode === 'ADD' ? formPattern : { 
+        ...this.pattern,
+        ...formPattern
+      };
       this.patternManagerService
-        .saveRegexPattern(this.mode, pattern)
+        .saveRegexPattern(this.mode, patternToSave)
            .subscribe({
              next: response => {
                this.patternForm.reset();
