@@ -1,8 +1,10 @@
 <div class="card sidebar-app-management h-100">
-    <div class="card-header p-2 w-100">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="card-title mb-0 text-uppercase label-header">Manage configuration</h5>
-        </div>
+    <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+            <label class="card-title">Configuration</label>
+            <div class="d-flex">
+                <span class="ml-2 text-grey-800 position-relative">
+                    <i class="icon-cog2"></i></span>
+            </div>
     </div>
     <div class="list-group p-3">
         <a *appHasAnyAuthority="adminAuth"
@@ -11,7 +13,7 @@
            routerLinkActive="router-link-active">
             <div class="d-flex justify-content-between align-items-center">
                 <span class="font-weight-semibold">
-                    <i class="icon-key font-size-sm"></i>&nbsp;
+                    <i class="icon-server font-size-sm"></i>&nbsp;
                         Assets
                 </span>
             </div>
@@ -22,7 +24,7 @@
            routerLinkActive="router-link-active">
             <div class="d-flex justify-content-between align-items-center">
                 <span class="font-weight-semibold">
-                    <i class="icon-key font-size-sm"></i>&nbsp;
+                    <i class="icon-clipboard font-size-sm"></i>&nbsp;
                         Data Types
                 </span>
             </div>
@@ -33,7 +35,7 @@
            routerLinkActive="router-link-active">
             <div class="d-flex justify-content-between align-items-center">
                 <span class="font-weight-semibold">
-                    <i class="icon-key font-size-sm"></i>&nbsp;
+                    <i class="icon-code font-size-sm"></i>&nbsp;
                         Patterns
                 </span>
             </div>
