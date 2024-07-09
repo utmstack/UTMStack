@@ -12,7 +12,12 @@ import {AppCorrelationManagementComponent} from './app-correlation-management/ap
 import {AssetsComponent} from './app-correlation-management/components/assets/assets.component';
 import {PatternsComponent} from './app-correlation-management/components/patterns/patterns.component';
 import {SidebarComponent} from './app-correlation-management/components/sidebar/sidebar.component';
+import {AddTypeComponent} from './app-correlation-management/components/types/components/add-type.component';
 import {TypesComponent} from './app-correlation-management/components/types/types.component';
+import {ConfigService} from './app-correlation-management/services/config.service';
+import {PatternManagerService} from './app-correlation-management/services/pattern-manager.service';
+import {PatternsResolverService} from './app-correlation-management/services/patterns.resolver.service';
+import {TypesResolverService} from './app-correlation-management/services/types.resolver.service';
 import {AppRuleComponent} from './app-rule/app-rule.component';
 import {AddRuleComponent} from './app-rule/components/add-rule/add-rule.component';
 import {RuleGenericFilterComponent} from './app-rule/components/rule-generic-filter/rule-generic-filter.component';
@@ -26,9 +31,7 @@ import {RuleResolverService} from './services/rule.resolver.service';
 import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {GenericFilterComponent} from './share/generic-filter/generic-filter.component';
-import {TypesResolverService} from "./services/types.resolver.service";
-import {ConfigService} from "./app-correlation-management/services/config.service";
-import {AddTypeComponent} from "./app-correlation-management/components/types/components/add-type.component";
+import {AddPatternComponent} from "./app-correlation-management/components/patterns/components/add-pattern.component";
 
 
 @NgModule({
@@ -45,7 +48,8 @@ import {AddTypeComponent} from "./app-correlation-management/components/types/co
       PatternsComponent,
       RuleGenericFilterComponent,
       GenericFilterComponent,
-      AddTypeComponent
+      AddTypeComponent,
+      AddPatternComponent
   ],
     imports: [
         CommonModule,
@@ -67,10 +71,13 @@ import {AddTypeComponent} from "./app-correlation-management/components/types/co
       FilterService,
       DataTypeService,
       TypesResolverService,
-      ConfigService
+      ConfigService,
+      PatternManagerService,
+      PatternsResolverService
   ],
    entryComponents: [
-       AddTypeComponent
+       AddTypeComponent,
+       AddPatternComponent
    ]
 })
 export class RuleManagementModule { }
