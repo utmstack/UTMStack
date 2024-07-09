@@ -8,7 +8,7 @@ import (
 )
 
 var stats = make(map[string]Stat)
-var statsMutex = &sync.Mutex{}
+var statsMutex = sync.Mutex{}
 
 type Stat struct{
 	Id string `json:"id"`
@@ -21,8 +21,12 @@ func GetStats() map[string]Stat {
 	statsMutex.Lock()
 	defer statsMutex.Unlock()
 	
-	tmp := stats
-	
+	tmp := make(map[string]Stat, len(stats))
+
+	for k,v := range stats {
+		tmp[k] = v
+	}
+
 	return tmp
 }
 
