@@ -21,7 +21,9 @@ func GetStats() map[string]Stat {
 	statsMutex.Lock()
 	defer statsMutex.Unlock()
 	
-	return stats
+	tmp := stats
+	
+	return tmp
 }
 
 func One(t, s string) {
