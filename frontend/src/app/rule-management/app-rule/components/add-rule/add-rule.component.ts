@@ -103,7 +103,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
                         console.log('Rule saved successfully', response);
                         this.dataTypeService.resetTypes();
                         this.isSubmitting = false;
-                        this.router.navigate(['/correlation/rules'])
+                        this.router.navigate(['/alerting-rules/rules'])
                             .then(() =>  this.utmToastService.showSuccessBottom(this.mode === 'ADD'
                                 ? 'Rule saved successfully' : 'Rule edited successfully'));
                     },
