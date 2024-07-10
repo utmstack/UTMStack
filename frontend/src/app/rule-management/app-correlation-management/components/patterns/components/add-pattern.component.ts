@@ -53,7 +53,7 @@ export class AddPatternComponent implements OnInit {
     if (this.patternForm.valid) {
       this.loading = true;
       const formPattern: RegexPattern = this.patternForm.value;
-      const patternToSave = this.mode === 'ADD' ? formPattern : { 
+      const patternToSave = this.mode === 'ADD' ? formPattern : {
         ...this.pattern,
         ...formPattern
       };
