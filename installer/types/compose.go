@@ -487,7 +487,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 	}
 
-	userAutidorMem := stack.ServiceResources["user-auditor"].AssignedMemory
+	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
 		DependsOn: []string{
@@ -510,7 +510,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", userAutidorMem)),
+					Memory: utils.Str(fmt.Sprintf("%vM", userAuditorMem)),
 				},
 			},
 		},
