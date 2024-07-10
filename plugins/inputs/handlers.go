@@ -34,6 +34,22 @@ func Log(c *gin.Context) {
 		l.Id = lastId
 	}
 
+	if l.TenantId == "" {
+		l.TenantId = defaultTenant
+	}
+
+	if l.DataType == ""{
+		l.DataType = "generic"
+	}
+
+	if l.DataSource == ""{
+		l.DataSource = "unknown"
+	}
+
+	if l.Timestamp == "" {
+		l.Timestamp = time.Now().UTC().Format(time.RFC3339Nano)
+	}
+
 	localLogsChannel <- l
 
 	c.JSON(http.StatusOK, plugins.Ack{LastId: l.Id})
@@ -54,13 +70,15 @@ func GitHub(c *gin.Context) {
 
 	var l = new(plugins.Log)
 
-	lastId := uuid.New().String()
-	l.Id = lastId
+	l.Raw = buf.String()
 
+	lastId := uuid.New().String()
+
+	l.Id = lastId
 	l.DataType = "github"
 	l.DataSource = "github"
+	l.TenantId = defaultTenant
 	l.Timestamp = time.Now().UTC().Format(time.RFC3339Nano)
-	l.Raw = buf.String()
 
 	localLogsChannel <- l
 
@@ -77,6 +95,22 @@ func (i *integration) ProcessLog(srv plugins.Integration_ProcessLogServer) error
 		if l.Id == "" {
 			lastId := uuid.New().String()
 			l.Id = lastId
+		}
+
+		if l.TenantId == "" {
+			l.TenantId = defaultTenant
+		}
+
+		if l.DataType == ""{
+			l.DataType = "generic"
+		}
+	
+		if l.DataSource == ""{
+			l.DataSource = "unknown"
+		}
+
+		if l.Timestamp == "" {
+			l.Timestamp = time.Now().UTC().Format(time.RFC3339Nano)
 		}
 
 		localLogsChannel <- l

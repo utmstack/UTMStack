@@ -15,6 +15,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+
 var localLogsChannel = make(chan *plugins.Log)
 
 type PluginConfig struct {
