@@ -190,7 +190,12 @@ export class PatternsComponent implements OnInit, OnDestroy {
   }
 
   onSearch($event: string | number) {
+      this.request = {
+        search: $event,
+        page: 0
+      };
 
+      this.loadRegexPatterns();
   }
 
   editRegexPattern(pattern: RegexPattern) {

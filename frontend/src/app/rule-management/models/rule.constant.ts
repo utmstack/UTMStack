@@ -53,7 +53,7 @@ export const RULE_FIELDS: UtmFieldType[] = [
         field: RULE_REFERENCES,
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
-        filter: true
+        filter: false
     },
 ];
 

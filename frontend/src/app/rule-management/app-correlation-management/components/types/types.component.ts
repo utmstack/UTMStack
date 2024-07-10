@@ -196,7 +196,11 @@ export class TypesComponent implements OnInit, OnDestroy {
   }
 
   onSearch($event: string | number) {
-
+      this.request = {
+        page: 0,
+        search: $event
+      };
+      this.loadDataTypes();
   }
 
   editDataType(type: DataType) {
