@@ -120,7 +120,7 @@ public class UtmRegexPatternResource {
      * @return the {@link List} of {@link UtmRegexPattern} in body with status {@code 200 (OK)}, or with status {@code 500 (Internal)} if errors occurred.
      */
     @GetMapping("/regex-pattern")
-    public ResponseEntity<List<UtmRegexPattern>> getAllRegexPatterns(String search, Pageable pageable) {
+    public ResponseEntity<List<UtmRegexPattern>> getAllRegexPatterns(@RequestParam(required = false) String search, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllRegexPatterns";
         try {
             Page<UtmRegexPattern> page = regexPatternService.findAll(search, pageable);

@@ -121,7 +121,7 @@ public class UtmDataTypesResource {
      * @return the ResponseEntity with status 200 (OK) and the list of datatypes in body
      */
     @GetMapping("/data-types")
-    public ResponseEntity<List<UtmDataTypes>> getAllDataTypes(String search, Pageable pageable) {
+    public ResponseEntity<List<UtmDataTypes>> getAllDataTypes(@RequestParam(required = false) String search, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllDataTypes";
         try {
             Page<UtmDataTypes> page = dataTypesService.findAll(search, pageable);
