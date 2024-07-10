@@ -47,9 +47,13 @@ export class AddTypeComponent implements OnInit {
   onSubmit() {
     if (this.dataTypeForm.valid) {
       this.loading = true;
-      const type = this.dataTypeForm.value;
+      const formType = this.dataTypeForm.value;
+      const typeToSave = this.mode === 'ADD' ? formType : {
+        ...this.type,
+        ...formType
+      };
       this.dataTypeService
-        .saveDataType(this.mode, type)
+        .saveDataType(this.mode, typeToSave)
            .subscribe({
              next: response => {
                console.log('Data type saved successfully', response);
