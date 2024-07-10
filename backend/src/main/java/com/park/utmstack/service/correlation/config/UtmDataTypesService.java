@@ -134,10 +134,10 @@ public class UtmDataTypesService {
      * @param p the pagination parameters
      * @return the list of datatypes
      */
-    public Page<UtmDataTypes> findAll(Pageable p) {
+    public Page<UtmDataTypes> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
-            return utmDataTypesRepository.findAll(p);
+            return utmDataTypesRepository.searchByFilters(search != null ? "%"+search+"%" : null, p);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
