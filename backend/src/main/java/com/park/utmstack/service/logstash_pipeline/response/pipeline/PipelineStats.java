@@ -6,7 +6,6 @@ public class PipelineStats {
     Long id;
     String pipelineId;
     String pipelineName;
-    Integer parentPipeline;
     String pipelineStatus;
     String moduleName;
     Boolean systemOwner;
@@ -21,7 +20,6 @@ public class PipelineStats {
         this.id = info.getId();
         this.pipelineId = info.getPipelineId();
         this.pipelineName = info.getPipelineName();
-        this.parentPipeline = info.getParentPipeline();
         this.pipelineStatus = info.getPipelineStatus();
         this.moduleName = info.getModuleName();
         this.systemOwner = info.getSystemOwner();
@@ -33,22 +31,14 @@ public class PipelineStats {
         stats.setId(info.getId());
         stats.setPipelineId(info.getPipelineId());
         stats.setPipelineName(info.getPipelineName());
-        stats.setParentPipeline(info.getParentPipeline());
         stats.setPipelineStatus(info.getPipelineStatus());
         stats.setModuleName(info.getModuleName());
         stats.setSystemOwner(info.getSystemOwner());
         stats.setPipelineDescription(info.getPipelineDescription());
         PipelineEvents events = new PipelineEvents();
-        events.setIn(info.getEventsIn());
-        events.setFiltered(info.getEventsFiltered());
         events.setOut(info.getEventsOut());
         PipelineReloads reloads = new PipelineReloads();
-        reloads.setFailures(info.getReloadsFailures());
-        reloads.setSuccesses(info.getReloadsSuccesses());
-        reloads.setLastFailureTimestamp(info.getReloadsLastFailureTimestamp());
-        reloads.setLastSuccessTimestamp(info.getReloadsLastSuccessTimestamp());
         PipelineLastError lastError = new PipelineLastError();
-        lastError.setMessage(info.getReloadsLastError());
         reloads.setLastError(lastError);
         stats.setEvents(events);
         stats.setReloads(reloads);
@@ -77,14 +67,6 @@ public class PipelineStats {
 
     public void setPipelineName(String pipelineName) {
         this.pipelineName = pipelineName;
-    }
-
-    public Integer getParentPipeline() {
-        return parentPipeline;
-    }
-
-    public void setParentPipeline(Integer parentPipeline) {
-        this.parentPipeline = parentPipeline;
     }
 
     public String getPipelineStatus() {

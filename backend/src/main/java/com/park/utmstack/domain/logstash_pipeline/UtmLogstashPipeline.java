@@ -29,9 +29,6 @@ public class UtmLogstashPipeline implements Serializable {
     @Column(name = "pipeline_name")
     private String pipelineName;
 
-    @Column(name = "parent_pipeline")
-    private Integer parentPipeline;
-
     @Column(name = "pipeline_status")
     private String pipelineStatus;
 
@@ -48,66 +45,28 @@ public class UtmLogstashPipeline implements Serializable {
     @Column(name = "pipeline_internal", columnDefinition = "boolean default false")
     private Boolean pipelineInternal = false;
 
-    @Column(name = "events_in")
-    private Long eventsIn;
-
-    @Column(name = "events_filtered")
-    private Long eventsFiltered;
-
     @Column(name = "events_out")
     private Long eventsOut;
 
-    @Column(name = "reloads_successes")
-    private Long reloadsSuccesses;
-
-    @Column(name = "reloads_failures")
-    private Long reloadsFailures;
-
-    @Size(max = 50)
-    @Column(name = "reloads_last_failure_timestamp")
-    private String reloadsLastFailureTimestamp;
-
-    @Column(name = "reloads_last_error")
-    private String reloadsLastError;
-
-    @Size(max = 50)
-    @Column(name = "reloads_last_success_timestamp")
-    private String reloadsLastSuccessTimestamp;
 
     public UtmLogstashPipeline(){}
     public UtmLogstashPipeline(Long id, String pipelineId,
                                String pipelineName,
-                               Integer parentPipeline,
                                String pipelineStatus,
                                String moduleName,
                                Boolean systemOwner,
                                String pipelineDescription,
                                Boolean pipelineInternal,
-                               Long eventsIn,
-                               Long eventsFiltered,
-                               Long eventsOut,
-                               Long reloadsSuccesses,
-                               Long reloadsFailures,
-                               String reloadsLastFailureTimestamp,
-                               String reloadsLastError,
-                               String reloadsLastSuccessTimestamp) {
+                               Long eventsOut) {
         this.id = id;
         this.pipelineId = pipelineId;
         this.pipelineName = pipelineName;
-        this.parentPipeline = parentPipeline;
         this.pipelineStatus = pipelineStatus;
         this.moduleName = moduleName;
         this.systemOwner = systemOwner;
         this.pipelineDescription = pipelineDescription;
         this.pipelineInternal = pipelineInternal==null?false:pipelineInternal;
-        this.eventsIn = eventsIn==null?0L:eventsIn;
-        this.eventsFiltered = eventsFiltered==null?0L:eventsFiltered;
         this.eventsOut = eventsOut==null?0L:eventsOut;
-        this.reloadsSuccesses = reloadsSuccesses==null?0L:reloadsSuccesses;
-        this.reloadsFailures = reloadsFailures==null?0L:reloadsFailures;
-        this.reloadsLastFailureTimestamp = reloadsLastFailureTimestamp;
-        this.reloadsLastError = reloadsLastError;
-        this.reloadsLastSuccessTimestamp = reloadsLastSuccessTimestamp;
     }
 
     public Long getId() {
@@ -132,14 +91,6 @@ public class UtmLogstashPipeline implements Serializable {
 
     public void setPipelineName(String pipelineName) {
         this.pipelineName = pipelineName;
-    }
-
-    public Integer getParentPipeline() {
-        return parentPipeline;
-    }
-
-    public void setParentPipeline(Integer parentPipeline) {
-        this.parentPipeline = parentPipeline;
     }
 
     public String getPipelineStatus() {
@@ -182,22 +133,6 @@ public class UtmLogstashPipeline implements Serializable {
         this.pipelineInternal = pipelineInternal;
     }
 
-    public Long getEventsIn() {
-        return eventsIn;
-    }
-
-    public void setEventsIn(Long eventsIn) {
-        this.eventsIn = eventsIn;
-    }
-
-    public Long getEventsFiltered() {
-        return eventsFiltered;
-    }
-
-    public void setEventsFiltered(Long eventsFiltered) {
-        this.eventsFiltered = eventsFiltered;
-    }
-
     public Long getEventsOut() {
         return eventsOut;
     }
@@ -206,54 +141,10 @@ public class UtmLogstashPipeline implements Serializable {
         this.eventsOut = eventsOut;
     }
 
-    public Long getReloadsSuccesses() {
-        return reloadsSuccesses;
-    }
-
-    public void setReloadsSuccesses(Long reloadsSuccesses) {
-        this.reloadsSuccesses = reloadsSuccesses;
-    }
-
-    public Long getReloadsFailures() {
-        return reloadsFailures;
-    }
-
-    public void setReloadsFailures(Long reloadsFailures) {
-        this.reloadsFailures = reloadsFailures;
-    }
-
-    public String getReloadsLastFailureTimestamp() {
-        return reloadsLastFailureTimestamp;
-    }
-
-    public void setReloadsLastFailureTimestamp(String reloadsLastFailureTimestamp) {
-        this.reloadsLastFailureTimestamp = reloadsLastFailureTimestamp;
-    }
-
-    public String getReloadsLastError() {
-        return reloadsLastError;
-    }
-
-    public void setReloadsLastError(String reloadsLastError) {
-        this.reloadsLastError = reloadsLastError;
-    }
-
-    public String getReloadsLastSuccessTimestamp() {
-        return reloadsLastSuccessTimestamp;
-    }
-
-    public void setReloadsLastSuccessTimestamp(String reloadsLastSuccessTimestamp) {
-        this.reloadsLastSuccessTimestamp = reloadsLastSuccessTimestamp;
-    }
-
     public void setDefaults(){
         this.systemOwner = false;
         this.pipelineInternal = this.pipelineInternal==null?false:this.pipelineInternal;
-        this.eventsIn = this.eventsIn==null?0L:this.eventsIn;
-        this.eventsFiltered = this.eventsFiltered==null?0L:this.eventsFiltered;
         this.eventsOut = this.eventsOut==null?0L:this.eventsOut;
-        this.reloadsSuccesses = this.reloadsSuccesses==null?0L:this.reloadsSuccesses;
-        this.reloadsFailures = this.reloadsFailures==null?0L:this.reloadsFailures;
         this.pipelineStatus = PipelineStatus.PIPELINE_STATUS_DOWN.get();
     }
 }

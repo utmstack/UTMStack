@@ -13,8 +13,6 @@ public class UtmLogstashPipelineDTO {
     @Size(max = 200)
     private String pipelineName;
 
-    private Integer parentPipeline;
-
     private String pipelineStatus;
 
     private String moduleName;
@@ -30,7 +28,6 @@ public class UtmLogstashPipelineDTO {
     public UtmLogstashPipelineDTO(){}
     public UtmLogstashPipelineDTO(Long id, String pipelineId,
                                   String pipelineName,
-                                  Integer parentPipeline,
                                   String pipelineStatus,
                                   String moduleName,
                                   Boolean systemOwner,
@@ -39,7 +36,6 @@ public class UtmLogstashPipelineDTO {
         this.id = id;
         this.pipelineId = pipelineId;
         this.pipelineName = pipelineName;
-        this.parentPipeline = parentPipeline;
         this.pipelineStatus = pipelineStatus;
         this.moduleName = moduleName;
         this.systemOwner = systemOwner;
@@ -50,7 +46,6 @@ public class UtmLogstashPipelineDTO {
         this.id = pipeline.getId();
         this.pipelineId = pipeline.getPipelineId();
         this.pipelineName = pipeline.getPipelineName();
-        this.parentPipeline = pipeline.getParentPipeline();
         this.pipelineStatus = pipeline.getPipelineStatus();
         this.moduleName = pipeline.getModuleName();
         this.systemOwner = pipeline.getSystemOwner();
@@ -63,7 +58,6 @@ public class UtmLogstashPipelineDTO {
         if (utmLogstashPipeline==null) utmLogstashPipeline = new UtmLogstashPipeline();
         utmLogstashPipeline.setId(this.getId());
         utmLogstashPipeline.setPipelineName(this.getPipelineName());
-        utmLogstashPipeline.setParentPipeline(this.getParentPipeline());
         utmLogstashPipeline.setModuleName(this.getModuleName());
         utmLogstashPipeline.setPipelineDescription(this.getPipelineDescription());
         utmLogstashPipeline.setPipelineInternal(this.getPipelineInternal()==null?utmLogstashPipeline.getPipelineInternal():this.getPipelineInternal());
@@ -92,14 +86,6 @@ public class UtmLogstashPipelineDTO {
 
     public void setPipelineName(String pipelineName) {
         this.pipelineName = pipelineName;
-    }
-
-    public Integer getParentPipeline() {
-        return parentPipeline;
-    }
-
-    public void setParentPipeline(Integer parentPipeline) {
-        this.parentPipeline = parentPipeline;
     }
 
     public String getPipelineStatus() {

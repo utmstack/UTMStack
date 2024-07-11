@@ -22,7 +22,9 @@ public interface UtmLogstashPipelineRepository extends JpaRepository<UtmLogstash
     @Query(nativeQuery = true, value = "SELECT nextval('utm_logstash_pipeline_id_seq')")
     Long getNextId();
 
-    @Query("SELECT distinct ulp.parentPipeline from UtmLogstashPipeline ulp " +
-        "where ulp.parentPipeline is not null order by ulp.parentPipeline")
-    List<Long> getParents();
+    @Query("SELECT ulp FROM UtmLogstashPipeline ulp " +
+            "LEFT JOIN UtmModule as um ON ulp.moduleName = um.moduleName " +
+            "WHERE (um.moduleActive IS NULL OR um.moduleActive = true) AND ulp.moduleName IN ('AZURE','GCP')")
+    List<UtmLogstashPipeline> activeLogstashPipelines();
+
 }
