@@ -120,10 +120,10 @@ public class UtmTenantConfigResource {
      * @return the ResponseEntity with status 200 (OK) and the list of tenant configuration in body
      */
     @GetMapping("/tenant-config")
-    public ResponseEntity<List<UtmTenantConfig>> getAllTenantConfig(Pageable pageable) {
+    public ResponseEntity<List<UtmTenantConfig>> getAllTenantConfig(@RequestParam(required = false) String search, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllTenantConfig";
         try {
-            Page<UtmTenantConfig> page = tenantConfigService.findAll(pageable);
+            Page<UtmTenantConfig> page = tenantConfigService.findAll(search, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/tenant-config");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {

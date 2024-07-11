@@ -124,10 +124,10 @@ public class UtmTenantConfigService {
      * @param p the pagination parameters
      * @return the list of tenant configurations
      */
-    public Page<UtmTenantConfig> findAll(Pageable p) {
+    public Page<UtmTenantConfig> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
-            return utmTenantConfigRepository.findAll(p);
+            return utmTenantConfigRepository.searchByFilters(search, p);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
