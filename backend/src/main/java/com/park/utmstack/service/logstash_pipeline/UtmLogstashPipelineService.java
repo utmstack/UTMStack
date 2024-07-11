@@ -2,18 +2,13 @@ package com.park.utmstack.service.logstash_pipeline;
 
 import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import com.park.utmstack.domain.logstash_pipeline.UtmGroupLogstashPipelineFilters;
-import com.park.utmstack.domain.logstash_pipeline.UtmLogstashInput;
-import com.park.utmstack.domain.logstash_pipeline.UtmLogstashInputConfiguration;
 import com.park.utmstack.domain.logstash_pipeline.UtmLogstashPipeline;
-import com.park.utmstack.domain.logstash_pipeline.enums.InputConfigTypes;
 import com.park.utmstack.domain.logstash_pipeline.enums.PipelineValidationMode;
 import com.park.utmstack.domain.logstash_pipeline.types.*;
 import com.park.utmstack.repository.logstash_filter.UtmLogstashFilterRepository;
 import com.park.utmstack.repository.logstash_pipeline.UtmGroupLogstashPipelineFiltersRepository;
-import com.park.utmstack.repository.logstash_pipeline.UtmLogstashInputConfigurationRepository;
 import com.park.utmstack.repository.logstash_pipeline.UtmLogstashPipelineRepository;
 import com.park.utmstack.service.dto.logstash_pipeline.UtmLogstashPipelineDTO;
-import com.park.utmstack.service.logstash_pipeline.enums.PipelineRelation;
 import com.park.utmstack.service.logstash_pipeline.enums.PipelineStatus;
 import com.park.utmstack.service.logstash_pipeline.response.LogstashApiPipelineResponse;
 import com.park.utmstack.service.logstash_pipeline.response.LogstashApiStatsResponse;
@@ -37,7 +32,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -57,19 +51,15 @@ public class UtmLogstashPipelineService {
     private static final String CLASSNAME = "UtmLogstashPipelineService";
 
     private final UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository;
-    private final UtmLogstashInputService utmLogstashInputService;
-    private final UtmLogstashInputConfigurationRepository utmLogstashInputConfigurationRepository;
     private final UtmLogstashFilterRepository utmLogstashFilterRepository;
-    private final UtmLogstashInputConfigurationService utmLogstashInputConfigurationService;
 
-    public UtmLogstashPipelineService(UtmLogstashPipelineRepository utmLogstashPipelineRepository, RestTemplateService restTemplateService, UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository, UtmLogstashInputService utmLogstashInputService, UtmLogstashInputConfigurationRepository utmLogstashInputConfigurationRepository, UtmLogstashFilterRepository utmLogstashFilterRepository, UtmLogstashInputConfigurationService utmLogstashInputConfigurationService) {
+    private final List<String> logshtashPipelines = Arrays.asList("AZURE","GCP");
+
+    public UtmLogstashPipelineService(UtmLogstashPipelineRepository utmLogstashPipelineRepository, RestTemplateService restTemplateService, UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository, UtmLogstashFilterRepository utmLogstashFilterRepository) {
         this.utmLogstashPipelineRepository = utmLogstashPipelineRepository;
         this.restTemplateService = restTemplateService;
         this.utmGroupLogstashPipelineFiltersRepository = utmGroupLogstashPipelineFiltersRepository;
-        this.utmLogstashInputService = utmLogstashInputService;
-        this.utmLogstashInputConfigurationRepository = utmLogstashInputConfigurationRepository;
         this.utmLogstashFilterRepository = utmLogstashFilterRepository;
-        this.utmLogstashInputConfigurationService = utmLogstashInputConfigurationService;
     }
 
     /**
@@ -99,41 +89,7 @@ public class UtmLogstashPipelineService {
             throw new Exception("Pipeline is not valid, please validate it first before insert");
         } else {
             try {
-                UtmLogstashPipeline utmLogstashPipeline = utmLogstashPipelineVM.getPipelineDTO().getPipeline(null);
-                List<UtmGroupLogstashPipelineFilters> filters = utmLogstashPipelineVM.getFilters();
-                List<InputConfiguration> inputs = utmLogstashPipelineVM.getInputs();
-
-                // Setting default values
-                utmLogstashPipeline.setDefaults();
-                // Removing all non word characters from pipelineId and make it unique
-                Integer pipelineId = utmLogstashPipelineRepository.getNextId().intValue();
-                String pipID = getFormattedPipelineName(utmLogstashPipeline.getPipelineName());
-                utmLogstashPipeline.setPipelineId(pipID + pipelineId);
-                utmLogstashPipeline.setId(pipelineId.longValue());
-                this.save(utmLogstashPipeline);
-
-                // Saving filter-pipeline relations
-                List<UtmGroupLogstashPipelineFilters> pipFilterGroup = filters.stream().map(group -> {
-                    group.setPipelineId(pipelineId);
-                    group.setRelation(PipelineRelation.PIPELINE_FILTER.getRelation());
-                    return group;
-                }).collect(Collectors.toList());
-                utmGroupLogstashPipelineFiltersRepository.saveAll(pipFilterGroup);
-
-                // Creating inputs with configuration
-                AtomicReference<Integer> configsIterator = new AtomicReference<>(0); // used to generate input configuration ids after first getNextId() call
-                inputs.forEach((input) -> {
-                    UtmLogstashInput newInput = input.getUtmLogstashInput();
-                    newInput.setPipelineId(pipelineId);
-                    Long inputId = utmLogstashInputService.save(newInput).getId();
-                    List<UtmLogstashInputConfiguration> inputConfigs = input.getConfigs().stream().map(keys -> {
-                        UtmLogstashInputConfiguration inputConf = keys.getInputConfiguration(inputId);
-                        inputConf.setId(utmLogstashInputConfigurationRepository.getNextId() + (configsIterator.get()));
-                        configsIterator.getAndSet(configsIterator.get() + 1);
-                        return inputConf;
-                    }).collect(Collectors.toList());
-                    utmLogstashInputConfigurationRepository.saveAll(inputConfigs);
-                });
+                // This is a template method, to implement if needed in the future
             } catch (Exception e) {
                 throw new Exception(ctx + ": " + e.getMessage());
             }
@@ -154,78 +110,7 @@ public class UtmLogstashPipelineService {
             throw new Exception("Pipeline is not valid, please validate it first before update");
         } else {
             try {
-                UtmLogstashPipeline realPipeline = findOne(utmLogstashPipelineVM.getPipelineDTO().getId()).get();
-                UtmLogstashPipeline currentPip = utmLogstashPipelineVM.getPipelineDTO().getPipeline(realPipeline);
-                List<UtmGroupLogstashPipelineFilters> updateFilters = utmLogstashPipelineVM.getFilters();
-                List<InputConfiguration> updateInputs = utmLogstashPipelineVM.getInputs();
-
-                Integer pipelineId = currentPip.getId().intValue();
-                // Removing all non word characters from pipelineId and make it unique
-                String pipID = getFormattedPipelineName(currentPip.getPipelineName());
-                currentPip.setPipelineId(pipID + pipelineId);
-                // Search for deleted filters and remove from relation filter-pipeline
-                List<UtmGroupLogstashPipelineFilters> currentFilters = utmGroupLogstashPipelineFiltersRepository
-                    .getFilters(pipelineId);
-                List<UtmGroupLogstashPipelineFilters> deletedFilters = new ArrayList<>();
-                currentFilters.forEach(filter -> {
-                    Optional<UtmGroupLogstashPipelineFilters> f = updateFilters.stream().filter(update -> update.getId() == filter.getId()).findFirst();
-                    if (f == null || !f.isPresent()) {
-                        deletedFilters.add(filter);
-                    }
-                });
-                utmGroupLogstashPipelineFiltersRepository.deleteAll(deletedFilters);
-                // Save new changes relation filter-pipeline
-                utmGroupLogstashPipelineFiltersRepository.saveAll(updateFilters);
-
-                // ------------------ Then work with input configuration changes ------------------//
-                List<UtmLogstashInput> currentInputs = utmLogstashInputService.getUtmLogstashInputsByPipelineId(pipelineId);
-                List<UtmLogstashInput> deletedInputs = new ArrayList<>();
-                List<UtmLogstashInputConfiguration> deletedInputConfigs = new ArrayList<>();
-                List<UtmLogstashInput> updateInputList = updateInputs.stream().map(InputConfiguration::getUtmLogstashInput).collect(Collectors.toList());
-                currentInputs.forEach(input -> {
-                        Optional<UtmLogstashInput> optInput = updateInputList.stream().filter(update -> update.getId() != null && update.getId() == input.getId()).findFirst();
-                        if (optInput == null || !optInput.isPresent()) {
-                            deletedInputs.add(input);
-                        }
-                    }
-                );
-                // Once we have inputs to delete, proceed to get and delete configurations of that inputs
-                if (!deletedInputs.isEmpty()) {
-                    deletedInputs.forEach(delImp -> {
-                        deletedInputConfigs.addAll(utmLogstashInputConfigurationService.getUtmLogstashInputConfigurationsByInputId(delImp.getId().intValue()));
-                    });
-                }
-                // Remove deleted input configs
-                if (!deletedInputConfigs.isEmpty()) {
-                    utmLogstashInputConfigurationRepository.deleteAll(deletedInputConfigs);
-                }
-                // Remove deleted inputs
-                if (!deletedInputs.isEmpty()) {
-                    utmLogstashInputService.deleteAllInputs(deletedInputs);
-                }
-                // Creating/updating inputs with configuration
-                AtomicReference<Integer> configsIterator = new AtomicReference<>(0); // used to generate input configuration ids after first getNextId() call
-                updateInputs.forEach((input) -> {
-                    UtmLogstashInput newOrUpdateInput = input.getUtmLogstashInput();
-                    newOrUpdateInput.setPipelineId(pipelineId);
-                    Long inputId = utmLogstashInputService.save(newOrUpdateInput).getId();
-
-                    List<UtmLogstashInputConfiguration> inputConfigs = input.getConfigs().stream().map(keys -> {
-                        UtmLogstashInputConfiguration inputConf = keys.getInputConfiguration(inputId);
-                        if (inputConf.getId() == null) {
-                            inputConf.setId(utmLogstashInputConfigurationRepository.getNextId() + (configsIterator.get()));
-                            configsIterator.getAndSet(configsIterator.get() + 1);
-                        } else {
-                            inputConf.setId(keys.getId());
-                        }
-                        return inputConf;
-                    }).collect(Collectors.toList());
-                    utmLogstashInputConfigurationRepository.saveAll(inputConfigs);
-                });
-                // ------------------ End work with input configuration changes ------------------//
-                // Finally, update pipeline
-                save(currentPip);
-
+                // This is a template method, to implement if needed in the future
             } catch (Exception e) {
                 throw new Exception(ctx + ": " + e.getMessage());
             }
@@ -255,51 +140,13 @@ public class UtmLogstashPipelineService {
         log.debug("Request to get active UtmLogstashPipelines paginated");
         List<UtmLogstashPipeline> pipelineList = new ArrayList<>(activePipelinesList());
         List<UtmLogstashPipelineDTO> resultList = pipelineList.stream()
-            .map(UtmLogstashPipelineDTO::new).collect(Collectors.toList());
+                .map(UtmLogstashPipelineDTO::new).collect(Collectors.toList());
 
         PagedListHolder<UtmLogstashPipelineDTO> pageDefinition = new PagedListHolder<>();
         pageDefinition.setSource(resultList);
         pageDefinition.setPageSize(pageable.getPageSize());
         pageDefinition.setPage(pageable.getPageNumber());
         return PageableExecutionUtils.getPage(pageDefinition.getPageList(), pageable, pipelineList::size);
-    }
-
-    /**
-     * Get all the pipeline id and ports of active pipelines.
-     *
-     * @param pageable   the pagination information.
-     * @param isInternal to return internal (value=true), external (value=false) or all (value is null) pipelines ports.
-     * @return the list of entities (inputId = value of db field pipeline_id, port).
-     */
-    @Transactional(readOnly = true)
-    public Page<PipelinePortConfiguration> activePipelinePorts(Pageable pageable, Boolean isInternal) {
-        log.debug("Request to get all pipelines ports");
-        List<UtmLogstashPipeline> activePipelines = activePipelinesList();
-        List<PipelinePortConfiguration> pipelinePortConfigurationList = new ArrayList<>();
-        activePipelines.forEach((pipeline) -> {
-            List<InputConfiguration> inputList = utmLogstashInputService.getUtmLogstashInputsByPipelineId(pipeline.getId().intValue())
-                .stream().map(InputConfiguration::new).collect(Collectors.toList());
-            inputList.forEach((input) -> {
-                    List<InputConfigurationKey> inputConfKeys = utmLogstashInputConfigurationService
-                        .getUtmLogstashInputConfigurationsByInputId(input.getId().intValue())
-                        .stream().map(InputConfigurationKey::new).collect(Collectors.toList());
-                    inputConfKeys.forEach((confKey) -> {
-                        if (confKey.getConfType().equals(InputConfigTypes.PORT.getValue())) {
-                            if (isInternal == null || (isInternal != null && isInternal == pipeline.getPipelineInternal())) {
-                                PipelinePortConfiguration portConf = new PipelinePortConfiguration(pipeline.getPipelineId(), confKey.getConfValue());
-                                pipelinePortConfigurationList.add(portConf);
-                            }
-                        }
-                    });
-                }
-            );
-        });
-
-        PagedListHolder<PipelinePortConfiguration> pageDefinition = new PagedListHolder<>();
-        pageDefinition.setSource(pipelinePortConfigurationList);
-        pageDefinition.setPageSize(pageable.getPageSize());
-        pageDefinition.setPage(pageable.getPageNumber());
-        return PageableExecutionUtils.getPage(pageDefinition.getPageList(), pageable, pipelinePortConfigurationList::size);
     }
 
     /**
@@ -311,29 +158,8 @@ public class UtmLogstashPipelineService {
     public List<UtmLogstashPipeline> activePipelinesList() {
         log.debug("Request to get active UtmLogstashPipelines");
         List<UtmLogstashPipeline> activePipelines = utmLogstashPipelineRepository.allActivePipelinesByServer();
-        List<UtmLogstashPipeline> pipelineList = new ArrayList<>(activePipelines);
-        List<Long> parentPipelines = utmLogstashPipelineRepository.getParents();
-        if (parentPipelines != null && !parentPipelines.isEmpty()) {
-            activePipelines.forEach(activePip -> {
-                if (isParent(parentPipelines, activePip.getId())) {
-                    Optional<UtmLogstashPipeline> parentPipWithSonActive = activePipelines.stream().filter(
-                        v -> v.getParentPipeline() != null && v.getParentPipeline().longValue() == activePip.getId()).findFirst();
-                    if (parentPipWithSonActive == null || !parentPipWithSonActive.isPresent()) {
-                        pipelineList.remove(activePip);
-                    }
-                }
-            });
 
-        }
-        return pipelineList;
-    }
-
-    /**
-     * To check if a pipeline id is a parent pipeline
-     */
-    public boolean isParent(List<Long> parents, Long searchValue) {
-        Optional<Long> v = parents.stream().filter(val -> val == searchValue).findFirst();
-        return (v.isPresent() && v != null);
+        return activePipelines;
     }
 
     /**
@@ -363,28 +189,14 @@ public class UtmLogstashPipelineService {
             Integer pipelineId = id.intValue();
             // First, perform delete on filter group
             List<UtmGroupLogstashPipelineFilters> filterGpList = utmGroupLogstashPipelineFiltersRepository
-                .getFilters(pipelineId);
+                    .getFilters(pipelineId);
             utmGroupLogstashPipelineFiltersRepository.deleteAll(filterGpList);
             // Second, delete non system filters associated to this pipeline
             List<UtmLogstashFilter> filters = utmLogstashFilterRepository.findAllByListOfId(filterGpList.stream().map(
-                gpl -> gpl.getFilterId().longValue()
+                    gpl -> gpl.getFilterId().longValue()
             ).collect(Collectors.toList()));
             if (!filters.isEmpty()) {
                 utmLogstashFilterRepository.deleteAll(filters);
-            }
-
-            // Then, perform delete on InputConfigurations
-            List<UtmLogstashInput> inputList = utmLogstashInputService.getUtmLogstashInputsByPipelineId(pipelineId);
-            inputList.forEach((input) -> {
-                List<UtmLogstashInputConfiguration> configs = utmLogstashInputConfigurationRepository
-                    .getUtmLogstashInputConfigurationsByInputId(input.getId().intValue());
-                if (!configs.isEmpty()) {
-                    utmLogstashInputConfigurationRepository.deleteAll(configs);
-                }
-            });
-            // Then, delete Inputs
-            if (!inputList.isEmpty()) {
-                utmLogstashInputService.deleteAllInputs(inputList);
             }
             utmLogstashPipelineRepository.deleteById(id);
         } catch (Exception e) {
@@ -424,7 +236,7 @@ public class UtmLogstashPipelineService {
 
         try {
             ResponseEntity<LogstashApiPipelineResponse> rs = restTemplateService.get(LOGSTASH_URL + "/_node/stats/pipelines?pretty",
-                LogstashApiPipelineResponse.class);
+                    LogstashApiPipelineResponse.class);
             if (!rs.getStatusCode().is2xxSuccessful())
                 log.error(ctx + ": " + restTemplateService.extractErrorMessage(rs));
 
@@ -446,7 +258,7 @@ public class UtmLogstashPipelineService {
 
         try {
             ResponseEntity<LogstashApiJvmResponse> rs = restTemplateService.get(LOGSTASH_URL + "/_node/stats/jvm",
-                LogstashApiJvmResponse.class);
+                    LogstashApiJvmResponse.class);
             if (!rs.getStatusCode().is2xxSuccessful())
                 log.error(ctx + ": " + restTemplateService.extractErrorMessage(rs));
 
@@ -460,7 +272,7 @@ public class UtmLogstashPipelineService {
     }
 
     /**
-     * Getting active pipelines and stats from logstash
+     * Getting active pipelines stats from DB, general jvm stats from logstash
      */
     public LogstashApiStatsResponse getLogstashStats() throws Exception {
         final String ctx = CLASSNAME + ".getLogstashStats";
@@ -469,10 +281,11 @@ public class UtmLogstashPipelineService {
         // Variables used to set the general pipeline's status
         AtomicInteger activePipelinesCount = new AtomicInteger();
         AtomicInteger upPipelinesCount = new AtomicInteger();
+        boolean isCorrelationUp = isEngineUp();
 
         if (!StringUtils.hasText(LOGSTASH_URL)) {
             log.error(ctx + ": The pipeline's status cannot be processed because " +
-                "the environment variable LOGSTASH_URL is not configured.");
+                    "the environment variable LOGSTASH_URL is not configured.");
         }
         try {
             // Getting Logstash Jvm information
@@ -483,9 +296,11 @@ public class UtmLogstashPipelineService {
             // List to store stats mapped from DB
             List<PipelineStats> infoStats;
 
-                // Getting the active pipelines statistics
-                infoStats = activePipelinesList().stream().map(activePip -> {
+            // Getting the active pipelines statistics
+            infoStats = activePipelinesList().stream().map(activePip -> {
 
+                // Calculating stats for logstash pipelines
+                if (logshtashPipelines.contains(activePip.getModuleName())) {
                     if (!jvmData.getStatus().equals(PipelineStatus.LOGSTASH_STATUS_DOWN.get())) {
                         activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
                         if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
@@ -494,9 +309,20 @@ public class UtmLogstashPipelineService {
                     } else {
                         activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
                     }
-                    // Mapping stats from DB pipeline
-                    return PipelineStats.getPipelineStats(activePip);
-                }).collect(Collectors.toList());
+                    // Setting stats for non-logstash pipelines (correlation engine)
+                } else {
+                    if (isCorrelationUp) {
+                        activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
+                        if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
+                            upPipelinesCount.getAndIncrement();
+                        }
+                    } else {
+                        activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
+                    }
+                }
+                // Mapping stats from DB pipeline
+                return PipelineStats.getPipelineStats(activePip);
+            }).collect(Collectors.toList());
 
             // Setting the final global status of pipelines
             if (!jvmData.getStatus().equals(PipelineStatus.LOGSTASH_STATUS_DOWN.get())) {
@@ -523,12 +349,14 @@ public class UtmLogstashPipelineService {
     @Scheduled(fixedDelay = 20000, initialDelay = 30000)
     public List<UtmLogstashPipeline> pipelineStatus() {
         final String ctx = CLASSNAME + ".pipelineStatus";
-        List<UtmLogstashPipeline> activeByServer = utmLogstashPipelineRepository.allActivePipelinesByServer();
+        // Only logstash pipelines get updated for the moment
+        // We will add correlation pipelines status update when we know how to get the status or metrics
+        List<UtmLogstashPipeline> activeByServer = utmLogstashPipelineRepository.activeLogstashPipelines();
 
         // Checking if LOGSTASH_URL is set, otherwise report an error
         if (!StringUtils.hasText(LOGSTASH_URL)) {
             log.error(ctx + ": The pipeline's status cannot be processed because the environment variable " +
-                "LOGSTASH_URL is not configured.");
+                    "LOGSTASH_URL is not configured.");
             activeByServer.stream().forEach((p) -> {
                 p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
             });
@@ -538,9 +366,9 @@ public class UtmLogstashPipelineService {
 
                 LogstashApiPipelineResponse response = pipelineApiResponse();
                 Map<String, Long> mapInit = activeByServer.stream()
-                    .collect(Collectors.toMap(UtmLogstashPipeline::getPipelineId, myId -> (
-                        getFailures(myId, response)
-                    )));
+                        .collect(Collectors.toMap(UtmLogstashPipeline::getPipelineId, myId -> (
+                                getFailures(myId, response)
+                        )));
 
                 Thread.sleep(2000);
 
@@ -551,16 +379,7 @@ public class UtmLogstashPipelineService {
                     // Getting stats from logstash and updating DB pipeline
                     PipelineData data = pipelineInfo.get(p.getPipelineId());
                     if (data != null) {
-                        p.setEventsIn(data.getEvents().getIn());
-                        p.setEventsFiltered(data.getEvents().getFiltered());
                         p.setEventsOut(data.getEvents().getOut());
-
-                        PipelineReloads reloads = data.getReloads();
-                        p.setReloadsFailures(reloads.getFailures());
-                        p.setReloadsSuccesses(reloads.getSuccesses());
-                        if (reloads.getLastError()!=null) p.setReloadsLastError(reloads.getLastError().getMessage());
-                        p.setReloadsLastFailureTimestamp(reloads.getLastFailureTimestamp());
-                        p.setReloadsLastSuccessTimestamp(reloads.getLastSuccessTimestamp());
                     }
                     Long firstFailuresCount = mapInit.get(p.getPipelineId());
                     Long lastFailuresCount = getFailures(p, responseLast);
@@ -606,7 +425,6 @@ public class UtmLogstashPipelineService {
         try {
             UtmLogstashPipeline utmLogstashPipeline = utmLogstashPipelineVM.getPipelineDTO().getPipeline(null);
             List<UtmGroupLogstashPipelineFilters> filters = utmLogstashPipelineVM.getFilters();
-            List<InputConfiguration> inputs = utmLogstashPipelineVM.getInputs();
 
             // Common validations
             if (MODE.equals(PipelineValidationMode.INSERT) || MODE.equals(PipelineValidationMode.UPDATE)) {
@@ -641,73 +459,6 @@ public class UtmLogstashPipelineService {
                         }
                     });
                 }
-                // Input validations
-                if (inputs == null || inputs.isEmpty()) {
-                    Validation val = new Validation("Input", "Input id", "There is no input associated to the pipeline: " + (utmLogstashPipeline != null ? utmLogstashPipeline.getPipelineName() : "Undefined pipeline"));
-                    validationList.add(val);
-                } else {
-                    List<String> configs = new ArrayList<>();
-                    inputs.forEach(i -> {
-                        Long localId = i.getId();
-                        Integer pipelineId = i.getPipelineId();
-                        if (pipelineId != null && !utmLogstashPipelineRepository.findById(pipelineId.longValue()).isPresent() && MODE.equals(PipelineValidationMode.UPDATE)) {
-                            Validation val = new Validation("Input", "Input pipeline id", "The pipeline with id: " + pipelineId + " not exists");
-                            validationList.add(val);
-                        }
-                        if (pipelineId != null && utmLogstashPipeline.getId() != null && pipelineId != utmLogstashPipeline.getId().intValue() && MODE.equals(PipelineValidationMode.UPDATE)) {
-                            Validation val = new Validation("Input", "Input pipeline id", "Value: " + pipelineId.intValue() + " from Input not match with value: " + utmLogstashPipeline.getId() + " from Pipeline");
-                            validationList.add(val);
-                        }
-                        if (localId != null && !utmLogstashInputService.findOne(localId).isPresent()) {
-                            Validation val = new Validation("Input", "Input id", "The input with id: " + localId + " not exists");
-                            validationList.add(val);
-                        }
-                        if (localId != null && MODE.equals(PipelineValidationMode.INSERT)) {
-                            Validation val = new Validation("Input", "Input id", "Value must be null when inserting");
-                            validationList.add(val);
-                        }
-                        if (i.getConfigs() == null || i.getConfigs().isEmpty()) {
-                            Validation val = new Validation("Input Configuration", "Input configuration id", "There is no input configuration associated to the input: " + i.getInputPrettyName());
-                            validationList.add(val);
-                        } else {
-                            // Input configuration validations
-                            i.getConfigs().forEach(c -> {
-                                if ((c.getConfKey() != null && c.getConfKey().compareTo("") != 0)
-                                    && (c.getConfType() != null && c.getConfType().compareTo("") != 0)
-                                    && (c.getConfValue() != null && c.getConfValue().compareTo("") != 0)) {
-                                    String configKey = c.getConfKey().split("_")[0] + c.getConfType() + c.getConfValue();
-                                    if (configs.stream().filter(s -> s.compareToIgnoreCase(configKey) == 0).findFirst().isPresent()) {
-                                        Validation val = new Validation("Input Configuration", "Input configuration value", "The value: " + c.getConfValue() + " is duplicated");
-                                        validationList.add(val);
-                                    } else {
-                                        configs.add(configKey);
-                                    }
-                                } else {
-                                    if (c.getConfKey() == null || c.getConfKey().compareTo("") == 0) {
-                                        Validation val = new Validation("Input Configuration", "Input configuration key", "The value is not defined");
-                                        validationList.add(val);
-                                    }
-                                    if (c.getConfType() == null || c.getConfType().compareTo("") == 0) {
-                                        Validation val = new Validation("Input Configuration", "Input configuration type", "The value is not defined");
-                                        validationList.add(val);
-                                    }
-                                    if (c.getConfValue() == null || c.getConfValue().compareTo("") == 0) {
-                                        Validation val = new Validation("Input Configuration", "Input configuration value", "The value is not defined");
-                                        validationList.add(val);
-                                    }
-                                }
-                                if (c.getInputId() != null && MODE.equals(PipelineValidationMode.INSERT)) {
-                                    Validation val = new Validation("Input Configuration", "Input configuration input id", "Value must be null when inserting");
-                                    validationList.add(val);
-                                }
-                                if (c.getInputId() != null && localId.intValue() != c.getInputId()) {
-                                    Validation val = new Validation("Input Configuration", "Input configuration input id", "Value: " + c.getInputId() + " in configuration not match with value: " + localId.intValue() + " from Input");
-                                    validationList.add(val);
-                                }
-                            });
-                        }
-                    });
-                }
             }
             // Begining only insert MODE validations
             if (MODE.equals(PipelineValidationMode.INSERT)) {
@@ -729,5 +480,12 @@ public class UtmLogstashPipelineService {
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Method to implement later to know if correlation engine is up, if up all the integrations are up.
+     */
+    private boolean isEngineUp() {
+        return true;
     }
 }

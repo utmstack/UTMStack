@@ -69,5 +69,7 @@
 
     <include file="/config/liquibase/changelog/20240701001_added_entity_UtmRegexPattern_UtmTenantConfig.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240710001_update_logstash_pipelines.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

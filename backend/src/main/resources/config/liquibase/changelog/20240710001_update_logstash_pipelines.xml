@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240710001" author="Freddy">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            ------------------------------
+            -- Updating tables structure--
+            ------------------------------
+            DROP TABLE utm_logstash_ports_configuration;
+            DROP TABLE utm_logstash_input_configuration;
+            DROP TABLE utm_logstash_input;
+
+            ALTER TABLE utm_logstash_pipeline DROP CONSTRAINT fk_utm_logstash_pipeline_parent;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN parent_pipeline;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN events_in;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN events_filtered;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN reloads_successes;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN reloads_failures;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN reloads_last_error;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN reloads_last_success_timestamp;
+            ALTER TABLE utm_logstash_pipeline DROP COLUMN reloads_last_failure_timestamp;
+
+            ------------------------------
+            -- Adding new pipelines-------
+            ------------------------------
+            INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_out) VALUES(52, 'sophos-central', 'Sophos Central', 'up', 'SOPHOS', true, NULL, true, 0);
+            INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_out) VALUES(53, 'aws', 'AWS Cloudwatch', 'up', 'AWS_IAM_USER', true, NULL, true, 0);
+            INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_out) VALUES(54, 'o365', 'Office365', 'up', 'O365', true, NULL, true, 0);
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

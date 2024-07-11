@@ -18,6 +18,8 @@ public class UtmCorrelationRulesFilter {
     private List<Boolean> systemOwner;
     private List<String> dataTypes;
 
+    private String search;
+
     public String getName() {
         return name;
     }
@@ -104,5 +106,13 @@ public class UtmCorrelationRulesFilter {
 
     public void setDataTypes(List<String> dataTypes) {
         this.dataTypes = dataTypes;
+    }
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
     }
 }

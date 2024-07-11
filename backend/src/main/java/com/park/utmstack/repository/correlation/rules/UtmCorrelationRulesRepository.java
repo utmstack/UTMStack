@@ -30,6 +30,8 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
             "AND ((:ruleTechnique) IS NULL OR cr.ruleTechnique IN (:ruleTechnique)) " +
             "AND ((:ruleActive) IS NULL OR cr.ruleActive IN (:ruleActive)) " +
             "AND ((:systemOwner) IS NULL OR cr.systemOwner IN (:systemOwner)) " +
+            "AND ((:ruleSearch) IS NULL OR " +
+            "(cr.ruleName LIKE :ruleSearch OR lower(cr.ruleName) LIKE lower(:ruleSearch))) " +
             "AND ((cast(:ruleInitDate as timestamp) is null) or (cast(:ruleEndDate as timestamp) is null) or (cr.ruleLastUpdate BETWEEN :ruleInitDate AND :ruleEndDate)) " +
             "AND ((:dataTypes) IS NULL OR dt.dataType IN (:dataTypes))")
     List<UtmCorrelationRules> searchByFilters(@Param("ruleName") String ruleName,
@@ -42,5 +44,6 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
                                          @Param("systemOwner") List<Boolean> systemOwner,
                                          @Param("dataTypes") List<String> dataTypes,
                                          @Param("ruleInitDate") Instant ruleInitDate,
-                                         @Param("ruleEndDate") Instant ruleEndDate);
+                                         @Param("ruleEndDate") Instant ruleEndDate,
+                                         @Param("ruleSearch")  String ruleSearch   );
 }
