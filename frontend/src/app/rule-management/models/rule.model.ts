@@ -3,6 +3,7 @@ export interface Impact {
     integrity: number;
     availability: number;
 }
+export const itemsPerPage = 25;
 
 export interface Variable {
     get: string;
@@ -22,6 +23,16 @@ export interface DataType {
     lastUpdate?: string;
     systemOwner: boolean;
 }
+
+export interface RegexPattern {
+    id: number;
+    patternId: string;
+    patternDescription?: string;
+    patternDefinition: string;
+    systemOwner: boolean;
+    lastUpdate?: string;
+}
+
 
 export interface Rule {
     id: number;

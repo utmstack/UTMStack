@@ -6,19 +6,18 @@ import {ResizeEvent} from 'angular-resizable-element';
 import {Observable, Subject} from 'rxjs';
 import {filter, map, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
+import {
+  ModalConfirmationComponent
+} from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
 import {RULE_FIELDS} from '../../../models/rule.constant';
 import {DataType} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
-import {itemsPerPage} from '../../../services/types.resolver.service';
 import {Actions} from '../../models/config.type';
 import {ConfigService} from '../../services/config.service';
+import {itemsPerPage} from '../../services/types.resolver.service';
 import {AddTypeComponent} from './components/add-type.component';
-import {NetScanType} from "../../../../assets-discover/shared/types/net-scan.type";
-import {
-  ModalConfirmationComponent
-} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
 
 @Component({
   selector: 'app-assets',
@@ -120,7 +119,7 @@ export class TypesComponent implements OnInit, OnDestroy {
   deleteType(event: Event, type: DataType) {
     event.stopPropagation();
     const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
-    deleteModalRef.componentInstance.header = 'Delete ype';
+    deleteModalRef.componentInstance.header = 'Delete type';
     deleteModalRef.componentInstance.message = 'Are you sure that you want to delete this type?';
     deleteModalRef.componentInstance.confirmBtnText = 'Delete';
     deleteModalRef.componentInstance.confirmBtnIcon = 'icon-display';
@@ -130,12 +129,12 @@ export class TypesComponent implements OnInit, OnDestroy {
     });
   }
 
-  delete(type: DataType){
+  delete(type: DataType) {
     this.dataTypeService.delete(type.id)
         .subscribe(() => {
           this.loadDataTypes();
           this.utmToast.showSuccessBottom('Data type deleted successfully');
-    },() => {
+    }, () => {
       this.utmToast.showError('Error', 'Error deleting data type');
     });
   }

@@ -136,10 +136,10 @@ public class UtmRegexPatternService {
      * @param p the pagination parameters
      * @return the entity
      */
-    public Page<UtmRegexPattern> findAll(Pageable p) {
+    public Page<UtmRegexPattern> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
-            return utmRegexPatternRepository.findAll(p);
+            return utmRegexPatternRepository.searchByFilters(search != null ? "%"+search+"%" : null, p);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }

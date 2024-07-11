@@ -1,0 +1,44 @@
+<app-utm-modal-header [name]="(pattern ? 'Edit' : 'Create') + ' data type'"></app-utm-modal-header>
+<div class="d-flex flex-column p-3">
+    <form [formGroup]="patternForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="patternId">Name</label>
+            <input type="text" class="form-control" id="patternId" formControlName="patternId" required>
+            <div *ngIf="patternId.invalid && (patternId.dirty || patternId.touched)" class="invalid-feedback">
+                <div *ngIf="patternId.errors.required">
+                    Definition is required.
+                </div>
+                <div *ngIf="patternId.errors.maxLength">
+                    Maximum length exceeded.
+                </div>
+            </div>
+        </div>
+            <div class="form-group">
+                <label for="patternDefinition">Definition</label>
+                <input type="text" class="form-control" id="patternDefinition" formControlName="patternDefinition" required>
+                <div *ngIf="patternDefinition.invalid && (patternDefinition.dirty || patternDefinition.touched)" class="invalid-feedback">
+                    <div *ngIf="patternDefinition.errors.required">
+                        Definition is required.
+                    </div>
+                    <div *ngIf="patternDefinition.errors.maxLength">
+                        Maximum length exceeded.
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="patternDescription">Description</label>
+                <textarea class="form-control" id="patternDescription" formControlName="patternDescription"></textarea>
+            </div>
+        <div class="button-container d-flex justify-content-end mt-3">
+            <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+                <i class="icon-cancel-circle2"></i>&nbsp;
+                Cancel
+            </button>
+            <button type="submit"
+                    [disabled]="patternForm.invalid" class="btn utm-button utm-button-primary">
+                <i [ngClass]="loading ?'icon-spinner spinner':'icon-grid-alt'"></i>&nbsp;
+                Save
+            </button>
+        </div>
+    </form>
+</div>

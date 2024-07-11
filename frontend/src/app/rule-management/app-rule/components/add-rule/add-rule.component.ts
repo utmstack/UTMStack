@@ -103,7 +103,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
                         console.log('Rule saved successfully', response);
                         this.dataTypeService.resetTypes();
                         this.isSubmitting = false;
-                        this.router.navigate(['/correlation/rules'])
+                        this.router.navigate(['/alerting-rules/rules'])
                             .then(() =>  this.utmToastService.showSuccessBottom(this.mode === 'ADD'
                                 ? 'Rule saved successfully' : 'Rule edited successfully'));
                     },
@@ -124,9 +124,9 @@ export class AddRuleComponent implements OnInit, OnDestroy {
             id: [rule ? rule.id : ''],
             dataTypes: [rule ? rule.dataTypes : '', Validators.required],
             name: [rule ? rule.name : '', Validators.required],
-            confidentiality: [rule ? rule.confidentiality : null, Validators.required],
-            integrity: [rule ? rule.integrity : null, Validators.required],
-            availability: [rule ? rule.availability : null, Validators.required],
+            confidentiality: [rule ? rule.confidentiality : null, [Validators.required, Validators.min(0), Validators.max(3)]],
+            integrity: [rule ? rule.integrity : null, [Validators.required, Validators.min(0), Validators.max(3)]],
+            availability: [rule ? rule.availability : null, [Validators.required, Validators.min(0), Validators.max(3)]],
             category: [rule ? rule.category : '', Validators.required],
             technique: [rule ? rule.technique : '', Validators.required],
             description: [rule ? rule.description : '', Validators.required],

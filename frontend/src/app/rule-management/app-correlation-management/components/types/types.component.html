@@ -45,7 +45,7 @@
                 <td class="td-action pr-4">
                     <div class="d-flex justify-content-end align-items-center medium-icon">
 
-                        <i (click)="editDataType(type)" class="icon-pencil cursor-pointer ml-2"
+                        <i *ngIf="!type.systemOwner" (click)="editDataType(type)" class="icon-pencil3 cursor-pointer ml-2"
                            ngbTooltip="Edit"
                            container="body"
                            placement="left"></i>

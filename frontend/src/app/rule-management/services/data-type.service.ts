@@ -31,7 +31,7 @@ export class DataTypeService {
     }
 
     update(body: Partial<DataType>): Observable<HttpResponse<any>> {
-        return this.http.post<HttpResponse<any>>(resourceUrl, body, {observe: 'response'});
+        return this.http.put<HttpResponse<any>>(resourceUrl, body, {observe: 'response'});
     }
 
     getById(id: number): Observable<HttpResponse<DataType>> {
