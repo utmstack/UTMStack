@@ -32,6 +32,9 @@ import {RuleService} from './services/rule.service';
 import {RulesResolverService} from './services/rules.resolver.service';
 import {GenericFilterComponent} from './share/generic-filter/generic-filter.component';
 import {AddPatternComponent} from "./app-correlation-management/components/patterns/components/add-pattern.component";
+import {AddAssetComponent} from "./app-correlation-management/components/assets/components/components/add-asset.component";
+import {AssetsResolverService} from "./app-correlation-management/services/assets.resolver.service";
+import {AssetManagerService} from "./app-correlation-management/services/asset-manager.service";
 
 
 @NgModule({
@@ -49,7 +52,8 @@ import {AddPatternComponent} from "./app-correlation-management/components/patte
       RuleGenericFilterComponent,
       GenericFilterComponent,
       AddTypeComponent,
-      AddPatternComponent
+      AddPatternComponent,
+      AddAssetComponent
   ],
     imports: [
         CommonModule,
@@ -73,11 +77,14 @@ import {AddPatternComponent} from "./app-correlation-management/components/patte
       TypesResolverService,
       ConfigService,
       PatternManagerService,
-      PatternsResolverService
+      PatternsResolverService,
+      AssetsResolverService,
+      AssetManagerService
   ],
    entryComponents: [
        AddTypeComponent,
-       AddPatternComponent
+       AddPatternComponent,
+       AddAssetComponent
    ]
 })
 export class RuleManagementModule { }

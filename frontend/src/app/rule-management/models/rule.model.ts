@@ -33,6 +33,18 @@ export interface RegexPattern {
     lastUpdate?: string;
 }
 
+export interface Asset {
+  id?: number;
+  assetName: string;
+  assetHostnameList?: string[];
+  assetIpList?: string[];
+  assetConfidentiality: number;
+  assetIntegrity: number;
+  assetAvailability: number;
+  lastUpdate?: string;
+}
+
+
 
 export interface Rule {
     id: number;

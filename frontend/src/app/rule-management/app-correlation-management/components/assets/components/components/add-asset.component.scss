@@ -1,0 +1,46 @@
+legend {
+  width: auto;
+  border-bottom: 0;
+  font-size: .75rem;
+  font-weight: 400;
+}
+
+fieldset {
+  margin-bottom: 1rem;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.form-body {
+  max-height: 500px;
+  overflow-y: auto!important;
+  overflow-x: hidden!important;
+  flex-grow: 1;
+}
+
+.button-container {
+  flex-shrink: 0;
+}
+
+fieldset {
+  margin-bottom: 1rem;
+}
+
+.invalid-feedback {
+  display: block;
+}
+
+.button-container button.btn {
+  margin: 0.5rem 0;
+}
+
+.btn-danger .icon-trash,
+.btn-close .icon-trash:before {
+  font-size: 14px;
+  color: white;
+}
+

@@ -15,7 +15,7 @@
     <ng-container *ngSwitchCase="RULE_REFERENCES">
         <ul>
             <li *ngFor="let ref of rule[column.field]">
-                <a [href]="ref" class="text-blue-800 font-size-sm" target="_blank">{{ ref }}</a>
+                <span class="text-blue-800 font-size-sm">{{ ref }}</span>
             </li>
         </ul>
     </ng-container>
