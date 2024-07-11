@@ -127,7 +127,7 @@ public class UtmTenantConfigService {
     public Page<UtmTenantConfig> findAll(String search, Pageable p) {
         final String ctx = CLASSNAME + ".findAll";
         try {
-            return utmTenantConfigRepository.searchByFilters(search, p);
+            return utmTenantConfigRepository.searchByFilters(search != null ? "%"+search+"%" : null, p);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
