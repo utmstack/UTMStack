@@ -1,0 +1,110 @@
+<app-utm-modal-header [name]="(asset ? 'Edit' : 'Create') + ' asset'"></app-utm-modal-header>
+<div class="modal-content d-flex flex-column p-3">
+  <form [formGroup]="assetForm" (ngSubmit)="onSubmit()">
+    <div class="form-body flex-grow-1 overflow-auto">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" formControlName="assetName" required>
+        <div *ngIf="assetName.invalid && (assetName.dirty || assetName.touched)" class="invalid-feedback">
+          <div *ngIf="assetName.errors.required">
+            Name is required.
+          </div>
+          <div *ngIf="assetName.errors.maxLength">
+            Maximum length exceeded.
+          </div>
+        </div>
+      </div>
+
+      <fieldset class="form-fieldset hostnames-container border p-3" formGroupName="assetHostnameList">
+        <legend>
+          <label>Hosts:</label>
+          <span class="span-small-icon ml-2">
+            <i (click)="addHostname()" class="icon-plus2 mr-1 cursor-pointer" ngbTooltip="Add hostname"></i>
+          </span>
+        </legend>
+        <div *ngFor="let host of assetHostnameList.controls; let i = index" class="form-group">
+          <label> {{ 'Host ' + (i + 1)}}</label>
+          <div class="input-group">
+            <input [formControlName]="i" [ngClass]="{'is-invalid': host.invalid && host.touched}" class="form-control" type="text">
+            <div class="input-group-append">
+              <button (click)="removeHostname(i)" [disabled]="assetHostnameList.length === 1" class="btn btn-danger btn-close text-white" type="button">
+                <i class="icon-trash text-white"></i>
+              </button>
+            </div>
+            <div *ngIf="host.invalid && host.touched" class="invalid-feedback">
+              Reference is required.
+            </div>
+          </div>
+        </div>
+        <div *ngIf="assetHostnameList.invalid && assetHostnameList.touched" class="invalid-feedback d-block">
+          At least one hostname is required.
+        </div>
+      </fieldset>
+
+      <fieldset class="form-fieldset ips-container border p-3" formGroupName="assetIpList">
+        <legend>
+          <label>Ips:</label>
+          <span class="span-small-icon ml-2">
+            <i (click)="addIP()" class="icon-plus2 mr-1 cursor-pointer" ngbTooltip="Add ip"></i>
+          </span>
+        </legend>
+        <div *ngFor="let ip of assetIpList.controls; let i = index" class="form-group">
+          <label> {{ 'Ip ' + (i + 1)}}</label>
+          <div class="input-group">
+            <input [formControlName]="i" [ngClass]="{'is-invalid': ip.invalid && ip.touched}" class="form-control" type="text">
+            <div class="input-group-append">
+              <button (click)="removeIP(i)" [disabled]="assetIpList.length === 1" class="btn btn-danger btn-close text-white" type="button">
+                <i class="icon-trash text-white"></i>
+              </button>
+            </div>
+            <div *ngIf="ip.invalid && ip.touched" class="invalid-feedback">
+              Ip is required.
+            </div>
+          </div>
+        </div>
+        <div *ngIf="assetIpList.invalid && assetIpList.touched" class="invalid-feedback d-block">
+          At least one ip is required.
+        </div>
+      </fieldset>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="assetConfidentiality">Confidentiality:</label>
+            <input [ngClass]="{'is-invalid': assetConfidentiality.invalid && assetConfidentiality.touched}" class="form-control" formControlName="assetConfidentiality" id="assetConfidentiality" type="number">
+            <div *ngIf="assetConfidentiality.invalid && assetConfidentiality.touched" class="invalid-feedback">
+              Value must be between 0 and 3.
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="assetIntegrity">Integrity:</label>
+            <input [ngClass]="{'is-invalid': assetIntegrity.invalid && assetIntegrity.touched}" class="form-control" formControlName="assetIntegrity" id="assetIntegrity" type="number">
+            <div *ngIf="assetIntegrity.invalid && assetIntegrity.touched" class="invalid-feedback">
+              Value must be between 0 and 3.
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="assetAvailability">Availability:</label>
+            <input [ngClass]="{'is-invalid': assetAvailability.invalid && assetAvailability.touched}" class="form-control" formControlName="assetAvailability" id="assetAvailability" type="number">
+            <div *ngIf="assetAvailability.invalid && assetAvailability.touched" class="invalid-feedback">
+              Value must be between 0 and 3.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp; Cancel
+      </button>
+      <button type="submit" [disabled]="assetForm.invalid" class="btn utm-button utm-button-primary">
+        <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt'"></i>&nbsp; Save
+      </button>
+    </div>
+  </form>
+</div>

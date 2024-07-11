@@ -17,8 +17,7 @@ import { itemsPerPage } from '../../../models/rule.model';
 import {Actions} from '../../models/config.type';
 import {ConfigService} from '../../services/config.service';
 import {PatternManagerService} from '../../services/pattern-manager.service';
-import {AddTypeComponent} from '../types/components/add-type.component';
-import {AddPatternComponent} from "./components/add-pattern.component";
+import {AddPatternComponent} from './components/add-pattern.component';
 
 @Component({
   selector: 'app-pattern-manager',
@@ -190,7 +189,12 @@ export class PatternsComponent implements OnInit, OnDestroy {
   }
 
   onSearch($event: string | number) {
+      this.request = {
+        search: $event,
+        page: 0
+      };
 
+      this.loadRegexPatterns();
   }
 
   editRegexPattern(pattern: RegexPattern) {

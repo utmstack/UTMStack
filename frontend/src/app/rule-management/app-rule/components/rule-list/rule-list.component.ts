@@ -186,7 +186,11 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   onSearch($event: string | number) {
-
+    this.request = {
+      page: 0,
+      search: $event
+    };
+    this.loadRules();
   }
 
   deleteRule(rule: Rule) {

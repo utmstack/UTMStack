@@ -13,6 +13,7 @@ import {RulesResolverService} from './services/rules.resolver.service';
 import {RuleResolverService} from './services/rule.resolver.service';
 import {TypesResolverService} from "./app-correlation-management/services/types.resolver.service";
 import {PatternsResolverService} from "./app-correlation-management/services/patterns.resolver.service";
+import {AssetsResolverService} from "./app-correlation-management/services/assets.resolver.service";
 
 const routes = [
   {path: '', redirectTo: 'rules', pathMatch: 'full'},
@@ -52,6 +53,9 @@ const routes = [
         component:  AssetsComponent,
         canActivate: [UserRouteAccessService],
         data: {authorities: [USER_ROLE, ADMIN_ROLE]},
+        resolve: {
+          response: AssetsResolverService
+        }
       },
       {
         path: 'types',
