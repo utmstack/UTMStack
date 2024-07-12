@@ -8,10 +8,17 @@
       Logstash filter plugins
     </a>
   </div>
-  <div class="form-group w-25">
-    <label class="form-control-label" for="filterName">Filter name</label>
-    <input [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="filterName">
+  <div class="row">
+    <div class="col-6 form-group w-25">
+      <label class="form-control-label" for="filterName">Filter name</label>
+      <input [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="filterName">
+    </div>
+    <div class="col-6 form-group w-25">
+      <label class="form-control-label" for="dataType">Data type</label>
+      <input [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="dataType">
+    </div>
   </div>
+
   <div class="form-group">
     <label class="form-control-label" for="filterName">Filter definition</label>
     <textarea [(ngModel)]="filter.logstashFilter" class="form-control w-100" rows="25"></textarea>
