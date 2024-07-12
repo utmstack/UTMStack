@@ -71,5 +71,7 @@
 
     <include file="/config/liquibase/changelog/20240710001_update_logstash_pipelines.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240711001_updating_UtmLogstashFilter.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

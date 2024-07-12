@@ -1,10 +1,13 @@
 package com.park.utmstack.domain.logstash_filter;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -34,6 +37,14 @@ public class UtmLogstashFilter implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "filter_group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmLogstashFilterGroup group;
+
+    @JsonIgnore
+    @Column(name = "data_type_id")
+    private Long dataTypeId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "data_type_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private UtmDataTypes datatype;
 
     @Column(name = "system_owner")
     private Boolean systemOwner;
@@ -93,6 +104,23 @@ public class UtmLogstashFilter implements Serializable {
 
     public void setGroup(UtmLogstashFilterGroup group) {
         this.group = group;
+    }
+
+    public Long getDataTypeId() {
+        return dataTypeId;
+    }
+
+    public void setDataTypeId(Long dataTypeId) {
+        this.dataTypeId = dataTypeId;
+    }
+
+    public UtmDataTypes getDatatype() {
+        return datatype;
+    }
+
+    public void setDatatype(UtmDataTypes datatype) {
+        this.datatype = datatype;
+        this.dataTypeId = datatype != null ? datatype.getId() : null;
     }
 
     public Boolean getSystemOwner() {

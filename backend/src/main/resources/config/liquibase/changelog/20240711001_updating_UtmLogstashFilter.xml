@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20240711001" author="Freddy">
+        <addColumn tableName="utm_logstash_filter">
+            <column name="data_type_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="data_type_id"
+                                 baseTableName="utm_logstash_filter"
+                                 constraintName="fk_filter_utm_data_types"
+                                 referencedColumnNames="id"
+                                 referencedTableName="utm_data_types"
+                                 onDelete="SET NULL"/>
+    </changeSet>
+
+</databaseChangeLog>
