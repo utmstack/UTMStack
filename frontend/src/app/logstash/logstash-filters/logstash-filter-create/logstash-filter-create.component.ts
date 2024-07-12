@@ -1,4 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Observable} from 'rxjs';
+import {DataType} from '../../../rule-management/models/rule.model';
+import {DataTypeService} from '../../../rule-management/services/data-type.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {LogstashService} from '../../../shared/services/logstash/logstash.service';
 import {LogstashFilterType} from '../../shared/types/logstash-filter.type';
@@ -14,18 +17,29 @@ export class LogstashFilterCreateComponent implements OnInit {
   @Output() close = new EventEmitter<string>();
   @Input() filter: LogstashFilterType;
   @Input() pipeline: UtmPipeline;
+  types$: Observable<DataType[]>;
+  daTypeRequest: {page: number, size: number} = {
+    page: -1,
+    size: 10
+  };
+
   saving = false;
   show = true;
   error = false;
+  loadingDataTypes = false;
 
   constructor(private logstashFilterService: LogstashService,
-              private utmToastService: UtmToastService) {
+              private utmToastService: UtmToastService,
+              private dataTypeService: DataTypeService ) {
   }
 
   ngOnInit() {
     if (!this.filter || !this.filter.id) {
-      this.filter = {logstashFilter: '', filterName: ''};
+      this.filter = { logstashFilter: '', filterName: '', datatype: null};
     }
+
+    this.types$ = this.dataTypeService.type$;
+    this.loadDataTypes();
 
   }
 
@@ -66,5 +80,16 @@ export class LogstashFilterCreateComponent implements OnInit {
     });
   }
 
+  loadDataTypes() {
+    this.daTypeRequest.page = this.daTypeRequest.page + 1;
+    this.loadingDataTypes = true;
 
+    this.dataTypeService.getAll(this.daTypeRequest)
+      .subscribe( data => {
+        this.loadingDataTypes = false;
+      });
+  }
+  trackByFn(type: DataType) {
+    return type.id;
+  }
 }

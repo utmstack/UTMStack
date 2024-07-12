@@ -8,31 +8,52 @@
       Logstash filter plugins
     </a>
   </div>
-  <div class="row">
+  <form #form="ngForm">
+    <div class="row">
     <div class="col-6 form-group w-25">
       <label class="form-control-label" for="filterName">Filter name</label>
-      <input [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="filterName">
+      <input name="filterName" [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="filterName">
     </div>
     <div class="col-6 form-group w-25">
-      <label class="form-control-label" for="dataType">Data type</label>
-      <input [(ngModel)]="filter.filterName" class="form-control" placeholder="" id="dataType">
+      <div class="form-group-select">
+        <label>Data Types:</label>
+        <ng-select required="true"
+                   name="datatype"
+                   (scrollToEnd)="loadDataTypes()"
+                   [items]="(types$ | async)"
+                   [loading]="loadingDataTypes"
+                   [(ngModel)]="filter.datatype"
+                   #dataTypesField="ngModel"
+                   [ngClass]="{'is-invalid': dataTypesField.invalid && dataTypesField.touched}"
+                   [trackByFn]="trackByFn"
+                   [virtualScroll]="true"
+                   bindLabel="dataType"
+                   class="flex-item type-select"
+                   placeholder="Choose data types">
+        </ng-select>
+        <div *ngIf="dataTypesField.invalid && dataTypesField.touched"
+             class="invalid-feedback">
+          Data type is required.
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="form-group">
     <label class="form-control-label" for="filterName">Filter definition</label>
-    <textarea [(ngModel)]="filter.logstashFilter" class="form-control w-100" rows="25"></textarea>
+    <textarea name="logstashFilter" [(ngModel)]="filter.logstashFilter" class="form-control w-100" rows="25"></textarea>
   </div>
   <div class="d-flex justify-content-end align-items-center mt-3">
     <button (click)="close.emit('close')" class="btn utm-button utm-button-grey">
       Cancel
     </button>
     <button (click)="save()"
-            [disabled]="error"
+            [disabled]="form.invalid"
             class="btn utm-button utm-button-primary mx-3">
       <i [ngClass]="saving?'icon-spinner2 spinner':'icon-database-edit2'"></i>
       Save
     </button>
   </div>
+  </form>
 </div>
 

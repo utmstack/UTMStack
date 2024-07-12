@@ -1313,5 +1313,11 @@ app-utm-cp-cron-editor {
   width: unset!important;
 }
 
+app-logstash-pipelines{
+  .type-select .ng-select-container {
+    height: 36px!important;
+  }
+}
+
 
 
