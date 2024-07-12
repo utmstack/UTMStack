@@ -16,6 +16,67 @@
                                  referencedColumnNames="id"
                                  referencedTableName="utm_data_types"
                                  onDelete="SET NULL"/>
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            ----------------------------------------
+--------Removing unused filters---------
+----------------------------------------
+            DELETE FROM utm_logstash_filter where module_name = 'AWS_IAM_USER';
+            DELETE FROM utm_logstash_filter where module_name = 'O365';
+
+            ----------------------------------------
+--------Set datatype to filters---------
+----------------------------------------
+
+            update utm_logstash_filter set data_type_id = 3 where module_name = 'AZURE';
+            update utm_logstash_filter set data_type_id = 6 where module_name = 'CISCO';
+            update utm_logstash_filter set data_type_id = 5 where module_name = 'MERAKI';
+            update utm_logstash_filter set data_type_id = 13 where module_name = 'FIRE_POWER';
+            update utm_logstash_filter set data_type_id = 1 where module_name = 'WINDOWS_AGENT';
+            update utm_logstash_filter set data_type_id = 8 where module_name = 'IIS';
+            update utm_logstash_filter set data_type_id = 7 where module_name = 'SOPHOS_XG';
+            update utm_logstash_filter set data_type_id = 10 where module_name = 'FORTIGATE';
+            update utm_logstash_filter set data_type_id = 11 where module_name = 'VMWARE';
+            update utm_logstash_filter set data_type_id = 12 where module_name = 'GCP';
+            update utm_logstash_filter set data_type_id = 14 where module_name = 'REDIS';
+            update utm_logstash_filter set data_type_id = 15 where module_name = 'POSTGRESQL';
+            update utm_logstash_filter set data_type_id = 16 where module_name = 'OSQUERY';
+            update utm_logstash_filter set data_type_id = 17 where module_name = 'NGINX';
+            update utm_logstash_filter set data_type_id = 18 where module_name = 'MYSQL';
+            update utm_logstash_filter set data_type_id = 19 where module_name = 'MONGODB';
+            update utm_logstash_filter set data_type_id = 20 where module_name = 'LOGSTASH';
+            update utm_logstash_filter set data_type_id = 21 where module_name = 'KIBANA';
+            update utm_logstash_filter set data_type_id = 22 where module_name = 'KAFKA';
+            update utm_logstash_filter set data_type_id = 23 where module_name = 'ELASTICSEARCH';
+            update utm_logstash_filter set data_type_id = 24 where module_name = 'AUDITD';
+            update utm_logstash_filter set data_type_id = 25 where module_name = 'APACHE';
+            update utm_logstash_filter set data_type_id = 26 where module_name = 'LINUX_AGENT';
+            update utm_logstash_filter set data_type_id = 27 where module_name = 'ESET';
+            update utm_logstash_filter set data_type_id = 28 where module_name = 'KASPERSKY';
+            update utm_logstash_filter set data_type_id = 29 where module_name = 'SENTINEL_ONE';
+            update utm_logstash_filter set data_type_id = 31 where module_name = 'GITHUB';
+            update utm_logstash_filter set data_type_id = 32 where module_name = 'MACOS';
+            update utm_logstash_filter set data_type_id = 33 where module_name = 'MIKROTIK';
+            update utm_logstash_filter set data_type_id = 34 where module_name = 'PALO_ALTO';
+            update utm_logstash_filter set data_type_id = 35 where module_name = 'CISCO_SWITCH';
+            update utm_logstash_filter set data_type_id = 36 where module_name = 'SONIC_WALL';
+            update utm_logstash_filter set data_type_id = 37 where module_name = 'DECEPTIVE_BYTES';
+            update utm_logstash_filter set data_type_id = 38 where module_name = 'BITDEFENDER';
+            update utm_logstash_filter set data_type_id = 42 where module_name = 'JSON';
+            update utm_logstash_filter set data_type_id = 41 where module_name = 'TRAEFIK';
+            update utm_logstash_filter set data_type_id = 40 where module_name = 'NATS';
+            update utm_logstash_filter set data_type_id = 39 where module_name = 'HAPROXY';
+            update utm_logstash_filter set data_type_id = 43 where module_name = 'SYSLOG';
+            update utm_logstash_filter set data_type_id = 9 where id = 1521;
+            update utm_logstash_filter set data_type_id = 44 where module_name = 'PFSENSE';
+            update utm_logstash_filter set data_type_id = 45 where module_name = 'NETFLOW';
+            update utm_logstash_filter set data_type_id = 46 where module_name = 'FORTIWEB';
+            update utm_logstash_filter set data_type_id = 47 where module_name = 'AIX';
+            update utm_logstash_filter set data_type_id = 48 where module_name = 'AS_400';
+
+            ]]>
+        </sql>
     </changeSet>
 
 </databaseChangeLog>
