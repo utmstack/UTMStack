@@ -199,7 +199,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
 
   editRule(rule: Rule) {
     const {id} = rule;
-    this.router.navigate(['correlation/rule', id]);
+    this.router.navigate(['alerting-rules/rule', id]);
   }
 
   ngOnDestroy(): void {

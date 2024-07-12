@@ -221,29 +221,29 @@
                                                     </label>
                                                 </legend>
                                                 <div class="row">
+                                                  <div class="col-3">
+                                                    <div class="form-group">
+                                                      <label>Field</label>
+                                                      <input [ngClass]="{'is-invalid': variable.get('get').invalid && variable.get('get').touched}"
+                                                             class="form-control mr-2"
+                                                             formControlName="get"
+                                                             type="text">
+                                                      <div *ngIf="variable.get('get').invalid && variable.get('get').touched"
+                                                           class="invalid-feedback">
+                                                        Field is required.
+                                                      </div>
+                                                    </div>
+                                                  </div>
                                                     <div class="col-3">
                                                         <div class="form-group">
-                                                            <label>Variable name</label>
+                                                            <label>Alias</label>
                                                             <input [ngClass]="{'is-invalid': variable.get('as').invalid && variable.get('as').touched}"
                                                                    class="form-control mr-2"
                                                                    formControlName="as"
                                                                    type="text">
                                                             <div *ngIf="variable.get('as').invalid && variable.get('as').touched"
                                                                  class="invalid-feedback">
-                                                                Variable name is required.
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <div class="form-group">
-                                                            <label>Field name</label>
-                                                            <input [ngClass]="{'is-invalid': variable.get('get').invalid && variable.get('get').touched}"
-                                                                   class="form-control mr-2"
-                                                                   formControlName="get"
-                                                                   type="text">
-                                                            <div *ngIf="variable.get('get').invalid && variable.get('get').touched"
-                                                                 class="invalid-feedback">
-                                                                Field name is required.
+                                                                Alias is required.
                                                             </div>
                                                         </div>
                                                     </div>
@@ -263,7 +263,7 @@
                                                     <div class="col-3 d-flex justify-content-center align-items-center pt-3">
                                                         <button (click)="saveVariable(i)"
                                                                 class="btn utm-button utm-button-primary"
-                                                                type="button">Save
+                                                                type="button">Add
                                                         </button>
                                                     </div>
                                                 </div>
@@ -273,9 +273,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="expression">Expression:</label>
-                                    <input [ngClass]="{'is-invalid': ruleForm.get('definition').get('ruleExpression').invalid && ruleForm.get('definition').get('ruleExpression').touched}"
-                                           class="form-control" formControlName="ruleExpression" id="expression"
-                                           type="text">
+                                    <textarea [ngClass]="{'is-invalid': ruleForm.get('definition').get('ruleExpression').invalid && ruleForm.get('definition').get('ruleExpression').touched}"
+                                              class="form-control" formControlName="ruleExpression" id="expression" rows="6"></textarea>
                                     <div *ngIf="ruleForm.get('definition').get('ruleExpression').invalid && ruleForm.get('definition').get('ruleExpression').touched"
                                          class="invalid-feedback">
                                         Expression is required.
