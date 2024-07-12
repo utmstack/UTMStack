@@ -61,13 +61,8 @@ func (c *Compose) Encode() ([]byte, error) {
 }
 
 func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
-	err := CreateLogstashConfig(stack.LogstashConfig)
-	if err != nil {
-		return err
-	}
-
-	var legacyConfig PluginsConfig
-	err = legacyConfig.Set(conf, stack)
+	var pluginsConfig PluginsConfig
+	err := pluginsConfig.Set(conf, stack)
 	if err != nil {
 		return err
 	}
@@ -85,39 +80,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		Options: map[string]interface{}{
 			"max-size": "50m",
 		},
-	}
-
-	LSMem := stack.ServiceResources["logstash"].AssignedMemory
-	LSMin := stack.ServiceResources["logstash"].MinMemory
-	c.Services["logstash"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
-		Environment: []string{
-			"CONFIG_RELOAD_AUTOMATIC=true",
-			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dm -Xmx%dm -Xss100m", LSMem/2, LSMem/2),
-			fmt.Sprintf("PIPELINE_WORKERS=%d", stack.Threads),
-		},
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", LSMem)),
-				},
-				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", LSMin)),
-				},
-			},
-		},
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-			stack.LogstashPipelines + ":/usr/share/logstash/pipelines",
-			stack.LogstashConfig + "/pipelines.yml:/usr/share/logstash/config/pipelines.yml",
-			stack.LogstashConfig + "/logstash.yml:/usr/share/logstash/config/logstash.yml",
-			stack.Cert + ":/cert",
-		},
-		DependsOn: []string{
-			"mutate",
-		},
-		Logging: &dLogging,
 	}
 
 	agentManagerMem := stack.ServiceResources["agentmanager"].AssignedMemory
@@ -298,7 +260,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		Image: utils.Str("ghcr.io/utmstack/utmstack/bitdefender:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
-			"logstash",
 		},
 		Ports: []string{
 			"8000:8000",

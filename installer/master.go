@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"path"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/types"
@@ -86,19 +85,6 @@ func Master(c *types.Config) error {
 		fmt.Println("Configuring VLAN [OK]")
 	}
 
-	if utils.GetLock(202310261604, stack.LocksDir) {
-		fmt.Println("Creating pipelines.yml file")
-		err := utils.RunCmd("touch", path.Join(stack.LogstashConfig, "pipelines.yml"))
-		if err != nil {
-			return err
-		}
-
-		if err := utils.SetLock(202310261604, stack.LocksDir); err != nil {
-			return err
-		}
-		fmt.Println("Creating pipelines.yml file [OK]")
-	}
-
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Println("Installing Docker")
 		if err := InstallDocker(); err != nil {
@@ -138,7 +124,7 @@ func Master(c *types.Config) error {
 
 	if !utils.GetLock(5, stack.LocksDir) && utils.GetLock(202407051241, stack.LocksDir) {
 		fmt.Println("Removing old services")
-		
+
 		if err := utils.RemoveServices([]string{
 			"utmstack_log-auth-proxy",
 			"utmstack_mutate",

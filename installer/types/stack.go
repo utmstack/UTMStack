@@ -8,8 +8,6 @@ import (
 
 type StackConfig struct {
 	FrontEndNginx       string
-	LogstashPipelines   string
-	LogstashConfig      string
 	ServiceResources    map[string]*utils.ServiceConfig
 	Threads             int
 	ESData              string
@@ -40,8 +38,6 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.FrontEndNginx = utils.MakeDir(0777, c.DataDir, "front-end", "nginx")
 	s.Datasources = utils.MakeDir(0777, c.DataDir, "datasources")
 	s.EventsEngineWorkdir = utils.MakeDir(0777, c.DataDir, "events-engine-workdir")
-	s.LogstashPipelines = utils.MakeDir(0777, c.DataDir, "logstash", "pipelines")
-	s.LogstashConfig = utils.MakeDir(0777, c.DataDir, "logstash", "config")
 	s.ESData = utils.MakeDir(0777, c.DataDir, "opensearch", "data")
 	s.ESBackups = utils.MakeDir(0777, c.DataDir, "opensearch", "backups")
 	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
@@ -53,7 +49,6 @@ func (s *StackConfig) Populate(c *Config) error {
 
 	services := []utils.ServiceConfig{
 		{Name: "correlation", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
-		{Name: "logstash", Priority: 1, MinMemory: 2700, MaxMemory: 60 * 1024},
 		{Name: "opensearch", Priority: 1, MinMemory: 4350, MaxMemory: 60 * 1024},
 		{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
 		{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
