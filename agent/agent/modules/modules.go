@@ -24,7 +24,7 @@ type Module interface {
 	DisablePort(proto string)
 }
 
-func GetModule(typ config.LogType) Module {
+func GetModule(typ string) Module {
 	switch config.ValidateModuleType(typ) {
 	case "syslog":
 		return GetSyslogModule(string(typ), config.ProtoPorts[typ])
@@ -53,7 +53,7 @@ func ModulesUp() {
 			}
 
 			if index == -1 {
-				newModule := GetModule(config.LogType(intType))
+				newModule := GetModule(intType)
 				moCache = append(moCache, newModule)
 				index = len(moCache) - 1
 			}
@@ -76,7 +76,7 @@ func ModulesUp() {
 				}
 
 				if port != "" && moCache[index].GetPort(proto) != port {
-					changeAllowed = ValidateChangeInPort(port, config.LogType(intType))
+					changeAllowed = ValidateChangeInPort(port, intType)
 				}
 				if conf[0] {
 					moCache[index].DisablePort(proto)
@@ -131,9 +131,9 @@ func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 }
 
 // Return true if the port change is allowed
-func ValidateChangeInPort(newPort string, dataType config.LogType) bool {
+func ValidateChangeInPort(newPort string, dataType string) bool {
 	for _, logType := range config.ProhibitedPortsChange {
-		if logType == dataType {
+		if logType.Config == dataType {
 			return false
 		}
 	}

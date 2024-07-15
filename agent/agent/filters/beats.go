@@ -26,17 +26,17 @@ var RegexspBeats = map[config.LogType]string{
 	config.LogTypeHaproxyModule:       `"type":"haproxy"|"module":"haproxy"`,
 }
 
-func indentifyBeatLogSource(log string) (config.LogType, error) {
+func indentifyBeatLogSource(log string) (string, error) {
 	for logType, regp := range RegexspBeats {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
 			return "", err
 		}
 		if regExpCompiled.MatchString(log) {
-			return logType, nil
+			return logType.DataType, nil
 		}
 	}
-	return config.LogTypeGeneric, nil
+	return config.LogTypeGeneric.DataType, nil
 }
 
 func ProcessBeatData(logBatch []string) (map[string][]string, error) {

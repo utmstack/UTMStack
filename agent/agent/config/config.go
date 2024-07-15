@@ -11,6 +11,11 @@ import (
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
+type MSGDS struct {
+	DataSource string
+	Message    string
+}
+
 type InstallationUUID struct {
 	UUID string `yaml:"uuid"`
 }
@@ -108,13 +113,11 @@ func SaveConfig(cnf *Config) error {
 		return fmt.Errorf("failed to generate uuid: %v", err)
 	}
 
-	// Get key
 	key, err := utils.GenerateKeyByUUID(REPLACE_KEY, uuid)
 	if err != nil {
 		return fmt.Errorf("error geneating key: %v", err)
 	}
 
-	// Encrypt config
 	agentKey, err := aesCrypt.AESEncrypt(cnf.AgentKey, key)
 	if err != nil {
 		return fmt.Errorf("error encoding agent key: %v", err)
@@ -127,7 +130,6 @@ func SaveConfig(cnf *Config) error {
 		SkipCertValidation: cnf.SkipCertValidation,
 	}
 
-	// Write config in config.yml
 	if err := utils.WriteYAML(filepath.Join(path, "config.yml"), encryptConf); err != nil {
 		return err
 	}

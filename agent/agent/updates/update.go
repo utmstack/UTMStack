@@ -168,14 +168,20 @@ func getDependency(cnf *config.Config, version, dependencyType string) (models.D
 
 	headers := map[string]string{
 		"key": cnf.AgentKey,
-		"id":  string(cnf.AgentID),
+		"id":  fmt.Sprintf("%v", cnf.AgentID),
+	}
+	fmt.Printf(("Headers: %v\n"), headers)
+
+	var tlsConfig *tls.Config
+	if cnf.SkipCertValidation {
+		tlsConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	} else {
+		tlsConfig = &tls.Config{}
 	}
 
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: true,
-	}
-
-	resp, status, err := utils.DoReq[models.DependencyUpdateResponse](fmt.Sprintf("%s/dependencies/agent?%s", cnf.Server, queryParams.Encode()), nil, http.MethodGet, headers, tlsConfig)
+	resp, status, err := utils.DoReq[models.DependencyUpdateResponse](fmt.Sprintf("https://%s/dependencies/agent?%s", cnf.Server, queryParams.Encode()), nil, http.MethodGet, headers, tlsConfig)
 	if err != nil {
 		return models.DependencyUpdateResponse{}, fmt.Errorf("error downloading dependencies: %v", err)
 	}

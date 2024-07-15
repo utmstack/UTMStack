@@ -6,49 +6,72 @@ import (
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/conn"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
-// Call this function to start sending Ping requests
-func StartPing(client PingServiceClient, ctx context.Context, cnf *config.Config) {
-	connectionTime := 0 * time.Second
-	reconnectDelay := config.InitialReconnectDelay
-	var connErrMsgWritten bool
+var (
+	timeToSleep  = time.Duration(10 * time.Second)
+	pingInterval = time.Duration(15 * time.Second)
+)
+
+func StartPing(cnf *config.Config, ctx context.Context) {
+	var connErrMsgWritten, errorLogged bool
 
 	for {
-		if connectionTime >= config.MaxConnectionTime {
-			connectionTime = 0 * time.Second
-			reconnectDelay = config.InitialReconnectDelay
+		conn, err := conn.GetAgentManagerConnection(cnf)
+		if err != nil {
+			if !connErrMsgWritten {
+				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
+				connErrMsgWritten = true
+			}
+			time.Sleep(timeToSleep)
 			continue
 		}
 
+		client := NewPingServiceClient(conn)
 		stream, err := client.Ping(ctx)
 		if err != nil {
 			if !connErrMsgWritten {
 				utils.Logger.ErrorF("failed to start Ping Stream: %v", err)
 				connErrMsgWritten = true
 			}
-			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
+			time.Sleep(timeToSleep)
 			continue
 		}
 
 		connErrMsgWritten = false
 
-		ticker := time.NewTicker(15 * time.Second)
+		ticker := time.NewTicker(pingInterval)
 		defer ticker.Stop()
 
 		for range ticker.C {
 			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
 			if err == io.EOF {
-				utils.Logger.ErrorF("server closed the stream: %v", err)
+				time.Sleep(timeToSleep)
 				break
 			}
 			if err != nil {
-				utils.Logger.ErrorF("error sending Ping request: %v", err)
-				break
+				st, ok := status.FromError(err)
+				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
+					if !errorLogged {
+						utils.Logger.ErrorF("error sending Ping request: %v", err)
+						errorLogged = true
+					}
+					time.Sleep(timeToSleep)
+					break
+				} else {
+					if !errorLogged {
+						utils.Logger.ErrorF("error sending Ping request: %v", err)
+						errorLogged = true
+					}
+					time.Sleep(timeToSleep)
+					continue
+				}
 			}
+			errorLogged = false
 		}
 	}
 }

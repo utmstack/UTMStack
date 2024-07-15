@@ -5,9 +5,8 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/threatwinds/validations"
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/agent/config"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
 
 var (
@@ -43,38 +42,32 @@ func GetBeatsParser() *BeatsParser {
 	return &beatsParser
 }
 
-func (p *BeatsParser) IdentifySource(log string) (config.LogType, error) {
+func (p *BeatsParser) IdentifySource(log string) (string, error) {
 	for logType, regp := range RegexspBeats {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
 			return "", err
 		}
 		if regExpCompiled.MatchString(log) {
-			return logType, nil
+			return logType.DataType, nil
 		}
 	}
-	return config.LogTypeGeneric, nil
+	return config.LogTypeGeneric.DataType, nil
 }
 
-func (p *BeatsParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
-	classifiedLogs := make(map[string][]string)
-	batch, ok := logBatch.([]string)
+func (p *BeatsParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
+	log, ok := logMessage.(string)
 	if !ok {
-		return nil, fmt.Errorf("invalid log batch type")
+		return fmt.Errorf("log is not of type string")
 	}
-	for _, log := range batch {
-		if logType, err := p.IdentifySource(log); err != nil {
-			return nil, err
-		} else {
-			if logType != "" {
-				validatedLog, _, err := validations.ValidateString(log, false)
-				if err != nil {
-					utils.Logger.ErrorF("error validating log: %s: %v", log, err)
-					continue
-				}
-				classifiedLogs[string(logType)] = append(classifiedLogs[string(logType)], validatedLog)
-			}
-		}
+	logType, err := p.IdentifySource(log)
+	if err != nil {
+		return err
 	}
-	return classifiedLogs, nil
+	queue <- &plugins.Log{
+		DataType:   string(logType),
+		DataSource: datasource,
+		Raw:        log,
+	}
+	return nil
 }

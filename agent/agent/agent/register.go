@@ -6,14 +6,20 @@ import (
 	"strings"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/conn"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-func RegisterAgent(conn *grpc.ClientConn, cnf *config.Config, UTMKey string) error {
+func RegisterAgent(cnf *config.Config, UTMKey string) error {
+	conn, err := conn.GetAgentManagerConnection(cnf)
+	if err != nil {
+		return fmt.Errorf("error connecting to Agent Manager: %v", err)
+	}
+
 	agentClient := NewAgentServiceClient(conn)
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx = metadata.AppendToOutgoingContext(ctx, "connection-key", UTMKey)
 	defer cancel()
 
 	ip, err := utils.GetIPAddress()
@@ -40,7 +46,6 @@ func RegisterAgent(conn *grpc.ClientConn, cnf *config.Config, UTMKey string) err
 		Addresses:      osInfo.Addresses,
 	}
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "connection-key", UTMKey)
 	response, err := agentClient.RegisterAgent(ctx, request)
 	if err != nil {
 		if strings.Contains(err.Error(), "hostname has already been registered") {

@@ -123,7 +123,7 @@ func GenerateFromTemplate(data interface{}, tfile string, cfile string) error {
 
 func CreatePathIfNotExist(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := os.Mkdir(path, 0755); err != nil {
+		if err := os.MkdirAll(path, 0755); err != nil {
 			return fmt.Errorf("error creating path: %v", err)
 		}
 	} else if err != nil {

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DEPEND_URL         = "https://%s:%s/dependencies/agent?version=%s&os=%s&type=%s"
+	DEPEND_URL         = "https://%s/dependencies/agent?version=%s&os=%s&type=%s"
 	INSTALLER_LOG_FILE = "utmstack_agent_installer.log"
 	UpdaterSelfLinux   = "utmstack_agent_updater"
 	AgentManagerPort   = "9000"

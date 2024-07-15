@@ -1,185 +1,294 @@
 package logservice
 
 import (
-	"bufio"
 	context "context"
-	"fmt"
+	"errors"
+	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/conn"
+	"github.com/utmstack/UTMStack/agent/agent/database"
+	"github.com/utmstack/UTMStack/agent/agent/models"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/threatwinds/go-sdk/plugins"
 )
 
 type LogProcessor struct {
-}
-
-type LogPipe struct {
-	Src  string
-	Logs []string
+	db             *database.Database
+	connErrWritten bool
+	ackErrWritten  bool
+	sendErrWritten bool
 }
 
 var (
-	processor                   LogProcessor
-	processorOnce               sync.Once
-	LogQueue                    = make(chan LogPipe, 1000)
-	MinutesForCleanLog          = 10080 // 7 days in minutes(7*24*60)
-	MinutesForReportLogsCounted = time.Duration(5 * time.Minute)
+	processor     LogProcessor
+	processorOnce sync.Once
+	LogQueue      = make(chan *plugins.Log)
+	timeToSleep   = time.Duration(10 * time.Second)
+	timeCLeanLogs = time.Duration(10 * time.Minute)
 )
 
 func GetLogProcessor() LogProcessor {
 	processorOnce.Do(func() {
-		processor = LogProcessor{}
+		processor = LogProcessor{
+			db:             database.GetDB(),
+			connErrWritten: false,
+			ackErrWritten:  false,
+			sendErrWritten: false,
+		}
 	})
 	return processor
 }
 
-func (l *LogProcessor) ProcessLogs(client LogServiceClient, ctx context.Context, cnf *config.Config) {
-	connectionTime := 0 * time.Second
-	reconnectDelay := config.InitialReconnectDelay
-	invalidKeyCounter := 0
-
-	logsProcessCounter := map[string]int{}
-	go func() {
-		for {
-			time.Sleep(MinutesForReportLogsCounted)
-			SaveCountedLogs(logsProcessCounter)
-			logsProcessCounter = map[string]int{}
-		}
-	}()
+func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
+	go l.CleanCountedLogs()
 
 	for {
-		if connectionTime >= config.MaxConnectionTime {
-			connectionTime = 0 * time.Second
-			reconnectDelay = config.InitialReconnectDelay
+		ctxEof, cancelEof := context.WithCancel(context.Background())
+		conn, err := conn.GetCorrelationConnection(cnf)
+		if err != nil {
+			if !l.connErrWritten {
+				utils.Logger.ErrorF("error connecting to Correlation: %v", err)
+				l.connErrWritten = true
+			}
+			time.Sleep(10 * time.Second)
 			continue
 		}
 
-		newLog := <-LogQueue
-		rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: newLog.Src, Data: newLog.Logs})
-		if err != nil {
-			utils.Logger.ErrorF("error sending logs to Log Auth Proxy: %v", err)
-			for _, log := range newLog.Logs {
-				utils.Logger.ErrorF("log with errors: %s", log)
+		client := plugins.NewIntegrationClient(conn)
+		plClient := createClient(client, ctx)
+		l.connErrWritten = false
+
+		go l.handleAcknowledgements(plClient, ctxEof, cancelEof)
+		l.processLogs(plClient, ctxEof, cancelEof)
+	}
+}
+
+func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			ack, err := plClient.Recv()
+			if err == io.EOF {
+				time.Sleep(timeToSleep)
+				cancel()
+				return
 			}
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
+					if !l.ackErrWritten {
+						utils.Logger.ErrorF("failed to receive ack: %v", err)
+						l.ackErrWritten = true
+					}
+					time.Sleep(timeToSleep)
+					cancel()
+					return
+				} else {
+					if !l.ackErrWritten {
+						utils.Logger.ErrorF("failed to receive ack: %v", err)
+						l.ackErrWritten = true
+					}
+					time.Sleep(timeToSleep)
+					continue
+				}
+			}
+
+			l.ackErrWritten = false
+
+			l.db.Lock()
+			err = l.db.Update(&models.Log{}, "id", ack.LastId, "processed", true)
+			if err != nil {
+				utils.Logger.ErrorF("failed to update log: %v", err)
+			}
+			l.db.Unlock()
+		}
+	}
+}
+
+func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case newLog := <-LogQueue:
+			uuid, err := uuid.NewRandom()
+			if err != nil {
+				utils.Logger.ErrorF("failed to generate uuid: %v", err)
+				continue
+			}
+
+			newLog.Id = uuid.String()
+			l.db.Lock()
+			err = l.db.Create(&models.Log{ID: newLog.Id, Log: newLog.Raw, Type: newLog.DataType, CreatedAt: time.Now(), DataSource: newLog.DataSource, Processed: false})
+			if err != nil {
+				utils.Logger.ErrorF("failed to save log: %v :log: %s", err, newLog.Raw)
+			}
+			l.db.Unlock()
+
+			err = plClient.Send(newLog)
+			if err == io.EOF {
+				time.Sleep(timeToSleep)
+				cancel()
+				return
+			}
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
+					if !l.sendErrWritten {
+						utils.Logger.ErrorF("failed to send log: %v :log: %s", err, newLog.Raw)
+						l.sendErrWritten = true
+					}
+					time.Sleep(timeToSleep)
+					cancel()
+					return
+				} else {
+					if !l.sendErrWritten {
+						utils.Logger.ErrorF("failed to send log: %v :log: %s", err, newLog.Raw)
+						l.sendErrWritten = true
+					}
+					time.Sleep(timeToSleep)
+					continue
+				}
+			}
+			l.sendErrWritten = false
+		}
+	}
+}
+
+func (l *LogProcessor) CleanCountedLogs() {
+	ticker := time.NewTicker(timeCLeanLogs)
+	defer ticker.Stop()
+	for range ticker.C {
+		// Delete Old Logs
+		dataRetention, err := GetDataRetention()
+		if err != nil {
+			utils.Logger.ErrorF("error getting data retention: %s", err)
+			continue
+		}
+		l.db.Lock()
+		logsCleaned, err := l.db.DeleteOld(&models.Log{}, dataRetention)
+		if err != nil {
+			utils.Logger.ErrorF("error deleting old logs: %s", err)
+		}
+		l.db.Unlock()
+		if logsCleaned > 0 {
+			utils.Logger.Info("%d olds logs before %s have been deleted", logsCleaned, time.Now().AddDate(0, 0, -dataRetention).Format("2006-01-02"))
+		}
+
+		// Resent Unprocessed Logs
+		unprocessed := []models.Log{}
+		l.db.Lock()
+		found, err := l.db.Find(&unprocessed, "processed", false)
+		l.db.Unlock()
+		if err != nil {
+			utils.Logger.ErrorF("error finding unprocessed logs: %s", err)
+			continue
+		}
+
+		if found {
+			for _, log := range unprocessed {
+				LogQueue <- &plugins.Log{
+					Id:         log.ID,
+					Raw:        log.Log,
+					DataType:   log.Type,
+					DataSource: log.DataSource,
+					Timestamp:  log.CreatedAt.Format(time.RFC3339Nano),
+				}
+			}
+		}
+	}
+}
+
+func createClient(client plugins.IntegrationClient, ctx context.Context) plugins.Integration_ProcessLogClient {
+	var connErrMsgWritten bool
+	invalidKeyCounter := 0
+	for {
+		plClient, err := client.ProcessLog(ctx)
+		if err != nil {
 			if strings.Contains(err.Error(), "invalid agent key") {
 				invalidKeyCounter++
 				if invalidKeyCounter >= 20 {
 					utils.Logger.Info("Uninstalling agent: reason: agent has been removed from the panel...")
-					err := agent.UninstallAll()
-					if err != nil {
-						utils.Logger.ErrorF("error uninstalling agent: %s", err)
-					}
+					agent.UninstallAll()
+					os.Exit(1)
 				}
 			} else {
 				invalidKeyCounter = 0
 			}
-
-			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
-			continue
-		} else if !rcv.Received {
-			utils.Logger.ErrorF("error sending logs to Log Auth Proxy: %s", rcv.Message)
-			utils.Logger.Info("logs with errors: ")
-			for _, log := range newLog.Logs {
-				utils.Logger.Info("log: %s", log)
+			if !connErrMsgWritten {
+				utils.Logger.ErrorF("failed to create input client: %v", err)
+				connErrMsgWritten = true
 			}
-			if strings.Contains(rcv.Message, "invalid agent key") {
-				invalidKeyCounter++
-				if invalidKeyCounter >= 20 {
-					utils.Logger.Info("Uninstalling agent: reason: agent has been removed from the panel...")
-					err := agent.UninstallAll()
-					if err != nil {
-						utils.Logger.ErrorF("error uninstalling agent: %s", err)
-					}
-				}
-			} else {
-				invalidKeyCounter = 0
-			}
-
-			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
+			time.Sleep(timeToSleep)
 			continue
 		}
-
-		logsProcessCounter[newLog.Src] += len(newLog.Logs)
-		invalidKeyCounter = 0
+		return plClient
 	}
 }
 
-func (l *LogProcessor) ProcessLogsWithHighPriority(msg string, client LogServiceClient, ctx context.Context, cnf *config.Config) error {
-	host, err := os.Hostname()
-	if err != nil {
-		return fmt.Errorf("error getting hostname: %v", err)
+func SetDataRetention(retention string) error {
+	if retention == "" {
+		retention = "7d"
 	}
 
-	rcv, err := client.ProcessLogs(ctx, &LogMessage{Type: agent.ConnectorType_AGENT, LogType: string(config.LogTypeGeneric), Data: []string{config.GetMessageFormated(host, msg)}})
-	if err != nil {
-		return fmt.Errorf("error sending logs to Log Auth Proxy: %v", err)
+	if !strings.HasSuffix(retention, "m") && !strings.HasSuffix(retention, "h") &&
+		!strings.HasSuffix(retention, "d") && !strings.HasSuffix(retention, "w") &&
+		!strings.HasSuffix(retention, "M") && !strings.HasSuffix(retention, "y") {
+		return errors.New("retention must end with 'm', 'h','d', 'w', 'M', or 'y'")
 	}
-	if !rcv.Received {
-		return fmt.Errorf("error sending logs to Log Auth Proxy: %s", rcv.Message)
-	}
-	return nil
-}
 
-func SaveCountedLogs(logsProcessCounter map[string]int) {
+	numberPart := retention[:len(retention)-1]
+	_, err := strconv.Atoi(numberPart)
+	if err != nil {
+		return errors.New("invalid number in retention")
+	}
+
 	path := utils.GetMyPath()
+	return utils.WriteJSON(filepath.Join(path, config.RetentionConfigFile), models.DataRetention{Retention: retention})
+}
 
-	filePath := filepath.Join(path, "logs_process")
-	logFile := filepath.Join(filePath, "processed_logs.txt")
-	utils.CreatePathIfNotExist(filePath)
-
-	file, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+func GetDataRetention() (int, error) {
+	path := utils.GetMyPath()
+	retention := models.DataRetention{}
+	err := utils.ReadJson(filepath.Join(path, config.RetentionConfigFile), &retention)
 	if err != nil {
-		utils.Logger.ErrorF("error opening processed_logs.txt file: %s", err)
-		return
-	}
-	defer file.Close()
-
-	var firstLogTime time.Time
-	var firstLine string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		firstLine = scanner.Text()
-		break
+		return 0, err
 	}
 
-	if firstLine != "" {
-		firstLogTime, err = time.Parse("2006/01/02 15:04:05.9999999 -0700 MST", strings.Split(firstLine, " - ")[0])
-		if err != nil {
-			utils.Logger.ErrorF("error parsing first log time: %s", err)
-			return
-		}
-
-		if !firstLogTime.IsZero() && time.Since(firstLogTime).Minutes() >= float64(MinutesForCleanLog) {
-			file.Close()
-			if err := os.Remove(logFile); err != nil {
-				utils.Logger.ErrorF("error removing processed_logs.txt file: %s", err)
-				return
-			}
-			file, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-			if err != nil {
-				utils.Logger.ErrorF("error opening processed_logs.txt file: %s", err)
-				return
-			}
-		}
+	numberPart := retention.Retention[:len(retention.Retention)-1]
+	number, err := strconv.Atoi(numberPart)
+	if err != nil {
+		return 0, errors.New("invalid number in retention")
 	}
 
-	for name, counter := range logsProcessCounter {
-		if counter > 0 {
-			_, err = file.WriteString(fmt.Sprintf("%v - %d logs from %s have been processed\n", time.Now().Format("2006/01/02 15:04:05.9999999 -0700 MST"), counter, name))
-			if err != nil {
-				utils.Logger.ErrorF("error writing to processed_logs.txt file: %s", err)
-				continue
-			}
-		}
+	switch retention.Retention[len(retention.Retention)-1] {
+	case 'm':
+		return number, nil
+	case 'h':
+		return number * 60, nil
+	case 'd':
+		return number * 24 * 60, nil
+	case 'w':
+		return number * 7 * 24 * 60, nil
+	case 'M':
+		return number * 30 * 24 * 60, nil
+	case 'y':
+		return number * 365 * 24 * 60, nil
+	default:
+		return 0, errors.New("invalid retention format")
 	}
-
 }

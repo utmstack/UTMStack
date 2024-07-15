@@ -43,7 +43,7 @@ func main() {
 			}
 
 			utils.Logger.WriteSimpleMessage("Downloading UTMStack dependencies...")
-			err = updates.DownloadDependencies(ip, utmKey)
+			err = updates.DownloadDependencies(ip, utmKey, skip)
 			if err != nil {
 				utils.Logger.WriteFatal("error downloading dependencies", err)
 			}

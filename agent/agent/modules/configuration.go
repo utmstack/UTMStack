@@ -67,7 +67,7 @@ func ConfigureCollectorFirstTime() error {
 		newIntegration.TCP.Port = ports.TCP
 		newIntegration.UDP.IsListen = false
 		newIntegration.UDP.Port = ports.UDP
-		integrations[string(logTyp)] = newIntegration
+		integrations[logTyp] = newIntegration
 	}
 	return WriteCollectorConfig(integrations, config.GetCollectorConfigPath())
 }
@@ -82,7 +82,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	if proto != "tcp" && proto != "udp" {
 		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
-	if valid := config.ValidateModuleType(config.LogType(logTyp)); valid == "nil" {
+	if valid := config.ValidateModuleType(logTyp); valid == "nil" {
 		return "", fmt.Errorf("invalid integration: %s", logTyp)
 	}
 
@@ -110,10 +110,10 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 	if proto != "tcp" && proto != "udp" {
 		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
-	if valid := config.ValidateModuleType(config.LogType(logTyp)); valid == "nil" {
+	if valid := config.ValidateModuleType(logTyp); valid == "nil" {
 		return "", fmt.Errorf("invalid integration: %s", logTyp)
 	}
-	if changeValid := ValidateChangeInPort(port, config.LogType(logTyp)); !changeValid {
+	if changeValid := ValidateChangeInPort(port, logTyp); !changeValid {
 		return "", fmt.Errorf("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, logTyp, config.PortRangeMin, config.PortRangeMax)
 	}
 	if !IsPortAvailable(port, proto, &cnf, logTyp) {
@@ -164,7 +164,7 @@ func MigrateOldConfig(old CollectorConfigurationOld) CollectorConfiguration {
 		newIntegration.TCP.Port = ports.TCP
 		newIntegration.UDP.IsListen = false
 		newIntegration.UDP.Port = ports.UDP
-		integrations[string(logTyp)] = newIntegration
+		integrations[logTyp] = newIntegration
 	}
 
 	for logTyp, port := range old.Integrations {

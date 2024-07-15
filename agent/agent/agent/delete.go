@@ -5,29 +5,24 @@ import (
 	"fmt"
 	"os/user"
 	"strconv"
-	"time"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/conn"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
-	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-const (
-	maxConnectionAttempts = 3
-	initialReconnectDelay = 10 * time.Second
-	maxReconnectDelay     = 60 * time.Second
-)
-
-func DeleteAgent(conn *grpc.ClientConn, cnf *config.Config) error {
-	connectionAttemps := 0
-	reconnectDelay := initialReconnectDelay
+func DeleteAgent(cnf *config.Config) error {
+	conn, err := conn.GetAgentManagerConnection(cnf)
+	if err != nil {
+		return fmt.Errorf("error connecting to Agent Manager: %v", err)
+	}
 
 	agentClient := NewAgentServiceClient(conn)
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	ctx = metadata.AppendToOutgoingContext(ctx, "key", cnf.AgentKey)
 	ctx = metadata.AppendToOutgoingContext(ctx, "id", strconv.Itoa(int(cnf.AgentID)))
+	defer cancel()
 
 	currentUser, err := user.Current()
 	if err != nil {
@@ -38,22 +33,9 @@ func DeleteAgent(conn *grpc.ClientConn, cnf *config.Config) error {
 		DeletedBy: currentUser.Username,
 	}
 
-	for {
-		if connectionAttemps >= maxConnectionAttempts {
-			return fmt.Errorf("error removing UTMStack Agent from Agent Manager")
-		}
-		utils.Logger.Info("trying to remove UTMStack Agent from Agent Manager...")
-
-		_, err = agentClient.DeleteAgent(ctx, delet)
-		if err != nil {
-			connectionAttemps++
-			utils.Logger.Info("error removing UTMStack Agent from Agent Manager, trying again in %.0f seconds", reconnectDelay.Seconds())
-			time.Sleep(reconnectDelay)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
-			continue
-		}
-
-		break
+	_, err = agentClient.DeleteAgent(ctx, delet)
+	if err != nil {
+		utils.Logger.ErrorF("error removing UTMStack Agent from Agent Manager %v", err)
 	}
 
 	utils.Logger.Info("UTMStack Agent removed successfully")

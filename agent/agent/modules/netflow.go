@@ -11,7 +11,6 @@ import (
 
 	"github.com/tehmaze/netflow"
 	"github.com/tehmaze/netflow/session"
-	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/parser"
@@ -47,10 +46,10 @@ func GetNetflowModule() *NetflowModule {
 
 func (m *NetflowModule) EnablePort(proto string) {
 	if proto == "udp" && !m.IsEnabled {
-		utils.Logger.Info("Server %s listening in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.LogTypeNetflow].UDP)
+		utils.Logger.Info("Server %s listening in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.LogTypeNetflow.Config].UDP)
 		m.IsEnabled = true
 
-		port, err := strconv.Atoi(config.ProtoPorts[config.LogTypeNetflow].UDP)
+		port, err := strconv.Atoi(config.ProtoPorts[config.LogTypeNetflow.Config].UDP)
 		if err != nil {
 			utils.Logger.ErrorF("error converting port to int: %v", err)
 			return
@@ -68,11 +67,14 @@ func (m *NetflowModule) EnablePort(proto string) {
 		m.CTX, m.Cancel = context.WithCancel(context.Background())
 
 		buffer := make([]byte, 2048)
-		msgChannel := make(chan []string)
 
-		go m.handleConnection(msgChannel)
 		go func() {
-			defer m.Listener.Close()
+			defer func() {
+				err = m.Listener.Close()
+				if err != nil {
+					utils.Logger.ErrorF("error closing udp listener: %v", err)
+				}
+			}()
 			for {
 				select {
 				case <-m.CTX.Done():
@@ -108,15 +110,12 @@ func (m *NetflowModule) EnablePort(proto string) {
 						continue
 					}
 
-					logs, err := m.Parser.ProcessData(parser.NetflowObject{
+					err = m.Parser.ProcessData(parser.NetflowObject{
 						Remote:  addr.String(),
 						Message: message,
-					})
+					}, "", logservice.LogQueue)
 					if err != nil {
 						utils.Logger.ErrorF("error parsing netflow: %v", err)
-					}
-					for _, bulk := range logs {
-						msgChannel <- bulk
 					}
 				}
 			}
@@ -126,7 +125,7 @@ func (m *NetflowModule) EnablePort(proto string) {
 
 func (m *NetflowModule) DisablePort(proto string) {
 	if proto == "udp" && m.IsEnabled {
-		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.LogTypeNetflow].UDP)
+		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.LogTypeNetflow.Config].UDP)
 		m.Cancel()
 		m.Listener.Close()
 		m.IsEnabled = false
@@ -152,44 +151,8 @@ func (m *NetflowModule) SetNewPort(proto string, port string) {
 func (m *NetflowModule) GetPort(proto string) string {
 	switch proto {
 	case "udp":
-		return config.ProtoPorts[config.LogTypeNetflow].UDP
+		return config.ProtoPorts[config.LogTypeNetflow.Config].UDP
 	default:
 		return ""
-	}
-}
-
-func (m *NetflowModule) handleConnection(logsChannel chan []string) {
-	logBatch := []string{}
-	ticker := time.NewTicker(5 * time.Second)
-
-	for {
-		select {
-		case <-ticker.C:
-			if len(logBatch) > 0 {
-				logservice.LogQueue <- logservice.LogPipe{
-					Src:  m.DataType,
-					Logs: logBatch,
-				}
-				logBatch = []string{}
-			}
-		case <-m.CTX.Done():
-			return
-		case messages := <-logsChannel:
-			for _, message := range messages {
-				msg, _, err := validations.ValidateString(message, false)
-				if err != nil {
-					utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
-				}
-				logBatch = append(logBatch, msg)
-			}
-
-			if len(logBatch) >= config.BatchCapacity {
-				logservice.LogQueue <- logservice.LogPipe{
-					Src:  m.DataType,
-					Logs: logBatch,
-				}
-				logBatch = []string{}
-			}
-		}
 	}
 }

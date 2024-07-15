@@ -1,23 +1,31 @@
 package main
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"time"
+
+	"net/http"
+	_ "net/http/pprof"
 
 	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/beats"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/conn"
+	"github.com/utmstack/UTMStack/agent/agent/database"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
+	"github.com/utmstack/UTMStack/agent/agent/models"
 	"github.com/utmstack/UTMStack/agent/agent/modules"
 	"github.com/utmstack/UTMStack/agent/agent/serv"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
-	"google.golang.org/grpc/metadata"
 )
 
 func main() {
+	go func() {
+		// http://localhost:6060/debug/pprof/
+		http.ListenAndServe("0.0.0.0:6060", nil)
+	}()
+
 	path := utils.GetMyPath()
 	utils.InitLogger(filepath.Join(path, "logs", config.SERV_LOG))
 
@@ -31,14 +39,12 @@ func main() {
 
 			cnf, utmKey := config.GetInitialConfig()
 
-			conn, err := conn.ConnectToServer(cnf, cnf.Server, config.AGENTMANAGERPORT)
+			err := conn.EstablishConnectionsFistTime(cnf)
 			if err != nil {
-				utils.Logger.Fatal("error connecting to Agent Manager: %v", err)
+				utils.Logger.Fatal("error establishing connections: %v", err)
 			}
-			defer conn.Close()
-			utils.Logger.Info("Connection to Agent Manager successful!!!")
 
-			if err = pb.RegisterAgent(conn, cnf, utmKey); err != nil {
+			if err = pb.RegisterAgent(cnf, utmKey); err != nil {
 				utils.Logger.Fatal("%v", err)
 			}
 
@@ -54,33 +60,13 @@ func main() {
 				utils.Logger.Fatal("error installing beats: %v", err)
 			}
 
+			if err := logservice.SetDataRetention(""); err != nil {
+				utils.Logger.Fatal("error trying to change retention: %v", err)
+			}
+
 			serv.InstallService()
 			utils.Logger.Info("UTMStack Agent service installed correctly")
 
-		case "send-log":
-			msg := os.Args[2]
-			logp := logservice.GetLogProcessor()
-
-			cnf, err := config.GetCurrentConfig()
-			if err != nil {
-				os.Exit(0)
-			}
-
-			connLogServ, err := conn.ConnectToServer(cnf, cnf.Server, config.AUTHLOGSPORT)
-			if err != nil {
-				utils.Logger.ErrorF("error connecting to Log Auth Proxy: %v", err)
-			}
-			defer connLogServ.Close()
-
-			logClient := logservice.NewLogServiceClient(connLogServ)
-			ctxLog, cancelLog := context.WithCancel(context.Background())
-			defer cancelLog()
-			ctxLog = metadata.AppendToOutgoingContext(ctxLog, "agent-key", cnf.AgentKey)
-
-			err = logp.ProcessLogsWithHighPriority(msg, logClient, ctxLog, cnf)
-			if err != nil {
-				utils.Logger.ErrorF("error sending High Priority Log to Log Auth Proxy: %v", err)
-			}
 		case "enable-integration", "disable-integration":
 			integration := os.Args[2]
 			proto := os.Args[3]
@@ -106,6 +92,29 @@ func main() {
 			utils.Logger.Info("change port done correctly from %s to %s in %s for %s integration", old, port, proto, integration)
 			time.Sleep(5 * time.Second)
 
+		case "change-retention":
+			retention := os.Args[2]
+
+			if err := logservice.SetDataRetention(retention); err != nil {
+				utils.Logger.Fatal("error trying to change retention: %v", err)
+			}
+
+			utils.Logger.Info("change retention done correctly to %s", retention)
+
+		case "clean-logs":
+			db := database.GetDB()
+			datR, err := logservice.GetDataRetention()
+			if err != nil {
+				utils.Logger.ErrorF("error getting retention: %v", err)
+				os.Exit(0)
+			}
+			deletedLogs, err := db.DeleteOld(models.Log{}, datR)
+			if err != nil {
+				utils.Logger.ErrorF("error deleting old logs: %v", err)
+				os.Exit(0)
+			}
+			utils.Logger.Info("%d old logs have been deleted", deletedLogs)
+
 		case "uninstall":
 			utils.Logger.Info("Uninstalling UTMStack Agent service...")
 
@@ -114,17 +123,14 @@ func main() {
 				utils.Logger.Fatal("error getting config: %v", err)
 			}
 
-			conn, err := conn.ConnectToServer(cnf, cnf.Server, config.AGENTMANAGERPORT)
+			err = conn.EstablishConnectionsFistTime(cnf)
 			if err != nil {
-				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
-			} else {
-				utils.Logger.Info("Connection to Agent Manager successful!!!")
-
-				if err = pb.DeleteAgent(conn, cnf); err != nil {
-					utils.Logger.ErrorF("error deleting agent: %v", err)
-				}
+				utils.Logger.Fatal("error establishing connections: %v", err)
 			}
-			defer conn.Close()
+
+			if err = pb.DeleteAgent(cnf); err != nil {
+				utils.Logger.ErrorF("error deleting agent: %v", err)
+			}
 
 			if err = beats.UninstallBeats(); err != nil {
 				utils.Logger.Fatal("error uninstalling beats: %v", err)

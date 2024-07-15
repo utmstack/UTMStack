@@ -12,17 +12,17 @@ var RegexspCisco = map[config.LogType]string{
 	config.LogTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
 }
 
-func indentifyCiscoLogSource(log string) (config.LogType, error) {
+func indentifyCiscoLogSource(log string) (string, error) {
 	for logType, regp := range RegexspCisco {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
 			return "", err
 		}
 		if regExpCompiled.MatchString(log) {
-			return logType, nil
+			return logType.DataType, nil
 		}
 	}
-	return config.LogTypeCiscoMeraki, nil
+	return config.LogTypeCiscoMeraki.DataType, nil
 }
 
 func ProcessCiscoData(logBatch []string) (map[string][]string, error) {

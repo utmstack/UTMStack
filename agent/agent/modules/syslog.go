@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
@@ -185,7 +186,7 @@ func (m *SyslogModule) enableUDP() {
 		m.UDPListener.CTX, m.UDPListener.Cancel = context.WithCancel(context.Background())
 
 		buffer := make([]byte, 1024)
-		msgChannel := make(chan string)
+		msgChannel := make(chan config.MSGDS)
 
 		go m.handleConnectionUDP(msgChannel)
 
@@ -230,8 +231,10 @@ func (m *SyslogModule) enableUDP() {
 							continue
 						}
 					}
-					messageWithIP := config.GetMessageFormated(remoteAddr, string(buffer[:n]))
-					msgChannel <- messageWithIP
+					msgChannel <- config.MSGDS{
+						DataSource: remoteAddr,
+						Message:    string(buffer[:n]),
+					}
 				}
 			}
 		}()
@@ -274,7 +277,7 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 		}
 	}
 
-	msgChannel := make(chan string)
+	msgChannel := make(chan config.MSGDS)
 	go m.handleMessageTCP(msgChannel)
 
 	for {
@@ -290,134 +293,74 @@ func (m *SyslogModule) handleConnectionTCP(c net.Conn) {
 				utils.Logger.ErrorF("error reading tcp data: %v", err)
 				return
 			}
-			message = config.GetMessageFormated(remoteAddr, message)
-			msgChannel <- message
+			msgChannel <- config.MSGDS{
+				DataSource: remoteAddr,
+				Message:    message,
+			}
 		}
 	}
 }
 
-func (m *SyslogModule) handleMessageTCP(logsChannel chan string) {
-	logBatch := []string{}
-	ticker := time.NewTicker(5 * time.Second)
-
+func (m *SyslogModule) handleMessageTCP(logsChannel chan config.MSGDS) {
 	for {
 		select {
-		case <-ticker.C:
-			if len(logBatch) > 0 {
-				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
-					if err != nil {
-						utils.Logger.ErrorF("error parsing data: %v", err)
-						continue
-					}
-					for typ, bulk := range logs {
-						logservice.LogQueue <- logservice.LogPipe{
-							Src:  typ,
-							Logs: bulk,
-						}
-					}
-				} else {
-					logservice.LogQueue <- logservice.LogPipe{
-						Src:  m.DataType,
-						Logs: logBatch,
-					}
-				}
-				logBatch = []string{}
-			}
+		case <-m.TCPListener.CTX.Done():
+			return
 
-		case message := <-logsChannel:
+		case msgDS := <-logsChannel:
+			message := msgDS.Message
 			message = strings.TrimSuffix(message, "\n")
 			message, _, err := validations.ValidateString(message, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
+				continue
 			}
-			logBatch = append(logBatch, message)
 
-			if len(logBatch) == config.BatchCapacity {
-				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
-					if err != nil {
-						utils.Logger.ErrorF("error parsing data: %v", err)
-						continue
-					}
-					for typ, bulk := range logs {
-						logservice.LogQueue <- logservice.LogPipe{
-							Src:  typ,
-							Logs: bulk,
-						}
-					}
-				} else {
-					logservice.LogQueue <- logservice.LogPipe{
-						Src:  m.DataType,
-						Logs: logBatch,
-					}
+			if m.Parser != nil {
+				err := m.Parser.ProcessData(message, msgDS.DataSource, logservice.LogQueue)
+				if err != nil {
+					utils.Logger.ErrorF("error parsing data: %v", err)
+					continue
 				}
-				logBatch = []string{}
+			} else {
+				logservice.LogQueue <- &plugins.Log{
+					DataType:   m.DataType,
+					DataSource: msgDS.DataSource,
+					Raw:        message,
+				}
 			}
+
 		}
 	}
 }
 
-func (m *SyslogModule) handleConnectionUDP(logsChannel chan string) {
-	logBatch := []string{}
-	ticker := time.NewTicker(5 * time.Second)
-
+func (m *SyslogModule) handleConnectionUDP(logsChannel chan config.MSGDS) {
 	for {
 		select {
-		case <-ticker.C:
-			if len(logBatch) > 0 {
-				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
-					if err != nil {
-						utils.Logger.ErrorF("error parsing data: %v", err)
-						continue
-					}
-					for typ, bulk := range logs {
-						logservice.LogQueue <- logservice.LogPipe{
-							Src:  typ,
-							Logs: bulk,
-						}
-					}
-				} else {
-					logservice.LogQueue <- logservice.LogPipe{
-						Src:  m.DataType,
-						Logs: logBatch,
-					}
-				}
-				logBatch = []string{}
-			}
-
 		case <-m.UDPListener.CTX.Done():
 			return
 
-		case message := <-logsChannel:
+		case msgDS := <-logsChannel:
+			message := msgDS.Message
 			message = strings.TrimSuffix(message, "\n")
 			message, _, err := validations.ValidateString(message, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
+				continue
 			}
-			logBatch = append(logBatch, message)
 
-			if len(logBatch) == config.BatchCapacity {
-				if m.Parser != nil {
-					logs, err := m.Parser.ProcessData(logBatch)
-					if err != nil {
-						utils.Logger.ErrorF("error parsing data: %v", err)
-						continue
-					}
-					for typ, bulk := range logs {
-						logservice.LogQueue <- logservice.LogPipe{
-							Src:  typ,
-							Logs: bulk,
-						}
-					}
-				} else {
-					logservice.LogQueue <- logservice.LogPipe{
-						Src:  m.DataType,
-						Logs: logBatch,
-					}
+			if m.Parser != nil {
+				err := m.Parser.ProcessData(message, msgDS.DataSource, logservice.LogQueue)
+				if err != nil {
+					utils.Logger.ErrorF("error parsing data: %v", err)
+					continue
 				}
-				logBatch = []string{}
+			} else {
+				logservice.LogQueue <- &plugins.Log{
+					DataType:   m.DataType,
+					DataSource: msgDS.DataSource,
+					Raw:        message,
+				}
 			}
 		}
 	}

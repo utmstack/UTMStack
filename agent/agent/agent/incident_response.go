@@ -1,68 +1,99 @@
 package agent
 
 import (
-	"context"
+	context "context"
 	"io"
 	"runtime"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/agent/conn"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func IncidentResponseStream(client AgentServiceClient, ctx context.Context, cnf *config.Config) {
+func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 	path := utils.GetMyPath()
-
-	connectionTime := 0 * time.Second
-	reconnectDelay := config.InitialReconnectDelay
-	var connErrMsgWritten bool
+	var connErrMsgWritten, errorLogged bool
 
 	for {
-		if connectionTime >= config.MaxConnectionTime {
-			connectionTime = 0 * time.Second
-			reconnectDelay = config.InitialReconnectDelay
+		conn, err := conn.GetAgentManagerConnection(cnf)
+		if err != nil {
+			if !connErrMsgWritten {
+				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
+				connErrMsgWritten = true
+			}
+			time.Sleep(timeToSleep)
 			continue
 		}
 
+		client := NewAgentServiceClient(conn)
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
 			if !connErrMsgWritten {
 				utils.Logger.ErrorF("failed to start AgentStream: %v", err)
 				connErrMsgWritten = true
 			}
-
-			time.Sleep(reconnectDelay)
-			connectionTime = utils.IncrementReconnectTime(connectionTime, reconnectDelay, config.MaxConnectionTime)
-			reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, config.MaxReconnectDelay)
+			time.Sleep(timeToSleep)
 			continue
 		}
 
 		connErrMsgWritten = false
 
-		// Handle the bidirectional stream
 		for {
 			in, err := stream.Recv()
 			if err == io.EOF {
-				// Server closed the stream
+				time.Sleep(timeToSleep)
 				break
 			}
 			if err != nil {
-				utils.Logger.ErrorF("error receiving command from server: %v", err)
-				break
+				st, ok := status.FromError(err)
+				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
+					if !errorLogged {
+						utils.Logger.ErrorF("error receiving command from server: %v", err)
+						errorLogged = true
+					}
+					time.Sleep(timeToSleep)
+					break
+				} else {
+					if !errorLogged {
+						utils.Logger.ErrorF("error receiving command from server: %v", err)
+						errorLogged = true
+					}
+					time.Sleep(timeToSleep)
+					continue
+				}
 			}
 
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
-				// Handle the received command
 				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
 				if err == io.EOF {
+					time.Sleep(timeToSleep)
 					break
 				}
 				if err != nil {
-					utils.Logger.ErrorF("failed to send result to server: %v", err)
+					st, ok := status.FromError(err)
+					if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
+						if !errorLogged {
+							utils.Logger.ErrorF("error sending result to server: %v", err)
+							errorLogged = true
+						}
+						time.Sleep(timeToSleep)
+						break
+					} else {
+						if !errorLogged {
+							utils.Logger.ErrorF("error sending result to server: %v", err)
+							errorLogged = true
+						}
+						time.Sleep(timeToSleep)
+						continue
+					}
 				}
 			}
+			errorLogged = false
 		}
 	}
 }

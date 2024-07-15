@@ -2,9 +2,11 @@ package beats
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 
+	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/agent/parser"
@@ -112,24 +114,24 @@ func (f Filebeat) Install() error {
 }
 
 func (f Filebeat) SendSystemLogs() {
-	logLinesChan := make(chan []string)
+	host, _ := os.Hostname()
+	logLinesChan := make(chan string)
 	path := utils.GetMyPath()
 	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
 
 	parser := parser.GetParser("beats")
 
-	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, config.BatchCapacity)
+	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan)
 	for logLine := range logLinesChan {
-		beatsData, err := parser.ProcessData(logLine)
+		message, _, err := validations.ValidateString(logLine, false)
+		if err != nil {
+			utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
+			continue
+		}
+		err = parser.ProcessData(logLine, host, logservice.LogQueue)
 		if err != nil {
 			utils.Logger.ErrorF("error processing beats data: %v", err)
 			continue
-		}
-		for typ, logB := range beatsData {
-			logservice.LogQueue <- logservice.LogPipe{
-				Src:  typ,
-				Logs: logB,
-			}
 		}
 	}
 }

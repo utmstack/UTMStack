@@ -56,8 +56,6 @@ func main() {
 			utils.Logger.WriteSimpleMessage(fmt.Sprintf("%s collector installed successfully", collectorType))
 
 		case "uninstall":
-			utils.Logger.WriteSimpleMessage(fmt.Sprintf("Uninstalling %s collector", collectorType))
-
 			utils.Logger.WriteSimpleMessage(fmt.Sprintf("Uninstalling %s collector service...", collectorType))
 			err := collector.Uninstall()
 			if err != nil {

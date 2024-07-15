@@ -7,6 +7,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -17,7 +18,79 @@ const (
 	maxReconnectDelay     = 60 * time.Second
 )
 
-func ConnectToServer(cnf *config.Config, addrs, port string) (*grpc.ClientConn, error) {
+var (
+	correlationConn     *grpc.ClientConn
+	agentManagerConn    *grpc.ClientConn
+	isConnectedFistTime bool
+)
+
+func EstablishConnectionsFistTime(cnf *config.Config) error {
+	var err error
+	agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
+	if err != nil {
+		return fmt.Errorf("error connecting to Agent Manager: %v", err)
+	}
+
+	correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT, cnf.SkipCertValidation)
+	if err != nil {
+		return fmt.Errorf("error connecting to Correlation: %v", err)
+	}
+
+	isConnectedFistTime = true
+	utils.Logger.Info("Server connections established successfully")
+	return nil
+}
+
+func GetAgentManagerConnection(cnf *config.Config) (*grpc.ClientConn, error) {
+	if !isConnectedFistTime {
+		for {
+			if isConnectedFistTime {
+				return agentManagerConn, nil
+			}
+			time.Sleep(5 * time.Second)
+		}
+	}
+
+	state := agentManagerConn.GetState()
+	if state == connectivity.Shutdown || state == connectivity.TransientFailure {
+		agentManagerConn.Close()
+
+		var err error
+		agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
+		if err != nil {
+			return nil, fmt.Errorf("error connecting to Agent Manager: %v", err)
+		}
+
+	}
+
+	return agentManagerConn, nil
+}
+
+func GetCorrelationConnection(cnf *config.Config) (*grpc.ClientConn, error) {
+	if !isConnectedFistTime {
+		for {
+			if isConnectedFistTime {
+				return correlationConn, nil
+			}
+			time.Sleep(5 * time.Second)
+		}
+	}
+
+	state := correlationConn.GetState()
+	if state == connectivity.Shutdown || state == connectivity.TransientFailure {
+		correlationConn.Close()
+
+		var err error
+		correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT, cnf.SkipCertValidation)
+		if err != nil {
+			return nil, fmt.Errorf("error connecting to Correlation: %v", err)
+		}
+	}
+
+	return correlationConn, nil
+}
+
+func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 	connectionAttemps := 0
 	reconnectDelay := initialReconnectDelay
 
@@ -30,13 +103,11 @@ func ConnectToServer(cnf *config.Config, addrs, port string) (*grpc.ClientConn, 
 			return nil, fmt.Errorf("failed to connect to Server")
 		}
 
-		utils.Logger.Info("trying to connect to Server...")
-
-		if cnf.SkipCertValidation {
-			conn, err = grpc.Dial(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+		if skip {
+			conn, err = grpc.NewClient(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 			if err != nil {
 				connectionAttemps++
-				utils.Logger.Info("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())
+				utils.Logger.ErrorF("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())
 				time.Sleep(reconnectDelay)
 				reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
 				continue
@@ -46,10 +117,10 @@ func ConnectToServer(cnf *config.Config, addrs, port string) (*grpc.ClientConn, 
 			if err != nil {
 				return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
 			}
-			conn, err = grpc.Dial(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+			conn, err = grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 			if err != nil {
 				connectionAttemps++
-				utils.Logger.Info("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())
+				utils.Logger.ErrorF("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())
 				time.Sleep(reconnectDelay)
 				reconnectDelay = utils.IncrementReconnectDelay(reconnectDelay, maxReconnectDelay)
 				continue

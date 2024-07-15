@@ -11,15 +11,15 @@ import (
 	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
-func DownloadDependencies(address, authKey string) error {
+func DownloadDependencies(address, authKey, skip string) error {
 	version := models.Version{}
 	var err error
 
-	if version.ServiceVersion, err = downloadAndUpdateVersion(address, authKey, config.DependServiceLabel); err != nil {
+	if version.ServiceVersion, err = downloadAndUpdateVersion(address, authKey, skip, config.DependServiceLabel); err != nil {
 		return err
 	}
 
-	if version.DependenciesVersion, err = downloadAndUpdateVersion(address, authKey, config.DependZipLabel); err != nil {
+	if version.DependenciesVersion, err = downloadAndUpdateVersion(address, authKey, skip, config.DependZipLabel); err != nil {
 		return err
 	}
 
@@ -35,9 +35,13 @@ func DownloadDependencies(address, authKey string) error {
 
 }
 
-func downloadAndUpdateVersion(address, authKey, fileType string) (string, error) {
-	url := fmt.Sprintf(config.DEPEND_URL, address, config.AgentManagerPort, "0", runtime.GOOS, fileType)
-	resp, status, err := utils.DoReq[models.DependencyUpdateResponse](url, nil, http.MethodGet, map[string]string{"connection-key": authKey})
+func downloadAndUpdateVersion(address, authKey, skip, fileType string) (string, error) {
+	url := fmt.Sprintf(config.DEPEND_URL, address, "0", runtime.GOOS, fileType)
+	var skipTlsVerification bool
+	if skip == "yes" {
+		skipTlsVerification = true
+	}
+	resp, status, err := utils.DoReq[models.DependencyUpdateResponse](url, nil, http.MethodGet, map[string]string{"connection-key": authKey}, skipTlsVerification)
 	if err != nil {
 		return "", fmt.Errorf("error downloading %s: %v", fileType, err)
 	}

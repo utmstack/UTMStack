@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
@@ -27,31 +28,32 @@ func GetCiscoParser() *CiscoParser {
 	return &ciscoParser
 }
 
-func (p *CiscoParser) IdentifySource(log string) (config.LogType, error) {
+func (p *CiscoParser) IdentifySource(log string) (string, error) {
 	for logType, regp := range RegexspCisco {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
 			return "", err
 		}
 		if regExpCompiled.MatchString(log) {
-			return logType, nil
+			return logType.DataType, nil
 		}
 	}
-	return config.LogTypeCiscoMeraki, nil
+	return config.LogTypeCiscoMeraki.DataType, nil
 }
 
-func (p *CiscoParser) ProcessData(logBatch interface{}) (map[string][]string, error) {
-	classifiedLogs := make(map[string][]string)
-	batch, ok := logBatch.([]string)
+func (p *CiscoParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
+	log, ok := logMessage.(string)
 	if !ok {
-		return nil, fmt.Errorf("logBatch is not of type []string")
+		return fmt.Errorf("log is not of type string")
 	}
-	for _, log := range batch {
-		if logType, err := p.IdentifySource(log); err != nil {
-			return nil, err
-		} else {
-			classifiedLogs[string(logType)] = append(classifiedLogs[string(logType)], log)
-		}
+	logType, err := p.IdentifySource(log)
+	if err != nil {
+		return err
 	}
-	return classifiedLogs, nil
+	queue <- &plugins.Log{
+		DataType:   logType,
+		DataSource: datasource,
+		Raw:        log,
+	}
+	return nil
 }

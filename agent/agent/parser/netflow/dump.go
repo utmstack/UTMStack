@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
-func Dump(metrics []Metric, remote string) []string {
+func Dump(metrics []Metric) []string {
 	var allKVPairs []string
 	for _, metric := range metrics {
 		t := reflect.TypeOf(metric)
@@ -23,7 +21,7 @@ func Dump(metrics []Metric, remote string) []string {
 			header := field.Tag.Get("header")
 			kvPairs = append(kvPairs, fmt.Sprintf("%s=\"%v\"", header, value))
 		}
-		allKVPairs = append(allKVPairs, config.GetMessageFormated(remote, strings.Join(kvPairs, " ")))
+		allKVPairs = append(allKVPairs, strings.Join(kvPairs, " "))
 	}
 	return allKVPairs
 }
