@@ -90,7 +90,9 @@ func (u *Updater) UpdateDependencies() {
 
 		u.MasterVersion, err = getMasterVersion()
 		if err != nil {
-			utils.ALogger.ErrorF("error getting master version: %v", err)
+			if !strings.Contains(err.Error(), "invalid character '<' looking for beginning of value") {
+				utils.ALogger.ErrorF("error getting master version: %v", err)
+			}
 			time.Sleep(config.CHECK_EVERY)
 			continue
 		}
