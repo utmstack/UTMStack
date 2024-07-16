@@ -43,7 +43,7 @@ export const RULE_FIELDS: UtmFieldType[] = [
     {
         label: 'Technique',
         field: RULE_TECHNIQUE,
-        type: ElasticDataTypesEnum.OBJECT,
+        type: ElasticDataTypesEnum.STRING,
         visible: true,
         filter: true,
         filterField: RULE_FILTER_TECHNIQUE

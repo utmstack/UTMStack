@@ -23,7 +23,7 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <form (ngSubmit)="saveRule()" [formGroup]="ruleForm" class="form-container w-100">
+                    <form [formGroup]="ruleForm" class="form-container w-100">
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
@@ -209,7 +209,7 @@
                                 <div class="form-group" formArrayName="ruleVariables">
                                     <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i">
                                         <div class="input-group">
-                                            <fieldset class="border p-3">
+                                            <fieldset class="border p-3 w-100">
                                                 <legend>
                                                     <label>{{'Variable ' + (i + 1)}}
                                                         <span class="span-small-icon ml-2">
@@ -221,7 +221,7 @@
                                                     </label>
                                                 </legend>
                                                 <div class="row">
-                                                  <div class="col-3">
+                                                  <div class="col-5">
                                                     <div class="form-group">
                                                       <label>Field</label>
                                                       <input [ngClass]="{'is-invalid': variable.get('get').invalid && variable.get('get').touched}"
@@ -260,7 +260,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-3 d-flex justify-content-center align-items-center pt-3">
+                                                    <div class="col-1 d-flex justify-content-center align-items-center pt-3">
                                                         <button (click)="saveVariable(i)"
                                                                 class="btn utm-button utm-button-primary"
                                                                 type="button">Add
@@ -298,7 +298,7 @@
                         </fieldset>
 
                         <div class="d-flex mt-5 justify-content-end">
-                            <button [disabled]="isSubmitting" class="btn utm-button utm-button-primary" type="submit">
+                            <button (click)="saveRule()" [disabled]="ruleForm.invalid" class="btn utm-button utm-button-primary" type="submit">
                                 <i *ngIf="isSubmitting" class="icon-spinner2 spinner"></i>
                                 {{ mode === 'EDIT' ? 'Edit Rule' : 'Save Rule' }}
                             </button>

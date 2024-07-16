@@ -119,8 +119,8 @@ export class TypesComponent implements OnInit, OnDestroy {
   deleteType(event: Event, type: DataType) {
     event.stopPropagation();
     const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
-    deleteModalRef.componentInstance.header = 'Delete type';
-    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete this type?';
+    deleteModalRef.componentInstance.header = 'Delete data type';
+    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete this data type?';
     deleteModalRef.componentInstance.confirmBtnText = 'Delete';
     deleteModalRef.componentInstance.confirmBtnIcon = 'icon-display';
     deleteModalRef.componentInstance.confirmBtnType = 'delete';
