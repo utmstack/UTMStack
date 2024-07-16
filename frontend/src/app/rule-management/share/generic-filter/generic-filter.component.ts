@@ -59,14 +59,13 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, O
 
     getFieldFilterValues() {
         if (this.requestParams.prop) {
-            this.loadMore = true;
-            this.filterService.getFieldValues(this.url, this.requestParams)
+            this.filterService.getFieldValues(this.url, this.requestParams, this.loadMore)
                 .pipe(
-                    map((response) => this.filters.concat(response)),
+                    map((response) => this.loadMore ? this.filters.concat(response) : this.filters = response),
                     tap((response) => {
                         this.filters = response;
-                        this.totalItems = response.length;
-                        this.loadMore = !this.loadMore;
+                        this.loadMore = false;
+                        this.searching = false;
                     })
                 ).subscribe();
         }
@@ -74,6 +73,7 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, O
 
     onScroll() {
         this.requestParams.page += 1;
+        this.loadMore = true;
         this.getFieldFilterValues();
     }
 
@@ -97,17 +97,6 @@ export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, O
         this.requestParams.page = 0;
         this.searching = true;
         this.getFieldFilterValues();
-    }
-
-    setValueOfFilter(filters: AssetFilterType) {
-        for (const key of Object.keys(filters)) {
-            const filterKey = AssetFieldFilterEnum[this.fieldFilter.field] ?
-                AssetFieldFilterEnum[this.fieldFilter.field] : CollectorFieldFilterEnum[this.fieldFilter.field];
-            if (!STATICS_FILTERS.includes(key)
-                && key === AssetMapFilterFieldEnum[filterKey]) {
-                this.selected = filters[key] === null ? [] : filters[key];
-            }
-        }
     }
 
     trackByFn(index: number , value: [string, number]) {

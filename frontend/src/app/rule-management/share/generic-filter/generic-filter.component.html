@@ -3,7 +3,7 @@
         <span class="font-weight-light span-small-icon">
           {{fieldFilter.label ? fieldFilter.label : fieldFilter.field}}
         </span>
-        <app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>
+        <!--<app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>-->
     </div>
     <div *ngIf="loading" class="category-list w-100 p-5">
         <app-utm-spinner [height]="'5px'"
@@ -11,7 +11,7 @@
                          [width]="'5px'">
         </app-utm-spinner>
     </div>
-    <div *ngIf="totalItems == 0">
+    <div *ngIf="filters.length == 0">
         <div class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
             <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
         </div>
