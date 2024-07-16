@@ -31,6 +31,7 @@ public class UtmCorrelationRulesMapper {
             dto.setDefinition(entity.getRuleDefinition());
             dto.setDataTypes(entity.getDataTypes());
             dto.setSystemOwner(entity.getSystemOwner());
+            dto.setRuleActive(entity.getRuleActive());
             return dto;
         } catch (UtmSerializationException e) {
             logger.error("Error serializing rule references", e);

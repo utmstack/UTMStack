@@ -38,6 +38,8 @@ public class UtmCorrelationRulesDTO implements Serializable {
     private RuleDefinition definition;
     private Boolean systemOwner;
 
+    private Boolean ruleActive;
+
     public Long getId() {
         return id;
     }
@@ -132,6 +134,14 @@ public class UtmCorrelationRulesDTO implements Serializable {
 
     public void setSystemOwner(Boolean systemOwner) {
         this.systemOwner = systemOwner;
+    }
+
+    public Boolean getRuleActive() {
+        return ruleActive;
+    }
+
+    public void setRuleActive(Boolean ruleActive) {
+        this.ruleActive = ruleActive;
     }
 }
 
