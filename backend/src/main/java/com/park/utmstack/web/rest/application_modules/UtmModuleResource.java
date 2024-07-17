@@ -14,7 +14,9 @@ import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleQueryService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
 import com.park.utmstack.service.dto.application_modules.UtmModuleCriteria;
+import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
@@ -53,12 +55,13 @@ public class UtmModuleResource {
     private final UtmStackService utmStackService;
     private final UtmServerRepository utmServerRepository;
 
+
     public UtmModuleResource(UtmModuleService moduleService,
                              ModuleFactory moduleFactory,
                              UtmModuleQueryService utmModuleQueryService,
                              ApplicationEventService eventService,
                              UtmStackService utmStackService,
-                             UtmServerRepository utmServerRepository) {
+                             UtmServerRepository utmServerRepository, UtmModuleMapper utmModuleMapper) {
         this.moduleService = moduleService;
         this.moduleFactory = moduleFactory;
         this.utmModuleQueryService = utmModuleQueryService;
@@ -90,10 +93,10 @@ public class UtmModuleResource {
      * @return the ResponseEntity with status 200 (OK) and the list of utmModules in body
      */
     @GetMapping("/utm-modules")
-    public ResponseEntity<List<UtmModule>> getAllUtmModules(UtmModuleCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<ModuleDTO>> getAllUtmModules(UtmModuleCriteria criteria, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllUtmModules";
         try {
-            Page<UtmModule> page = utmModuleQueryService.findByCriteria(criteria, pageable);
+            Page<ModuleDTO> page = utmModuleQueryService.findByCriteria(criteria, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-modules");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {

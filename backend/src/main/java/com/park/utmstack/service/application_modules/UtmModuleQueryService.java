@@ -3,7 +3,9 @@ package com.park.utmstack.service.application_modules;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModule_;
 import com.park.utmstack.repository.application_modules.UtmModuleRepository;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
 import com.park.utmstack.service.dto.application_modules.UtmModuleCriteria;
+import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -29,8 +31,11 @@ public class UtmModuleQueryService extends QueryService<UtmModule> {
 
     private final UtmModuleRepository utmModuleRepository;
 
-    public UtmModuleQueryService(UtmModuleRepository utmModuleRepository) {
+    private final UtmModuleMapper utmModuleMapper;
+
+    public UtmModuleQueryService(UtmModuleRepository utmModuleRepository, UtmModuleMapper utmModuleMapper) {
         this.utmModuleRepository = utmModuleRepository;
+        this.utmModuleMapper = utmModuleMapper;
     }
 
     /**
@@ -54,10 +59,12 @@ public class UtmModuleQueryService extends QueryService<UtmModule> {
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<UtmModule> findByCriteria(UtmModuleCriteria criteria, Pageable page) {
+    public Page<ModuleDTO> findByCriteria(UtmModuleCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<UtmModule> specification = createSpecification(criteria);
-        return utmModuleRepository.findAll(specification, page);
+        Page<UtmModule> data = utmModuleRepository.findAll(specification, page);
+
+        return data.map(utmModuleMapper::toDto);
     }
 
     /**

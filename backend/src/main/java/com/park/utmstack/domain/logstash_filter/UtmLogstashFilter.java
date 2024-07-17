@@ -2,6 +2,7 @@ package com.park.utmstack.domain.logstash_filter;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -57,6 +58,11 @@ public class UtmLogstashFilter implements Serializable {
 
     @Column(name = "filter_version")
     private String filterVersion;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "module_name", referencedColumnName = "module_name",insertable = false, updatable = false)
+    private UtmModule module;
 
     public UtmLogstashFilter() {
     }
@@ -153,5 +159,13 @@ public class UtmLogstashFilter implements Serializable {
 
     public void setFilterVersion(String filterVersion) {
         this.filterVersion = filterVersion;
+    }
+
+    public UtmModule getModule() {
+        return module;
+    }
+
+    public void setModule(UtmModule module) {
+        this.module = module;
     }
 }
