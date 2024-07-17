@@ -16,7 +16,6 @@ import com.park.utmstack.service.application_modules.UtmModuleQueryService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.service.dto.application_modules.ModuleDTO;
 import com.park.utmstack.service.dto.application_modules.UtmModuleCriteria;
-import com.park.utmstack.service.dto.application_modules.UtmModuleMapper;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
@@ -55,13 +54,12 @@ public class UtmModuleResource {
     private final UtmStackService utmStackService;
     private final UtmServerRepository utmServerRepository;
 
-
     public UtmModuleResource(UtmModuleService moduleService,
                              ModuleFactory moduleFactory,
                              UtmModuleQueryService utmModuleQueryService,
                              ApplicationEventService eventService,
                              UtmStackService utmStackService,
-                             UtmServerRepository utmServerRepository, UtmModuleMapper utmModuleMapper) {
+                             UtmServerRepository utmServerRepository) {
         this.moduleService = moduleService;
         this.moduleFactory = moduleFactory;
         this.utmModuleQueryService = utmModuleQueryService;
