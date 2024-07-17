@@ -206,7 +206,7 @@
                                 </span>
                             </legend>
                             <div formGroupName="definition">
-                                <div class="form-group" formArrayName="ruleVariables">
+                                <div formArrayName="ruleVariables">
                                     <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i">
                                         <div class="input-group">
                                             <fieldset class="border p-3 w-100">
@@ -248,19 +248,23 @@
                                                         </div>
                                                     </div>
                                                     <div class="col-3">
-                                                        <div class="form-group">
+                                                        <div class="form-group-select">
                                                             <label>Type</label>
-                                                            <input [ngClass]="{'is-invalid': variable.get('of_type').invalid && variable.get('of_type').touched}"
-                                                                   class="form-control"
-                                                                   formControlName="of_type"
-                                                                   type="text">
-                                                            <div *ngIf="variable.get('of_type').invalid && variable.get('of_type').touched"
-                                                                 class="invalid-feedback">
-                                                                Type is required.
-                                                            </div>
+                                                          <ng-select
+                                                            [ngClass]="{'is-invalid': variable.get('of_type').invalid && variable.get('of_type').touched}"
+                                                            [items]="variablesDataType"
+                                                            class="flex-item type-select"
+                                                            bindLabel="label"
+                                                            bindValue="value"
+                                                            formControlName="of_type"
+                                                            placeholder="Select type">
+                                                          </ng-select>
+                                                          <div *ngIf="variable.get('of_type').invalid && variable.get('of_type').touched" class="invalid-feedback">
+                                                            Type is required.
+                                                          </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-1 d-flex justify-content-center align-items-center pt-3">
+                                                    <div class="col-1 d-flex justify-content-center align-items-center">
                                                         <button (click)="saveVariable(i)"
                                                                 class="btn utm-button utm-button-primary"
                                                                 type="button">Add

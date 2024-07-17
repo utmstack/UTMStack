@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import { Observable } from 'rxjs';
@@ -8,8 +8,9 @@ import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
+import {VariableDataType} from "../../../models/rule.constant";
 
-const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.required] , of_type: ['', Validators.required]};
+const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.required] , of_type: [null, Validators.required]};
 
 @Component({
     selector: 'app-add-rule',
@@ -27,6 +28,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     types$: Observable<DataType[]>;
     isSubmitting = false;
     savedVariables = [];
+    variablesDataType = VariableDataType;
 
     constructor(private fb: FormBuilder,
                 private route: ActivatedRoute,
