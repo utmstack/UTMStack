@@ -1,8 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
-import {VMWARE_STEPS} from "../guide-vmware-syslog/vmware.steps";
-import {Step} from "../shared/step";
-import {SYSLOGSTEPS} from "./syslog.steps";
+import {Step} from '../shared/step';
+import {SYSLOGSTEPS} from './syslog.steps';
 
 @Component({
   selector: 'app-guide-syslog',
@@ -14,6 +13,7 @@ export class GuideSyslogComponent implements OnInit {
   @Input() serverId: number;
   @Input() guideName: string;
   @Input() moduleEnum: UtmModulesEnum;
+  @Input() dataType: string;
   module = UtmModulesEnum;
   moduleImages: SyslogModuleImages[] = [
     {module: UtmModulesEnum.FORTIGATE, img: 'fortigate.png'},
@@ -101,6 +101,17 @@ export class GuideSyslogComponent implements OnInit {
       ? this.steps.slice(0, 2) : this.steps;
   }
 
+  getDataType() {
+    switch (this.moduleEnum) {
+      case UtmModulesEnum.FIRE_POWER:
+      case UtmModulesEnum.CISCO:
+      case UtmModulesEnum.CISCO_SWITCH:
+      case UtmModulesEnum.MERAKI:
+        return 'cisco';
+
+      default: return this.dataType;
+    }
+  }
 }
 
 export class SyslogModuleImages {

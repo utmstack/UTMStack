@@ -15,7 +15,9 @@ export class GuideMacosAgentComponent implements OnInit {
   module = UtmModulesEnum;
   @Input() serverId: number;
 
+
   steps: Step[] = MAC_STEPS;
+  @Input() dataType: string;
   constructor() { }
 
   ngOnInit() {

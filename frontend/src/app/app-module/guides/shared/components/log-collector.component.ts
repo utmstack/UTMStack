@@ -85,7 +85,7 @@ export class LogCollectorComponent {
   get command() {
     return this.replaceAll(this.selectedPlatform.command, {
       PORT: this.selectedProtocol.name.toLowerCase(),
-      AGENTNAME: this.agentName(),
+      AGENTNAME: this.agent,
       ACTION: this.selectedAction.action
     });
   }
@@ -112,65 +112,6 @@ export class LogCollectorComponent {
 
   set selectedAction(action) {
     this._selectedAction = action;
-  }
-
-  agentName() {
-    switch (this.agent) {
-
-      case UtmModulesEnum.VMWARE:
-        return 'vmware-esxi';
-
-      case UtmModulesEnum.ESET:
-        return 'antivirus-esmc-eset';
-
-      case UtmModulesEnum.KASPERSKY:
-        return 'antivirus-kaspersky';
-
-      case UtmModulesEnum.FORTIGATE:
-        return 'firewall-fortigate-traffic';
-
-      case UtmModulesEnum.PALO_ALTO:
-        return 'firewall-paloalto';
-
-      case UtmModulesEnum.MIKROTIK:
-        return 'firewall-mikrotik';
-
-      case UtmModulesEnum.SOPHOS_XG:
-        return 'firewall-sophos-xg';
-
-      case UtmModulesEnum.SONIC_WALL:
-        return 'firewall-sonicwall';
-
-      case UtmModulesEnum.DECEPTIVE_BYTES:
-        return 'deceptive-bytes';
-
-      case UtmModulesEnum.SENTINEL_ONE:
-        return 'antivirus-sentinel-one';
-
-      case UtmModulesEnum.MACOS:
-        return 'macos';
-
-      case UtmModulesEnum.NETFLOW:
-        return 'netflow';
-
-      case UtmModulesEnum.AIX:
-        return 'ibm-aix';
-
-      case UtmModulesEnum.SYSLOG:
-        return 'syslog';
-
-      case UtmModulesEnum.PFSENSE:
-        return 'firewall-pfsense';
-
-      case UtmModulesEnum.FORTIWEB:
-        return 'firewall-fortiweb';
-
-      case UtmModulesEnum.FIRE_POWER:
-      case UtmModulesEnum.CISCO:
-      case UtmModulesEnum.CISCO_SWITCH:
-      case UtmModulesEnum.MERAKI:
-        return 'cisco';
-    }
   }
 
   replaceAll(command, wordsToReplace) {

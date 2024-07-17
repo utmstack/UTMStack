@@ -31,7 +31,7 @@
                 </ng-template>
 
                 <ng-template [ngIf]="step.content.id === 'stepContent2'">
-                  <app-log-colletor [agent] = "moduleEnum"
+                  <app-log-colletor [agent] = "getDataType()"
                                     [protocols]="getProtocols()">
                   </app-log-colletor>
                 </ng-template>
