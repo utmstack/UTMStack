@@ -118,52 +118,52 @@ export class LogCollectorComponent {
     switch (this.agent) {
 
       case UtmModulesEnum.VMWARE:
-        return 'vmware';
+        return 'vmware-esxi';
+
+      case UtmModulesEnum.ESET:
+        return 'antivirus-esmc-eset';
+
+      case UtmModulesEnum.KASPERSKY:
+        return 'antivirus-kaspersky';
+
+      case UtmModulesEnum.FORTIGATE:
+        return 'firewall-fortigate-traffic';
+
+      case UtmModulesEnum.PALO_ALTO:
+        return 'firewall-paloalto';
+
+      case UtmModulesEnum.MIKROTIK:
+        return 'firewall-mikrotik';
+
+      case UtmModulesEnum.SOPHOS_XG:
+        return 'firewall-sophos-xg';
+
+      case UtmModulesEnum.SONIC_WALL:
+        return 'firewall-sonicwall';
+
+      case UtmModulesEnum.DECEPTIVE_BYTES:
+        return 'deceptive-bytes';
+
+      case UtmModulesEnum.SENTINEL_ONE:
+        return 'antivirus-sentinel-one';
+
+      case UtmModulesEnum.MACOS:
+        return 'macos';
+
+      case UtmModulesEnum.NETFLOW:
+        return 'netflow';
+
+      case UtmModulesEnum.AIX:
+        return 'ibm-aix';
 
       case UtmModulesEnum.SYSLOG:
         return 'syslog';
 
-      case UtmModulesEnum.SONIC_WALL:
-        return 'firewall_sonicwall';
-
-      case UtmModulesEnum.SOPHOS_XG:
-        return 'firewall_sophos';
-
       case UtmModulesEnum.PFSENSE:
-        return 'firewall_pfsense';
-
-      case UtmModulesEnum.PALO_ALTO:
-        return 'firewall_paloalto';
-
-      case UtmModulesEnum.MIKROTIK:
-        return 'firewall_mikrotik';
-
-      case UtmModulesEnum.FORTIGATE:
-        return 'firewall_fortinet';
-
-      case UtmModulesEnum.SENTINEL_ONE:
-        return 'antivirus_sentinel_one';
+        return 'firewall-pfsense';
 
       case UtmModulesEnum.FORTIWEB:
-        return 'firewall_fortiweb';
-
-      case UtmModulesEnum.AIX:
-        return 'ibm_aix';
-
-      case UtmModulesEnum.ESET:
-        return 'antivirus_eset';
-
-      case UtmModulesEnum.KASPERSKY:
-        return 'antivirus_kaspersky';
-
-      case UtmModulesEnum.MACOS:
-        return 'macos_logs';
-
-      case UtmModulesEnum.DECEPTIVE_BYTES:
-        return 'antivirus_deceptivebytes';
-
-      case UtmModulesEnum.NETFLOW:
-        return 'netflow';
+        return 'firewall-fortiweb';
 
       case UtmModulesEnum.FIRE_POWER:
       case UtmModulesEnum.CISCO:

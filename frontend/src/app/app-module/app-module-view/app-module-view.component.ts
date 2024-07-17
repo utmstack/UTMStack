@@ -3,7 +3,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {combineLatest, Observable, of} from 'rxjs';
-import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {SYSTEM_MENU_ICONS_PATH} from '../../shared/constants/menu_icons.constants';
 import {ModuleRefreshBehavior} from '../shared/behavior/module-refresh.behavior';
@@ -55,7 +55,10 @@ export class AppModuleViewComponent implements OnInit {
         this.req['moduleName.equals'] = params.setUp;
       }
     });
-    this.moduleRefreshBehavior.$moduleChange.subscribe(refresh => {
+    this.moduleRefreshBehavior.$moduleChange
+      .pipe(
+        filter(value => !!value))
+      .subscribe(refresh => {
       this.getModules();
     });
   }
