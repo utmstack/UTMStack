@@ -13,6 +13,7 @@ export class GuideVmwareSyslogComponent implements OnInit {
   @Input() serverId: number;
   module = UtmModulesEnum;
   steps: Step[] = VMWARE_STEPS;
+  @Input() dataType!: string;
 
   constructor() {
   }

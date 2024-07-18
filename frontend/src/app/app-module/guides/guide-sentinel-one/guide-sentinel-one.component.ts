@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {SyslogModulePorts} from '../guide-syslog/guide-syslog.component';
 import {VMWARE_STEPS} from '../guide-vmware-syslog/vmware.steps';
 import {Step} from '../shared/step';
 import {SENTINELSTEPS} from './sentinel.steps';
-import {SyslogModulePorts} from "../guide-syslog/guide-syslog.component";
 
 @Component({
   selector: 'app-guide-sentinel-one',
@@ -15,6 +15,7 @@ export class GuideSentinelOneComponent implements OnInit {
   module = UtmModulesEnum;
   @Input() serverId: number;
   steps: Step[] = SENTINELSTEPS;
+  @Input() moduleData!: string;
 
   constructor() {
   }

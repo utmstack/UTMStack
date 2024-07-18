@@ -11,27 +11,12 @@
       <table class="table text-nowrap">
         <thead>
         <tr>
-          <th class="text-left" style="width: 50px;padding-left: 10px;}">
-            <i (click)="toggleCheck()"
-               [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
-               [ngbTooltip]="'Add page to selected'"
-               class="cursor-pointer mr-3"
-               container="body"
-               placement="auto"
-               style="font-size: small"></i>
-            <!--<app-utm-dtable-columns [fields]="fields"
-                                    [ngbTooltip]="'Manage columns'"
-                                    [showInactive]="true"
-                                    container="body"
-                                    icon="icon-table"
-                                    tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>-->
-          </th>
           <th (sort)="onSortBy($event)"
               *ngFor="let item of fields; let i = index"
               [hidden]="!item.visible"
               [isSortable]="true"
               [sortEvent]="sortEvent"
-              [sortable]="item.type !== 'string' ? item.field : item.field +'.keyword'"
+              [sortable]="item.field"
               appColumnSortable
               class="font-weight-semibold cursor-pointer">
                 {{item.label}}
@@ -43,27 +28,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let rule of rules$ | async; trackBy: trackByFn" class="cursor-pointer">
-          <td class="text-center">
-            <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
-              <div class="list-icons">
-                <i (click)="addToSelected(rule)"
-                   [ngClass]="isSelected(rule)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
-                   [ngbTooltip]="isSelected(rule)?'Remove from selected':'Add to selected'"
-                   class="cursor-pointer"
-                   container="body"
-                   placement="auto"></i>
-                <i (click)="getRowToFiltersData(rule)"
-                   [ngbTooltip]="'Row to filter'"
-                   class="cursor-pointer icon-filter4 text-blue-800 ml-2"
-                   container="body"
-                   placement="top"
-                   tooltipClass="utm-tooltip-top"></i>
-              </div>
-
-            </div>
-          </td>
           <ng-container *ngFor="let field of fields">
-            <td (click)="viewDetailRule(rule)"
+            <td
                 *ngIf="(field.visible)">
                   <app-rule-field
                     [rule] = "rule"
@@ -74,8 +40,10 @@
             <td class="td-action">
               <div class="d-flex justify-content-end align-items-center medium-icon">
 
-                <i (click)="viewDetailRule(rule)" class="icon-eye8 cursor-pointer ml-2"
-                   ngbTooltip="Detail"
+                <i (click)="activeRule(rule)"
+                   class="cursor-pointer ml-2"
+                   [ngClass]="{'icon-blocked': rule.ruleActive, 'icon-check2': !rule.ruleActive}"
+                   ngbTooltip="{{ !rule.ruleActive ? 'Activar' : 'Desactivar' }}"
                    container="body"
                    placement="left"></i>
 
@@ -84,7 +52,8 @@
                    container="body"
                    placement="left"></i>
 
-                <i (click)="deleteRule(rule)" class="icon-cross2 cursor-pointer ml-2"
+                <i *ngIf="!rule.systemOwner"
+                  (click)="deleteRule($event, rule)" class="icon-cross2 cursor-pointer ml-2"
                    ngbTooltip="Delete"
                    container="body"
                    placement="auto"></i>

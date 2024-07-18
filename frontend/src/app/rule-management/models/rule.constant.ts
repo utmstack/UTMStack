@@ -43,7 +43,7 @@ export const RULE_FIELDS: UtmFieldType[] = [
     {
         label: 'Technique',
         field: RULE_TECHNIQUE,
-        type: ElasticDataTypesEnum.OBJECT,
+        type: ElasticDataTypesEnum.STRING,
         visible: true,
         filter: true,
         filterField: RULE_FILTER_TECHNIQUE
@@ -75,4 +75,18 @@ export interface RuleFilterType {
     size: number;
     sort: string;
 }
+
+export const VariableDataType = [
+  { label: 'String', value: 'cel.StringType' },
+  { label: 'Integer', value: 'cel.IntType' },
+  { label: 'Double', value: 'cel.DoubleType' },
+  { label: 'Boolean', value: 'cel.BoolType' },
+  { label: 'Bytes', value: 'cel.BytesType' },
+  { label: 'Unsigned Integer', value: 'cel.UintType' },
+  { label: 'Timestamp', value: 'cel.TimestampType' },
+  { label: 'Duration', value: 'cel.DurationType' },
+  { label: 'Type', value: 'cel.TypeType' },
+  { label: 'Null', value: 'cel.NullType' },
+  { label: 'Any', value: 'cel.AnyType' }
+];
 

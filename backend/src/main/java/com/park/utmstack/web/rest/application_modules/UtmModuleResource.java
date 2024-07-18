@@ -14,6 +14,7 @@ import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.application_modules.UtmModuleQueryService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
+import com.park.utmstack.service.dto.application_modules.ModuleDTO;
 import com.park.utmstack.service.dto.application_modules.UtmModuleCriteria;
 import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.UtilResponse;
@@ -90,10 +91,10 @@ public class UtmModuleResource {
      * @return the ResponseEntity with status 200 (OK) and the list of utmModules in body
      */
     @GetMapping("/utm-modules")
-    public ResponseEntity<List<UtmModule>> getAllUtmModules(UtmModuleCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<ModuleDTO>> getAllUtmModules(UtmModuleCriteria criteria, Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllUtmModules";
         try {
-            Page<UtmModule> page = utmModuleQueryService.findByCriteria(criteria, pageable);
+            Page<ModuleDTO> page = utmModuleQueryService.findByCriteria(criteria, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-modules");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {

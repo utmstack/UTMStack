@@ -38,10 +38,12 @@
         <app-guide-office365 [serverId]="serverId" *ngSwitchCase="moduleEnum.O365"
                              [integrationId]="module.id"></app-guide-office365>
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SYSLOG"
+                          [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.SYSLOG"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
         <app-guide-vmware-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.VMWARE"
+                                 [dataType]="module.dataType.dataType"
                                  [integrationId]="module.id"></app-guide-vmware-syslog>
         <app-guide-webroot [serverId]="serverId" *ngSwitchCase="moduleEnum.WEBROOT"
                            [integrationId]="module.id"></app-guide-webroot>
@@ -53,6 +55,7 @@
                           [integrationId]="module.id"></app-guide-sophos>
         <app-guide-json *ngSwitchCase="moduleEnum.JSON"></app-guide-json>
         <app-guide-macos-agent *ngSwitchCase="moduleEnum.MACOS"
+                               [dataType]="module.dataType.dataType"
                                [serverId]="serverId"
                                [filebeatModuleName]="module.prettyName"
                                [filebeatModule]="module.moduleName">
@@ -85,11 +88,13 @@
                          [filebeatModule]="module.moduleName"></app-guide-cisco>-->
 
       <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FIRE_POWER"
+                        [dataType]="module.dataType.dataType"
                         [moduleEnum]="moduleEnum.FIRE_POWER"
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
 
       <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.CISCO_SWITCH"
+                        [dataType]="module.dataType.dataType"
                         [moduleEnum]="moduleEnum.CISCO_SWITCH"
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
@@ -102,11 +107,17 @@
                         [filebeatModuleName]="module.prettyName"
                         [filebeatModule]="module.moduleName"></app-guide-eset>
 
-        <app-guide-sentinel-one *ngSwitchCase="moduleEnum.SENTINEL_ONE" [serverId]="serverId"></app-guide-sentinel-one>
+        <app-guide-sentinel-one *ngSwitchCase="moduleEnum.SENTINEL_ONE"
+                                [moduleData]="module"
+                                [serverId]="serverId"></app-guide-sentinel-one>
 
-        <app-guide-kaspersky *ngSwitchCase="moduleEnum.KASPERSKY" [serverId]="serverId"></app-guide-kaspersky>
+        <app-guide-kaspersky *ngSwitchCase="moduleEnum.KASPERSKY"
+                             [serverId]="serverId"
+                             [dataType]="module">
+        </app-guide-kaspersky>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FORTIGATE"
+                           [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.FORTIGATE"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
@@ -114,29 +125,35 @@
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.UFW"
                           [moduleEnum]="moduleEnum.UFW"
                           [guideName]="module.prettyName"
+                           [dataType]="module.dataType.dataType"
                           [integrationId]="module.id"></app-guide-syslog>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.MIKROTIK"
+                           [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.MIKROTIK"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.PALO_ALTO"
+                           [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.PALO_ALTO"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SONIC_WALL"
+                           [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.SONIC_WALL"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.DECEPTIVE_BYTES"
+                           [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.DECEPTIVE_BYTES"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SOPHOS_XG"
+                           [dataType]="module.dataType.dataType"
                           [moduleEnum]="moduleEnum.SOPHOS_XG"
                           [guideName]="module.prettyName"
                           [integrationId]="module.id"></app-guide-syslog>
@@ -160,21 +177,25 @@
                           [integrationId]="module.id"></app-guide-soc-ai>
 
       <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.PFSENSE"
+                         [dataType]="module.dataType.dataType"
                         [moduleEnum]="moduleEnum.PFSENSE"
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
 
       <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.NETFLOW"
+                         [dataType]="module.dataType.dataType"
                         [moduleEnum]="moduleEnum.NETFLOW"
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
 
       <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FORTIWEB"
+                         [dataType]="module.dataType.dataType"
                         [moduleEnum]="moduleEnum.FORTIWEB"
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
 
       <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.AIX"
+                         [dataType]="module.dataType.dataType"
                         [moduleEnum]="moduleEnum.AIX"
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>

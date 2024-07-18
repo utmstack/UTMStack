@@ -1,71 +1,41 @@
-package com.park.utmstack.domain.application_modules;
+package com.park.utmstack.service.dto.application_modules;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.UtmServer;
+import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.enums.ModuleName;
-import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import liquibase.structure.core.DataType;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * A UtmModule.
- */
-@Entity
-@Table(name = "utm_module")
-public class UtmModule implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ModuleDTO {
     private Long id;
 
-    @Column(name = "server_id")
     private Long serverId;
 
-    @Column(name = "pretty_name")
     private String prettyName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "module_name")
     private ModuleName moduleName;
 
-    @Column(name = "module_description")
     private String moduleDescription;
 
-    @Column(name = "module_active")
     private Boolean moduleActive;
 
-    @Column(name = "module_icon")
     private String moduleIcon;
 
-    @Column(name = "module_category")
     private String moduleCategory;
 
-    @Column(name = "lite_version")
     private Boolean liteVersion;
 
-    @Column(name = "needs_restart")
     private Boolean needsRestart;
 
-    @Column(name = "is_activatable")
     private Boolean isActivatable;
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "server_id", insertable = false, updatable = false)
     private UtmServer server;
-
-    @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
     private Set<UtmModuleGroup> moduleGroups = new HashSet<>();
 
-    @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
-    private Set<UtmLogstashFilter> filters;
-
+    private UtmDataTypes dataType;
 
     public Long getId() {
         return id;
@@ -147,6 +117,14 @@ public class UtmModule implements Serializable {
         this.needsRestart = needsRestart;
     }
 
+    public Boolean getActivatable() {
+        return isActivatable;
+    }
+
+    public void setActivatable(Boolean activatable) {
+        isActivatable = activatable;
+    }
+
     public UtmServer getServer() {
         return server;
     }
@@ -163,19 +141,12 @@ public class UtmModule implements Serializable {
         this.moduleGroups = moduleGroups;
     }
 
-    public Boolean getActivatable() {
-        return isActivatable;
+    public UtmDataTypes getDataType() {
+        return dataType;
     }
 
-    public void setActivatable(Boolean activatable) {
-        isActivatable = activatable;
+    public void setDataType(UtmDataTypes dataType) {
+        this.dataType = dataType;
     }
 
-    public Set<UtmLogstashFilter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(Set<UtmLogstashFilter> filters) {
-        this.filters = filters;
-    }
 }

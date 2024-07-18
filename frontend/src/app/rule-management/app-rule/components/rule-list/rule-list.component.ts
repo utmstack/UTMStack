@@ -8,10 +8,15 @@ import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
 import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
 import {UtmFieldType} from '../../../../shared/types/table/utm-field.type';
 import {RULE_FIELDS} from '../../../models/rule.constant';
-import {Rule} from '../../../models/rule.model';
+import {Asset, Rule} from '../../../models/rule.model';
 import {FilterService} from '../../../services/filter.service';
 import {RuleService} from '../../../services/rule.service';
 import {itemsPerPage} from '../../../services/rules.resolver.service';
+import {
+  ModalConfirmationComponent
+} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {UtmToastService} from "../../../../shared/alert/utm-toast.service";
 
 
 @Component({
@@ -47,7 +52,9 @@ export class RuleListComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute,
               private router: Router,
               private filterService: FilterService,
-              private ruleService: RuleService) { }
+              private ruleService: RuleService,
+              private modalService: NgbModal,
+              private utmToast: UtmToastService) { }
 
   ngOnInit() {
     this.request = {
@@ -97,14 +104,6 @@ export class RuleListComponent implements OnInit, OnDestroy {
               this.loading = false;
             }),
             map((response: HttpResponse<Rule[]> ) =>  response.body));
-  }
-
-  addRule() {
-
-  }
-
-  onResize($event: ResizeEvent) {
-
   }
 
   loadPage($event: number) {
@@ -181,6 +180,19 @@ export class RuleListComponent implements OnInit, OnDestroy {
     this.viewRuleDetail = true;
   }
 
+  activeRule(rule: Rule){
+    const params = {
+      id: rule.id,
+      active: !rule.ruleActive
+    };
+
+    this.ruleService.activeRule(params)
+      .subscribe(() => this.loadRules(),
+        () => {
+          this.utmToast.showError('Error', 'Error changing rule status');
+        });
+  }
+
   trackByFn(index: number, rule: Rule): any {
     return rule.id;
   }
@@ -193,8 +205,27 @@ export class RuleListComponent implements OnInit, OnDestroy {
     this.loadRules();
   }
 
-  deleteRule(rule: Rule) {
+  deleteRule(event: Event, rule: Rule) {
+    event.stopPropagation();
+    const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
+    deleteModalRef.componentInstance.header = 'Delete asset';
+    deleteModalRef.componentInstance.message = 'Are you sure that you want to delete this rule?';
+    deleteModalRef.componentInstance.confirmBtnText = 'Delete';
+    deleteModalRef.componentInstance.confirmBtnIcon = 'icon-display';
+    deleteModalRef.componentInstance.confirmBtnType = 'delete';
+    deleteModalRef.result.then(() => {
+      this.delete(rule);
+    });
+  }
 
+  delete(rule: Rule) {
+    this.ruleService.delete(rule.id)
+      .subscribe(() => {
+        this.loadRules();
+        this.utmToast.showSuccessBottom('Rule deleted successfully');
+      }, () => {
+        this.utmToast.showError('Error', 'Error deleting rule');
+      });
   }
 
   editRule(rule: Rule) {

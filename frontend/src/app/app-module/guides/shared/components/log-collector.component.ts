@@ -85,7 +85,7 @@ export class LogCollectorComponent {
   get command() {
     return this.replaceAll(this.selectedPlatform.command, {
       PORT: this.selectedProtocol.name.toLowerCase(),
-      AGENTNAME: this.agentName(),
+      AGENTNAME: this.agent,
       ACTION: this.selectedAction.action
     });
   }
@@ -112,65 +112,6 @@ export class LogCollectorComponent {
 
   set selectedAction(action) {
     this._selectedAction = action;
-  }
-
-  agentName() {
-    switch (this.agent) {
-
-      case UtmModulesEnum.VMWARE:
-        return 'vmware';
-
-      case UtmModulesEnum.SYSLOG:
-        return 'syslog';
-
-      case UtmModulesEnum.SONIC_WALL:
-        return 'firewall_sonicwall';
-
-      case UtmModulesEnum.SOPHOS_XG:
-        return 'firewall_sophos';
-
-      case UtmModulesEnum.PFSENSE:
-        return 'firewall_pfsense';
-
-      case UtmModulesEnum.PALO_ALTO:
-        return 'firewall_paloalto';
-
-      case UtmModulesEnum.MIKROTIK:
-        return 'firewall_mikrotik';
-
-      case UtmModulesEnum.FORTIGATE:
-        return 'firewall_fortinet';
-
-      case UtmModulesEnum.SENTINEL_ONE:
-        return 'antivirus_sentinel_one';
-
-      case UtmModulesEnum.FORTIWEB:
-        return 'firewall_fortiweb';
-
-      case UtmModulesEnum.AIX:
-        return 'ibm_aix';
-
-      case UtmModulesEnum.ESET:
-        return 'antivirus_eset';
-
-      case UtmModulesEnum.KASPERSKY:
-        return 'antivirus_kaspersky';
-
-      case UtmModulesEnum.MACOS:
-        return 'macos_logs';
-
-      case UtmModulesEnum.DECEPTIVE_BYTES:
-        return 'antivirus_deceptivebytes';
-
-      case UtmModulesEnum.NETFLOW:
-        return 'netflow';
-
-      case UtmModulesEnum.FIRE_POWER:
-      case UtmModulesEnum.CISCO:
-      case UtmModulesEnum.CISCO_SWITCH:
-      case UtmModulesEnum.MERAKI:
-        return 'cisco';
-    }
   }
 
   replaceAll(command, wordsToReplace) {

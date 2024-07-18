@@ -9,47 +9,52 @@ import {DataType} from "../models/rule.model";
 @Injectable()
 export class FilterService {
 
-    private resetFilterBehaviorSubject = new BehaviorSubject<boolean>(false);
-    resetFilter = this.resetFilterBehaviorSubject.asObservable();
+  private resetFilterBehaviorSubject = new BehaviorSubject<boolean>(false);
+  resetFilter = this.resetFilterBehaviorSubject.asObservable();
 
-    private filterChangeBehaviorSubject = new BehaviorSubject<{prop: string, values: any}>(null);
-    filterChange = this.filterChangeBehaviorSubject.asObservable();
+  private filterChangeBehaviorSubject = new BehaviorSubject<{ prop: string, values: any }>(null);
+  filterChange = this.filterChangeBehaviorSubject.asObservable();
 
-    private fieldsValuesSubject =
-        new BehaviorSubject<Map<string, Array<[string, number]>>>(new Map<string, Array<[string, number]>>());
-    fieldsValues$ = this.fieldsValuesSubject.asObservable();
+  private fieldsValuesSubject =
+    new BehaviorSubject<Map<string, Array<[string, number]>>>(new Map<string, Array<[string, number]>>());
+  fieldsValues$ = this.fieldsValuesSubject.asObservable();
 
-    constructor(private http: HttpClient,
-                private ruleService: RuleService) {
-    }
+  constructor(private http: HttpClient,
+              private ruleService: RuleService) {
+  }
 
-    getFieldValues(url: string, params: any): Observable<Array<[string, number]>> {
-        const httpParams = createRequestOption(params);
-        return this.http.get<Array<[string, number]>>(url, {params: httpParams, observe: 'response'})
-            .pipe(
-                tap(response => {
-                    const filterMap = this.fieldsValuesSubject.value;
-                    const values = filterMap.get(params.prop) ? filterMap.get(params.prop) : [];
-                    filterMap.set(params.prop, [
-                        ...values,
-                        ...response.body
-                    ]);
-                    this.fieldsValuesSubject.next(filterMap);
-                }),
-                map( response => response.body)
-            );
-    }
+  getFieldValues(url: string, params: any, loadMore = false): Observable<Array<[string, number]>> {
+    const httpParams = createRequestOption(params);
+    return this.http.get<Array<[string, number]>>(url, {params: httpParams, observe: 'response'})
+      .pipe(
+        tap(response => {
+          const filterMap = this.fieldsValuesSubject.value;
+          if (loadMore) {
+            const values = filterMap.get(params.prop) ? filterMap.get(params.prop) : [];
+            filterMap.set(params.prop, [
+              ...values,
+              ...response.body
+            ]);
+            this.fieldsValuesSubject.next(filterMap);
+          } else {
+            filterMap.set(params.prop, response.body);
+            this.fieldsValuesSubject.next(filterMap);
+          }
+        }),
+        map(response => response.body)
+      );
+  }
 
-    resetAllFilters() {
-        this.resetFilterBehaviorSubject.next(true);
-    }
+  resetAllFilters() {
+    this.resetFilterBehaviorSubject.next(true);
+  }
 
-    onFilterChange(request: any){
-        this.filterChangeBehaviorSubject.next(request);
-    }
+  onFilterChange(request: any) {
+    this.filterChangeBehaviorSubject.next(request);
+  }
 
-    resetFieldValues() {
-        this.fieldsValuesSubject.next(new Map<string, Array<[string, number]>>());
-    }
+  resetFieldValues() {
+    this.fieldsValuesSubject.next(new Map<string, Array<[string, number]>>());
+  }
 }
 

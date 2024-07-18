@@ -58,6 +58,8 @@ export interface Rule {
     description: string;
     references: string[];
     definition: Definition;
+    systemOwner: boolean;
+    ruleActive: boolean;
 }
 
 export type Mode = 'ADD' | 'EDIT';
