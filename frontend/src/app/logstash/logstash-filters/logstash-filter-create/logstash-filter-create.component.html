@@ -19,6 +19,7 @@
         <label>Data Types:</label>
         <ng-select required="true"
                    name="datatype"
+                   disabled="true"
                    (scrollToEnd)="loadDataTypes()"
                    [items]="(types$ | async)"
                    [loading]="loadingDataTypes"

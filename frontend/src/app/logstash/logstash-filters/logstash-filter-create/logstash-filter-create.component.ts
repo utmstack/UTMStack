@@ -17,6 +17,7 @@ export class LogstashFilterCreateComponent implements OnInit {
   @Output() close = new EventEmitter<string>();
   @Input() filter: LogstashFilterType;
   @Input() pipeline: UtmPipeline;
+  @Input() dataType: DataType;
   types$: Observable<DataType[]>;
   daTypeRequest: {page: number, size: number} = {
     page: -1,
@@ -35,7 +36,7 @@ export class LogstashFilterCreateComponent implements OnInit {
 
   ngOnInit() {
     if (!this.filter || !this.filter.id) {
-      this.filter = { logstashFilter: '', filterName: '', datatype: null};
+      this.filter = { logstashFilter: '', filterName: '', datatype: this.dataType};
     }
 
     this.types$ = this.dataTypeService.type$;

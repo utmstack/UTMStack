@@ -33,11 +33,11 @@
           <span class="badge badge-success font-size-sm mr-3"
                 *ngIf="filter.filterVersion">{{filter.filterVersion}}</span>
 
-          <i (click)="editFilter(filter)"
+          <i *ngIf="!filter.systemOwner" (click)="editFilter(filter)"
              class="icon-pencil3 cursor-pointer mr-3"
              ngbTooltip="Edit filter" tooltipClass="utm-tooltip-top"></i>
 
-          <i (click)="deleteFilter(filter)" class="icon-cross2 cursor-pointer"
+          <i *ngIf="!filter.systemOwner" (click)="deleteFilter(filter)" class="icon-cross2 cursor-pointer"
              ngbTooltip="Delete filter"
              placement="left"
              tooltipClass="utm-tooltip"></i>
@@ -71,6 +71,7 @@
     </div>
     <app-logstash-filter-create (filterEditClose)="onFilterEditClose()"
                                 (close)="openEditJson= undefined"
+                                [dataType]="filters[0].datatype"
                                 [filter]="filterEdit" [pipeline]="pipeline"></app-logstash-filter-create>
   </div>
 </div>
