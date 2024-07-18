@@ -7,7 +7,6 @@ require (
 	github.com/elastic/go-sysinfo v1.14.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.2
-	github.com/ncruces/go-sqlite3 v0.17.0
 	github.com/ncruces/go-sqlite3/gormlite v0.16.3
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
 	github.com/threatwinds/go-sdk v0.5.3
@@ -40,6 +39,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/ncruces/go-sqlite3 v0.16.3 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

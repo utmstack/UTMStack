@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	_ "github.com/ncruces/go-sqlite3/embed"
 	"github.com/ncruces/go-sqlite3/gormlite"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
