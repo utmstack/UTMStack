@@ -24,8 +24,8 @@ const (
 	WinServName          = "UTMStackWindowsLogsCollector"
 	ModulesLockName      = "utmstack_modules_collector.lock"
 	WinLockName          = "utmstack_windows_collector.lock"
-	CollectorFileName    = "log-collector-configuration.json"
-	CollectorFileNameOld = "log-collector-config.json"
+	CollectorFileNameOld = "log-collector-configuration.json"
+	CollectorFileName    = "log-collector-config.json"
 	UUIDFileName         = "uuid.yml"
 	DEPEND_ZIP_LABEL     = "depend_zip"
 	DEPEND_SERVICE_LABEL = "service"
@@ -36,52 +36,49 @@ const (
 	LogsDBFile           = "logs.db"
 )
 
-type LogType struct {
-	DataType string
-	Config   string
-}
+type DataType string
 
 var (
-	LogTypeWindowsAgent        = LogType{DataType: "wineventlog", Config: "beats_windows_agent"}
-	LogTypeSyslog              = LogType{DataType: "syslog", Config: "syslog"}
-	LogTypeVmware              = LogType{DataType: "vmware-esxi", Config: "vmware"}
-	LogTypeLinuxAgent          = LogType{DataType: "linux", Config: "beats_linux_agent"}
-	LogTypeEset                = LogType{DataType: "antivirus-esmc-eset", Config: "antivirus_eset"}
-	LogTypeKaspersky           = LogType{DataType: "antivirus-kaspersky", Config: "antivirus_kaspersky"}
-	LogTypeTraefikModule       = LogType{DataType: "traefik", Config: "beats_traefik_module"}
-	LogTypeMongodbModule       = LogType{DataType: "mongodb", Config: "beats_mongodb_module"}
-	LogTypeMysqlModule         = LogType{DataType: "mysql", Config: "beats_mysql_module"}
-	LogTypePostgresqlModule    = LogType{DataType: "postgresql", Config: "beats_postgresql_module"}
-	LogTypeRedisModule         = LogType{DataType: "redis", Config: "beats_redis_module"}
-	LogTypeElasticsearchModule = LogType{DataType: "elasticsearch", Config: "beats_elasticsearch_module"}
-	LogTypeKafkaModule         = LogType{DataType: "kafka", Config: "beats_kafka_module"}
-	LogTypeKibanaModule        = LogType{DataType: "kibana", Config: "beats_kibana_module"}
-	LogTypeLogstashModule      = LogType{DataType: "logstash", Config: "beats_logstash_module"}
-	LogTypeCiscoAsa            = LogType{DataType: "firewall-cisco-asa", Config: "cisco_asa"}
-	LogTypeCiscoMeraki         = LogType{DataType: "firewall-meraki", Config: "cisco_meraki"}
-	LogTypeFortinet            = LogType{DataType: "firewall-fortigate-traffic", Config: "firewall_fortinet"}
-	LogTypePaloalto            = LogType{DataType: "firewall-paloalto", Config: "firewall_paloalto"}
-	LogTypeMikrotik            = LogType{DataType: "firewall-mikrotik", Config: "firewall_mikrotik"}
-	LogTypeCiscoFirepower      = LogType{DataType: "firewall-cisco-firepower", Config: "cisco_firepower"}
-	LogTypeSophosXG            = LogType{DataType: "firewall-sophos-xg", Config: "firewall_sophos"}
-	LogTypeCiscoSwitch         = LogType{DataType: "cisco-switch", Config: "cisco_switch"}
-	LogTypeSonicwall           = LogType{DataType: "firewall-sonicwall", Config: "firewall_sonicwall"}
-	LogTypeNatsModule          = LogType{DataType: "nats", Config: "beats_nats_module"}
-	LogTypeDeceptivebytes      = LogType{DataType: "deceptive-bytes", Config: "antivirus_deceptivebytes"}
-	LogTypeOsqueryModule       = LogType{DataType: "osquery", Config: "beats_osquery_module"}
-	LogTypeLinuxAuditdModule   = LogType{DataType: "auditd", Config: "beats_auditd_module"}
-	LogTypeHaproxyModule       = LogType{DataType: "haproxy", Config: "beats_haproxy_module"}
-	LogTypeNginxModule         = LogType{DataType: "nginx", Config: "beats_nginx_module"}
-	LogTypeIisModule           = LogType{DataType: "iis", Config: "beats_iis_module"}
-	LogTypeApacheModule        = LogType{DataType: "apache", Config: "beats_apache_module"}
-	LogTypeSentinelOne         = LogType{DataType: "antivirus-sentinel-one", Config: "antivirus_sentinel_one"}
-	LogTypeCiscoGeneric        = LogType{DataType: "", Config: "cisco"}
-	LogTypeMacOs               = LogType{DataType: "macos", Config: "macos_logs"}
-	LogTypeGeneric             = LogType{DataType: "generic", Config: "generic"}
-	LogTypeNetflow             = LogType{DataType: "netflow", Config: "netflow"}
-	LogTypeAix                 = LogType{DataType: "ibm-aix", Config: "ibm_aix"}
-	LogTypePfsense             = LogType{DataType: "firewall-pfsense", Config: "firewall_pfsense"}
-	LogTypeFortiweb            = LogType{DataType: "firewall-fortiweb", Config: "firewall_fortiweb"}
+	DataTypeWindowsAgent        DataType = "wineventlog"
+	DataTypeSyslog              DataType = "syslog"
+	DataTypeVmware              DataType = "vmware-esxi"
+	DataTypeLinuxAgent          DataType = "linux"
+	DataTypeEset                DataType = "antivirus-esmc-eset"
+	DataTypeKaspersky           DataType = "antivirus-kaspersky"
+	DataTypeTraefikModule       DataType = "traefik"
+	DataTypeMongodbModule       DataType = "mongodb"
+	DataTypeMysqlModule         DataType = "mysql"
+	DataTypePostgresqlModule    DataType = "postgresql"
+	DataTypeRedisModule         DataType = "redis"
+	DataTypeElasticsearchModule DataType = "elasticsearch"
+	DataTypeKafkaModule         DataType = "kafka"
+	DataTypeKibanaModule        DataType = "kibana"
+	DataTypeLogstashModule      DataType = "logstash"
+	DataTypeCiscoAsa            DataType = "firewall-cisco-asa"
+	DataTypeCiscoMeraki         DataType = "firewall-meraki"
+	DataTypeFortinet            DataType = "firewall-fortigate-traffic"
+	DataTypePaloalto            DataType = "firewall-paloalto"
+	DataTypeMikrotik            DataType = "firewall-mikrotik"
+	DataTypeCiscoFirepower      DataType = "firewall-cisco-firepower"
+	DataTypeSophosXG            DataType = "firewall-sophos-xg"
+	DataTypeCiscoSwitch         DataType = "cisco-switch"
+	DataTypeSonicwall           DataType = "firewall-sonicwall"
+	DataTypeNatsModule          DataType = "nats"
+	DataTypeDeceptivebytes      DataType = "deceptive-bytes"
+	DataTypeOsqueryModule       DataType = "osquery"
+	DataTypeLinuxAuditdModule   DataType = "auditd"
+	DataTypeHaproxyModule       DataType = "haproxy"
+	DataTypeNginxModule         DataType = "nginx"
+	DataTypeIisModule           DataType = "iis"
+	DataTypeApacheModule        DataType = "apache"
+	DataTypeSentinelOne         DataType = "antivirus-sentinel-one"
+	DataTypeCiscoGeneric        DataType = "cisco"
+	DataTypeMacOs               DataType = "macos"
+	DataTypeGeneric             DataType = "generic"
+	DataTypeNetflow             DataType = "netflow"
+	DataTypeAix                 DataType = "ibm-aix"
+	DataTypePfsense             DataType = "firewall-pfsense"
+	DataTypeFortiweb            DataType = "firewall-fortiweb"
 )
 
 type ProtoPort struct {
@@ -90,27 +87,27 @@ type ProtoPort struct {
 }
 
 var (
-	ProtoPorts = map[string]ProtoPort{
-		LogTypeSyslog.Config:         {UDP: "7014", TCP: "7014"},
-		LogTypeVmware.Config:         {UDP: "7002", TCP: "7002"},
-		LogTypeEset.Config:           {UDP: "7003", TCP: "7003"},
-		LogTypeKaspersky.Config:      {UDP: "7004", TCP: "7004"},
-		LogTypeCiscoGeneric.Config:   {UDP: "514", TCP: "1470"},
-		LogTypeFortinet.Config:       {UDP: "7005", TCP: "7005"},
-		LogTypePaloalto.Config:       {UDP: "7006", TCP: "7006"},
-		LogTypeMikrotik.Config:       {UDP: "7007", TCP: "7007"},
-		LogTypeSophosXG.Config:       {UDP: "7008", TCP: "7008"},
-		LogTypeSonicwall.Config:      {UDP: "7009", TCP: "7009"},
-		LogTypeDeceptivebytes.Config: {UDP: "7010", TCP: "7010"},
-		LogTypeSentinelOne.Config:    {UDP: "7012", TCP: "7012"},
-		LogTypeMacOs.Config:          {UDP: "7015", TCP: "7015"},
-		LogTypeAix.Config:            {UDP: "7016", TCP: "7016"},
-		LogTypePfsense.Config:        {UDP: "7017", TCP: "7017"},
-		LogTypeFortiweb.Config:       {UDP: "7018", TCP: "7018"},
-		LogTypeNetflow.Config:        {UDP: "2055", TCP: ""},
+	ProtoPorts = map[DataType]ProtoPort{
+		DataTypeSyslog:         {UDP: "7014", TCP: "7014"},
+		DataTypeVmware:         {UDP: "7002", TCP: "7002"},
+		DataTypeEset:           {UDP: "7003", TCP: "7003"},
+		DataTypeKaspersky:      {UDP: "7004", TCP: "7004"},
+		DataTypeCiscoGeneric:   {UDP: "514", TCP: "1470"},
+		DataTypeFortinet:       {UDP: "7005", TCP: "7005"},
+		DataTypePaloalto:       {UDP: "7006", TCP: "7006"},
+		DataTypeMikrotik:       {UDP: "7007", TCP: "7007"},
+		DataTypeSophosXG:       {UDP: "7008", TCP: "7008"},
+		DataTypeSonicwall:      {UDP: "7009", TCP: "7009"},
+		DataTypeDeceptivebytes: {UDP: "7010", TCP: "7010"},
+		DataTypeSentinelOne:    {UDP: "7012", TCP: "7012"},
+		DataTypeMacOs:          {UDP: "7015", TCP: "7015"},
+		DataTypeAix:            {UDP: "7016", TCP: "7016"},
+		DataTypePfsense:        {UDP: "7017", TCP: "7017"},
+		DataTypeFortiweb:       {UDP: "7018", TCP: "7018"},
+		DataTypeNetflow:        {UDP: "2055", TCP: ""},
 	}
 
-	ProhibitedPortsChange = []LogType{LogTypeCiscoGeneric, LogTypeNetflow}
+	ProhibitedPortsChange = []DataType{DataTypeCiscoGeneric, DataTypeNetflow}
 )
 
 func GetCertPath() string {
@@ -150,16 +147,16 @@ func GetAgentBin() string {
 }
 
 func ValidateModuleType(typ string) string {
-	switch typ {
-	case LogTypeSyslog.Config, LogTypeVmware.Config, LogTypeEset.Config, LogTypeKaspersky.Config, LogTypeFortinet.Config, LogTypePaloalto.Config,
-		LogTypeMikrotik.Config, LogTypeSophosXG.Config, LogTypeSonicwall.Config, LogTypeSentinelOne.Config, LogTypeCiscoGeneric.Config, LogTypeMacOs.Config,
-		LogTypeDeceptivebytes.Config, LogTypeAix.Config, LogTypePfsense.Config, LogTypeFortiweb.Config:
+	switch DataType(typ) {
+	case DataTypeSyslog, DataTypeVmware, DataTypeEset, DataTypeKaspersky, DataTypeFortinet, DataTypePaloalto,
+		DataTypeMikrotik, DataTypeSophosXG, DataTypeSonicwall, DataTypeSentinelOne, DataTypeCiscoGeneric, DataTypeMacOs,
+		DataTypeDeceptivebytes, DataTypeAix, DataTypePfsense, DataTypeFortiweb:
 		return "syslog"
-	case LogTypeNetflow.Config:
+	case DataTypeNetflow:
 		return "netflow"
-	case LogTypeWindowsAgent.Config, LogTypeLinuxAgent.Config, LogTypeTraefikModule.Config, LogTypeMongodbModule.Config, LogTypeMysqlModule.Config, LogTypePostgresqlModule.Config,
-		LogTypeRedisModule.Config, LogTypeElasticsearchModule.Config, LogTypeKafkaModule.Config, LogTypeKibanaModule.Config, LogTypeLogstashModule.Config, LogTypeNatsModule.Config,
-		LogTypeOsqueryModule.Config, LogTypeLinuxAuditdModule.Config, LogTypeHaproxyModule.Config, LogTypeNginxModule.Config, LogTypeIisModule.Config, LogTypeApacheModule.Config:
+	case DataTypeWindowsAgent, DataTypeLinuxAgent, DataTypeTraefikModule, DataTypeMongodbModule, DataTypeMysqlModule, DataTypePostgresqlModule,
+		DataTypeRedisModule, DataTypeElasticsearchModule, DataTypeKafkaModule, DataTypeKibanaModule, DataTypeLogstashModule, DataTypeNatsModule,
+		DataTypeOsqueryModule, DataTypeLinuxAuditdModule, DataTypeHaproxyModule, DataTypeNginxModule, DataTypeIisModule, DataTypeApacheModule:
 		return "beats"
 	default:
 		return "nil"

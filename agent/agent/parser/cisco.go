@@ -12,10 +12,10 @@ import (
 var (
 	ciscoParser     = CiscoParser{}
 	ciscoParserOnce sync.Once
-	RegexspCisco    = map[config.LogType]string{
-		config.LogTypeCiscoAsa:       `%ASA-`,
-		config.LogTypeCiscoFirepower: `%FTD-`,
-		config.LogTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
+	RegexspCisco    = map[config.DataType]string{
+		config.DataTypeCiscoAsa:       `%ASA-`,
+		config.DataTypeCiscoFirepower: `%FTD-`,
+		config.DataTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
 	}
 )
 
@@ -28,17 +28,17 @@ func GetCiscoParser() *CiscoParser {
 	return &ciscoParser
 }
 
-func (p *CiscoParser) IdentifySource(log string) (string, error) {
+func (p *CiscoParser) IdentifySource(log string) (config.DataType, error) {
 	for logType, regp := range RegexspCisco {
 		regExpCompiled, err := regexp.Compile(string(regp))
 		if err != nil {
 			return "", err
 		}
 		if regExpCompiled.MatchString(log) {
-			return logType.DataType, nil
+			return logType, nil
 		}
 	}
-	return config.LogTypeCiscoMeraki.DataType, nil
+	return config.DataTypeCiscoMeraki, nil
 }
 
 func (p *CiscoParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
@@ -51,7 +51,7 @@ func (p *CiscoParser) ProcessData(logMessage interface{}, datasource string, que
 		return err
 	}
 	queue <- &plugins.Log{
-		DataType:   logType,
+		DataType:   string(logType),
 		DataSource: datasource,
 		Raw:        log,
 	}

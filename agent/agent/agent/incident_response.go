@@ -2,8 +2,8 @@ package agent
 
 import (
 	context "context"
-	"io"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
@@ -29,6 +29,8 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
+		CheckGRPCHealth(conn)
+
 		client := NewAgentServiceClient(conn)
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
@@ -44,7 +46,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 
 		for {
 			in, err := stream.Recv()
-			if err == io.EOF {
+			if strings.Contains(err.Error(), "EOF") {
 				time.Sleep(timeToSleep)
 				break
 			}
@@ -70,7 +72,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
 				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
-				if err == io.EOF {
+				if strings.Contains(err.Error(), "EOF") {
 					time.Sleep(timeToSleep)
 					break
 				}

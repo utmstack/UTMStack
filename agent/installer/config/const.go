@@ -10,7 +10,7 @@ import (
 const (
 	DEPEND_URL         = "https://%s/dependencies/agent?version=%s&os=%s&type=%s"
 	INSTALLER_LOG_FILE = "utmstack_agent_installer.log"
-	UpdaterSelfLinux   = "utmstack_agent_updater"
+	UpdaterSelfLinux   = "utmstack_updater_self"
 	AgentManagerPort   = "9000"
 	LogAuthProxyPort   = "50051"
 	DependServiceLabel = "service"

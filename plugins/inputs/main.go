@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,6 +14,8 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
@@ -75,6 +78,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 	router.POST("/v1/log", middlewares.HttpAuth(), Log)
 	router.POST("/v1/github-webhook", middlewares.GitHubAuth(), GitHub)
 	router.GET("/v1/ping", Ping)
+	router.GET("/v1/health", func(c *gin.Context) { c.Status(http.StatusOK) })
 	err := router.RunTLS(":8080", cert, key)
 	helpers.Logger().Info("starting HTTP server on 0.0.0.0:8080...")
 	if err != nil {
@@ -111,6 +115,9 @@ func startGRPCServer(middlewares *Middlewares) {
 	integrationInstance := new(integration)
 
 	plugins.RegisterIntegrationServer(server, integrationInstance)
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(server, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 
 	listener, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
@@ -118,7 +125,7 @@ func startGRPCServer(middlewares *Middlewares) {
 		os.Exit(1)
 	}
 
-	helpers.Logger().Info("starting gRPC server on 0.0.0.0:50051...")
+	helpers.Logger().Info("starting gRPC server on 0.0.0.0:50051")
 	if err := server.Serve(listener); err != nil {
 		helpers.Logger().Fatal("failed to serve grpc: %v", err)
 		os.Exit(1)

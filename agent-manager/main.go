@@ -102,6 +102,7 @@ func StartHttpServer() {
 
 	router.GET("/dependencies/agent", auth.HTTPAuthInterceptor(), handlers.HandleAgentUpdates)
 	router.GET("/dependencies/collector", auth.HTTPAuthInterceptor(), handlers.HandleCollectorUpdates)
+	router.GET("/dependencies/health", func(c *gin.Context) { c.Status(http.StatusOK) })
 
 	utils.ALogger.Info("Starting HTTP server on port 8080")
 	err := router.Run(":8080")

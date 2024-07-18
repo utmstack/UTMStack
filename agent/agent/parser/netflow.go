@@ -13,6 +13,7 @@ import (
 	"github.com/tehmaze/netflow/netflow9"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
+	"github.com/utmstack/UTMStack/agent/agent/config"
 	pnf "github.com/utmstack/UTMStack/agent/agent/parser/netflow"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 )
@@ -71,7 +72,7 @@ func (p *NetflowParser) ProcessData(logMessage interface{}, datasource string, q
 			continue
 		}
 		queue <- &plugins.Log{
-			DataType:   "netflow",
+			DataType:   string(config.DataTypeNetflow),
 			DataSource: remote,
 			Raw:        msg,
 		}

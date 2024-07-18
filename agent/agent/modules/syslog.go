@@ -245,7 +245,6 @@ func (m *SyslogModule) disableTCP() {
 	if m.TCPListener.IsEnabled && m.TCPListener.Port != "" {
 		utils.Logger.Info("Server %s closed in port: %s protocol: TCP", m.DataType, m.TCPListener.Port)
 		m.TCPListener.Cancel()
-		m.TCPListener.Listener.Close()
 		m.TCPListener.IsEnabled = false
 	}
 }
@@ -254,7 +253,6 @@ func (m *SyslogModule) disableUDP() {
 	if m.UDPListener.IsEnabled && m.UDPListener.Port != "" {
 		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, m.UDPListener.Port)
 		m.UDPListener.Cancel()
-		m.UDPListener.Listener.Close()
 		m.UDPListener.IsEnabled = false
 	}
 }

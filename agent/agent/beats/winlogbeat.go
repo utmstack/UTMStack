@@ -75,7 +75,7 @@ func (w Winlogbeat) SendSystemLogs() {
 		}
 		host, _ := os.Hostname()
 		logservice.LogQueue <- &plugins.Log{
-			DataType:   string(config.LogTypeWindowsAgent.DataType),
+			DataType:   string(config.DataTypeWindowsAgent),
 			DataSource: host,
 			Raw:        validatedLog,
 		}

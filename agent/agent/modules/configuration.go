@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
@@ -23,27 +24,14 @@ type CollectorConfiguration struct {
 	Integrations map[string]Integration `json:"integrations"`
 }
 
-type ProtocolListenOld struct {
-	Enabled bool   `json:"enabled"`
-	UDP     string `json:"UDP,omitempty"`
-	TCP     string `json:"TCP,omitempty"`
-	TLS     string `json:"TLS,omitempty"`
-}
-
-type CollectorConfigurationOld struct {
-	LogCollectorIsenabled bool                         `json:"log_collector_enabled"`
-	Integrations          map[string]ProtocolListenOld `json:"integrations"`
-}
-
 func ReadCollectorConfig() (CollectorConfiguration, error) {
 	cnf := CollectorConfiguration{}
 	if !utils.CheckIfPathExist(config.GetCollectorConfigPath()) {
-		cnfOld := CollectorConfigurationOld{}
-		err := utils.ReadJson(config.GetCollectorConfigPathOld(), &cnfOld)
+		err := utils.ReadJson(config.GetCollectorConfigPathOld(), &cnf)
 		if err != nil {
 			return CollectorConfiguration{}, err
 		}
-		cnf = MigrateOldConfig(cnfOld)
+		cnf = MigrateOldConfig(cnf)
 		err = WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
 		if err != nil {
 			return CollectorConfiguration{}, err
@@ -55,7 +43,6 @@ func ReadCollectorConfig() (CollectorConfiguration, error) {
 			return cnf, err
 		}
 	}
-
 	return cnf, nil
 }
 
@@ -67,7 +54,7 @@ func ConfigureCollectorFirstTime() error {
 		newIntegration.TCP.Port = ports.TCP
 		newIntegration.UDP.IsListen = false
 		newIntegration.UDP.Port = ports.UDP
-		integrations[logTyp] = newIntegration
+		integrations[string(logTyp)] = newIntegration
 	}
 	return WriteCollectorConfig(integrations, config.GetCollectorConfigPath())
 }
@@ -152,31 +139,75 @@ func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, cur
 	return true
 }
 
-func MigrateOldConfig(old CollectorConfigurationOld) CollectorConfiguration {
+func MigrateOldConfig(old CollectorConfiguration) CollectorConfiguration {
 	integrations := make(map[string]Integration)
-	for logTyp, ports := range config.ProtoPorts {
-		newIntegration := Integration{}
-		if logTyp == "syslog" && old.LogCollectorIsenabled {
-			newIntegration.TCP.IsListen = true
-		} else {
-			newIntegration.TCP.IsListen = false
-		}
-		newIntegration.TCP.Port = ports.TCP
-		newIntegration.UDP.IsListen = false
-		newIntegration.UDP.Port = ports.UDP
-		integrations[logTyp] = newIntegration
-	}
-
-	for logTyp, port := range old.Integrations {
-		if _, ok := integrations[logTyp]; ok {
-			if old.LogCollectorIsenabled && port.Enabled {
-				integration := integrations[logTyp]
-				integration.TCP.IsListen = true
-				integration.UDP.IsListen = false
-				integrations[logTyp] = integration
-			}
-		}
+	for logTyp, integ := range old.Integrations {
+		integrations[GetLegacyConfigName(logTyp)] = integ
 	}
 
 	return CollectorConfiguration{Integrations: integrations}
+}
+
+func GetLegacyConfigName(logTyp string) string {
+	switch logTyp {
+	case "vmware":
+		return "vmware-esxi"
+	case "antivirus_eset":
+		return "antivirus-esmc-eset"
+	case "firewall_fortinet":
+		return "firewall-fortigate-traffic"
+	case "firewall_sophos":
+		return "firewall-sophos-xg"
+	case "antivirus_deceptivebytes":
+		return "deceptive-bytes"
+	case "macos_logs":
+		return "macos"
+	default:
+		return strings.Replace(logTyp, "_", "-", -1)
+	}
+}
+
+func WriteCollectorConfig(integrations map[string]Integration, filename string) error {
+	fileContent := "{\n    \"integrations\": {\n"
+	for name, integration := range integrations {
+		fileContent += fmt.Sprintf("        \"%s\": {\n", name)
+		if integration.TCP.Port != "" {
+			fileContent += fmt.Sprintf("            \"tcp_port\": {\"enabled\": %t, \"value\": \"%s\"},\n", integration.TCP.IsListen, integration.TCP.Port)
+		}
+		if integration.UDP.Port != "" {
+			fileContent += fmt.Sprintf("            \"udp_port\": {\"enabled\": %t, \"value\": \"%s\"},\n", integration.UDP.IsListen, integration.UDP.Port)
+		}
+		if strings.HasSuffix(fileContent, ",\n") {
+			fileContent = fileContent[:len(fileContent)-2] + "\n"
+		}
+		fileContent += "        },\n"
+	}
+	if strings.HasSuffix(fileContent, ",\n") {
+		fileContent = fileContent[:len(fileContent)-2] + "\n"
+	}
+	fileContent += "    }\n}\n"
+
+	err := os.WriteFile(filename, []byte(fileContent), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func WriteCollectorConfigFromModules(mod []Module, filename string) error {
+	integrations := make(map[string]Integration)
+	for _, m := range mod {
+		integrations[string(m.GetDataType())] = Integration{
+			TCP: Port{
+				IsListen: m.IsPortListen("tcp"),
+				Port:     m.GetPort("tcp"),
+			},
+			UDP: Port{
+				IsListen: m.IsPortListen("udp"),
+				Port:     m.GetPort("udp"),
+			},
+		}
+	}
+	return WriteCollectorConfig(integrations, filename)
 }

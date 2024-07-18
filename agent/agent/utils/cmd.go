@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"os/exec"
+	"strings"
 
 	"github.com/threatwinds/validations"
 )
@@ -18,6 +19,10 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 	out, err := cmd.Output()
 	if err != nil {
 		return string(out[:]) + err.Error(), true
+	}
+
+	if strings.TrimSpace(string(out[:])) == "" {
+		return "command executed successfully", false
 	}
 
 	validUtf8Out, _, err := validations.ValidateString(string(out[:]), false)

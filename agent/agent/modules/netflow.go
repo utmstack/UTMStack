@@ -46,10 +46,10 @@ func GetNetflowModule() *NetflowModule {
 
 func (m *NetflowModule) EnablePort(proto string) {
 	if proto == "udp" && !m.IsEnabled {
-		utils.Logger.Info("Server %s listening in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.LogTypeNetflow.Config].UDP)
+		utils.Logger.Info("Server %s listening in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.DataTypeNetflow].UDP)
 		m.IsEnabled = true
 
-		port, err := strconv.Atoi(config.ProtoPorts[config.LogTypeNetflow.Config].UDP)
+		port, err := strconv.Atoi(config.ProtoPorts[config.DataTypeNetflow].UDP)
 		if err != nil {
 			utils.Logger.ErrorF("error converting port to int: %v", err)
 			return
@@ -125,7 +125,7 @@ func (m *NetflowModule) EnablePort(proto string) {
 
 func (m *NetflowModule) DisablePort(proto string) {
 	if proto == "udp" && m.IsEnabled {
-		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.LogTypeNetflow.Config].UDP)
+		utils.Logger.Info("Server %s closed in port: %s protocol: UDP", m.DataType, config.ProtoPorts[config.DataTypeNetflow].UDP)
 		m.Cancel()
 		m.Listener.Close()
 		m.IsEnabled = false
@@ -151,7 +151,7 @@ func (m *NetflowModule) SetNewPort(proto string, port string) {
 func (m *NetflowModule) GetPort(proto string) string {
 	switch proto {
 	case "udp":
-		return config.ProtoPorts[config.LogTypeNetflow.Config].UDP
+		return config.ProtoPorts[config.DataTypeNetflow].UDP
 	default:
 		return ""
 	}

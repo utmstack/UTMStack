@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/beats"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/models"
@@ -27,6 +28,8 @@ func UpdateDependencies(cnf *config.Config) {
 		time.Sleep(checkEvery)
 		versions := models.Version{}
 		prepareForUpdate(&versions)
+
+		agent.CheckHttpHealth(fmt.Sprintf("https://%s/dependencies/health", cnf.Server))
 
 		zipDependencyResponse, err := getDependency(cnf, versions.DependenciesVersion, config.DEPEND_ZIP_LABEL)
 		if err != nil {

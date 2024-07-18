@@ -27,7 +27,7 @@ type Module interface {
 func GetModule(typ string) Module {
 	switch config.ValidateModuleType(typ) {
 	case "syslog":
-		return GetSyslogModule(string(typ), config.ProtoPorts[typ])
+		return GetSyslogModule(typ, config.ProtoPorts[config.DataType(typ)])
 	case "netflow":
 		return GetNetflowModule()
 	default:
@@ -54,6 +54,10 @@ func ModulesUp() {
 
 			if index == -1 {
 				newModule := GetModule(intType)
+				if newModule == nil {
+					utils.Logger.ErrorF("error getting module %s", intType)
+					continue
+				}
 				moCache = append(moCache, newModule)
 				index = len(moCache) - 1
 			}
@@ -133,7 +137,7 @@ func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 // Return true if the port change is allowed
 func ValidateChangeInPort(newPort string, dataType string) bool {
 	for _, logType := range config.ProhibitedPortsChange {
-		if logType.Config == dataType {
+		if string(logType) == dataType {
 			return false
 		}
 	}

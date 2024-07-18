@@ -108,12 +108,11 @@ func main() {
 				utils.Logger.ErrorF("error getting retention: %v", err)
 				os.Exit(0)
 			}
-			deletedLogs, err := db.DeleteOld(models.Log{}, datR)
+			_, err = db.DeleteOld(models.Log{}, datR)
 			if err != nil {
 				utils.Logger.ErrorF("error deleting old logs: %v", err)
 				os.Exit(0)
 			}
-			utils.Logger.Info("%d old logs have been deleted", deletedLogs)
 
 		case "uninstall":
 			utils.Logger.Info("Uninstalling UTMStack Agent service...")

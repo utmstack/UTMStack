@@ -3,7 +3,6 @@ package logservice
 import (
 	context "context"
 	"errors"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -66,6 +65,8 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
+		agent.CheckGRPCHealth(conn)
+
 		client := plugins.NewIntegrationClient(conn)
 		plClient := createClient(client, ctx)
 		l.connErrWritten = false
@@ -82,7 +83,7 @@ func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_Proce
 			return
 		default:
 			ack, err := plClient.Recv()
-			if err == io.EOF {
+			if strings.Contains(err.Error(), "EOF") {
 				time.Sleep(timeToSleep)
 				cancel()
 				return
@@ -140,7 +141,7 @@ func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient
 			l.db.Unlock()
 
 			err = plClient.Send(newLog)
-			if err == io.EOF {
+			if strings.Contains(err.Error(), "EOF") {
 				time.Sleep(timeToSleep)
 				cancel()
 				return
@@ -173,23 +174,18 @@ func (l *LogProcessor) CleanCountedLogs() {
 	ticker := time.NewTicker(timeCLeanLogs)
 	defer ticker.Stop()
 	for range ticker.C {
-		// Delete Old Logs
 		dataRetention, err := GetDataRetention()
 		if err != nil {
 			utils.Logger.ErrorF("error getting data retention: %s", err)
 			continue
 		}
 		l.db.Lock()
-		logsCleaned, err := l.db.DeleteOld(&models.Log{}, dataRetention)
+		_, err = l.db.DeleteOld(&models.Log{}, dataRetention)
 		if err != nil {
 			utils.Logger.ErrorF("error deleting old logs: %s", err)
 		}
 		l.db.Unlock()
-		if logsCleaned > 0 {
-			utils.Logger.Info("%d olds logs before %s have been deleted", logsCleaned, time.Now().AddDate(0, 0, -dataRetention).Format("2006-01-02"))
-		}
 
-		// Resent Unprocessed Logs
 		unprocessed := []models.Log{}
 		l.db.Lock()
 		found, err := l.db.Find(&unprocessed, "processed", false)
@@ -242,23 +238,20 @@ func createClient(client plugins.IntegrationClient, ctx context.Context) plugins
 
 func SetDataRetention(retention string) error {
 	if retention == "" {
-		retention = "7d"
+		retention = "20"
 	}
 
-	if !strings.HasSuffix(retention, "m") && !strings.HasSuffix(retention, "h") &&
-		!strings.HasSuffix(retention, "d") && !strings.HasSuffix(retention, "w") &&
-		!strings.HasSuffix(retention, "M") && !strings.HasSuffix(retention, "y") {
-		return errors.New("retention must end with 'm', 'h','d', 'w', 'M', or 'y'")
-	}
-
-	numberPart := retention[:len(retention)-1]
-	_, err := strconv.Atoi(numberPart)
+	retentionInt, err := strconv.Atoi(retention)
 	if err != nil {
-		return errors.New("invalid number in retention")
+		return errors.New("retention must be a number (number of megabytes)")
+	}
+
+	if retentionInt < 1 {
+		return errors.New("retention must be greater than 0")
 	}
 
 	path := utils.GetMyPath()
-	return utils.WriteJSON(filepath.Join(path, config.RetentionConfigFile), models.DataRetention{Retention: retention})
+	return utils.WriteJSON(filepath.Join(path, config.RetentionConfigFile), models.DataRetention{Retention: retentionInt})
 }
 
 func GetDataRetention() (int, error) {
@@ -269,26 +262,5 @@ func GetDataRetention() (int, error) {
 		return 0, err
 	}
 
-	numberPart := retention.Retention[:len(retention.Retention)-1]
-	number, err := strconv.Atoi(numberPart)
-	if err != nil {
-		return 0, errors.New("invalid number in retention")
-	}
-
-	switch retention.Retention[len(retention.Retention)-1] {
-	case 'm':
-		return number, nil
-	case 'h':
-		return number * 60, nil
-	case 'd':
-		return number * 24 * 60, nil
-	case 'w':
-		return number * 7 * 24 * 60, nil
-	case 'M':
-		return number * 30 * 24 * 60, nil
-	case 'y':
-		return number * 365 * 24 * 60, nil
-	default:
-		return 0, errors.New("invalid retention format")
-	}
+	return retention.Retention, nil
 }

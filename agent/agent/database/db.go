@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 
+	_ "github.com/ncruces/go-sqlite3/embed"
+	"github.com/ncruces/go-sqlite3/gormlite"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -60,20 +60,27 @@ func (d *Database) Delete(data interface{}, field string, value string) error {
 	return d.db.Where(fmt.Sprintf("%v = ?", field), value).Delete(data).Error
 }
 
-func (d *Database) DeleteOld(data interface{}, retentionMinutes int) (int64, error) {
-	cutoffDateTime := time.Now().Add(-time.Minute * time.Duration(retentionMinutes))
-	cutoffDateTimeFormatted := cutoffDateTime.Format("2006-01-02 15:04:05")
-	result := d.db.Where("created_at < ?", cutoffDateTimeFormatted).Delete(data)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-
-	err := d.db.Exec("VACUUM;").Error
+func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, error) {
+	currentSize, err := GetDatabaseSizeInMB()
 	if err != nil {
-		return result.RowsAffected, err
+		return 0, fmt.Errorf("error getting database size: %v", err)
 	}
 
-	return result.RowsAffected, nil
+	var rowsAffected int
+	for currentSize > retentionMegabytes {
+		result := d.db.Where("1 = 1").Order("created_at ASC").Limit(10).Delete(data)
+		if result.Error != nil {
+			return rowsAffected, result.Error
+		}
+		rowsAffected += int(result.RowsAffected)
+		d.db.Exec("VACUUM;")
+		currentSize, err = GetDatabaseSizeInMB()
+		if err != nil {
+			return rowsAffected, fmt.Errorf("error getting database size: %v", err)
+		}
+	}
+
+	return rowsAffected, nil
 }
 
 func (d *Database) Lock() {
@@ -100,7 +107,7 @@ func GetDB() *Database {
 			file.Close()
 		}
 
-		conn, err := gorm.Open(sqlite.Open(path+"?cache=shared"), &gorm.Config{
+		conn, err := gorm.Open(gormlite.Open(path), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Silent),
 		})
 		if err != nil {
@@ -112,4 +119,13 @@ func GetDB() *Database {
 	})
 
 	return dbInstance
+}
+
+func GetDatabaseSizeInMB() (int, error) {
+	path := filepath.Join(utils.GetMyPath(), "logs_process", config.LogsDBFile)
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+	return int(fileInfo.Size() / (1024 * 1024)), nil
 }

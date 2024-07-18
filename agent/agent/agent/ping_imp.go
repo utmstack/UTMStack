@@ -2,7 +2,7 @@ package agent
 
 import (
 	"context"
-	"io"
+	"strings"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/agent/config"
@@ -31,6 +31,8 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
+		CheckGRPCHealth(conn)
+
 		client := NewPingServiceClient(conn)
 		stream, err := client.Ping(ctx)
 		if err != nil {
@@ -49,7 +51,7 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 
 		for range ticker.C {
 			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
-			if err == io.EOF {
+			if strings.Contains(err.Error(), "EOF") {
 				time.Sleep(timeToSleep)
 				break
 			}
