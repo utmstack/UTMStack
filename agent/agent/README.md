@@ -10,3 +10,4 @@ The UTMStack agent performs the following tasks:
 - Reads the Beats logs.
 - Starts the ping and the incident response stream.
 - Starts the update process.
+- Log Retention.

@@ -47,11 +47,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
-
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -60,6 +55,8 @@ jobs:
       - name: Build and sign agent services
         id: set-env
         run: |
+          go version
+          
           $env:DEPLOY_ENV = '${{ needs.check.outputs.env_version }}'
 
           cd ${{ github.workspace }}/agent/agent/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
