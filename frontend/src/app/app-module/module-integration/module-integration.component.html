@@ -108,12 +108,12 @@
                         [filebeatModule]="module.moduleName"></app-guide-eset>
 
         <app-guide-sentinel-one *ngSwitchCase="moduleEnum.SENTINEL_ONE"
-                                [moduleData]="module"
+                                [dataType]="module.dataType.dataType"
                                 [serverId]="serverId"></app-guide-sentinel-one>
 
         <app-guide-kaspersky *ngSwitchCase="moduleEnum.KASPERSKY"
                              [serverId]="serverId"
-                             [dataType]="module">
+                             [dataType]="module.dataType.dataType">
         </app-guide-kaspersky>
 
         <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.FORTIGATE"
