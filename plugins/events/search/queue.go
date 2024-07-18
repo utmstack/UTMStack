@@ -10,7 +10,6 @@ import (
 
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/tidwall/gjson"
-	"github.com/utmstack/UTMStack/plugins/events/statistics"
 	"github.com/utmstack/UTMStack/plugins/events/utils"
 )
 
@@ -69,9 +68,6 @@ func init() {
 				l := <-logs
 				var cl *bytes.Buffer = new(bytes.Buffer)
 				dataType := gjson.Get(l, "dataType").String()
-				dataSource := gjson.Get(l, "dataSource").String()
-
-				statistics.One(dataType, dataSource)
 
 				timestamp := gjson.Get(l, "@timestamp").String()
 				id := gjson.Get(l, "id").String()

@@ -12,7 +12,6 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/plugins/events/search"
-	"github.com/utmstack/UTMStack/plugins/events/statistics"
 	"google.golang.org/grpc"
 )
 
@@ -42,9 +41,6 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	plugins.RegisterAnalysisServer(grpcServer, &analysisServer{})
-
-	// start goroutines
-	go statistics.Update()
 
 	if err := grpcServer.Serve(listener); err != nil {
 		helpers.Logger().ErrorF(err.Error())
@@ -133,7 +129,6 @@ func (p *analysisServer) Analyze(ctx context.Context,
 	lJs, _ := json.Marshal(l)
 
 	search.AddToQueue(string(lJs))
-	statistics.One(l.DataType, l.DataSource)
 
 	return nil, nil
 }
