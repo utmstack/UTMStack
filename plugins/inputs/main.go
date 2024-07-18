@@ -32,9 +32,6 @@ type PluginConfig struct {
 }
 
 func main() {
-	CheckBackendHealth()
-	CheckAgentManagerHealth()
-
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)

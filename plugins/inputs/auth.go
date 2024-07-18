@@ -82,7 +82,9 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			SortBy:      "",
 		})
 		if err != nil {
-			helpers.Logger().ErrorF("error sync collector keys: %v", err)
+			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
+				helpers.Logger().ErrorF("error sync collector keys: %v", err)
+			}
 			return
 		}
 
@@ -104,7 +106,9 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			SortBy:      "",
 		})
 		if err != nil {
-			helpers.Logger().ErrorF("error sync agent keys: %v", err)
+			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
+				helpers.Logger().ErrorF("error sync agent keys: %v", err)
+			}
 			return
 		}
 
