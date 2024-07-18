@@ -15,7 +15,7 @@ export class GuideSentinelOneComponent implements OnInit {
   module = UtmModulesEnum;
   @Input() serverId: number;
   steps: Step[] = SENTINELSTEPS;
-  @Input() moduleData!: string;
+  @Input() dataType!: string;
 
   constructor() {
   }
