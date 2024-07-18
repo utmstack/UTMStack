@@ -19,8 +19,6 @@ type correlationServer struct {
 }
 
 func main() {
-	helpers.NewLogger(helpers.GetCfg().Env.LogLevel)
-
 	os.Remove(path.Join(helpers.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.alerts_correlation.sock"))
 

@@ -18,8 +18,6 @@ type parsingServer struct {
 }
 
 func main() {
-	helpers.NewLogger(helpers.GetCfg().Env.LogLevel)
-
 	os.Remove(path.Join(helpers.GetCfg().Env.Workdir, "sockets", "com.utmstack.geolocation_parsing.sock"))
 
 	laddr, err := net.ResolveUnixAddr("unix", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "com.utmstack.geolocation_parsing.sock"))
