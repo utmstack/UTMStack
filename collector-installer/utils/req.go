@@ -2,13 +2,14 @@ package utils
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
 
-func DoReq[response any](url string, data []byte, method string, headers map[string]string) (response, int, error) {
+func DoReq[response any](url string, data []byte, method string, headers map[string]string, skipTlsVerification bool) (response, int, error) {
 	var result response
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
@@ -21,6 +22,11 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	client := &http.Client{}
+	if skipTlsVerification {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {

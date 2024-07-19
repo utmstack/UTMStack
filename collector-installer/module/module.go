@@ -10,7 +10,7 @@ type ProcessConfig struct {
 
 type CollectorProcess interface {
 	Run() error
-	Install(ip string, utmKey string) error
+	Install(ip, utmKey, skip string) error
 	Uninstall() error
 }
 

@@ -36,7 +36,7 @@ func main() {
 				utils.Logger.WriteFatal(fmt.Sprintf("error running %s collector:", cnf.CollectorType), err)
 			}
 		case "install":
-			ip, utmKey := os.Args[3], os.Args[4]
+			ip, utmKey, skip := os.Args[3], os.Args[4], os.Args[5]
 
 			if strings.Count(utmKey, "*") == len(utmKey) {
 				utils.Logger.WriteFatal("the connection key provided is incorrect. Please make sure you use the 'copy' icon from the integrations section to get the value of the masked key value", nil)
@@ -48,7 +48,7 @@ func main() {
 			}
 
 			config.SaveConfig(&config.ServiceTypeConfig{CollectorType: collectorType})
-			err := collector.Install(ip, utmKey)
+			err := collector.Install(ip, utmKey, skip)
 			if err != nil {
 				utils.Logger.WriteFatal(fmt.Sprintf("error installing %s collector:", collectorType), err)
 			}

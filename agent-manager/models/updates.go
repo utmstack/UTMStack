@@ -42,5 +42,7 @@ type Dependency struct {
 type DependencyUpdateResponse struct {
 	Message     string `json:"message"`
 	Version     string `json:"version"`
+	PartIndex   string `json:"partIndex,omitempty"`
+	IsLastPart  bool   `json:"isLastPart,omitempty"`
 	FileContent []byte `json:"fileContent,omitempty"`
 }

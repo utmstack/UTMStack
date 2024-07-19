@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/config"
@@ -12,33 +13,41 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
+var (
+	maxQuerySize = 20
+)
+
 func HandleAgentUpdates(c *gin.Context) {
 	version := c.Query("version")
 	os := c.Query("os")
 	dependencyType := c.Query("type")
+	partIndex := c.Query("partIndex")
+	partSize := c.Query("partSize")
 
-	if err := validateParams(version, os, dependencyType); err != nil {
+	if err := validateParams(version, os, dependencyType, partSize, partIndex); err != nil {
 		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
 		return
 	}
 
 	updater := updates.NewAgentUpdater()
-	handleUpdate(c, updater, version, os, dependencyType)
+	handleUpdate(c, updater, version, os, dependencyType, partIndex, partSize)
 }
 
 func HandleCollectorUpdates(c *gin.Context) {
 	collectorType := c.Query("collectorType")
 	version := c.Query("version")
 	os := c.Query("os")
-	dependencytype := c.Query("type")
+	dependencyType := c.Query("type")
+	partIndex := c.Query("partIndex")
+	partSize := c.Query("partSize")
 
-	if err := validateParams(version, os, dependencytype); err != nil {
+	if err := validateParams(version, os, dependencyType, partSize, partIndex); err != nil {
 		c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: err.Error()})
 		return
 	}
 
 	var updater updates.UpdaterInterf
-	if dependencytype == config.DependInstallerLabel {
+	if dependencyType == config.DependInstallerLabel {
 		updater = updates.NewCollectorUpdater()
 	} else {
 		switch collectorType {
@@ -50,11 +59,11 @@ func HandleCollectorUpdates(c *gin.Context) {
 		}
 	}
 
-	handleUpdate(c, updater, version, os, dependencytype)
+	handleUpdate(c, updater, version, os, dependencyType, partIndex, partSize)
 }
 
-func validateParams(version, os, dependencytype string) error {
-	if version == "" || os == "" || dependencytype == "" {
+func validateParams(version, os, dependencytype, partSize, partIndex string) error {
+	if version == "" || os == "" || dependencytype == "" || partSize == "" || partIndex == "" {
 		return errors.New("missing required parameters")
 	} else {
 		if !utils.ValueExistsInList(os, config.DependOsAllows) {
@@ -63,12 +72,26 @@ func validateParams(version, os, dependencytype string) error {
 		if !utils.ValueExistsInList(dependencytype, config.DependTypes) {
 			return errors.New("invalid dependency type parameter")
 		}
+		partSizeint, err := strconv.Atoi(partSize)
+		if err != nil {
+			return errors.New("invalid partSizeQuery parameter. Must be an integer")
+		}
+		if partSizeint > maxQuerySize {
+			return fmt.Errorf("partSize parameter cannot be greater than %d", maxQuerySize)
+		}
+		partIndexint, err := strconv.Atoi(partIndex)
+		if err != nil {
+			return errors.New("invalid partIndex parameter. Must be an integer")
+		}
+		if partIndexint < 1 {
+			return errors.New("partIndex parameter must be greater than 0")
+		}
 	}
 
 	return nil
 }
 
-func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, dependencyType string) {
+func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, dependencyType, partIndex, partSize string) {
 	latestVersion := updater.GetLatestVersion(dependencyType)
 	if latestVersion == "" {
 		c.JSON(http.StatusNotFound, models.DependencyUpdateResponse{Message: "dependency not found"})
@@ -82,15 +105,17 @@ func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, de
 		return
 	}
 
-	fileContent, err := updater.GetFileContent(os, dependencyType)
+	fileContent, isLastPart, err := updater.GetFileContent(os, dependencyType, partIndex, partSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DependencyUpdateResponse{Message: fmt.Sprintf("error getting dependency file: %v", err)})
 		return
 	}
 
-	c.JSON(http.StatusOK, models.DependencyUpdateResponse{
+	c.JSON(http.StatusPartialContent, models.DependencyUpdateResponse{
 		Message:     "dependency update available",
 		Version:     latestVersion,
+		PartIndex:   partIndex,
+		IsLastPart:  isLastPart,
 		FileContent: fileContent,
 	})
 }

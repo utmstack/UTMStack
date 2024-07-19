@@ -2,8 +2,8 @@ package updates
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,22 +12,56 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
+var (
+	agentUpdateFirstTime     = false
+	as400UpdateFirstTime     = false
+	collectorUpdateFirstTime = false
+	signalServer             = make(chan string)
+)
+
 func ManageUpdates() {
 	agentUpdater := NewAgentUpdater()
 	as400Updater := NewAs400Updater()
 	collectorInstallerUpdater := NewCollectorUpdater()
 
-	go agentUpdater.UpdateDependencies()
-	go as400Updater.UpdateDependencies()
-	go collectorInstallerUpdater.UpdateDependencies()
+	go agentUpdater.UpdateDependencies(signalServer)
+	go as400Updater.UpdateDependencies(signalServer)
+	go collectorInstallerUpdater.UpdateDependencies(signalServer)
+
+	go processSignals()
+}
+
+func CanServerListen() bool {
+	if agentUpdateFirstTime && as400UpdateFirstTime && collectorUpdateFirstTime {
+		return true
+	}
+	return false
+}
+
+func processSignals() {
+	for signal := range signalServer {
+		switch signal {
+		case "agent":
+			agentUpdateFirstTime = true
+		case "collector_as400":
+			as400UpdateFirstTime = true
+		case "collector_installer":
+			collectorUpdateFirstTime = true
+		}
+
+		if agentUpdateFirstTime && as400UpdateFirstTime && collectorUpdateFirstTime {
+			close(signalServer)
+			break
+		}
+	}
 }
 
 type UpdaterInterf interface {
 	GetLatestVersion(typ string) string
 	GetFileName(osType, typ string) (string, string)
 	GetFileNameWithVersion(osType, typ string) (string, string)
-	GetFileContent(osType, typ string) ([]byte, error)
-	UpdateDependencies()
+	GetFileContent(osType, typ, partIndex, partSize string) ([]byte, bool, error)
+	UpdateDependencies(signalServer chan string)
 }
 
 type Updater struct {
@@ -67,19 +101,29 @@ func (u *Updater) GetFileName(osType, typ string) (string, string) {
 	return fmt.Sprintf(file, ""), u.DownloadPath
 }
 
-func (u *Updater) GetFileContent(osType, typ string) ([]byte, error) {
+func (u *Updater) GetFileContent(osType, typ, partIndex, partSize string) ([]byte, bool, error) {
 	fileName, _ := u.GetFileName(osType, typ)
 	if fileName == "" {
-		return nil, fmt.Errorf("file not found")
+		return nil, false, fmt.Errorf("file not found")
 	}
-	content, err := os.ReadFile(filepath.Join(u.DownloadPath, fileName))
+	partIndexInt, err := strconv.Atoi(partIndex)
 	if err != nil {
-		return nil, err
+		return nil, false, fmt.Errorf("invalid partIndex parameter. Must be an integer")
 	}
-	return content, nil
+	partSizeInt, err := strconv.Atoi(partSize)
+	if err != nil {
+		return nil, false, fmt.Errorf("invalid partSizeQuery parameter. Must be an integer")
+	}
+	content, isLastPart, err := utils.ReadFilePart(filepath.Join(u.DownloadPath, fileName), partSizeInt, partIndexInt)
+	if err != nil {
+		return nil, false, fmt.Errorf("error reading file part: %v", err)
+	}
+	return content, isLastPart, nil
 }
 
-func (u *Updater) UpdateDependencies() {
+func (u *Updater) UpdateDependencies(signalServer chan string) {
+	signalSent := false
+
 	for {
 		env, err := readEnv()
 		if err != nil {
@@ -116,6 +160,11 @@ func (u *Updater) UpdateDependencies() {
 			utils.ALogger.ErrorF("error checking available updates: %v", err)
 			time.Sleep(config.CHECK_EVERY)
 			continue
+		}
+
+		if !signalSent {
+			signalServer <- u.Name
+			signalSent = true
 		}
 
 		time.Sleep(config.CHECK_EVERY)
@@ -196,7 +245,7 @@ func updateLatestVersions(env string, dependType string, downloadPath string, ma
 
 func downloadAndUpdateFile(env, name, filename, downloadPath string) error {
 	url := config.Bucket + env + "/" + name + "/" + filename
-	err := utils.DownloadFile(url, downloadPath)
+	err := utils.DownloadFileByChucks(url, downloadPath)
 	if err != nil {
 		return fmt.Errorf("error downloading new %s: %v", filename, err)
 	}

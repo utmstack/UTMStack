@@ -52,11 +52,11 @@ func (a *AS400) Run() error {
 	return nil
 }
 
-func (a *AS400) Install(ip string, utmKey string) error {
+func (a *AS400) Install(ip, utmKey, skip string) error {
 	currentPath := utils.GetMyPath()
 
 	utils.Logger.WriteSimpleMessage("Downloading UTMStack dependencies...")
-	err := a.downloadDependencies(ip, utmKey)
+	err := a.downloadDependencies(ip, utmKey, skip)
 	if err != nil {
 		return fmt.Errorf("error downloading dependencies: %v", err)
 	}
@@ -120,21 +120,21 @@ func (a *AS400) Uninstall() error {
 	return nil
 }
 
-func (a *AS400) downloadDependencies(ip string, utmKey string) error {
+func (a *AS400) downloadDependencies(ip, utmKey, skip string) error {
 	version := models.Version{}
 	var err error
 
-	if version.ServiceVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, config.DependServiceLabel); err != nil {
+	if version.ServiceVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, skip, config.DependServiceLabel); err != nil {
 		return err
 	}
 
 	switch runtime.GOOS {
 	case "windows":
-		if version.DependenciesVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, config.DependZipLabel); err != nil {
+		if version.DependenciesVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, skip, config.DependZipLabel); err != nil {
 			return err
 		}
 	case "linux":
-		if version.DependenciesVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, config.DependZipLabel); err != nil {
+		if version.DependenciesVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, skip, config.DependZipLabel); err != nil {
 			if !strings.Contains(err.Error(), "dependency not found") {
 				return err
 			}

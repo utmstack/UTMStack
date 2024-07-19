@@ -17,7 +17,7 @@ const (
 	LogAuthProxyPort    = "50051"
 	CollectorConfigFile = "collector-config.yaml"
 	SERV_LOG            = "utmstack_collector.log"
-	DEPEND_URL          = "https://%s:%s/dependencies/collector?version=%s&os=%s&type=%s&collectorType=%s"
+	DEPEND_URL          = "https://%s/dependencies/collector?version=%s&os=%s&type=%s&collectorType=%s"
 	DependServiceLabel  = "service"
 	DependZipLabel      = "depend_zip"
 )
