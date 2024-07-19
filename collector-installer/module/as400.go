@@ -2,6 +2,7 @@ package module
 
 import (
 	"fmt"
+	"net/http"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -10,7 +11,6 @@ import (
 	"github.com/utmstack/UTMStack/collector-installer/config"
 	"github.com/utmstack/UTMStack/collector-installer/models"
 	serv "github.com/utmstack/UTMStack/collector-installer/service"
-	"github.com/utmstack/UTMStack/collector-installer/updates"
 	"github.com/utmstack/UTMStack/collector-installer/utils"
 )
 
@@ -56,7 +56,7 @@ func (a *AS400) Install(ip, utmKey, skip string) error {
 	currentPath := utils.GetMyPath()
 
 	utils.Logger.WriteSimpleMessage("Downloading UTMStack dependencies...")
-	err := a.downloadDependencies(ip, utmKey, skip)
+	err := a.downloadDependencies(ip, utmKey, skip == "yes")
 	if err != nil {
 		return fmt.Errorf("error downloading dependencies: %v", err)
 	}
@@ -120,29 +120,36 @@ func (a *AS400) Uninstall() error {
 	return nil
 }
 
-func (a *AS400) downloadDependencies(ip, utmKey, skip string) error {
+func (a *AS400) downloadDependencies(ip, utmKey string, skip bool) error {
 	version := models.Version{}
 	var err error
 
-	if version.ServiceVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, skip, config.DependServiceLabel); err != nil {
-		return err
+	headers := map[string]string{"connection-key": utmKey}
+
+	if version.ServiceVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependServiceLabel, string(config.AS400)), headers, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400), skip); err != nil {
+		return fmt.Errorf("error downloading service: %v", err)
 	}
 
 	switch runtime.GOOS {
 	case "windows":
-		if version.DependenciesVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, skip, config.DependZipLabel); err != nil {
-			return err
+		if version.DependenciesVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependZipLabel, string(config.AS400)), headers, config.GetDownloadFilePath(config.DependZipLabel, config.AS400), skip); err != nil {
+			return fmt.Errorf("error downloading dependencies: %v", err)
 		}
 	case "linux":
-		if version.DependenciesVersion, err = updates.DownloadAndUpdateVersion(config.AS400, ip, utmKey, skip, config.DependZipLabel); err != nil {
-			if !strings.Contains(err.Error(), "dependency not found") {
-				return err
-			}
+		resp, _, err := utils.DoReq[models.DependencyUpdateResponse](fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependZipLabel, string(config.AS400)), nil, http.MethodGet, headers, skip)
+		if err != nil && !strings.Contains(resp.Message, "dependency not found") {
+			return fmt.Errorf("error downloading dependencies: %v", err)
 		}
+		version.DependenciesVersion = resp.Version
 	}
 
 	if err := utils.WriteJSON(config.GetVersionPath(), &version); err != nil {
 		return fmt.Errorf("error writing version file: %v", err)
+	}
+
+	err = HandleDependenciesPostDownload(config.AS400)
+	if err != nil {
+		return fmt.Errorf("error handling dependencies post download: %v", err)
 	}
 
 	return nil
