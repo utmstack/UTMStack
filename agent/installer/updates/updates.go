@@ -2,7 +2,6 @@ package updates
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"runtime"
 
@@ -14,13 +13,14 @@ import (
 func DownloadDependencies(address, authKey, skip string) error {
 	version := models.Version{}
 	var err error
+	headers := map[string]string{"connection-key": authKey}
 
-	if version.ServiceVersion, err = downloadAndUpdateVersion(address, authKey, skip, config.DependServiceLabel); err != nil {
-		return err
+	if version.ServiceVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, address, "0", runtime.GOOS, config.DependServiceLabel), headers, config.GetDownloadFilePath(config.DependServiceLabel), skip == "yes"); err != nil {
+		return fmt.Errorf("error downloading service: %v", err)
 	}
 
-	if version.DependenciesVersion, err = downloadAndUpdateVersion(address, authKey, skip, config.DependZipLabel); err != nil {
-		return err
+	if version.DependenciesVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, address, "0", runtime.GOOS, config.DependZipLabel), headers, config.GetDownloadFilePath(config.DependZipLabel), skip == "yes"); err != nil {
+		return fmt.Errorf("error downloading dependencies: %v", err)
 	}
 
 	if err := utils.WriteJSON(config.GetVersionPath(), &version); err != nil {
@@ -33,27 +33,6 @@ func DownloadDependencies(address, authKey, skip string) error {
 
 	return nil
 
-}
-
-func downloadAndUpdateVersion(address, authKey, skip, fileType string) (string, error) {
-	url := fmt.Sprintf(config.DEPEND_URL, address, "0", runtime.GOOS, fileType)
-	var skipTlsVerification bool
-	if skip == "yes" {
-		skipTlsVerification = true
-	}
-	resp, status, err := utils.DoReq[models.DependencyUpdateResponse](url, nil, http.MethodGet, map[string]string{"connection-key": authKey}, skipTlsVerification)
-	if err != nil {
-		return "", fmt.Errorf("error downloading %s: %v", fileType, err)
-	}
-	if status != http.StatusOK {
-		return "", fmt.Errorf("error downloading %s: %v", fileType, resp.Message)
-	}
-
-	if err := utils.WriteBytesToFile(config.GetDownloadFilePath(fileType), resp.FileContent); err != nil {
-		return "", fmt.Errorf("error writing %s file: %v", fileType, err)
-	}
-
-	return resp.Version, nil
 }
 
 func handleDependenciesPostDownload() error {
