@@ -12,6 +12,7 @@ import (
 const REPLACE_KEY string = ""
 
 const (
+	DEPEND_URL                   = "https://%s/dependencies/agent?version=%s&os=%s&type=%s"
 	AGENTMANAGERPORT      string = "9000"
 	CORRELATIONLOGSPORT   string = "50051"
 	MaxConnectionTime            = 120 * time.Second

@@ -98,7 +98,7 @@ func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, de
 		return
 	}
 	if latestVersion == version {
-		c.JSON(http.StatusOK, models.DependencyUpdateResponse{
+		c.JSON(http.StatusPartialContent, models.DependencyUpdateResponse{
 			Message: "dependency already up to date",
 			Version: latestVersion,
 		})
