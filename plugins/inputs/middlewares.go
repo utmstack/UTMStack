@@ -32,11 +32,13 @@ func (m *Middlewares) GrpcAuth(ctx context.Context, req interface{}, info *grpc.
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
 	}
+	
 	// Get the authorization token from the metadata
 	authToken := md.Get("key")
 	if len(authToken) == 0 {
 		return nil, status.Error(codes.Unauthenticated, "authorization token is not provided")
 	}
+
 	key := authToken[0]
 
 	if !m.AuthService.IsKeyValid(key) {
@@ -44,6 +46,27 @@ func (m *Middlewares) GrpcAuth(ctx context.Context, req interface{}, info *grpc.
 	}
 
 	return handler(ctx, req)
+}
+
+func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	md, ok := metadata.FromIncomingContext(ss.Context())
+	if !ok {
+		return status.Error(codes.Unauthenticated, "metadata is not provided")
+	}
+
+	// Get the authorization token from the metadata
+	authToken := md.Get("key")
+	if len(authToken) == 0 {
+		return status.Error(codes.Unauthenticated, "authorization token is not provided")
+	}
+
+	key := authToken[0]
+
+	if !m.AuthService.IsKeyValid(key) {
+		return status.Error(codes.Unauthenticated, "invalid key")
+	}
+
+	return handler(srv, ss)
 }
 
 func (m *Middlewares) HttpAuth() gin.HandlerFunc {

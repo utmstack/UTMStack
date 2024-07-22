@@ -110,7 +110,10 @@ type integration struct {
 }
 
 func startGRPCServer(middlewares *Middlewares) {
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(middlewares.GrpcAuth))
+	server := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(middlewares.GrpcAuth),
+		grpc.ChainStreamInterceptor(middlewares.GrpcStreamAuth),
+	)
 
 	integrationInstance := new(integration)
 
