@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/ncruces/go-sqlite3/gormlite"
+	"github.com/glebarez/sqlite"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"gorm.io/gorm"
@@ -106,7 +106,7 @@ func GetDB() *Database {
 			file.Close()
 		}
 
-		conn, err := gorm.Open(gormlite.Open(path), &gorm.Config{
+		conn, err := gorm.Open(sqlite.Open(path), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Silent),
 		})
 		if err != nil {

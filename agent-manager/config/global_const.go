@@ -15,6 +15,8 @@ func KeyAuthRoutes() []string {
 		"/agent.CollectorService/GetCollectorConfig",
 
 		"/agent.PingService/Ping",
+
+		"/grpc.health.v1.Health/Check",
 	}
 }
 
@@ -40,6 +42,8 @@ func InternalKeyRoutes() []string {
 
 		"/agent.PanelService/ProcessCommand",
 		"/agent.PanelCollectorService/RegisterCollectorConfig",
+
+		"/grpc.health.v1.Health/Check",
 	}
 }
 

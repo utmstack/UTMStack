@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 
-	"github.com/schollz/progressbar/v3"
 	"github.com/utmstack/UTMStack/collector-installer/models"
 )
 
@@ -29,8 +27,6 @@ func DownloadFileByChunks(url string, headers map[string]string, fileName string
 
 	const chunkSize = 5
 	partindex := 1
-
-	var bar *progressbar.ProgressBar
 
 	for {
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s&partIndex=%d&partSize=%d", url, partindex, chunkSize), nil)
@@ -66,27 +62,6 @@ func DownloadFileByChunks(url string, headers map[string]string, fileName string
 		if _, err := out.Write(response.FileContent); err != nil {
 			return version, fmt.Errorf("error writing to file: %v", err)
 		}
-
-		if bar == nil {
-			bar = progressbar.NewOptions64(
-				response.TotalSize,
-				progressbar.OptionSetDescription(fmt.Sprintf("Downloading %s", filepath.Base(fileName))),
-				progressbar.OptionSetTheme(progressbar.Theme{
-					Saucer:        "=",
-					SaucerHead:    ">",
-					SaucerPadding: " ",
-					BarStart:      "[",
-					BarEnd:        "]",
-				}),
-				progressbar.OptionShowBytes(true),
-				progressbar.OptionSetWidth(50),
-				progressbar.OptionSetPredictTime(false),
-				progressbar.OptionShowCount(),
-				progressbar.OptionShowIts(),
-			)
-		}
-
-		bar.Add(5 * 1024 * 1024)
 
 		partindex++
 		if response.IsLastPart {

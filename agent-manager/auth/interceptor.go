@@ -169,6 +169,8 @@ func getAuthCache(method string, proto string) []AuthResponse {
 			return convertMapToAuthResponses(agent.CacheCollector)
 		} else if strings.Contains(method, "agent.PingService") {
 			return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)
+		} else if strings.Contains(method, "grpc.health.v1.Health") {
+			return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)
 		}
 	case "http":
 		if strings.Contains(method, "agent") {
