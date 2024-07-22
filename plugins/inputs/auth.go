@@ -138,6 +138,7 @@ func (auth *LogAuthService) IsKeyValid(key string) bool {
 	if !f {
 		return false
 	}
+
 	switch t {
 	case "Agent":
 		for _, a := range auth.AgentKeyCache {
