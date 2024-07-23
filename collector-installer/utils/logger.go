@@ -29,27 +29,23 @@ func InitBeautyLogger(name, filepath string) {
 }
 
 func (b *BeautyLogger) WriteError(format string, args ...any) {
-	msg := fmt.Sprintf("%s: %s: %s\n", b.name, aurora.Red("error").String(), format)
-	fmt.Printf(msg, args...)
-	b.fileLogger.ErrorF(msg, args...)
+	fmt.Printf(fmt.Sprintf("%s: %s: %s\n", b.name, aurora.Red("error").String(), format), args...)
+	b.fileLogger.ErrorF(fmt.Sprintf("%s: %s", b.name, format), args...)
 }
 
 func (b *BeautyLogger) WriteFatal(format string, args ...any) {
-	msg := fmt.Sprintf("%s: %s: %s\n", b.name, aurora.Red("error").String(), format)
-	fmt.Printf(msg, args...)
-	b.fileLogger.Fatal(msg, args...)
+	fmt.Printf(fmt.Sprintf("%s: %s: %s\n", b.name, aurora.Red("error").String(), format), args...)
+	b.fileLogger.Fatal(fmt.Sprintf("%s: %s", b.name, format), args...)
 }
 
 func (b *BeautyLogger) WriteSimpleMessage(format string, args ...any) {
-	msg := fmt.Sprintf("%s: %s\n", b.name, format)
-	fmt.Printf(msg, args...)
-	b.fileLogger.Info(msg, args...)
+	fmt.Printf(fmt.Sprintf("%s: %s\n", b.name, format), args...)
+	b.fileLogger.Info(fmt.Sprintf("%s: %s", b.name, format), args...)
 }
 
 func (b *BeautyLogger) WriteSuccessfull(format string, args ...any) {
-	msg := fmt.Sprintf("%s: %s: %s\n", b.name, aurora.Green("success").String(), format)
-	fmt.Printf(msg, args...)
-	b.fileLogger.Info(msg, args...)
+	fmt.Printf(fmt.Sprintf("%s: %s: %s\n", b.name, aurora.Green("success").String(), format), args...)
+	b.fileLogger.Info(fmt.Sprintf("%s: %s", b.name, format), args...)
 }
 
 func (b *BeautyLogger) PrintBanner() {

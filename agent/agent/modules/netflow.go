@@ -69,12 +69,6 @@ func (m *NetflowModule) EnablePort(proto string) {
 		buffer := make([]byte, 2048)
 
 		go func() {
-			defer func() {
-				err = m.Listener.Close()
-				if err != nil {
-					utils.Logger.ErrorF("error closing udp listener: %v", err)
-				}
-			}()
 			for {
 				select {
 				case <-m.CTX.Done():

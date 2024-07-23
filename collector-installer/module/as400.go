@@ -53,8 +53,6 @@ func (a *AS400) Run() error {
 }
 
 func (a *AS400) Install(ip, utmKey, skip string) error {
-	currentPath := utils.GetMyPath()
-
 	utils.Logger.WriteSimpleMessage("Downloading UTMStack dependencies...")
 	err := a.downloadDependencies(ip, utmKey, skip == "yes")
 	if err != nil {
@@ -70,12 +68,12 @@ func (a *AS400) Install(ip, utmKey, skip string) error {
 	}
 
 	result, errB := utils.ExecuteWithResult(
-		getJavaCommand(), "", "-jar", filepath.Join(currentPath, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400)), "-option=INSTALL",
+		getJavaCommand(), "", "-jar", config.GetDownloadFilePath(config.DependServiceLabel, config.AS400), "-option=INSTALL",
 		fmt.Sprintf("-collector-manager-host=%s", ip), fmt.Sprintf("-collector-manager-port=%s", config.AgentManagerPort),
 		fmt.Sprintf("-logs-port=%s", config.LogAuthProxyPort), fmt.Sprintf("-connection-key=%s", utmKey),
 	)
 	if errB {
-		return fmt.Errorf("error executing install command: %v", err)
+		return fmt.Errorf("error executing install command: %s", result)
 	}
 
 	err = utils.CheckErrorsInOutput(result)
@@ -93,10 +91,8 @@ func (a *AS400) Install(ip, utmKey, skip string) error {
 }
 
 func (a *AS400) Uninstall() error {
-	currentPath := utils.GetMyPath()
-
 	result, errB := utils.ExecuteWithResult(
-		getJavaCommand(), "", "-jar", filepath.Join(currentPath, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400)), "-option=UNINSTALL",
+		getJavaCommand(), "", "-jar", config.GetDownloadFilePath(config.DependServiceLabel, config.AS400), "-option=UNINSTALL",
 	)
 	if errB {
 		return fmt.Errorf("error executing uninstall command: %v", result)
@@ -176,7 +172,7 @@ func getJavaCommand() string {
 	javaCommand := ""
 	switch runtime.GOOS {
 	case "windows":
-		javaCommand = filepath.Join(currentPath, "dependencies", As400JavaVersion, "bin", "java.exe")
+		javaCommand = filepath.Join(currentPath, As400JavaVersion, "bin", "java.exe")
 	case "linux":
 		javaCommand = "java"
 	}
