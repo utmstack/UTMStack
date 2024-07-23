@@ -1,22 +1,26 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ResizeEvent} from 'angular-resizable-element';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {Observable, Subject} from 'rxjs';
 import {filter, map, takeUntil, tap} from 'rxjs/operators';
 import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
+import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
+import {
+  ModalConfirmationComponent
+} from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
-import {UtmFieldType} from '../../../../shared/types/table/utm-field.type';
 import {RULE_FIELDS} from '../../../models/rule.constant';
 import {Asset, Rule} from '../../../models/rule.model';
 import {FilterService} from '../../../services/filter.service';
 import {RuleService} from '../../../services/rule.service';
 import {itemsPerPage} from '../../../services/rules.resolver.service';
+import {Actions} from "../../../app-correlation-management/models/config.type";
+import {ConfigService} from "../../../app-correlation-management/services/config.service";
+import {AddRuleComponent} from "../add-rule/add-rule.component";
 import {
-  ModalConfirmationComponent
-} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {UtmToastService} from "../../../../shared/alert/utm-toast.service";
+  AddAssetComponent
+} from "../../../app-correlation-management/components/assets/components/components/add-asset.component";
 
 
 @Component({
@@ -54,7 +58,8 @@ export class RuleListComponent implements OnInit, OnDestroy {
               private filterService: FilterService,
               private ruleService: RuleService,
               private modalService: NgbModal,
-              private utmToast: UtmToastService) { }
+              private utmToast: UtmToastService,
+              private configService: ConfigService) { }
 
   ngOnInit() {
     this.request = {
@@ -92,6 +97,18 @@ export class RuleListComponent implements OnInit, OnDestroy {
               this.loadRules();
             })
         ).subscribe();
+
+    this.configService.action$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(action => action === Actions.CREATE_RULE)
+      )
+      .subscribe(() => this.addRule());
+  }
+
+  addRule(){
+    const modalRef = this.modalService.open(AddRuleComponent, {size: 'lg', centered: true});
+    this.handleResponse(modalRef);
   }
 
   loadRules() {
@@ -229,8 +246,18 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   editRule(rule: Rule) {
-    const {id} = rule;
-    this.router.navigate(['alerting-rules/rule', id]);
+    const modal = this.modalService.open(AddRuleComponent, {size: 'lg', centered: true});
+    modal.componentInstance.rule = rule;
+
+    this.handleResponse(modal);
+  }
+
+  handleResponse(modal: NgbModalRef) {
+    modal.result.then((result: boolean) => {
+      if (result) {
+        this.loadRules();
+      }
+    });
   }
 
   ngOnDestroy(): void {

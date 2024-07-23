@@ -37,7 +37,7 @@ export class GuideWinlogbeatComponent implements OnInit {
     return `New-Item -ItemType Directory -Force -Path "C:\\Program Files\\UTMStack\\UTMStack Agent"; ` +
       `& curl.exe -k -L -H "connection-key: <secret>${this.token}</secret>" ` +
       `-o "C:\\Program Files\\UTMStack\\UTMStack Agent\\response.json" ` +
-      `"http://${ip}/dependencies/agent?version=0&os=windows&type=installer"; ` +
+      `"http://${ip}/dependencies/agent?version=0&os=windows&type=installer&partIndex=1&partSize=20"; ` +
       `$response = Get-Content -Raw -Path "C:\\Program Files\\UTMStack\\UTMStack Agent\\response.json" | ConvertFrom-Json; ` +
       `$fileContent = [System.Convert]::FromBase64String($response.fileContent); ` +
       `[System.IO.File]::WriteAllBytes("C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_installer.exe", $fileContent); ` +

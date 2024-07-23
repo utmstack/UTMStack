@@ -91,10 +91,6 @@ export class AssetsComponent implements OnInit, OnDestroy {
     this.handleResponse(modal);
   }
 
-  onResize($event: ResizeEvent) {
-
-  }
-
   loadPage($event: number) {
     if (this.isInitialized) {
       this.isInitialized = false;
