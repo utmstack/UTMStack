@@ -29,7 +29,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		CheckGRPCHealth(conn)
+		CheckGRPCHealth(conn, ctx)
 
 		client := NewAgentServiceClient(conn)
 		stream, err := client.AgentStream(ctx)
@@ -46,11 +46,11 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 
 		for {
 			in, err := stream.Recv()
-			if strings.Contains(err.Error(), "EOF") {
-				time.Sleep(timeToSleep)
-				break
-			}
 			if err != nil {
+				if strings.Contains(err.Error(), "EOF") {
+					time.Sleep(timeToSleep)
+					break
+				}
 				st, ok := status.FromError(err)
 				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
 					if !errorLogged {
@@ -72,11 +72,11 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
 				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
-				if strings.Contains(err.Error(), "EOF") {
-					time.Sleep(timeToSleep)
-					break
-				}
 				if err != nil {
+					if strings.Contains(err.Error(), "EOF") {
+						time.Sleep(timeToSleep)
+						break
+					}
 					st, ok := status.FromError(err)
 					if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
 						if !errorLogged {

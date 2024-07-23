@@ -10,20 +10,15 @@ import (
 )
 
 func (s *Grpc) Ping(stream PingService_PingServer) error {
-	authResponse, err := s.GetStreamAuth(stream)
-	if err != nil {
-		return err
-	}
-
 	for {
-		req, err := stream.Recv()
+		_, err := stream.Recv()
 		if err == io.EOF {
 			return nil
 		}
 		if err != nil {
-			return err
+			return status.Error(codes.Internal, err.Error())
 		}
-		key, err := s.cacheAuthenticate(&authResponse, req.Type)
+		key, err := s.authenticateStream(stream)
 		if err != nil || key == "" {
 			return status.Error(codes.Unauthenticated, "authorization key is not provided or is invalid")
 		}

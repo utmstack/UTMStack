@@ -40,17 +40,17 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 	err = collectorService.Create(collector)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to create collector: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create collector: %v", err))
 	}
 
-	s.cacheCollectorMutex.Lock()
-	CacheCollector[collector.ID] = key
-	s.cacheCollectorMutex.Unlock()
+	s.cacheCollectorKeyMutex.Lock()
+	CacheCollectorKey[collector.ID] = key
+	s.cacheCollectorKeyMutex.Unlock()
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
 		utils.ALogger.ErrorF("failed to set last seen: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to set last seen: %v", err))
 	}
 	res := &AuthResponse{
 		Id:  uint32(collector.ID),
@@ -67,11 +67,15 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 		return nil, status.Error(codes.Internal, "unable to get metadata from context")
 	}
 
-	keys, ok := md["key"]
-	if !ok || len(keys) == 0 {
+	tokens, ok := md["key"]
+	if !ok || len(tokens) == 0 {
 		return nil, status.Error(codes.Internal, "unable to get key from metadata")
 	}
-	key := keys[0]
+
+	key, _, err := convertTokenToKey(tokens[0])
+	if err != nil {
+		return &AuthResponse{}, status.Error(codes.PermissionDenied, err.Error())
+	}
 
 	id, err := collectorService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
@@ -79,9 +83,9 @@ func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*Auth
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
 	}
 
-	s.cacheCollectorMutex.Lock()
-	delete(CacheCollector, id)
-	s.cacheCollectorMutex.Unlock()
+	s.cacheCollectorKeyMutex.Lock()
+	delete(CacheCollectorKey, id)
+	s.cacheCollectorKeyMutex.Unlock()
 
 	s.collectorStreamMutex.Lock()
 	delete(s.CollectorStreamMap, key)
@@ -105,7 +109,7 @@ func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollec
 		utils.ALogger.ErrorF("failed to fetch collectors: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
-	return convertToCollectorResponse(collectors, total)
+	return convertToCollectorResponse(collectors, total), nil
 }
 
 func (s *Grpc) ProcessPendingConfigs() {
@@ -149,15 +153,15 @@ func (s *Grpc) ProcessPendingConfigs() {
 }
 
 func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) error {
-	collectorKey, err := s.authenticateConnector(stream, ConnectorType_COLLECTOR)
+	collectorKey, err := s.authenticateStream(stream)
 	if err != nil {
-		return err
+		return status.Error(codes.Unauthenticated, err.Error())
 	}
 
 	s.collectorStreamMutex.Lock()
 	if _, ok := s.CollectorStreamMap[collectorKey]; ok {
 		s.collectorStreamMutex.Unlock()
-		return fmt.Errorf("client %s is already connected", collectorKey)
+		return status.Error(codes.AlreadyExists, "client is already connected")
 	}
 	s.CollectorStreamMap[collectorKey] = stream
 	s.collectorStreamMutex.Unlock()
@@ -171,17 +175,16 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 				delete(s.CollectorStreamMap, collectorKey)
 				s.collectorStreamMutex.Unlock()
 
-				utils.ALogger.ErrorF("failed to reconnect to client: %v", err)
-				return fmt.Errorf("failed to reconnect to client: %v", err)
+				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect to client: %v", err))
 			}
 
-			collectorKey, err = s.authenticateConnector(stream, ConnectorType_COLLECTOR)
+			collectorKey, err = s.authenticateStream(stream)
 			if err != nil {
 				s.collectorStreamMutex.Lock()
 				delete(s.CollectorStreamMap, collectorKey)
 				s.collectorStreamMutex.Unlock()
 
-				return err
+				return status.Error(codes.Unauthenticated, fmt.Sprintf("failed to authenticate stream: %v", err))
 			}
 
 			continue
@@ -190,7 +193,7 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			s.collectorStreamMutex.Lock()
 			delete(s.CollectorStreamMap, collectorKey)
 			s.collectorStreamMutex.Unlock()
-			return err
+			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message from client: %v", err))
 		}
 
 		switch msg := in.StreamMessage.(type) {
@@ -215,11 +218,15 @@ func (s *Grpc) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*Coll
 		return nil, status.Error(codes.Internal, "unable to get metadata from context")
 	}
 
-	keys, ok := md["key"]
-	if !ok || len(keys) == 0 {
+	tokens, ok := md["key"]
+	if !ok || len(tokens) == 0 {
 		return nil, status.Error(codes.Internal, "unable to get key from metadata")
 	}
-	key := keys[0]
+
+	key, _, err := convertTokenToKey(tokens[0])
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
 
 	collector, err := collectorService.GetByKey(key)
 	if err != nil {
@@ -287,22 +294,22 @@ func (s *Grpc) GetCollectorsByHostnameAndModule(ctx context.Context, filter *Fil
 		return nil, status.Errorf(codes.NotFound, "unable to get hostname: %v", err)
 	}
 
-	return convertToCollectorResponse(collectors, int64(len(collectors)))
+	return convertToCollectorResponse(collectors, int64(len(collectors))), nil
 }
 
 func (s *Grpc) LoadCollectorsCacheFromDatabase() error {
 	collectors, err := collectorService.FindAll()
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch collectors from database: %v", err)
-		return err
+		return status.Error(codes.Internal, fmt.Sprintf("failed to fetch collectors from database: %v", err))
 	}
 	for _, colect := range collectors {
-		CacheCollector[colect.ID] = colect.CollectorKey
+		CacheCollectorKey[colect.ID] = colect.CollectorKey
 	}
 	return nil
 }
 
-func convertToCollectorResponse(collectors []models.Collector, total int64) (*ListCollectorResponse, error) {
+func convertToCollectorResponse(collectors []models.Collector, total int64) *ListCollectorResponse {
 	var collectorMessages []*Collector
 	for _, collector := range collectors {
 		collectorProto := modelToProtoCollector(collector)
@@ -311,7 +318,7 @@ func convertToCollectorResponse(collectors []models.Collector, total int64) (*Li
 	return &ListCollectorResponse{
 		Rows:  collectorMessages,
 		Total: int32(total),
-	}, nil
+	}
 }
 
 func convertToCollectorConfig(collectorConfig *models.Collector) *CollectorConfig {

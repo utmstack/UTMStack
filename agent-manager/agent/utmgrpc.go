@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent-manager/service"
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -19,8 +22,8 @@ var (
 	//agentModuleService  = service.NewAgentModuleService()
 	agentGroupService = service.NewAgentGroupService()
 	collectorService  = service.NewCollectorService(lastSeenService)
-	CacheAgent        map[uint]string
-	CacheCollector    map[uint]string
+	CacheAgentKey     map[uint]string
+	CacheCollectorKey map[uint]string
 )
 
 type Grpc struct {
@@ -33,16 +36,14 @@ type Grpc struct {
 	UnimplementedCollectorServiceServer
 	UnimplementedPanelCollectorServiceServer
 	UnimplementedPingServiceServer
-	// Mutex to protect concurrent access to the agents map
+
 	agentStreamMutex     sync.Mutex
 	collectorStreamMutex sync.Mutex
+	AgentStreamMap       map[string]AgentService_AgentStreamServer
+	CollectorStreamMap   map[string]CollectorService_CollectorStreamServer
 
-	// Map to store connected agents and their gRPC streams
-	AgentStreamMap     map[string]AgentService_AgentStreamServer
-	CollectorStreamMap map[string]CollectorService_CollectorStreamServer
-	// AgentCache to store agentToken  and agentId
-	cacheAgentMutex     sync.Mutex
-	cacheCollectorMutex sync.Mutex
+	cacheAgentKeyMutex     sync.Mutex
+	cacheCollectorKeyMutex sync.Mutex
 
 	ResultChannel  map[string]chan *CommandResult
 	resultChannelM sync.Mutex
@@ -60,8 +61,8 @@ func InitGrpc() (*Grpc, error) {
 		ResultChannel:      make(map[string]chan *CommandResult),
 		PendingConfigs:     make(map[string]string),
 	}
-	CacheAgent = make(map[uint]string)
-	CacheCollector = make(map[uint]string)
+	CacheAgentKey = make(map[uint]string)
+	CacheCollectorKey = make(map[uint]string)
 	err := gRPC.LoadAgentCacheFromDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load agent cache from database: %v", err)
@@ -73,61 +74,39 @@ func InitGrpc() (*Grpc, error) {
 	return gRPC, err
 }
 
-func (s *Grpc) authenticateConnector(stream interface{}, connectorType ConnectorType) (string, error) {
+func (s *Grpc) authenticateStream(stream interface{}) (string, error) {
 	authResponse, err := s.GetStreamAuth(stream)
 	if err != nil {
-		return "", err
+		return "", status.Error(codes.Unauthenticated, fmt.Sprintf("failed to get stream auth: %v", err))
 	}
 
-	return s.cacheAuthenticate(&authResponse, connectorType)
-}
-
-func (s *Grpc) cacheAuthenticate(authResponse *AuthResponse, connectorType ConnectorType) (string, error) {
-	key := authResponse.Key
 	id := uint(authResponse.Id)
-	mutex := s.getAuthCacheMutex(connectorType)
-	cache := s.getAuthCache(connectorType)
-
-	mutex.Lock()
-	cachedToken, ok := cache[id]
-	mutex.Unlock()
-
-	if !ok || cachedToken != key {
-		return "", fmt.Errorf("invalid key: %s", key)
+	key, typ, err := convertTokenToKey(authResponse.Key)
+	if err != nil {
+		return "", status.Error(codes.Unauthenticated, fmt.Sprintf("failed to convert token to key: %v", err))
 	}
 
-	return key, nil
-}
+	var cacheKey string
+	var ok bool
 
-func findAgentIdByKey(cache map[uint]string, key string) uint {
-	for id, val := range cache {
-		if val == key {
-			return id
-		}
-	}
-	return 0 // key not found
-}
-
-func (s *Grpc) getAuthCacheMutex(connectorType ConnectorType) *sync.Mutex {
-	switch connectorType {
-	case ConnectorType_COLLECTOR:
-		return &s.cacheCollectorMutex
-	case ConnectorType_AGENT:
-		return &s.cacheAgentMutex
+	switch typ {
+	case "Agent":
+		s.cacheAgentKeyMutex.Lock()
+		cacheKey, ok = CacheAgentKey[id]
+		s.cacheAgentKeyMutex.Unlock()
+	case "Collector":
+		s.cacheCollectorKeyMutex.Lock()
+		cacheKey, ok = CacheCollectorKey[id]
+		s.cacheCollectorKeyMutex.Unlock()
 	default:
-		return &s.cacheAgentMutex // or &s.cacheMutex as a fallback
+		return "", status.Error(codes.Unauthenticated, "invalid key type")
 	}
-}
 
-func (s *Grpc) getAuthCache(connectorType ConnectorType) map[uint]string {
-	switch connectorType {
-	case ConnectorType_COLLECTOR:
-		return CacheCollector
-	case ConnectorType_AGENT:
-		return CacheAgent
-	default:
-		return CacheAgent // or &s.cacheMutex as a fallback
+	if !ok || cacheKey != key {
+		return "", status.Error(codes.Unauthenticated, "invalid key here")
 	}
+
+	return cacheKey, nil
 }
 
 func (s *Grpc) InitPingSync() {
@@ -174,7 +153,6 @@ func (s *Grpc) GetStreamAuth(stream interface{}) (AuthResponse, error) {
 	}, nil
 }
 
-// Wait for the client to reconnect
 func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
 	var stream grpc.ServerStream
 	if connectorType == ConnectorType_COLLECTOR {
@@ -189,18 +167,61 @@ func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType C
 		case <-ctx.Done():
 			return fmt.Errorf("context canceled: %v", ctx.Err())
 		default:
-			// Check if the stream is still valid
 			err := stream.Context().Err()
 			if err == nil {
-				// StreamAgent is still valid, return nil
 				time.Sleep(time.Second)
 				return nil
 			} else {
-				// Stream is not valid, wait for a moment and try again
 				time.Sleep(time.Second)
 				attempts++
 			}
 		}
 	}
 	return fmt.Errorf("stream is not valid")
+}
+
+func findAgentIdByKey(cache map[uint]string, key string) uint {
+	for id, val := range cache {
+		if val == key {
+			return id
+		}
+	}
+	return 0
+}
+
+func ValidateKeyPairFromCache(token string, id uint) (string, string, bool) {
+	key, typ, err := convertTokenToKey(token)
+	if err != nil {
+		return "", "", false
+	}
+
+	switch typ {
+	case "Agent":
+		for agentId, agentKey := range CacheAgentKey {
+			if key == agentKey && id == agentId {
+				return agentKey, "Agent", true
+			}
+		}
+	case "Collector":
+		for collId, collKey := range CacheCollectorKey {
+			if key == collKey && id == collId {
+				return collKey, "Collector", true
+			}
+		}
+	}
+
+	return "", "", false
+
+}
+
+func convertTokenToKey(token string) (string, string, error) {
+	typ, key, found := strings.Cut(token, " ")
+	if !found {
+		return "", "", fmt.Errorf("invalid token type")
+	}
+	if typ == "Agent" || typ == "Collector" {
+		return key, typ, nil
+	}
+
+	return "", "", fmt.Errorf("invalid token type")
 }

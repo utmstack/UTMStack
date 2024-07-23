@@ -65,7 +65,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		agent.CheckGRPCHealth(conn)
+		agent.CheckGRPCHealth(conn, ctx)
 
 		client := plugins.NewIntegrationClient(conn)
 		plClient := createClient(client, ctx)
@@ -83,12 +83,12 @@ func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_Proce
 			return
 		default:
 			ack, err := plClient.Recv()
-			if strings.Contains(err.Error(), "EOF") {
-				time.Sleep(timeToSleep)
-				cancel()
-				return
-			}
 			if err != nil {
+				if strings.Contains(err.Error(), "EOF") {
+					time.Sleep(timeToSleep)
+					cancel()
+					return
+				}
 				st, ok := status.FromError(err)
 				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
 					if !l.ackErrWritten {
@@ -141,12 +141,12 @@ func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient
 			l.db.Unlock()
 
 			err = plClient.Send(newLog)
-			if strings.Contains(err.Error(), "EOF") {
-				time.Sleep(timeToSleep)
-				cancel()
-				return
-			}
 			if err != nil {
+				if strings.Contains(err.Error(), "EOF") {
+					time.Sleep(timeToSleep)
+					cancel()
+					return
+				}
 				st, ok := status.FromError(err)
 				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
 					if !l.sendErrWritten {

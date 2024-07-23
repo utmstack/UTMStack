@@ -9,14 +9,11 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
-func CheckGRPCHealth(conn *grpc.ClientConn) {
+func CheckGRPCHealth(conn *grpc.ClientConn, ctx context.Context) {
 	healthClient := grpc_health_v1.NewHealthClient(conn)
 
 	for {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		resp, err := healthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
-		cancel()
-
 		if err != nil {
 			time.Sleep(5 * time.Second)
 			continue

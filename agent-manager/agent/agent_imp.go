@@ -48,17 +48,17 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 	err = agentService.Create(agent)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to create agent: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create agent: %v", err))
 	}
 
-	s.cacheAgentMutex.Lock()
-	CacheAgent[agent.ID] = key
-	s.cacheAgentMutex.Unlock()
+	s.cacheAgentKeyMutex.Lock()
+	CacheAgentKey[agent.ID] = key
+	s.cacheAgentKeyMutex.Unlock()
 
 	err = lastSeenService.Set(key, time.Now())
 	if err != nil {
 		utils.ALogger.ErrorF("failed to set last seen: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to set last seen: %v", err))
 	}
 	res := &AuthResponse{
 		Id:  uint32(agent.ID),
@@ -75,11 +75,15 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 		return &AuthResponse{}, status.Error(codes.Internal, "unable to get metadata from context")
 	}
 
-	keys, ok := md["key"]
-	if !ok || len(keys) == 0 {
+	tokens, ok := md["key"]
+	if !ok || len(tokens) == 0 {
 		return &AuthResponse{}, status.Error(codes.Internal, "unable to get agent key from metadata")
 	}
-	key := keys[0]
+
+	key, _, err := convertTokenToKey(tokens[0])
+	if err != nil {
+		return &AuthResponse{}, status.Error(codes.PermissionDenied, err.Error())
+	}
 
 	id, err := agentService.Delete(uuid.MustParse(key), req.DeletedBy)
 	if err != nil {
@@ -87,9 +91,9 @@ func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
-	s.cacheAgentMutex.Lock()
-	delete(CacheAgent, id)
-	s.cacheAgentMutex.Unlock()
+	s.cacheAgentKeyMutex.Lock()
+	delete(CacheAgentKey, id)
+	s.cacheAgentKeyMutex.Unlock()
 
 	s.agentStreamMutex.Lock()
 	delete(s.AgentStreamMap, key)
@@ -113,13 +117,13 @@ func (s *Grpc) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsRes
 		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
-	return convertToAgentResponse(agents, total)
+	return convertToAgentResponse(agents, total), nil
 }
 
 func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
-	agentKey, err := s.authenticateConnector(stream, ConnectorType_AGENT)
+	agentKey, err := s.authenticateStream(stream)
 	if err != nil {
-		return err
+		return status.Error(codes.PermissionDenied, err.Error())
 	}
 
 	s.agentStreamMutex.Lock()
@@ -139,11 +143,10 @@ func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
 				delete(s.AgentStreamMap, agentKey)
 				s.agentStreamMutex.Unlock()
 
-				utils.ALogger.ErrorF("failed to reconnect to client: %v", err)
 				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
 
-			agentKey, err = s.authenticateConnector(stream, ConnectorType_AGENT)
+			agentKey, err = s.authenticateStream(stream)
 			if err != nil {
 				s.agentStreamMutex.Lock()
 				delete(s.AgentStreamMap, agentKey)
@@ -301,8 +304,8 @@ func (s *Grpc) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, e
 	}
 	agent, err := agentService.FindByHostname(req.Hostname)
 	if err != nil {
-		utils.ALogger.ErrorF("unable to find agent with hostname: %v", err)
-		return nil, status.Errorf(codes.NotFound, "unable to find agent with hostname: %v", err)
+		utils.ALogger.ErrorF("unable to find agent with hostname: %s: %v", req.Hostname, err)
+		return nil, status.Errorf(codes.NotFound, "unable to find agent with hostname: %s: %v", req.Hostname, err)
 	}
 	return parseAgentToProto(*agent), nil
 }
@@ -326,7 +329,7 @@ func (s *Grpc) LoadAgentCacheFromDatabase() error {
 		return err
 	}
 	for _, agent := range agents {
-		CacheAgent[agent.ID] = agent.AgentKey
+		CacheAgentKey[agent.ID] = agent.AgentKey
 	}
 	return nil
 }
@@ -342,26 +345,24 @@ func (s *Grpc) ListAgentsWithCommands(ctx context.Context, req *ListRequest) (*L
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
-	// Return the list of agents as a ListAgentsCommandsResponse
-	return convertToAgentResponse(agents, total)
+	return convertToAgentResponse(agents, total), nil
 }
 
-func convertToAgentResponse(agents []models.Agent, total int64) (*ListAgentsResponse, error) {
+func convertToAgentResponse(agents []models.Agent, total int64) *ListAgentsResponse {
 	var agentMessages []*Agent
 	for _, agent := range agents {
 		agentProto := parseAgentToProto(agent)
 		agentMessages = append(agentMessages, agentProto)
 	}
-	// Return the list of agents as a ListAgentsResponse
 	return &ListAgentsResponse{
 		Rows:  agentMessages,
 		Total: int32(total),
-	}, nil
+	}
 }
 
 func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 	cmdHistory := &models.AgentCommand{
-		AgentID:       findAgentIdByKey(CacheAgent, cmd.AgentKey),
+		AgentID:       findAgentIdByKey(CacheAgentKey, cmd.AgentKey),
 		Command:       cmd.Command,
 		CommandStatus: models.Pending,
 		Result:        "",
@@ -378,7 +379,7 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string) {
 }
 
 func updateHistoryCommand(cmdResult *CommandResult, cmdID string) {
-	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByKey(CacheAgent, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
+	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByKey(CacheAgentKey, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to update command status")
 	}

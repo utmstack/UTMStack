@@ -31,7 +31,7 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		CheckGRPCHealth(conn)
+		CheckGRPCHealth(conn, ctx)
 
 		client := NewPingServiceClient(conn)
 		stream, err := client.Ping(ctx)
@@ -51,11 +51,11 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 
 		for range ticker.C {
 			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
-			if strings.Contains(err.Error(), "EOF") {
-				time.Sleep(timeToSleep)
-				break
-			}
 			if err != nil {
+				if strings.Contains(err.Error(), "EOF") {
+					time.Sleep(timeToSleep)
+					break
+				}
 				st, ok := status.FromError(err)
 				if ok && (st.Code() == codes.Unavailable || st.Code() == codes.Canceled) {
 					if !errorLogged {

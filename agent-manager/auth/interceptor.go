@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/config"
-	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -30,7 +29,7 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "authentication is not provided"})
 			return
 		} else if connectionKey != "" {
-			isValid := validateToken(connectionKey)
+			isValid := isConnectionKeyValid(connectionKey)
 			if !isValid {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid connection key"})
 				return
@@ -42,8 +41,7 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 				return
 			}
 
-			err = checkKeyAuth(key, idInt, c.FullPath(), "http")
-			if err != nil {
+			if _, _, isValid := agent.ValidateKeyPairFromCache(key, uint(idInt)); !isValid {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 				return
 			}
@@ -106,7 +104,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 	}
 
 	if !isInRoute(fullMethod, routes) {
-		return status.Error(codes.Unauthenticated, fmt.Sprintf("route is not registered for authentication with %s auth type", authType))
+		return status.Error(codes.PermissionDenied, fmt.Sprintf("route is not registered for authentication with %s auth type", authType))
 	}
 
 	switch authType {
@@ -114,111 +112,34 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 		key := authKey[0]
 		id, err := strconv.ParseUint(authId[0], 10, 32)
 		if err != nil {
-			return status.Error(codes.Unauthenticated, "id is not valid")
+			return status.Error(codes.PermissionDenied, "id is not valid")
 		}
 
-		err = checkKeyAuth(key, id, fullMethod, "grpc")
-		if err != nil {
-			return err
+		if _, _, isValid := agent.ValidateKeyPairFromCache(key, uint(id)); !isValid {
+			return status.Error(codes.PermissionDenied, "invalid key")
 		}
 	case "connection-key":
-		if err := authenticateRequest(authConnectionKey[0], "connection-key"); err != nil {
-			return err
+		if !isConnectionKeyValid(authConnectionKey[0]) {
+			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	case "internal-key":
-		if err := authenticateRequest(authInternalKey[0], "internal-key"); err != nil {
-			return err
+		if !isInternalKeyValid(authInternalKey[0]) {
+			return status.Error(codes.PermissionDenied, "internal key does not match")
 		}
 	}
 	return nil
 }
 
-func checkKeyAuth(token string, id uint64, fullMethod string, proto string) error {
-	authCache := getAuthCache(fullMethod, proto)
-	if authCache == nil {
-		utils.ALogger.ErrorF("unable to resolve auth cache")
-		return status.Error(codes.Unauthenticated, "unable to resolve auth cache")
-	}
-
-	found := false
-	for _, auth := range authCache {
-		if auth.Id == uint(id) && auth.Key == token {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return status.Error(codes.Unauthenticated, "invalid token")
-	}
-
-	return nil
+func isInternalKeyValid(token string) bool {
+	internalKey := os.Getenv(config.UTMSharedKeyEnv)
+	return token == internalKey
 }
 
-type AuthResponse struct {
-	Id  uint
-	Key string
-}
-
-func getAuthCache(method string, proto string) []AuthResponse {
-	switch proto {
-	case "grpc":
-		if strings.Contains(method, "agent.AgentService") {
-			return convertMapToAuthResponses(agent.CacheAgent)
-		} else if strings.Contains(method, "agent.CollectorService") {
-			return convertMapToAuthResponses(agent.CacheCollector)
-		} else if strings.Contains(method, "agent.PingService") {
-			return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)
-		} else if strings.Contains(method, "grpc.health.v1.Health") {
-			return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)
-		}
-	case "http":
-		if strings.Contains(method, "agent") {
-			return convertMapToAuthResponses(agent.CacheAgent)
-		} else if strings.Contains(method, "collector") {
-			return convertMapToAuthResponses(agent.CacheCollector)
-		}
-	}
-	return nil
-}
-
-func convertMapToAuthResponses(m map[uint]string) []AuthResponse {
-	responses := []AuthResponse{}
-	for id, key := range m {
-		responses = append(responses, AuthResponse{
-			Id:  id,
-			Key: key,
-		})
-	}
-
-	return responses
-}
-
-func authenticateRequest(authValue, authName string) error {
-	if authName == "connection-key" && authValue != "" {
-		if !validateToken(authValue) {
-			utils.ALogger.ErrorF("authentication failed or unable to connect with the panel")
-			return status.Error(codes.Unauthenticated, "authentication failed or unable to connect with the panel")
-		}
-	} else if authName == "internal-key" && authValue != "" {
-		internalKey := os.Getenv(config.UTMSharedKeyEnv)
-		if authValue != internalKey {
-			utils.ALogger.ErrorF("internal key does not match")
-			return status.Error(codes.Unauthenticated, "internal key does not match")
-		}
-	} else {
-		return status.Error(codes.Unauthenticated, "invalid auth name")
-	}
-
-	return nil
-}
-
-func validateToken(token string) bool {
+func isConnectionKeyValid(token string) bool {
 	url := fmt.Sprintf(config.PanelConnectionKeyUrl, os.Getenv(config.UTMHostEnv))
 	requestBody := strings.NewReader(token)
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
-	// Use the custom transport
 	client := &http.Client{Transport: transport}
 	resp, err := client.Post(url, "application/json", requestBody)
 	if err != nil || resp.StatusCode != http.StatusOK {
