@@ -84,7 +84,7 @@
         </tbody>
       </table>
     </div>
-    <div class="mb-3 mt-3">
+    <div *ngIf="rules.length > 0" class="mb-3 mt-3">
         <div class="row justify-content-center">
             <ngb-pagination (pageChange)="loadPage($event)"
                             [(page)]="page"

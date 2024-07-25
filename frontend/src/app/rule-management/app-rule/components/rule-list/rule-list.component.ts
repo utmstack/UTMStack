@@ -20,7 +20,7 @@ import {ConfigService} from "../../../app-correlation-management/services/config
 import {AddRuleComponent} from "../add-rule/add-rule.component";
 import {
   AddAssetComponent
-} from "../../../app-correlation-management/components/assets/components/components/add-asset.component";
+} from "../../../app-correlation-management/components/assets/components/components/add-asset/add-asset.component";
 
 
 @Component({
