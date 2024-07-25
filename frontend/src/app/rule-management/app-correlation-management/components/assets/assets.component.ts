@@ -16,7 +16,8 @@ import {Asset, itemsPerPage} from '../../../models/rule.model';
 import {Actions} from '../../models/config.type';
 import {AssetManagerService} from '../../services/asset-manager.service';
 import {ConfigService} from '../../services/config.service';
-import {AddAssetComponent} from './components/components/add-asset.component';
+import {AddAssetComponent} from './components/components/add-asset/add-asset.component';
+import {IncidentSeverityEnum} from '../../../../shared/enums/incident/incident-severity.enum';
 
 @Component({
   selector: 'app-assets',
@@ -45,6 +46,8 @@ export class AssetsComponent implements OnInit, OnDestroy {
   isInitialized = false;
   request: any;
   destroy$: Subject<void> = new Subject<void>();
+  viewDetail = false;
+  asset: Asset;
 
   constructor(private route: ActivatedRoute,
               private assetManagerService: AssetManagerService,
@@ -212,6 +215,19 @@ export class AssetsComponent implements OnInit, OnDestroy {
     this.assets = response.body;
     this.totalItems = parseInt(response.headers.get('X-Total-Count') || '0', 10);
     this.isInitialized = true;
+  }
+
+  getSeverity(value: any): IncidentSeverityEnum {
+    switch (value) {
+      case 1: return IncidentSeverityEnum.LOW;
+      case 2: return IncidentSeverityEnum.MEDIUM;
+      case 3: return IncidentSeverityEnum.HIGH;
+    }
+  }
+
+  onViewDetail($event: Asset){
+    this.viewDetail = true;
+    this.asset = $event;
   }
 
   ngOnDestroy(): void {
