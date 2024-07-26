@@ -36,6 +36,7 @@ public class UtmLogstashFilterService {
     public UtmLogstashFilter save(UtmLogstashFilter logstashFilter) {
         final String ctx = CLASSNAME + ".save";
         try {
+            logstashFilter.setSystemOwner(false);
             return logstashFilterRepository.save(logstashFilter);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
