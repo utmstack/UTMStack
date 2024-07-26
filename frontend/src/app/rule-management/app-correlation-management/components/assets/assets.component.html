@@ -34,7 +34,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr (click)="onViewDetail(asset)" *ngFor="let asset of assets$ | async; trackBy: trackByFn" class="cursor-pointer">
+      <tr *ngFor="let asset of assets$ | async; trackBy: trackByFn" class="cursor-pointer">
 
         <td class="pl-4">
           {{ asset.assetName }}
@@ -54,6 +54,11 @@
 
         <td class="td-action pr-4">
           <div class="d-flex justify-content-end align-items-center medium-icon">
+
+            <i (click)="onViewDetail(asset)" class="icon-eye8 cursor-pointer ml-2"
+               ngbTooltip="Detail"
+               container="body"
+               placement="left"></i>
 
             <i (click)="editAsset(asset)" class="icon-pencil3 cursor-pointer ml-2"
                ngbTooltip="Edit"

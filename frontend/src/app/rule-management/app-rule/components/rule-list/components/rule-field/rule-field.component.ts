@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import { Rule } from 'src/app/rule-management/models/rule.model';
+import {Rule} from 'src/app/rule-management/models/rule.model';
 import {IncidentSeverityEnum} from '../../../../../../shared/enums/incident/incident-severity.enum';
 import {UtmFieldType} from '../../../../../../shared/types/table/utm-field.type';
 import {
@@ -31,6 +31,8 @@ export class RuleFieldComponent {
       case 1: return IncidentSeverityEnum.LOW;
       case 2: return IncidentSeverityEnum.MEDIUM;
       case 3: return IncidentSeverityEnum.HIGH;
+
+      default: return IncidentSeverityEnum.UNIMPORTANT;
     }
   }
 
