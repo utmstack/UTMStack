@@ -74,10 +74,10 @@
           <legend>
             <label>References:</label>
             <span class="span-small-icon ml-2">
-                                            <i (click)="addReference()" class="icon-plus2 mr-1 cursor-pointer"
-                                               ngbTooltip="Add reference">
-                                            </i>
-                                    </span>
+              <i (click)="addReference()" class="icon-plus2 mr-1 cursor-pointer"
+                 ngbTooltip="Add reference">
+              </i>
+            </span>
           </legend>
           <div *ngFor="let reference of references.controls; let i = index"
                class="form-group">
@@ -95,13 +95,17 @@
                   <i class="icon-trash text-white"></i>
                 </button>
               </div>
-              <div *ngIf="reference.invalid && reference.touched"
+              <div *ngIf="reference.errors?.required && reference.touched"
                    class="invalid-feedback">
                 Reference is required.
               </div>
+              <div *ngIf="reference.errors?.invalidUrl && reference.touched"
+                   class="invalid-feedback">
+                Reference must be a valid URL.
+              </div>
             </div>
           </div>
-          <div *ngIf="references.invalid && references.touched"
+          <div *ngIf="references.errors?.required && references.touched"
                class="invalid-feedback d-block">
             At least one reference is required.
           </div>
@@ -235,7 +239,7 @@
                   </div>
                   <div class="col-3">
                     <div class="form-group">
-                      <label>Alias</label>
+                      <label>Alias:</label>
                       <input [ngClass]="{'is-invalid': variable.get('as').invalid && variable.get('as').touched}"
                              class="form-control mr-2"
                              formControlName="as"
@@ -248,7 +252,7 @@
                   </div>
                   <div class="col-3">
                     <div class="form-group-select">
-                      <label>Type</label>
+                      <label>Type:</label>
                       <ng-select
                         [ngClass]="{'is-invalid': variable.get('of_type').invalid && variable.get('of_type').touched}"
                         [items]="variablesDataType"
