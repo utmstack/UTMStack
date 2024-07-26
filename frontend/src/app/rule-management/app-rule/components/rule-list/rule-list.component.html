@@ -44,7 +44,7 @@
                 <i (click)="activeRule(rule)"
                    class="cursor-pointer ml-2"
                    [ngClass]="{'icon-blocked': rule.ruleActive, 'icon-check2': !rule.ruleActive}"
-                   ngbTooltip="{{ !rule.ruleActive ? 'Activar' : 'Desactivar' }}"
+                   ngbTooltip="{{ !rule.ruleActive ? 'Active' : 'Deactivate' }}"
                    container="body"
                    placement="left"></i>
 
