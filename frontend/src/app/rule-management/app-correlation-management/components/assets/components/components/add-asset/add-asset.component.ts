@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {UtmToastService} from '../../../../../../shared/alert/utm-toast.service';
-import {Asset, RegexPattern} from '../../../../../models/rule.model';
-import {AssetManagerService} from '../../../../services/asset-manager.service';
+import {UtmToastService} from '../../../../../../../shared/alert/utm-toast.service';
+import {Asset} from '../../../../../../models/rule.model';
+import {AssetManagerService} from '../../../../../services/asset-manager.service';
 
 @Component({
   selector: 'app-add-asset',
@@ -97,7 +97,7 @@ export class AddAssetComponent implements OnInit {
   onSubmit() {
     if (this.assetForm.valid) {
       this.loading = true;
-      const formPattern: RegexPattern = this.assetForm.value;
+      const formPattern: Asset = this.assetForm.value;
       const patternToSave = this.mode === 'ADD' ? formPattern : {
         ...this.asset,
         ...formPattern

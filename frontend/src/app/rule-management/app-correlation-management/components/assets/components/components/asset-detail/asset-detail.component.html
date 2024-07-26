@@ -1,0 +1,47 @@
+<div class="p-3">
+    <div class="w-100 mt-2">
+        <span class="font-weight-semibold">Name:</span>
+        <span [innerHTML]="asset.assetName" class="font-weight-light ml-4">
+        </span>
+    </div>
+
+    <div *ngIf="asset.assetHostnameList.length > 0" class="mt-2 d-flex justify-content-start align-items-center flex-wrap">
+        <span class="font-weight-semibold">{{asset.assetHostnameList.length > 1 ? 'Hostnames' : 'Hostname'}}:</span>
+        <div *ngFor="let host of asset.assetHostnameList">
+            <span [ngbTooltip]="host"
+                   placement="auto"
+                   container="body"
+                   class="badge border-blue-800 border-1 ml-2 mr-1 mb-1 p-1 text-blue-800">
+                        {{host}}
+             </span>
+        </div>
+    </div>
+
+  <div *ngIf="asset.assetHostnameList.length > 0" class="mt-2 d-flex justify-content-start align-items-center flex-wrap">
+    <span class="font-weight-semibold">{{asset.assetIpList.length > 1 ? 'Ips' : 'Ip'}}:</span>
+    <div *ngFor="let ip of asset.assetIpList">
+            <span [ngbTooltip]="ip"
+                  placement="auto"
+                  container="body"
+                  class="badge border-blue-800 border-1 ml-2 mr-1 mb-1 p-1 text-blue-800">
+                        {{ip}}
+             </span>
+    </div>
+  </div>
+
+  <div class="w-100 mt-2">
+    <span class="font-weight-semibold">Confidentiality:</span>
+    <app-incident-severity class="ml-3" [severity]="getSeverity(asset.assetConfidentiality)"></app-incident-severity>
+  </div>
+
+  <div class="w-100 mt-2">
+    <span class="font-weight-semibold">Integrity:</span>
+    <app-incident-severity class="ml-4" [severity]="getSeverity(asset.assetIntegrity)"></app-incident-severity>
+  </div>
+
+  <div class="w-100 mt-2">
+    <span class="font-weight-semibold">Availability:</span>
+    <app-incident-severity class="ml-4" [severity]="getSeverity(asset.assetAvailability)"></app-incident-severity>
+  </div>
+
+</div>

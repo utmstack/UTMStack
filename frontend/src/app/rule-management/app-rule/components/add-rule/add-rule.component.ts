@@ -5,12 +5,15 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { Observable } from 'rxjs';
 import { filter, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
+import {FieldDataService} from '../../../../shared/services/elasticsearch/field-data.service';
+import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
+import {VariableDataType} from '../../../models/rule.constant';
 import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
-import {VariableDataType} from "../../../models/rule.constant";
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-const variableTemplate = {get: ['', Validators.required] , as: ['', Validators.required] , of_type: [null, Validators.required]};
+const variableTemplate = {get: [null, Validators.required] , as: ['', Validators.required] , of_type: [null, Validators.required]};
 
 @Component({
     selector: 'app-add-rule',
@@ -29,34 +32,37 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     isSubmitting = false;
     savedVariables = [];
     variablesDataType = VariableDataType;
+    fields$: Observable<ElasticSearchFieldInfoType[]>;
+    rule: Rule;
+    loading: false;
 
     constructor(private fb: FormBuilder,
                 private route: ActivatedRoute,
                 private dataTypeService: DataTypeService,
                 private ruleService: RuleService,
                 private router: Router,
-                private utmToastService: UtmToastService) {
+                private utmToastService: UtmToastService,
+                private fieldDataService: FieldDataService,
+                public activeModal: NgbActiveModal) {
         this.initializeForm();
     }
 
     ngOnInit() {
-        this.route.data
-            .pipe(
-                filter((data: {response: HttpResponse<Rule>}) => !!data.response),
-                map((data: {response: HttpResponse<Rule>}) => data.response.body),
-                tap((rule: Rule) => {
-                    this.mode = 'EDIT';
-                    this.daTypeRequest = {
-                        page: -1,
-                        size: 10
-                    };
-                    this.initializeForm(rule);
-                })
-            ).subscribe();
+      this.mode = this.rule ? 'EDIT' : 'ADD';
+      this.daTypeRequest = {
+        page: -1,
+        size: 10
+      };
+      this.initializeForm(this.rule);
 
-        this.types$ = this.dataTypeService.type$;
-        this.loadDataTypes();
+      this.types$ = this.dataTypeService.type$;
+      this.loadDataTypes();
+      this.fields$ = this.getFields('log-*');
     }
+
+  getFields(indexPattern: string) {
+    return this.fieldDataService.getFields(indexPattern);
+  }
 
     removeReference(index: number) {
         this.references.removeAt(index);
@@ -65,6 +71,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     onDataTypeChange(selectedDataTypes: DataType[]) {
         this.ruleForm.get('dataTypes').patchValue(selectedDataTypes);
     }
+
+  onFieldChange(selectField: string) {
+    this.variables.get('get').patchValue(selectField);
+  }
 
     get references() {
         return this.ruleForm.get('references') as FormArray;
@@ -105,9 +115,9 @@ export class AddRuleComponent implements OnInit, OnDestroy {
                         console.log('Rule saved successfully', response);
                         this.dataTypeService.resetTypes();
                         this.isSubmitting = false;
-                        this.router.navigate(['/alerting-rules/rules'])
-                            .then(() =>  this.utmToastService.showSuccessBottom(this.mode === 'ADD'
-                                ? 'Rule saved successfully' : 'Rule edited successfully'));
+                        this.utmToastService.showSuccessBottom(this.mode === 'ADD'
+                          ? 'Rule saved successfully' : 'Rule edited successfully');
+                        this.activeModal.close(true);
                     },
                     error: err => {
                         this.isSubmitting = false;
@@ -177,6 +187,9 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
     trackByFn(type: DataType) {
         return type.id;
+    }
+    trackByFnField(field: ElasticSearchFieldInfoType) {
+      return field.name;
     }
 
     saveVariable(index: number): void {

@@ -5,7 +5,9 @@ export const RULE_NAME_FIELD = 'name';
 export const RULE_DATA_TYPES = 'dataTypes';
 export const RULE_CATEGORY = 'category';
 export const RULE_TECHNIQUE = 'technique';
-export const RULE_REFERENCES = 'references';
+export const RULE_CONFIDENTIALITY = 'confidentiality';
+export const RULE_INTEGRITY = 'integrity';
+export const RULE_AVAILABILITY = 'availability';
 
 // FILTERS FIELDS
 
@@ -22,7 +24,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         field: RULE_NAME_FIELD,
         type: ElasticDataTypesEnum.STRING,
         visible: true,
-        filter: false
+        filter: false,
+        width: '15%'
     },
     {
         label: 'Types',
@@ -30,7 +33,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
         filter: true,
-        filterField: RULE_FILTER_DATA_TYPES
+        filterField: RULE_FILTER_DATA_TYPES,
+        width: '30%'
     },
     {
         label: 'Category',
@@ -38,7 +42,8 @@ export const RULE_FIELDS: UtmFieldType[] = [
         type: ElasticDataTypesEnum.OBJECT,
         visible: true,
         filter: true,
-        filterField: RULE_FILTER_CATEGORY
+        filterField: RULE_FILTER_CATEGORY,
+        width: '10%'
     },
     {
         label: 'Technique',
@@ -46,14 +51,32 @@ export const RULE_FIELDS: UtmFieldType[] = [
         type: ElasticDataTypesEnum.STRING,
         visible: true,
         filter: true,
-        filterField: RULE_FILTER_TECHNIQUE
+        filterField: RULE_FILTER_TECHNIQUE,
+        width: '10%'
     },
     {
-        label: 'References',
-        field: RULE_REFERENCES,
-        type: ElasticDataTypesEnum.OBJECT,
+        label: 'Confidentiality',
+        field: RULE_CONFIDENTIALITY,
+        type: ElasticDataTypesEnum.STRING,
         visible: true,
-        filter: false
+        filter: false,
+        width: '10%'
+    },
+    {
+      label: 'Integrity',
+      field: RULE_INTEGRITY,
+      type: ElasticDataTypesEnum.STRING,
+      visible: true,
+      filter: false,
+      width: '10%'
+    },
+    {
+      label: 'Availability',
+      field: RULE_AVAILABILITY,
+      type: ElasticDataTypesEnum.STRING,
+      visible: true,
+      filter: false,
+      width: '10%'
     },
 ];
 

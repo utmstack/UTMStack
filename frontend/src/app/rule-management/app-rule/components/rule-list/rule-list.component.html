@@ -8,10 +8,11 @@
       </div>
     </div>
     <div class="table-responsive resizable-table-responsive h-100">
-      <table class="table text-nowrap">
+      <table class="table">
         <thead>
         <tr>
           <th (sort)="onSortBy($event)"
+              [ngStyle]="{'width': item.width}"
               *ngFor="let item of fields; let i = index"
               [hidden]="!item.visible"
               [isSortable]="true"
@@ -21,7 +22,7 @@
               class="font-weight-semibold cursor-pointer">
                 {{item.label}}
           </th>
-          <th class="font-weight-semibold cursor-pointer" style="width: 20px">
+          <th class="font-weight-semibold" style="width: 5%">
             Action
           </th>
         </tr>
@@ -29,7 +30,7 @@
         <tbody>
           <tr *ngFor="let rule of rules$ | async; trackBy: trackByFn" class="cursor-pointer">
           <ng-container *ngFor="let field of fields">
-            <td
+            <td [ngStyle]="{'width': field.width}"
                 *ngIf="(field.visible)">
                   <app-rule-field
                     [rule] = "rule"
@@ -83,7 +84,7 @@
         </tbody>
       </table>
     </div>
-    <div class="mb-3 mt-3">
+    <div *ngIf="rules.length > 0" class="mb-3 mt-3">
         <div class="row justify-content-center">
             <ngb-pagination (pageChange)="loadPage($event)"
                             [(page)]="page"

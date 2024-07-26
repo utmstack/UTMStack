@@ -1,7 +1,19 @@
 <ng-container [ngSwitch]="column.field">
-    <span *ngSwitchDefault>
+    <span class="m-1" *ngSwitchDefault>
         {{ rule[column.field] }}
     </span>
+
+  <ng-container *ngSwitchCase="RULE_INTEGRITY">
+    <app-incident-severity [severity]="getSeverity(rule[column.field])"></app-incident-severity>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="RULE_CONFIDENTIALITY">
+    <app-incident-severity [severity]="getSeverity(rule[column.field])"></app-incident-severity>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="RULE_AVAILABILITY">
+    <app-incident-severity [severity]="getSeverity(rule[column.field])"></app-incident-severity>
+  </ng-container>
 
     <ng-container *ngSwitchCase="RULE_DATA_TYPES">
          <span  *ngFor="let type of rule[column.field]"
@@ -12,12 +24,12 @@
                     {{type.dataType}}
          </span>
     </ng-container>
-    <ng-container *ngSwitchCase="RULE_REFERENCES">
+    <!--<ng-container *ngSwitchCase="RULE_REFERENCES">
         <ul>
             <li *ngFor="let ref of rule[column.field]">
                 <span class="font-size-sm">{{ ref }}</span>
             </li>
         </ul>
-    </ng-container>
+    </ng-container>-->
 
 </ng-container>

@@ -20,10 +20,13 @@
           Name
         </th>
         <th class="font-weight-semibold cursor-pointer">
-          Hostnames
+          Confidentiality
         </th>
         <th class="font-weight-semibold cursor-pointer">
-          IP Addresses
+          Integrity
+        </th>
+        <th class="font-weight-semibold cursor-pointer">
+          Availability
         </th>
         <th class="font-weight-semibold cursor-pointer pr-4" style="width: 20px">
           Action
@@ -31,26 +34,22 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let asset of assets$ | async; trackBy: trackByFn" class="cursor-pointer">
+      <tr (click)="onViewDetail(asset)" *ngFor="let asset of assets$ | async; trackBy: trackByFn" class="cursor-pointer">
 
         <td class="pl-4">
           {{ asset.assetName }}
         </td>
 
         <td>
-          <ul>
-            <li *ngFor="let hostname of asset.assetHostnameList">
-              <span class="font-size-sm">{{ hostname }}</span>
-            </li>
-          </ul>
+          <app-incident-severity [severity]="getSeverity(asset.assetConfidentiality)"></app-incident-severity>
         </td>
 
         <td>
-          <ul>
-            <li *ngFor="let ip of asset.assetIpList">
-              <span class="font-size-sm">{{ ip }}</span>
-            </li>
-          </ul>
+          <app-incident-severity [severity]="getSeverity(asset.assetIntegrity)"></app-incident-severity>
+        </td>
+
+        <td>
+          <app-incident-severity [severity]="getSeverity(asset.assetAvailability)"></app-incident-severity>
         </td>
 
         <td class="td-action pr-4">
@@ -105,6 +104,22 @@
                               class="ml-3">
       </app-utm-items-per-page>
     </div>
+  </div>
+</div>
+<div *ngIf="viewDetail" class="utm-right-container">
+  <div (click)="viewDetail = false" class="overlay overlay-lg col-md-6"></div>
+  <div class="card utm-right-action utm-right-action-lg">
+    <div class="title d-flex justify-content-between  align-items-center border-bottom-1
+     border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        {{ asset?.assetName}}
+      </h6>
+      <button (click)="viewDetail = false; loadAssets()" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-asset-detail [asset] = asset></app-asset-detail>
   </div>
 </div>
 

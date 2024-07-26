@@ -8,4 +8,5 @@ export class UtmFieldType {
   visible?: boolean;
   customStyle?: string;
   filter?: boolean;
+  width?: string;
 }
