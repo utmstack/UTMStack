@@ -2,6 +2,7 @@ package com.park.utmstack.service.dto.correlation;
 
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.RuleDefinition;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -32,7 +33,7 @@ public class UtmCorrelationRulesDTO implements Serializable {
     @NotBlank
     private String technique;
     private String description;
-    private List<String>references;
+    private List<@URL(message = "Reference must be a valid URL ") String>references;
     @NotEmpty
     private Set<UtmDataTypes> dataTypes;
     private RuleDefinition definition;
