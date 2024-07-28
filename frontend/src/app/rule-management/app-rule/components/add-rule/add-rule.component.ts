@@ -1,6 +1,6 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import { Observable } from 'rxjs';
 import { filter, map, tap} from 'rxjs/operators';
@@ -81,7 +81,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     }
 
     addReference() {
-        this.references.push(this.fb.control('', Validators.required));
+        this.references.push(this.fb.control('', [Validators.required, this.urlValidator]));
     }
 
     get variables() {
@@ -153,8 +153,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     }
 
     initReferences(references: string[]): FormArray {
-        const formArray = references.map(reference => this.fb.control(reference, Validators.required));
-        return this.fb.array(formArray.length > 0 ? formArray : [this.fb.control('', Validators.required)], this.minLengthArray(1));
+        const formArray = references.map(reference => this.fb.control(reference,
+          [Validators.required, this.urlValidator]));
+        return this.fb.array(formArray.length > 0 ? formArray : [this.fb.control('', [Validators.required, this.urlValidator])],
+          this.minLengthArray(1));
     }
 
     initVariables(variables: Variable[]): FormArray {
@@ -215,6 +217,11 @@ export class AddRuleComponent implements OnInit, OnDestroy {
         const expressionControl = this.ruleForm.get('definition').get('ruleExpression');
         expressionControl.setValue(expressionControl.value + variableName);
     }
+
+  urlValidator(control: AbstractControl): ValidationErrors | null {
+    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].\S*$/i;
+    return urlPattern.test(control.value) ? null : { invalidUrl: true };
+  }
 
     ngOnDestroy() {
         this.dataTypeService.resetTypes();

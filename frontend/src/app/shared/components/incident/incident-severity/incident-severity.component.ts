@@ -32,6 +32,10 @@ export class IncidentSeverityComponent implements OnInit {
         this.background = 'border-info-800 text-info-800';
         this.label = 'LOW';
         break;
+      case IncidentSeverityEnum.UNIMPORTANT:
+        this.background = 'border-green-800 text-green-800';
+        this.label = 'UNIMPORTANT';
+        break;
       default:
         this.background = 'border-slate-800 text-slate-800';
         this.label = 'UNKNOWN';

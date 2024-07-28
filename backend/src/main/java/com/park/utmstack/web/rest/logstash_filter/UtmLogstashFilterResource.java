@@ -110,6 +110,10 @@ public class UtmLogstashFilterResource {
             if (logstashFilter.getId() == null)
                 throw new Exception("Logstash filter id is null");
 
+            if (logstashFilter.getSystemOwner()) {
+                throw new Exception("Cannot update system-owned filter");
+            }
+
             return ResponseEntity.ok(logstashFilterService.save(logstashFilter));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

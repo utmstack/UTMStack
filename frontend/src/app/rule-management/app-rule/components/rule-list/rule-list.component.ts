@@ -225,7 +225,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   deleteRule(event: Event, rule: Rule) {
     event.stopPropagation();
     const deleteModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
-    deleteModalRef.componentInstance.header = 'Delete asset';
+    deleteModalRef.componentInstance.header = 'Delete rule';
     deleteModalRef.componentInstance.message = 'Are you sure that you want to delete this rule?';
     deleteModalRef.componentInstance.confirmBtnText = 'Delete';
     deleteModalRef.componentInstance.confirmBtnIcon = 'icon-display';

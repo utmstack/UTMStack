@@ -6,10 +6,10 @@
   </button>
 </div>
 
-<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus!=='up'">
+<!--<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus!=='up'">
   Pipeline start failing at <b>{{pipeline.reloads.lastFailureTimestamp | date}}</b> with error message:<br>
   <code [innerHTML]="pipeline.reloads.lastError.message | safe:'html'"></code>
-</div>
+</div>-->
 
 <div class="row w-100 m-0 mt-3 d-flex justify-content-center align-items-center container-pipeline flex-column"
      *ngIf="filters.length>0 && !loading">
