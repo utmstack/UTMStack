@@ -13,12 +13,6 @@ import (
 
 func DownloadFileByChunks(url string, headers map[string]string, fileName string, skipTls bool) (string, bool, error) {
 	var version string
-	out, err := os.Create(fileName)
-	if err != nil {
-		return version, false, fmt.Errorf("error creating file: %v", err)
-	}
-	defer out.Close()
-
 	client := &http.Client{}
 	if skipTls {
 		client.Transport = &http.Transport{
@@ -28,6 +22,9 @@ func DownloadFileByChunks(url string, headers map[string]string, fileName string
 
 	const chunkSize = 5
 	partindex := 1
+
+	var out *os.File
+	var fileCreated bool = false
 
 	for {
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s&partIndex=%d&partSize=%d", url, partindex, chunkSize), nil)
@@ -43,6 +40,10 @@ func DownloadFileByChunks(url string, headers map[string]string, fileName string
 			return version, false, fmt.Errorf("error sending request: %v", err)
 		}
 		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
+			return version, false, fmt.Errorf("error response: %v", resp.Status)
+		}
 
 		var response models.DependencyUpdateResponse
 		if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
@@ -62,6 +63,15 @@ func DownloadFileByChunks(url string, headers map[string]string, fileName string
 
 		if response.FileContent == nil {
 			return version, false, fmt.Errorf("no file content in response")
+		}
+
+		if !fileCreated {
+			out, err = os.Create(fileName)
+			if err != nil {
+				return version, false, fmt.Errorf("error creating file: %v", err)
+			}
+			defer out.Close()
+			fileCreated = true
 		}
 
 		if _, err := out.Write(response.FileContent); err != nil {

@@ -20,7 +20,7 @@ func DeleteAgent(cnf *config.Config) error {
 
 	agentClient := NewAgentServiceClient(conn)
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx = metadata.AppendToOutgoingContext(ctx, "key", cnf.AgentKey)
+	ctx = metadata.AppendToOutgoingContext(ctx, "key", fmt.Sprintf("Agent %s", cnf.AgentKey))
 	ctx = metadata.AppendToOutgoingContext(ctx, "id", strconv.Itoa(int(cnf.AgentID)))
 	defer cancel()
 

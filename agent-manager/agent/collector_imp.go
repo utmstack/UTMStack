@@ -10,7 +10,6 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -62,19 +61,9 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 }
 
 func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*AuthResponse, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unable to get metadata from context")
-	}
-
-	tokens, ok := md["key"]
-	if !ok || len(tokens) == 0 {
-		return nil, status.Error(codes.Internal, "unable to get key from metadata")
-	}
-
-	key, _, err := convertTokenToKey(tokens[0])
+	key, err := getKeyFromContext(ctx)
 	if err != nil {
-		return &AuthResponse{}, status.Error(codes.PermissionDenied, err.Error())
+		return nil, err
 	}
 
 	id, err := collectorService.Delete(uuid.MustParse(key), req.DeletedBy)
@@ -153,45 +142,36 @@ func (s *Grpc) ProcessPendingConfigs() {
 }
 
 func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) error {
-	collectorKey, err := s.authenticateStream(stream)
+	key, err := getKeyFromContext(stream.Context())
 	if err != nil {
-		return status.Error(codes.Unauthenticated, err.Error())
+		return err
 	}
 
 	s.collectorStreamMutex.Lock()
-	if _, ok := s.CollectorStreamMap[collectorKey]; ok {
+	if _, ok := s.CollectorStreamMap[key]; ok {
 		s.collectorStreamMutex.Unlock()
 		return status.Error(codes.AlreadyExists, "client is already connected")
 	}
-	s.CollectorStreamMap[collectorKey] = stream
+	s.CollectorStreamMap[key] = stream
 	s.collectorStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = s.waitForReconnect(s.CollectorStreamMap[collectorKey].Context(), collectorKey, ConnectorType_COLLECTOR)
+			err = s.waitForReconnect(s.CollectorStreamMap[key].Context(), key, ConnectorType_COLLECTOR)
 			if err != nil {
 				s.collectorStreamMutex.Lock()
-				delete(s.CollectorStreamMap, collectorKey)
+				delete(s.CollectorStreamMap, key)
 				s.collectorStreamMutex.Unlock()
 
 				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect to client: %v", err))
-			}
-
-			collectorKey, err = s.authenticateStream(stream)
-			if err != nil {
-				s.collectorStreamMutex.Lock()
-				delete(s.CollectorStreamMap, collectorKey)
-				s.collectorStreamMutex.Unlock()
-
-				return status.Error(codes.Unauthenticated, fmt.Sprintf("failed to authenticate stream: %v", err))
 			}
 
 			continue
 		}
 		if err != nil {
 			s.collectorStreamMutex.Lock()
-			delete(s.CollectorStreamMap, collectorKey)
+			delete(s.CollectorStreamMap, key)
 			s.collectorStreamMutex.Unlock()
 			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message from client: %v", err))
 		}
@@ -201,8 +181,8 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 			utils.ALogger.Info("Received Knowlodge: %s", msg.Result.RequestId)
 
 			s.pendingConfigM.Lock()
-			if s.PendingConfigs[collectorKey] == msg.Result.RequestId {
-				delete(s.PendingConfigs, collectorKey)
+			if s.PendingConfigs[key] == msg.Result.RequestId {
+				delete(s.PendingConfigs, key)
 			}
 			s.pendingConfigM.Unlock()
 
@@ -213,19 +193,9 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 }
 
 func (s *Grpc) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*CollectorConfig, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unable to get metadata from context")
-	}
-
-	tokens, ok := md["key"]
-	if !ok || len(tokens) == 0 {
-		return nil, status.Error(codes.Internal, "unable to get key from metadata")
-	}
-
-	key, _, err := convertTokenToKey(tokens[0])
+	key, err := getKeyFromContext(ctx)
 	if err != nil {
-		return nil, status.Error(codes.PermissionDenied, err.Error())
+		return nil, err
 	}
 
 	collector, err := collectorService.GetByKey(key)

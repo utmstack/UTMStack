@@ -24,6 +24,7 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 		connectionKey := c.GetHeader("connection-key")
 		id := c.GetHeader("id")
 		key := c.GetHeader("key")
+		typ := strings.ToLower(c.GetHeader("type"))
 
 		if connectionKey == "" && id == "" && key == "" {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "authentication is not provided"})
@@ -34,14 +35,14 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid connection key"})
 				return
 			}
-		} else if id != "" && key != "" {
+		} else if id != "" && key != "" && typ != "" {
 			idInt, err := strconv.ParseUint(id, 10, 32)
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 				return
 			}
 
-			if _, _, isValid := agent.ValidateKeyPairFromCache(key, uint(idInt)); !isValid {
+			if _, isValid := isKeyPairFromValid(key, uint(idInt), typ); !isValid {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 				return
 			}
@@ -87,10 +88,11 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 	var routes []string
 	authKey := md.Get("key")
 	authId := md.Get("id")
+	connectorType := md.Get("type")
 	authConnectionKey := md.Get("connection-key")
 	authInternalKey := md.Get("internal-key")
 
-	if len(authKey) > 0 && len(authId) > 0 {
+	if len(authKey) > 0 && len(authId) > 0 && len(connectorType) > 0 {
 		authType = "key"
 		routes = config.KeyAuthRoutes()
 	} else if len(authConnectionKey) > 0 {
@@ -114,8 +116,9 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 		if err != nil {
 			return status.Error(codes.PermissionDenied, "id is not valid")
 		}
+		typ := strings.ToLower(connectorType[0])
 
-		if _, _, isValid := agent.ValidateKeyPairFromCache(key, uint(id)); !isValid {
+		if _, isValid := isKeyPairFromValid(key, uint(id), typ); !isValid {
 			return status.Error(codes.PermissionDenied, "invalid key")
 		}
 	case "connection-key":
@@ -155,4 +158,23 @@ func isInRoute(route string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func isKeyPairFromValid(key string, id uint, typ string) (string, bool) {
+	switch typ {
+	case "agent":
+		for agentId, agentKey := range agent.CacheAgentKey {
+			if key == agentKey && id == agentId {
+				return agentKey, true
+			}
+		}
+	case "collector":
+		for collId, collKey := range agent.CacheCollectorKey {
+			if key == collKey && id == collId {
+				return collKey, true
+			}
+		}
+	}
+
+	return "", false
 }

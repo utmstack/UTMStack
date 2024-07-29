@@ -11,7 +11,6 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -70,19 +69,9 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 }
 
 func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return &AuthResponse{}, status.Error(codes.Internal, "unable to get metadata from context")
-	}
-
-	tokens, ok := md["key"]
-	if !ok || len(tokens) == 0 {
-		return &AuthResponse{}, status.Error(codes.Internal, "unable to get agent key from metadata")
-	}
-
-	key, _, err := convertTokenToKey(tokens[0])
+	key, err := getKeyFromContext(ctx)
 	if err != nil {
-		return &AuthResponse{}, status.Error(codes.PermissionDenied, err.Error())
+		return nil, err
 	}
 
 	id, err := agentService.Delete(uuid.MustParse(key), req.DeletedBy)
@@ -121,45 +110,35 @@ func (s *Grpc) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsRes
 }
 
 func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
-	agentKey, err := s.authenticateStream(stream)
+	key, err := getKeyFromContext(stream.Context())
 	if err != nil {
-		return status.Error(codes.PermissionDenied, err.Error())
+		return err
 	}
 
 	s.agentStreamMutex.Lock()
-	if _, ok := s.AgentStreamMap[agentKey]; ok {
+	if _, ok := s.AgentStreamMap[key]; ok {
 		s.agentStreamMutex.Unlock()
 		return fmt.Errorf("agent already connected")
 	}
-	s.AgentStreamMap[agentKey] = stream
+	s.AgentStreamMap[key] = stream
 	s.agentStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = s.waitForReconnect(s.AgentStreamMap[agentKey].Context(), agentKey, ConnectorType_AGENT)
+			err = s.waitForReconnect(s.AgentStreamMap[key].Context(), key, ConnectorType_AGENT)
 			if err != nil {
 				s.agentStreamMutex.Lock()
-				delete(s.AgentStreamMap, agentKey)
+				delete(s.AgentStreamMap, key)
 				s.agentStreamMutex.Unlock()
 
 				return fmt.Errorf("failed to reconnect to client: %v", err)
 			}
-
-			agentKey, err = s.authenticateStream(stream)
-			if err != nil {
-				s.agentStreamMutex.Lock()
-				delete(s.AgentStreamMap, agentKey)
-				s.agentStreamMutex.Unlock()
-
-				return err
-			}
-
 			continue
 		}
 		if err != nil {
 			s.agentStreamMutex.Lock()
-			delete(s.AgentStreamMap, agentKey)
+			delete(s.AgentStreamMap, key)
 			s.agentStreamMutex.Unlock()
 			return err
 		}

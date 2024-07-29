@@ -25,10 +25,10 @@ func UpdateDependencies(cnf *config.Config) {
 		versions := models.Version{}
 		prepareForUpdate(&versions)
 
-		agent.CheckHttpHealth(fmt.Sprintf("https://%s/dependencies/health", cnf.Server))
+		agent.CheckHttpHealth(fmt.Sprintf("https://%s/dependencies/health", cnf.Server), cnf.SkipCertValidation)
 
 		headers := map[string]string{
-			"key": cnf.AgentKey,
+			"key": fmt.Sprintf("Agent %s", cnf.AgentKey),
 			"id":  fmt.Sprintf("%v", cnf.AgentID),
 		}
 

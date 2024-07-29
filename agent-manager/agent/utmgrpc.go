@@ -3,8 +3,6 @@ package agent
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -74,83 +72,8 @@ func InitGrpc() (*Grpc, error) {
 	return gRPC, err
 }
 
-func (s *Grpc) authenticateStream(stream interface{}) (string, error) {
-	authResponse, err := s.GetStreamAuth(stream)
-	if err != nil {
-		return "", status.Error(codes.Unauthenticated, fmt.Sprintf("failed to get stream auth: %v", err))
-	}
-
-	id := uint(authResponse.Id)
-	key, typ, err := convertTokenToKey(authResponse.Key)
-	if err != nil {
-		return "", status.Error(codes.Unauthenticated, fmt.Sprintf("failed to convert token to key: %v", err))
-	}
-
-	var cacheKey string
-	var ok bool
-
-	switch typ {
-	case "Agent":
-		s.cacheAgentKeyMutex.Lock()
-		cacheKey, ok = CacheAgentKey[id]
-		s.cacheAgentKeyMutex.Unlock()
-	case "Collector":
-		s.cacheCollectorKeyMutex.Lock()
-		cacheKey, ok = CacheCollectorKey[id]
-		s.cacheCollectorKeyMutex.Unlock()
-	default:
-		return "", status.Error(codes.Unauthenticated, "invalid key type")
-	}
-
-	if !ok || cacheKey != key {
-		return "", status.Error(codes.Unauthenticated, "invalid key here")
-	}
-
-	return cacheKey, nil
-}
-
 func (s *Grpc) InitPingSync() {
 	lastSeenService.Start()
-}
-
-func (s *Grpc) GetStreamAuth(stream interface{}) (AuthResponse, error) {
-	var ctx context.Context
-	switch s := stream.(type) {
-	case AgentService_AgentStreamServer:
-		ctx = s.Context()
-	case CollectorService_CollectorStreamServer:
-		ctx = s.Context()
-	case PingService_PingServer:
-		ctx = s.Context()
-	default:
-		return AuthResponse{}, fmt.Errorf("invalid stream type")
-	}
-
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return AuthResponse{}, fmt.Errorf("failed to get metadata from context")
-	}
-
-	ids, ok := md["id"]
-	if !ok || len(ids) != 1 {
-		return AuthResponse{}, fmt.Errorf("no id found in metadata")
-	}
-	idString := ids[0]
-	id, err := strconv.ParseUint(idString, 10, 32)
-	if err != nil {
-		return AuthResponse{}, fmt.Errorf("failed to convert id to uint32: %v", err)
-	}
-
-	keys, ok := md["key"]
-	if !ok || len(keys) != 1 {
-		return AuthResponse{}, fmt.Errorf("no key found in metadata")
-	}
-	key := keys[0]
-
-	return AuthResponse{
-		Id:  uint32(id),
-		Key: key,
-	}, nil
 }
 
 func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
@@ -180,6 +103,18 @@ func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType C
 	return fmt.Errorf("stream is not valid")
 }
 
+func getKeyFromContext(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", status.Error(codes.Internal, "metadata is not provided")
+	}
+	key, ok := md["key"]
+	if !ok || len(key) == 0 {
+		return "", status.Error(codes.Unauthenticated, "authorization key is not provided")
+	}
+	return key[0], nil
+}
+
 func findAgentIdByKey(cache map[uint]string, key string) uint {
 	for id, val := range cache {
 		if val == key {
@@ -187,41 +122,4 @@ func findAgentIdByKey(cache map[uint]string, key string) uint {
 		}
 	}
 	return 0
-}
-
-func ValidateKeyPairFromCache(token string, id uint) (string, string, bool) {
-	key, typ, err := convertTokenToKey(token)
-	if err != nil {
-		return "", "", false
-	}
-
-	switch typ {
-	case "Agent":
-		for agentId, agentKey := range CacheAgentKey {
-			if key == agentKey && id == agentId {
-				return agentKey, "Agent", true
-			}
-		}
-	case "Collector":
-		for collId, collKey := range CacheCollectorKey {
-			if key == collKey && id == collId {
-				return collKey, "Collector", true
-			}
-		}
-	}
-
-	return "", "", false
-
-}
-
-func convertTokenToKey(token string) (string, string, error) {
-	typ, key, found := strings.Cut(token, " ")
-	if !found {
-		return "", "", fmt.Errorf("invalid token type")
-	}
-	if typ == "Agent" || typ == "Collector" {
-		return key, typ, nil
-	}
-
-	return "", "", fmt.Errorf("invalid token type")
 }
