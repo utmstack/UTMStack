@@ -2,7 +2,6 @@ package serv
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -55,8 +54,9 @@ func (p *program) run() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ctx = metadata.AppendToOutgoingContext(ctx, "key", fmt.Sprintf("Agent %s", cnf.AgentKey))
+	ctx = metadata.AppendToOutgoingContext(ctx, "key", cnf.AgentKey)
 	ctx = metadata.AppendToOutgoingContext(ctx, "id", strconv.Itoa(int(cnf.AgentID)))
+	ctx = metadata.AppendToOutgoingContext(ctx, "type", "agent")
 
 	go pb.IncidentResponseStream(cnf, ctx)
 	go pb.StartPing(cnf, ctx)

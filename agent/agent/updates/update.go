@@ -28,8 +28,9 @@ func UpdateDependencies(cnf *config.Config) {
 		agent.CheckHttpHealth(fmt.Sprintf("https://%s/dependencies/health", cnf.Server), cnf.SkipCertValidation)
 
 		headers := map[string]string{
-			"key": fmt.Sprintf("Agent %s", cnf.AgentKey),
-			"id":  fmt.Sprintf("%v", cnf.AgentID),
+			"key":  cnf.AgentKey,
+			"id":   fmt.Sprintf("%v", cnf.AgentID),
+			"type": "agent",
 		}
 
 		// Check for service update
