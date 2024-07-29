@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/threatwinds/go-sdk/helpers"
@@ -28,44 +30,17 @@ func NewMiddlewares(authService *LogAuthService) *Middlewares {
 }
 
 func (m *Middlewares) GrpcAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
-	}
-	
-	// Get the authorization token from the metadata
-	authToken := md.Get("key")
-	if len(authToken) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "authorization token is not provided")
-	}
-
-	key := authToken[0]
-
-	if !m.AuthService.IsKeyValid(key) {
-		return nil, status.Error(codes.Unauthenticated, "invalid key")
+	if err := m.authFromContext(ctx); err != nil {
+		return nil, err
 	}
 
 	return handler(ctx, req)
 }
 
 func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	md, ok := metadata.FromIncomingContext(ss.Context())
-	if !ok {
-		return status.Error(codes.Unauthenticated, "metadata is not provided")
+	if err := m.authFromContext(ss.Context()); err != nil {
+		return err
 	}
-
-	// Get the authorization token from the metadata
-	authToken := md.Get("key")
-	if len(authToken) == 0 {
-		return status.Error(codes.Unauthenticated, "authorization token is not provided")
-	}
-
-	key := authToken[0]
-
-	if !m.AuthService.IsKeyValid(key) {
-		return status.Error(codes.Unauthenticated, "invalid key")
-	}
-
 	return handler(srv, ss)
 }
 
@@ -112,6 +87,40 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func (m *Middlewares) authFromContext(ctx context.Context) error {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return status.Error(codes.Internal, "metadata is not provided")
+	}
+
+	key, ok := md["key"]
+	if !ok || len(key) == 0 {
+		return status.Error(codes.Unauthenticated, "authorization key is not provided")
+	}
+
+	idStr, ok := md["id"]
+	if !ok || len(idStr) == 0 {
+		return status.Error(codes.Unauthenticated, "authorization id is not provided")
+	}
+
+	connectorType, ok := md["type"]
+	if !ok || len(connectorType) == 0 {
+		return status.Error(codes.Unauthenticated, "connector type is not provided")
+	}
+
+	id, err := strconv.ParseUint(idStr[0], 10, 32)
+	if err != nil {
+		return status.Error(codes.PermissionDenied, "id is not valid")
+	}
+	typ := strings.ToLower(connectorType[0])
+
+	if !m.AuthService.IsKeyValid(key[0], uint(id), typ) {
+		return status.Error(codes.PermissionDenied, "invalid key")
+	}
+
+	return nil
 }
 
 func verifySignature(payloadBody []byte, secretToken string, signatureHeader string) error {

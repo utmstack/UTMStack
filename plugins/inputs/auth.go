@@ -18,16 +18,16 @@ const maxMessageSize = 1024 * 1024 * 1024
 
 type LogAuthService struct {
 	Mutex              *sync.Mutex
-	CollectorKeyCache  []string
-	AgentKeyCache      []string
+	CollectorKeyCache  map[uint]string
+	AgentKeyCache      map[uint]string
 	ConnectionKeyCache string
 }
 
 func NewLogAuthService() *LogAuthService {
 	authService := &LogAuthService{
 		Mutex:              &sync.Mutex{},
-		CollectorKeyCache:  make([]string, 0),
-		AgentKeyCache:      make([]string, 0),
+		CollectorKeyCache:  make(map[uint]string),
+		AgentKeyCache:      make(map[uint]string),
 		ConnectionKeyCache: "",
 	}
 
@@ -88,9 +88,9 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			return
 		}
 
-		collectorKeys := make([]string, 0, len(response.Rows))
+		collectorKeys := make(map[uint]string, len(response.Rows))
 		for _, row := range response.Rows {
-			collectorKeys = append(collectorKeys, row.CollectorKey)
+			collectorKeys[uint(row.Id)] = row.CollectorKey
 		}
 
 		auth.Mutex.Lock()
@@ -112,9 +112,9 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 			return
 		}
 
-		agentKeys := make([]string, 0, len(response.Rows))
+		agentKeys := make(map[uint]string, len(response.Rows))
 		for _, row := range response.Rows {
-			agentKeys = append(agentKeys, row.AgentKey)
+			agentKeys[uint(row.Id)] = row.AgentKey
 		}
 		auth.Mutex.Lock()
 		auth.AgentKeyCache = agentKeys
@@ -133,22 +133,17 @@ func (auth *LogAuthService) syncConnectionKey() {
 	auth.Mutex.Unlock()
 }
 
-func (auth *LogAuthService) IsKeyValid(key string) bool {
-	t, k, f := strings.Cut(key, " ")
-	if !f {
-		return false
-	}
-
-	switch t {
-	case "Agent":
-		for _, a := range auth.AgentKeyCache {
-			if a == k {
+func (auth *LogAuthService) IsKeyValid(key string, id uint, typ string) bool {
+	switch typ {
+	case "agent":
+		for agentId, agentKey := range auth.AgentKeyCache {
+			if key == agentKey && id == agentId {
 				return true
 			}
 		}
-	case "Collector":
-		for _, c := range auth.CollectorKeyCache {
-			if c == k {
+	case "collector":
+		for collId, collKey := range auth.CollectorKeyCache {
+			if key == collKey && id == collId {
 				return true
 			}
 		}
