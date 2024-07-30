@@ -1,6 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {interval} from 'rxjs';
 import {UtmHealthService} from '../../../../../../../app-management/health-checks/health-checks.service';
 import {HealthDetailComponent} from '../../../../../../../app-management/health-checks/health-detail/health-detail.component';
 import {AccountService} from '../../../../../../../core/auth/account.service';
@@ -37,22 +38,14 @@ export class UtmVaultStatusComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.refresh();
-    this.getHealth();
-    this.getLogstashStats();
+    this.refreshData();
     this.interval = setInterval(() => {
       this.accountService.identity().then(account => {
         if (account) {
-          this.refresh();
-          this.getHealth();
-          this.getLogstashStats();
+          this.refreshData();
         }
       });
     }, 10000);
-  }
-
-  ngOnDestroy(): void {
-    clearInterval(this.interval);
   }
 
   baseName(name: string) {
@@ -194,5 +187,15 @@ export class UtmVaultStatusComponent implements OnInit, OnDestroy {
 
   calcDiskUsed(): number {
     return this.health.components.diskSpace.details.total - this.health.components.diskSpace.details.free;
+  }
+
+  refreshData(){
+    this.refresh();
+    this.getHealth();
+    this.getLogstashStats();
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.interval);
   }
 }

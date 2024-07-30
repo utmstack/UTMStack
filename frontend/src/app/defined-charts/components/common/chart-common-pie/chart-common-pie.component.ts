@@ -1,6 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {filter} from "rxjs/operators";
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../../shared/chart/types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../../shared/chart/types/charts/chart-properties/style/item-style';
@@ -10,6 +11,7 @@ import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
 import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {RefreshService} from '../../../../shared/services/util/refresh.service';
 import {PieResponseType} from '../../../../shared/types/chart-reponse/pie-response.type';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
@@ -39,16 +41,22 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private router: Router,
+              private refreshService: RefreshService,
               private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
     this.queryParams.top = 10;
-    if (this.refreshInterval) {
+    /*if (this.refreshInterval) {
       this.interval = setInterval(() => {
         this.getPieData();
       }, this.refreshInterval);
-    }
+    }*/
+    this.refreshService.refresh$
+      .subscribe(() => {
+        console.log('Get Pie Data');
+        this.getPieData();
+    });
   }
 
   onTimeFilterChange($event: TimeFilterType) {
