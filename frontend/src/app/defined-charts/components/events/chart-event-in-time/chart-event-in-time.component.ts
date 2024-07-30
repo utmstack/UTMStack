@@ -9,6 +9,7 @@ import {IndexPatternSystemEnumID, IndexPatternSystemEnumName} from '../../../../
 import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
+import {RefreshService} from "../../../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-chart-event-in-time',
@@ -26,16 +27,21 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   noData = false;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
+              private refreshService: RefreshService,
               private router: Router,
               private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
-    if (this.refreshInterval) {
+    /*if (this.refreshInterval) {
       this.interval = setInterval(() => {
         this.getEventByTime();
       }, this.refreshInterval);
-    }
+    }*/
+    this.refreshService.refresh$
+      .subscribe(() => {
+        this.getEventByTime();
+      });
   }
 
   onTimeFilterChange($event: TimeFilterType) {

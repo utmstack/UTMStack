@@ -18,6 +18,7 @@ import {OverviewAlertDashboardService} from '../../../../shared/services/charts-
 import {ChartSerieValueType} from '../../../../shared/types/chart-reponse/chart-serie-value.type';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
+import {RefreshService} from "../../../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-chart-alert-by-status',
@@ -42,16 +43,22 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
   CLOSED_ICON = CLOSED_ICON;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
+              private refreshService: RefreshService,
               private router: Router,
               private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
-    if (this.refreshInterval) {
+    /*if (this.refreshInterval) {
       this.interval = setInterval(() => {
         this.getAlertByStatus(this.time);
       }, this.refreshInterval);
-    }
+    }*/
+    this.refreshService.refresh$
+      .subscribe(() => {
+        console.log('Get Pie Data');
+        this.getAlertByStatus(this.time);
+      });
   }
 
   onChangeAlertByStatus($event: TimeFilterType) {

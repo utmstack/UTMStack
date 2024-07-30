@@ -5,6 +5,7 @@ import {ALERT_GLOBAL_FIELD, ALERT_TIMESTAMP_FIELD} from '../../../../shared/cons
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
 import {ChartSerieValueType} from '../../../../shared/types/chart-reponse/chart-serie-value.type';
+import {RefreshService} from "../../../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-chart-alert-daily-week',
@@ -18,17 +19,22 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
   loadingChartDailyAlert = true;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
+              private refreshService: RefreshService,
               private router: Router,
               private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
     this.getDailyAlert();
-    if (this.refreshInterval) {
+    /*if (this.refreshInterval) {
       this.interval = setInterval(() => {
         this.getDailyAlert();
       }, this.refreshInterval);
-    }
+    }*/
+    this.refreshService.refresh$
+      .subscribe(() => {
+        this.getDailyAlert();
+      });
   }
 
   ngOnDestroy(): void {
