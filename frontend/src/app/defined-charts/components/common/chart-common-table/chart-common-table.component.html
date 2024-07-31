@@ -20,9 +20,9 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="!loadingOption" class="table-responsive w-100 chart-fixed-height">
+    <div *ngIf="data$ | async as data" class="table-responsive w-100 chart-fixed-height">
       <table class="table text-nowrap">
-        <thead *ngIf="data && data.columns.length>0">
+        <thead *ngIf="data && data.columns.length > 0">
         <tr>
           <th (sort)="onSort($event)"
               *ngFor="let column of data.columns"
@@ -32,8 +32,8 @@
           </th>
         </tr>
         </thead>
-        <tbody *ngIf="data && data.rows && data.rows.length>0 && !loadingOption">
-        <tr *ngFor="let row of data.rows |slice:pageStart:pageEnd; let index = index">
+        <tbody *ngIf="data && data.rows && data.rows.length > 0 && !loadingOption">
+        <tr *ngFor="let row of data.rows | slice:pageStart:pageEnd; let index = index">
           <td (click)="rowEvent(row)" *ngFor="let td of row;let index=index"
               class="cursor-pointer'">
             <span *ngIf="td" [ngClass]="{'text-blue-800 cursor-pointer':index===0}">
@@ -42,7 +42,7 @@
           </td>
         </tr>
         </tbody>
-        <tbody *ngIf="data && data.rows && data.rows.length===0 && !loadingOption">
+        <tbody *ngIf="data && data.rows && data.rows.length === 0 && !loadingOption">
         <tr>
           <td [attr.colspan]="data.columns.length" style="padding-top: 75px !important;">
             <app-no-data-found></app-no-data-found>
@@ -50,7 +50,7 @@
         </tr>
         </tbody>
       </table>
-      <div *ngIf="data && data.columns.length>0" class="row justify-content-center mb-3">
+      <div *ngIf="data && data.columns.length > 0" class="row justify-content-center mb-3">
         <ngb-pagination
           (pageChange)="loadPage($event)"
           [(page)]="page"

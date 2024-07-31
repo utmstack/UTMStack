@@ -27,7 +27,7 @@ import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {UtmIndexPatternFields} from '../../shared/types/index-pattern/utm-index-pattern-fields';
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
-import {RefreshService} from "../../shared/services/util/refresh.service";
+import {RefreshService, RefreshType} from "../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-dashboard-overview',
@@ -76,6 +76,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   filterTime: { from: string, to: string };
   filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject();
+  RefreshType = RefreshType;
 
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,

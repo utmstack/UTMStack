@@ -34,19 +34,19 @@
                               [navigateUrl]="ALERT_ROUTE"
                               [paramClick]="paramAlertSeverityCLick"
                               [params]="paramsAlertSeverity"
-                              [refreshInterval]="refreshInterval"></app-chart-common-pie>
+                              [type]="RefreshType.CHART_COMMON_PIE_SEVERITY"></app-chart-common-pie>
       </div>
       <div class="col-lg-5 col-md-12 col-sm-12">
         <app-chart-alert-by-category [refreshInterval]="refreshInterval"></app-chart-alert-by-category>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12">
-        <!--<app-chart-common-table [endpoint]="'top-alerts'"
+        <app-chart-common-table [endpoint]="'top-alerts'"
                                 [header]="'Top 20 Alerts'"
                                 [navigateUrl]="ALERT_ROUTE"
                                 [paramClick]="tableTopAlertsParamsClick"
                                 [params]="tableTopAlertsParams"
-                                [refreshInterval]="refreshInterval">
-        </app-chart-common-table>-->
+                                [type]="RefreshType.CHART_COMMON_TABLE_TOP_ALERT">
+        </app-chart-common-table>
       </div>
     </div>
 
@@ -58,24 +58,24 @@
 
     <div class="row">
       <div class="col-lg-3 col-md-12 col-sm-12">
-        <!--<app-chart-common-pie [endpoint]="'count-events-by-type'"
+        <app-chart-common-pie [endpoint]="'count-events-by-type'"
                               [header]="'Events by type'"
                               [navigateUrl]="LOG_ANALYZER_ROUTE"
                               [paramClick]="paramEventByTypeCLick"
                               [params]="paramsEventByType"
-                              [refreshInterval]="refreshInterval"></app-chart-common-pie>-->
+                              [type]="RefreshType.CHART_COMMON_PIE_EVENT"></app-chart-common-pie>
       </div>
       <div class="col-lg-5 col-md-12 col-sm-12">
-        <!--<app-chart-event-in-time [refreshInterval]="refreshInterval"></app-chart-event-in-time>-->
+        <app-chart-event-in-time [type]="RefreshType.CHART_EVENT_IN_TIME"></app-chart-event-in-time>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12">
-        <!--<app-chart-common-table [endpoint]="'top-windows-events'"
+        <app-chart-common-table [endpoint]="'top-windows-events'"
                                 [header]="'Top 20 windows event'"
                                 [navigateUrl]="LOG_ANALYZER_ROUTE"
                                 [paramClick]="paramEvenTopCLick"
                                 [params]="paramsTopEvent"
-                                [refreshInterval]="refreshInterval">
-        </app-chart-common-table>-->
+                                [type]="RefreshType.CHART_COMMON_TABLE_TOP_EVENT">
+        </app-chart-common-table>
       </div>
     </div>
 

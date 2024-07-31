@@ -1,17 +1,17 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
 import {buildMultilineObject} from '../../../../shared/chart/util/build-multiline-option.util';
 import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
 import {IndexPatternSystemEnumID, IndexPatternSystemEnumName} from '../../../../shared/enums/index-pattern-system.enum';
 import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {RefreshService, RefreshType} from '../../../../shared/services/util/refresh.service';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
-import {RefreshService} from "../../../../shared/services/util/refresh.service";
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-event-in-time',
@@ -19,7 +19,7 @@ import {takeUntil} from "rxjs/operators";
   styleUrls: ['./chart-event-in-time.component.scss']
 })
 export class ChartEventInTimeComponent implements OnInit, OnDestroy {
-  @Input() refreshInterval;
+  @Input() type: RefreshType;
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   queryParams = {from: 'now-7d', to: 'now', interval: 'Day'};
@@ -42,7 +42,10 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
       }, this.refreshInterval);
     }*/
     this.refreshService.refresh$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(refreshType => (
+          refreshType === RefreshType.ALL || refreshType === this.type)))
       .subscribe(() => {
         this.getEventByTime();
       });
@@ -51,7 +54,7 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   onTimeFilterChange($event: TimeFilterType) {
     this.queryParams.from = $event.timeFrom;
     this.queryParams.to = $event.timeTo;
-    this.getEventByTime();
+    this.refreshService.sendRefresh(this.type);
   }
 
   onChartClick($event: any) {
@@ -80,7 +83,6 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    clearInterval(this.interval);
   }
 
   private getEventByTime() {

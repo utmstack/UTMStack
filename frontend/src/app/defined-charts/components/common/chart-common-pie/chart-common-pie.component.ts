@@ -1,7 +1,8 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {filter, map, takeUntil, tap} from "rxjs/operators";
+import {Subject} from 'rxjs';
+import {filter, map, takeUntil, tap} from 'rxjs/operators';
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../../shared/chart/types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../../shared/chart/types/charts/chart-properties/style/item-style';
@@ -17,7 +18,6 @@ import {RefreshService, RefreshType} from '../../../../shared/services/util/refr
 import {PieResponseType} from '../../../../shared/types/chart-reponse/pie-response.type';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
-import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-chart-common-pie',
@@ -25,7 +25,7 @@ import {Subject} from "rxjs";
   styleUrls: ['./chart-common-pie.component.scss']
 })
 export class ChartCommonPieComponent implements OnInit, OnDestroy {
-  @Input() refreshInterval;
+  @Input() type: RefreshType;
   @Input() header: string;
   @Input() colors: string[];
   @Input() colorsMap: { value: string, color: string }[];
@@ -58,7 +58,7 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
     this.refreshService.refresh$
       .pipe(takeUntil(this.destroy$),
       filter(refreshType => (
-        refreshType === RefreshType.ALL || refreshType === RefreshType.CHART_COMMON_PIE)))
+        refreshType === RefreshType.ALL || refreshType === this.type)))
       .subscribe(() => {
         this.getPieData();
       });
@@ -67,7 +67,7 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   onTimeFilterChange($event: TimeFilterType) {
     this.queryParams.from = $event.timeFrom;
     this.queryParams.to = $event.timeTo;
-    this.refreshService.sendRefresh(RefreshType.CHART_COMMON_PIE);
+    this.refreshService.sendRefresh(this.type);
   }
 
   getPieData() {
@@ -180,6 +180,5 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    clearInterval(this.interval);
   }
 }
