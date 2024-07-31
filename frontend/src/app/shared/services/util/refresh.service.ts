@@ -4,7 +4,8 @@ import { filter } from 'rxjs/operators';
 
 export enum RefreshType {
   ALL = 'ALL',
-  CHART_ALERT_BY_STATUS = 'CHART_ALERT_BY_STATUS'
+  CHART_ALERT_BY_STATUS = 'CHART_ALERT_BY_STATUS',
+  CHART_COMMON_PIE = 'CHART_COMMON_PIE'
 }
 
 @Injectable({

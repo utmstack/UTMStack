@@ -26,7 +26,7 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
 import {Observable, Subject} from "rxjs";
-import {filter, map, switchMap, tap} from "rxjs/operators";
+import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-alert-by-status',
@@ -67,6 +67,7 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
 
     this.status$ = this.refreshService.refresh$
       .pipe(
+        takeUntil(this.destroy$),
         filter((refreshType: string) => (
           refreshType === RefreshType.ALL || refreshType === RefreshType.CHART_ALERT_BY_STATUS)),
         switchMap(() => this.getAlertByStatus(this.time)));

@@ -39,6 +39,7 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
     // this.getDailyAlert();
     this.dailyAlert$ = this.refreshService.refresh$
       .pipe(
+        takeUntil(this.destroy$),
         filter((refreshType: string) => (
           refreshType === RefreshType.ALL )),
         startWith(this.getDailyAlert()),
