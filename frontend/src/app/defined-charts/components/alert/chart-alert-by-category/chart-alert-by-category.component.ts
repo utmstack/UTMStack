@@ -3,18 +3,24 @@ import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {Tooltip} from '../../../../shared/chart/types/charts/chart-properties/tooltip/tooltip';
-import {ALERT_CATEGORY_FIELD, ALERT_GLOBAL_FIELD, ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
+import {
+  ALERT_CATEGORY_FIELD,
+  ALERT_GLOBAL_FIELD,
+  ALERT_TIMESTAMP_FIELD
+} from '../../../../shared/constants/alert/alert-field.constant';
 import {UTM_COLOR_THEME} from '../../../../shared/constants/utm-color.const';
 import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
-import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {
+  OverviewAlertDashboardService
+} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {deleteNullValues} from '../../../../shared/util/object-util';
 import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
-import {RefreshService} from "../../../../shared/services/util/refresh.service";
+import {filter, takeUntil} from "rxjs/operators";
+import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-chart-alert-by-category',
@@ -46,22 +52,18 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
       }, this.refreshInterval);
     }*/
     this.refreshService.refresh$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$),
+            filter(refresh => (
+              refresh === RefreshType.ALL || refresh === RefreshType.CHART_ALERT_BY_CATEGORY)))
       .subscribe(() => {
         this.getCategoryData();
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    clearInterval(this.interval);
-  }
-
   onTimeFilterChange($event: TimeFilterType) {
     this.queryParams.from = $event.timeFrom;
     this.queryParams.to = $event.timeTo;
-    this.getCategoryData();
+    this.refreshService.sendRefresh(RefreshType.CHART_ALERT_BY_CATEGORY);
   }
 
 
@@ -132,6 +134,12 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
     }).then(() => {
       this.spinner.hide('loadingSpinner');
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    clearInterval(this.interval);
   }
 
 }
