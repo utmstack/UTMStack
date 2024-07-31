@@ -1,7 +1,11 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {ALERT_GLOBAL_FIELD, ALERT_STATUS_FIELD, ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
+import {
+  ALERT_GLOBAL_FIELD,
+  ALERT_STATUS_FIELD,
+  ALERT_TIMESTAMP_FIELD
+} from '../../../../shared/constants/alert/alert-field.constant';
 import {
   CLOSED,
   CLOSED_ICON,
@@ -14,11 +18,15 @@ import {
 } from '../../../../shared/constants/alert/alert-status.constant';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
-import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {
+  OverviewAlertDashboardService
+} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
 import {ChartSerieValueType} from '../../../../shared/types/chart-reponse/chart-serie-value.type';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
-import {RefreshService} from "../../../../shared/services/util/refresh.service";
+import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
+import {Observable, Subject} from "rxjs";
+import {filter, map, switchMap, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-alert-by-status',
@@ -29,7 +37,7 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
-  time: TimeFilterType;
+  time: TimeFilterType = {timeTo: 'now-7d/d', timeFrom: 'now'};
   status: ChartSerieValueType[];
   loadingStatusAlert = true;
   //
@@ -41,6 +49,8 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
   REVIEW_ICON = REVIEW_ICON;
   IGNORED_ICON = IGNORED_ICON;
   CLOSED_ICON = CLOSED_ICON;
+  destroy$ = new Subject<void>();
+  status$: Observable<ChartSerieValueType[]>;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private refreshService: RefreshService,
@@ -54,16 +64,17 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
         this.getAlertByStatus(this.time);
       }, this.refreshInterval);
     }*/
-    this.refreshService.refresh$
-      .subscribe(() => {
-        console.log('Get Pie Data');
-        this.getAlertByStatus(this.time);
-      });
+
+    this.status$ = this.refreshService.refresh$
+      .pipe(
+        filter((refreshType: string) => (
+          refreshType === RefreshType.ALL || refreshType === RefreshType.CHART_ALERT_BY_STATUS)),
+        switchMap(() => this.getAlertByStatus(this.time)));
   }
 
   onChangeAlertByStatus($event: TimeFilterType) {
     this.time = $event;
-    this.getAlertByStatus($event);
+    this.refreshService.sendRefresh(RefreshType.CHART_ALERT_BY_STATUS);
   }
 
   getAlertByStatus(time: TimeFilterType) {
@@ -71,14 +82,11 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
       to: time.timeTo,
       from: time.timeFrom
     };
-    this.overviewAlertDashboardService.getCardAlertByStatus(req).subscribe(res => {
-      this.status = res.body;
-      this.loadingStatusAlert = false;
-    });
-  }
-
-  ngOnDestroy(): void {
-    clearInterval(this.interval);
+    return this.overviewAlertDashboardService.getCardAlertByStatus(req)
+      .pipe(
+        tap(() => this.loadingStatusAlert = false),
+        map( response => response.body)
+      );
   }
 
   chartEvent(status: number) {
@@ -93,5 +101,11 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
     }).then(() => {
       this.spinner.hide('loadingSpinner');
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    //clearInterval(this.interval);
   }
 }

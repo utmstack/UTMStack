@@ -1,26 +1,31 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, interval, Subject, Subscription} from 'rxjs';
-import {LocalStorageService} from 'ngx-webstorage';
-import {filter, takeUntil} from "rxjs/operators";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+
+export enum RefreshType {
+  ALL = 'ALL',
+  CHART_ALERT_BY_STATUS = 'CHART_ALERT_BY_STATUS'
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class RefreshService {
   private refreshSubject = new BehaviorSubject<string>(null);
-  private refreshInterval = 10000; // 10 seconds
-  private destroy$: Subject<void> = new Subject<void>();
+  private refreshInterval = 10000;
+  private interval$: Observable<number>;
+  private subscription: Subscription;
 
-  constructor(private localStorageService: LocalStorageService) {
+  constructor() {
+    this.interval$ = interval(this.refreshInterval);
   }
 
   startInterval() {
-    interval(this.refreshInterval)
-      .pipe(takeUntil(this.destroy$))
+    this.subscription = this.interval$
       .subscribe(() => {
         console.log('emitting refresh');
-        this.refreshSubject.next('refresh');
-    });
+        this.sendRefresh();
+      });
   }
 
   get refresh$() {
@@ -28,8 +33,21 @@ export class RefreshService {
       .pipe(filter(value => !!value));
   }
 
-  stopRefresh() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  sendRefresh(type: RefreshType = RefreshType.ALL){
+    this.refreshSubject.next(type);
+  }
+
+  stopInterval() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.refreshSubject.next(null);
+      console.log('refresh stopped');
+    }
+  }
+
+  setRefreshInterval(refreshInterval: number) {
+    this.refreshInterval = refreshInterval;
+    this.interval$ = interval(this.refreshInterval);
+    this.startInterval();
   }
 }

@@ -12,19 +12,19 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="!loadingChartDailyAlert && dailyAlert.length>0"
+    <div *ngIf="dailyAlert$ | async as dailyAlert"
          class="d-flex justify-content-around align-items-center h-100 p-4">
       <app-kpi (metricClick)="chartEvent('today')"
                [color]="'#000'"
                [icon]="'icon-watch'"
-               [label]="dailyAlert[0].serie"
-               [value]="dailyAlert[0].value"
+               [label]="dailyAlert[0]?.serie"
+               [value]="dailyAlert[0]?.value"
                class="cursor-pointer ml-4 mr-4"></app-kpi>
       <app-kpi (metricClick)="chartEvent('week')"
                [color]="'#3949AB'"
                [icon]="'icon-calendar22'"
-               [label]="dailyAlert[1].serie"
-               [value]="dailyAlert[1].value"
+               [label]="dailyAlert[1]?.serie"
+               [value]="dailyAlert[1]?.value"
                class="cursor-pointer ml-4 mr-4"></app-kpi>
     </div>
   </div>

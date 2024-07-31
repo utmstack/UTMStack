@@ -33,7 +33,6 @@ export class UtmHeaderHealthWarningComponent implements OnInit {
         filter(response => !!response),
         tap( () => this.show = true),
         map (response => {
-          console.log('!!in');
           return {...response.resume};
         }));
   }

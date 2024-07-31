@@ -12,6 +12,9 @@ import {OverviewAlertDashboardService} from '../../../../shared/services/charts-
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {deleteNullValues} from '../../../../shared/util/object-util';
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
+import {RefreshService} from "../../../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-chart-alert-by-category',
@@ -27,22 +30,31 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
   chartEnumType = ChartTypeEnum;
   barOption: any;
   noData = false;
+  destroy$ = new Subject<void>();
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
+              private refreshService: RefreshService,
               private router: Router,
               private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
     this.queryParams.top = 10;
-    if (this.refreshInterval) {
+    /*if (this.refreshInterval) {
       this.interval = setInterval(() => {
         this.getCategoryData();
       }, this.refreshInterval);
-    }
+    }*/
+    this.refreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.getCategoryData();
+      });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     clearInterval(this.interval);
   }
 

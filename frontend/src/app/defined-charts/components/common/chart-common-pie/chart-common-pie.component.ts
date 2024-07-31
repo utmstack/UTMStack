@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {filter} from "rxjs/operators";
+import {filter, takeUntil} from "rxjs/operators";
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../../shared/chart/types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../../shared/chart/types/charts/chart-properties/style/item-style';
@@ -15,6 +15,7 @@ import {RefreshService} from '../../../../shared/services/util/refresh.service';
 import {PieResponseType} from '../../../../shared/types/chart-reponse/pie-response.type';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-chart-common-pie',
@@ -37,7 +38,7 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   chartEnumType = ChartTypeEnum;
   pieOption: any;
   noData = false;
-
+  destroy$ = new Subject<void>();
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private router: Router,
@@ -53,10 +54,10 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
       }, this.refreshInterval);
     }*/
     this.refreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        console.log('Get Pie Data');
         this.getPieData();
-    });
+      });
   }
 
   onTimeFilterChange($event: TimeFilterType) {
@@ -66,6 +67,8 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     clearInterval(this.interval);
   }
 

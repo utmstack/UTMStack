@@ -18,9 +18,6 @@ import {itemsPerPage} from '../../../services/rules.resolver.service';
 import {Actions} from "../../../app-correlation-management/models/config.type";
 import {ConfigService} from "../../../app-correlation-management/services/config.service";
 import {AddRuleComponent} from "../add-rule/add-rule.component";
-import {
-  AddAssetComponent
-} from "../../../app-correlation-management/components/assets/components/components/add-asset/add-asset.component";
 
 
 @Component({
@@ -54,7 +51,6 @@ export class RuleListComponent implements OnInit, OnDestroy {
   destroy$: Subject<void> = new Subject<void>();
 
   constructor(private route: ActivatedRoute,
-              private router: Router,
               private filterService: FilterService,
               private ruleService: RuleService,
               private modalService: NgbModal,

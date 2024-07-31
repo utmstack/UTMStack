@@ -92,7 +92,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.refreshService.startInterval();
     this.menuBehavior.$menu.next(false);
     window.addEventListener('beforeprint', (event) => {
       this.pdfExport = true;
@@ -114,7 +113,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
      * END
      */
 
-    this.getDailyAlert();
+    // this.getDailyAlert();
 
     /**
      * Show activate modules modal on constructor
@@ -149,6 +148,8 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
         }, 1000);
       }
     });
+
+    this.refreshService.startInterval();
   }
 
   getActiveModuleStatus(modules: UtmModuleType[], moduleEnum: UtmModulesEnum): boolean {
@@ -254,6 +255,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.refreshService.stopRefresh();
+    this.refreshService.stopInterval();
   }
 }

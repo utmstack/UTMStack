@@ -10,6 +10,8 @@ import {OverviewAlertDashboardService} from '../../../../shared/services/charts-
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {RefreshService} from "../../../../shared/services/util/refresh.service";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-event-in-time',
@@ -25,6 +27,7 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   chartEnumType = ChartTypeEnum;
   multilineOption: any;
   noData = false;
+  destroy$ = new Subject<void>()
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private refreshService: RefreshService,
@@ -39,6 +42,7 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
       }, this.refreshInterval);
     }*/
     this.refreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.getEventByTime();
       });
@@ -74,6 +78,8 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     clearInterval(this.interval);
   }
 

@@ -11,6 +11,8 @@ import {OverviewAlertDashboardService} from '../../../../shared/services/charts-
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {RefreshService} from "../../../../shared/services/util/refresh.service";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-common-table',
@@ -37,6 +39,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
   loadingOption = true;
   responseRows: Array<{ value: any; metric: boolean }[]>;
   queryParams = {from: 'now-7d', to: 'now', top: 20};
+  destroy$: Subject<void> = new Subject<void>();
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private refreshService: RefreshService,
@@ -52,13 +55,15 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
       }, this.refreshInterval);
     }*/
     this.refreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        console.log('Get Pie Data');
         this.getTopAlert();
       });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     clearInterval(this.interval);
   }
 

@@ -15,26 +15,26 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="!loadingStatusAlert && status.length>0"
+    <div *ngIf="status$ | async as status"
          class="d-flex justify-content-around align-items-center h-100 p-4">
       <app-kpi (click)="chartEvent(OPEN)"
                [color]="'#28a745'"
                [decimal]="0" [icon]="OPEN_ICON"
                [label]="'Open'"
-               [value]="status[0].value"
+               [value]="status[0]?.value"
                class="cursor-pointer"></app-kpi>
       <app-kpi (click)="chartEvent(REVIEW)"
                [color]="'#26c6da'"
                [decimal]="0" [icon]="REVIEW_ICON"
                [label]="'In review'"
-               [value]="status[1].value"
+               [value]="status[1]?.value"
                class="cursor-pointer"></app-kpi>
       <app-kpi (click)="chartEvent(CLOSED)"
                [color]="'#0277bd'"
                [decimal]="0"
                [icon]="CLOSED_ICON"
                [label]="'Complete'"
-               [value]="status[2].value" class="cursor-pointer"></app-kpi>
+               [value]="status[2]?.value" class="cursor-pointer"></app-kpi>
     </div>
   </div>
 </div>
