@@ -11,12 +11,12 @@ public class PipelineStats {
     Boolean systemOwner;
     String pipelineDescription;
     PipelineEvents events;
-    PipelineReloads reloads;
+    Long errors;
 
     public PipelineStats() {
     }
 
-    public PipelineStats(UtmLogstashPipeline info, PipelineEvents events, PipelineReloads reloads) {
+    public PipelineStats(UtmLogstashPipeline info, PipelineEvents events, Long errors) {
         this.id = info.getId();
         this.pipelineId = info.getPipelineId();
         this.pipelineName = info.getPipelineName();
@@ -24,7 +24,7 @@ public class PipelineStats {
         this.moduleName = info.getModuleName();
         this.systemOwner = info.getSystemOwner();
         this.events = events;
-        this.reloads = reloads;
+        this.errors = errors;
     }
     public static PipelineStats getPipelineStats(UtmLogstashPipeline info) {
         PipelineStats stats = new PipelineStats();
@@ -37,11 +37,8 @@ public class PipelineStats {
         stats.setPipelineDescription(info.getPipelineDescription());
         PipelineEvents events = new PipelineEvents();
         events.setOut(info.getEventsOut());
-        PipelineReloads reloads = new PipelineReloads();
-        PipelineLastError lastError = new PipelineLastError();
-        reloads.setLastError(lastError);
         stats.setEvents(events);
-        stats.setReloads(reloads);
+        stats.setErrors(0L);
         return stats;
     }
 
@@ -109,12 +106,12 @@ public class PipelineStats {
         this.events = events;
     }
 
-    public PipelineReloads getReloads() {
-        return reloads;
+    public Long getErrors() {
+        return errors;
     }
 
-    public void setReloads(PipelineReloads reloads) {
-        this.reloads = reloads;
+    public void setErrors(Long errors) {
+        this.errors = errors;
     }
 }
 
