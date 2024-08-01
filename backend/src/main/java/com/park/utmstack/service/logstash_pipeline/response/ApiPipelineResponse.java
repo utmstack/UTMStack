@@ -5,18 +5,18 @@ import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineDat
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class LogstashApiPipelineResponse {
+public class ApiPipelineResponse {
     String host;
     String version;
     Map<String, PipelineData> pipelines;
 
-    public LogstashApiPipelineResponse(){
+    public ApiPipelineResponse(){
         this.host = "Unknown";
         this.version = "Unknown";
         this.pipelines = new LinkedHashMap<>();
     }
 
-    public LogstashApiPipelineResponse(String host, String version, Map<String, PipelineData> pipelines) {
+    public ApiPipelineResponse(String host, String version, Map<String, PipelineData> pipelines) {
         this.host = host;
         this.version = version;
         this.pipelines = pipelines;

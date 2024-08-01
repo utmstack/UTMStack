@@ -1,15 +1,15 @@
-package com.park.utmstack.service.logstash_pipeline.response.jvm_stats;
+package com.park.utmstack.service.logstash_pipeline.response.engine;
 
-public class LogstashApiJvmResponse {
+public class ApiEngineResponse {
     String version;
     String status;
 
-    public LogstashApiJvmResponse(){
+    public ApiEngineResponse(){
         this.version = "2.0.0";
         this.status = "down";
     }
-    public LogstashApiJvmResponse(String host, String version,
-                                  String status) {
+    public ApiEngineResponse(String host, String version,
+                             String status) {
         this.version = version;
         this.status = status;
     }

@@ -10,9 +10,9 @@ import com.park.utmstack.repository.logstash_pipeline.UtmGroupLogstashPipelineFi
 import com.park.utmstack.repository.logstash_pipeline.UtmLogstashPipelineRepository;
 import com.park.utmstack.service.dto.logstash_pipeline.UtmLogstashPipelineDTO;
 import com.park.utmstack.service.logstash_pipeline.enums.PipelineStatus;
-import com.park.utmstack.service.logstash_pipeline.response.LogstashApiPipelineResponse;
-import com.park.utmstack.service.logstash_pipeline.response.LogstashApiStatsResponse;
-import com.park.utmstack.service.logstash_pipeline.response.jvm_stats.LogstashApiJvmResponse;
+import com.park.utmstack.service.logstash_pipeline.response.ApiPipelineResponse;
+import com.park.utmstack.service.logstash_pipeline.response.ApiStatsResponse;
+import com.park.utmstack.service.logstash_pipeline.response.engine.ApiEngineResponse;
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineData;
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineStats;
 import com.park.utmstack.service.web_clients.rest_template.RestTemplateService;
@@ -225,26 +225,26 @@ public class UtmLogstashPipelineService {
     /**
      * Getting logstash pipelines information
      */
-    private LogstashApiPipelineResponse pipelineApiResponse() {
+    private ApiPipelineResponse pipelineApiResponse() {
         final String ctx = CLASSNAME + ".pipelineApiResponse";
-        return new LogstashApiPipelineResponse();
+        return new ApiPipelineResponse();
     }
 
     /**
      * Getting logstash jvm information
      */
-    public LogstashApiJvmResponse logstashJvmApiResponse() {
+    public ApiEngineResponse logstashJvmApiResponse() {
         final String ctx = CLASSNAME + ".logstashJvmApiResponse";
-        return new LogstashApiJvmResponse();
+        return new ApiEngineResponse();
 
     }
 
     /**
      * Getting active pipelines stats from DB, general jvm stats from logstash
      */
-    public LogstashApiStatsResponse getLogstashStats() throws Exception {
+    public ApiStatsResponse getLogstashStats() throws Exception {
         final String ctx = CLASSNAME + ".getLogstashStats";
-        LogstashApiStatsResponse statsResponse = new LogstashApiStatsResponse();
+        ApiStatsResponse statsResponse = new ApiStatsResponse();
 
         // Variables used to set the general pipeline's status
         AtomicInteger activePipelinesCount = new AtomicInteger();
@@ -257,7 +257,7 @@ public class UtmLogstashPipelineService {
         }*/
         try {
             // Getting Jvm information (not used)
-            LogstashApiJvmResponse jvmData = logstashJvmApiResponse();
+            ApiEngineResponse jvmData = logstashJvmApiResponse();
             if (jvmData != null) {
                 statsResponse.setGeneral(jvmData);
             }
@@ -330,7 +330,7 @@ public class UtmLogstashPipelineService {
         } else {*/
             try {
 
-                LogstashApiPipelineResponse response = pipelineApiResponse();
+                ApiPipelineResponse response = pipelineApiResponse();
                 Map<String, Long> mapInit = activeByServer.stream()
                         .collect(Collectors.toMap(UtmLogstashPipeline::getPipelineId, myId -> (
                                 getFailures(myId, response)
@@ -338,7 +338,7 @@ public class UtmLogstashPipelineService {
 
                 Thread.sleep(2000);
 
-                LogstashApiPipelineResponse responseLast = pipelineApiResponse();
+                ApiPipelineResponse responseLast = pipelineApiResponse();
                 Map<String, PipelineData> pipelineInfo = responseLast.getPipelines();
 
                 activeByServer.stream().forEach((p) -> {
@@ -371,7 +371,7 @@ public class UtmLogstashPipelineService {
 
     // Method to count the failures by pipeline
     // Will be modified when engine stats is finished
-    private Long getFailures(UtmLogstashPipeline e, LogstashApiPipelineResponse response) {
+    private Long getFailures(UtmLogstashPipeline e, ApiPipelineResponse response) {
         Map<String, PipelineData> pipelines = response.getPipelines();
         PipelineData pipData = pipelines.get(e.getPipelineId());
         if (pipData != null) {

@@ -7,7 +7,7 @@ import com.park.utmstack.repository.logstash_pipeline.UtmGroupLogstashPipelineFi
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.logstash_pipeline.UtmLogstashPipelineDTO;
 import com.park.utmstack.service.logstash_pipeline.UtmLogstashPipelineService;
-import com.park.utmstack.service.logstash_pipeline.response.LogstashApiStatsResponse;
+import com.park.utmstack.service.logstash_pipeline.response.ApiStatsResponse;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -25,11 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
-import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link UtmLogstashPipeline}.
@@ -85,14 +83,14 @@ public class UtmLogstashPipelineResource {
     /**
      * {@code GET  /logstash-pipelines/stats} : Get general logstash stats and pipeline stats.
      *
-     * @return the {@link ResponseEntity} with a {@link LogstashApiStatsResponse} object representing logstash statistics and the active pipelines and its stats, with status {@code 200 (Ok)}, or with status {@code 500 (Internal)} if errors occurred.
+     * @return the {@link ResponseEntity} with a {@link ApiStatsResponse} object representing logstash statistics and the active pipelines and its stats, with status {@code 200 (Ok)}, or with status {@code 500 (Internal)} if errors occurred.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @GetMapping("/logstash-pipelines/stats")
-    public ResponseEntity<LogstashApiStatsResponse> getLogstashStats() {
+    public ResponseEntity<ApiStatsResponse> getLogstashStats() {
         final String ctx = CLASSNAME + ".getLogstashStats";
         try {
-            LogstashApiStatsResponse statsResponse = utmLogstashPipelineService.getLogstashStats();
+            ApiStatsResponse statsResponse = utmLogstashPipelineService.getLogstashStats();
             return ResponseEntity.ok().body(statsResponse);
         } catch (org.springframework.web.client.ResourceAccessException ex) {
             String msg = ctx + ": Logstash server can't be reached, may be it's down, check the message -> " + ex.getMessage();
