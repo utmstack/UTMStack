@@ -21,3 +21,14 @@ updates:
     directory: "/bitdefender" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "maven" # Adding support for java
+    directories: 
+      - "/backend"
+      - "/user-auditor"
+      - "/web-pdf"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
