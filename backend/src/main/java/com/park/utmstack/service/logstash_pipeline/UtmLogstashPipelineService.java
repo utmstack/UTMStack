@@ -14,7 +14,6 @@ import com.park.utmstack.service.logstash_pipeline.response.LogstashApiPipelineR
 import com.park.utmstack.service.logstash_pipeline.response.LogstashApiStatsResponse;
 import com.park.utmstack.service.logstash_pipeline.response.jvm_stats.LogstashApiJvmResponse;
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineData;
-import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineReloads;
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineStats;
 import com.park.utmstack.service.web_clients.rest_template.RestTemplateService;
 import com.park.utmstack.web.rest.vm.UtmLogstashPipelineVM;
@@ -24,7 +23,6 @@ import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +43,6 @@ public class UtmLogstashPipelineService {
 
     private final UtmLogstashPipelineRepository utmLogstashPipelineRepository;
     private final RestTemplateService restTemplateService;
-
-    private final String LOGSTASH_URL = System.getenv("LOGSTASH_URL");
 
     private static final String CLASSNAME = "UtmLogstashPipelineService";
 
@@ -231,22 +227,7 @@ public class UtmLogstashPipelineService {
      */
     private LogstashApiPipelineResponse pipelineApiResponse() {
         final String ctx = CLASSNAME + ".pipelineApiResponse";
-
-        LogstashApiPipelineResponse result = new LogstashApiPipelineResponse();
-
-        try {
-            ResponseEntity<LogstashApiPipelineResponse> rs = restTemplateService.get(LOGSTASH_URL + "/_node/stats/pipelines?pretty",
-                    LogstashApiPipelineResponse.class);
-            if (!rs.getStatusCode().is2xxSuccessful())
-                log.error(ctx + ": " + restTemplateService.extractErrorMessage(rs));
-
-            result = rs.getBody();
-        } catch (Exception ex) {
-            log.error(ctx + ": " + ex.getMessage());
-            return result;
-        }
-        return result;
-
+        return new LogstashApiPipelineResponse();
     }
 
     /**
@@ -254,20 +235,7 @@ public class UtmLogstashPipelineService {
      */
     public LogstashApiJvmResponse logstashJvmApiResponse() {
         final String ctx = CLASSNAME + ".logstashJvmApiResponse";
-        LogstashApiJvmResponse result = new LogstashApiJvmResponse();
-
-        try {
-            ResponseEntity<LogstashApiJvmResponse> rs = restTemplateService.get(LOGSTASH_URL + "/_node/stats/jvm",
-                    LogstashApiJvmResponse.class);
-            if (!rs.getStatusCode().is2xxSuccessful())
-                log.error(ctx + ": " + restTemplateService.extractErrorMessage(rs));
-
-            result = rs.getBody();
-        } catch (Exception ex) {
-            log.error(ctx + ": " + ex.getMessage());
-            return result;
-        }
-        return result;
+        return new LogstashApiJvmResponse();
 
     }
 
@@ -283,12 +251,12 @@ public class UtmLogstashPipelineService {
         AtomicInteger upPipelinesCount = new AtomicInteger();
         boolean isCorrelationUp = isEngineUp();
 
-        if (!StringUtils.hasText(LOGSTASH_URL)) {
+        /*if (!StringUtils.hasText(LOGSTASH_URL)) {
             log.error(ctx + ": The pipeline's status cannot be processed because " +
                     "the environment variable LOGSTASH_URL is not configured.");
-        }
+        }*/
         try {
-            // Getting Logstash Jvm information
+            // Getting Jvm information (not used)
             LogstashApiJvmResponse jvmData = logstashJvmApiResponse();
             if (jvmData != null) {
                 statsResponse.setGeneral(jvmData);
@@ -299,8 +267,8 @@ public class UtmLogstashPipelineService {
             // Getting the active pipelines statistics
             infoStats = activePipelinesList().stream().map(activePip -> {
 
-                // Calculating stats for logstash pipelines
-                if (logshtashPipelines.contains(activePip.getModuleName())) {
+                // Calculating stats for pipelines
+                /*if (logshtashPipelines.contains(activePip.getModuleName())) {
                     if (!jvmData.getStatus().equals(PipelineStatus.LOGSTASH_STATUS_DOWN.get())) {
                         activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
                         if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
@@ -310,7 +278,7 @@ public class UtmLogstashPipelineService {
                         activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
                     }
                     // Setting stats for non-logstash pipelines (correlation engine)
-                } else {
+                } else {*/
                     if (isCorrelationUp) {
                         activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
                         if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
@@ -319,24 +287,22 @@ public class UtmLogstashPipelineService {
                     } else {
                         activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
                     }
-                }
+               // }
                 // Mapping stats from DB pipeline
                 return PipelineStats.getPipelineStats(activePip);
             }).collect(Collectors.toList());
 
             // Setting the final global status of pipelines
-            if (!jvmData.getStatus().equals(PipelineStatus.LOGSTASH_STATUS_DOWN.get())) {
+            if (isCorrelationUp) {
                 if (upPipelinesCount.get() == 0) {
-                    jvmData.setStatus(PipelineStatus.LOGSTASH_STATUS_RED.get());
+                    jvmData.setStatus(PipelineStatus.ENGINE_STATUS_RED.get());
                 } else if (upPipelinesCount.get() == activePipelinesCount.get()) {
-                    jvmData.setStatus(PipelineStatus.LOGSTASH_STATUS_GREEN.get());
+                    jvmData.setStatus(PipelineStatus.ENGINE_STATUS_GREEN.get());
                 } else {
-                    jvmData.setStatus(PipelineStatus.LOGSTASH_STATUS_YELLOW.get());
+                    jvmData.setStatus(PipelineStatus.ENGINE_STATUS_YELLOW.get());
                 }
             }
             statsResponse.setPipelines(infoStats);
-        } catch (org.springframework.web.client.ResourceAccessException ex) {
-            throw new Exception(ctx + ": Logstash server can't be reached, may be it's down, check the message -> " + ex.getMessage());
         } catch (Exception ex) {
             throw new Exception(ctx + ": " + ex.getMessage());
         }
@@ -344,24 +310,24 @@ public class UtmLogstashPipelineService {
     }
 
     /**
-     * Method to get the pipelines status
+     * Method to set the DB pipelines status
      */
     @Scheduled(fixedDelay = 20000, initialDelay = 30000)
     public List<UtmLogstashPipeline> pipelineStatus() {
         final String ctx = CLASSNAME + ".pipelineStatus";
         // Only logstash pipelines get updated for the moment
         // We will add correlation pipelines status update when we know how to get the status or metrics
-        List<UtmLogstashPipeline> activeByServer = utmLogstashPipelineRepository.activeLogstashPipelines();
+        List<UtmLogstashPipeline> activeByServer = utmLogstashPipelineRepository.allActivePipelinesByServer();
 
         // Checking if LOGSTASH_URL is set, otherwise report an error
-        if (!StringUtils.hasText(LOGSTASH_URL)) {
+        /*if (!StringUtils.hasText(LOGSTASH_URL)) {
             log.error(ctx + ": The pipeline's status cannot be processed because the environment variable " +
                     "LOGSTASH_URL is not configured.");
             activeByServer.stream().forEach((p) -> {
                 p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
             });
             utmLogstashPipelineRepository.saveAll(activeByServer);
-        } else {
+        } else {*/
             try {
 
                 LogstashApiPipelineResponse response = pipelineApiResponse();
@@ -376,7 +342,7 @@ public class UtmLogstashPipelineService {
                 Map<String, PipelineData> pipelineInfo = responseLast.getPipelines();
 
                 activeByServer.stream().forEach((p) -> {
-                    // Getting stats from logstash and updating DB pipeline
+                    // Getting stats and updating DB pipeline
                     PipelineData data = pipelineInfo.get(p.getPipelineId());
                     if (data != null) {
                         p.setEventsOut(data.getEvents().getOut());
@@ -399,18 +365,20 @@ public class UtmLogstashPipelineService {
                 });
                 utmLogstashPipelineRepository.saveAll(activeByServer);
             }
-        }
+        //}
         return activeByServer;
     }
 
     // Method to count the failures by pipeline
+    // Will be modified when engine stats is finished
     private Long getFailures(UtmLogstashPipeline e, LogstashApiPipelineResponse response) {
         Map<String, PipelineData> pipelines = response.getPipelines();
         PipelineData pipData = pipelines.get(e.getPipelineId());
         if (pipData != null) {
-            return pipData.getReloads().getFailures();
+            return 0L;
+            // return pipData.getReloads().getFailures();
         }
-        return -1L;
+        return 0L;
     }
 
     // Method used to generate unique name based pipelineId
