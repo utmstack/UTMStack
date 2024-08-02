@@ -1,8 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Subject} from 'rxjs';
-import {filter, map, takeUntil, tap} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../../shared/chart/types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../../shared/chart/types/charts/chart-properties/style/item-style';
@@ -22,7 +22,8 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 @Component({
   selector: 'app-chart-common-pie',
   templateUrl: './chart-common-pie.component.html',
-  styleUrls: ['./chart-common-pie.component.scss']
+  styleUrls: ['./chart-common-pie.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartCommonPieComponent implements OnInit, OnDestroy {
   @Input() type: RefreshType;
@@ -41,6 +42,7 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   pieOption: any;
   noData = false;
   destroy$ = new Subject<void>();
+  data$: Observable<any>;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private router: Router,
@@ -55,13 +57,12 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
         this.getPieData();
       }, this.refreshInterval);
     }*/
-    this.refreshService.refresh$
+
+    this.data$ = this.refreshService.refresh$
       .pipe(takeUntil(this.destroy$),
       filter(refreshType => (
-        refreshType === RefreshType.ALL || refreshType === this.type)))
-      .subscribe(() => {
-        this.getPieData();
-      });
+        refreshType === RefreshType.ALL || refreshType === this.type)),
+        switchMap(() => this.getPieData()));
   }
 
   onTimeFilterChange($event: TimeFilterType) {
@@ -71,18 +72,7 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   }
 
   getPieData() {
-    /*this.overviewAlertDashboardService.getDataPie(this.endpoint, this.queryParams)
-      .subscribe((severity) => {
-      this.loadingPieOption = false;
-      if (severity.body.data.length > 0) {
-        this.noData = false;
-        this.buildPieChart(severity.body);
-      } else {
-        this.noData = true;
-      }
-    });*/
-
-     this.overviewAlertDashboardService.getDataPie(this.endpoint, this.queryParams)
+     return this.overviewAlertDashboardService.getDataPie(this.endpoint, this.queryParams)
       .pipe(
         map(response => response.body),
         tap(data => {
@@ -94,7 +84,7 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
             this.noData = true;
           }
         })
-      ).subscribe();
+      );
   }
 
   buildPieChart(data: PieResponseType) {

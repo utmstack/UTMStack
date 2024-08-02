@@ -9,7 +9,7 @@
                              [timeDefault]="defaultTime">
     </app-elastic-filter-time>
   </div>
-  <div class="card-body p-2">
+  <div *ngIf="data$ | async" class="card-body p-2">
     <div *ngIf="loadingPieOption"
          class="loading-chart w-100 h-100
                  chart chart-fixed-height

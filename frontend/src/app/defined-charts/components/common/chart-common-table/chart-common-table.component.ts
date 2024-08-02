@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {TableBuilderResponseType} from '../../../../shared/chart/types/response/table-builder-response.type';
@@ -7,17 +7,20 @@ import {SortDirection} from '../../../../shared/directives/sortable/type/sort-di
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
-import {OverviewAlertDashboardService} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {
+  OverviewAlertDashboardService
+} from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
 import {Observable, Subject} from "rxjs";
-import {filter, map, startWith, switchMap, takeUntil, tap} from "rxjs/operators";
+import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-common-table',
   templateUrl: './chart-common-table.component.html',
-  styleUrls: ['./chart-common-table.component.scss']
+  styleUrls: ['./chart-common-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartCommonTableComponent implements OnInit, OnDestroy {
   @Input() type: RefreshType;
@@ -73,7 +76,6 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
         this.responseRows = this.data.rows;
         this.totalItems = this.data.rows.length;
       });*/
-    this.loadingOption = true;
     return this.overviewAlertDashboardService.getDataTable(this.endpoint, this.queryParams)
       .pipe(
         map(response => response.body),
@@ -88,6 +90,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
   }
 
   loadPage(page: number) {
+    this.loadingOption = true;
     this.pageEnd = page * this.itemsPerPage;
     this.pageStart = this.pageEnd - this.itemsPerPage;
     this.refreshService.sendRefresh(this.type);
@@ -110,6 +113,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
   }
 
   onTimeFilterChange($event: TimeFilterType) {
+    this.loadingOption = true;
     this.queryParams.from = $event.timeFrom;
     this.queryParams.to = $event.timeTo;
     this.refreshService.sendRefresh(this.type);

@@ -2,6 +2,7 @@
   <div *ngIf="!pdfExport" class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title label-header mb-0 text-uppercase label-header">Overview</h5>
     <div class="header-elements d-flex justify-content-end align-items-center">
+      <app-refresh-filter></app-refresh-filter>
       <app-elastic-filter-time [invertContent]="true"
                                [isEmitter]="true"
                                container="body"></app-elastic-filter-time>

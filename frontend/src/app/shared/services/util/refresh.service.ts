@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import {TIME_REFRESH} from "../../components/utm/filters/refresh-filter/refresh-filter.component";
+import {LocalStorageService} from "ngx-webstorage";
 
 export enum RefreshType {
   ALL = 'ALL',
@@ -18,12 +20,11 @@ export enum RefreshType {
 })
 export class RefreshService {
   private refreshSubject = new BehaviorSubject<string>(null);
-  private refreshInterval = 10000;
+  private refreshInterval = 0;
   private interval$: Observable<number>;
   private subscription: Subscription;
 
   constructor() {
-    this.interval$ = interval(this.refreshInterval);
   }
 
   startInterval() {
@@ -39,7 +40,7 @@ export class RefreshService {
       .pipe(filter(value => !!value));
   }
 
-  sendRefresh(type: RefreshType = RefreshType.ALL){
+  sendRefresh(type: RefreshType = RefreshType.ALL) {
     this.refreshSubject.next(type);
   }
 
@@ -52,6 +53,7 @@ export class RefreshService {
   }
 
   setRefreshInterval(refreshInterval: number) {
+    this.stopInterval();
     this.refreshInterval = refreshInterval;
     this.interval$ = interval(this.refreshInterval);
     this.startInterval();

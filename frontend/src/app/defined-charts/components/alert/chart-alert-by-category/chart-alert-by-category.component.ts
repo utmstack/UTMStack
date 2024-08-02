@@ -1,6 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Observable, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {Tooltip} from '../../../../shared/chart/types/charts/chart-properties/tooltip/tooltip';
 import {
@@ -15,28 +17,28 @@ import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
 import {
   OverviewAlertDashboardService
 } from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {RefreshService, RefreshType} from '../../../../shared/services/util/refresh.service';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {deleteNullValues} from '../../../../shared/util/object-util';
-import {Subject} from "rxjs";
-import {filter, takeUntil} from "rxjs/operators";
-import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-chart-alert-by-category',
   templateUrl: './chart-alert-by-category.component.html',
-  styleUrls: ['./chart-alert-by-category.component.scss']
+  styleUrls: ['./chart-alert-by-category.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   queryParams = {from: 'now-7d', to: 'now', top: 10};
-  loadingBarOption = true;
+  loadingBarOption = false;
   chartEnumType = ChartTypeEnum;
   barOption: any;
   noData = false;
   destroy$ = new Subject<void>();
+  data: Observable<any>;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private refreshService: RefreshService,
@@ -51,16 +53,15 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
         this.getCategoryData();
       }, this.refreshInterval);
     }*/
-    this.refreshService.refresh$
+    this.data = this.refreshService.refresh$
       .pipe(takeUntil(this.destroy$),
             filter(refresh => (
-              refresh === RefreshType.ALL || refresh === RefreshType.CHART_ALERT_BY_CATEGORY)))
-      .subscribe(() => {
-        this.getCategoryData();
-      });
+              refresh === RefreshType.ALL || refresh === RefreshType.CHART_ALERT_BY_CATEGORY)),
+            switchMap(() => this.getCategoryData()));
   }
 
   onTimeFilterChange($event: TimeFilterType) {
+    this.loadingBarOption = true;
     this.queryParams.from = $event.timeFrom;
     this.queryParams.to = $event.timeTo;
     this.refreshService.sendRefresh(RefreshType.CHART_ALERT_BY_CATEGORY);
@@ -68,16 +69,19 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
 
 
   getCategoryData() {
-    this.overviewAlertDashboardService.getAlertByCategory(this.queryParams)
-      .subscribe((category) => {
-        this.loadingBarOption = false;
-        if (category.body.categories.length > 0) {
-          this.noData = false;
-          this.buildCategoryChart(category.body);
-        } else {
-          this.noData = true;
-        }
-      });
+   return  this.overviewAlertDashboardService.getAlertByCategory(this.queryParams)
+      .pipe(
+        map(response => response.body),
+        tap((data) =>  {
+          this.loadingBarOption = false;
+          if (data.categories.length > 0) {
+            this.noData = false;
+            this.buildCategoryChart(data);
+          } else {
+            this.noData = true;
+          }
+        }),
+      );
   }
 
   buildCategoryChart(data: { categories: string[], series: number[] }) {

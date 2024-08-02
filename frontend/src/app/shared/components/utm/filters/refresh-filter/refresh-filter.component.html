@@ -1,0 +1,42 @@
+<div #popover="ngbPopover"
+     [container]="'body'"
+     [ngbPopover]="popContent"
+     autoClose="outside"
+     class="d-flex justify-content-start align-items-center cursor-pointer pr-2"
+     placement="bottom"
+     popoverClass="utm-popover-xs" style="white-space: nowrap">
+    <span [ngClass]="'p-2 mr-2 border-left-1'"
+          class="setting-filter cursor-pointer text-blue-800 border-grey-100">
+        <i class="icon-watch2"></i>
+        <i [ngClass]="popover.isOpen() ? 'icon-arrow-right32' : 'icon-arrow-down32'" class="ml-2"></i>
+    </span>
+</div>
+
+<ng-template #popContent>
+  <div style="width: 200px" class="refresh-interval-container d-flex flex-column">
+    <div class="d-flex justify-content-start mb-2">
+      <div class="flex-grow-1">
+        <label class="">Refresh time</label>
+        <ng-select
+          style="width: 100%"
+          #selectInterval="ngModel"
+          required
+          [items]="refreshIntervals"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Select refresh interval"
+          [(ngModel)]="selectedInterval">
+        </ng-select>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-end mt-2">
+    <button (click)="apply();popover.close()"
+            [disabled]="!selectInterval.valid"
+            class="btn utm-button utm-button-primary">
+      <i class="icon-checkmark-circle"></i>
+      Apply
+    </button>
+  </div>
+</ng-template>
+

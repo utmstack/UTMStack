@@ -217,6 +217,8 @@ import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
+import {RefreshFilterComponent} from "./components/utm/filters/refresh-filter/refresh-filter.component";
+import {LocalStorageService} from "ngx-webstorage";
 
 
 @NgModule({
@@ -356,7 +358,8 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
     ZoomDirective,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
-    EmailSettingNotificactionComponent
+    EmailSettingNotificactionComponent,
+    RefreshFilterComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -449,7 +452,8 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
     UtmVersionInfoComponent,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
-    EmailSettingNotificactionComponent
+    EmailSettingNotificactionComponent,
+    RefreshFilterComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -501,7 +505,8 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
     UtmNotifier,
     VersionUpdateBehavior,
     AuthServerProvider,
-    NgbActiveModal],
+    NgbActiveModal,
+    LocalStorageService],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UtmSharedModule {

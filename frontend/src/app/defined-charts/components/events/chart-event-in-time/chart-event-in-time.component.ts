@@ -1,8 +1,8 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Subject} from 'rxjs';
-import {filter, takeUntil} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {buildMultilineObject} from '../../../../shared/chart/util/build-multiline-option.util';
 import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
@@ -27,7 +27,8 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   chartEnumType = ChartTypeEnum;
   multilineOption: any;
   noData = false;
-  destroy$ = new Subject<void>()
+  destroy$ = new Subject<void>();
+  data$: Observable<any>;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private refreshService: RefreshService,
@@ -41,14 +42,12 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
         this.getEventByTime();
       }, this.refreshInterval);
     }*/
-    this.refreshService.refresh$
+    this.data$ = this.refreshService.refresh$
       .pipe(
         takeUntil(this.destroy$),
         filter(refreshType => (
-          refreshType === RefreshType.ALL || refreshType === this.type)))
-      .subscribe(() => {
-        this.getEventByTime();
-      });
+          refreshType === RefreshType.ALL || refreshType === this.type)),
+        switchMap(() => this.getEventByTime()));
   }
 
   onTimeFilterChange($event: TimeFilterType) {
@@ -80,13 +79,8 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
     // @timestamp is [date]
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   private getEventByTime() {
-    this.overviewAlertDashboardService.getEventInTime(this.queryParams)
+    /*this.overviewAlertDashboardService.getEventInTime(this.queryParams)
       .subscribe(event => {
         this.loadingPieOption = false;
         if (event.body.categories.length > 0) {
@@ -97,7 +91,27 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
         } else {
           this.noData = true;
         }
-      });
+      });*/
 
+    return this.overviewAlertDashboardService.getEventInTime(this.queryParams)
+      .pipe(
+        map( response => response.body),
+        tap(data => {
+          this.loadingPieOption = false;
+          if (data.categories.length > 0) {
+            this.noData = false;
+            buildMultilineObject(data).then(option => {
+              this.multilineOption = option;
+            });
+          } else {
+            this.noData = true;
+          }
+        })
+      );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

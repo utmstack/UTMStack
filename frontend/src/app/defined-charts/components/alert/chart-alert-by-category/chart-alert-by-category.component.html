@@ -9,7 +9,7 @@
                              [timeDefault]="defaultTime">
     </app-elastic-filter-time>
   </div>
-  <div class="card-body p-2">
+  <div *ngIf="data | async as data" class="card-body p-2">
     <div *ngIf="loadingBarOption"
          class="loading-chart w-100 h-100
                  chart chart-fixed-height
@@ -19,7 +19,7 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="!loadingBarOption && noData"
+    <div *ngIf="noData"
          class="chart chart-fixed-height">
       <app-no-data-chart [typeChart]="chartEnumType.BAR_CHART"></app-no-data-chart>
     </div>

@@ -149,8 +149,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
         }, 1000);
       }
     });
-
-    this.refreshService.startInterval();
   }
 
   getActiveModuleStatus(modules: UtmModuleType[], moduleEnum: UtmModulesEnum): boolean {
