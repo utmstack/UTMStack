@@ -61,6 +61,8 @@ const (
 	DependInstallerLabel  = "installer"
 	DependServiceLabel    = "service"
 	DependZipLabel        = "depend_zip"
+	CertPath              = "/cert/utm.crt"
+	CertKeyPath           = "/cert/utm.key"
 )
 
 var (
