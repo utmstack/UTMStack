@@ -66,8 +66,11 @@ export class ChartViewComponent implements OnInit {
         });
       }
     });
-    this.runVisualization();
+
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+    if (!this.defaultTime) {
+      this.runVisualization();
+    }
 
     window.addEventListener('resize', (event) => {
       this.resizeChart();

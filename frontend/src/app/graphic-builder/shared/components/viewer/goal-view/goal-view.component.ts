@@ -59,8 +59,10 @@ export class GoalViewComponent implements OnInit {
         });
       }
     });
-    this.runVisualization();
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+    if (!this.defaultTime) {
+      this.runVisualization();
+    }
     this.extractGoals();
   }
 
