@@ -17,7 +17,8 @@ export class RefreshFilterComponent implements OnInit {
     { label: '40 min', value: 2400000 },
     { label: '1 hour', value: 3600000 },
     { label: 'Paused', value: 0 },
-  ];  selectedInterval = 0;
+  ];
+  selectedInterval = 0;
   constructor(private refreshService: RefreshService,
               private storage: LocalStorageService) {
   }
@@ -27,10 +28,6 @@ export class RefreshFilterComponent implements OnInit {
       this.selectedInterval = time;
       this.apply();
     }
-  }
-
-  open(){
-    this.show = true;
   }
 
   apply() {
