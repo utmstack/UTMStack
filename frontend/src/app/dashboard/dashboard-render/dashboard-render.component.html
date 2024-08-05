@@ -17,10 +17,9 @@
   </div>
 </div>
 <div class="w-100 h-100 mb-3">
-  <gridster *ngIf="layout.length>0 && !loadingVisualizations"
-            [options]="options" style="background-color: #f1f1f1;z-index: 0; margin-bottom: 15px">
+  <gridster [options]="options" style="background-color: #f1f1f1;z-index: 0; margin-bottom: 15px">
     <gridster-item #gridsterItem
-                   *ngFor="let item of layout; let index = index" [item]="item.grid"
+                   *ngFor="let item of layout$ | async; trackBy: trackByFn; let index = index" [item]="item.grid"
                    (mouseenter)="activeTimeGridster=item.visualization.id"
                    [ngStyle]="{'z-index':(activeTimeGridster===item.visualization.id?100:0)+''}">
       <app-utm-viewer [building]="false"
@@ -28,7 +27,7 @@
                       [chart]="item.visualization.chartType"
                       [chartId]="item.visualization.id"
                       [height]="(gridsterItem.height-38)+'px'"
-                      [showTime]="timeEnable.includes(item.visualization.id)"
+                      [showTime]="item.visualization.showTime"
                       [visualization]="item.visualization"
                       [width]="gridsterItem.width+'px'">
       </app-utm-viewer>

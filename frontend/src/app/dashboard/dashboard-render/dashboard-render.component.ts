@@ -3,6 +3,8 @@ import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridsterItem, GridType} from 'angular-gridster2';
 import {UUID} from 'angular2-uuid';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {map, tap} from 'rxjs/operators';
 import {IComponent} from '../../graphic-builder/dashboard-builder/shared/services/layout.service';
 import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
 import {DashboardBehavior} from '../../shared/behaviors/dashboard.behavior';
@@ -11,6 +13,7 @@ import {UtmDashboardVisualizationType} from '../../shared/chart/types/dashboard/
 import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard.type';
 import {VisualizationType} from '../../shared/chart/types/visualization.type';
 import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
+import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {DashboardFilterType} from '../../shared/types/filter/dashboard-filter.type';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {mergeParams, sanitizeFilters} from '../../shared/util/elastic-filter.util';
@@ -18,8 +21,7 @@ import {filtersToStringParam} from '../../shared/util/query-params-to-filter.uti
 import {normalizeString} from '../../shared/util/string-util';
 import {RenderLayoutService} from '../shared/services/render-layout.service';
 import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
-import {ExportPdfService} from "../../shared/services/util/export-pdf.service";
-import {NgxSpinnerService} from "ngx-spinner";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-dashboard-render',
@@ -59,25 +61,33 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
     swap: false
   };
   filtersValues: ElasticFilterType[] = [];
-  timeEnable: number[] = [];
+  layout$: Observable<{ grid: GridsterItem, visualization: VisualizationType } []>;
 
   constructor(private activatedRoute: ActivatedRoute,
               private layoutService: RenderLayoutService,
               private cdr: ChangeDetectorRef,
-              private modalService: NgbModal,
               private dashboardBehavior: DashboardBehavior,
               private timeFilterBehavior: TimeFilterBehavior,
-              private utmRenderVisualization: UtmRenderVisualization,
               private exportPdfService: ExportPdfService,
               private spinner: NgxSpinnerService) {
   }
 
   ngOnInit() {
-    console.log('Init dashboard');
-
     document.body.classList.add('overflow-hidden');
     this.loadingVisualizations = true;
-    this.activatedRoute.params.subscribe(params => {
+    this.layout$ = this.activatedRoute.data
+      .pipe(
+        tap((visualizations) => {
+          this.dashboard = this.layoutService.dashboard;
+          this.filters = this.dashboard.filters ? JSON.parse(this.dashboard.filters) : [];
+          if (this.dashboard.refreshTime) {
+            this.onRefreshTime(this.dashboard.refreshTime);
+          }
+          this.loadingVisualizations = false;
+        }),
+        map(data => data.response)
+    );
+    /*this.activatedRoute.params.subscribe(params => {
       this.dashboardId = params.id;
       if (this.dashboardId) {
         const request = {
@@ -105,7 +115,7 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
           this.loadingVisualizations = false;
         });
       }
-    });
+    });*/
     this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
       if (dashboardFilter) {
         mergeParams(dashboardFilter.filter, this.filtersValues).then(newFilters => {
@@ -146,9 +156,7 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
   ngOnDestroy(): void {
     document.body.classList.remove('overflow-hidden');
     clearInterval(this.interval);
-    this.visualizationRender = [];
-    this.layoutService.layout = [];
-    this.timeEnable = [];
+    this.layoutService.clearLayout();
     this.dashboardBehavior.$filterDashboard.next(null);
   }
 
@@ -174,6 +182,10 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
         console.error('Error downloading PDF:', error);
       });
     });
+  }
+
+  trackByFn(index: number, item: { grid: GridsterItem, visualization: VisualizationType }) {
+    return item.visualization.id;
   }
 }
 
