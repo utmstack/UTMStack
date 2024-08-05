@@ -11,12 +11,13 @@ export const TIME_REFRESH = 'TIME_REFRESH';
 export class RefreshFilterComponent implements OnInit {
   show = false;
   refreshIntervals = [
-    { label: '1 min', value: 60000 },
     { label: '5 min', value: 300000 },
-    { label: '10 min', value: 300000 },
-    { label: 'Pause', value: 0 },
-  ];
-  selectedInterval = 0;
+    { label: '10 min', value: 600000 },
+    { label: '20 min', value: 1200000 },
+    { label: '40 min', value: 2400000 },
+    { label: '1 hour', value: 3600000 },
+    { label: 'Paused', value: 0 },
+  ];  selectedInterval = 0;
   constructor(private refreshService: RefreshService,
               private storage: LocalStorageService) {
   }

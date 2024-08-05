@@ -14,6 +14,7 @@ export class LogstashStatsComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.logstashPipelines);
   }
 
   get memoryPercentage(): number {
