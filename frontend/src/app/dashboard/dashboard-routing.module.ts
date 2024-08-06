@@ -10,6 +10,7 @@ import {DashboardOverviewComponent} from './dashboard-overview/dashboard-overvie
 import {DashboardRenderComponent} from './dashboard-render/dashboard-render.component';
 import {DashboardViewComponent} from './dashboard-view/dashboard-view.component';
 import {ReportExportComponent} from './report-export/report-export.component';
+import {DashboardResolverService} from "./shared/services/dashboard-resolver.service";
 
 const routes: Routes = [
   {path: '', redirectTo: 'overview', pathMatch: 'full'},
@@ -35,7 +36,10 @@ const routes: Routes = [
     path: 'render/:id/:dashboard',
     component: DashboardRenderComponent,
     canActivate: [UserRouteAccessService],
-    data: {authorities: [USER_ROLE, ADMIN_ROLE]}
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]},
+    resolve: {
+      response: DashboardResolverService
+    }
   },
   {
     path: 'export/:id/:dashboard',
