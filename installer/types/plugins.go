@@ -19,9 +19,11 @@ type PluginConfig struct {
 	ServerName    string        `yaml:"server_name"`
 	InternalKey   string        `yaml:"internal_key"`
 	AgentManager  string        `yaml:"agent_manager"`
+	LogInput      string        `yaml:"log_input"`
 	Backend       string        `yaml:"backend"`
 	Logstash      string        `yaml:"logstash"`
 	CertsFolder   string        `yaml:"certs_folder"`
+	LogLevel      int           `yaml:"log_level"`
 }
 
 type PostgreConfig struct {
@@ -49,9 +51,11 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		ServerName:   conf.ServerName,
 		InternalKey:  conf.InternalKey,
 		AgentManager: "agentmanager:50051",
+		LogInput:     "correlation:50051",
 		Backend:      "http://backend:8080",
 		Logstash:     "logstash",
 		CertsFolder:  "/cert",
+		LogLevel:     200,
 	}
 
 	config, err := yaml.Marshal(c)
