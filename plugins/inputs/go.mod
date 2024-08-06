@@ -7,7 +7,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v0.5.3
 	github.com/threatwinds/logger v1.1.11
-	github.com/utmstack/UTMStack/log-auth-proxy v0.0.0-20240701134411-a1df8ee965e8
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )

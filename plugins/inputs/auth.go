@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/utmstack/UTMStack/log-auth-proxy/agent"
+	"github.com/utmstack/UTMStack/plugins/utmstack-inputs/agent"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -61,7 +61,13 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		os.Exit(1)
 	}
 
-	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+	tlsCredentials, err := LoadTLSCredentials(filepath.Join(pCfg.CertsFolder, utmCertFileName))
+	if err != nil {
+		helpers.Logger().ErrorF("failed to load TLS credentials: %v", err)
+		return
+	}
+
+	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
 		helpers.Logger().ErrorF("failed to connect to gRPC server: %v", err)
 		return
