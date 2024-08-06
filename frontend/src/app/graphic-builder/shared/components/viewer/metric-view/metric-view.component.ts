@@ -45,8 +45,10 @@ export class MetricViewComponent implements OnInit {
 
 
   ngOnInit() {
-    this.runVisualization();
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+    if (!this.defaultTime) {
+      this.runVisualization();
+    }
     this.runVisualizationBehavior.$run.subscribe((id) => {
       if (id && this.chartId === id) {
         this.runVisualization();

@@ -3,3 +3,4 @@ build:
 	cd alerts && go get -u && go mod tidy && go build -o com.utmstack.alerts.plugin
 	cd inputs && go get -u && go mod tidy && go build -o com.utmstack.inputs.plugin
 	cd geolocation && go get -u && go mod tidy && go build -o com.utmstack.geolocation.plugin
+	cd gcp && go get -u && go mod tidy && go build -o com.utmstack.gcp.plugin

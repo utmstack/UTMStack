@@ -15,9 +15,9 @@ import {Asset, Rule} from '../../../models/rule.model';
 import {FilterService} from '../../../services/filter.service';
 import {RuleService} from '../../../services/rule.service';
 import {itemsPerPage} from '../../../services/rules.resolver.service';
-import {Actions} from "../../../app-correlation-management/models/config.type";
-import {ConfigService} from "../../../app-correlation-management/services/config.service";
-import {AddRuleComponent} from "../add-rule/add-rule.component";
+import {Actions} from '../../../app-correlation-management/models/config.type';
+import {ConfigService} from '../../../app-correlation-management/services/config.service';
+import {AddRuleComponent} from '../add-rule/add-rule.component';
 
 
 @Component({

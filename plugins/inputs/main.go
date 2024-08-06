@@ -13,6 +13,7 @@ import (
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -60,7 +61,7 @@ func main() {
 	}
 
 	go startHTTPServer(middlewares, cert, key)
-	go startGRPCServer(middlewares)
+	go startGRPCServer(middlewares, cert, key)
 
 	go func(){
 		for{
@@ -120,8 +121,14 @@ type integration struct {
 	plugins.UnimplementedIntegrationServer
 }
 
-func startGRPCServer(middlewares *Middlewares) {
+func startGRPCServer(middlewares *Middlewares, cert string, key string) {
+	creds, err := credentials.NewServerTLSFromFile(cert, key)
+	if err != nil {
+		helpers.Logger().Fatal("failed to load TLS credentials: %v", err)
+	}
+
 	server := grpc.NewServer(
+		grpc.Creds(creds),
 		grpc.ChainUnaryInterceptor(middlewares.GrpcAuth),
 		grpc.ChainStreamInterceptor(middlewares.GrpcStreamAuth),
 	)

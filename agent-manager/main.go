@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"net/http"
-	_ "net/http/pprof"
 
 	"github.com/gin-gonic/gin"
 	pb "github.com/utmstack/UTMStack/agent-manager/agent"
@@ -18,6 +17,7 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
@@ -25,11 +25,6 @@ import (
 
 func main() {
 	utils.InitLogger()
-
-	go func() {
-		// http://localhost:6060/debug/pprof/
-		http.ListenAndServe("0.0.0.0:6060", nil)
-	}()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -50,7 +45,14 @@ func main() {
 		utils.ALogger.Fatal("failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(recoverInterceptor),
+	creds, err := credentials.NewServerTLSFromFile(config.CertPath, config.CertKeyPath)
+	if err != nil {
+		utils.ALogger.Fatal("failed to load TLS credentials: %v", err)
+	}
+
+	grpcServer := grpc.NewServer(
+		grpc.Creds(creds),
+		grpc.UnaryInterceptor(recoverInterceptor),
 		grpc.ChainUnaryInterceptor(auth.UnaryInterceptor),
 		grpc.StreamInterceptor(auth.StreamInterceptor))
 

@@ -19,6 +19,7 @@ import {DashboardRoutingModule} from './dashboard-routing.module';
 import {DashboardViewComponent} from './dashboard-view/dashboard-view.component';
 import {ReportExportComponent} from './report-export/report-export.component';
 import {UtmDashboardSharedModule} from './shared/utm-dashboard-shared.module';
+import {DashboardResolverService} from "./shared/services/dashboard-resolver.service";
 
 @NgModule({
   declarations: [DashboardViewComponent,
@@ -42,6 +43,9 @@ import {UtmDashboardSharedModule} from './shared/utm-dashboard-shared.module';
     GraphicBuilderSharedModule,
     VulnerabilitySharedModule,
     GridsterModule
+  ],
+  providers: [
+    DashboardResolverService
   ],
   entryComponents: [DashboardExportPreviewComponent],
   exports: [

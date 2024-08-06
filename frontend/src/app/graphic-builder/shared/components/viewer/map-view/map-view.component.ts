@@ -118,8 +118,10 @@ export class MapViewComponent implements OnInit, AfterViewInit {
         });
       }
     });
-    this.runVisualization();
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
+    if (!this.defaultTime) {
+      this.runVisualization();
+    }
   }
 
   runVisualization() {
