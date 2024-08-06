@@ -62,6 +62,17 @@ func main() {
 	go startHTTPServer(middlewares, cert, key)
 	go startGRPCServer(middlewares)
 
+	go func(){
+		for{
+			ack, error := inputClient.Recv()
+			if error != nil {
+				helpers.Logger().ErrorF("failed to receive ack: %v", error)
+			}
+
+			helpers.Logger().LogF(100, "received ack: %v", ack)
+		}
+	}()
+
 	for {
 		l := <-localLogsChannel
 
