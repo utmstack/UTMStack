@@ -16,14 +16,14 @@
   <div style="width: 200px" class="refresh-interval-container d-flex flex-column">
     <div class="d-flex justify-content-start mb-2">
       <div class="flex-grow-1">
-        <label class="">Refresh time</label>
+        <label class="">Auto refresh time</label>
         <ng-select
           style="width: 100%"
           #selectInterval="ngModel"
           required
           [items]="refreshIntervals"
-          bindLabel="label"
-          bindValue="value"
+          bindLabel="time"
+          bindValue="milliseconds"
           placeholder="Select refresh interval"
           [(ngModel)]="selectedInterval">
         </ng-select>

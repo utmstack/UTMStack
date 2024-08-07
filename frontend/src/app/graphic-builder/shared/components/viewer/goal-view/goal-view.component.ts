@@ -1,4 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Observable, of, Subject} from 'rxjs';
+import {catchError, filter, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
@@ -7,6 +9,7 @@ import {MetricResponse} from '../../../../../shared/chart/types/metric/metric-re
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
+import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {mergeParams, sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {extractMetricLabel} from '../../../../chart-builder/chart-property-builder/shared/functions/visualization-util';
@@ -21,8 +24,8 @@ import {resolveDefaultVisualizationTime} from '../../../util/visualization/visua
   templateUrl: './goal-view.component.html',
   styleUrls: ['./goal-view.component.scss']
 })
-export class GoalViewComponent implements OnInit {
-  data: MetricResponse[] = [];
+export class GoalViewComponent implements OnInit, OnDestroy {
+  data$: Observable<MetricResponse[]>;
   @Input() chartId: number;
   @Input() visualization: VisualizationType;
   @Input() building: boolean;
@@ -36,18 +39,29 @@ export class GoalViewComponent implements OnInit {
   GOAL_CHART = ChartTypeEnum.GOAL_CHART;
   error: boolean;
   defaultTime: ElasticFilterDefaultTime;
+  destroy$: Subject<any> = new Subject<any>();
+  refreshType: string;
 
   constructor(private runVisualizationService: RunVisualizationService,
               private runVisualizationBehavior: RunVisualizationBehavior,
               private toastService: UtmToastService,
               private dashboardBehavior: DashboardBehavior,
-              private utmChartClickActionService: UtmChartClickActionService) {
+              private utmChartClickActionService: UtmChartClickActionService,
+              private refreshService: RefreshService) {
   }
 
   ngOnInit() {
+    this.refreshType = `${this.chartId}`;
+
+    this.data$ = this.refreshService.refresh$
+      .pipe(
+        filter((refreshType) => refreshType === RefreshType.ALL ||
+          refreshType === this.refreshType),
+        switchMap((value, index) => this.runVisualization()));
+
     this.runVisualizationBehavior.$run.subscribe((id) => {
       if (id && this.chartId === id) {
-        this.runVisualization();
+        this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
@@ -55,20 +69,20 @@ export class GoalViewComponent implements OnInit {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);
-          this.runVisualization();
+          this.refreshService.sendRefresh(this.refreshType);
         });
       }
     });
+
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
     if (!this.defaultTime) {
-      this.runVisualization();
+      this.refreshService.sendRefresh(this.refreshType);
     }
-    this.extractGoals();
   }
 
   runVisualization() {
     this.runningChart = true;
-    this.runVisualizationService.run(this.visualization).subscribe(data => {
+    /*this.runVisualizationService.run(this.visualization).subscribe(data => {
       this.runningChart = false;
       this.runned.emit('runned');
       this.data = data;
@@ -80,7 +94,25 @@ export class GoalViewComponent implements OnInit {
       this.runned.emit('runned');
       this.toastService.showError('Error',
         'Error occurred while running visualization');
-    });
+    });*/
+
+    return this.runVisualizationService.run(this.visualization)
+      .pipe(
+        tap((data) => {
+          this.runningChart = false;
+          this.runned.emit('runned');
+          this.extractGoals(data);
+          this.error = false;
+        }),
+        catchError(() => {
+          this.runningChart = false;
+          this.error = true;
+          this.runned.emit('runned');
+          this.toastService.showError('Error',
+            'Error occurred while running visualization');
+          return of([]);
+        })
+      );
   }
 
   chartEvent($event: UtmGoalOption) {
@@ -95,14 +127,14 @@ export class GoalViewComponent implements OnInit {
     }
   }
 
-  extractGoals(): UtmGoalOption[] {
+  extractGoals(data: MetricResponse[]): UtmGoalOption[] {
     this.goals = [];
     const config: UtmGoalOption[] = this.visualization.chartConfig;
-    if (this.data) {
-      for (const d of this.data) {
+    if (data) {
+      for (const d of data) {
         const metricIndex = this.visualization.aggregationType.metrics.findIndex(value => Number(value.id) === Number(d.metricId));
         const optionIndex = config.findIndex(value => Number(value.metricId) === Number(d.metricId));
-        const max = (config[optionIndex].max ? config[optionIndex].max : this.calcTotal(this.data));
+        const max = (config[optionIndex].max ? config[optionIndex].max : this.calcTotal(data));
         const goal = new UtmGoalOption(Number(d.metricId),
           this.calcPercent(max, d.value, config[optionIndex].decimal),
           config[optionIndex].append,
@@ -143,8 +175,14 @@ export class GoalViewComponent implements OnInit {
   onTimeFilterChange($event: TimeFilterType) {
     rebuildVisualizationFilterTime($event, this.visualization.filterType).then(filters => {
       this.visualization.filterType = filters;
-      this.runVisualization();
+      this.refreshService.sendRefresh(this.refreshType);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshService.stopInterval();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

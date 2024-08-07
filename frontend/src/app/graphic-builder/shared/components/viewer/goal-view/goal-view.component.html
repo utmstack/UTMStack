@@ -11,7 +11,8 @@
                              [invertContent]="true">
     </app-elastic-filter-time>
   </div>
-  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-2 overflow-auto">
+  <div *ngIf="data$ | async as data"
+       [ngStyle]="{'height':height,'width':width}" class="card-body p-2 overflow-auto">
     <div *ngIf="runningChart"
          class="loading-chart h-100
                  d-flex justify-content-center

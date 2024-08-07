@@ -60,9 +60,9 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
 
     this.data$ = this.refreshService.refresh$
       .pipe(takeUntil(this.destroy$),
-      filter(refreshType => (
-        refreshType === RefreshType.ALL || refreshType === this.type)),
-        switchMap(() => this.getPieData()));
+          filter(refreshType => (
+              refreshType === RefreshType.ALL || refreshType === this.type)),
+          switchMap(() => this.getPieData()));
   }
 
   onTimeFilterChange($event: TimeFilterType) {

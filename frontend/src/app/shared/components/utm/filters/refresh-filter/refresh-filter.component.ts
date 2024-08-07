@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {LocalStorageService} from 'ngx-webstorage';
 import {RefreshService} from '../../../../services/util/refresh.service';
+import {TIME_DASHBOARD_REFRESH} from "../../../../constants/time-refresh.const";
 
 export const TIME_REFRESH = 'TIME_REFRESH';
 @Component({
@@ -11,12 +12,8 @@ export const TIME_REFRESH = 'TIME_REFRESH';
 export class RefreshFilterComponent implements OnInit {
   show = false;
   refreshIntervals = [
-    { label: '5 min', value: 300000 },
-    { label: '10 min', value: 600000 },
-    { label: '20 min', value: 1200000 },
-    { label: '40 min', value: 2400000 },
-    { label: '1 hour', value: 3600000 },
-    { label: 'Paused', value: 0 },
+    ... TIME_DASHBOARD_REFRESH,
+    { time: 'Paused', milliseconds: 0 },
   ];
   selectedInterval = 0;
   constructor(private refreshService: RefreshService,

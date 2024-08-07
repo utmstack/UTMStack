@@ -40,14 +40,14 @@ export class RefreshService {
       .pipe(filter(value => !!value));
   }
 
-  sendRefresh(type: RefreshType = RefreshType.ALL) {
+  sendRefresh(type: RefreshType | string  = RefreshType.ALL ) {
     this.refreshSubject.next(type);
   }
 
   stopInterval() {
+    this.refreshSubject.next(null);
     if (this.subscription) {
       this.subscription.unsubscribe();
-      this.refreshSubject.next(null);
       console.log('refresh stopped');
     }
   }

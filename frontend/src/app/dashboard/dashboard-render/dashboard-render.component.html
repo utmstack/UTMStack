@@ -4,6 +4,7 @@
     </h5>
     <div class="header-elements d-flex justify-content-end align-items-center">
       <app-dashboard-filter-view [filters]="filters"></app-dashboard-filter-view>
+      <app-refresh-filter></app-refresh-filter>
       <app-elastic-filter-time [invertContent]="true"
                                [isEmitter]="true"
                                class="ml-3"
@@ -22,15 +23,15 @@
                    *ngFor="let item of layout$ | async; trackBy: trackByFn; let index = index" [item]="item.grid"
                    (mouseenter)="activeTimeGridster=item.visualization.id"
                    [ngStyle]="{'z-index':(activeTimeGridster===item.visualization.id?100:0)+''}">
-      <app-utm-viewer [building]="false"
-                      style="z-index: 10"
-                      [chart]="item.visualization.chartType"
-                      [chartId]="item.visualization.id"
-                      [height]="(gridsterItem.height-38)+'px'"
-                      [showTime]="item.visualization.showTime"
-                      [visualization]="item.visualization"
-                      [width]="gridsterItem.width+'px'">
-      </app-utm-viewer>
+                    <app-utm-viewer [building]="false"
+                                    style="z-index: 10"
+                                    [chart]="item.visualization.chartType"
+                                    [chartId]="item.visualization.id"
+                                    [height]="(gridsterItem.height-38)+'px'"
+                                    [showTime]="item.visualization.showTime"
+                                    [visualization]="item.visualization"
+                                    [width]="gridsterItem.width+'px'">
+                    </app-utm-viewer>
     </gridster-item>
   </gridster>
   <div style="height: 15px"></div>

@@ -38,7 +38,8 @@
     </div>
   </div>
 
-  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-0 overflow-auto bg-white">
+  <div *ngIf="data$ | async as data"
+       [ngStyle]="{'height':height,'width':width}" class="card-body p-0 overflow-auto bg-white">
     <div *ngIf="loadingOption"
          class="loading-chart w-100 h-100
                  chart-fixed-height

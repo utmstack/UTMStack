@@ -4,13 +4,15 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
+  OnChanges, OnDestroy,
   OnInit,
   Output,
   QueryList,
   SimpleChanges,
   ViewChildren
 } from '@angular/core';
+import {Observable, of, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
@@ -23,6 +25,7 @@ import {SortDirection} from '../../../../../shared/directives/sortable/type/sort
 import {SortEvent} from '../../../../../shared/directives/sortable/type/sort-event';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {ChartValueSeparator} from '../../../../../shared/enums/chart-value-separator';
+import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {mergeParams, sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {RunVisualizationBehavior} from '../../../behavior/run-visualization.behavior';
@@ -36,7 +39,7 @@ import {resolveDefaultVisualizationTime} from '../../../util/visualization/visua
   templateUrl: './table-view.component.html',
   styleUrls: ['./table-view.component.scss']
 })
-export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
+export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChildren(SortableDirective) headers: QueryList<SortableDirective>;
   @Input() visualization: VisualizationType;
   @Input() building: boolean;
@@ -69,23 +72,32 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
   screenResolution = window.screen.width;
   searching = false;
   empty = false;
+  refreshType: string;
+  destroy$ = new Subject<void>();
+  data$: Observable<any>;
 
   constructor(private runVisualizationService: RunVisualizationService,
               private utmChartClickActionService: UtmChartClickActionService,
               private runVisualizationBehavior: RunVisualizationBehavior,
               private cdr: ChangeDetectorRef,
               private dashboardBehavior: DashboardBehavior,
-              private toastService: UtmToastService) {
+              private toastService: UtmToastService,
+              private refreshService: RefreshService) {
   }
 
   ngOnInit() {
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-    if (!this.defaultTime) {
-      this.runVisualization();
-    }
+    this.refreshType = `${this.chartId}`;
+
+    this.data$ = this.refreshService.refresh$
+      .pipe(
+        filter((refreshType) => refreshType === RefreshType.ALL ||
+          refreshType === this.refreshType),
+        switchMap((value, index) => this.runVisualization()));
+
     this.runVisualizationBehavior.$run.subscribe(id => {
       if (id && this.chartId === id) {
-        this.runVisualization();
+        this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
@@ -93,10 +105,14 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);
-          this.runVisualization();
+          this.refreshService.sendRefresh(this.refreshType);
         });
       }
     });
+
+    if (!this.defaultTime) {
+      this.refreshService.sendRefresh(this.refreshType);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -108,10 +124,6 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
         this.pageStart = this.pageEnd - this.itemsPerPage;
       }
     }
-  }
-
-  ngAfterViewInit(): void {
-    this.cdr.detectChanges();
   }
 
   calcItemsPerPage(): number {
@@ -129,7 +141,7 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   runVisualization() {
     this.loadingOption = true;
-    this.runVisualizationService.run(this.visualization).subscribe(data => {
+    /*this.runVisualizationService.run(this.visualization).subscribe(data => {
       this.empty = data.length === 0 || data[0].rows.length === 0;
       this.data = data.length > 0 ? data[0] : [];
       if (!this.empty) {
@@ -153,7 +165,39 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
       this.runned.emit('runned');
       this.toastService.showError('Error',
         'Error occurred while running visualization');
-    });
+    });*/
+
+    return this.runVisualizationService.run(this.visualization)
+      .pipe(
+        tap((data) => {
+          this.empty = data.length === 0 || data[0].rows.length === 0;
+          this.data = data.length > 0 ? data[0] : [];
+          if (!this.empty) {
+            this.tableOptions = this.visualization.chartConfig;
+            this.itemsPerPage = this.itemsPerPage = this.calcItemsPerPage();
+            this.pageStart = 0;
+            this.pageEnd = this.itemsPerPage;
+            this.responseRows = this.data.rows;
+            this.totalItems = this.data.rows.length;
+            this.mapMetric.clear();
+            if (this.tableOptions && this.tableOptions.totalFunction) {
+              this.applyFunction();
+            }
+          }
+          this.loadingOption = false;
+          this.error = false;
+          this.runned.emit('runned');
+        }),
+        map( data => data.length > 0 ? data[0] : [] ),
+        catchError(() => {
+          this.loadingOption = false;
+          this.error = true;
+          this.runned.emit('runned');
+          this.toastService.showError('Error',
+            'Error occurred while running visualization');
+          return of([]);
+        })
+      );
   }
 
   loadPage(page: number) {
@@ -282,7 +326,7 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
   onTimeFilterChange($event: TimeFilterType) {
     rebuildVisualizationFilterTime($event, this.visualization.filterType).then(filters => {
       this.visualization.filterType = filters;
-      this.runVisualization();
+      this.refreshService.sendRefresh(this.refreshType);
     });
   }
 
@@ -418,6 +462,12 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
       });
       resolve(columns);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshService.stopInterval();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

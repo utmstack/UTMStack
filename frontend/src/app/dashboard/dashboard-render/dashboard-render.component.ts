@@ -1,6 +1,5 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {CompactType, GridsterConfig, GridsterItem, GridType} from 'angular-gridster2';
 import {UUID} from 'angular2-uuid';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -20,13 +19,14 @@ import {mergeParams, sanitizeFilters} from '../../shared/util/elastic-filter.uti
 import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
 import {normalizeString} from '../../shared/util/string-util';
 import {RenderLayoutService} from '../shared/services/render-layout.service';
-import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
 import {Observable} from "rxjs";
+import {RefreshService} from '../../shared/services/util/refresh.service';
 
 @Component({
   selector: 'app-dashboard-render',
   templateUrl: './dashboard-render.component.html',
-  styleUrls: ['./dashboard-render.component.scss']
+  styleUrls: ['./dashboard-render.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewInit {
   dashboardId: number;
@@ -69,7 +69,9 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
               private dashboardBehavior: DashboardBehavior,
               private timeFilterBehavior: TimeFilterBehavior,
               private exportPdfService: ExportPdfService,
-              private spinner: NgxSpinnerService) {
+              private spinner: NgxSpinnerService,
+              private refreshService: RefreshService,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -80,13 +82,15 @@ export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewIni
         tap((visualizations) => {
           this.dashboard = this.layoutService.dashboard;
           this.filters = this.dashboard.filters ? JSON.parse(this.dashboard.filters) : [];
-          if (this.dashboard.refreshTime) {
+         /* if (this.dashboard.refreshTime) {
+            console.log(this.dashboard.refreshTime);
             this.onRefreshTime(this.dashboard.refreshTime);
-          }
+          }*/
           this.loadingVisualizations = false;
         }),
         map(data => data.response)
     );
+
     /*this.activatedRoute.params.subscribe(params => {
       this.dashboardId = params.id;
       if (this.dashboardId) {

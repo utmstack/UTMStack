@@ -1,11 +1,12 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 
 @Component({
   selector: 'app-utm-viewer',
   templateUrl: './utm-viewer.component.html',
-  styleUrls: ['./utm-viewer.component.scss']
+  styleUrls: ['./utm-viewer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UtmViewerComponent implements OnInit {
   @Input() chartId: number;

@@ -20,7 +20,7 @@ import {filter, map, startWith, switchMap, takeUntil, tap} from "rxjs/operators"
 export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
   interval: any;
   dailyAlert: ChartSerieValueType[] = [];
-  loadingChartDailyAlert = true;
+  loadingChartDailyAlert = false;
   destroy$ = new Subject<void>();
   dailyAlert$: Observable<ChartSerieValueType[]>;
 
@@ -42,13 +42,23 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         filter((refreshType: string) => (
           refreshType === RefreshType.ALL )),
-        startWith(this.getDailyAlert()),
-        switchMap(() => this.getDailyAlert())
+        startWith(this.init()),
+        switchMap(() => {
+          console.log('switchMap');
+          return this.getDailyAlert();
+        })
       );
   }
 
+  init(){
+    console.log('startWith');
+    return this.getDailyAlert();
+  }
+
   getDailyAlert() {
-   return this.overviewAlertDashboardService
+    console.log('getDailyAlert');
+    this.loadingChartDailyAlert = true;
+    return this.overviewAlertDashboardService
       .getCardAlertTodayWeek()
         .pipe(
           map(response => {

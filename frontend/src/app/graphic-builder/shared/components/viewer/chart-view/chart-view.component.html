@@ -11,7 +11,9 @@
                              [invertContent]="true">
     </app-elastic-filter-time>
   </div>
-  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-0 chart-container">
+  <div *ngIf="data$ | async as data"
+       [ngStyle]="{'height':height,'width':width}"
+       class="card-body p-0 chart-container">
     <div *ngIf="loadingOption"
          class="loading-chart w-100 h-100
                  d-flex justify-content-center
@@ -24,7 +26,7 @@
          class="h-100 w-100">
       <app-no-data-chart [error]="runWithError" [typeChart]="chart"></app-no-data-chart>
     </div>
-    <div (chartClick)="chartEvent($event)"
+    <div (chartClick)="chartEvent($event, data)"
          *ngIf="!loadingOption && data && echartOption && data.length>0"
          [autoResize]="true"
          [ngStyle]="{'height':height}"

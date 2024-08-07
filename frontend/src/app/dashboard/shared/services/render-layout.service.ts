@@ -27,7 +27,7 @@ export class RenderLayoutService {
   }
 
   addItem(vis: VisualizationType, grid?: GridsterItem): void {
-    this.layout.push({
+    this._layout.push({
       grid: grid ? grid : {
         cols: 10,
         id: UUID.UUID(),
@@ -40,14 +40,14 @@ export class RenderLayoutService {
   }
 
   get layout() {
-    return this._layout;
+    return [...this._layout];
   }
 
-  get dashboard(){
+  get dashboard() {
     return this._dashboard;
   }
 
-  set dashboard(dashboard: UtmDashboardType){
+  set dashboard(dashboard: UtmDashboardType) {
     this._dashboard = {...dashboard };
   }
 

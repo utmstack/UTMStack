@@ -1,7 +1,8 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {UUID} from 'angular2-uuid';
 import * as L from 'leaflet';
-import {Observable, Observer, Subject} from 'rxjs';
+import {Observable, Observer, of, Subject} from 'rxjs';
+import {catchError, filter, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
@@ -10,6 +11,7 @@ import {LeafletMapType} from '../../../../../shared/chart/types/map/leaflet/leaf
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
+import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {mergeParams, sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {getBucketLabel} from '../../../../chart-builder/chart-property-builder/shared/functions/visualization-util';
@@ -24,7 +26,7 @@ import {resolveDefaultVisualizationTime} from '../../../util/visualization/visua
   templateUrl: './map-view.component.html',
   styleUrls: ['./map-view.component.scss']
 })
-export class MapViewComponent implements OnInit, AfterViewInit {
+export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
   mapId = UUID.UUID();
   @Input() building: boolean;
   @Input() chartId: number;
@@ -36,7 +38,7 @@ export class MapViewComponent implements OnInit, AfterViewInit {
   @Input() timeByDefault: any;
   @Output() runned = new EventEmitter<string>();
   loadingOption = true;
-  data: { name: string, value: number[] }[] = [];
+  data$: Observable<{ name: string, value: number[] }[]>;
   mapOption: LeafletMapType;
   map: any;
   contentLoaded: Observer<boolean>;
@@ -45,12 +47,15 @@ export class MapViewComponent implements OnInit, AfterViewInit {
   error = false;
   defaultTime: ElasticFilterDefaultTime;
   markersLayer: any;
+  destroy$ = new Subject<void>();
+  refreshType: string;
 
   constructor(private runVisualizationService: RunVisualizationService,
               private runVisualizationBehavior: RunVisualizationBehavior,
               private utmChartClickActionService: UtmChartClickActionService,
               private dashboardBehavior: DashboardBehavior,
-              private toastService: UtmToastService) {
+              private toastService: UtmToastService,
+              private refreshService: RefreshService) {
 
   }
 
@@ -106,7 +111,7 @@ export class MapViewComponent implements OnInit, AfterViewInit {
     });
     this.runVisualizationBehavior.$run.subscribe(id => {
       if (id && this.chartId === id) {
-        this.runVisualization();
+        this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
@@ -114,19 +119,28 @@ export class MapViewComponent implements OnInit, AfterViewInit {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);
-          this.runVisualization();
+          this.refreshService.sendRefresh(this.refreshType);
         });
       }
     });
+
+    this.refreshType = `${this.chartId}`;
+
+    this.data$ = this.refreshService.refresh$
+      .pipe(
+        filter((refreshType) => refreshType === RefreshType.ALL ||
+          refreshType === this.refreshType),
+        switchMap((value, index) => this.runVisualization()));
+
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
     if (!this.defaultTime) {
-      this.runVisualization();
+      this.refreshService.sendRefresh(this.refreshType);
     }
   }
 
   runVisualization() {
     this.loadingOption = true;
-    this.runVisualizationService.run(this.visualization).subscribe(resp => {
+    /*this.runVisualizationService.run(this.visualization).subscribe(resp => {
       this.loadingOption = false;
       this.runned.emit('runned');
       this.data = resp;
@@ -138,17 +152,34 @@ export class MapViewComponent implements OnInit, AfterViewInit {
       this.runned.emit('runned');
       this.toastService.showError('Error',
         'Error occurred while running visualization');
-    });
+    });*/
+
+    return this.runVisualizationService.run(this.visualization)
+      .pipe(
+        tap((data) => {
+          this.loadingOption = false;
+          this.runned.emit('runned');
+          this.onChartChange(data);
+          this.error = false;
+        }),
+        catchError(() => {
+          this.loadingOption = false;
+          this.error = true;
+          this.runned.emit('runned');
+          this.toastService.showError('Error',
+            'Error occurred while running visualization');
+          return of([]);
+        }));
   }
 
   /**
    * Build echart object
    */
-  onChartChange() {
+  onChartChange(data: { name: string, value: number[] }[]) {
     // set center
     this.mapOption = this.visualization.chartConfig.leaflet;
-    const centerLat = (this.data && this.data.length > 0) ? this.data[0].value[0] : this.mapOption.center[0];
-    const centerLng = (this.data && this.data.length > 0) ? this.data[0].value[1] : this.mapOption.center[1];
+    const centerLat = (data && data.length > 0) ? data[0].value[0] : this.mapOption.center[0];
+    const centerLng = (data && data.length > 0) ? data[0].value[1] : this.mapOption.center[1];
 
     this.map.setView([centerLat, centerLng], this.mapOption.zoom);
     this.map.panTo([centerLat, centerLng]);
@@ -157,12 +188,12 @@ export class MapViewComponent implements OnInit, AfterViewInit {
 
     this.markersLayer.clearLayers();
 
-    if (this.data && this.data.length > 0) {
-      this.data.sort((a, b) => a.value[2] < b.value[2] ? 1 : -1);
+    if (data && data.length > 0) {
+      data.sort((a, b) => a.value[2] < b.value[2] ? 1 : -1);
     }
 
-    if (this.data && this.data.length > 0) {
-      for (const dat of this.data) {
+    if (data && data.length > 0) {
+      for (const dat of data) {
         const tooltip = '<div style="' +
           'white-space: nowrap;' +
           'padding-top:10px' +
@@ -234,7 +265,13 @@ export class MapViewComponent implements OnInit, AfterViewInit {
   onTimeFilterChange($event: TimeFilterType) {
     rebuildVisualizationFilterTime($event, this.visualization.filterType).then(filters => {
       this.visualization.filterType = filters;
-      this.runVisualization();
+      this.refreshService.sendRefresh(this.refreshType);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshService.stopInterval();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
