@@ -154,6 +154,7 @@ func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine
 		if err != nil {
 			helpers.Logger().ErrorF("failed to send log: %v", err)
 			notify(notifyClient, "sending_failure", err.Error())
+			continue
 		}
 
 		// TODO: implement a logic to resend failed logs
@@ -161,9 +162,11 @@ func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine
 		if err != nil {
 			helpers.Logger().ErrorF("failed to receive ack: %v", err)
 			notify(notifyClient, "ack_failure", err.Error())
-		} else {
-			helpers.Logger().LogF(100, "received ack: %v", ack)
+			continue
 		}
+
+		helpers.Logger().LogF(100, "received ack: %v", ack)
+		notify(notifyClient, "sending_success", "")
 	}
 }
 
