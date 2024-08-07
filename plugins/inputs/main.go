@@ -8,8 +8,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
@@ -47,7 +50,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	go receiveAcks(inputClient)
+	notifyClient, err := client.Notify(context.Background())
+	if err != nil {
+		helpers.Logger().ErrorF("failed to create notify client: %v", err)
+		os.Exit(1)
+	}
 
 	autService := NewLogAuthService()
 	go autService.SyncAuth()
@@ -63,13 +70,10 @@ func main() {
 	go startHTTPServer(middlewares, cert, key)
 	go startGRPCServer(middlewares, cert, key)
 
-	for {
-		l := <-localLogsChannel
+	cpu := runtime.NumCPU()
 
-		err := inputClient.Send(l)
-		if err != nil {
-			helpers.Logger().ErrorF("failed to send log: %v", err)
-		}
+	for i := 0; i < cpu; i++ {
+		go sendLog(inputClient, notifyClient)
 	}
 }
 
@@ -142,14 +146,54 @@ func startGRPCServer(middlewares *Middlewares, cert string, key string) {
 	}
 }
 
-func receiveAcks(inputClient plugins.Engine_InputClient) {
+func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine_NotifyClient) {
 	for {
+		l := <-localLogsChannel
+
+		err := inputClient.Send(l)
+		if err != nil {
+			helpers.Logger().ErrorF("failed to send log: %v", err)
+			notify(notifyClient, "sending_failure", err.Error())
+		}
+
+		// TODO: implement a logic to resend failed logs
 		ack, err := inputClient.Recv()
 		if err != nil {
 			helpers.Logger().ErrorF("failed to receive ack: %v", err)
-			os.Exit(1)
+			notify(notifyClient, "ack_failure", err.Error())
+		} else {
+			helpers.Logger().LogF(100, "received ack: %v", ack)
 		}
-
-		helpers.Logger().LogF(100, "received ack: %v", ack)
 	}
+}
+
+func notify(notifyClient plugins.Engine_NotifyClient, topic string, cause string) {
+	msg := &plugins.Message{
+		Id:        uuid.NewString(),
+		Timestamp: time.Now().UTC().Format(time.RFC3339Nano),
+		Topic:     topic,
+	}
+
+	if topic != "sending_success" {
+		if cause != "" {
+			msg.Message = cause
+		} else {
+			msg.Message = "unknown cause"
+		}
+	}
+
+	err := notifyClient.Send(msg)
+	if err != nil {
+		helpers.Logger().ErrorF("failed to send notification: %v", err)
+		return
+	}
+
+	// TODO: implement a logic to resend failed notifications
+	ack, err := notifyClient.Recv()
+	if err != nil {
+		helpers.Logger().ErrorF("failed to receive notification ack: %v", err)
+		return
+	}
+
+	helpers.Logger().LogF(100, "received notification ack: %v", ack)
 }
