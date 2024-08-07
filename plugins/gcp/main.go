@@ -55,10 +55,10 @@ func main() {
 
 			for _, newConf := range tempModuleConfig.ConfigurationGroups {
 				newConfiguration := schema.ModuleConfig{
+					JsonKey:        newConf.Configurations[0].ConfValue,
 					ProjectID:      newConf.Configurations[1].ConfValue,
 					SubscriptionID: newConf.Configurations[2].ConfValue,
 					Topic:          newConf.Configurations[3].ConfValue,
-					JsonKey:        newConf.Configurations[0].ConfValue,
 				}
 				configs[newConf.GroupName] = newConfiguration
 
