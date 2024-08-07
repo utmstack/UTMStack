@@ -3,11 +3,15 @@ package com.park.utmstack.config;
 import com.park.utmstack.security.GrpcInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PreDestroy;
+import javax.net.ssl.SSLException;
 
 @Configuration
 public class GrpcConfiguration {
@@ -20,12 +24,12 @@ public class GrpcConfiguration {
     private Integer serverPort;
 
     @Bean
-    public ManagedChannel managedChannel() {
-        this.channel = ManagedChannelBuilder.forAddress(serverAddress, serverPort)
-            .intercept(new GrpcInterceptor())
-            .usePlaintext()
-            .enableRetry()
-            .build();
+    public ManagedChannel managedChannel() throws SSLException {
+        this.channel = NettyChannelBuilder
+                .forAddress(serverAddress, serverPort)
+                .intercept(new GrpcInterceptor())
+                .sslContext(GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build())
+                .build();
         return this.channel;
     }
 

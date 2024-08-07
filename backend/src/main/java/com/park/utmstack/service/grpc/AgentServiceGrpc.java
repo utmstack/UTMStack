@@ -5,14 +5,14 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
 /**
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.55.1)",
+    value = "by gRPC proto compiler (version 1.65.1)",
     comments = "Source: agent.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class AgentServiceGrpc {
 
   private AgentServiceGrpc() {}
 
-  public static final String SERVICE_NAME = "agent.AgentService";
+  public static final java.lang.String SERVICE_NAME = "agent.AgentService";
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<com.park.utmstack.service.grpc.AgentDelete,
@@ -756,9 +756,9 @@ public final class AgentServiceGrpc {
   private static final class AgentServiceMethodDescriptorSupplier
       extends AgentServiceBaseDescriptorSupplier
       implements io.grpc.protobuf.ProtoMethodDescriptorSupplier {
-    private final String methodName;
+    private final java.lang.String methodName;
 
-    AgentServiceMethodDescriptorSupplier(String methodName) {
+    AgentServiceMethodDescriptorSupplier(java.lang.String methodName) {
       this.methodName = methodName;
     }
 

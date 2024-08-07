@@ -2,7 +2,6 @@ import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output
 import {UUID} from 'angular2-uuid';
 import * as L from 'leaflet';
 import {Observable, Observer, of, Subject} from 'rxjs';
-import {catchError, filter, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
@@ -11,7 +10,6 @@ import {LeafletMapType} from '../../../../../shared/chart/types/map/leaflet/leaf
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
 import {ElasticFilterDefaultTime} from '../../../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
-import {RefreshService, RefreshType} from '../../../../../shared/services/util/refresh.service';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {mergeParams, sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {getBucketLabel} from '../../../../chart-builder/chart-property-builder/shared/functions/visualization-util';
@@ -20,6 +18,8 @@ import {RunVisualizationService} from '../../../services/run-visualization.servi
 import {UtmChartClickActionService} from '../../../services/utm-chart-click-action.service';
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
+import {RefreshService, RefreshType} from "../../../../../shared/services/util/refresh.service";
+import {catchError, filter, map, switchMap, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-map-view',
@@ -38,6 +38,7 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() timeByDefault: any;
   @Output() runned = new EventEmitter<string>();
   loadingOption = true;
+  data: { name: string, value: number[] }[] = [];
   data$: Observable<{ name: string, value: number[] }[]>;
   mapOption: LeafletMapType;
   map: any;
@@ -47,8 +48,8 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
   error = false;
   defaultTime: ElasticFilterDefaultTime;
   markersLayer: any;
-  destroy$ = new Subject<void>();
   refreshType: string;
+  destroy$: Subject<void> = new Subject<void>();
 
   constructor(private runVisualizationService: RunVisualizationService,
               private runVisualizationBehavior: RunVisualizationBehavior,
@@ -85,6 +86,13 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.refreshType = `${this.chartId}`;
+    this.data$ = this.refreshService.refresh$
+      .pipe(
+        filter((refreshType) => refreshType === RefreshType.ALL ||
+          refreshType === this.refreshType),
+        switchMap((value, index) => this.runVisualization()));
+
     this.mapLoaded().subscribe(value => {
       if (value) {
         const baseLayers = {};
@@ -124,16 +132,8 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    this.refreshType = `${this.chartId}`;
-
-    this.data$ = this.refreshService.refresh$
-      .pipe(
-        filter((refreshType) => refreshType === RefreshType.ALL ||
-          refreshType === this.refreshType),
-        switchMap((value, index) => this.runVisualization()));
-
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
-    if (!this.defaultTime) {
+    if(!this.defaultTime){
       this.refreshService.sendRefresh(this.refreshType);
     }
   }
@@ -159,9 +159,11 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
         tap((data) => {
           this.loadingOption = false;
           this.runned.emit('runned');
-          this.onChartChange(data);
+          this.data = data;
+          this.onChartChange();
           this.error = false;
         }),
+        map( data => data.length > 0 ? data[0] : [] ),
         catchError(() => {
           this.loadingOption = false;
           this.error = true;
@@ -169,17 +171,18 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
           this.toastService.showError('Error',
             'Error occurred while running visualization');
           return of([]);
-        }));
+        })
+      );
   }
 
   /**
    * Build echart object
    */
-  onChartChange(data: { name: string, value: number[] }[]) {
+  onChartChange() {
     // set center
     this.mapOption = this.visualization.chartConfig.leaflet;
-    const centerLat = (data && data.length > 0) ? data[0].value[0] : this.mapOption.center[0];
-    const centerLng = (data && data.length > 0) ? data[0].value[1] : this.mapOption.center[1];
+    const centerLat = (this.data && this.data.length > 0) ? this.data[0].value[0] : this.mapOption.center[0];
+    const centerLng = (this.data && this.data.length > 0) ? this.data[0].value[1] : this.mapOption.center[1];
 
     this.map.setView([centerLat, centerLng], this.mapOption.zoom);
     this.map.panTo([centerLat, centerLng]);
@@ -188,12 +191,12 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.markersLayer.clearLayers();
 
-    if (data && data.length > 0) {
-      data.sort((a, b) => a.value[2] < b.value[2] ? 1 : -1);
+    if (this.data && this.data.length > 0) {
+      this.data.sort((a, b) => a.value[2] < b.value[2] ? 1 : -1);
     }
 
-    if (data && data.length > 0) {
-      for (const dat of data) {
+    if (this.data && this.data.length > 0) {
+      for (const dat of this.data) {
         const tooltip = '<div style="' +
           'white-space: nowrap;' +
           'padding-top:10px' +
@@ -267,6 +270,26 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
       this.visualization.filterType = filters;
       this.refreshService.sendRefresh(this.refreshType);
     });
+  }
+
+  initMap() {
+    // const osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+    // let osmUrl: string;
+    // let osmAttrib: string;
+    // if (this.mapOption && this.mapOption.tiles.length === 0) {
+    //   osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    //   osmAttrib = '&copy; ' + osmLink + ' Contributors';
+    // } else {
+    //   osmUrl = this.mapOption.tiles[0].urlTemplate;
+    //   osmAttrib = this.mapOption.tiles[0].options.attribution;
+    // }
+    // const osmMap = L.tileLayer(osmUrl, {attribution: osmAttrib});
+    this.map = new L.map(this.mapId, {
+      // layers: [osmMap], // only add one!
+      minZoom: 1
+    });
+    this.markersLayer = new L.LayerGroup();
+    this.sub.next(true);
   }
 
   ngOnDestroy(): void {

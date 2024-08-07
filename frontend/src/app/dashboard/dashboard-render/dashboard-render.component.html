@@ -9,7 +9,7 @@
                                [isEmitter]="true"
                                class="ml-3"
                                container="body"></app-elastic-filter-time>
-      <button (click)="exportToPdf()" [disabled]="pdfExport || !visualizationRender || loadingVisualizations"
+      <button (click)="exportToPdf()" [disabled]="pdfExport || loadingVisualizations"
               class="btn utm-button utm-button-primary ml-2">
         <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
         {{pdfExport ? 'Generating...' : 'Save to PDF'}}

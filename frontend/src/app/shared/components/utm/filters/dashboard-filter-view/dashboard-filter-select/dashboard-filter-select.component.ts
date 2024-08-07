@@ -27,7 +27,7 @@ export class DashboardFilterSelectComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnInit() {
-    this.getFieldValues();
+    //this.getFieldValues();
     this.changeFilterValueService.selectedValue$
       .pipe(
         takeUntil(this.destroy$),
