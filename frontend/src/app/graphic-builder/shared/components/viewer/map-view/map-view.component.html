@@ -12,8 +12,7 @@
                              [invertContent]="true">
     </app-elastic-filter-time>
   </div>
-  <div *ngIf="data$ | async as data"
-    [ngStyle]="{'height':height,'width':width}" class="card-body p-0">
+  <div [ngStyle]="{'height':height,'width':width}" class="card-body p-0">
     <div *ngIf="loadingOption"
          class="loading-chart w-100 h-100
                  d-flex justify-content-center
@@ -22,10 +21,12 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="data && data.length===0 && !loadingOption"
-         class="h-100 w-100">
-      <app-no-data-chart [error]="error" [typeChart]="chart"></app-no-data-chart>
-    </div>
+    <ng-container *ngIf="data$ | async as data">
+      <div *ngIf="data && data.length===0 && !loadingOption"
+           class="h-100 w-100">
+        <app-no-data-chart [error]="error" [typeChart]="chart"></app-no-data-chart>
+      </div>
+    </ng-container>
     <div [hidden]="(data && data.length===0) || loadingOption"
          [ngStyle]="{'height':height,'width':width}">
       <div [id]="mapId" [ngStyle]="{'height':height,'width':width}"></div>
