@@ -1,5 +1,6 @@
 package com.park.utmstack.service.agent_manager;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.dto.agent_manager.AgentCommandDTO;
 import com.park.utmstack.service.dto.agent_manager.AgentDTO;
@@ -142,6 +143,7 @@ public class AgentGrpcService {
             Metadata customHeaders = new Metadata();
             customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());
             customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agent.getId()));
+            customHeaders.put(Metadata.Key.of("type", Metadata.ASCII_STRING_MARSHALLER), Constants.AGENT_HEADER);
 
             Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
             AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);

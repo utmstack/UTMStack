@@ -108,6 +108,7 @@ public final class Constants {
 
     // GRPC
     public static final String AGENT_MANAGER_INTERNAL_KEY_HEADER = "internal-key";
+    public static final String AGENT_HEADER = "Agent";
 
     /**
      * Alert Response Rules Execution
