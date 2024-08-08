@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -155,7 +156,7 @@ func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine
 		err := inputClient.Send(l)
 		if err != nil {
 			helpers.Logger().ErrorF("failed to send log: %v", err)
-			notify(notifyClient, "sending_failure", err.Error())
+			notify(notifyClient, "enqueue_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
@@ -163,31 +164,36 @@ func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine
 		ack, err := inputClient.Recv()
 		if err != nil {
 			helpers.Logger().ErrorF("failed to receive ack: %v", err)
-			notify(notifyClient, "ack_failure", err.Error())
+			notify(notifyClient, "ack_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
 		helpers.Logger().LogF(100, "received ack: %v", ack)
-		notify(notifyClient, "sending_success", "")
+		notify(notifyClient, "enqueue_success", Message{DataType: l.DataType, DataSource: l.DataSource})
 	}
 }
 
-func notify(notifyClient plugins.Engine_NotifyClient, topic string, cause string) {
+type Message struct {
+	Cause      string `json:"cause"`
+	DataType   string `json:"data_type"`
+	DataSource string `json:"data_source"`
+}
+
+func notify(notifyClient plugins.Engine_NotifyClient, topic string, body Message) {
+	mByte, err := json.Marshal(body)
+	if err != nil {
+		helpers.Logger().ErrorF("failed to marshal notification body: %v", err)
+		return
+	}
+
 	msg := &plugins.Message{
 		Id:        uuid.NewString(),
 		Timestamp: time.Now().UTC().Format(time.RFC3339Nano),
 		Topic:     topic,
+		Message:   string(mByte),
 	}
 
-	if topic != "sending_success" {
-		if cause != "" {
-			msg.Message = cause
-		} else {
-			msg.Message = "unknown cause"
-		}
-	}
-
-	err := notifyClient.Send(msg)
+	err = notifyClient.Send(msg)
 	if err != nil {
 		helpers.Logger().ErrorF("failed to send notification: %v", err)
 		return

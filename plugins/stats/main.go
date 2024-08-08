@@ -16,6 +16,12 @@ type notificationServer struct {
 	plugins.UnimplementedNotificationServer
 }
 
+type Message struct {
+	Cause string `json:"cause"`
+	DataType string `json:"data_type"`
+	DataSource string `json:"data_source"`
+}
+
 func main() {
 	os.Remove(path.Join(helpers.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.stats_notification.sock"))
