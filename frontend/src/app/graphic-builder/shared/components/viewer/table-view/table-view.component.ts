@@ -12,7 +12,7 @@ import {
   ViewChildren
 } from '@angular/core';
 import {Observable, of, Subject} from 'rxjs';
-import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {DashboardBehavior} from '../../../../../shared/behaviors/dashboard.behavior';
 import {EchartClickAction} from '../../../../../shared/chart/types/action/echart-click-action';
@@ -95,13 +95,17 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
           refreshType === this.refreshType),
         switchMap((value, index) => this.runVisualization()));
 
-    this.runVisualizationBehavior.$run.subscribe(id => {
+    this.runVisualizationBehavior.$run
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(id => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
-    this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
+    this.dashboardBehavior.$filterDashboard
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dashboardFilter => {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);

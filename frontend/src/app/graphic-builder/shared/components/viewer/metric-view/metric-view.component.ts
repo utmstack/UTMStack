@@ -18,7 +18,7 @@ import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-f
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
 import {Observable, of, Subject} from "rxjs";
 import {RefreshService, RefreshType} from "../../../../../shared/services/util/refresh.service";
-import {catchError, filter, switchMap, tap} from 'rxjs/operators';
+import {catchError, filter, switchMap, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-metric-view',
@@ -64,13 +64,18 @@ export class MetricViewComponent implements OnInit, OnDestroy {
           refreshType === this.refreshType),
         switchMap((value, index) => this.runVisualization()));
 
-    this.runVisualizationBehavior.$run.subscribe((id) => {
+    this.runVisualizationBehavior.$run
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((id) => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
-    this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
+
+    this.dashboardBehavior.$filterDashboard
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dashboardFilter => {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);

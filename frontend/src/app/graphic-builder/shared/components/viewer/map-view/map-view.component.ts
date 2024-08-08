@@ -19,7 +19,7 @@ import {UtmChartClickActionService} from '../../../services/utm-chart-click-acti
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
 import {RefreshService, RefreshType} from "../../../../../shared/services/util/refresh.service";
-import {catchError, filter, map, switchMap, tap} from "rxjs/operators";
+import {catchError, filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-map-view',
@@ -117,13 +117,17 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 1);
       }
     });
-    this.runVisualizationBehavior.$run.subscribe(id => {
+    this.runVisualizationBehavior.$run
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(id => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
-    this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
+    this.dashboardBehavior.$filterDashboard
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dashboardFilter => {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);

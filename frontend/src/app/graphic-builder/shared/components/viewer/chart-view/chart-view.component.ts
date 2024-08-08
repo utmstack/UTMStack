@@ -72,13 +72,18 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         switchMap((value, index) => this.runVisualization()));
 
 
-    this.runVisualizationBehavior.$run.subscribe(id => {
+    this.runVisualizationBehavior.$run
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(id => {
       if (id && this.chartId === id) {
         this.refreshService.sendRefresh(this.refreshType);
         this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
       }
     });
-    this.dashboardBehavior.$filterDashboard.subscribe(dashboardFilter => {
+
+    this.dashboardBehavior.$filterDashboard
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dashboardFilter => {
       if (dashboardFilter && dashboardFilter.indexPattern === this.visualization.pattern.pattern) {
         mergeParams(dashboardFilter.filter, this.visualization.filterType).then(newFilters => {
           this.visualization.filterType = sanitizeFilters(newFilters);
