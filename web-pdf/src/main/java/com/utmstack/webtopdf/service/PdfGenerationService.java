@@ -36,15 +36,8 @@ public class PdfGenerationService {
         WebDriver webDriver = webDriverConfig.createWebDriver();
 
         try {
-
-            int indexAfterProtocol = url.indexOf('/', url.indexOf("//") + 2);
-            String front = (indexAfterProtocol != -1) ? url.substring(0, indexAfterProtocol) : url;
-
-            webDriver.get(front.concat(accessType.buildUrlPart(accessKey)));
-
-            TimeUnit.SECONDS.sleep(5);
             webDriver.get(url);
-            TimeUnit.SECONDS.sleep(15);
+            TimeUnit.SECONDS.sleep(5);
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
 
