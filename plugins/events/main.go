@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"net"
 	"os"
 	"path"
@@ -12,6 +11,7 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/events/search"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type analysisServer struct {
@@ -50,7 +50,7 @@ func main() {
 func (p *analysisServer) Analyze(ctx context.Context,
 	event *plugins.Event) (*plugins.Alert, error) {
 
-	logBytes, err := json.Marshal(event)
+	logBytes, err := protojson.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
