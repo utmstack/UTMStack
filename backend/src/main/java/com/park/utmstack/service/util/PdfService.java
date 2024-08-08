@@ -51,6 +51,7 @@ public class PdfService {
         final String ctx = CLASSNAME + ".getPdf";
 
         String urlService = UriComponentsBuilder.fromUriString(Constants.PDF_SERVICE_URL)
+            .queryParam("baseUrl", Constants.FRONT_BASE_URL)
             .queryParam("url", url)
             .queryParam("accessKey", accessKey)
             .queryParam("accessType", accessType)

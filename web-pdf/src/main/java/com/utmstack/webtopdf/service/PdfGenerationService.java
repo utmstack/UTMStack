@@ -31,12 +31,13 @@ public class PdfGenerationService {
         this.webDriverConfig = webDriverConfig;
     }
 
-    public byte[] generatePdf(String url, String accessKey, AccessType accessType) {
+    public byte[] generatePdf(String url, String route, String accessKey, AccessType accessType) {
 
         WebDriver webDriver = webDriverConfig.createWebDriver();
 
         try {
-            webDriver.get(url);
+
+            webDriver.get(url.concat(accessType.buildUrlPart(accessKey, route)));
             TimeUnit.SECONDS.sleep(5);
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
