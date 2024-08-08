@@ -24,7 +24,7 @@ import (
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
-var localLogsChannel = make(chan *plugins.Log)
+var localLogsChannel chan *plugins.Log
 
 type PluginConfig struct {
 	ServerName   string `yaml:"server_name"`
@@ -67,14 +67,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	go startHTTPServer(middlewares, cert, key)
-	go startGRPCServer(middlewares, cert, key)
-
 	cpu := runtime.NumCPU()
+
+	localLogsChannel = make(chan *plugins.Log, cpu*15)
 
 	for i := 0; i < cpu; i++ {
 		go sendLog(inputClient, notifyClient)
 	}
+
+	go startHTTPServer(middlewares, cert, key)
+	startGRPCServer(middlewares, cert, key)
 }
 
 func startHTTPServer(middlewares *Middlewares, cert string, key string) {
