@@ -19,6 +19,7 @@ def main(environment):
 	plugin_alerts_blob = bucket.blob(endpPlugins + "com.utmstack.alerts.plugin")
 	plugin_events_blob = bucket.blob(endpPlugins + "com.utmstack.events.plugin")
 	plugin_geolocation_blob = bucket.blob(endpPlugins + "com.utmstack.geolocation.plugin")
+	plugin_stats_blob = bucket.blob(endpPlugins + "com.utmstack.stats.plugin")
 	plugin_inputs_blob = bucket.blob(endpPlugins + "com.utmstack.inputs.plugin")
 	plugin_gcp_blob = bucket.blob(endpPlugins + "com.utmstack.gcp.plugin")
 
@@ -31,6 +32,7 @@ def main(environment):
 	plugin_alerts_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "alerts", "com.utmstack.alerts.plugin"))
 	plugin_events_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "events", "com.utmstack.events.plugin"))
 	plugin_geolocation_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "geolocation", "com.utmstack.geolocation.plugin"))
+	plugin_stats_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "stats", "com.utmstack.stats.plugin"))
 	plugin_inputs_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "inputs", "com.utmstack.inputs.plugin"))
 	plugin_gcp_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "gcp", "com.utmstack.gcp.plugin"))	
 
