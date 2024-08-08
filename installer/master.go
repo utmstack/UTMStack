@@ -130,6 +130,7 @@ func Master(c *types.Config) error {
 			"utmstack_mutate",
 			"utmstack_filebrowser",
 			"utmstack_correlation",
+			"utmstack_logstash",
 		}); err != nil {
 			return err
 		}

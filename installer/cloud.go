@@ -122,6 +122,7 @@ func Cloud(c *types.Config, update bool) error {
 			"utmstack_mutate",
 			"utmstack_filebrowser",
 			"utmstack_correlation",
+			"utmstack_logstash",
 		}); err != nil {
 			return err
 		}
