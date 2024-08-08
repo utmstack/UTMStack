@@ -39,8 +39,6 @@ public class EnvironmentVariablesCheck {
             missingVars.add(Constants.ENV_INTERNAL_KEY);
         if (!StringUtils.hasText(vars.get(Constants.ENV_ENCRYPTION_KEY)))
             missingVars.add(Constants.ENV_ENCRYPTION_KEY);
-        if (!StringUtils.hasText(vars.get(Constants.ENV_LOGSTASH_URL)))
-            missingVars.add(Constants.ENV_LOGSTASH_URL);
         if (!StringUtils.hasText(vars.get(Constants.ENV_SERVER_NAME)))
             missingVars.add(Constants.ENV_SERVER_NAME);
 

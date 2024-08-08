@@ -251,10 +251,6 @@ public class UtmLogstashPipelineService {
         AtomicInteger upPipelinesCount = new AtomicInteger();
         boolean isCorrelationUp = isEngineUp();
 
-        /*if (!StringUtils.hasText(LOGSTASH_URL)) {
-            log.error(ctx + ": The pipeline's status cannot be processed because " +
-                    "the environment variable LOGSTASH_URL is not configured.");
-        }*/
         try {
             // Getting Jvm information (not used)
             ApiEngineResponse jvmData = logstashJvmApiResponse();
@@ -268,17 +264,7 @@ public class UtmLogstashPipelineService {
             infoStats = activePipelinesList().stream().map(activePip -> {
 
                 // Calculating stats for pipelines
-                /*if (logshtashPipelines.contains(activePip.getModuleName())) {
-                    if (!jvmData.getStatus().equals(PipelineStatus.LOGSTASH_STATUS_DOWN.get())) {
-                        activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
-                        if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
-                            upPipelinesCount.getAndIncrement();
-                        }
-                    } else {
-                        activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
-                    }
-                    // Setting stats for non-logstash pipelines (correlation engine)
-                } else {*/
+                // Setting stats for non-logstash pipelines (correlation engine)
                     if (isCorrelationUp) {
                         activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
                         if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
@@ -319,15 +305,6 @@ public class UtmLogstashPipelineService {
         // We will add correlation pipelines status update when we know how to get the status or metrics
         List<UtmLogstashPipeline> activeByServer = utmLogstashPipelineRepository.allActivePipelinesByServer();
 
-        // Checking if LOGSTASH_URL is set, otherwise report an error
-        /*if (!StringUtils.hasText(LOGSTASH_URL)) {
-            log.error(ctx + ": The pipeline's status cannot be processed because the environment variable " +
-                    "LOGSTASH_URL is not configured.");
-            activeByServer.stream().forEach((p) -> {
-                p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
-            });
-            utmLogstashPipelineRepository.saveAll(activeByServer);
-        } else {*/
             try {
 
                 ApiPipelineResponse response = pipelineApiResponse();

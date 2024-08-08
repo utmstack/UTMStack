@@ -91,7 +91,6 @@ public final class Constants {
     public static final String ENV_GRPC_AGENT_MANAGER_HOST = "GRPC_AGENT_MANAGER_HOST";
     public static final String ENV_GRPC_AGENT_MANAGER_PORT = "GRPC_AGENT_MANAGER_PORT";
     public static final String ENV_INTERNAL_KEY = "INTERNAL_KEY";
-    public static final String ENV_LOGSTASH_URL = "LOGSTASH_URL";
     public static final String ENV_SERVER_NAME = "SERVER_NAME";
     public static final String ENV_AD_AUDIT_SERVICE = "AD_AUDIT_SERVICE";
 
