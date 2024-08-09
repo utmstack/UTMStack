@@ -37,7 +37,7 @@ public class PdfGenerationService {
 
         try {
             webDriver.get(url.concat(accessType.buildUrlPart(accessKey, route)));
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.SECONDS.sleep(1);
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
 
