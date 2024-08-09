@@ -59,6 +59,8 @@ func (p *analysisServer) Analyze(ctx context.Context,
 
 	jLog := logBuffer.String()
 
+	helpers.Logger().LogF(100, "received event: %s", jLog)
+
 	search.AddToQueue(jLog)
 
 	return nil, nil
