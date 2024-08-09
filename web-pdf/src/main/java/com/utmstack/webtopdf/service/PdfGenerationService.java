@@ -3,15 +3,15 @@ package com.utmstack.webtopdf.service;
 import com.utmstack.webtopdf.config.WebDriverConfig;
 import com.utmstack.webtopdf.config.enums.AccessType;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.Pdf;
-import org.openqa.selenium.PrintsPage;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.print.PageMargin;
 import org.openqa.selenium.print.PageSize;
 import org.openqa.selenium.print.PrintOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -36,8 +36,12 @@ public class PdfGenerationService {
         WebDriver webDriver = webDriverConfig.createWebDriver();
 
         try {
-            webDriver.get(url.concat(accessType.buildUrlPart(accessKey, route)));
-            TimeUnit.SECONDS.sleep(1);
+            String report = url.concat(accessType.buildUrlPart(accessKey, route));
+            webDriver.get(report);
+
+            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("report")));
+
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
 
