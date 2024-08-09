@@ -204,6 +204,8 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
   }
 
   onVisualizationLoaded() {
+    this.preparingPrint = false;
+    console.log('onVisualizationLoaded');
     /*this.setVisFilter().then(() => {
       this.spinner.hide('buildPrint').then(() => {
         this.preparingPrint = false;
