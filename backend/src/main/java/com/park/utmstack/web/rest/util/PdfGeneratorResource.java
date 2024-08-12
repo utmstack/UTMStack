@@ -66,7 +66,6 @@ public class PdfGeneratorResource {
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename);
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
 
-            //String urlParam = String.format("%s?token=%s&url=%s", Constants.FRONT_BASE_URL, accessKey.substring(7), url);
             byte [] resultPdf = pdfService.getPdf( url, accessKey.substring(7), accessType.get());
             if (resultPdf != null && resultPdf.length > 0 ) {
                 return ResponseEntity.ok().headers(headers).body(resultPdf);
