@@ -32,24 +32,22 @@ public class PdfGenerationService {
 
     public byte[] generatePdf(String url, String route, String accessKey, AccessType accessType) {
 
+        String reportUrl = String.format("%s%s", url, accessType.buildUrlPart(accessKey, route));
         WebDriver webDriver = webDriverConfig.createWebDriver();
 
         try {
-            String report = url.concat(accessType.buildUrlPart(accessKey, route));
-            webDriver.get(report);
+            webDriver.get(reportUrl);
 
             WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
             wait.until(ExpectedConditions.presenceOfElementLocated(By.id("report")));
 
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
-
             return OutputType.BYTES.convertFromBase64Png(print.getContent());
-
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Error generating PDF report: {}", e.getMessage(), e);
             webDriver.quit();
+            return new byte[0];
         }
-        return new byte[0];
     }
 }
