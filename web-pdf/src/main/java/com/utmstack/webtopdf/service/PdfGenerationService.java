@@ -40,7 +40,7 @@ public class PdfGenerationService {
             webDriver.get(report);
 
             WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("report")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("report")));
 
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
