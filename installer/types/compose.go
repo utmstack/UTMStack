@@ -173,33 +173,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 	}
 
-	awsMem := stack.ServiceResources["aws"].AssignedMemory
-	c.Services["aws"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/aws:" + conf.Branch),
-		DependsOn: []string{
-			"postgres",
-			"node1",
-			"backend",
-		},
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-		},
-		Environment: []string{
-			"PANEL_SERV_NAME=backend:8080",
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"LOG_LEVEL=200",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", awsMem)),
-				},
-			},
-		},
-	}
-
 	o365Mem := stack.ServiceResources["office365"].AssignedMemory
 	c.Services["office365"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/office365:" + conf.Branch),
