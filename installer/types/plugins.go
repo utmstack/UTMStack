@@ -49,7 +49,7 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		},
 		ServerName:   conf.ServerName,
 		InternalKey:  conf.InternalKey,
-		AgentManager: "10.21.199.3:50051",
+		AgentManager: "10.21.199.3:9000",
 		Backend:      "http://backend:8080",
 		Logstash:     "logstash",
 		CertsFolder:  "/cert",
