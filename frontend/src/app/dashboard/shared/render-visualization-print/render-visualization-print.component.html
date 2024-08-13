@@ -1,5 +1,5 @@
 <div class="container-fluid container-export">
-  <div *ngIf="visualizationRender&& !loadingVisualizations"
+  <div *ngIf="visualizationRender"
        class="d-flex flex-column justify-content-center align-items-center">
     <div #container
          *ngFor="let vis of visualizationRender"
@@ -20,7 +20,7 @@
     </div>
   </div>
 </div>
-<div *ngIf="loadingVisualizations"
+<div *ngIf="!loadingVisualizations"
      class="dashboard-loader d-flex justify-content-center align-content-center">
   <app-utm-spinner [height]="'110px'" [loading]="loadingVisualizations" [width]="'110px'"
                    label="Loading dashboard"

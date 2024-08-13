@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
   online = false;
   iframeView = false;
   favIcon: HTMLLinkElement;
+  hideStatus = false;
 
   constructor(
     private translate: TranslateService,
@@ -53,6 +54,9 @@ export class AppComponent implements OnInit {
       }
       if (this.router.url.includes('iframe')) {
         this.iframeView = true;
+      }
+      if (this.router.url.includes('url')) {
+        this.hideStatus = true;
       }
     });
   }
