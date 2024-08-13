@@ -105,7 +105,7 @@ func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, de
 		return
 	}
 
-	fileContent, isLastPart, size, err := updater.GetFileContent(os, dependencyType, partIndex, partSize)
+	fileContent, nParts, size, err := updater.GetFileContent(os, dependencyType, partIndex, partSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DependencyUpdateResponse{Message: fmt.Sprintf("error getting dependency file: %v", err)})
 		return
@@ -116,7 +116,7 @@ func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, de
 		Version:     latestVersion,
 		TotalSize:   size,
 		PartIndex:   partIndex,
-		IsLastPart:  isLastPart,
+		NParts:      nParts,
 		FileContent: fileContent,
 	})
 }
