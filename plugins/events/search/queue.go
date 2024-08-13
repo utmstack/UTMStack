@@ -67,9 +67,21 @@ func init() {
 			for {
 				l := <-logs
 				var cl *bytes.Buffer = new(bytes.Buffer)
+
 				dataType := gjson.Get(l, "dataType").String()
 
 				timestamp := gjson.Get(l, "@timestamp").String()
+
+				if timestamp == "" {
+					helpers.Logger().ErrorF("cannot found @timestamp in log or it is empty")
+					timestamp = gjson.Get(l, "timestamp").String()
+				}
+
+				if timestamp == "" {
+					helpers.Logger().ErrorF("cannot found timestamp in log or it is empty")
+					timestamp = time.Now().Format(time.RFC3339Nano)
+				}
+
 				id := gjson.Get(l, "id").String()
 
 				index, e := IndexBuilder("log-"+dataType, timestamp)
