@@ -26,6 +26,7 @@ import (
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
 var localLogsChannel chan *plugins.Log
+var localNotificationsChannel chan *plugins.Message
 
 type PluginConfig struct {
 	ServerName   string `yaml:"server_name"`
@@ -37,26 +38,6 @@ type PluginConfig struct {
 }
 
 func main() {
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
-		os.Exit(1)
-	}
-
-	client := plugins.NewEngineClient(conn)
-
-	inputClient, err := client.Input(context.Background())
-	if err != nil {
-		helpers.Logger().ErrorF("failed to create input client: %v", err)
-		os.Exit(1)
-	}
-
-	notifyClient, err := client.Notify(context.Background())
-	if err != nil {
-		helpers.Logger().ErrorF("failed to create notify client: %v", err)
-		os.Exit(1)
-	}
-
 	autService := NewLogAuthService()
 	go autService.SyncAuth()
 
@@ -70,10 +51,12 @@ func main() {
 
 	cpu := runtime.NumCPU()
 
-	localLogsChannel = make(chan *plugins.Log, cpu*15)
+	localLogsChannel = make(chan *plugins.Log, cpu*100)
+	localNotificationsChannel = make(chan *plugins.Message, cpu*100)
 
 	for i := 0; i < cpu; i++ {
-		go sendLog(inputClient, notifyClient)
+		go sendLog()
+		go sendNotification()
 	}
 
 	go startHTTPServer(middlewares, cert, key)
@@ -149,14 +132,28 @@ func startGRPCServer(middlewares *Middlewares, cert string, key string) {
 	}
 }
 
-func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine_NotifyClient) {
+func sendLog() {
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
+		os.Exit(1)
+	}
+
+	client := plugins.NewEngineClient(conn)
+
+	inputClient, err := client.Input(context.Background())
+	if err != nil {
+		helpers.Logger().ErrorF("failed to create input client: %v", err)
+		os.Exit(1)
+	}
+
 	for {
 		l := <-localLogsChannel
 
 		err := inputClient.Send(l)
 		if err != nil {
 			helpers.Logger().ErrorF("failed to send log: %v", err)
-			notify(notifyClient, "enqueue_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
+			notify("enqueue_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
@@ -164,12 +161,12 @@ func sendLog(inputClient plugins.Engine_InputClient, notifyClient plugins.Engine
 		ack, err := inputClient.Recv()
 		if err != nil {
 			helpers.Logger().ErrorF("failed to receive ack: %v", err)
-			notify(notifyClient, "ack_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
+			notify("ack_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
 		helpers.Logger().LogF(100, "received ack: %v", ack)
-		notify(notifyClient, "enqueue_success", Message{DataType: l.DataType, DataSource: l.DataSource})
+		notify("enqueue_success", Message{DataType: l.DataType, DataSource: l.DataSource})
 	}
 }
 
@@ -179,7 +176,42 @@ type Message struct {
 	DataSource string `json:"data_source"`
 }
 
-func notify(notifyClient plugins.Engine_NotifyClient, topic string, body Message) {
+func sendNotification() {
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
+		os.Exit(1)
+	}
+
+	client := plugins.NewEngineClient(conn)
+
+	notifyClient, err := client.Notify(context.Background())
+	if err != nil {
+		helpers.Logger().ErrorF("failed to create notify client: %v", err)
+		os.Exit(1)
+	}
+
+	for {
+		msg := <-localNotificationsChannel
+
+		err = notifyClient.Send(msg)
+		if err != nil {
+			helpers.Logger().ErrorF("failed to send notification: %v", err)
+			return
+		}
+
+		// TODO: implement a logic to resend failed notifications
+		ack, err := notifyClient.Recv()
+		if err != nil {
+			helpers.Logger().ErrorF("failed to receive notification ack: %v", err)
+			return
+		}
+
+		helpers.Logger().LogF(100, "received notification ack: %v", ack)
+	}
+}
+
+func notify(topic string, body Message) {
 	mByte, err := json.Marshal(body)
 	if err != nil {
 		helpers.Logger().ErrorF("failed to marshal notification body: %v", err)
@@ -193,18 +225,5 @@ func notify(notifyClient plugins.Engine_NotifyClient, topic string, body Message
 		Message:   string(mByte),
 	}
 
-	err = notifyClient.Send(msg)
-	if err != nil {
-		helpers.Logger().ErrorF("failed to send notification: %v", err)
-		return
-	}
-
-	// TODO: implement a logic to resend failed notifications
-	ack, err := notifyClient.Recv()
-	if err != nil {
-		helpers.Logger().ErrorF("failed to receive notification ack: %v", err)
-		return
-	}
-
-	helpers.Logger().LogF(100, "received notification ack: %v", ack)
+	localNotificationsChannel <- msg
 }
