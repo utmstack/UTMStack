@@ -104,7 +104,7 @@ export class UtmModuleCollectorService {
 
     while (existingNames.includes(newName)) {
       count++;
-      newName = `${baseName} ${count} ${collectorName}`;
+      newName = `${baseName}${count} ${collectorName}`;
     }
 
     return newName;
