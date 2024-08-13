@@ -69,7 +69,7 @@ func init() {
 				var cl *bytes.Buffer = new(bytes.Buffer)
 				dataType := gjson.Get(l, "dataType").String()
 
-				timestamp := gjson.Get(l, "timestamp").String()
+				timestamp := gjson.Get(l, "@timestamp").String()
 				id := gjson.Get(l, "id").String()
 
 				index, e := IndexBuilder("log-"+dataType, timestamp)
