@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func RunEnvCmd(env []string, command string, arg ...string) error {
