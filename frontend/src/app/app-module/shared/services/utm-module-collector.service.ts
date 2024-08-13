@@ -99,7 +99,7 @@ export class UtmModuleCollectorService {
   generateUniqueName(collectorName: string, groups: UtmModuleGroupType[]): string {
     const baseName = `Configuration-`;
     let count = 1;
-    let newName = `${baseName} ${count} ${collectorName}`;
+    let newName = `${baseName}${count} ${collectorName}`;
     const existingNames = groups.map(group => group.groupName);
 
     while (existingNames.includes(newName)) {
