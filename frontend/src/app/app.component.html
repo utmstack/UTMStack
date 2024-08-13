@@ -115,7 +115,7 @@
     <h6 class="font-weight-semibold">Unable to connect with the server</h6>
   </div>
 </div>
-<div class="offline" *ngIf="online">
+<div class="offline" *ngIf="online && !hideStatus">
   <div class="w-100 p-4 bg-success-400 d-flex justify-content-center align-items-center">
     <h6 class="font-weight-semibold">Successfully Established Connection with the Server</h6>
   </div>
