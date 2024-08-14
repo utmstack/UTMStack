@@ -26,7 +26,7 @@ const delayCheckConfig = 30 * time.Second
 func main() {
 	pCfg, e := helpers.PluginCfg[schema.PluginConfig]("com.utmstack")
 	if e != nil {
-		log.Fatalf("Failed to load plugin config: %v", e)
+		log.Fatalf("failed to load plugin config: %v", e)
 	}
 	utils.InitLogger(pCfg.LogLevel)
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
@@ -38,12 +38,12 @@ func main() {
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
-			utils.Logger.ErrorF("Error getting configuration of the AWS module: %v", err)
+			utils.Logger.ErrorF("error getting configuration of the AWS module: %v", err)
 			continue
 		}
 
 		if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-			utils.Logger.Info("Configuration has been changed")
+			utils.Logger.Info("configuration has been changed")
 			close(newConfChan)
 			newConfChan = make(chan struct{})
 			configs = map[string]schema.AWSConfig{}

@@ -26,7 +26,7 @@ func PullLogs(queue chan *plugins.Log, stopChan chan struct{}, tenant string, cn
 		Credentials: credentials.NewStaticCredentials(cnf.AccessKeyID, cnf.SecretAccessKey, ""),
 	})
 	if err != nil {
-		utils.Logger.ErrorF("Failed to create AWS session: %v", err)
+		utils.Logger.ErrorF("failed to create AWS session: %v", err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func PullLogs(queue chan *plugins.Log, stopChan chan struct{}, tenant string, cn
 
 			resp, err := client.GetLogEvents(params)
 			if err != nil {
-				utils.Logger.ErrorF("Failed to get log events: %v", err)
+				utils.Logger.ErrorF("failed to get log events: %v", err)
 				continue
 			}
 
@@ -65,7 +65,7 @@ func ProcessLogs(queue chan *plugins.Log) {
 
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		utils.Logger.ErrorF("Failed to connect to engine server: %v", err)
+		utils.Logger.ErrorF("failed to connect to engine server: %v", err)
 		os.Exit(1)
 	}
 	defer conn.Close()
@@ -74,31 +74,35 @@ func ProcessLogs(queue chan *plugins.Log) {
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		utils.Logger.ErrorF("Failed to create input client: %v", err)
+		utils.Logger.ErrorF("failed to create input client: %v", err)
 		os.Exit(1)
 	}
 
 	go receiveAcks(inputClient)
 
 	for log := range queue {
-		helpers.Logger.Info("Sending log: %v", log)
+		helpers.Logger().LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
-			utils.Logger.ErrorF("Failed to send log: %v", err)
+			utils.Logger.ErrorF("failed to send log: %v", err)
 		} else {
-			utils.Logger.Info("Successfully sent log to processing engine: %v", log)
+			utils.Logger.LogF(100, "successfully sent log to processing engine: %v", log)
 		}
 	}
 }
 
+/*
+this will not work as with concurrency, because each
+goroutine needs an instance of the connection and client
+*/
 func receiveAcks(inputClient plugins.Engine_InputClient) {
 	for {
 		ack, err := inputClient.Recv()
 		if err != nil {
-			utils.Logger.ErrorF("Failed to receive ack: %v", err)
+			utils.Logger.ErrorF("failed to receive ack: %v", err)
 			os.Exit(1)
 		}
 
-		utils.Logger.Info("Received ack: %v", ack)
+		utils.Logger.LogF(100, "received ack: %v", ack)
 	}
 }
