@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: '14.16.1'
 
-      - uses: actions/cache@v1 # this allows for re-using node_modules caching, making builds a bit faster.
+      - uses: actions/cache@v4 # this allows for re-using node_modules caching, making builds a bit faster.
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
