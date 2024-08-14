@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v1 #this installs node and npm for us
+      - uses: actions/setup-node@v4 #this installs node and npm for us
         with:
           node-version: '14.16.1'
 
