@@ -15,20 +15,19 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
 	grpcHealth "google.golang.org/grpc/health/grpc_health_v1"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 	helpers.Logger().Info("starting HTTP server on 0.0.0.0:8080...")
 
 	gin.SetMode(gin.ReleaseMode)
-	
+
 	router := gin.Default()
 	router.POST("/v1/log", middlewares.HttpAuth(), Log)
 	router.POST("/v1/github-webhook", middlewares.GitHubAuth(), GitHub)
 	router.GET("/v1/ping", Ping)
 	router.GET("/v1/health", func(c *gin.Context) { c.Status(http.StatusOK) })
-	
+
 	err := router.RunTLS(":8080", cert, key)
 	if err != nil {
 		helpers.Logger().ErrorF("failed to start HTTP server: %v", err)
@@ -38,7 +37,7 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 
 func Log(c *gin.Context) {
 	buf := new(bytes.Buffer)
-	
+
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
 		e := helpers.Logger().ErrorF(err.Error())
@@ -46,11 +45,12 @@ func Log(c *gin.Context) {
 		return
 	}
 
+	body := buf.String()
+
 	var l = new(plugins.Log)
-	
-	err = protojson.Unmarshal(buf.Bytes(), l)
-	if err != nil {
-		e := helpers.Logger().ErrorF(err.Error())
+
+	e := helpers.ToObject(&body, l)
+	if e != nil {
 		e.GinError(c)
 		return
 	}
