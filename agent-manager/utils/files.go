@@ -79,7 +79,7 @@ func CreatePathIfNotExist(path string) error {
 	return nil
 }
 
-func ReadFilePart(filePath string, partSizeMB int, partIndex int) ([]byte, int64, int64, error) {
+func ReadFilePart(filePath string, partSizeMB int, partIndex int) ([]byte, int, int64, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, 0, 0, fmt.Errorf("error opening file: %v", err)
@@ -92,7 +92,7 @@ func ReadFilePart(filePath string, partSizeMB int, partIndex int) ([]byte, int64
 	}
 
 	partSizeBytes := partSizeMB * 1024 * 1024
-	totalParts := (fileInfo.Size() + int64(partSizeBytes) - 1) / int64(partSizeBytes)
+	totalParts := int((fileInfo.Size() + int64(partSizeBytes) - 1) / int64(partSizeBytes))
 	offset := int64((partIndex - 1) * partSizeBytes)
 
 	_, err = file.Seek(offset, io.SeekStart)

@@ -60,7 +60,7 @@ type UpdaterInterf interface {
 	GetLatestVersion(typ string) string
 	GetFileName(osType, typ string) (string, string)
 	GetFileNameWithVersion(osType, typ string) (string, string)
-	GetFileContent(osType, typ, partIndex, partSize string) ([]byte, int64, int64, error)
+	GetFileContent(osType, typ, partIndex, partSize string) ([]byte, int, int64, error)
 	UpdateDependencies(signalServer chan string)
 }
 
@@ -101,7 +101,7 @@ func (u *Updater) GetFileName(osType, typ string) (string, string) {
 	return fmt.Sprintf(file, ""), u.DownloadPath
 }
 
-func (u *Updater) GetFileContent(osType, typ, partIndex, partSize string) ([]byte, int64, int64, error) {
+func (u *Updater) GetFileContent(osType, typ, partIndex, partSize string) ([]byte, int, int64, error) {
 	fileName, _ := u.GetFileName(osType, typ)
 	if fileName == "" {
 		return nil, 0, 0, fmt.Errorf("file not found")
@@ -114,11 +114,7 @@ func (u *Updater) GetFileContent(osType, typ, partIndex, partSize string) ([]byt
 	if err != nil {
 		return nil, 0, 0, fmt.Errorf("invalid partSizeQuery parameter. Must be an integer")
 	}
-	content, nParts, size, err := utils.ReadFilePart(filepath.Join(u.DownloadPath, fileName), partSizeInt, partIndexInt)
-	if err != nil {
-		return nil, 0, 0, fmt.Errorf("error reading file part: %v", err)
-	}
-	return content, nParts, size, nil
+	return utils.ReadFilePart(filepath.Join(u.DownloadPath, fileName), partSizeInt, partIndexInt)
 }
 
 func (u *Updater) UpdateDependencies(signalServer chan string) {
