@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/stats
 go 1.22.4
 
 require (
-	github.com/threatwinds/go-sdk v0.6.5
+	github.com/threatwinds/go-sdk v0.6.6
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )

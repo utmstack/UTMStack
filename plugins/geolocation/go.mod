@@ -5,7 +5,7 @@ go 1.22.4
 toolchain go1.22.5
 
 require (
-	github.com/threatwinds/go-sdk v0.6.5
+	github.com/threatwinds/go-sdk v0.6.6
 	github.com/tidwall/gjson v1.17.3
 	github.com/tidwall/sjson v1.2.5
 	google.golang.org/grpc v1.65.0
