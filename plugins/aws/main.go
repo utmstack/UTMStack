@@ -43,7 +43,7 @@ func main() {
 		}
 
 		if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-			utils.Logger.Info("configuration has been changed")
+			utils.Logger.LogF(100, "configuration has been changed")
 			close(newConfChan)
 			newConfChan = make(chan struct{})
 			configs = map[string]schema.AWSConfig{}

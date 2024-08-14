@@ -22,12 +22,12 @@ func PullLogs(queue chan *plugins.Log, stopChan chan struct{}, tenant string, cn
 	filePath := "./" + cnf.ProjectID + "-" + uuid.String() + ".json"
 	file, err := os.Create(filePath)
 	if err != nil {
-		utils.Logger.ErrorF("Error creating config file: %v", err)
+		utils.Logger.ErrorF("error creating config file: %v", err)
 		return
 	}
 	_, err = file.WriteString(cnf.JsonKey)
 	if err != nil {
-		utils.Logger.ErrorF("Error writing to config file: %v", err)
+		utils.Logger.ErrorF("error writing to config file: %v", err)
 		return
 	}
 	defer file.Close()
@@ -37,14 +37,14 @@ func PullLogs(queue chan *plugins.Log, stopChan chan struct{}, tenant string, cn
 		case <-stopChan:
 			err = os.RemoveAll(filePath)
 			if err != nil {
-				utils.Logger.ErrorF("Error removing config file: %v", err)
+				utils.Logger.ErrorF("error removing config file: %v", err)
 			}
 			return
 		default:
 			ctx := context.Background()
 			client, err := pubsub.NewClient(ctx, cnf.ProjectID, option.WithCredentialsFile(filePath))
 			if err != nil {
-				utils.Logger.ErrorF("Failed to create client: %v", err)
+				utils.Logger.ErrorF("failed to create client: %v", err)
 				return
 			}
 
@@ -54,14 +54,14 @@ func PullLogs(queue chan *plugins.Log, stopChan chan struct{}, tenant string, cn
 			err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				messageData = string(msg.Data)
 				if err != nil {
-					utils.Logger.ErrorF("Failed to unmarshal message: %v", err)
+					utils.Logger.ErrorF("failed to unmarshal message: %v", err)
 					msg.Nack()
 					return
 				}
 				msg.Ack()
 			})
 			if err != nil {
-				utils.Logger.ErrorF("Failed to receive messages: %v", err)
+				utils.Logger.ErrorF("failed to receive messages: %v", err)
 				continue
 			}
 			if messageData != "" {

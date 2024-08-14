@@ -48,7 +48,7 @@ func main() {
 		}
 
 		if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-			utils.Logger.Info("Configuration has been changed")
+			utils.Logger.LogF(100, "Configuration has been changed")
 			close(newConfChan)
 			newConfChan = make(chan struct{})
 			configs = map[string]schema.ModuleConfig{}
