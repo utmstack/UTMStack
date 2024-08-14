@@ -25,6 +25,8 @@ type PluginConfig struct {
 }
 
 func main() {
+	CheckAgentManagerHealth()
+
 	autService := NewLogAuthService()
 	go autService.SyncAuth()
 
@@ -62,7 +64,7 @@ func loadCerts() (string, string, error) {
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("certificate file does not exist: %s", certPath)
 	}
-	
+
 	if _, err := os.Stat(keyPath); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("key file does not exist: %s", keyPath)
 	}

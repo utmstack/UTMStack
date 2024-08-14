@@ -93,6 +93,7 @@ func ProcessLogs(queue chan *plugins.Log) {
 	go receiveAcks(inputClient)
 
 	for log := range queue {
+		helpers.Logger().LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
 			helpers.Logger().ErrorF("failed to send log: %v", err)
