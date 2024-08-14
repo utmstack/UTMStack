@@ -53,8 +53,7 @@ func main() {
 func (p *notificationServer) Notify(ctx context.Context, msg *plugins.Message) (*emptypb.Empty, error) {
 	helpers.Logger().Info("received message: %v", msg.Message)
 	
-	// implement statistics logic here
-	// ...
+	// TODO: implement statistics logic here
 
 	return &emptypb.Empty{}, nil
 }
