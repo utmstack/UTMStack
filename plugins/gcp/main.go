@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/gcp/config"
 	"github.com/utmstack/UTMStack/plugins/gcp/processor"
 	"github.com/utmstack/UTMStack/plugins/gcp/schema"
@@ -18,7 +17,6 @@ import (
 var (
 	configs     = map[string]schema.ModuleConfig{}
 	newConfChan = make(chan struct{})
-	logsChan    = make(chan *plugins.Log)
 )
 
 const delayCheckConfig = 30 * time.Second
@@ -31,7 +29,7 @@ func main() {
 	utils.InitLogger(pCfg.LogLevel)
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
-	go processor.ProcessLogs(logsChan)
+	go processor.ProcessLogs()
 
 	for {
 		time.Sleep(delayCheckConfig)
@@ -62,7 +60,7 @@ func main() {
 				}
 				configs[newConf.GroupName] = newConfiguration
 
-				go processor.PullLogs(logsChan, newConfChan, newConf.GroupName, newConfiguration)
+				go processor.PullLogs(newConfChan, newConf.GroupName, newConfiguration)
 			}
 		}
 	}
