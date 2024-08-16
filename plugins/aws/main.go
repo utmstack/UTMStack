@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
-
 	"github.com/utmstack/UTMStack/plugins/aws/processor"
 	"github.com/utmstack/UTMStack/plugins/aws/schema"
 	"github.com/utmstack/UTMStack/plugins/aws/utils"

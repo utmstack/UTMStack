@@ -11,7 +11,6 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/aws/utils"
 	"github.com/utmstack/config-client-go/types"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
