@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/gcp/config"
 	"github.com/utmstack/UTMStack/plugins/gcp/processor"
 	"github.com/utmstack/UTMStack/plugins/gcp/schema"
@@ -18,7 +17,6 @@ import (
 var (
 	configs     = map[string]schema.ModuleConfig{}
 	newConfChan = make(chan struct{})
-	logsChan    = make(chan *plugins.Log)
 )
 
 const delayCheckConfig = 30 * time.Second
@@ -31,7 +29,7 @@ func main() {
 	utils.InitLogger(pCfg.LogLevel)
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
-	go processor.ProcessLogs(logsChan)
+	go processor.ProcessLogs()
 
 	for {
 		time.Sleep(delayCheckConfig)
@@ -46,23 +44,24 @@ func main() {
 			}
 			continue
 		}
+		if tempModuleConfig.ModuleActive {
+			if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
+				utils.Logger.LogF(100, "Configuration has been changed")
+				close(newConfChan)
+				newConfChan = make(chan struct{})
+				configs = map[string]schema.ModuleConfig{}
 
-		if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-			utils.Logger.Info("Configuration has been changed")
-			close(newConfChan)
-			newConfChan = make(chan struct{})
-			configs = map[string]schema.ModuleConfig{}
+				for _, newConf := range tempModuleConfig.ConfigurationGroups {
+					newConfiguration := schema.ModuleConfig{
+						JsonKey:        newConf.Configurations[0].ConfValue,
+						ProjectID:      newConf.Configurations[1].ConfValue,
+						SubscriptionID: newConf.Configurations[2].ConfValue,
+						Topic:          newConf.Configurations[3].ConfValue,
+					}
+					configs[newConf.GroupName] = newConfiguration
 
-			for _, newConf := range tempModuleConfig.ConfigurationGroups {
-				newConfiguration := schema.ModuleConfig{
-					JsonKey:        newConf.Configurations[0].ConfValue,
-					ProjectID:      newConf.Configurations[1].ConfValue,
-					SubscriptionID: newConf.Configurations[2].ConfValue,
-					Topic:          newConf.Configurations[3].ConfValue,
+					go processor.PullLogs(newConfChan, newConf.GroupName, newConfiguration)
 				}
-				configs[newConf.GroupName] = newConfiguration
-
-				go processor.PullLogs(logsChan, newConfChan, newConf.GroupName, newConfiguration)
 			}
 		}
 	}
