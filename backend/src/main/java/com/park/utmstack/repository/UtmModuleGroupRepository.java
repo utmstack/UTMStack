@@ -24,6 +24,9 @@ public interface UtmModuleGroupRepository extends JpaRepository<UtmModuleGroup, 
     @EntityGraph(attributePaths = "moduleGroupConfigurations")
     List<UtmModuleGroup> findAllByCollectorIsNotNull();
 
+    @EntityGraph(attributePaths = "moduleGroupConfigurations")
+    List<UtmModuleGroup> findAllByModuleIdAndCollector(Long moduleId, String collector);
+
     void deleteAllByModuleId(Long moduleId);
 
     void deleteAllByCollector(String id);

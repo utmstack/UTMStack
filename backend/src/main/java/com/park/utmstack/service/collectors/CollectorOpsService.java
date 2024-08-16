@@ -18,6 +18,7 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
@@ -29,10 +30,13 @@ import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
+import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.CipherUtil;
+import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.utmstack.grpc.connection.GrpcConnection;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
@@ -54,13 +58,12 @@ import org.springframework.util.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 
 import javax.persistence.EntityManager;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,7 +90,18 @@ public class CollectorOpsService {
 
     private final UtmModuleRepository utmModuleRepository;
 
-    public CollectorOpsService(GrpcConnection grpcConnection, UtmModuleGroupService moduleGroupService, UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository, UtmCollectorRepository utmCollectorRepository, UtmModuleGroupRepository utmModuleGroupRepository, EntityManager em, UtmCollectorService utmCollectorService, UtmModuleService utmModuleService, UtmModuleRepository utmModuleRepository) throws GrpcConnectionException {
+    private final CollectorValidatorService collectorValidatorService;
+
+    public CollectorOpsService(GrpcConnection grpcConnection,
+                               UtmModuleGroupService moduleGroupService,
+                               UtmModuleGroupConfigurationRepository utmModuleGroupConfigurationRepository,
+                               UtmCollectorRepository utmCollectorRepository,
+                               UtmModuleGroupRepository utmModuleGroupRepository,
+                               EntityManager em,
+                               UtmCollectorService utmCollectorService,
+                               UtmModuleService utmModuleService,
+                               UtmModuleRepository utmModuleRepository,
+                               CollectorValidatorService collectorValidatorService) throws GrpcConnectionException {
         this.grpcConnection = grpcConnection;
         this.panelCollectorService = new PanelCollectorService(grpcConnection);
         this.collectorService = new CollectorService(grpcConnection);
@@ -99,6 +113,7 @@ public class CollectorOpsService {
         this.utmCollectorService = utmCollectorService;
         this.utmModuleService = utmModuleService;
         this.utmModuleRepository = utmModuleRepository;
+        this.collectorValidatorService = collectorValidatorService;
     }
 
     /**
@@ -489,5 +504,70 @@ public class CollectorOpsService {
         }
 
         utmCollectorRepository.deleteById(id);
+    }
+
+
+    public String validateCollectorConfig(CollectorConfigKeysDTO collectorConfig) {
+        Errors errors = new BeanPropertyBindingResult(collectorConfig, "updateConfigurationKeysBody");
+        collectorValidatorService.validate(collectorConfig, errors);
+
+        if (errors.hasErrors()) {
+            return "Validation failed: Hostname must be unique for this collector.";
+        }
+        return null;
+    }
+
+    public CollectorConfig cacheCurrentCollectorConfig(CollectorDTO collectorDTO) throws CollectorServiceGrpcException {
+        return this.getCollectorConfig(
+                ConfigRequest.newBuilder()
+                        .setModule(CollectorModule.valueOf(collectorDTO.getModule().toString()))
+                        .build(),
+                AuthResponse.newBuilder()
+                        .setId(collectorDTO.getId())
+                        .setKey(collectorDTO.getCollectorKey())
+                        .build());
+    }
+
+    public void updateCollectorConfigViaGrpc(
+            CollectorConfigKeysDTO collectorConfig,
+            CollectorDTO collectorDTO) throws CollectorConfigurationGrpcException {
+
+        this.upsertCollectorConfig(
+                this.mapToCollectorConfig(
+                        this.mapPasswordConfiguration(collectorConfig.getKeys()), collectorDTO));
+    }
+
+    public void updateCollectorConfigurationKeys(CollectorConfigKeysDTO collectorConfig) throws Exception {
+        final String ctx = CLASSNAME + ".updateCollectorConfigurationKeys";
+        try {
+            List<UtmModuleGroup> configs = utmModuleGroupRepository
+                    .findAllByModuleIdAndCollector(collectorConfig.getModuleId(),
+                        String.valueOf(collectorConfig.getCollector().getId()));
+            List<UtmModuleGroupConfiguration> keys = collectorConfig.getKeys();
+
+            if (CollectionUtils.isEmpty(collectorConfig.getKeys())){
+                utmModuleGroupRepository.deleteAll(configs);
+            } else {
+                for (UtmModuleGroupConfiguration key : keys) {
+                    if (key.getConfRequired() && !StringUtils.hasText(key.getConfValue()))
+                        throw new Exception(String.format("No value was found for required configuration: %1$s (%2$s)", key.getConfName(), key.getConfKey()));
+                    if (key.getConfDataType().equals("password"))
+                        key.setConfValue(CipherUtil.encrypt(key.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+                }
+                List<Long> keyGroupIds = keys.stream()
+                        .map(UtmModuleGroupConfiguration::getGroupId)
+                        .collect(Collectors.toList());
+
+                List<UtmModuleGroup> groupsToDelete = configs.stream()
+                        .filter(utmModuleGroup -> !keyGroupIds.contains(utmModuleGroup.getId()))
+                        .collect(Collectors.toList());
+
+                utmModuleGroupRepository.deleteAll(groupsToDelete);
+                utmModuleGroupConfigurationRepository.saveAll(keys);
+            }
+
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
     }
 }
