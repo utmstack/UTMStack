@@ -36,9 +36,9 @@ func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
 			sub := client.Subscription(cnf.SubscriptionID)
 
 			err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-				messageData := string(msg.Data)
+				messageData, err := ETLProcess(string(msg.Data))
 				if err != nil {
-					utils.Logger.ErrorF("failed to unmarshal message: %v", err)
+					utils.Logger.ErrorF("failed to transform message: %v", err)
 					msg.Nack()
 					return
 				}

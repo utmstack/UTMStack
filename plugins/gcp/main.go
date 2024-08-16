@@ -44,23 +44,24 @@ func main() {
 			}
 			continue
 		}
+		if tempModuleConfig.ModuleActive {
+			if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
+				utils.Logger.LogF(100, "Configuration has been changed")
+				close(newConfChan)
+				newConfChan = make(chan struct{})
+				configs = map[string]schema.ModuleConfig{}
 
-		if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-			utils.Logger.LogF(100, "Configuration has been changed")
-			close(newConfChan)
-			newConfChan = make(chan struct{})
-			configs = map[string]schema.ModuleConfig{}
+				for _, newConf := range tempModuleConfig.ConfigurationGroups {
+					newConfiguration := schema.ModuleConfig{
+						JsonKey:        newConf.Configurations[0].ConfValue,
+						ProjectID:      newConf.Configurations[1].ConfValue,
+						SubscriptionID: newConf.Configurations[2].ConfValue,
+						Topic:          newConf.Configurations[3].ConfValue,
+					}
+					configs[newConf.GroupName] = newConfiguration
 
-			for _, newConf := range tempModuleConfig.ConfigurationGroups {
-				newConfiguration := schema.ModuleConfig{
-					JsonKey:        newConf.Configurations[0].ConfValue,
-					ProjectID:      newConf.Configurations[1].ConfValue,
-					SubscriptionID: newConf.Configurations[2].ConfValue,
-					Topic:          newConf.Configurations[3].ConfValue,
+					go processor.PullLogs(newConfChan, newConf.GroupName, newConfiguration)
 				}
-				configs[newConf.GroupName] = newConfiguration
-
-				go processor.PullLogs(newConfChan, newConf.GroupName, newConfiguration)
 			}
 		}
 	}
