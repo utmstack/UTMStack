@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/plugins/gcp/config"
 	"github.com/utmstack/UTMStack/plugins/gcp/schema"
 	"github.com/utmstack/UTMStack/plugins/gcp/utils"
 	"google.golang.org/api/option"
@@ -44,8 +47,11 @@ func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
 				}
 
 				LogsQueue <- &plugins.Log{
+					Id:         uuid.New().String(),
+					TenantId:   config.DefaultTenant,
 					DataType:   "google",
 					DataSource: tenant,
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 					Raw:        messageData,
 				}
 

@@ -8,6 +8,8 @@ import (
 	"github.com/utmstack/config-client-go/types"
 )
 
+const DefaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+
 func NewAWSSession(accessKeyID, secretAccessKey, region string) (*session.Session, error) {
 	return session.NewSession(&aws.Config{
 		Region:      aws.String(region),

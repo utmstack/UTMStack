@@ -7,8 +7,10 @@ import (
 	"path"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/plugins/aws/config"
 	"github.com/utmstack/UTMStack/plugins/aws/utils"
 	"github.com/utmstack/config-client-go/types"
 	"google.golang.org/grpc"
@@ -30,8 +32,11 @@ func PullLogs(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 
 	for _, log := range logs {
 		LogQueue <- &plugins.Log{
+			Id:         uuid.New().String(),
+			TenantId:   config.DefaultTenant,
 			DataType:   "aws",
 			DataSource: group.GroupName,
+			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 			Raw:        log,
 		}
 	}
