@@ -1,15 +1,13 @@
-
-import {HttpResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable, of} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
+import {UtmModulesEnum} from '../shared/enum/utm-module.enum';
+import {UtmModulesService} from '../shared/services/utm-modules.service';
 import {UtmServerService} from '../shared/services/utm-server.service';
 import {UtmServerType} from '../shared/type/utm-server.type';
-import {UtmModulesService} from '../shared/services/utm-modules.service';
-import {UtmModulesEnum} from "../shared/enum/utm-module.enum";
 
 @Injectable()
 export class ModuleResolverService implements Resolve<Observable<UtmServerType>> {
@@ -32,7 +30,12 @@ export class ModuleResolverService implements Resolve<Observable<UtmServerType>>
           return of(null);
         }),
         tap((response) => this.server = response.body[0]),
-        switchMap(response => this.getModules({page: 0, size: 100, 'serverId.equals': response.body[0].id})));
+        switchMap(response => this.getModules({
+          page: 0,
+          size: 100,
+          'serverId.equals': response.body[0].id,
+          sort: 'moduleCategory,asc'
+        })));
   }
 
   getModules(req: any) {
