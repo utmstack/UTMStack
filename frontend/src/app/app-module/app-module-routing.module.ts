@@ -3,6 +3,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {UserRouteAccessService} from '../core/auth/user-route-access-service';
 import {ADMIN_ROLE, USER_ROLE} from '../shared/constants/global.constant';
 import {AppModuleViewComponent} from './app-module-view/app-module-view.component';
+import {ModuleResolverService} from './services/module.resolver.service';
 
 
 const routes: Routes = [
@@ -14,6 +15,9 @@ const routes: Routes = [
     data: {
       authorities: [ADMIN_ROLE, USER_ROLE]
     },
+    resolve: {
+      response: ModuleResolverService
+    }
   }];
 
 

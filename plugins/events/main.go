@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"context"
+	"fmt"
 	"net"
 	"os"
 	"path"
@@ -11,7 +11,6 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/events/search"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type analysisServer struct {
@@ -50,18 +49,14 @@ func main() {
 func (p *analysisServer) Analyze(ctx context.Context,
 	event *plugins.Event) (*plugins.Alert, error) {
 
-	logBytes, err := protojson.Marshal(event)
-	if err != nil {
-		return nil, err
+	jLog, e := helpers.ToString(event)
+	if e != nil {
+		return nil, fmt.Errorf(e.Message)
 	}
 
-	logBuffer := bytes.NewBuffer(logBytes)
+	helpers.Logger().LogF(100, "received event: %s", *jLog)
 
-	jLog := logBuffer.String()
-
-	helpers.Logger().LogF(100, "received event: %s", jLog)
-
-	search.AddToQueue(jLog)
+	search.AddToQueue(*jLog)
 
 	return nil, nil
 }

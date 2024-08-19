@@ -17,8 +17,8 @@ type notificationServer struct {
 }
 
 type Message struct {
-	Cause string `json:"cause"`
-	DataType string `json:"data_type"`
+	Cause      string `json:"cause"`
+	DataType   string `json:"data_type"`
 	DataSource string `json:"data_source"`
 }
 
@@ -51,10 +51,9 @@ func main() {
 }
 
 func (p *notificationServer) Notify(ctx context.Context, msg *plugins.Message) (*emptypb.Empty, error) {
-	helpers.Logger().Info("received message: %v", msg.Message)
-	
-	// implement statistics logic here
-	// ...
+	helpers.Logger().LogF(100, "received message: %v", msg.Message)
+
+	// TODO: implement statistics logic here
 
 	return &emptypb.Empty{}, nil
 }

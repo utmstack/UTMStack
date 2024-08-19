@@ -1,6 +1,7 @@
 package conn
 
 import (
+	"crypto/tls"
 	"fmt"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -25,12 +27,12 @@ var (
 
 func EstablishConnectionsFistTime(cnf *config.Config) error {
 	var err error
-	agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT)
+	agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
 	if err != nil {
 		return fmt.Errorf("error connecting to Agent Manager: %v", err)
 	}
 
-	correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT)
+	correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT, cnf.SkipCertValidation)
 	if err != nil {
 		return fmt.Errorf("error connecting to Correlation: %v", err)
 	}
@@ -55,7 +57,7 @@ func GetAgentManagerConnection(cnf *config.Config) (*grpc.ClientConn, error) {
 		agentManagerConn.Close()
 
 		var err error
-		agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT)
+		agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to Agent Manager: %v", err)
 		}
@@ -80,7 +82,7 @@ func GetCorrelationConnection(cnf *config.Config) (*grpc.ClientConn, error) {
 		correlationConn.Close()
 
 		var err error
-		correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT)
+		correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT, cnf.SkipCertValidation)
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to Correlation: %v", err)
 		}
@@ -89,7 +91,7 @@ func GetCorrelationConnection(cnf *config.Config) (*grpc.ClientConn, error) {
 	return correlationConn, nil
 }
 
-func connectToServer(addrs, port string) (*grpc.ClientConn, error) {
+func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 	connectionAttemps := 0
 	reconnectDelay := initialReconnectDelay
 
@@ -101,10 +103,21 @@ func connectToServer(addrs, port string) (*grpc.ClientConn, error) {
 			return nil, fmt.Errorf("failed to connect to Server")
 		}
 
-		tlsCredentials, err := utils.LoadTLSCredentials(config.GetCertPath())
-		if err != nil {
-			return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
+		var tlsCredentials credentials.TransportCredentials
+		var err error
+
+		if skip {
+			tlsConfig := &tls.Config{
+				InsecureSkipVerify: true,
+			}
+			tlsCredentials = credentials.NewTLS(tlsConfig)
+		} else {
+			tlsCredentials, err = utils.LoadTLSCredentials(config.GetCertPath())
+			if err != nil {
+				return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
+			}
 		}
+
 		conn, err = grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 		if err != nil {
 			connectionAttemps++

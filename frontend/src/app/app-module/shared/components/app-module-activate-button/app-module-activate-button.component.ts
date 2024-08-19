@@ -38,10 +38,12 @@ export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.moduleChangeStatusBehavior.moduleStatus$
-        .pipe(filter(value => value !== null),
+        .pipe(filter(value => value != null),
               takeUntil(this.destroy$))
         .subscribe( value => {
-          if (this.moduleDetail && this.moduleDetail.moduleActive) {
+          if (this.moduleDetail && this.moduleDetail.moduleActive && !value) {
+            this.changeModuleStatus(value);
+          } else {
             this.changeModuleStatus(value);
           }
         });
@@ -92,6 +94,7 @@ export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.moduleChangeStatusBehavior.setStatus(null);
     this.destroy$.next();
     this.destroy$.complete();
   }

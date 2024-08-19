@@ -64,7 +64,12 @@ export class AppModuleViewComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadData();
+    this.activatedRoute.data.subscribe(data => {
+      this.server = data.response;
+      this.req['serverId.equals'] = this.server.id;
+      this.getModules();
+      this.getCategories();
+    });
   }
 
   getCategories() {
@@ -97,26 +102,26 @@ export class AppModuleViewComponent implements OnInit {
             tap(servers => {
               this.server = servers[0];
               this.req['serverId.equals'] = servers[0].id;
-              this.getModules();
-              this.getCategories();
+              //this.getModules();
+              //this.getCategories();
             })
         ).subscribe();
   }
 
   getModules() {
     this.loading = true;
-    this.modules$ = this.utmModulesService
-        .getModules(this.req)
+    this.modules$ = this.utmModulesService.getModules(this.req)
         .pipe(
             map( response => {
-              response.body.map(m => {
+              /*response.body.map(m => {
                 if (m.moduleName === this.utmModulesEnum.BITDEFENDER) {
                    m.prettyName = m.prettyName + ' GravityZone';
                 }
-              });
+              });*/
               return response.body;
             }),
             tap ((modules) => {
+              console.log('loaded modules');
               this.loading = false;
             }),
             catchError(error => {
@@ -133,12 +138,14 @@ export class AppModuleViewComponent implements OnInit {
   }
 
   filterByCategory($event: any) {
+    console.log('filter');
     this.req['moduleCategory.equals'] = $event;
     this.getModules();
 
   }
 
   onSearch($event: string) {
+    console.log('search');
     this.req.page = 0;
     this.req['prettyName.contains'] = $event;
     this.getModules();

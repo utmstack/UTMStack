@@ -1,6 +1,7 @@
 package com.park.utmstack.service.validators.collector;
 
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -13,13 +14,12 @@ import java.util.stream.Collectors;
 public class CollectorValidatorService implements Validator {
     @Override
     public boolean supports(Class<?> clazz) {
-        return UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody.class.equals(clazz);
+        return CollectorConfigKeysDTO.class.equals(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody updateConfigurationKeysBody =
-                (UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody) target;
+        CollectorConfigKeysDTO updateConfigurationKeysBody = (CollectorConfigKeysDTO) target;
 
         Map<String, Long> hostNames = updateConfigurationKeysBody.getKeys().stream()
                 .filter(config -> config.getConfName().equals("Hostname"))

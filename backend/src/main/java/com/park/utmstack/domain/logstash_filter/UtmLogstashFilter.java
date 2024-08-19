@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * A UtmLogstashFilter.
@@ -58,6 +59,12 @@ public class UtmLogstashFilter implements Serializable {
 
     @Column(name = "filter_version")
     private String filterVersion;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -167,5 +174,22 @@ public class UtmLogstashFilter implements Serializable {
 
     public void setModule(UtmModule module) {
         this.module = module;
+    }
+
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
