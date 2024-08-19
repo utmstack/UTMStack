@@ -1,103 +1,153 @@
 package processor
 
 import (
-	"context"
 	"fmt"
-	"os"
-	"path"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/aws/schema"
 	"github.com/utmstack/UTMStack/plugins/aws/utils"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"github.com/utmstack/config-client-go/types"
 )
 
-func PullLogs(queue chan *plugins.Log, stopChan chan struct{}, tenant string, cnf schema.AWSConfig) {
+type AWSProcessor struct {
+	RegionName      string
+	AccessKey       string
+	SecretAccessKey string
+}
+
+func GetAWSProcessor(group types.ModuleGroup) AWSProcessor {
+	awsPro := AWSProcessor{}
+	for _, cnf := range group.Configurations {
+		switch cnf.ConfName {
+		case "Default Region":
+			awsPro.RegionName = cnf.ConfValue
+		case "Access Key":
+			awsPro.AccessKey = cnf.ConfValue
+		case "Secret Key":
+			awsPro.SecretAccessKey = cnf.ConfValue
+		}
+	}
+	return awsPro
+}
+
+func (p *AWSProcessor) createAWSSession() (*session.Session, error) {
+	if p.RegionName == "" {
+		return nil, fmt.Errorf("region name is required")
+	}
+
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(cnf.Region),
-		Credentials: credentials.NewStaticCredentials(cnf.AccessKeyID, cnf.SecretAccessKey, ""),
+		Region: aws.String(p.RegionName),
+		Credentials: credentials.NewStaticCredentialsFromCreds(
+			credentials.Value{
+				AccessKeyID:     p.AccessKey,
+				SecretAccessKey: p.SecretAccessKey,
+			},
+		),
 	})
 	if err != nil {
-		utils.Logger.ErrorF("Failed to create AWS session: %v", err)
-		return
+		return nil, fmt.Errorf("error creating AWS session: %v", err)
 	}
 
-	client := cloudwatchlogs.New(sess)
+	return sess, nil
+}
 
-	for {
-		select {
-		case <-stopChan:
-			return
-		default:
+func (p *AWSProcessor) DescribeLogGroups() ([]string, error) {
+	sess, sessionErr := p.createAWSSession()
+	if sessionErr != nil {
+		return nil, sessionErr
+	}
+
+	cwl := cloudwatchlogs.New(sess)
+	var logGroups []string
+	err := cwl.DescribeLogGroupsPages(&cloudwatchlogs.DescribeLogGroupsInput{},
+		func(page *cloudwatchlogs.DescribeLogGroupsOutput, lastPage bool) bool {
+			for _, group := range page.LogGroups {
+				logGroups = append(logGroups, aws.StringValue(group.LogGroupName))
+			}
+			return !lastPage
+		})
+	if err != nil {
+		return nil, fmt.Errorf("error getting log groups: %v", err)
+	}
+
+	return logGroups, nil
+}
+
+func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, error) {
+	sess, sessionErr := p.createAWSSession()
+	if sessionErr != nil {
+		return nil, sessionErr
+	}
+
+	cwl := cloudwatchlogs.New(sess)
+	var logStreams []string
+	err := cwl.DescribeLogStreamsPages(&cloudwatchlogs.DescribeLogStreamsInput{
+		LogGroupName: aws.String(logGroup),
+		OrderBy:      aws.String("LastEventTime"),
+		Descending:   aws.Bool(true),
+	},
+		func(page *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+			for _, stream := range page.LogStreams {
+				logStreams = append(logStreams, aws.StringValue(stream.LogStreamName))
+			}
+			return !lastPage
+		})
+	if err != nil {
+		return nil, fmt.Errorf("error getting log streams: %v", err)
+	}
+
+	return logStreams, nil
+}
+
+func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
+	transformedLogs := []string{}
+
+	sess, sessionErr := p.createAWSSession()
+	if sessionErr != nil {
+		return nil, sessionErr
+	}
+
+	cwl := cloudwatchlogs.New(sess)
+
+	logGroups, err := p.DescribeLogGroups()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, logGroup := range logGroups {
+		logStreams, err := p.DescribeLogStreams(logGroup)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, stream := range logStreams {
+			utils.Logger.Info("Processing stream %s from group %s", stream, logGroup)
 			params := &cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  aws.String(cnf.LogGroupName),
-				LogStreamName: aws.String(cnf.LogStreamName),
+				LogGroupName:  aws.String(logGroup),
+				LogStreamName: aws.String(stream),
+				StartTime:     aws.Int64(startTime.Unix() * 1000),
+				EndTime:       aws.Int64(endTime.Unix() * 1000),
+				StartFromHead: aws.Bool(true),
 			}
 
-			resp, err := client.GetLogEvents(params)
+			err := cwl.GetLogEventsPages(params,
+				func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
+					cleanLogs, err := ETLProcess(page.Events, logGroup, stream)
+					if err != nil {
+						utils.Logger.ErrorF("error processing logs: %v", err)
+						return false
+					}
+					transformedLogs = append(transformedLogs, cleanLogs...)
+					return !lastPage
+				})
 			if err != nil {
-				utils.Logger.ErrorF("Failed to get log events: %v", err)
-				continue
+				return nil, fmt.Errorf("error getting log events: %v", err)
 			}
-
-			for _, event := range resp.Events {
-				queue <- &plugins.Log{
-					DataType:   "aws",
-					DataSource: tenant,
-					Raw:        *event.Message,
-				}
-			}
-
-			time.Sleep(5 * time.Second)
 		}
 	}
-}
 
-func ProcessLogs(queue chan *plugins.Log) {
-
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		utils.Logger.ErrorF("Failed to connect to engine server: %v", err)
-		os.Exit(1)
-	}
-	defer conn.Close()
-
-	client := plugins.NewEngineClient(conn)
-
-	inputClient, err := client.Input(context.Background())
-	if err != nil {
-		utils.Logger.ErrorF("Failed to create input client: %v", err)
-		os.Exit(1)
-	}
-
-	go receiveAcks(inputClient)
-
-	for log := range queue {
-		err := inputClient.Send(log)
-		if err != nil {
-			utils.Logger.ErrorF("Failed to send log: %v", err)
-		} else {
-			utils.Logger.Info("Successfully sent log to processing engine: %v", log)
-		}
-	}
-}
-
-func receiveAcks(inputClient plugins.Engine_InputClient) {
-	for {
-		ack, err := inputClient.Recv()
-		if err != nil {
-			utils.Logger.ErrorF("Failed to receive ack: %v", err)
-			os.Exit(1)
-		}
-
-		utils.Logger.Info("Received ack: %v", ack)
-	}
+	return transformedLogs, nil
 }

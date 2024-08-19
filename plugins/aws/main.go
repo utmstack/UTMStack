@@ -2,64 +2,84 @@ package main
 
 import (
 	"log"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
-
-	"github.com/utmstack/UTMStack/plugins/aws/config"
 	"github.com/utmstack/UTMStack/plugins/aws/processor"
 	"github.com/utmstack/UTMStack/plugins/aws/schema"
 	"github.com/utmstack/UTMStack/plugins/aws/utils"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
+	"github.com/utmstack/config-client-go/types"
 )
 
 var (
 	configs     = map[string]schema.AWSConfig{}
 	newConfChan = make(chan struct{})
-	logsChan    = make(chan *plugins.Log)
 )
 
-const delayCheckConfig = 30 * time.Second
+const delayCheck = 300
 
 func main() {
 	pCfg, e := helpers.PluginCfg[schema.PluginConfig]("com.utmstack")
 	if e != nil {
-		log.Fatalf("Failed to load plugin config: %v", e)
+		log.Fatalf("failed to load plugin config: %v", e)
 	}
 	utils.InitLogger(pCfg.LogLevel)
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
-	go processor.ProcessLogs(logsChan)
+	st := time.Now().Add(-600 * time.Second)
+	go processor.ProcessLogs()
 
 	for {
-		time.Sleep(delayCheckConfig)
-
-		tempModuleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
+		et := st.Add(299 * time.Second)
+		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
-			utils.Logger.ErrorF("Error getting configuration of the AWS module: %v", err)
+			if strings.Contains(err.Error(), "invalid character '<'") {
+				time.Sleep(time.Second * delayCheck)
+				continue
+			}
+			if (err.Error() != "") && (err.Error() != " ") {
+				utils.Logger.ErrorF("error getting configuration of the AWS module: %v", err)
+			}
+
+			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
+			time.Sleep(time.Second * delayCheck)
+			st = et.Add(1)
 			continue
 		}
 
-		if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-			utils.Logger.Info("Configuration has been changed")
-			close(newConfChan)
-			newConfChan = make(chan struct{})
-			configs = map[string]schema.AWSConfig{}
+		if moduleConfig.ModuleActive {
+			var wg sync.WaitGroup
+			wg.Add(len(moduleConfig.ConfigurationGroups))
 
-			for _, newConf := range tempModuleConfig.ConfigurationGroups {
-				newConfiguration := schema.AWSConfig{
-					AccessKeyID:     newConf.Configurations[0].ConfValue,
-					SecretAccessKey: newConf.Configurations[1].ConfValue,
-					Region:          newConf.Configurations[2].ConfValue,
-					LogGroupName:    newConf.Configurations[3].ConfValue,
-					LogStreamName:   newConf.Configurations[4].ConfValue,
-				}
-				configs[newConf.GroupName] = newConfiguration
+			for _, group := range moduleConfig.ConfigurationGroups {
+				go func(group types.ModuleGroup) {
+					var skip bool
 
-				go processor.PullLogs(logsChan, newConfChan, newConf.GroupName, newConfiguration)
+					for _, cnf := range group.Configurations {
+						if cnf.ConfValue == "" || cnf.ConfValue == " " {
+							utils.Logger.Info("program not configured yet for group: %s", group.GroupName)
+							skip = true
+							break
+						}
+					}
+
+					if !skip {
+						processor.PullLogs(st, et, group)
+					}
+
+					wg.Done()
+				}(group)
 			}
+
+			wg.Wait()
+			utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
 		}
+
+		time.Sleep(time.Second * delayCheck)
+		st = et.Add(1)
 	}
 }

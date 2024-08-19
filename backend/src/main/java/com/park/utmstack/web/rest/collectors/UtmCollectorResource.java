@@ -3,10 +3,8 @@ package com.park.utmstack.web.rest.collectors;
 import agent.CollectorOuterClass.CollectorModule;
 import agent.CollectorOuterClass.FilterByHostAndModule;
 import agent.CollectorOuterClass.CollectorHostnames;
-import agent.CollectorOuterClass.ConfigRequest;
 import agent.CollectorOuterClass.CollectorConfig;
 import agent.Common.ListRequest;
-import agent.Common.AuthResponse;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
@@ -16,13 +14,14 @@ import com.park.utmstack.service.application_modules.UtmModuleGroupConfiguration
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
+import com.park.utmstack.service.dto.collectors.CollectorActionEnum;
+import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
+import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
-import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.UtilResponse;
-import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
 import com.park.utmstack.web.rest.network_scan.UtmNetworkScanResource;
@@ -38,12 +37,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -59,8 +59,6 @@ public class UtmCollectorResource {
     private final ApplicationEventService applicationEventService;
     private final UtmModuleGroupConfigurationService moduleGroupConfigurationService;
 
-    private final CollectorValidatorService collectorValidatorService;
-
     private final UtmModuleGroupService moduleGroupService;
 
     private final ApplicationEventService eventService;
@@ -70,7 +68,6 @@ public class UtmCollectorResource {
     public UtmCollectorResource(CollectorOpsService collectorService,
                                 ApplicationEventService applicationEventService,
                                 UtmModuleGroupConfigurationService moduleGroupConfigurationService,
-                                CollectorValidatorService collectorValidatorService,
                                 UtmModuleGroupService moduleGroupService,
                                 ApplicationEventService eventService,
                                 UtmCollectorService utmCollectorService) {
@@ -78,7 +75,6 @@ public class UtmCollectorResource {
         this.collectorService = collectorService;
         this.applicationEventService = applicationEventService;
         this.moduleGroupConfigurationService = moduleGroupConfigurationService;
-        this.collectorValidatorService = collectorValidatorService;
         this.moduleGroupService = moduleGroupService;
         this.eventService = eventService;
         this.utmCollectorService = utmCollectorService;
@@ -94,54 +90,25 @@ public class UtmCollectorResource {
      */
     @PostMapping("/collector-config")
     public ResponseEntity<Void> upsertCollectorConfig(
-            @Valid @RequestBody UtmModuleGroupConfigurationResource.UpdateConfigurationKeysBody collectorConfig,
-            CollectorDTO collectorDTO) {
+            @Valid @RequestBody CollectorConfigKeysDTO collectorConfig,
+            @RequestParam(name = "action", defaultValue = "CREATE") CollectorActionEnum action) {
+
         final String ctx = CLASSNAME + ".upsertCollectorConfig";
+        CollectorConfig cacheConfig = null;
+
+        // Validate collector configuration
+        String validationErrorMessage = this.collectorService.validateCollectorConfig(collectorConfig);
+        if (validationErrorMessage != null) {
+            return logAndResponse(new ErrorResponse(validationErrorMessage, HttpStatus.PRECONDITION_FAILED));
+        }
 
         try {
-            Errors errors = new BeanPropertyBindingResult(collectorConfig, "updateConfigurationKeysBody");
-            collectorValidatorService.validate(collectorConfig, errors);
+            cacheConfig  = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
+            this.upsert(collectorConfig);
+            return ResponseEntity.noContent().build();
 
-            if (errors.hasErrors()) {
-                String msg =  "Validation failed: Hostname must be unique for this collector.";
-                log.error(msg);
-                applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-                return UtilResponse.buildPreconditionFailedResponse(msg);
-            }
-
-            // Get the actual configuration just in case of error when updating local db.
-            CollectorConfig cacheConfig = collectorService.getCollectorConfig(
-                    ConfigRequest.newBuilder().setModule(CollectorModule.valueOf(collectorDTO.getModule().toString())).build(),
-                    AuthResponse.newBuilder().setId(collectorDTO.getId()).setKey(collectorDTO.getCollectorKey()).build());
-            // Map the configurations to gRPC CollectorConfig and try to insert/update the collector config
-            collectorService.upsertCollectorConfig(collectorService.mapToCollectorConfig(
-                    collectorService.mapPasswordConfiguration(collectorConfig.getKeys()), collectorDTO));
-            // If the update is fine via gRPC, then update the configurations in local db.
-            try {
-                moduleGroupConfigurationService.updateConfigurationKeys(collectorConfig.getModuleId(), collectorConfig.getKeys());
-
-                return ResponseEntity.noContent().build();
-            } catch (Exception e) {
-                String msg = ctx + ": " + e.getMessage();
-                // In case of db error try to reset the configuration from the cache
-                collectorService.upsertCollectorConfig(cacheConfig);
-                throw new InternalServerErrorException(msg);
-            }
-        } catch (BadRequestAlertException e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
-        } catch (CollectorConfigurationGrpcException | CollectorServiceGrpcException e) {
-            String msg = ctx + ": UtmCollector manager is not available or the configuration is wrong, please check. " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_GATEWAY, msg);
-        } catch (InternalServerErrorException e) {
-            String msg = ctx + ": The collector configuration couldn't be persisted on database. " + e.getLocalizedMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        } catch (Exception e) {
+            return handleUpdateError(e, cacheConfig, collectorConfig.getCollector());
         }
     }
 
@@ -335,5 +302,81 @@ public class UtmCollectorResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
                     HeaderUtil.createFailureAlert("UtmCollector", null, e.getMessage())).body(null);
         }
+    }
+
+    @PostMapping("/collectors-config")
+    public ResponseEntity<Map<String, Object>> upsertCollectorsConfig(@RequestBody List<CollectorConfigKeysDTO> collectors) {
+        Map<String, Object> results = new HashMap<>();
+        final String ctx = CLASSNAME + ".upsertCollectorsConfig";
+        CollectorConfig cacheConfig = null;
+
+        List<Map<String, Object>> collectorsResults = new ArrayList<>();
+        for (CollectorConfigKeysDTO collectorConfig : collectors) {
+            Map<String, Object> collectorResult = new HashMap<>();
+            collectorResult.put("collectorId", collectorConfig.getCollector().getId());
+            try {
+                cacheConfig  = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
+                this.upsert(collectorConfig);
+                collectorResult.put("status", "success");
+            } catch (Exception e) {
+                ErrorResponse error = this.getError(e, cacheConfig);
+                collectorResult.put("status", "failure");
+                collectorResult.put("errorMessage", error.getMessage());
+            }
+            collectorsResults.add(collectorResult);
+        }
+
+        results.put("results", collectorsResults );
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(results);
+    }
+
+    private ResponseEntity<Void> handleUpdateError(Exception e, CollectorConfig cacheConfig, CollectorDTO collectorDTO) {
+        return logAndResponse(this.getError(e, cacheConfig));
+    }
+
+    private ErrorResponse getError(Exception e, CollectorConfig cacheConfig) {
+        String msg;
+        HttpStatus status;
+
+        try {
+            if (e instanceof InternalServerErrorException) {
+                /*collectorService.upsertCollectorConfig(cacheConfig);*/
+                msg = "The collector configuration couldn't be persisted on database: " + e.getLocalizedMessage();
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+            } else if (e instanceof CollectorConfigurationGrpcException || e instanceof CollectorServiceGrpcException) {
+                msg = "UtmCollector manager is not available or the configuration is wrong: " + e.getLocalizedMessage();
+                status = HttpStatus.BAD_GATEWAY;
+
+            } else if (e instanceof BadRequestAlertException) {
+                msg = e.getLocalizedMessage();
+                status = HttpStatus.BAD_REQUEST;
+
+            } else {
+                msg = "Unexpected error: " + e.getLocalizedMessage();
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+        } catch (Exception rollbackException) {
+            msg = "Failed to rollback the configuration: " + rollbackException.getLocalizedMessage();
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return new ErrorResponse(msg, status);
+    }
+
+    private ResponseEntity<Void> logAndResponse(ErrorResponse error) {
+        log.error(error.getMessage());
+        applicationEventService.createEvent(error.getMessage(), ApplicationEventType.ERROR);
+        return UtilResponse.buildErrorResponse(error.getStatus(), error.getMessage());
+    }
+
+    private void upsert (CollectorConfigKeysDTO collectorConfig) throws Exception {
+
+        // Update local database with new configuration
+        this.collectorService.updateCollectorConfigurationKeys(collectorConfig);
+
+        // Attempt to update collector configuration via gRPC
+        this.collectorService.updateCollectorConfigViaGrpc(collectorConfig, collectorConfig.getCollector());
     }
 }

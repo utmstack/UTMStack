@@ -44,6 +44,6 @@ type DependencyUpdateResponse struct {
 	Version     string `json:"version"`
 	TotalSize   int64  `json:"totalSize"`
 	PartIndex   string `json:"partIndex,omitempty"`
-	NParts      int64  `json:"nParts,omitempty"`
+	NParts      int    `json:"nParts,omitempty"`
 	FileContent []byte `json:"fileContent,omitempty"`
 }

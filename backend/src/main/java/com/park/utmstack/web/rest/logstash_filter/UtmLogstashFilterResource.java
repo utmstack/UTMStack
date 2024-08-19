@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +75,7 @@ public class UtmLogstashFilterResource {
                 if (!pipeline.isPresent()) {
                     throw new Exception("The pipeline with ID (" + pipelineId + ") not exists");
                 }
+                logstashFilter.setCreatedAt(Instant.now());
                 UtmLogstashFilter filter = logstashFilterService.save(logstashFilter);
                 Long filterId = filter.getId();
                 UtmGroupLogstashPipelineFilters relation = new UtmGroupLogstashPipelineFilters();
@@ -114,6 +116,7 @@ public class UtmLogstashFilterResource {
                 throw new Exception("Cannot update system-owned filter");
             }
 
+            logstashFilter.setUpdatedAt(Instant.now());
             return ResponseEntity.ok(logstashFilterService.save(logstashFilter));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

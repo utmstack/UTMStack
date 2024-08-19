@@ -73,5 +73,7 @@
 
     <include file="/config/liquibase/changelog/20240711001_updating_UtmLogstashFilter.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20240819001_add_audit_column_utm_logstash_filter.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
