@@ -4,28 +4,55 @@ import { Injectable } from '@angular/core';
 import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable, of} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {UtmServerService} from '../shared/services/utm-server.service';
 import {UtmServerType} from '../shared/type/utm-server.type';
-import {UtmToastService} from '../../shared/alert/utm-toast.service';
+import {UtmModulesService} from '../shared/services/utm-modules.service';
+import {UtmModulesEnum} from "../shared/enum/utm-module.enum";
 
 @Injectable()
 export class ModuleResolverService implements Resolve<Observable<UtmServerType>> {
+  utmModulesEnum = UtmModulesEnum;
+  server: UtmServerType;
 
   constructor(private utmServerService: UtmServerService,
               private utmToastService: UtmToastService,
-              private spinner: NgxSpinnerService) {}
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<UtmServerType> {
+              private spinner: NgxSpinnerService,
+              private utmModulesService: UtmModulesService) {}
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> {
     this.spinner.show('loadingSpinner');
     return this.utmServerService.query({page: 0, size: 100})
       .pipe(
-        tap(() => this.spinner.hide('loadingSpinner')),
         catchError(error => {
           console.log(error);
           this.utmToastService.showError('Failed to fetch servers',
             'An error occurred while fetching module data.');
           return of(null);
         }),
-        map((resp: HttpResponse<UtmServerType[]>) => resp.body[0]));
+        tap((response) => this.server = response.body[0]),
+        switchMap(response => this.getModules({page: 0, size: 100, 'serverId.equals': response.body[0].id})));
+  }
+
+  getModules(req: any) {
+    return this.utmModulesService.getModules(req)
+      .pipe(
+        map( response => {
+          response.body.map(m => {
+            if (m.moduleName === this.utmModulesEnum.BITDEFENDER) {
+               m.prettyName = m.prettyName + ' GravityZone';
+            }
+          });
+          return response.body;
+        }),
+        tap(() => this.spinner.hide('loadingSpinner')),
+        catchError(error => {
+          console.log(error);
+          this.utmToastService.showError('Failed to fetch modules',
+            'An error occurred while fetching module data.');
+          return [];
+        })
+      );
   }
 }
