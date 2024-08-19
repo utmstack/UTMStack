@@ -63,11 +63,12 @@ func DownloadFileByChunks(url string, headers map[string]string, fileName string
 			return version, fmt.Errorf("error writing to file: %v", err)
 		}
 
-		partindex++
-		if response.IsLastPart {
+		if partindex == response.NParts {
 			version = response.Version
 			break
 		}
+
+		partindex++
 	}
 	fmt.Println("")
 	return version, nil

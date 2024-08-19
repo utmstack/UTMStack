@@ -2,18 +2,42 @@ package main
 
 import (
 	"bytes"
+	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/go-sdk/plugins"
-	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/health"
+	grpcHealth "google.golang.org/grpc/health/grpc_health_v1"
 )
+
+func startHTTPServer(middlewares *Middlewares, cert string, key string) {
+	helpers.Logger().Info("starting HTTP server on 0.0.0.0:8080...")
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.Default()
+	router.POST("/v1/log", middlewares.HttpAuth(), Log)
+	router.POST("/v1/github-webhook", middlewares.GitHubAuth(), GitHub)
+	router.GET("/v1/ping", Ping)
+	router.GET("/v1/health", func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	err := router.RunTLS(":8080", cert, key)
+	if err != nil {
+		helpers.Logger().ErrorF("failed to start HTTP server: %v", err)
+		return
+	}
+}
 
 func Log(c *gin.Context) {
 	buf := new(bytes.Buffer)
+
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
 		e := helpers.Logger().ErrorF(err.Error())
@@ -21,10 +45,12 @@ func Log(c *gin.Context) {
 		return
 	}
 
+	body := buf.String()
+
 	var l = new(plugins.Log)
-	err = protojson.Unmarshal(buf.Bytes(), l)
-	if err != nil {
-		e := helpers.Logger().ErrorF(err.Error())
+
+	e := helpers.ToObject(&body, l)
+	if e != nil {
 		e.GinError(c)
 		return
 	}
@@ -38,11 +64,11 @@ func Log(c *gin.Context) {
 		l.TenantId = defaultTenant
 	}
 
-	if l.DataType == ""{
+	if l.DataType == "" {
 		l.DataType = "generic"
 	}
 
-	if l.DataSource == ""{
+	if l.DataSource == "" {
 		l.DataSource = "unknown"
 	}
 
@@ -85,6 +111,42 @@ func GitHub(c *gin.Context) {
 	c.JSON(http.StatusOK, plugins.Ack{LastId: l.Id})
 }
 
+type integration struct {
+	plugins.UnimplementedIntegrationServer
+}
+
+func startGRPCServer(middlewares *Middlewares, cert string, key string) {
+	creds, err := credentials.NewServerTLSFromFile(cert, key)
+	if err != nil {
+		helpers.Logger().Fatal("failed to load TLS credentials: %v", err)
+	}
+
+	server := grpc.NewServer(
+		grpc.Creds(creds),
+		grpc.ChainUnaryInterceptor(middlewares.GrpcAuth),
+		grpc.ChainStreamInterceptor(middlewares.GrpcStreamAuth),
+	)
+
+	integrationInstance := new(integration)
+
+	plugins.RegisterIntegrationServer(server, integrationInstance)
+	healthServer := health.NewServer()
+	grpcHealth.RegisterHealthServer(server, healthServer)
+	healthServer.SetServingStatus("", grpcHealth.HealthCheckResponse_SERVING)
+
+	listener, err := net.Listen("tcp", "0.0.0.0:50051")
+	if err != nil {
+		helpers.Logger().ErrorF("failed to listen grpc server: %v", err)
+		os.Exit(1)
+	}
+
+	helpers.Logger().Info("starting gRPC server on 0.0.0.0:50051")
+	if err := server.Serve(listener); err != nil {
+		helpers.Logger().Fatal("failed to serve grpc: %v", err)
+		os.Exit(1)
+	}
+}
+
 func (i *integration) ProcessLog(srv plugins.Integration_ProcessLogServer) error {
 	for {
 		l, err := srv.Recv()
@@ -101,11 +163,11 @@ func (i *integration) ProcessLog(srv plugins.Integration_ProcessLogServer) error
 			l.TenantId = defaultTenant
 		}
 
-		if l.DataType == ""{
+		if l.DataType == "" {
 			l.DataType = "generic"
 		}
-	
-		if l.DataSource == ""{
+
+		if l.DataSource == "" {
 			l.DataSource = "unknown"
 		}
 

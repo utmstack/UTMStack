@@ -79,34 +79,32 @@ func CreatePathIfNotExist(path string) error {
 	return nil
 }
 
-func ReadFilePart(filePath string, partSizeMB int, partIndex int) ([]byte, bool, int64, error) {
+func ReadFilePart(filePath string, partSizeMB int, partIndex int) ([]byte, int, int64, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, false, 0, fmt.Errorf("error opening file: %v", err)
+		return nil, 0, 0, fmt.Errorf("error opening file: %v", err)
 	}
 	defer file.Close()
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return nil, false, 0, fmt.Errorf("error getting file info: %v", err)
+		return nil, 0, 0, fmt.Errorf("error getting file info: %v", err)
 	}
 
 	partSizeBytes := partSizeMB * 1024 * 1024
+	totalParts := int((fileInfo.Size() + int64(partSizeBytes) - 1) / int64(partSizeBytes))
 	offset := int64((partIndex - 1) * partSizeBytes)
 
 	_, err = file.Seek(offset, io.SeekStart)
 	if err != nil {
-		return nil, false, 0, fmt.Errorf("error seeking file: %v", err)
+		return nil, 0, 0, fmt.Errorf("error seeking file: %v", err)
 	}
 
 	buf := make([]byte, partSizeBytes)
 	n, err := io.ReadFull(file, buf)
 	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
-		return nil, false, 0, fmt.Errorf("error reading file: %v", err)
+		return nil, 0, 0, fmt.Errorf("error reading file: %v", err)
 	}
 
-	_, err = file.Read(make([]byte, 1))
-	isLastPart := err == io.EOF
-
-	return buf[:n], isLastPart, fileInfo.Size(), nil
+	return buf[:n], totalParts, fileInfo.Size(), nil
 }

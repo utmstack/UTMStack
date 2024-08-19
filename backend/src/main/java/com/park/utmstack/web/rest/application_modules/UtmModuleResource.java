@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Formattable;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,8 @@ public class UtmModuleResource {
     private final ApplicationEventService eventService;
     private final UtmStackService utmStackService;
     private final UtmServerRepository utmServerRepository;
+    // List of configurations of type 'file' that needs content decryption
+    private final List<ModuleName> typeFileNeedsDecryptList = List.of(ModuleName.GCP);
 
     public UtmModuleResource(UtmModuleService moduleService,
                              ModuleFactory moduleFactory,
@@ -128,7 +131,8 @@ public class UtmModuleResource {
                 Set<UtmModuleGroup> groups = module.getModuleGroups();
                 groups.forEach((gp) -> {
                     gp.getModuleGroupConfigurations().forEach((gpc) -> {
-                        if (gpc.getConfDataType().equals("password") && StringUtils.hasText(gpc.getConfValue())) {
+                        if ((gpc.getConfDataType().equals("password") && StringUtils.hasText(gpc.getConfValue()))
+                        || (gpc.getConfDataType().equals("file") && StringUtils.hasText(gpc.getConfValue())) && typeFileNeedsDecryptList.contains(nameShort)) {
                             gpc.setConfValue(CipherUtil.decrypt(gpc.getConfValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
                         }
                     });
