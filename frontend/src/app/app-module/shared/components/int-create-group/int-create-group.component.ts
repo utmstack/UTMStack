@@ -18,7 +18,7 @@ import {UtmModuleCollectorType} from "../../type/utm-module-collector.type";
 export class IntCreateGroupComponent implements OnInit {
   @Input() group: UtmModuleGroupType;
   @Input() moduleId: number;
-  @Input() collectors: UtmModuleCollectorType[];
+  @Input() collectors: any[];
   @Input() groupType: number = GroupTypeEnum.TENANT;
   @Output() groupChange = new EventEmitter<UtmModuleGroupType>();
   formGroupConfig: FormGroup;
@@ -42,7 +42,12 @@ export class IntCreateGroupComponent implements OnInit {
       id: []
     });
     if (this.group) {
-      this.formGroupConfig.patchValue(this.group);
+      const groupToEdit = this.groupType === GroupTypeEnum.TENANT ? this.group :
+        {
+          ...this.group,
+          collector: parseInt(this.group.collector, 10)
+        };
+      this.formGroupConfig.patchValue(groupToEdit);
     }
   }
 
@@ -79,14 +84,15 @@ export class IntCreateGroupComponent implements OnInit {
   }
 
   getFormValue() {
-    const collector = this.formGroupConfig.get('collector').value;
+    const collector = this.collectors.find(c => c.id ===
+        this.formGroupConfig.get('collector').value);
 
     return {
       description: this.formGroupConfig.get('groupDescription').value,
       moduleId: this.moduleId,
       name: this.groupType === GroupTypeEnum.TENANT ? this.formGroupConfig.get('groupName').value :
           this.collectorService.generateUniqueName(collector.collector, collector.groups),
-      collector: this.formGroupConfig.get('collector').value ? this.formGroupConfig.get('collector').value.id : null
+      collector: this.formGroupConfig.get('collector').value ? this.formGroupConfig.get('collector').value : null
     };
   }
 

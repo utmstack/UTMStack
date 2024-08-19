@@ -3,10 +3,13 @@ import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class ModuleChangeStatusBehavior {
-  private $moduleChangeStatusBehavior = new BehaviorSubject<boolean>(null);
-  public moduleStatus$: Observable<boolean> = this.$moduleChangeStatusBehavior.asObservable();
+  private moduleChangeStatusBehavior = new BehaviorSubject<boolean>(null);
+  public moduleStatus$: Observable<boolean> = this.moduleChangeStatusBehavior.asObservable();
 
+  getLastStatus() {
+    return this.moduleChangeStatusBehavior.value;
+  }
   setStatus(status: boolean) {
-    this.$moduleChangeStatusBehavior.next(status);
+    this.moduleChangeStatusBehavior.next(status);
   }
 }

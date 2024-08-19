@@ -21,7 +21,7 @@
          </i>
        </span>
      </span>
-      <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: collector.groups, editable: editable}"></ng-container>
+      <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: collector.groups, editable: editable, collector: collector}"></ng-container>
       <div *ngIf="pendingChangesForCollector(collector.groups) && changes && changes.keys.length > 0"
            class="w-100 alert alert-info alert-styled-right mb-3 mt-3">
        <span class="font-weight-semibold">
@@ -40,7 +40,8 @@
         <button class="btn utm-button utm-button-primary"
                 (click)="saveCollectorConfig(collector)"
         [disabled]="(!collectorValid(collector.groups) || savingConfig) ||
-        (collectorValid(collector.groups) && changes && changes.keys.length === 0)">
+                    (collectorValid(collector.groups) && changes && changes.keys.length === 0) ||
+                    (!pendingChangesForCollector(collector.groups))">
           <i class="icon-cog5 mr-1"></i>
           Save collector
         </button>
@@ -69,12 +70,12 @@
        <span class="span-small-icon ml-3" *ngIf="editable">
          <i class="icon-pencil  cursor-pointer"
             (click)="editGroup(group)"
-            ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Edit tenant' : 'Edit collector'}}">
+            ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Edit tenant' : 'Edit configuration'}}">
          </i>
             <i *ngIf="showClose(group, groups)"
                class="icon-cross2 ml-2 cursor-pointer"
                (click)="deleteGroup(group)"
-               ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Delete tenant' : 'Delete collector'}}">
+               ngbTooltip="{{groupType == GroupTypeEnum.TENANT  ? 'Delete tenant' : 'Delete configuration'}}">
          </i>
        </span>
      </span>

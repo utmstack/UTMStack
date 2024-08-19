@@ -4,6 +4,7 @@
     <div *ngIf="groupType === GroupTypeEnum.COLLECTOR" class="form-group">
       <label class="pb-1" for="groupName">Collector</label>
       <ng-select [items]="collectors"
+                 bindValue="id"
                  bindLabel="collector"
                  formControlName="collector"
                  placeholder="Select collector"

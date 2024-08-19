@@ -24,6 +24,10 @@ export class UtmModuleCollectorService {
     return this.http.post<any>(`${this.resourceUrl}/collector-config/`, body.collectorConfig, {params: options, observe: 'response'});
   }
 
+  reset(body: any): Observable<HttpResponse<UtmModuleGroupType>> {
+    return this.http.post<any>(`${this.resourceUrl}/collectors-config/`, body.collectorConfig, {observe: 'response'});
+  }
+
   update(conf: UtmModuleGroupType): Observable<HttpResponse<UtmModuleGroupType>> {
     return this.http.put<UtmModuleGroupType>(this.resourceUrl, conf, {observe: 'response'});
   }

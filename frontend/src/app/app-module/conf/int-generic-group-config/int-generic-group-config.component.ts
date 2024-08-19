@@ -90,7 +90,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
           }
         }),
         catchError(error => {
-          this.toast.showError('Error Listing collector configurations',
+          this.toast.showError('Error listing collector configurations',
               'An error occurred while trying to list collector configurations. Please try again.');
           return of(null);
         }),
@@ -112,9 +112,6 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   editGroup(group: UtmModuleGroupType) {
-    if (this.groupType === GroupTypeEnum.COLLECTOR) {
-      group.collector = this.collectorList.find( c => c.id === Number(group.collector)).hostname;
-    }
     const modal = this.modalService.open(IntCreateGroupComponent, {centered: true});
     modal.componentInstance.moduleId = this.moduleId;
     modal.componentInstance.group = group;
@@ -137,12 +134,30 @@ export class IntGenericGroupConfigComponent implements OnInit {
     deleteModal.componentInstance.confirmBtnIcon = 'icon-stack-cancel';
     deleteModal.componentInstance.confirmBtnType = 'delete';
     deleteModal.result.then(() => {
-      this.deleteAction(group);
+      const collector = this.collectors.find(c => c.id === parseInt(group.collector, 10));
+      const collectorToSave = {
+        ...collector,
+        groups: collector.groups.filter(g => g.id !== group.id)
+      };
+      this.deleteAction(collectorToSave);
     });
   }
 
-  deleteAction(group: UtmModuleGroupType) {
-    this.utmModuleGroupService.delete(group.id).subscribe(response => {
+  deleteAction(collector: any) {
+    this.saveCollector(this.getBody(collector))
+      .subscribe(response => {
+        if (this.groups.length === 1) {
+          this.moduleChangeStatusBehavior.setStatus(false);
+        } else {
+          this.toast.showSuccessBottom(`${this.groupName.toUpperCase()} group deleted successfully`);
+        }
+        this.getGroups().subscribe();
+      }, error => {
+        this.toast.showError(`Error deleting ${this.groupName}`,
+          `Error while trying to delete ${this.groupName} , please try again`);
+      });
+
+    /*this.utmModuleGroupService.delete(group.id).subscribe(response => {
       if (this.groups.length === 1) {
         this.moduleChangeStatusBehavior.setStatus(false);
       } else {
@@ -152,7 +167,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
     }, error => {
       this.toast.showError(`Error deleting ${this.groupName}`,
         `Error while trying to delete ${this.groupName} , please try again`);
-    });
+    });*/
   }
 
   saveConfig(group: UtmModuleGroupType) {
@@ -185,6 +200,7 @@ export class IntGenericGroupConfigComponent implements OnInit {
     }
   }
 
+
   tenantGroupConfigValid(): boolean {
     let required = [];
     let valid = [];
@@ -200,10 +216,11 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   addChange(integrationConfig: UtmModuleGroupConfType) {
+    const collector = this.collectors.find(c => c.groups.find(g => g.id === integrationConfig.groupId));
     this.pendingChanges = true;
     const index = this.changes.keys
-      .findIndex(value => value.confName === integrationConfig.confName &&
-        value.groupId === integrationConfig.groupId);
+                            .findIndex(value =>
+                              value.confName === integrationConfig.confName && value.groupId === integrationConfig.groupId);
     if (index === -1) {
       this.changes.keys.push(integrationConfig);
     } else {
@@ -259,41 +276,55 @@ export class IntGenericGroupConfigComponent implements OnInit {
    groups.forEach(group => this.cancelConfig(group));
   }
 
-  saveCollectorConfig(collector: any) {
-    const collectorDto = this.collectorList.find(c => c.hostname === collector.collector);
-    this.configs = [];
-    collector.groups.forEach((item: { moduleGroupConfigurations: any; }) => {
-      const configurations = item.moduleGroupConfigurations;
-      this.configs.push(...configurations);
-    });
-    const body = {
-      collectorConfig: {
-        moduleId: this.moduleId,
-        keys: this.configs
-      },
-      collector: {
-        ... collectorDto,
-        group: null,
-      },
-    };
-    this.collectorService.create(body).subscribe(response => {
+  saveCollectorConfig(collector: any, action = 'CREATE') {
+    const body = this.getBody(collector, action);
+    this.saveCollector(body)
+      .subscribe(response => {
       this.savingConfig = false;
       this.pendingChanges = false;
       this.changes = {keys: [], moduleId: this.moduleId};
       this.configValidChange.emit(this.tenantGroupConfigValid());
       this.toast.showSuccessBottom('Configuration saved successfully');
+      if (!this.moduleChangeStatusBehavior.getLastStatus()) {
+        this.moduleChangeStatusBehavior.setStatus(true);
+      }
     }, () => {
       this.toast.showError('Error saving configuration',
           'Error while trying to save collector configuration , please try again');
     });
   }
 
+  saveCollector(body: any){
+    return this.collectorService.create(body);
+  }
+
+  getBody(collector: any, action = 'CREATE') {
+    const collectorDto = this.collectorList.find(c => c.hostname === collector.collector);
+    this.configs = [];
+    collector.groups.forEach((item: { moduleGroupConfigurations: any; }) => {
+      const configurations = item.moduleGroupConfigurations;
+      this.configs.push(...configurations);
+    });
+    return  {
+      collectorConfig: {
+        moduleId: this.moduleId,
+        keys: this.configs,
+        collector: {
+          ... collectorDto,
+          group: null,
+        }
+      },
+      action
+    };
+  }
+
   addConfig(collector: any) {
     const col = this.collectorList.find(c => c.hostname === collector.collector);
+    const name = this.collectorService.generateUniqueName(collector.collector, collector.groups);
     this.utmModuleGroupService.create({
-      description: '',
+      description: `Description for: ${name}`,
       moduleId: this.moduleId,
-      name: this.collectorService.generateUniqueName(collector.collector, collector.groups),
+      name,
       collector: col.id
     }).subscribe(response => {
       this.getGroups().subscribe();
@@ -312,17 +343,11 @@ export class IntGenericGroupConfigComponent implements OnInit {
     deleteModal.componentInstance.confirmBtnIcon = 'icon-stack-cancel';
     deleteModal.componentInstance.confirmBtnType = 'delete';
     deleteModal.result.then(() => {
-        const deleteRequests = collector.groups.map( g => this.utmModuleGroupService.delete(g.id));
-
-        forkJoin(deleteRequests).subscribe(() => {
-          this.moduleChangeStatusBehavior.setStatus(false);
-          this.getGroups().subscribe();
-        },
-            (error) => {
-              this.toast.showError('Error saving configuration',
-                  'Error processing deletion requests , please try again');
-            });
-
+      const collectorToSave = {
+        ...collector,
+        groups: []
+      };
+      this.deleteAction(collectorToSave);
     });
   }
 
