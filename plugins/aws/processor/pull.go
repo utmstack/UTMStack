@@ -48,7 +48,6 @@ func ProcessLogs() {
 		utils.Logger.ErrorF("failed to connect to engine server: %v", err)
 		os.Exit(1)
 	}
-	defer conn.Close()
 
 	client := plugins.NewEngineClient(conn)
 
@@ -58,9 +57,8 @@ func ProcessLogs() {
 		os.Exit(1)
 	}
 
-	go receiveAcks(inputClient)
-
-	for log := range LogQueue {
+	for {
+		log := <-LogQueue
 		utils.Logger.LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
@@ -68,11 +66,7 @@ func ProcessLogs() {
 		} else {
 			utils.Logger.LogF(100, "successfully sent log to processing engine: %v", log)
 		}
-	}
-}
 
-func receiveAcks(inputClient plugins.Engine_InputClient) {
-	for {
 		ack, err := inputClient.Recv()
 		if err != nil {
 			utils.Logger.ErrorF("failed to receive ack: %v", err)

@@ -37,6 +37,7 @@ func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
 			}
 
 			sub := client.Subscription(cnf.SubscriptionID)
+			utils.Logger.LogF(100, "subscribing to %s", cnf.SubscriptionID)
 
 			err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				messageData, err := ETLProcess(string(msg.Data))
@@ -46,6 +47,7 @@ func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
 					return
 				}
 
+				utils.Logger.LogF(100, "received message: %v", messageData)
 				LogsQueue <- &plugins.Log{
 					Id:         uuid.New().String(),
 					TenantId:   config.DefaultTenant,
@@ -80,19 +82,16 @@ func ProcessLogs() {
 		os.Exit(1)
 	}
 
-	go receiveAcks(inputClient)
-
-	for log := range LogsQueue {
+	for {
+		log := <-LogsQueue
 		utils.Logger.LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
 			utils.Logger.ErrorF("failed to send log: %v", err)
+		} else {
+			utils.Logger.LogF(100, "successfully sent log to processing engine: %v", log)
 		}
-	}
-}
 
-func receiveAcks(inputClient plugins.Engine_InputClient) {
-	for {
 		ack, err := inputClient.Recv()
 		if err != nil {
 			utils.Logger.ErrorF("failed to receive ack: %v", err)
