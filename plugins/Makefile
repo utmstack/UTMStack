@@ -6,6 +6,7 @@ update:
 	cd stats && go get -u && go mod tidy 
 	cd gcp && go get -u && go mod tidy 
 	cd aws && go get -u && go mod tidy 
+	cd azure && go get -u && go mod tidy 
 
 build:
 	cd events && go build -o com.utmstack.events.plugin
@@ -15,5 +16,6 @@ build:
 	cd stats && go build -o com.utmstack.stats.plugin
 	cd gcp && go build -o com.utmstack.gcp.plugin
 	cd aws && go build -o com.utmstack.aws.plugin
+	cd azure && go build -o com.utmstack.azure.plugin
 
 update-build: update build
