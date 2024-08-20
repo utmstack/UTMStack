@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/pubsub v1.41.0
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v0.6.6
-	github.com/threatwinds/logger v1.1.11
 	github.com/utmstack/config-client-go v1.2.5
 	google.golang.org/api v0.192.0
 	google.golang.org/grpc v1.65.0
@@ -46,6 +45,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
+	github.com/threatwinds/logger v1.1.11 // indirect
 	github.com/tidwall/gjson v1.17.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

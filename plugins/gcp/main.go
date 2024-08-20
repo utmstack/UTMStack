@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -9,7 +9,6 @@ import (
 	"github.com/utmstack/UTMStack/plugins/gcp/config"
 	"github.com/utmstack/UTMStack/plugins/gcp/processor"
 	"github.com/utmstack/UTMStack/plugins/gcp/schema"
-	"github.com/utmstack/UTMStack/plugins/gcp/utils"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 )
@@ -24,9 +23,9 @@ const delayCheckConfig = 30 * time.Second
 func main() {
 	pCfg, e := helpers.PluginCfg[schema.PluginConfig]("com.utmstack")
 	if e != nil {
-		log.Fatalf("Failed to load plugin config: %v", e)
+		os.Exit(1)
 	}
-	utils.InitLogger(pCfg.LogLevel)
+
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
 	go processor.ProcessLogs()
@@ -40,13 +39,13 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				utils.Logger.ErrorF("error getting configuration of the GCP module: %v", err)
+				helpers.Logger().ErrorF("error getting configuration of the GCP module: %v", err)
 			}
 			continue
 		}
 		if tempModuleConfig.ModuleActive {
 			if config.CompareConfigs(configs, tempModuleConfig.ConfigurationGroups) {
-				utils.Logger.LogF(100, "Configuration has been changed")
+				helpers.Logger().LogF(100, "Configuration has been changed")
 				close(newConfChan)
 				newConfChan = make(chan struct{})
 				configs = map[string]schema.ModuleConfig{}

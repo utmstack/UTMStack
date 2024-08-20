@@ -49,17 +49,17 @@ func getAzureProcessor(group types.ModuleGroup) AzureConfig {
 }
 
 func (ap *AzureConfig) pullLogs() {
-	Logger.Info("starting log sync for : %s", ap.GroupName)
+	helpers.Logger().Info("starting log sync for : %s", ap.GroupName)
 
 	cred, err := azidentity.NewClientSecretCredential(ap.TenantID, ap.ClientID, ap.ClientSecretValue, nil)
 	if err != nil {
-		Logger.ErrorF("error creating credentials: %v", err)
+		helpers.Logger().ErrorF("error creating credentials: %v", err)
 		return
 	}
 
 	client, err := azquery.NewLogsClient(cred, nil)
 	if err != nil {
-		Logger.ErrorF("error creating logs client: %v", err)
+		helpers.Logger().ErrorF("error creating logs client: %v", err)
 		return
 	}
 
@@ -72,11 +72,11 @@ func (ap *AzureConfig) pullLogs() {
 		nil,
 	)
 	if err != nil {
-		Logger.ErrorF("error querying workspace: %v", err)
+		helpers.Logger().ErrorF("error querying workspace: %v", err)
 		return
 	}
 	if res.Error != nil {
-		Logger.ErrorF("error in response: %v", res.Error)
+		helpers.Logger().ErrorF("error in response: %v", res.Error)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (ap *AzureConfig) pullLogs() {
 		for _, log := range logs {
 			jsonLog, err := json.Marshal(log)
 			if err != nil {
-				Logger.ErrorF("error marshalling log: %v", err)
+				helpers.Logger().ErrorF("error marshalling log: %v", err)
 				continue
 			}
 			LogQueue <- &plugins.Log{
@@ -113,14 +113,14 @@ func (ap *AzureConfig) pullLogs() {
 			}
 		}
 	} else {
-		Logger.LogF(100, "no new azure logs found for %s", ap.GroupName)
+		helpers.Logger().LogF(100, "no new azure logs found for %s", ap.GroupName)
 	}
 }
 
 func processLogs() {
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		Logger.ErrorF("failed to connect to engine server: %v", err)
+		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
 		os.Exit(1)
 	}
 
@@ -128,26 +128,26 @@ func processLogs() {
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		Logger.ErrorF("failed to create input client: %v", err)
+		helpers.Logger().ErrorF("failed to create input client: %v", err)
 		os.Exit(1)
 	}
 
 	for {
 		log := <-LogQueue
-		Logger.LogF(100, "sending log: %v", log)
+		helpers.Logger().LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
-			Logger.ErrorF("failed to send log: %v", err)
+			helpers.Logger().ErrorF("failed to send log: %v", err)
 		} else {
-			Logger.LogF(100, "successfully sent log to processing engine: %v", log)
+			helpers.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
 		}
 
 		ack, err := inputClient.Recv()
 		if err != nil {
-			Logger.ErrorF("failed to receive ack: %v", err)
+			helpers.Logger().ErrorF("failed to receive ack: %v", err)
 			os.Exit(1)
 		}
 
-		Logger.LogF(100, "received ack: %v", ack)
+		helpers.Logger().LogF(100, "received ack: %v", ack)
 	}
 }

@@ -25,7 +25,7 @@ func main() {
 	if e != nil {
 		log.Fatalf("failed to load plugin config: %v", e)
 	}
-	initLogger(pCfg.LogLevel)
+
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
 	go processLogs()
@@ -38,10 +38,10 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				Logger.ErrorF("error getting configuration of the AZURE module: %v", err)
+				helpers.Logger().ErrorF("error getting configuration of the AZURE module: %v", err)
 			}
 
-			Logger.Info("sync complete waiting %v seconds", delayCheck)
+			helpers.Logger().Info("sync complete waiting %v seconds", delayCheck)
 			time.Sleep(time.Second * delayCheck)
 			continue
 		}
@@ -56,7 +56,7 @@ func main() {
 
 					for _, cnf := range group.Configurations {
 						if cnf.ConfValue == "" || cnf.ConfValue == " " {
-							Logger.Info("program not configured yet for group: %s", group.GroupName)
+							helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
 							skip = true
 							break
 						}
@@ -72,7 +72,7 @@ func main() {
 			}
 
 			wg.Wait()
-			Logger.Info("sync complete waiting %d seconds", delayCheck)
+			helpers.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		}
 
 		time.Sleep(time.Second * delayCheck)

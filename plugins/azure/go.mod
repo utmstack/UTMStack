@@ -8,7 +8,6 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/monitor/azquery v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v0.6.6
-	github.com/threatwinds/logger v1.1.11
 	github.com/utmstack/config-client-go v1.2.5
 	google.golang.org/grpc v1.65.0
 )
@@ -40,6 +39,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
+	github.com/threatwinds/logger v1.1.11 // indirect
 	github.com/tidwall/gjson v1.17.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
