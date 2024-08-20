@@ -14,7 +14,7 @@ build:
 	cd inputs && go build -o com.utmstack.inputs.plugin
 	cd geolocation && go build -o com.utmstack.geolocation.plugin
 	cd stats && go build -o com.utmstack.stats.plugin
-	cd gcp && go build -o com.utmstack.gcp.plugin
+	cd gcp && CGO_ENABLED=0 go build -o com.utmstack.gcp.plugin
 	cd aws && go build -o com.utmstack.aws.plugin
 	cd azure && go build -o com.utmstack.azure.plugin
 
