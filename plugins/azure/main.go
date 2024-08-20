@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -22,7 +22,7 @@ const delayCheck = 300
 func main() {
 	pCfg, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
-		log.Fatalf("failed to load plugin config: %v", e)
+		os.Exit(1)
 	}
 
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)

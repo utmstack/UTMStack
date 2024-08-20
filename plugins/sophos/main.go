@@ -1,13 +1,13 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/utmstack/UTMStack/sophos/configuration"
-	"github.com/utmstack/UTMStack/sophos/processor"
-	"github.com/utmstack/UTMStack/sophos/utils"
+	"github.com/threatwinds/go-sdk/helpers"
+	"github.com/utmstack/UTMStack/plugins/sophos/processor"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -15,24 +15,34 @@ import (
 
 const delayCheck = 300
 
+type PluginConfig struct {
+	InternalKey string `yaml:"internal_key"`
+	Backend     string `yaml:"backend"`
+}
+
 func main() {
-	intKey := configuration.GetInternalKey()
-	panelServ := configuration.GetPanelServiceName()
-	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
+	pCfg, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	if e != nil {
+		os.Exit(1)
+	}
+
+	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
+
+	go processor.ProcessLogs()
 
 	for {
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				time.Sleep(time.Second * delayCheck)
+				helpers.Logger().LogF(100, "error getting configuration of the SOPHOS module: invalid character '<'")
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				utils.Logger.ErrorF("error getting configuration of the SOPHOS module: %v", err)
+				helpers.Logger().ErrorF("error getting configuration of the SOPHOS module: %v", err)
 			}
 
-			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
-			time.Sleep(time.Second * delayCheck)
+			helpers.Logger().Info("sync complete waiting %v seconds", delayCheck)
+			time.Sleep(delayCheck * time.Second)
 			continue
 		}
 
@@ -45,7 +55,7 @@ func main() {
 
 				for _, cnf := range group.Configurations {
 					if cnf.ConfValue == "" || cnf.ConfValue == " " {
-						utils.Logger.Info("program not configured yet for group: %s", group.GroupName)
+						helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
 						skip = true
 						break
 					}
@@ -54,13 +64,12 @@ func main() {
 				if !skip {
 					processor.PullLogs(group)
 				}
-
 				wg.Done()
 			}(group)
 		}
 
 		wg.Wait()
-		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
+		helpers.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		time.Sleep(time.Second * delayCheck)
 	}
 }
