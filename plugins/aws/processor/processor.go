@@ -135,7 +135,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 
 			err := cwl.GetLogEventsPages(params,
 				func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
-					cleanLogs, err := ETLProcess(page.Events, logGroup, stream)
+					cleanLogs, err := ETLProcess(page.Events)
 					if err != nil {
 						helpers.Logger().ErrorF("error processing logs: %v", err)
 						return false

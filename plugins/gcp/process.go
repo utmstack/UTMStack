@@ -1,4 +1,4 @@
-package processor
+package main
 
 import (
 	"context"
@@ -11,8 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/utmstack/UTMStack/plugins/gcp/config"
-	"github.com/utmstack/UTMStack/plugins/gcp/schema"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -20,7 +18,7 @@ import (
 
 var LogsQueue = make(chan *plugins.Log)
 
-func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
+func pullLogs(stopChan chan struct{}, tenant string, cnf ModuleConfig) {
 	for {
 		select {
 		case <-stopChan:
@@ -39,21 +37,14 @@ func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
 			helpers.Logger().LogF(100, "subscribing to %s", cnf.SubscriptionID)
 
 			err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-				messageData, err := ETLProcess(string(msg.Data))
-				if err != nil {
-					helpers.Logger().ErrorF("failed to transform message: %v", err)
-					msg.Nack()
-					return
-				}
-
-				helpers.Logger().LogF(100, "received message: %v", messageData)
+				helpers.Logger().LogF(100, "received message: %v", string(msg.Data))
 				LogsQueue <- &plugins.Log{
 					Id:         uuid.New().String(),
-					TenantId:   config.DefaultTenant,
+					TenantId:   DefaultTenant,
 					DataType:   "google",
 					DataSource: tenant,
 					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-					Raw:        messageData,
+					Raw:        string(msg.Data),
 				}
 
 				msg.Ack()
@@ -66,7 +57,7 @@ func PullLogs(stopChan chan struct{}, tenant string, cnf schema.ModuleConfig) {
 	}
 }
 
-func ProcessLogs() {
+func processLogs() {
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
