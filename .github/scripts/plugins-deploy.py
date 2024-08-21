@@ -23,6 +23,8 @@ def main(environment):
 	plugin_inputs_blob = bucket.blob(endpPlugins + "com.utmstack.inputs.plugin")
 	plugin_gcp_blob = bucket.blob(endpPlugins + "com.utmstack.gcp.plugin")
 	plugin_aws_blob = bucket.blob(endpPlugins + "com.utmstack.aws.plugin")
+	plugin_azure_blob = bucket.blob(endpPlugins + "com.utmstack.azure.plugin")
+	plugin_sophos_blob = bucket.blob(endpPlugins + "com.utmstack.sophos.plugin")
 
 	pipeline_analysis_blob = bucket.blob(endPipeline + "system_plugins_analysis.yaml")
 	pipeline_correlation_blob = bucket.blob(endPipeline + "system_plugins_correlation.yaml")
@@ -36,7 +38,9 @@ def main(environment):
 	plugin_stats_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "stats", "com.utmstack.stats.plugin"))
 	plugin_inputs_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "inputs", "com.utmstack.inputs.plugin"))
 	plugin_gcp_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "gcp", "com.utmstack.gcp.plugin"))	
-	plugin_aws_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "aws", "com.utmstack.aws.plugin"))	
+	plugin_aws_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "aws", "com.utmstack.aws.plugin"))
+	plugin_azure_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "azure", "com.utmstack.azure.plugin"))
+	plugin_sophos_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "plugins", "sophos", "com.utmstack.sophos.plugin"))	
 
 	pipeline_analysis_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_analysis.yaml"))
 	pipeline_correlation_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_correlation.yaml"))

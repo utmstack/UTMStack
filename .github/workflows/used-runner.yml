@@ -22,7 +22,7 @@ jobs:
         id: get_tech
         run: |
           folder_changed="${{inputs.microservice}}"
-          if [[ "$folder_changed" == "agent-manager" || "$folder_changed" == "bitdefender" || "$folder_changed" == "office365" || "$folder_changed" == "sophos" ]]; then
+          if [[ "$folder_changed" == "agent-manager" || "$folder_changed" == "bitdefender" || "$folder_changed" == "office365" ]]; then
             tech="golang"
           elif [[ "$folder_changed" == "backend" ]]; then
             tech="java-11"

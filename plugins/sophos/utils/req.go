@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/threatwinds/logger"
 )
 
@@ -14,7 +15,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, helpers.Logger().ErrorF(err.Error())
 	}
 
 	for k, v := range headers {
@@ -25,22 +26,22 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, helpers.Logger().ErrorF(err.Error())
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, helpers.Logger().ErrorF(err.Error())
 	}
 
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-		return result, resp.StatusCode, Logger.ErrorF("while sending request to %s received status code: %d and response body: %s", url, resp.StatusCode, body)
+		return result, resp.StatusCode, helpers.Logger().ErrorF("while sending request to %s received status code: %d and response body: %s", url, resp.StatusCode, body)
 	}
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, helpers.Logger().ErrorF(err.Error())
 	}
 
 	return result, resp.StatusCode, nil

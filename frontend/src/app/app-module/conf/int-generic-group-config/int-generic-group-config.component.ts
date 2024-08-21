@@ -216,7 +216,6 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   addChange(integrationConfig: UtmModuleGroupConfType) {
-    const collector = this.collectors.find(c => c.groups.find(g => g.id === integrationConfig.groupId));
     this.pendingChanges = true;
     const index = this.changes.keys
                             .findIndex(value =>

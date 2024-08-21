@@ -201,33 +201,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 	}
 
-	sophosMem := stack.ServiceResources["sophos"].AssignedMemory
-	c.Services["sophos"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/sophos:" + conf.Branch),
-		DependsOn: []string{
-			"postgres",
-			"node1",
-			"backend",
-		},
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-		},
-		Environment: []string{
-			"PANEL_SERV_NAME=backend:8080",
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"LOG_LEVEL=200",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", sophosMem)),
-				},
-			},
-		},
-	}
-
 	bitdefemderMem := stack.ServiceResources["bitdefender"].AssignedMemory
 	c.Services["bitdefender"] = Service{
 		Image: utils.Str("ghcr.io/utmstack/utmstack/bitdefender:" + conf.Branch),

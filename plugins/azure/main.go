@@ -1,47 +1,47 @@
 package main
 
 import (
-	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/utmstack/UTMStack/plugins/aws/processor"
-	"github.com/utmstack/UTMStack/plugins/aws/schema"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 )
 
+type PluginConfig struct {
+	InternalKey string `yaml:"internal_key"`
+	Backend     string `yaml:"backend"`
+}
+
 const delayCheck = 300
 
 func main() {
-	pCfg, e := helpers.PluginCfg[schema.PluginConfig]("com.utmstack")
+	pCfg, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
-		log.Fatalf("failed to load plugin config: %v", e)
+		os.Exit(1)
 	}
 
 	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
-	st := time.Now().Add(-600 * time.Second)
-	go processor.ProcessLogs()
+	go processLogs()
 
 	for {
-		et := st.Add(299 * time.Second)
-		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
+		moduleConfig, err := client.GetUTMConfig(enum.AZURE)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
 				time.Sleep(time.Second * delayCheck)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				helpers.Logger().ErrorF("error getting configuration of the AWS module: %v", err)
+				helpers.Logger().ErrorF("error getting configuration of the AZURE module: %v", err)
 			}
 
 			helpers.Logger().Info("sync complete waiting %v seconds", delayCheck)
 			time.Sleep(time.Second * delayCheck)
-			st = et.Add(1)
 			continue
 		}
 
@@ -62,7 +62,8 @@ func main() {
 					}
 
 					if !skip {
-						processor.PullLogs(st, et, group)
+						azureProcessor := getAzureProcessor(group)
+						azureProcessor.pullLogs()
 					}
 
 					wg.Done()
@@ -74,6 +75,5 @@ func main() {
 		}
 
 		time.Sleep(time.Second * delayCheck)
-		st = et.Add(1)
 	}
 }

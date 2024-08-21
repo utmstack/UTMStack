@@ -1,11 +1,11 @@
-import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {combineLatest, Observable, of} from 'rxjs';
-import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
+import {catchError, filter, map, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {SYSTEM_MENU_ICONS_PATH} from '../../shared/constants/menu_icons.constants';
+import {ModuleResolverService} from '../services/module.resolver.service';
 import {ModuleRefreshBehavior} from '../shared/behavior/module-refresh.behavior';
 import {UtmModulesEnum} from '../shared/enum/utm-module.enum';
 import {UtmModulesService} from '../shared/services/utm-modules.service';
@@ -18,7 +18,7 @@ import {UtmServerType} from '../shared/type/utm-server.type';
   templateUrl: './app-module-view.component.html',
   styleUrls: ['./app-module-view.component.scss']
 })
-export class AppModuleViewComponent implements OnInit {
+export class AppModuleViewComponent implements OnInit, OnDestroy {
   modules: UtmModuleType[];
   modules$: Observable<UtmModuleType[]>;
   loading = true;
@@ -41,35 +41,40 @@ export class AppModuleViewComponent implements OnInit {
     size: 100,
   };
   server: UtmServerType;
-  servers: UtmServerType[];
+  destroy$ = new Subject<void>();
 
   constructor(public modalService: NgbModal,
               private activatedRoute: ActivatedRoute,
               private moduleRefreshBehavior: ModuleRefreshBehavior,
-              private utmServerService: UtmServerService,
               private utmModulesService: UtmModulesService,
-              private utmToastService: UtmToastService) {
+              private utmToastService: UtmToastService,
+              private moduleResolver: ModuleResolverService) {
 
     this.activatedRoute.queryParams.subscribe(params => {
       if (params) {
         this.req['moduleName.equals'] = params.setUp;
       }
     });
+
     this.moduleRefreshBehavior.$moduleChange
       .pipe(
+        takeUntil(this.destroy$),
         filter(value => !!value))
       .subscribe(refresh => {
-      this.getModules();
+      this.refreshModules();
     });
   }
 
   ngOnInit() {
-    this.activatedRoute.data.subscribe(data => {
-      this.server = data.response;
-      this.req['serverId.equals'] = this.server.id;
-      this.getModules();
-      this.getCategories();
-    });
+    this.modules$ = this.activatedRoute.data
+      .pipe(
+        map(data => data.response),
+        tap(() => {
+          this.server = this.moduleResolver.server;
+          this.req['serverId.equals'] = this.server.id;
+          this.getCategories();
+        })
+      );
   }
 
   getCategories() {
@@ -89,48 +94,9 @@ export class AppModuleViewComponent implements OnInit {
             );
   }
 
-  loadData() {
-     this.utmServerService.query({page: 0, size: 100})
-        .pipe(
-            catchError(error => {
-                console.log(error);
-                this.utmToastService.showError('Failed to fetch servers',
-                    'An error occurred while fetching module data.');
-                return [];
-            }),
-            map((resp: HttpResponse<UtmServerType[]>) => resp.body),
-            tap(servers => {
-              this.server = servers[0];
-              this.req['serverId.equals'] = servers[0].id;
-              //this.getModules();
-              //this.getCategories();
-            })
-        ).subscribe();
-  }
-
-  getModules() {
+  refreshModules() {
     this.loading = true;
-    this.modules$ = this.utmModulesService.getModules(this.req)
-        .pipe(
-            map( response => {
-              /*response.body.map(m => {
-                if (m.moduleName === this.utmModulesEnum.BITDEFENDER) {
-                   m.prettyName = m.prettyName + ' GravityZone';
-                }
-              });*/
-              return response.body;
-            }),
-            tap ((modules) => {
-              console.log('loaded modules');
-              this.loading = false;
-            }),
-            catchError(error => {
-                console.log(error);
-                this.utmToastService.showError('Failed to fetch modules',
-                    'An error occurred while fetching module data.');
-                return [];
-            })
-        );
+    this.modules$ = this.moduleResolver.getModules(this.req);
   }
 
   showModule($event: UtmModuleType) {
@@ -140,7 +106,7 @@ export class AppModuleViewComponent implements OnInit {
   filterByCategory($event: any) {
     console.log('filter');
     this.req['moduleCategory.equals'] = $event;
-    this.getModules();
+    this.refreshModules();
 
   }
 
@@ -148,7 +114,7 @@ export class AppModuleViewComponent implements OnInit {
     console.log('search');
     this.req.page = 0;
     this.req['prettyName.contains'] = $event;
-    this.getModules();
+    this.refreshModules();
   }
 
   filterByServer($event: any) {
@@ -157,10 +123,15 @@ export class AppModuleViewComponent implements OnInit {
     this.server = $event;
     this.category = undefined;
     this.getCategories();
-    this.getModules();
+    this.refreshModules();
   }
 
   trackByFn(index: number, module: UtmModuleType): any {
     return module.id;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
