@@ -1,13 +1,13 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/utmstack/UTMStack/office365/configuration"
-	"github.com/utmstack/UTMStack/office365/processor"
-	"github.com/utmstack/UTMStack/office365/utils"
+	"github.com/threatwinds/go-sdk/helpers"
+	"github.com/utmstack/UTMStack/plugins/o365/processor"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -16,42 +16,45 @@ import (
 const delayCheck = 300
 
 func main() {
-	intKey := configuration.GetInternalKey()
-	panelServ := configuration.GetPanelServiceName()
-	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
+	pCfg, e := helpers.PluginCfg[processor.PluginConfig]("com.utmstack")
+	if e != nil {
+		os.Exit(1)
+	}
 
-	st := time.Now().Add(-600 * time.Second)
+	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
+
+	go processor.ProcessLogs()
+
+	st := time.Now().Add(-delayCheck * time.Second)
 
 	for {
 		et := st.Add(299 * time.Second)
 		startTime := st.UTC().Format("2006-01-02T15:04:05")
 		endTime := et.UTC().Format("2006-01-02T15:04:05")
 
-		utils.Logger.Info("syncing logs from %s to %s", startTime, endTime)
+		helpers.Logger().Info("syncing logs from %s to %s", startTime, endTime)
 
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
+				helpers.Logger().LogF(100, "error getting configuration of the O365 module: %v", err)
 				time.Sleep(time.Second * delayCheck)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				utils.Logger.ErrorF("error getting configuration of the O365 module: %v", err)
+				helpers.Logger().ErrorF("error getting configuration of the O365 module: %v", err)
 			} else {
-				utils.Logger.Info("program not configured yet")
+				helpers.Logger().Info("program not configured yet")
 			}
 
 			time.Sleep(time.Second * delayCheck)
-
-			st = et.Add(1)
-
+			st = time.Now().Add(-delayCheck * time.Second)
 			continue
 		}
 
-		utils.Logger.Info("getting logs for groups")
+		helpers.Logger().Info("getting logs for groups")
 
 		var wg sync.WaitGroup
-
 		wg.Add(len(moduleConfig.ConfigurationGroups))
 
 		for _, group := range moduleConfig.ConfigurationGroups {
@@ -60,7 +63,7 @@ func main() {
 
 				for _, cnf := range group.Configurations {
 					if cnf.ConfValue == "" || cnf.ConfValue == " " {
-						utils.Logger.Info("program not configured yet for group: %s", group.GroupName)
+						helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
 						skip = true
 						break
 					}
@@ -75,11 +78,8 @@ func main() {
 		}
 
 		wg.Wait()
-
-		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
-
+		helpers.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		time.Sleep(time.Second * delayCheck)
-
-		st = et.Add(1)
+		st = time.Now().Add(-delayCheck * time.Second)
 	}
 }

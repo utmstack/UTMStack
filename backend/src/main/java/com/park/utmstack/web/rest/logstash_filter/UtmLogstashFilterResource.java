@@ -75,7 +75,6 @@ public class UtmLogstashFilterResource {
                 if (!pipeline.isPresent()) {
                     throw new Exception("The pipeline with ID (" + pipelineId + ") not exists");
                 }
-                logstashFilter.setCreatedAt(Instant.now());
                 UtmLogstashFilter filter = logstashFilterService.save(logstashFilter);
                 Long filterId = filter.getId();
                 UtmGroupLogstashPipelineFilters relation = new UtmGroupLogstashPipelineFilters();

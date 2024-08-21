@@ -2,8 +2,6 @@ package configuration
 
 import (
 	"fmt"
-
-	"github.com/utmstack/UTMStack/office365/utils"
 )
 
 const (
@@ -14,16 +12,8 @@ const (
 	endPointStartSubscription = "/activity/feed/subscriptions/start"
 	endPointContent           = "/activity/feed/subscriptions/content"
 	BASEURL                   = "https://manage.office.com/api/v1.0/"
-	CORRELATIONURL            = "http://correlation:8080/v1/newlog"
+	DefaultTenant             = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 )
-
-func GetInternalKey() string {
-	return utils.Getenv("INTERNAL_KEY")
-}
-
-func GetPanelServiceName() string {
-	return utils.Getenv("PANEL_SERV_NAME")
-}
 
 func GetMicrosoftLoginLink(tenant string) string {
 	return fmt.Sprintf("%s%s%s", loginUrl, tenant, endPointLogin)
@@ -35,4 +25,8 @@ func GetStartSubscriptionLink(tenant string) string {
 
 func GetContentLink(tenant string) string {
 	return fmt.Sprintf("%s%s%s", BASEURL, tenant, endPointContent)
+}
+
+func GetTenantId() string {
+	return DefaultTenant
 }
