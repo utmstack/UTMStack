@@ -45,8 +45,8 @@ type Grpc struct {
 	ResultChannel  map[string]chan *CommandResult
 	resultChannelM sync.Mutex
 
-	CollectorsPendingConfigs map[string]string
-	collectorPendingConfigM  sync.Mutex
+	PendingConfigs map[string]string
+	pendingConfigM sync.Mutex
 }
 
 type ResultCallback func(result *CommandResult)

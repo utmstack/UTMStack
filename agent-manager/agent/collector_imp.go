@@ -192,7 +192,6 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 	}
 }
 
-// Change to get from cache
 func (s *Grpc) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*CollectorConfig, error) {
 	key, err := getKeyFromContext(ctx)
 	if err != nil {

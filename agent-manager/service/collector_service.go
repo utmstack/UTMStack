@@ -89,3 +89,11 @@ func (s *CollectorService) GetCollectorStatus(collector models.Collector) (model
 	}
 	return models.Online, lastPing
 }
+
+func (s *CollectorService) SaveCollectorConfigs(groups []models.CollectorConfigGroup, collectorId uint) error {
+	err := s.repo.DeleteConfigGroupByCollectorID(collectorId)
+	if err != nil {
+		return err
+	}
+	return s.repo.UpdateCollectorConfig(groups, collectorId)
+}
