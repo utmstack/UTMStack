@@ -6,15 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type MalwareStatus string
-
-const (
-	New      MalwareStatus = "NEW"
-	Deleted  MalwareStatus = "DELETED"
-	Excluded MalwareStatus = "EXCLUDED"
-	Restored MalwareStatus = "RESTORED"
-)
-
 type AgentCommandStatus int32
 
 const (
@@ -86,32 +77,6 @@ type AgentGroup struct {
 type AgentType struct {
 	gorm.Model
 	TypeName string
-}
-
-type AgentMalwareDetection struct {
-	gorm.Model
-	AgentID     uint
-	FilePath    string
-	Sha256      string
-	Md5         string
-	Description string
-	Status      MalwareStatus
-}
-
-type AgentMalwareHistory struct {
-	gorm.Model
-	MalwareId  uint
-	PrevStatus MalwareStatus
-	ToStatus   MalwareStatus
-	ChangedBy  string
-}
-
-type AgentMalwareExclusion struct {
-	gorm.Model
-	AgentID            uint
-	ExcludeFilePath    string
-	ExcludedBy         string
-	ExcludeDescription string
 }
 
 type AgentModule struct {

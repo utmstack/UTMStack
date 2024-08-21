@@ -29,8 +29,6 @@ func MigrateDatabase() {
 	performMigration(db, "seedAgentTypeTable_15022024_003", "jdieguez89", seedAgentTypeTable)
 	performMigration(db, "addLogCollectorTables_15022024_004", "jdieguez89", addLogCollectorTables)
 	performMigration(db, "addDeletedByFieldToCollector", "jdieguez89", addDeletedByFieldToCollector)
-	performMigration(db, "deleteColumnModuleIdFromCollectorGroupConfig", "jdieguez89", deleteColumnModuleIdFromCollectorGroupConfig)
-	performMigration(db, "setConfigurationsPrimaryKey", "jdieguez89", setConfigurationsPrimaryKey)
 }
 
 // performMigration executes a given migration function if it has not been recorded yet.
@@ -70,24 +68,6 @@ func executeSQLCommands(db *gorm.DB, sqlCommands []string) error {
 	return nil
 }
 
-// DeleteColumnFromTable deletes a column from a specified table in the database.
-// tableName is the name of the table from which the column will be deleted.
-// columnName is the name of the column to be deleted.
-func deleteColumnFromTable(db *gorm.DB, table interface{}, columnName string) error {
-	// Check if the column exists before trying to delete it
-	if db.Migrator().HasColumn(table, columnName) {
-		err := db.Migrator().DropColumn(table, columnName)
-		if err != nil {
-			utils.ALogger.ErrorF("failed to delete column '%s' from table '%s': %v", columnName, table, err)
-			return err
-		}
-	} else {
-		utils.ALogger.ErrorF("column '%s' does not exist in table '%s'.", columnName, table)
-		return nil
-	}
-	return nil
-}
-
 func performInitialMigrations(db *gorm.DB) error {
 	tables := []interface{}{
 		&models.AgentType{},
@@ -96,9 +76,6 @@ func performInitialMigrations(db *gorm.DB) error {
 		&models.AgentConfiguration{},
 		&models.AgentModule{},
 		&models.AgentModuleConfiguration{},
-		&models.AgentMalwareDetection{},
-		&models.AgentMalwareHistory{},
-		&models.AgentMalwareExclusion{},
 		&models.Agent{},
 	}
 	for _, table := range tables {
@@ -196,8 +173,6 @@ func seedAgentTypeTable(db *gorm.DB) error {
 func addLogCollectorTables(db *gorm.DB) error {
 	tables := []interface{}{
 		&models.Collector{},
-		&models.CollectorConfigGroup{},
-		&models.CollectorGroupConfigurations{},
 	}
 	for _, table := range tables {
 		modelName := fmt.Sprintf("%T", table) // Generates a unique name based on the model type
@@ -212,16 +187,4 @@ func addLogCollectorTables(db *gorm.DB) error {
 
 func addDeletedByFieldToCollector(db *gorm.DB) error {
 	return db.AutoMigrate(&models.Collector{})
-}
-
-func deleteColumnModuleIdFromCollectorGroupConfig(db *gorm.DB) error {
-	tableName := &models.CollectorConfigGroup{}
-	columnName := "module_id"
-	return deleteColumnFromTable(db, tableName, columnName)
-}
-
-// setConfigurationsPrimaryKey migrate the model to use the group id and the conf key as table primary key
-// to avoid inconsistencies
-func setConfigurationsPrimaryKey(db *gorm.DB) error {
-	return db.AutoMigrate(&models.CollectorGroupConfigurations{})
 }
