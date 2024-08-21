@@ -38,7 +38,7 @@ func GetOfficeProcessor(group types.ModuleGroup) OfficeProcessor {
 		case "Client Secret":
 			offProc.ClientSecret = cnf.ConfValue
 		case "Tenant ID":
-			offProc.TenantId = configuration.GetTenantId()
+			offProc.TenantId = cnf.ConfValue
 		}
 	}
 

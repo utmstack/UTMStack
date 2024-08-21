@@ -52,32 +52,36 @@ func main() {
 			continue
 		}
 
-		helpers.Logger().Info("getting logs for groups")
+		if moduleConfig.ModuleActive {
+			var wg sync.WaitGroup
+			wg.Add(len(moduleConfig.ConfigurationGroups))
 
-		var wg sync.WaitGroup
-		wg.Add(len(moduleConfig.ConfigurationGroups))
+			for _, group := range moduleConfig.ConfigurationGroups {
+				go func(group types.ModuleGroup) {
+					helpers.Logger().Info("getting logs for group: %s", group.GroupName)
+					var skip bool
 
-		for _, group := range moduleConfig.ConfigurationGroups {
-			go func(group types.ModuleGroup) {
-				var skip bool
-
-				for _, cnf := range group.Configurations {
-					if cnf.ConfValue == "" || cnf.ConfValue == " " {
-						helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
-						skip = true
-						break
+					for _, cnf := range group.Configurations {
+						if cnf.ConfValue == "" || cnf.ConfValue == " " {
+							helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
+							skip = true
+							break
+						}
 					}
-				}
 
-				if !skip {
-					processor.PullLogs(startTime, endTime, group)
-				}
+					if !skip {
+						processor.PullLogs(startTime, endTime, group)
+					}
 
-				wg.Done()
-			}(group)
+					wg.Done()
+				}(group)
+			}
+
+			wg.Wait()
+		} else {
+			helpers.Logger().LogF(100, "module O365 is not active")
 		}
 
-		wg.Wait()
 		helpers.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		time.Sleep(time.Second * delayCheck)
 		st = time.Now().Add(-delayCheck * time.Second)
