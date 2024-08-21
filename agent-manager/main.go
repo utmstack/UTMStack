@@ -66,7 +66,6 @@ func main() {
 	s.ProcessPendingConfigs()
 
 	pb.RegisterPingServiceServer(grpcServer, s)
-	pb.RegisterConfigServiceServer(grpcServer, s)
 
 	healthServer := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)

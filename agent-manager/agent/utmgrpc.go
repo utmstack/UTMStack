@@ -27,8 +27,9 @@ var (
 type Grpc struct {
 	UnimplementedAgentServiceServer
 	UnimplementedPanelServiceServer
+	UnimplementedAgentConfigServiceServer
+	UnimplementedAgentMalwareServiceServer
 	UnimplementedAgentGroupServiceServer
-	UnimplementedConfigServiceServer
 
 	UnimplementedCollectorServiceServer
 	UnimplementedPanelCollectorServiceServer

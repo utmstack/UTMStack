@@ -14,8 +14,6 @@ func KeyAuthRoutes() []string {
 		"/agent.CollectorService/DeleteCollector",
 		"/agent.CollectorService/GetCollectorConfig",
 
-		"/agent.ConfigService/IsModuleEnabled",
-
 		"/agent.PingService/Ping",
 
 		"/grpc.health.v1.Health/Check",
