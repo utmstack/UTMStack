@@ -1,5 +1,10 @@
 package processor
 
+type PluginConfig struct {
+	InternalKey string `yaml:"internal_key"`
+	Backend     string `yaml:"backend"`
+}
+
 type MicrosoftLoginResponse struct {
 	TokenType   string `json:"token_type,omitempty"`
 	Expires     int    `json:"expires_in,omitempty"`

@@ -1,16 +1,25 @@
 package processor
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 	"strings"
 
-	"github.com/utmstack/UTMStack/office365/configuration"
-	"github.com/utmstack/UTMStack/office365/utils"
+	"github.com/threatwinds/go-sdk/helpers"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/plugins/o365/configuration"
+	"github.com/utmstack/UTMStack/plugins/o365/utils"
 	"github.com/utmstack/config-client-go/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
+
+var LogQueue = make(chan *plugins.Log)
 
 type OfficeProcessor struct {
 	Credentials   MicrosoftLoginResponse
@@ -29,7 +38,7 @@ func GetOfficeProcessor(group types.ModuleGroup) OfficeProcessor {
 		case "Client Secret":
 			offProc.ClientSecret = cnf.ConfValue
 		case "Tenant ID":
-			offProc.TenantId = cnf.ConfValue
+			offProc.TenantId = configuration.GetTenantId()
 		}
 	}
 
@@ -70,7 +79,7 @@ func (o *OfficeProcessor) GetAuth() error {
 
 func (o *OfficeProcessor) StartSubscriptions() error {
 	for _, subscription := range o.Subscriptions {
-		utils.Logger.Info("starting subscription: %s...", subscription)
+		helpers.Logger().Info("starting subscription: %s...", subscription)
 		url := configuration.GetStartSubscriptionLink(o.TenantId) + "?contentType=" + subscription
 		headers := map[string]string{
 			"Content-Type":  "application/json",
@@ -80,7 +89,6 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 		resp, status, e := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
 		if e != nil || status != http.StatusOK {
 			if strings.Contains(e.Error(), "subscription is already enabled") {
-				// utils.Logger.Info("subscription is already enabled") // Debug
 				return nil
 			}
 			return e
@@ -91,7 +99,7 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 			return fmt.Errorf("failed to unmarshal response: %v", err)
 		}
 
-		utils.Logger.Info("starting subscription response: %v", respJson)
+		helpers.Logger().Info("starting subscription response: %v", respJson)
 	}
 
 	return nil
@@ -128,11 +136,12 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 	return respBody, nil
 }
 
-func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.ModuleGroup) {
+func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.ModuleGroup) []string {
+	logs := []string{}
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime, group)
 		if err != nil {
-			utils.Logger.ErrorF("error getting content list: %v", err) // Debug
+			helpers.Logger().LogF(100, "error getting content list: %v", err)
 			continue
 		}
 		logsCounter := 0
@@ -140,21 +149,58 @@ func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					utils.Logger.ErrorF("error getting content details: %v", err) // Debug
+					helpers.Logger().ErrorF("error getting content details: %v", err)
 					continue
 				}
 				if len(details) > 0 {
-					logsCounter += len(details)
-					cleanLogs := ETLProcess(details, group)
-					err = SendToCorrelation(cleanLogs)
-					if err != nil {
-						utils.Logger.ErrorF("error sending logs to correlation: %v", err) // Debug
-						continue
+					for _, detail := range details {
+						rawDetail, err := json.Marshal(detail)
+						if err != nil {
+							helpers.Logger().ErrorF("error marshaling detail: %v", err)
+							continue
+						}
+						logs = append(logs, string(rawDetail))
 					}
 				}
 			}
 		}
+		helpers.Logger().Info("found: %d new logs in %s for group %s", logsCounter, subscription, group.GroupName)
+	}
+	return logs
+}
 
-		utils.Logger.Info("found: %d new logs in %s for group %s", logsCounter, subscription, group.GroupName)
+func ProcessLogs() {
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir,
+		"sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
+		os.Exit(1)
+	}
+
+	client := plugins.NewEngineClient(conn)
+
+	inputClient, err := client.Input(context.Background())
+	if err != nil {
+		helpers.Logger().ErrorF("failed to create input client: %v", err)
+		os.Exit(1)
+	}
+
+	for {
+		log := <-LogQueue
+		helpers.Logger().LogF(100, "sending log: %v", log)
+		err := inputClient.Send(log)
+		if err != nil {
+			helpers.Logger().ErrorF("failed to send log: %v", err)
+		} else {
+			helpers.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
+		}
+
+		ack, err := inputClient.Recv()
+		if err != nil {
+			helpers.Logger().ErrorF("failed to receive ack: %v", err)
+			os.Exit(1)
+		}
+
+		helpers.Logger().LogF(100, "received ack: %v", ack)
 	}
 }

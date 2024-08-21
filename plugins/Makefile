@@ -8,6 +8,7 @@ update:
 	cd aws && go get -u && go mod tidy 
 	cd azure && go get -u && go mod tidy 
 	cd sophos && go get -u && go mod tidy 
+	cd o365 && go get -u && go mod tidy
 
 build:
 	cd events && go build -o com.utmstack.events.plugin
@@ -19,5 +20,6 @@ build:
 	cd aws && go build -o com.utmstack.aws.plugin
 	cd azure && go build -o com.utmstack.azure.plugin
 	cd sophos && go build -o com.utmstack.sophos.plugin
+	cd o365 && go build -o com.utmstack.o365.plugin
 
 update-build: update build

@@ -59,7 +59,6 @@ func (s *StackConfig) Populate(c *Config) error {
 		{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
 		{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 1024},
 		{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 512},
-		{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 512},
 	}
 
 	total := int(mem.Total/1024/1024) - utils.SYSTEM_RESERVED_MEMORY
