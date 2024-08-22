@@ -93,13 +93,13 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.spinner.show('buildPrint');
+   /* this.spinner.show('buildPrint');
     window.addEventListener('beforeprint', (event) => {
       this.printFormat = true;
     });
     window.addEventListener('afterprint', (event) => {
       this.printFormat = false;
-    });
+    });*/
     this.activatedRoute.params.subscribe(params => {
       this.reportId = params.id;
       this.getTemplate();
@@ -204,12 +204,14 @@ export class ComplianceExportComponent implements OnInit, AfterViewInit {
   }
 
   onVisualizationLoaded() {
-    this.setVisFilter().then(() => {
+    this.preparingPrint = false;
+    console.log('onVisualizationLoaded');
+    /*this.setVisFilter().then(() => {
       this.spinner.hide('buildPrint').then(() => {
         this.preparingPrint = false;
         this.print();
       });
-    });
+    });*/
   }
 
   resolveFromDate(date: { from: any, to: any }): string {

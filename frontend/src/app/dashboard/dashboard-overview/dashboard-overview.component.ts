@@ -128,7 +128,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
      * END
      */
 
-    this.getDailyAlert();
+    // this.getDailyAlert();
 
     /**
      * Show activate modules modal on constructor
