@@ -6,10 +6,75 @@
 version: 2
 updates:
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/installer" # Location of package manifests
+    directory: "/agent/agent" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/agent/installer" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/agent/self" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/agent-manager" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/bitdefender" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/collector-installer" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/installer" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/alerts" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/aws" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/azure" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/config" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/events" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/gcp" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/geolocation" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/inputs" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/o365" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/sophos" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/stats" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  
