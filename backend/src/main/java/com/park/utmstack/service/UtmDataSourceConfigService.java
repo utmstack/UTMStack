@@ -1,12 +1,11 @@
 package com.park.utmstack.service;
 
-import com.park.utmstack.domain.UtmDataSourceConfig;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.repository.UtmDataInputStatusRepository;
-import com.park.utmstack.repository.UtmDataSourceConfigRepository;
+import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.UtmDataSourceConfigDTO;
 import com.park.utmstack.service.network_scan.DataSourceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,18 +25,18 @@ import java.util.stream.Collectors;
 public class UtmDataSourceConfigService {
     private static final String CLASSNAME = "UtmDataSourceConfigService";
     private final Logger log = LoggerFactory.getLogger(UtmDataSourceConfigService.class);
-    private final UtmDataSourceConfigRepository dataSourceConfigRepository;
+    private final UtmDataTypesRepository dataTypesRepository;
     private final UtmDataInputStatusRepository dataInputStatusRepository;
     private final UtmDataInputStatusService dataInputStatusService;
     private final UtmNetworkScanRepository networkScanRepository;
     private final ApplicationEventService applicationEventService;
 
-    public UtmDataSourceConfigService(UtmDataSourceConfigRepository dataSourceConfigRepository,
+    public UtmDataSourceConfigService(UtmDataTypesRepository dataTypesRepository,
                                       UtmDataInputStatusRepository dataInputStatusRepository,
                                       UtmDataInputStatusService dataInputStatusService,
                                       UtmNetworkScanRepository networkScanRepository,
                                       ApplicationEventService applicationEventService) {
-        this.dataSourceConfigRepository = dataSourceConfigRepository;
+        this.dataTypesRepository = dataTypesRepository;
         this.dataInputStatusRepository = dataInputStatusRepository;
         this.dataInputStatusService = dataInputStatusService;
         this.networkScanRepository = networkScanRepository;
@@ -48,7 +48,7 @@ public class UtmDataSourceConfigService {
      *
      * @param configs Data source configuration information
      */
-    public void update(List<UtmDataSourceConfigDTO> configs) {
+    public void update(List<UtmDataTypes> configs) {
         final String ctx = CLASSNAME + ".update";
         try {
             if (CollectionUtils.isEmpty(configs))
@@ -57,11 +57,11 @@ public class UtmDataSourceConfigService {
                 .collect(Collectors.toList());
             if (CollectionUtils.isEmpty(configs))
                 return;
-            dataSourceConfigRepository.saveAll(configs.stream().map(UtmDataSourceConfig::new).collect(Collectors.toList()));
+            dataTypesRepository.saveAll(new ArrayList<>(configs));
 
             configs = configs.stream().filter(cfg-> !cfg.getIncluded()).collect(Collectors.toList());
 
-            networkScanRepository.deleteAllAssetsByDataType(configs.stream().map(UtmDataSourceConfigDTO::getDataType)
+            networkScanRepository.deleteAllAssetsByDataType(configs.stream().map(UtmDataTypes::getDataType)
                 .collect(Collectors.toList()));
 
             dataInputStatusService.synchronizeSourcesToAssets();
@@ -77,10 +77,10 @@ public class UtmDataSourceConfigService {
      * @return A page with data source configuration information
      */
     @Transactional(readOnly = true)
-    public Page<UtmDataSourceConfig> findAll(Pageable pageable) {
+    public Page<UtmDataTypes> findAll(Pageable pageable) {
         final String ctx = CLASSNAME + ".findAll";
         try {
-            return dataSourceConfigRepository.findAll(pageable);
+            return dataTypesRepository.findAll(pageable);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -108,16 +108,16 @@ public class UtmDataSourceConfigService {
             List<String> newDataSources = dataInputStatusRepository.findDataSourcesToConfigure(DataSourceConstants.IBM_AS400_TYPE);
 
             // Getting all orphan data sources configuration
-            List<UtmDataSourceConfig> orphanConfigurations = dataSourceConfigRepository.findOrphanDataSourceConfigurations();
+            List<UtmDataTypes> orphanConfigurations = dataTypesRepository.findOrphanDataSourceConfigurations();
 
             // Configuring new data sources
             if (!CollectionUtils.isEmpty(newDataSources))
-                dataSourceConfigRepository.saveAll(newDataSources.stream().map(UtmDataSourceConfig::new)
+                dataTypesRepository.saveAll(newDataSources.stream().map(UtmDataTypes::new)
                     .collect(Collectors.toList()));
 
             // Removing orphan data sources configurations
             if (!CollectionUtils.isEmpty(orphanConfigurations))
-                dataSourceConfigRepository.deleteAllById(orphanConfigurations.stream().map(UtmDataSourceConfig::getId)
+                dataTypesRepository.deleteAllById(orphanConfigurations.stream().map(UtmDataTypes::getId)
                     .collect(Collectors.toList()));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());

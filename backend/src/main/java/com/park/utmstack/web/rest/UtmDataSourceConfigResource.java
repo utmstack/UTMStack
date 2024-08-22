@@ -2,9 +2,9 @@ package com.park.utmstack.web.rest;
 
 import com.park.utmstack.domain.UtmDataSourceConfig;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.service.UtmDataSourceConfigService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.UtmDataSourceConfigDTO;
 import com.park.utmstack.util.UtilResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,6 @@ import tech.jhipster.web.util.PaginationUtil;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link UtmDataSourceConfig}.
@@ -41,7 +40,7 @@ public class UtmDataSourceConfigResource {
     }
 
     @PutMapping("/utm-datasource-configs")
-    public ResponseEntity<Void> update(@Valid @RequestBody List<UtmDataSourceConfigDTO> configs) {
+    public ResponseEntity<Void> update(@Valid @RequestBody List<UtmDataTypes> configs) {
         final String ctx = CLASSNAME + ".update";
         try {
             dataSourceConfigService.update(configs);
@@ -55,13 +54,12 @@ public class UtmDataSourceConfigResource {
     }
 
     @GetMapping("/utm-datasource-configs")
-    public ResponseEntity<List<UtmDataSourceConfigDTO>> getAllDataSourceConfigs(@ParameterObject Pageable pageable) {
+    public ResponseEntity<List<UtmDataTypes>> getAllDataSourceConfigs(@ParameterObject Pageable pageable) {
         final String ctx = CLASSNAME + ".getAllDataSourceConfigs";
-        Page<UtmDataSourceConfig> page = dataSourceConfigService.findAll(pageable);
+        Page<UtmDataTypes> page = dataSourceConfigService.findAll(pageable);
         try {
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-            return ResponseEntity.ok().headers(headers).body(page.getContent().stream().map(UtmDataSourceConfigDTO::new)
-                .collect(Collectors.toList()));
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
