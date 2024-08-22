@@ -1,7 +1,7 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {filter} from 'rxjs/operators';
+import {debounceTime, delay, filter, tap} from 'rxjs/operators';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
 import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
@@ -20,9 +20,11 @@ export class AppComponent implements OnInit {
   roles = [ADMIN_ROLE, USER_ROLE];
   menu = false;
   private height: string;
-  offline = null;
+  offline = false;
+  online = false;
   iframeView = false;
   favIcon: HTMLLinkElement;
+  hideStatus = false;
 
   constructor(
     private translate: TranslateService,
@@ -53,6 +55,9 @@ export class AppComponent implements OnInit {
       if (this.router.url.includes('iframe')) {
         this.iframeView = true;
       }
+      if (this.router.url.includes('url')) {
+        this.hideStatus = true;
+      }
     });
   }
 
@@ -68,12 +73,18 @@ export class AppComponent implements OnInit {
 
     this.apiServiceCheckerService.isOnlineApi$
       .pipe(
-        filter(isOnline => isOnline))
-      .subscribe(isOnline => {
-        if (this.offline) {
-          this.init();
-        }
-        setTimeout(() => this.offline = null, 3000);
+        filter(isOnline => isOnline),
+        tap(() => {
+          if (this.offline) {
+            this.init();
+          }
+          this.online = true;
+        }),
+        delay(1000)
+      )
+      .subscribe(() => {
+        this.offline = false;
+        this.online = false;
       });
   }
 
