@@ -1,4 +1,4 @@
-package handlers
+package updates
 
 import (
 	"errors"
@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
-	"github.com/utmstack/UTMStack/agent-manager/updates"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
@@ -29,7 +28,7 @@ func HandleAgentUpdates(c *gin.Context) {
 		return
 	}
 
-	updater := updates.NewAgentUpdater()
+	updater := NewAgentUpdater()
 	handleUpdate(c, updater, version, os, dependencyType, partIndex, partSize)
 }
 
@@ -46,13 +45,13 @@ func HandleCollectorUpdates(c *gin.Context) {
 		return
 	}
 
-	var updater updates.UpdaterInterf
+	var updater UpdaterInterf
 	if dependencyType == config.DependInstallerLabel {
-		updater = updates.NewCollectorUpdater()
+		updater = NewCollectorUpdater()
 	} else {
 		switch collectorType {
 		case "as400":
-			updater = updates.NewAs400Updater()
+			updater = NewAs400Updater()
 		default:
 			c.JSON(http.StatusBadRequest, models.DependencyUpdateResponse{Message: "invalid collector type"})
 			return
@@ -91,7 +90,7 @@ func validateParams(version, os, dependencytype, partSize, partIndex string) err
 	return nil
 }
 
-func handleUpdate(c *gin.Context, updater updates.UpdaterInterf, version, os, dependencyType, partIndex, partSize string) {
+func handleUpdate(c *gin.Context, updater UpdaterInterf, version, os, dependencyType, partIndex, partSize string) {
 	latestVersion := updater.GetLatestVersion(dependencyType)
 	if latestVersion == "" {
 		c.JSON(http.StatusNotFound, models.DependencyUpdateResponse{Message: "dependency not found"})

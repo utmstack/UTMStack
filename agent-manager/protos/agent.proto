@@ -9,33 +9,42 @@ import "common.proto";
 
 service AgentService {
   rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
-  rpc DeleteAgent(AgentDelete) returns (AuthResponse) {}
+  rpc DeleteAgent(DeleteRequest) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
   rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
-  rpc UpdateAgentType (AgentTypeUpdate) returns (Agent) {}
-  rpc UpdateAgentGroup (AgentGroupUpdate) returns (Agent) {}
   rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
   rpc GetAgentByHostname (Hostname) returns (Agent) {}
-  rpc ListAgentsWithCommands (ListRequest) returns (ListAgentsResponse) {}
 }
 
 service PanelService {
   rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
 }
 
-service AgentGroupService {
-  rpc CreateGroup (AgentGroup) returns (AgentGroup){}
-  rpc EditGroup (AgentGroup) returns (AgentGroup){}
-  rpc ListGroups (ListRequest) returns (ListAgentsGroupResponse){}
-  rpc DeleteGroup (Id) returns (Id){}
+enum AgentCommandStatus {
+  NOT_EXECUTED = 0;
+  QUEUE = 1;
+  PENDING = 2;
+  EXECUTED = 3;
+  ERROR = 4;
 }
 
-service AgentTypeService {
-  rpc ListAgentTypes (ListRequest) returns (ListAgentsTypeResponse){}
+message AgentRequest {
+  string ip = 1;
+  string hostname = 2;
+  string os = 3;
+  string platform = 4;
+  string version = 5;
+  string register_by = 6;
+  string mac = 7 ;
+  string os_major_version = 8;
+  string os_minor_version = 9;
+  string aliases = 10;
+  string addresses = 11;
 }
 
-message Id{
-  int64 id = 1;
+message ListAgentsResponse {
+  repeated Agent rows = 1;
+  int32 total = 2;
 }
 
 message Agent {
@@ -55,37 +64,15 @@ message Agent {
   string addresses = 14;
 }
 
-message AgentTypeUpdate {
-  uint32 agent_id = 1;
-  uint32 agent_type = 2;
+message BidirectionalStream {
+  oneof stream_message {
+    UtmCommand command = 1;
+    CommandResult result = 2;
+  }
 }
-
-message AgentGroupUpdate {
-  uint32 agent_id = 1;
-  uint32 agent_group = 3;
-}
-
-message AgentRequest {
-  string ip = 1;
-  string hostname = 2;
-  string os = 3;
-  string platform = 4;
-  string version = 5;
-  string register_by = 6;
-  string mac = 7 ;
-  string os_major_version = 8;
-  string os_minor_version = 9;
-  string aliases = 10;
-  string addresses = 11;  // IP secondary ips
-}
-
-message AgentDelete {
-  string deleted_by = 1;
-}
-
 
 message UtmCommand {
-  string agent_key = 1;
+  string agent_id = 1;
   string command = 2;
   string executed_by = 3;
   string cmd_id = 4;
@@ -95,36 +82,15 @@ message UtmCommand {
 }
 
 message CommandResult {
-  string agent_key = 1;
+  string agent_id = 1;
   string result = 2;
   google.protobuf.Timestamp executed_at = 3;
   string cmd_id = 4;
 }
 
-
-message BidirectionalStream {
-  oneof stream_message {
-    UtmCommand command = 1;
-    CommandResult result = 2;
-  }
-}
-
-message ListAgentsResponse {
-  repeated Agent rows = 1;
-  int32 total = 2;
-}
-
 message ListAgentsCommandsResponse {
   repeated AgentCommand rows = 1;
   int32 total = 2;
-}
-
-enum AgentCommandStatus {
-  NOT_EXECUTED = 0;
-  QUEUE = 1;
-  PENDING = 2;
-  EXECUTED = 3;
-  ERROR = 4;
 }
 
 message AgentCommand {
@@ -140,25 +106,4 @@ message AgentCommand {
   string reason = 10;
   string origin_type = 11;
   string origin_id = 12;
-}
-
-message AgentType {
-  uint32 id = 1;
-  string type_name = 2;
-}
-
-message AgentGroup  {
-  uint32 id = 1;
-  string group_name = 2;
-  string group_description = 3;
-}
-
-message ListAgentsGroupResponse {
-  repeated AgentGroup rows = 1;
-  int32 total = 2;
-}
-
-message ListAgentsTypeResponse {
-  repeated AgentType rows = 1;
-  int32 total = 2;
 }

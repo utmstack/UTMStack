@@ -8,7 +8,6 @@ import (
 	"net/http"
 )
 
-// DoReq makes a request to the specified URL with the specified data, method and headers.
 func DoReq[response any](url string, data []byte, method string, headers map[string]string, config *tls.Config) (response, int, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {

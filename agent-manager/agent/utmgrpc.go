@@ -1,125 +1,62 @@
 package agent
 
 import (
-	"context"
-	"fmt"
-	"sync"
-	"time"
+	"net"
 
-	"github.com/utmstack/UTMStack/agent-manager/service"
+	"github.com/utmstack/UTMStack/agent-manager/config"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	grpc "google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
-var (
-	lastSeenService     = service.NewLastSeenService()
-	agentService        = service.NewAgentService(lastSeenService)
-	agentCommandService = service.NewAgentCommandService()
-	//agentModuleService  = service.NewAgentModuleService()
-	agentGroupService = service.NewAgentGroupService()
-	collectorService  = service.NewCollectorService(lastSeenService)
-	CacheAgentKey     map[uint]string
-	CacheCollectorKey map[uint]string
-)
-
-type Grpc struct {
-	UnimplementedAgentServiceServer
-	UnimplementedPanelServiceServer
-	UnimplementedAgentConfigServiceServer
-	UnimplementedAgentMalwareServiceServer
-	UnimplementedAgentGroupServiceServer
-
-	UnimplementedCollectorServiceServer
-	UnimplementedPanelCollectorServiceServer
-	UnimplementedPingServiceServer
-
-	agentStreamMutex     sync.Mutex
-	collectorStreamMutex sync.Mutex
-	AgentStreamMap       map[string]AgentService_AgentStreamServer
-	CollectorStreamMap   map[string]CollectorService_CollectorStreamServer
-
-	cacheAgentKeyMutex     sync.Mutex
-	cacheCollectorKeyMutex sync.Mutex
-
-	ResultChannel  map[string]chan *CommandResult
-	resultChannelM sync.Mutex
-
-	PendingConfigs map[string]string
-	pendingConfigM sync.Mutex
-}
-
-type ResultCallback func(result *CommandResult)
-
-func InitGrpc() (*Grpc, error) {
-	gRPC := &Grpc{
-		AgentStreamMap:     make(map[string]AgentService_AgentStreamServer),
-		CollectorStreamMap: make(map[string]CollectorService_CollectorStreamServer),
-		ResultChannel:      make(map[string]chan *CommandResult),
-		PendingConfigs:     make(map[string]string),
-	}
-	CacheAgentKey = make(map[uint]string)
-	CacheCollectorKey = make(map[uint]string)
-	err := gRPC.LoadAgentCacheFromDatabase()
+func InitGrpcServer() {
+	err := InitAgentService()
 	if err != nil {
-		return nil, fmt.Errorf("failed to load agent cache from database: %v", err)
+		utils.ALogger.Fatal("failed to init agent service: %v", err)
 	}
-	err = gRPC.LoadCollectorsCacheFromDatabase()
+
+	err = InitCollectorService()
 	if err != nil {
-		return nil, fmt.Errorf("failed to load collector cache from database: %v", err)
+		utils.ALogger.Fatal("failed to init collector service: %v", err)
 	}
-	return gRPC, err
+
+	InitLastSeenService()
+	InitModulesService()
+
+	StartGrpcServer()
 }
 
-func (s *Grpc) InitPingSync() {
-	lastSeenService.Start()
-}
-
-func (s *Grpc) waitForReconnect(ctx context.Context, key string, connectorType ConnectorType) error {
-	var stream grpc.ServerStream
-	if connectorType == ConnectorType_COLLECTOR {
-		stream = s.CollectorStreamMap[key]
-	} else {
-		stream = s.AgentStreamMap[key]
+func StartGrpcServer() {
+	listener, err := net.Listen("tcp", "0.0.0.0:50051")
+	if err != nil {
+		utils.ALogger.Fatal("failed to listen: %v", err)
 	}
 
-	attempts := 0
-	for attempts < 10 {
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("context canceled: %v", ctx.Err())
-		default:
-			err := stream.Context().Err()
-			if err == nil {
-				time.Sleep(time.Second)
-				return nil
-			} else {
-				time.Sleep(time.Second)
-				attempts++
-			}
-		}
+	creds, err := credentials.NewServerTLSFromFile(config.CertPath, config.CertKeyPath)
+	if err != nil {
+		utils.ALogger.Fatal("failed to load TLS credentials: %v", err)
 	}
-	return fmt.Errorf("stream is not valid")
-}
 
-func getKeyFromContext(ctx context.Context) (string, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", status.Error(codes.Internal, "metadata is not provided")
-	}
-	key, ok := md["key"]
-	if !ok || len(key) == 0 {
-		return "", status.Error(codes.Unauthenticated, "authorization key is not provided")
-	}
-	return key[0], nil
-}
+	grpcServer := grpc.NewServer(
+		grpc.Creds(creds),
+		grpc.ChainUnaryInterceptor(UnaryInterceptor),
+		grpc.StreamInterceptor(StreamInterceptor))
 
-func findAgentIdByKey(cache map[uint]string, key string) uint {
-	for id, val := range cache {
-		if val == key {
-			return id
-		}
+	RegisterAgentServiceServer(grpcServer, AgentServ)
+	RegisterPanelServiceServer(grpcServer, AgentServ)
+	RegisterCollectorServiceServer(grpcServer, CollectorServ)
+	RegisterPanelCollectorServiceServer(grpcServer, CollectorServ)
+	RegisterPingServiceServer(grpcServer, LastSeenServ)
+	RegisterModuleConfigServiceServer(grpcServer, ModulesServ)
+
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+
+	utils.ALogger.Info("Starting gRPC server on 0.0.0.0:50051")
+	if err := grpcServer.Serve(listener); err != nil {
+		utils.ALogger.Fatal("failed to serve: %v", err)
 	}
-	return 0
 }

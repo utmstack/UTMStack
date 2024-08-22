@@ -1,59 +1,19 @@
-package auth
+package agent
 
 import (
 	"context"
-	"crypto/tls"
 	_ "errors"
 	"fmt"
-	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/utmstack/UTMStack/agent-manager/agent"
 	"github.com/utmstack/UTMStack/agent-manager/config"
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
-
-func HTTPAuthInterceptor() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		connectionKey := c.GetHeader("connection-key")
-		id := c.GetHeader("id")
-		key := c.GetHeader("key")
-		typ := strings.ToLower(c.GetHeader("type"))
-
-		if connectionKey == "" && id == "" && key == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "authentication is not provided"})
-			return
-		} else if connectionKey != "" {
-			isValid := isConnectionKeyValid(connectionKey)
-			if !isValid {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid connection key"})
-				return
-			}
-		} else if id != "" && key != "" && typ != "" {
-			idInt, err := strconv.ParseUint(id, 10, 32)
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
-				return
-			}
-
-			if _, isValid := isKeyPairFromValid(key, uint(idInt), typ); !isValid {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-				return
-			}
-		} else {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid auth type"})
-			return
-		}
-
-		c.Next()
-	}
-}
 
 func UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -117,12 +77,20 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 			return status.Error(codes.PermissionDenied, "id is not valid")
 		}
 		typ := strings.ToLower(connectorType[0])
-
-		if _, isValid := isKeyPairFromValid(key, uint(id), typ); !isValid {
-			return status.Error(codes.PermissionDenied, "invalid key")
+		switch typ {
+		case "agent":
+			if _, isValid := utils.IsKeyPairValid(key, uint(id), AgentServ.CacheAgentKey); !isValid {
+				return status.Error(codes.PermissionDenied, "invalid key")
+			}
+		case "collector":
+			if _, isValid := utils.IsKeyPairValid(key, uint(id), CollectorServ.CacheCollectorKey); !isValid {
+				return status.Error(codes.PermissionDenied, "invalid key")
+			}
+		default:
+			return status.Error(codes.PermissionDenied, "invalid type")
 		}
 	case "connection-key":
-		if !isConnectionKeyValid(authConnectionKey[0]) {
+		if !utils.IsConnectionKeyValid(fmt.Sprintf(config.PanelConnectionKeyUrl, config.GetUTMHost()), authConnectionKey[0]) {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	case "internal-key":
@@ -134,21 +102,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 }
 
 func isInternalKeyValid(token string) bool {
-	internalKey := os.Getenv(config.UTMSharedKeyEnv)
-	return token == internalKey
-}
-
-func isConnectionKeyValid(token string) bool {
-	url := fmt.Sprintf(config.PanelConnectionKeyUrl, os.Getenv(config.UTMHostEnv))
-	requestBody := strings.NewReader(token)
-	tlsConfig := &tls.Config{InsecureSkipVerify: true}
-	transport := &http.Transport{TLSClientConfig: tlsConfig}
-	client := &http.Client{Transport: transport}
-	resp, err := client.Post(url, "application/json", requestBody)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return false
-	}
-	return true
+	return token == config.GetInternalKey()
 }
 
 func isInRoute(route string, list []string) bool {
@@ -158,23 +112,4 @@ func isInRoute(route string, list []string) bool {
 		}
 	}
 	return false
-}
-
-func isKeyPairFromValid(key string, id uint, typ string) (string, bool) {
-	switch typ {
-	case "agent":
-		for agentId, agentKey := range agent.CacheAgentKey {
-			if key == agentKey && id == agentId {
-				return agentKey, true
-			}
-		}
-	case "collector":
-		for collId, collKey := range agent.CacheCollectorKey {
-			if key == collKey && id == collId {
-				return collKey, true
-			}
-		}
-	}
-
-	return "", false
 }
