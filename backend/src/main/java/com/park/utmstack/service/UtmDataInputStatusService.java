@@ -1,15 +1,15 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.domain.UtmDataInputStatus;
-import com.park.utmstack.domain.UtmDataSourceConfig;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.UpdateLevel;
 import com.park.utmstack.domain.shared_types.AlertType;
 import com.park.utmstack.repository.UtmDataInputStatusRepository;
-import com.park.utmstack.repository.UtmDataSourceConfigRepository;
+import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
@@ -31,7 +31,6 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -51,7 +50,7 @@ public class UtmDataInputStatusService {
     private final ApplicationEventService applicationEventService;
     private final UtmNetworkScanService networkScanService;
     private final ElasticsearchService elasticsearchService;
-    private final UtmDataSourceConfigRepository dataSourceConfigRepository;
+    private final UtmDataTypesRepository dataTypesRepository;
     private final UtmNetworkScanRepository networkScanRepository;
 
 
@@ -60,14 +59,14 @@ public class UtmDataInputStatusService {
                                      ApplicationEventService applicationEventService,
                                      UtmNetworkScanService networkScanService,
                                      ElasticsearchService elasticsearchService,
-                                     UtmDataSourceConfigRepository dataSourceConfigRepository,
+                                     UtmDataTypesRepository dataTypesRepository,
                                      UtmNetworkScanRepository networkScanRepository) {
         this.dataInputStatusRepository = dataInputStatusRepository;
         this.serverModuleService = serverModuleService;
         this.applicationEventService = applicationEventService;
         this.networkScanService = networkScanService;
         this.elasticsearchService = elasticsearchService;
-        this.dataSourceConfigRepository = dataSourceConfigRepository;
+        this.dataTypesRepository = dataTypesRepository;
         this.networkScanRepository = networkScanRepository;
     }
 
@@ -194,8 +193,8 @@ public class UtmDataInputStatusService {
     public void synchronizeSourcesToAssets() {
         final String ctx = CLASSNAME + ".syncSourcesToAssets";
         try {
-            final List<String> excludeOfTypes = dataSourceConfigRepository.findAllByIncludedFalse().stream()
-                    .map(UtmDataSourceConfig::getDataType).collect(Collectors.toList());
+            final List<String> excludeOfTypes = dataTypesRepository.findAllByIncludedFalse().stream()
+                    .map(UtmDataTypes::getDataType).collect(Collectors.toList());
             excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
             List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
