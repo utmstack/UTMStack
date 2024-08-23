@@ -12,12 +12,24 @@ import (
 )
 
 type PluginConfig struct {
-	ServerName   string `yaml:"server_name"`
-	InternalKey  string `yaml:"internal_key"`
-	AgentManager string `yaml:"agent_manager"`
-	Backend      string `yaml:"backend"`
-	Logstash     string `yaml:"logstash"`
-	CertsFolder  string `yaml:"certs_folder"`
+	RulesFolder   string        `yaml:"rules_folder"`
+	GeoIPFolder   string        `yaml:"geoip_folder"`
+	Elasticsearch string        `yaml:"elasticsearch"`
+	PostgreSQL    PostgreConfig `yaml:"postgresql"`
+	ServerName    string        `yaml:"server_name"`
+	InternalKey   string        `yaml:"internal_key"`
+	AgentManager  string        `yaml:"agent_manager"`
+	Backend       string        `yaml:"backend"`
+	Logstash      string        `yaml:"logstash"`
+	CertsFolder   string        `yaml:"certs_folder"`
+}
+
+type PostgreConfig struct {
+	Server   string `yaml:"server"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
 }
 
 type Filter struct {
@@ -56,7 +68,7 @@ func main() {
 
 	gCfg := helpers.GetCfg()
 
-	db, e := connect(pCfg.InternalKey)
+	db, e := connect(pCfg.PostgreSQL.Password)
 	if e != nil {
 		os.Exit(1)
 	}
