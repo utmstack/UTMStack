@@ -43,7 +43,6 @@ jobs:
               - 'backend/**'
               - 'version.yml'
             frontend: frontend/**
-            bitdefender: bitdefender/**
             user-auditor: user-auditor/**
             web-pdf: web-pdf/**
   
