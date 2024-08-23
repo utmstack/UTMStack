@@ -176,7 +176,7 @@ func listFiles(folder string) ([]string, *logger.Error) {
 	})
 
 	if err != nil {
-		if logger.Is(err, "not found", "not exists") {
+		if logger.Is(err, "no such file or directory") {
 			return []string{}, nil
 		}
 
