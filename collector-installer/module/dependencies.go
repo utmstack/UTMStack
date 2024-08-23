@@ -39,7 +39,7 @@ func UninstallJava() error {
 }
 
 func HandleDependenciesPostDownload(collectorType config.Collector) error {
-	zipName := config.GetDownloadFilePath(config.DependZipLabel, collectorType)
+	zipName := config.GetDownloadFilePath(config.DependZipLabel, collectorType, "")
 	if zipName != "" {
 		if err := utils.Unzip(zipName, utils.GetMyPath()); err != nil {
 			return fmt.Errorf("error unzipping dependencies: %v", err)

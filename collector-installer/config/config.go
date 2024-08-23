@@ -20,6 +20,7 @@ const (
 	DEPEND_URL          = "https://%s/dependencies/collector?version=%s&os=%s&type=%s&collectorType=%s"
 	DependServiceLabel  = "service"
 	DependZipLabel      = "depend_zip"
+	UpdateLockFile      = "updating.lock"
 )
 
 type ServiceConfig struct {
@@ -63,13 +64,13 @@ func ReadConfig() (*ServiceTypeConfig, error) {
 	return config, nil
 }
 
-func GetDownloadFilePath(typ string, module Collector) string {
+func GetDownloadFilePath(typ string, module Collector, subfix string) string {
 	path := utils.GetMyPath()
 	switch module {
 	case AS400:
 		switch typ {
 		case DependServiceLabel:
-			return filepath.Join(path, "utmstack_collector_as400_service.jar")
+			return filepath.Join(path, fmt.Sprintf("utmstack_collector_as400_service%s.jar", subfix))
 		case DependZipLabel:
 			switch runtime.GOOS {
 			case "windows":
@@ -78,6 +79,11 @@ func GetDownloadFilePath(typ string, module Collector) string {
 		}
 	}
 	return ""
+}
+
+func GetUpdateLockFilePath() string {
+	path := utils.GetMyPath()
+	return filepath.Join(path, UpdateLockFile)
 }
 
 func GetVersionPath() string {

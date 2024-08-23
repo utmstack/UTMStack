@@ -11,6 +11,7 @@ type ProcessConfig struct {
 type CollectorProcess interface {
 	Run() error
 	Install(ip, utmKey, skip string) error
+	CheckUpdates()
 	Uninstall() error
 }
 
