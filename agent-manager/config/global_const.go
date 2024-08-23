@@ -14,6 +14,8 @@ func KeyAuthRoutes() []string {
 		"/agent.CollectorService/DeleteCollector",
 		"/agent.CollectorService/GetCollectorConfig",
 
+		"/agent.ModuleConfigService/IsModuleEnabled",
+
 		"/agent.PingService/Ping",
 
 		"/grpc.health.v1.Health/Check",
@@ -30,8 +32,6 @@ func ConnectionKeyRoutes() []string {
 func InternalKeyRoutes() []string {
 	return []string{
 		"/agent.AgentService/ListAgents",
-		"/agent.AgentService/UpdateAgentType",  // Not used
-		"/agent.AgentService/UpdateAgentGroup", // Not used
 		"/agent.AgentService/ListAgentCommands",
 		"/agent.AgentService/GetAgentByHostname",
 		"/agent.AgentService/ListAgentsWithCommands",
@@ -49,10 +49,6 @@ func InternalKeyRoutes() []string {
 
 const (
 	PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
-	UTMSharedKeyEnv       = "INTERNAL_KEY"
-	UTMEncryptionKeyEnv   = "ENCRYPTION_KEY"
-	UTMPanelServiceEnv    = "PANEL_SERV_NAME"
-	UTMHostEnv            = "UTM_HOST"
 	MASTERVERSIONENDPOINT = "/management/info"
 	Bucket                = "https://cdn.utmstack.com/"
 	VOLPATH               = "/data"
@@ -71,9 +67,41 @@ var (
 )
 
 func GetInternalKey() string {
-	return os.Getenv(UTMSharedKeyEnv)
+	return os.Getenv("INTERNAL_KEY")
 }
 
 func GetPanelServiceName() string {
-	return os.Getenv(UTMPanelServiceEnv)
+	return os.Getenv("PANEL_SERV_NAME")
+}
+
+func GetLogLevel() string {
+	return os.Getenv("LOG_LEVEL")
+}
+
+func GetEncryptionKey() string {
+	return os.Getenv("ENCRYPTION_KEY")
+}
+
+func GetUTMHost() string {
+	return os.Getenv("UTM_HOST")
+}
+
+func GetDBHost() string {
+	return os.Getenv("DB_HOST")
+}
+
+func GetDBPort() string {
+	return os.Getenv("DB_PORT")
+}
+
+func GetDBUser() string {
+	return os.Getenv("DB_USER")
+}
+
+func GetDBPassword() string {
+	return os.Getenv("DB_PASSWORD")
+}
+
+func GetDBName() string {
+	return os.Getenv("DB_NAME")
 }
