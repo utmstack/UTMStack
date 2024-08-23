@@ -190,7 +190,7 @@ public class UtmDataTypesService {
             }).filter(Objects::nonNull).collect(Collectors.toList());
             utmDataTypesRepository.saveAll(dataTypes);
 
-            // Get only included datatypes
+            // Get only excluded datatypes
             dataTypes = dataTypes.stream().filter(cfg-> !cfg.getIncluded()).collect(Collectors.toList());
 
             networkScanRepository.deleteAllAssetsByDataType(dataTypes.stream().map(UtmDataTypes::getDataType)

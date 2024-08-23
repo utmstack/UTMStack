@@ -198,43 +198,44 @@ public class UtmDataInputStatusService {
             excludeOfTypes.addAll(Arrays.asList("utmstack", "UTMStack", DataSourceConstants.IBM_AS400_TYPE));
 
             List<UtmDataInputStatus> sources = dataInputStatusRepository.extractSourcesToExport(excludeOfTypes);
-            if (CollectionUtils.isEmpty(sources))
-                return;
+            if (!CollectionUtils.isEmpty(sources)) {
+                //return;
 
-            Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
-            List<UtmNetworkScan> assets = networkScanService.findAll();
+                Map<String, Boolean> sourcesWithStatus = extractSourcesWithUpDownStatus(sources);
+                List<UtmNetworkScan> assets = networkScanService.findAll();
 
-            List<UtmNetworkScan> saveOrUpdate = new ArrayList<>();
-            sourcesWithStatus.forEach((key, value) -> {
-                Optional<UtmNetworkScan> assetOpt = assets.stream()
-                        .filter(asset -> ((StringUtils.hasText(asset.getAssetIp()) && asset.getAssetIp().equals(key))
-                                || (StringUtils.hasText(asset.getAssetName()) && asset.getAssetName().equals(key))))
-                        .findFirst();
-                if (assetOpt.isPresent()) {
-                    UtmNetworkScan utmAsset = assetOpt.get();
-                    if (Objects.isNull(utmAsset.getUpdateLevel())
-                            || utmAsset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
-                        utmAsset.assetAlive(value)
-                                .updateLevel(UpdateLevel.DATASOURCE)
-                                .assetStatus(AssetStatus.CHECK)
-                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
-                        saveOrUpdate.add(utmAsset);
+                List<UtmNetworkScan> saveOrUpdate = new ArrayList<>();
+                sourcesWithStatus.forEach((key, value) -> {
+                    Optional<UtmNetworkScan> assetOpt = assets.stream()
+                            .filter(asset -> ((StringUtils.hasText(asset.getAssetIp()) && asset.getAssetIp().equals(key))
+                                    || (StringUtils.hasText(asset.getAssetName()) && asset.getAssetName().equals(key))))
+                            .findFirst();
+                    if (assetOpt.isPresent()) {
+                        UtmNetworkScan utmAsset = assetOpt.get();
+                        if (Objects.isNull(utmAsset.getUpdateLevel())
+                                || utmAsset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
+                            utmAsset.assetAlive(value)
+                                    .updateLevel(UpdateLevel.DATASOURCE)
+                                    .assetStatus(AssetStatus.CHECK)
+                                    .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                            saveOrUpdate.add(utmAsset);
+                        }
+                    } else {
+                        saveOrUpdate.add(new UtmNetworkScan(key, value));
                     }
-                } else {
-                    saveOrUpdate.add(new UtmNetworkScan(key, value));
-                }
-            });
+                });
 
-            assets.forEach(asset -> {
-                if (!sourcesWithStatus.containsKey(asset.getAssetIp()) && !sourcesWithStatus.containsKey(asset.getAssetName())
-                        && !Objects.isNull(asset.getUpdateLevel()) && asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
-                    asset.assetStatus(AssetStatus.MISSING).updateLevel(null)
-                            .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
-                    saveOrUpdate.add(asset);
-                }
-            });
+                assets.forEach(asset -> {
+                    if (!sourcesWithStatus.containsKey(asset.getAssetIp()) && !sourcesWithStatus.containsKey(asset.getAssetName())
+                            && !Objects.isNull(asset.getUpdateLevel()) && asset.getUpdateLevel().equals(UpdateLevel.DATASOURCE)) {
+                        asset.assetStatus(AssetStatus.MISSING).updateLevel(null)
+                                .modifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                        saveOrUpdate.add(asset);
+                    }
+                });
 
-            networkScanService.saveAll(saveOrUpdate);
+                networkScanService.saveAll(saveOrUpdate);
+            }
             // Finally, delete excluded assets
             networkScanRepository.deleteAllAssetsByDataType(excludeOfTypes);
         } catch (Exception e) {
