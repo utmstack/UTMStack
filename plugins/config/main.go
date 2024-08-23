@@ -112,7 +112,7 @@ func connect(password string) (*sql.DB, *logger.Error) {
 }
 
 func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
-	rows, err := db.Query("SELECT * FROM filters")
+	rows, err := db.Query("SELECT * FROM utm_logstash_filter")
 	if err != nil {
 		return nil, helpers.Logger().ErrorF("failed to get filters: %v", err)
 	}
