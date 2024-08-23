@@ -36,18 +36,18 @@ type Filter struct {
 	ID            int
 	Name          string
 	Filter        string
-	GroupID       int
+	GroupID       int64
 	SystemOwned   bool
 	ModuleName    string
 	IsActive      bool
 	FilterVersion string
-	DataTypeID    int
+	DataTypeID    int64
 	UpdatedAt     string
 }
 
-func (f *Filter) FromVar(id int, name string, filter string, groupID int,
+func (f *Filter) FromVar(id int, name string, filter string, groupID int64,
 	systemOwned bool, moduleName string, isActive bool, filterVersion string,
-	dataTypeID int, updatedAt string) {
+	dataTypeID int64, updatedAt string) {
 	f.ID = id
 	f.Name = name
 	f.Filter = filter
@@ -124,15 +124,15 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 	for rows.Next() {
 		var (
 			id            int
-			name          string
-			body          string
-			groupId       int
-			systemOwned   bool
-			moduleName    string
-			isActive      bool
-			filterVersion string
-			dataTypeId    int
-			updatedAt     string
+			name          interface{}
+			body          interface{}
+			groupId       interface{}
+			systemOwned   interface{}
+			moduleName    interface{}
+			isActive      interface{}
+			filterVersion interface{}
+			dataTypeId    interface{}
+			updatedAt     interface{}
 		)
 
 		err = rows.Scan(&id, &body, &name, &groupId, &systemOwned,
@@ -142,7 +142,18 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 		}
 
 		filter := Filter{}
-		filter.FromVar(id, name, body, groupId, systemOwned, moduleName, isActive, filterVersion, dataTypeId, updatedAt)
+		filter.FromVar(
+			id, 
+			helpers.CastString(name), 
+			helpers.CastString(body), 
+			helpers.CastInt64(groupId), 
+			helpers.CastBool(systemOwned), 
+			helpers.CastString(moduleName), 
+			helpers.CastBool(isActive), 
+			helpers.CastString(filterVersion), 
+			helpers.CastInt64(dataTypeId), 
+			helpers.CastString(updatedAt),
+		)
 		filters = append(filters, filter)
 	}
 
