@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"net/http"
 
-	"github.com/utmstack/UTMStack/bitdefender/constants"
-	"github.com/utmstack/UTMStack/bitdefender/utils"
+	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
 func sendRequest(body []byte, config types.ModuleGroup) (*http.Response, error) {
-	r, err := http.NewRequest("POST", config.Configurations[1].ConfValue+constants.EndpointPush, bytes.NewBuffer(body))
+	r, err := http.NewRequest("POST", config.Configurations[1].ConfValue+EndpointPush, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}

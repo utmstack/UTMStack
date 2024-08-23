@@ -44,3 +44,17 @@ type TemplateTestPush struct {
 	Method  string     `json:"method"`
 	ID      string     `json:"id"`
 }
+
+type PluginConfig struct {
+	InternalKey string `yaml:"internal_key"`
+	Backend     string `yaml:"backend"`
+	CertsFolder string `yaml:"certs_folder"`
+	BdgzPort    string `yaml:"bdgz_port"`
+}
+
+type ModuleConfig struct {
+	CompaniesIDs  string
+	ConnectionKey string
+	AccessUrl     string
+	MasterIp      string
+}

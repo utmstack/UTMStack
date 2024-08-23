@@ -50,6 +50,7 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.stats.plugin", branch):       filepath.Join(pluginsFolder, "com.utmstack.stats.plugin"),
 		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.o365.plugin", branch):        filepath.Join(pluginsFolder, "com.utmstack.o365.plugin"),
 		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.config.plugin", branch):      filepath.Join(pluginsFolder, "com.utmstack.config.plugin"),
+		fmt.Sprintf("https://cdn.utmstack.com/%s/plugins/com.utmstack.bitdefender.plugin", branch): filepath.Join(pluginsFolder, "com.utmstack.bitdefender.plugin"),
 		// Base Configurations
 		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_analysis.yaml", branch):     filepath.Join(pipelineFolder, "system_plugins_analysis.yaml"),
 		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_correlation.yaml", branch):  filepath.Join(pipelineFolder, "system_plugins_correlation.yaml"),

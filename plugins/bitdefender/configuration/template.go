@@ -1,9 +1,8 @@
 package configuration
 
 import (
-	"github.com/utmstack/UTMStack/bitdefender/constants"
-	"github.com/utmstack/UTMStack/bitdefender/schema"
-	"github.com/utmstack/UTMStack/bitdefender/utils"
+	"github.com/utmstack/UTMStack/plugins/bitdefender/schema"
+	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -37,14 +36,13 @@ var defaultSubscribeToEventTypes = []byte(`{
 	"uninstall" : false
 }`)
 
-// getTemplateTest returns a template that will be used to send the configuration to the PUSH API
 func getTemplateSetPush(config types.ModuleGroup) schema.TemplateConfigSetPush {
 	byteTemplate := schema.TemplateConfigSetPush{
 		PARAMS: schema.Params{
 			Status:      1,
 			ServiceType: "cef",
 			Servicesettings: schema.ServiceSettings{
-				Url:                        "https://" + config.Configurations[2].ConfValue + ":" + constants.GetConnectorPort() + "/api",
+				Url:                        "https://" + config.Configurations[2].ConfValue + ":" + GetConfig().BdgzPort + "/api",
 				Authorization:              utils.GenerateAuthCode(config.Configurations[0].ConfValue),
 				RequireValidSslCertificate: false,
 			},
@@ -57,7 +55,6 @@ func getTemplateSetPush(config types.ModuleGroup) schema.TemplateConfigSetPush {
 	return byteTemplate
 }
 
-// getTemplateTest returns a template that will be used to get the configuration of the PUSH API.
 func getTemplateGet() schema.TemplateConfigGetPush {
 	byteTemplate := schema.TemplateConfigGetPush{
 		PARAMS:  []byte(`{}`),
@@ -68,7 +65,6 @@ func getTemplateGet() schema.TemplateConfigGetPush {
 	return byteTemplate
 }
 
-// getTemplateTest returns a template that will be used to send a test log
 func getTemplateTest() schema.TemplateTestPush {
 	byteTemplate := schema.TemplateTestPush{
 		PARAMS: schema.ParamsTest{
