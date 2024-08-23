@@ -10,6 +10,7 @@ update:
 	cd sophos && go get -u && go mod tidy 
 	cd o365 && go get -u && go mod tidy
 	cd config && go get -u && go mod tidy
+	cd bitdefender && go get -u && go mod tidy
 
 build:
 	cd events && go build -o com.utmstack.events.plugin
@@ -23,5 +24,6 @@ build:
 	cd sophos && go build -o com.utmstack.sophos.plugin
 	cd o365 && go build -o com.utmstack.o365.plugin
 	cd config && go build -o com.utmstack.config.plugin
+	cd bitdefender && go build -o com.utmstack.config.plugin
 
 update-build: update build

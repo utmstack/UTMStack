@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        service: ['agent-manager', 'backend', 'frontend', 'bitdefender', 'user-auditor', 'web-pdf'] 
+        service: ['agent-manager', 'backend', 'frontend', 'user-auditor', 'web-pdf'] 
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}

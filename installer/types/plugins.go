@@ -22,6 +22,7 @@ type PluginConfig struct {
 	Backend       string        `yaml:"backend"`
 	Logstash      string        `yaml:"logstash"`
 	CertsFolder   string        `yaml:"certs_folder"`
+	BdgzPort      string        `yaml:"bdgz_port"`
 }
 
 type PostgreConfig struct {
@@ -52,6 +53,7 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		Backend:      "http://backend:8080",
 		Logstash:     "logstash",
 		CertsFolder:  "/cert",
+		BdgzPort:     "8000",
 	}
 
 	config, err := yaml.Marshal(c)

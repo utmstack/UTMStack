@@ -173,35 +173,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 	}
 
-	bitdefemderMem := stack.ServiceResources["bitdefender"].AssignedMemory
-	c.Services["bitdefender"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/bitdefender:" + conf.Branch),
-		DependsOn: []string{
-			"backend",
-		},
-		Ports: []string{
-			"8000:8000",
-		},
-		Volumes: []string{
-			stack.Datasources + ":/etc/utmstack",
-		},
-		Environment: []string{
-			"PANEL_SERV_NAME=backend:8080",
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"CONNECTOR_PORT=8000",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", bitdefemderMem)),
-				},
-			},
-		},
-	}
-
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	backendMin := stack.ServiceResources["backend"].MinMemory
 	c.Services["backend"] = Service{
