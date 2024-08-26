@@ -19,9 +19,11 @@ export interface Definition {
 export interface DataType {
     id: number;
     dataType: string;
+    dataTypeName: string;
     dataTypeDescription?: string;
     lastUpdate?: string;
     systemOwner: boolean;
+    included: boolean;
 }
 
 export interface RegexPattern {

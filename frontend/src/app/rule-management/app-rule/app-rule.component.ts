@@ -2,11 +2,11 @@ import {Component, OnInit} from '@angular/core';
 import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {EventDataTypeEnum} from '../../data-management/alert-management/shared/enums/event-data-type.enum';
 import {FILTER_RULE_FIELDS} from '../models/rule.constant';
-import {FilterService} from "../services/filter.service";
-import {SERVER_API_URL} from "../../app.constants";
-import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
-import {ConfigService} from "../app-correlation-management/services/config.service";
-import {Actions} from "../app-correlation-management/models/config.type";
+import {FilterService} from '../services/filter.service';
+import {SERVER_API_URL} from '../../app.constants';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {ConfigService} from '../app-correlation-management/services/config.service';
+import {Actions} from '../app-correlation-management/models/config.type';
 
 
 @Component({

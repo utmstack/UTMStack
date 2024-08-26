@@ -5,10 +5,11 @@ import {SERVER_API_URL} from '../../app.constants';
 import {createRequestOption} from '../../shared/util/request-util';
 import {DataType} from '../models/rule.model';
 import {switchMap, tap} from "rxjs/operators";
+import {InputSourceDataType} from "../../assets-discover/source-data-type-config/input-source-data.type";
 
 const resourceUrl = `${SERVER_API_URL}api/data-types`;
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class DataTypeService {
 
     private typesSubject = new BehaviorSubject<DataType[]>([]);
@@ -55,4 +56,8 @@ export class DataTypeService {
                 })
             );
     }
+
+  updateInclude(changes: DataType[]): Observable<HttpResponse<DataType>> {
+    return this.http.put<DataType>(`${resourceUrl}/include-exclude-list`, changes, {observe: 'response'});
+  }
 }
