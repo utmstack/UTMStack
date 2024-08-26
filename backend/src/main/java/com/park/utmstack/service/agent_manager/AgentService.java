@@ -1,5 +1,6 @@
 package com.park.utmstack.service.agent_manager;
 
+import agent.Common.ListRequest;
 import com.park.utmstack.domain.agents_manager.Agent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
@@ -8,7 +9,6 @@ import com.park.utmstack.domain.network_scan.wrapper.NetworkScanWrapper;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.agent_manager.AgentDTO;
 import com.park.utmstack.service.dto.agent_manager.ListAgentsResponseDTO;
-import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
