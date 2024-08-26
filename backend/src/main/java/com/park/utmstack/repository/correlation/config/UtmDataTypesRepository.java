@@ -17,6 +17,7 @@ public interface UtmDataTypesRepository extends JpaRepository<UtmDataTypes, Long
 
     @Query(value = "SELECT dt FROM UtmDataTypes dt WHERE" +
             "(:search IS NULL OR ((dt.dataType LIKE :search OR lower(dt.dataType) LIKE lower(:search)) " +
+            "OR (dt.dataTypeName LIKE :search OR lower(dt.dataTypeName) LIKE lower(:search))" +
             "OR (dt.dataTypeDescription LIKE :search OR lower(dt.dataTypeDescription) LIKE lower(:search))))")
     Page<UtmDataTypes> searchByFilters(@Param("search") String search,
                                        Pageable pageable);
