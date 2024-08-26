@@ -15,35 +15,25 @@ public final class AgentManagerGrpc {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_Id_descriptor;
+    internal_static_agent_AgentRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_Id_fieldAccessorTable;
+      internal_static_agent_AgentRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_agent_ListAgentsResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_agent_ListAgentsResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_agent_Agent_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_agent_Agent_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_AgentTypeUpdate_descriptor;
+    internal_static_agent_BidirectionalStream_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_AgentTypeUpdate_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_AgentGroupUpdate_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_AgentGroupUpdate_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_AgentRequest_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_AgentRequest_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_AgentDelete_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_AgentDelete_fieldAccessorTable;
+      internal_static_agent_BidirectionalStream_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_agent_UtmCommand_descriptor;
   static final 
@@ -55,16 +45,6 @@ public final class AgentManagerGrpc {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_agent_CommandResult_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_BidirectionalStream_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_BidirectionalStream_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_ListAgentsResponse_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_ListAgentsResponse_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_agent_ListAgentsCommandsResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -74,26 +54,6 @@ public final class AgentManagerGrpc {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_agent_AgentCommand_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_AgentType_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_AgentType_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_AgentGroup_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_AgentGroup_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_ListAgentsGroupResponse_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_ListAgentsGroupResponse_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_agent_ListAgentsTypeResponse_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_agent_ListAgentsTypeResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -104,184 +64,112 @@ public final class AgentManagerGrpc {
   static {
     java.lang.String[] descriptorData = {
       "\n\013agent.proto\022\005agent\032\037google/protobuf/ti" +
-      "mestamp.proto\032\014common.proto\"\020\n\002Id\022\n\n\002id\030" +
-      "\001 \001(\003\"\212\002\n\005Agent\022\n\n\002ip\030\001 \001(\t\022\020\n\010hostname\030" +
-      "\002 \001(\t\022\n\n\002os\030\003 \001(\t\022\035\n\006status\030\004 \001(\0162\r.agen" +
-      "t.Status\022\020\n\010platform\030\005 \001(\t\022\017\n\007version\030\006 " +
-      "\001(\t\022\021\n\tagent_key\030\007 \001(\t\022\n\n\002id\030\010 \001(\r\022\021\n\tla" +
-      "st_seen\030\t \001(\t\022\013\n\003mac\030\n \001(\t\022\030\n\020os_major_v" +
-      "ersion\030\013 \001(\t\022\030\n\020os_minor_version\030\014 \001(\t\022\017" +
-      "\n\007aliases\030\r \001(\t\022\021\n\taddresses\030\016 \001(\t\"7\n\017Ag" +
-      "entTypeUpdate\022\020\n\010agent_id\030\001 \001(\r\022\022\n\nagent" +
-      "_type\030\002 \001(\r\"9\n\020AgentGroupUpdate\022\020\n\010agent" +
-      "_id\030\001 \001(\r\022\023\n\013agent_group\030\003 \001(\r\"\325\001\n\014Agent" +
-      "Request\022\n\n\002ip\030\001 \001(\t\022\020\n\010hostname\030\002 \001(\t\022\n\n" +
-      "\002os\030\003 \001(\t\022\020\n\010platform\030\004 \001(\t\022\017\n\007version\030\005" +
-      " \001(\t\022\023\n\013register_by\030\006 \001(\t\022\013\n\003mac\030\007 \001(\t\022\030" +
-      "\n\020os_major_version\030\010 \001(\t\022\030\n\020os_minor_ver" +
-      "sion\030\t \001(\t\022\017\n\007aliases\030\n \001(\t\022\021\n\taddresses" +
-      "\030\013 \001(\t\"!\n\013AgentDelete\022\022\n\ndeleted_by\030\001 \001(" +
-      "\t\"\215\001\n\nUtmCommand\022\021\n\tagent_key\030\001 \001(\t\022\017\n\007c" +
-      "ommand\030\002 \001(\t\022\023\n\013executed_by\030\003 \001(\t\022\016\n\006cmd" +
-      "_id\030\004 \001(\t\022\023\n\013origin_type\030\005 \001(\t\022\021\n\torigin" +
-      "_id\030\006 \001(\t\022\016\n\006reason\030\007 \001(\t\"s\n\rCommandResu" +
-      "lt\022\021\n\tagent_key\030\001 \001(\t\022\016\n\006result\030\002 \001(\t\022/\n" +
-      "\013executed_at\030\003 \001(\0132\032.google.protobuf.Tim" +
-      "estamp\022\016\n\006cmd_id\030\004 \001(\t\"u\n\023BidirectionalS" +
-      "tream\022$\n\007command\030\001 \001(\0132\021.agent.UtmComman" +
-      "dH\000\022&\n\006result\030\002 \001(\0132\024.agent.CommandResul" +
-      "tH\000B\020\n\016stream_message\"?\n\022ListAgentsRespo" +
-      "nse\022\032\n\004rows\030\001 \003(\0132\014.agent.Agent\022\r\n\005total" +
-      "\030\002 \001(\005\"N\n\032ListAgentsCommandsResponse\022!\n\004" +
-      "rows\030\001 \003(\0132\023.agent.AgentCommand\022\r\n\005total" +
-      "\030\002 \001(\005\"\316\002\n\014AgentCommand\022.\n\ncreated_at\030\001 " +
-      "\001(\0132\032.google.protobuf.Timestamp\022.\n\nupdat" +
-      "ed_at\030\002 \001(\0132\032.google.protobuf.Timestamp\022" +
-      "\020\n\010agent_id\030\003 \001(\r\022\017\n\007command\030\004 \001(\t\0221\n\016co" +
-      "mmand_status\030\005 \001(\0162\031.agent.AgentCommandS" +
-      "tatus\022\016\n\006result\030\006 \001(\t\022\023\n\013executed_by\030\007 \001" +
-      "(\t\022\016\n\006cmd_id\030\010 \001(\t\022\033\n\005agent\030\t \001(\0132\014.agen" +
-      "t.Agent\022\016\n\006reason\030\n \001(\t\022\023\n\013origin_type\030\013" +
-      " \001(\t\022\021\n\torigin_id\030\014 \001(\t\"*\n\tAgentType\022\n\n\002" +
-      "id\030\001 \001(\r\022\021\n\ttype_name\030\002 \001(\t\"G\n\nAgentGrou" +
-      "p\022\n\n\002id\030\001 \001(\r\022\022\n\ngroup_name\030\002 \001(\t\022\031\n\021gro" +
-      "up_description\030\003 \001(\t\"I\n\027ListAgentsGroupR" +
-      "esponse\022\037\n\004rows\030\001 \003(\0132\021.agent.AgentGroup" +
-      "\022\r\n\005total\030\002 \001(\005\"G\n\026ListAgentsTypeRespons" +
-      "e\022\036\n\004rows\030\001 \003(\0132\020.agent.AgentType\022\r\n\005tot" +
-      "al\030\002 \001(\005*W\n\022AgentCommandStatus\022\020\n\014NOT_EX" +
-      "ECUTED\020\000\022\t\n\005QUEUE\020\001\022\013\n\007PENDING\020\002\022\014\n\010EXEC" +
-      "UTED\020\003\022\t\n\005ERROR\020\0042\234\004\n\014AgentService\0228\n\013De" +
-      "leteAgent\022\022.agent.AgentDelete\032\023.agent.Au" +
-      "thResponse\"\000\022=\n\nListAgents\022\022.agent.ListR" +
-      "equest\032\031.agent.ListAgentsResponse\"\000\022K\n\013A" +
-      "gentStream\022\032.agent.BidirectionalStream\032\032" +
-      ".agent.BidirectionalStream\"\000(\0010\001\0229\n\017Upda" +
-      "teAgentType\022\026.agent.AgentTypeUpdate\032\014.ag" +
-      "ent.Agent\"\000\022;\n\020UpdateAgentGroup\022\027.agent." +
-      "AgentGroupUpdate\032\014.agent.Agent\"\000\022L\n\021List" +
-      "AgentCommands\022\022.agent.ListRequest\032!.agen" +
-      "t.ListAgentsCommandsResponse\"\000\0225\n\022GetAge" +
-      "ntByHostname\022\017.agent.Hostname\032\014.agent.Ag" +
-      "ent\"\000\022I\n\026ListAgentsWithCommands\022\022.agent." +
-      "ListRequest\032\031.agent.ListAgentsResponse\"\000" +
-      "2O\n\014PanelService\022?\n\016ProcessCommand\022\021.age" +
-      "nt.UtmCommand\032\024.agent.CommandResult\"\000(\0010" +
-      "\0012\352\001\n\021AgentGroupService\0225\n\013CreateGroup\022\021" +
-      ".agent.AgentGroup\032\021.agent.AgentGroup\"\000\0223" +
-      "\n\tEditGroup\022\021.agent.AgentGroup\032\021.agent.A" +
-      "gentGroup\"\000\022B\n\nListGroups\022\022.agent.ListRe" +
-      "quest\032\036.agent.ListAgentsGroupResponse\"\000\022" +
-      "%\n\013DeleteGroup\022\t.agent.Id\032\t.agent.Id\"\0002Y" +
-      "\n\020AgentTypeService\022E\n\016ListAgentTypes\022\022.a" +
-      "gent.ListRequest\032\035.agent.ListAgentsTypeR" +
-      "esponse\"\000B7\n\036com.park.utmstack.service.g" +
-      "rpcB\020AgentManagerGrpcP\001\210\001\001b\006proto3"
+      "mestamp.proto\032\014common.proto\"\325\001\n\014AgentReq" +
+      "uest\022\n\n\002ip\030\001 \001(\t\022\020\n\010hostname\030\002 \001(\t\022\n\n\002os" +
+      "\030\003 \001(\t\022\020\n\010platform\030\004 \001(\t\022\017\n\007version\030\005 \001(" +
+      "\t\022\023\n\013register_by\030\006 \001(\t\022\013\n\003mac\030\007 \001(\t\022\030\n\020o" +
+      "s_major_version\030\010 \001(\t\022\030\n\020os_minor_versio" +
+      "n\030\t \001(\t\022\017\n\007aliases\030\n \001(\t\022\021\n\taddresses\030\013 " +
+      "\001(\t\"?\n\022ListAgentsResponse\022\032\n\004rows\030\001 \003(\0132" +
+      "\014.agent.Agent\022\r\n\005total\030\002 \001(\005\"\212\002\n\005Agent\022\n" +
+      "\n\002ip\030\001 \001(\t\022\020\n\010hostname\030\002 \001(\t\022\n\n\002os\030\003 \001(\t" +
+      "\022\035\n\006status\030\004 \001(\0162\r.agent.Status\022\020\n\010platf" +
+      "orm\030\005 \001(\t\022\017\n\007version\030\006 \001(\t\022\021\n\tagent_key\030" +
+      "\007 \001(\t\022\n\n\002id\030\010 \001(\r\022\021\n\tlast_seen\030\t \001(\t\022\013\n\003" +
+      "mac\030\n \001(\t\022\030\n\020os_major_version\030\013 \001(\t\022\030\n\020o" +
+      "s_minor_version\030\014 \001(\t\022\017\n\007aliases\030\r \001(\t\022\021" +
+      "\n\taddresses\030\016 \001(\t\"u\n\023BidirectionalStream" +
+      "\022$\n\007command\030\001 \001(\0132\021.agent.UtmCommandH\000\022&" +
+      "\n\006result\030\002 \001(\0132\024.agent.CommandResultH\000B\020" +
+      "\n\016stream_message\"\214\001\n\nUtmCommand\022\020\n\010agent" +
+      "_id\030\001 \001(\t\022\017\n\007command\030\002 \001(\t\022\023\n\013executed_b" +
+      "y\030\003 \001(\t\022\016\n\006cmd_id\030\004 \001(\t\022\023\n\013origin_type\030\005" +
+      " \001(\t\022\021\n\torigin_id\030\006 \001(\t\022\016\n\006reason\030\007 \001(\t\"" +
+      "r\n\rCommandResult\022\020\n\010agent_id\030\001 \001(\t\022\016\n\006re" +
+      "sult\030\002 \001(\t\022/\n\013executed_at\030\003 \001(\0132\032.google" +
+      ".protobuf.Timestamp\022\016\n\006cmd_id\030\004 \001(\t\"N\n\032L" +
+      "istAgentsCommandsResponse\022!\n\004rows\030\001 \003(\0132" +
+      "\023.agent.AgentCommand\022\r\n\005total\030\002 \001(\005\"\316\002\n\014" +
+      "AgentCommand\022.\n\ncreated_at\030\001 \001(\0132\032.googl" +
+      "e.protobuf.Timestamp\022.\n\nupdated_at\030\002 \001(\013" +
+      "2\032.google.protobuf.Timestamp\022\020\n\010agent_id" +
+      "\030\003 \001(\r\022\017\n\007command\030\004 \001(\t\0221\n\016command_statu" +
+      "s\030\005 \001(\0162\031.agent.AgentCommandStatus\022\016\n\006re" +
+      "sult\030\006 \001(\t\022\023\n\013executed_by\030\007 \001(\t\022\016\n\006cmd_i" +
+      "d\030\010 \001(\t\022\033\n\005agent\030\t \001(\0132\014.agent.Agent\022\016\n\006" +
+      "reason\030\n \001(\t\022\023\n\013origin_type\030\013 \001(\t\022\021\n\tori" +
+      "gin_id\030\014 \001(\t*W\n\022AgentCommandStatus\022\020\n\014NO" +
+      "T_EXECUTED\020\000\022\t\n\005QUEUE\020\001\022\013\n\007PENDING\020\002\022\014\n\010" +
+      "EXECUTED\020\003\022\t\n\005ERROR\020\0042\333\002\n\014AgentService\022:" +
+      "\n\013DeleteAgent\022\024.agent.DeleteRequest\032\023.ag" +
+      "ent.AuthResponse\"\000\022=\n\nListAgents\022\022.agent" +
+      ".ListRequest\032\031.agent.ListAgentsResponse\"" +
+      "\000\022K\n\013AgentStream\022\032.agent.BidirectionalSt" +
+      "ream\032\032.agent.BidirectionalStream\"\000(\0010\001\022L" +
+      "\n\021ListAgentCommands\022\022.agent.ListRequest\032" +
+      "!.agent.ListAgentsCommandsResponse\"\000\0225\n\022" +
+      "GetAgentByHostname\022\017.agent.Hostname\032\014.ag" +
+      "ent.Agent\"\0002O\n\014PanelService\022?\n\016ProcessCo" +
+      "mmand\022\021.agent.UtmCommand\032\024.agent.Command" +
+      "Result\"\000(\0010\001B7\n\036com.park.utmstack.servic" +
+      "e.grpcB\020AgentManagerGrpcP\001\210\001\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.google.protobuf.TimestampProto.getDescriptor(),
-          com.park.utmstack.service.grpc.Common.getDescriptor(),
+          agent.Common.getDescriptor(),
         });
-    internal_static_agent_Id_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_agent_Id_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_Id_descriptor,
-        new java.lang.String[] { "Id", });
-    internal_static_agent_Agent_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_agent_Agent_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_Agent_descriptor,
-        new java.lang.String[] { "Ip", "Hostname", "Os", "Status", "Platform", "Version", "AgentKey", "Id", "LastSeen", "Mac", "OsMajorVersion", "OsMinorVersion", "Aliases", "Addresses", });
-    internal_static_agent_AgentTypeUpdate_descriptor =
-      getDescriptor().getMessageTypes().get(2);
-    internal_static_agent_AgentTypeUpdate_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_AgentTypeUpdate_descriptor,
-        new java.lang.String[] { "AgentId", "AgentType", });
-    internal_static_agent_AgentGroupUpdate_descriptor =
-      getDescriptor().getMessageTypes().get(3);
-    internal_static_agent_AgentGroupUpdate_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_AgentGroupUpdate_descriptor,
-        new java.lang.String[] { "AgentId", "AgentGroup", });
     internal_static_agent_AgentRequest_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(0);
     internal_static_agent_AgentRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_agent_AgentRequest_descriptor,
         new java.lang.String[] { "Ip", "Hostname", "Os", "Platform", "Version", "RegisterBy", "Mac", "OsMajorVersion", "OsMinorVersion", "Aliases", "Addresses", });
-    internal_static_agent_AgentDelete_descriptor =
-      getDescriptor().getMessageTypes().get(5);
-    internal_static_agent_AgentDelete_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_AgentDelete_descriptor,
-        new java.lang.String[] { "DeletedBy", });
-    internal_static_agent_UtmCommand_descriptor =
-      getDescriptor().getMessageTypes().get(6);
-    internal_static_agent_UtmCommand_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_UtmCommand_descriptor,
-        new java.lang.String[] { "AgentKey", "Command", "ExecutedBy", "CmdId", "OriginType", "OriginId", "Reason", });
-    internal_static_agent_CommandResult_descriptor =
-      getDescriptor().getMessageTypes().get(7);
-    internal_static_agent_CommandResult_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_CommandResult_descriptor,
-        new java.lang.String[] { "AgentKey", "Result", "ExecutedAt", "CmdId", });
-    internal_static_agent_BidirectionalStream_descriptor =
-      getDescriptor().getMessageTypes().get(8);
-    internal_static_agent_BidirectionalStream_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_BidirectionalStream_descriptor,
-        new java.lang.String[] { "Command", "Result", "StreamMessage", });
     internal_static_agent_ListAgentsResponse_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(1);
     internal_static_agent_ListAgentsResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_agent_ListAgentsResponse_descriptor,
         new java.lang.String[] { "Rows", "Total", });
+    internal_static_agent_Agent_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_agent_Agent_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_agent_Agent_descriptor,
+        new java.lang.String[] { "Ip", "Hostname", "Os", "Status", "Platform", "Version", "AgentKey", "Id", "LastSeen", "Mac", "OsMajorVersion", "OsMinorVersion", "Aliases", "Addresses", });
+    internal_static_agent_BidirectionalStream_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_agent_BidirectionalStream_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_agent_BidirectionalStream_descriptor,
+        new java.lang.String[] { "Command", "Result", "StreamMessage", });
+    internal_static_agent_UtmCommand_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_agent_UtmCommand_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_agent_UtmCommand_descriptor,
+        new java.lang.String[] { "AgentId", "Command", "ExecutedBy", "CmdId", "OriginType", "OriginId", "Reason", });
+    internal_static_agent_CommandResult_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_agent_CommandResult_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_agent_CommandResult_descriptor,
+        new java.lang.String[] { "AgentId", "Result", "ExecutedAt", "CmdId", });
     internal_static_agent_ListAgentsCommandsResponse_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_agent_ListAgentsCommandsResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_agent_ListAgentsCommandsResponse_descriptor,
         new java.lang.String[] { "Rows", "Total", });
     internal_static_agent_AgentCommand_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_agent_AgentCommand_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_agent_AgentCommand_descriptor,
         new java.lang.String[] { "CreatedAt", "UpdatedAt", "AgentId", "Command", "CommandStatus", "Result", "ExecutedBy", "CmdId", "Agent", "Reason", "OriginType", "OriginId", });
-    internal_static_agent_AgentType_descriptor =
-      getDescriptor().getMessageTypes().get(12);
-    internal_static_agent_AgentType_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_AgentType_descriptor,
-        new java.lang.String[] { "Id", "TypeName", });
-    internal_static_agent_AgentGroup_descriptor =
-      getDescriptor().getMessageTypes().get(13);
-    internal_static_agent_AgentGroup_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_AgentGroup_descriptor,
-        new java.lang.String[] { "Id", "GroupName", "GroupDescription", });
-    internal_static_agent_ListAgentsGroupResponse_descriptor =
-      getDescriptor().getMessageTypes().get(14);
-    internal_static_agent_ListAgentsGroupResponse_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_ListAgentsGroupResponse_descriptor,
-        new java.lang.String[] { "Rows", "Total", });
-    internal_static_agent_ListAgentsTypeResponse_descriptor =
-      getDescriptor().getMessageTypes().get(15);
-    internal_static_agent_ListAgentsTypeResponse_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_agent_ListAgentsTypeResponse_descriptor,
-        new java.lang.String[] { "Rows", "Total", });
     com.google.protobuf.TimestampProto.getDescriptor();
-    com.park.utmstack.service.grpc.Common.getDescriptor();
+    agent.Common.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
