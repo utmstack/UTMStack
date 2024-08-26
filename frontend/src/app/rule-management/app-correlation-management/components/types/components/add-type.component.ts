@@ -32,6 +32,10 @@ export class AddTypeComponent implements OnInit {
     return this.dataTypeForm.get('dataType');
   }
 
+  get dataTypeName() {
+    return this.dataTypeForm.get('dataTypeName');
+  }
+
   get dataTypeDescription() {
     return this.dataTypeForm.get('dataTypeDescription');
   }
@@ -40,6 +44,7 @@ export class AddTypeComponent implements OnInit {
   initForm() {
     this.dataTypeForm = this.formBuilder.group({
       dataType: [ this.type ? this.type.dataType : '', [Validators.required, Validators.maxLength(250)]],
+      dataTypeName: [ this.type ? this.type.dataTypeName : '', [Validators.required, Validators.maxLength(250)]],
       dataTypeDescription: [this.type ? this.type.dataTypeDescription : '']
     });
   }
@@ -47,7 +52,10 @@ export class AddTypeComponent implements OnInit {
   onSubmit() {
     if (this.dataTypeForm.valid) {
       this.loading = true;
-      const formType = this.dataTypeForm.value;
+      const formType: DataType = {
+        ...this.dataTypeForm.value,
+        included: false
+      };
       const typeToSave = this.mode === 'ADD' ? formType : {
         ...this.type,
         ...formType

@@ -1,32 +1,44 @@
-<app-utm-modal-header [name]="(dataType ? 'Edit' : 'Create') + ' data type'"></app-utm-modal-header>
+<app-utm-modal-header [name]="(mode | lowercase | capitalize) +' data type'"></app-utm-modal-header>
 <div class="d-flex flex-column p-3">
-    <form [formGroup]="dataTypeForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-                <label for="dataType">Data Type</label>
-                <input type="text" class="form-control" id="dataType" formControlName="dataType" required>
-                <div *ngIf="dataType.invalid && (dataType.dirty || dataType.touched)" class="invalid-feedback">
-                    <div *ngIf="dataType.errors.required">
-                        Data Type is required.
-                    </div>
-                    <div *ngIf="dataType.errors.maxLength">
-                        Maximum length exceeded.
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="dataTypeDescription">Description</label>
-                <textarea class="form-control" id="dataTypeDescription" formControlName="dataTypeDescription"></textarea>
-            </div>
-        <div class="button-container d-flex justify-content-end mt-3">
-            <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
-                <i class="icon-cancel-circle2"></i>&nbsp;
-                Cancel
-            </button>
-            <button type="submit"
-                    [disabled]="dataTypeForm.invalid" class="btn utm-button utm-button-primary">
-                <i [ngClass]="loading ?'icon-spinner spinner':'icon-grid-alt'"></i>&nbsp;
-                Save
-            </button>
+  <form [formGroup]="dataTypeForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="dataType">Data Type</label>
+      <input type="text" class="form-control" id="dataType" formControlName="dataType" required>
+      <div *ngIf="dataType.invalid && (dataType.dirty || dataType.touched)" class="invalid-feedback">
+        <div *ngIf="dataType.errors.required">
+          Data Type is required.
         </div>
-    </form>
+        <div *ngIf="dataType.errors.maxLength">
+          Maximum length exceeded.
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="dataType">Data Type Name</label>
+      <input type="text" class="form-control" id="dataTypeName" formControlName="dataTypeName" required>
+      <div *ngIf="dataTypeName.invalid && (dataTypeName.dirty || dataTypeName.touched)" class="invalid-feedback">
+        <div *ngIf="dataType.errors.required">
+          Data Type Name  is required.
+        </div>
+        <div *ngIf="dataType.errors.maxLength">
+          Maximum length exceeded.
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="dataTypeDescription">Description</label>
+      <textarea class="form-control" id="dataTypeDescription" formControlName="dataTypeDescription"></textarea>
+    </div>
+    <div class="button-container d-flex justify-content-end mt-3">
+      <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
+        <i class="icon-cancel-circle2"></i>&nbsp;
+        Cancel
+      </button>
+      <button type="submit"
+              [disabled]="dataTypeForm.invalid" class="btn utm-button utm-button-primary">
+        <i [ngClass]="loading ?'icon-spinner spinner':'icon-grid-alt'"></i>&nbsp;
+        Save
+      </button>
+    </div>
+  </form>
 </div>

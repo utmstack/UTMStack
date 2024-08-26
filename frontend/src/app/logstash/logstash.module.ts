@@ -25,9 +25,6 @@ import {DataTypeService} from '../rule-management/services/data-type.service';
         NgSelectModule,
         ReactiveFormsModule
     ],
-  providers: [
-    DataTypeService
-  ],
   entryComponents: [LogstashFilterCreateComponent]
 })
 export class LogstashModule {

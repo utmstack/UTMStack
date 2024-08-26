@@ -1,10 +1,9 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {DataType} from '../../rule-management/models/rule.model';
+import {DataTypeService} from '../../rule-management/services/data-type.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {COLORS} from '../../shared/components/utm/util/color-select/colors.const';
 import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
-import {InputSourceDataType} from './input-source-data.type';
-import {InputSourceMngService} from './input-source-mng.service';
 
 @Component({
   selector: 'app-source-data-type-config',
@@ -13,14 +12,14 @@ import {InputSourceMngService} from './input-source-mng.service';
 })
 export class SourceDataTypeConfigComponent implements OnInit {
   @Output() refreshDataInput = new EventEmitter<boolean>();
-  originals: InputSourceDataType[] = [];
-  dataInputs: InputSourceDataType[] = [];
+  originals: DataType[] = [];
+  dataInputs: DataType[] = [];
   saving = false;
-  changed: InputSourceDataType[] = [];
+  changed: DataType[] = [];
   loading = true;
 
   constructor(public activeModal: NgbActiveModal, private modalService: NgbModal,
-              private inputSourceMngService: InputSourceMngService,
+              private dataTypeService: DataTypeService,
               private utmToastService: UtmToastService) {
   }
 
@@ -29,7 +28,7 @@ export class SourceDataTypeConfigComponent implements OnInit {
   }
 
   getInputTypes() {
-    this.inputSourceMngService.query({page: 0, size: 1000}).subscribe(response => {
+    this.dataTypeService.getAll({page: 0, size: 1000}).subscribe(response => {
       if (response.body) {
         this.originals = response.body;
         this.loadElements().then(data => {
@@ -40,17 +39,11 @@ export class SourceDataTypeConfigComponent implements OnInit {
     });
   }
 
-  loadElements(): Promise<InputSourceDataType[]> {
-    return new Promise<InputSourceDataType[]>(resolve => {
-      const inputs: InputSourceDataType[] = [];
+  loadElements(): Promise<DataType[]> {
+    return new Promise<DataType[]>(resolve => {
+      const inputs: DataType[] = [];
       for (const data of this.originals) {
-        inputs.push({
-          id: data.id,
-          dataType: data.dataType,
-          dataTypeName: data.dataTypeName,
-          included: data.included,
-          systemOwner: data.systemOwner
-        });
+        inputs.push(data);
       }
       resolve(inputs);
     });
@@ -88,7 +81,7 @@ export class SourceDataTypeConfigComponent implements OnInit {
 
   save() {
     this.saving = true;
-    this.inputSourceMngService.update(this.changed).subscribe(() => {
+    this.dataTypeService.updateInclude(this.changed).subscribe(() => {
       this.saving = false;
       this.refreshDataInput.emit(true);
       this.utmToastService.showSuccessBottom('Configuration saved successfully, your sources will be updated');
@@ -106,7 +99,7 @@ export class SourceDataTypeConfigComponent implements OnInit {
 
   }
 
-  changeStatus(sourceDataType: InputSourceDataType) {
+  changeStatus(sourceDataType: DataType) {
     sourceDataType.included = !sourceDataType.included;
     const indexChanged = this.changed.findIndex(value => value.dataType === sourceDataType.dataType);
 
