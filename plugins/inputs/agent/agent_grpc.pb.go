@@ -22,7 +22,12 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentServiceClient interface {
+	RegisterAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	DeleteAgent(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListAgents(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
+	AgentStream(ctx context.Context, opts ...grpc.CallOption) (AgentService_AgentStreamClient, error)
+	ListAgentCommands(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsCommandsResponse, error)
+	GetAgentByHostname(ctx context.Context, in *Hostname, opts ...grpc.CallOption) (*Agent, error)
 }
 
 type agentServiceClient struct {
@@ -31,6 +36,24 @@ type agentServiceClient struct {
 
 func NewAgentServiceClient(cc grpc.ClientConnInterface) AgentServiceClient {
 	return &agentServiceClient{cc}
+}
+
+func (c *agentServiceClient) RegisterAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, "/agent.AgentService/RegisterAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentServiceClient) DeleteAgent(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, "/agent.AgentService/DeleteAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *agentServiceClient) ListAgents(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
@@ -42,11 +65,65 @@ func (c *agentServiceClient) ListAgents(ctx context.Context, in *ListRequest, op
 	return out, nil
 }
 
+func (c *agentServiceClient) AgentStream(ctx context.Context, opts ...grpc.CallOption) (AgentService_AgentStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[0], "/agent.AgentService/AgentStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &agentServiceAgentStreamClient{stream}
+	return x, nil
+}
+
+type AgentService_AgentStreamClient interface {
+	Send(*BidirectionalStream) error
+	Recv() (*BidirectionalStream, error)
+	grpc.ClientStream
+}
+
+type agentServiceAgentStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *agentServiceAgentStreamClient) Send(m *BidirectionalStream) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *agentServiceAgentStreamClient) Recv() (*BidirectionalStream, error) {
+	m := new(BidirectionalStream)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *agentServiceClient) ListAgentCommands(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsCommandsResponse, error) {
+	out := new(ListAgentsCommandsResponse)
+	err := c.cc.Invoke(ctx, "/agent.AgentService/ListAgentCommands", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentServiceClient) GetAgentByHostname(ctx context.Context, in *Hostname, opts ...grpc.CallOption) (*Agent, error) {
+	out := new(Agent)
+	err := c.cc.Invoke(ctx, "/agent.AgentService/GetAgentByHostname", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility
 type AgentServiceServer interface {
+	RegisterAgent(context.Context, *AgentRequest) (*AuthResponse, error)
+	DeleteAgent(context.Context, *DeleteRequest) (*AuthResponse, error)
 	ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error)
+	AgentStream(AgentService_AgentStreamServer) error
+	ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error)
+	GetAgentByHostname(context.Context, *Hostname) (*Agent, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -54,8 +131,23 @@ type AgentServiceServer interface {
 type UnimplementedAgentServiceServer struct {
 }
 
+func (UnimplementedAgentServiceServer) RegisterAgent(context.Context, *AgentRequest) (*AuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterAgent not implemented")
+}
+func (UnimplementedAgentServiceServer) DeleteAgent(context.Context, *DeleteRequest) (*AuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAgent not implemented")
+}
 func (UnimplementedAgentServiceServer) ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
+}
+func (UnimplementedAgentServiceServer) AgentStream(AgentService_AgentStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method AgentStream not implemented")
+}
+func (UnimplementedAgentServiceServer) ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAgentCommands not implemented")
+}
+func (UnimplementedAgentServiceServer) GetAgentByHostname(context.Context, *Hostname) (*Agent, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAgentByHostname not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 
@@ -68,6 +160,42 @@ type UnsafeAgentServiceServer interface {
 
 func RegisterAgentServiceServer(s grpc.ServiceRegistrar, srv AgentServiceServer) {
 	s.RegisterService(&AgentService_ServiceDesc, srv)
+}
+
+func _AgentService_RegisterAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AgentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).RegisterAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/agent.AgentService/RegisterAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).RegisterAgent(ctx, req.(*AgentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AgentService_DeleteAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).DeleteAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/agent.AgentService/DeleteAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).DeleteAgent(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -88,6 +216,68 @@ func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_AgentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgentServiceServer).AgentStream(&agentServiceAgentStreamServer{stream})
+}
+
+type AgentService_AgentStreamServer interface {
+	Send(*BidirectionalStream) error
+	Recv() (*BidirectionalStream, error)
+	grpc.ServerStream
+}
+
+type agentServiceAgentStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *agentServiceAgentStreamServer) Send(m *BidirectionalStream) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *agentServiceAgentStreamServer) Recv() (*BidirectionalStream, error) {
+	m := new(BidirectionalStream)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _AgentService_ListAgentCommands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).ListAgentCommands(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/agent.AgentService/ListAgentCommands",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).ListAgentCommands(ctx, req.(*ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AgentService_GetAgentByHostname_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Hostname)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).GetAgentByHostname(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/agent.AgentService/GetAgentByHostname",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).GetAgentByHostname(ctx, req.(*Hostname))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -96,10 +286,151 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AgentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "RegisterAgent",
+			Handler:    _AgentService_RegisterAgent_Handler,
+		},
+		{
+			MethodName: "DeleteAgent",
+			Handler:    _AgentService_DeleteAgent_Handler,
+		},
+		{
 			MethodName: "ListAgents",
 			Handler:    _AgentService_ListAgents_Handler,
 		},
+		{
+			MethodName: "ListAgentCommands",
+			Handler:    _AgentService_ListAgentCommands_Handler,
+		},
+		{
+			MethodName: "GetAgentByHostname",
+			Handler:    _AgentService_GetAgentByHostname_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "AgentStream",
+			Handler:       _AgentService_AgentStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "agent.proto",
+}
+
+// PanelServiceClient is the client API for PanelService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PanelServiceClient interface {
+	ProcessCommand(ctx context.Context, opts ...grpc.CallOption) (PanelService_ProcessCommandClient, error)
+}
+
+type panelServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPanelServiceClient(cc grpc.ClientConnInterface) PanelServiceClient {
+	return &panelServiceClient{cc}
+}
+
+func (c *panelServiceClient) ProcessCommand(ctx context.Context, opts ...grpc.CallOption) (PanelService_ProcessCommandClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PanelService_ServiceDesc.Streams[0], "/agent.PanelService/ProcessCommand", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &panelServiceProcessCommandClient{stream}
+	return x, nil
+}
+
+type PanelService_ProcessCommandClient interface {
+	Send(*UtmCommand) error
+	Recv() (*CommandResult, error)
+	grpc.ClientStream
+}
+
+type panelServiceProcessCommandClient struct {
+	grpc.ClientStream
+}
+
+func (x *panelServiceProcessCommandClient) Send(m *UtmCommand) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *panelServiceProcessCommandClient) Recv() (*CommandResult, error) {
+	m := new(CommandResult)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// PanelServiceServer is the server API for PanelService service.
+// All implementations must embed UnimplementedPanelServiceServer
+// for forward compatibility
+type PanelServiceServer interface {
+	ProcessCommand(PanelService_ProcessCommandServer) error
+	mustEmbedUnimplementedPanelServiceServer()
+}
+
+// UnimplementedPanelServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPanelServiceServer struct {
+}
+
+func (UnimplementedPanelServiceServer) ProcessCommand(PanelService_ProcessCommandServer) error {
+	return status.Errorf(codes.Unimplemented, "method ProcessCommand not implemented")
+}
+func (UnimplementedPanelServiceServer) mustEmbedUnimplementedPanelServiceServer() {}
+
+// UnsafePanelServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PanelServiceServer will
+// result in compilation errors.
+type UnsafePanelServiceServer interface {
+	mustEmbedUnimplementedPanelServiceServer()
+}
+
+func RegisterPanelServiceServer(s grpc.ServiceRegistrar, srv PanelServiceServer) {
+	s.RegisterService(&PanelService_ServiceDesc, srv)
+}
+
+func _PanelService_ProcessCommand_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PanelServiceServer).ProcessCommand(&panelServiceProcessCommandServer{stream})
+}
+
+type PanelService_ProcessCommandServer interface {
+	Send(*CommandResult) error
+	Recv() (*UtmCommand, error)
+	grpc.ServerStream
+}
+
+type panelServiceProcessCommandServer struct {
+	grpc.ServerStream
+}
+
+func (x *panelServiceProcessCommandServer) Send(m *CommandResult) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *panelServiceProcessCommandServer) Recv() (*UtmCommand, error) {
+	m := new(UtmCommand)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// PanelService_ServiceDesc is the grpc.ServiceDesc for PanelService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PanelService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "agent.PanelService",
+	HandlerType: (*PanelServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ProcessCommand",
+			Handler:       _PanelService_ProcessCommand_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "agent.proto",
 }
