@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/threatwinds/go-sdk/helpers"
@@ -97,6 +98,8 @@ func main() {
 		if e != nil {
 			os.Exit(1)
 		}
+
+		time.Sleep(5 * time.Minute)
 	}
 }
 
