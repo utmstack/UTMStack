@@ -39,8 +39,6 @@ public class PdfGenerationService {
             webDriver.get(reportUrl);
 
             WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span.text-primary .icon-spinner2")));
-
             wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector("span.text-primary .icon-spinner2")));
 
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
