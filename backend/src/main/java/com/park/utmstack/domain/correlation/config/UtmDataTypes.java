@@ -30,11 +30,18 @@ public class UtmDataTypes implements Serializable {
     @Column(name = "data_type", length = 250, nullable = false)
     private String dataType;
 
+    @Size(max = 250)
+    @Column(name = "data_type_name", length = 250, nullable = false)
+    private String dataTypeName;
+
     @Column(name = "data_type_description")
     private String dataTypeDescription;
 
     @Column(name = "last_update")
     private Instant lastUpdate;
+
+    @Column(name = "included", nullable = false)
+    private Boolean included;
 
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
@@ -46,6 +53,18 @@ public class UtmDataTypes implements Serializable {
             mappedBy = "dataTypes")
     @JsonIgnore
     private Set<UtmCorrelationRules> utmCorrelationRules = new HashSet<>();
+
+    public UtmDataTypes(String dataType) {
+        this.dataType = dataType;
+        this.dataTypeName = dataType;
+        this.dataTypeDescription = "Synchronized datatype";
+        setLastUpdate();
+        this.included = true;
+        this.systemOwner = false;
+    }
+
+    public UtmDataTypes() {
+    }
 
     public Long getId() {
         return id;
@@ -63,6 +82,14 @@ public class UtmDataTypes implements Serializable {
         this.dataType = dataType;
     }
 
+    public String getDataTypeName() {
+        return dataTypeName;
+    }
+
+    public void setDataTypeName(String dataTypeName) {
+        this.dataTypeName = dataTypeName;
+    }
+
     public String getDataTypeDescription() {
         return dataTypeDescription;
     }
@@ -77,6 +104,14 @@ public class UtmDataTypes implements Serializable {
 
     public void setLastUpdate() {
         this.lastUpdate = Instant.now(Clock.systemUTC());
+    }
+
+    public Boolean getIncluded() {
+        return included;
+    }
+
+    public void setIncluded(Boolean included) {
+        this.included = included;
     }
 
     public Boolean getSystemOwner() {

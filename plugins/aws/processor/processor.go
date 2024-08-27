@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/utmstack/UTMStack/plugins/aws/utils"
+	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -124,7 +124,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 		}
 
 		for _, stream := range logStreams {
-			utils.Logger.Info("Processing stream %s from group %s", stream, logGroup)
+			helpers.Logger().Info("Processing stream %s from group %s", stream, logGroup)
 			params := &cloudwatchlogs.GetLogEventsInput{
 				LogGroupName:  aws.String(logGroup),
 				LogStreamName: aws.String(stream),
@@ -135,9 +135,9 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 
 			err := cwl.GetLogEventsPages(params,
 				func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
-					cleanLogs, err := ETLProcess(page.Events, logGroup, stream)
+					cleanLogs, err := ETLProcess(page.Events)
 					if err != nil {
-						utils.Logger.ErrorF("error processing logs: %v", err)
+						helpers.Logger().ErrorF("error processing logs: %v", err)
 						return false
 					}
 					transformedLogs = append(transformedLogs, cleanLogs...)

@@ -231,6 +231,7 @@ export class AssetsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.configService.onAction(null);
     this.destroy$.next();
     this.destroy$.complete();
   }

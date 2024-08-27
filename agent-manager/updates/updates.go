@@ -2,11 +2,13 @@ package updates
 
 import (
 	"fmt"
+	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
@@ -29,6 +31,31 @@ func ManageUpdates() {
 	go collectorInstallerUpdater.UpdateDependencies(signalServer)
 
 	go processSignals()
+	go startDependenciesServer()
+}
+
+func startDependenciesServer() {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(gin.Recovery())
+
+	router.GET("/dependencies/agent", HTTPAuthInterceptor(), HandleAgentUpdates)
+	router.GET("/dependencies/collector", HTTPAuthInterceptor(), HandleCollectorUpdates)
+	router.GET("/dependencies/health", func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	for {
+		if CanServerListen() {
+			break
+		}
+		time.Sleep(5 * time.Second)
+	}
+
+	utils.ALogger.Info("Starting HTTP server on port 8080")
+	err := router.Run(":8080")
+	if err != nil {
+		utils.ALogger.ErrorF("error starting HTTP server: %v", err)
+		return
+	}
 }
 
 func CanServerListen() bool {
@@ -215,7 +242,7 @@ func updateCurrentVersions(downloadPath string, currentVersions *models.Version)
 }
 
 func updateLatestVersions(env string, dependType string, downloadPath string, masterVersion string, latestVersions, currentVersions *models.Version) error {
-	err := utils.DownloadFile("http://192.168.1.223:8080/"+env+"/"+dependType+"/"+config.VersionsFile, filepath.Join(downloadPath, config.VersionsFile)) // DEBUG Change to config.Bucket
+	err := utils.DownloadFile("http://192.168.1.18:10081/"+env+"/"+dependType+"/"+config.VersionsFile, filepath.Join(downloadPath, config.VersionsFile)) // DEBUG Change to config.Bucket
 	if err != nil {
 		return fmt.Errorf("error downloading latest versions file for %s: %v", dependType, err)
 	}

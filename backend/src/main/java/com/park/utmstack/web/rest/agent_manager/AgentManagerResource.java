@@ -1,11 +1,11 @@
 package com.park.utmstack.web.rest.agent_manager;
 
+import agent.Common.ListRequest;
+import agent.Common.Hostname;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.agent_manager.*;
-import com.park.utmstack.service.grpc.Hostname;
-import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.application_modules.UtmModuleResource;
@@ -70,7 +70,7 @@ public class AgentManagerResource {
         }
     }
 
-    @GetMapping("/agents-with-commands")
+    /*@GetMapping("/agents-with-commands")
     public ResponseEntity<List<AgentDTO>> listAgentsWithCommands() {
         final String ctx = CLASSNAME + ".listAgentsWithCommands";
         try {
@@ -92,7 +92,7 @@ public class AgentManagerResource {
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
-    }
+    }*/
 
     @GetMapping("/agent-by-hostname")
     public ResponseEntity<AgentDTO> getAgentByHostname(

@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectorServiceClient interface {
 	RegisterCollector(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error)
-	DeleteCollector(ctx context.Context, in *CollectorDelete, opts ...grpc.CallOption) (*AuthResponse, error)
+	DeleteCollector(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListCollector(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListCollectorResponse, error)
 	CollectorStream(ctx context.Context, opts ...grpc.CallOption) (CollectorService_CollectorStreamClient, error)
 	ListCollectorHostnames(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*CollectorHostnames, error)
@@ -48,7 +48,7 @@ func (c *collectorServiceClient) RegisterCollector(ctx context.Context, in *Regi
 	return out, nil
 }
 
-func (c *collectorServiceClient) DeleteCollector(ctx context.Context, in *CollectorDelete, opts ...grpc.CallOption) (*AuthResponse, error) {
+func (c *collectorServiceClient) DeleteCollector(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
 	out := new(AuthResponse)
 	err := c.cc.Invoke(ctx, "/agent.CollectorService/DeleteCollector", in, out, opts...)
 	if err != nil {
@@ -129,7 +129,7 @@ func (c *collectorServiceClient) GetCollectorConfig(ctx context.Context, in *Con
 // for forward compatibility
 type CollectorServiceServer interface {
 	RegisterCollector(context.Context, *RegisterRequest) (*AuthResponse, error)
-	DeleteCollector(context.Context, *CollectorDelete) (*AuthResponse, error)
+	DeleteCollector(context.Context, *DeleteRequest) (*AuthResponse, error)
 	ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error)
 	CollectorStream(CollectorService_CollectorStreamServer) error
 	ListCollectorHostnames(context.Context, *ListRequest) (*CollectorHostnames, error)
@@ -145,7 +145,7 @@ type UnimplementedCollectorServiceServer struct {
 func (UnimplementedCollectorServiceServer) RegisterCollector(context.Context, *RegisterRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterCollector not implemented")
 }
-func (UnimplementedCollectorServiceServer) DeleteCollector(context.Context, *CollectorDelete) (*AuthResponse, error) {
+func (UnimplementedCollectorServiceServer) DeleteCollector(context.Context, *DeleteRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCollector not implemented")
 }
 func (UnimplementedCollectorServiceServer) ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error) {
@@ -195,7 +195,7 @@ func _CollectorService_RegisterCollector_Handler(srv interface{}, ctx context.Co
 }
 
 func _CollectorService_DeleteCollector_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CollectorDelete)
+	in := new(DeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func _CollectorService_DeleteCollector_Handler(srv interface{}, ctx context.Cont
 		FullMethod: "/agent.CollectorService/DeleteCollector",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectorServiceServer).DeleteCollector(ctx, req.(*CollectorDelete))
+		return srv.(CollectorServiceServer).DeleteCollector(ctx, req.(*DeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

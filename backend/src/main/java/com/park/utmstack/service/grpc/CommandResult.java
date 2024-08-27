@@ -16,7 +16,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private CommandResult() {
-    agentKey_ = "";
+    agentId_ = "";
     result_ = "";
     cmdId_ = "";
   }
@@ -41,39 +41,39 @@ private static final long serialVersionUID = 0L;
             com.park.utmstack.service.grpc.CommandResult.class, com.park.utmstack.service.grpc.CommandResult.Builder.class);
   }
 
-  public static final int AGENT_KEY_FIELD_NUMBER = 1;
+  public static final int AGENT_ID_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private volatile java.lang.Object agentKey_ = "";
+  private volatile java.lang.Object agentId_ = "";
   /**
-   * <code>string agent_key = 1;</code>
-   * @return The agentKey.
+   * <code>string agent_id = 1;</code>
+   * @return The agentId.
    */
   @java.lang.Override
-  public java.lang.String getAgentKey() {
-    java.lang.Object ref = agentKey_;
+  public java.lang.String getAgentId() {
+    java.lang.Object ref = agentId_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      agentKey_ = s;
+      agentId_ = s;
       return s;
     }
   }
   /**
-   * <code>string agent_key = 1;</code>
-   * @return The bytes for agentKey.
+   * <code>string agent_id = 1;</code>
+   * @return The bytes for agentId.
    */
   @java.lang.Override
   public com.google.protobuf.ByteString
-      getAgentKeyBytes() {
-    java.lang.Object ref = agentKey_;
+      getAgentIdBytes() {
+    java.lang.Object ref = agentId_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      agentKey_ = b;
+      agentId_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -198,8 +198,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentKey_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, agentKey_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentId_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, agentId_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(result_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, result_);
@@ -219,8 +219,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentKey_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, agentKey_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(agentId_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, agentId_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(result_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, result_);
@@ -247,8 +247,8 @@ private static final long serialVersionUID = 0L;
     }
     com.park.utmstack.service.grpc.CommandResult other = (com.park.utmstack.service.grpc.CommandResult) obj;
 
-    if (!getAgentKey()
-        .equals(other.getAgentKey())) return false;
+    if (!getAgentId()
+        .equals(other.getAgentId())) return false;
     if (!getResult()
         .equals(other.getResult())) return false;
     if (hasExecutedAt() != other.hasExecutedAt()) return false;
@@ -269,8 +269,8 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + AGENT_KEY_FIELD_NUMBER;
-    hash = (53 * hash) + getAgentKey().hashCode();
+    hash = (37 * hash) + AGENT_ID_FIELD_NUMBER;
+    hash = (53 * hash) + getAgentId().hashCode();
     hash = (37 * hash) + RESULT_FIELD_NUMBER;
     hash = (53 * hash) + getResult().hashCode();
     if (hasExecutedAt()) {
@@ -410,7 +410,7 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      agentKey_ = "";
+      agentId_ = "";
       result_ = "";
       executedAt_ = null;
       if (executedAtBuilder_ != null) {
@@ -452,7 +452,7 @@ private static final long serialVersionUID = 0L;
     private void buildPartial0(com.park.utmstack.service.grpc.CommandResult result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.agentKey_ = agentKey_;
+        result.agentId_ = agentId_;
       }
       if (((from_bitField0_ & 0x00000002) != 0)) {
         result.result_ = result_;
@@ -511,8 +511,8 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(com.park.utmstack.service.grpc.CommandResult other) {
       if (other == com.park.utmstack.service.grpc.CommandResult.getDefaultInstance()) return this;
-      if (!other.getAgentKey().isEmpty()) {
-        agentKey_ = other.agentKey_;
+      if (!other.getAgentId().isEmpty()) {
+        agentId_ = other.agentId_;
         bitField0_ |= 0x00000001;
         onChanged();
       }
@@ -556,7 +556,7 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 10: {
-              agentKey_ = input.readStringRequireUtf8();
+              agentId_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000001;
               break;
             } // case 10
@@ -594,73 +594,73 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object agentKey_ = "";
+    private java.lang.Object agentId_ = "";
     /**
-     * <code>string agent_key = 1;</code>
-     * @return The agentKey.
+     * <code>string agent_id = 1;</code>
+     * @return The agentId.
      */
-    public java.lang.String getAgentKey() {
-      java.lang.Object ref = agentKey_;
+    public java.lang.String getAgentId() {
+      java.lang.Object ref = agentId_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        agentKey_ = s;
+        agentId_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string agent_key = 1;</code>
-     * @return The bytes for agentKey.
+     * <code>string agent_id = 1;</code>
+     * @return The bytes for agentId.
      */
     public com.google.protobuf.ByteString
-        getAgentKeyBytes() {
-      java.lang.Object ref = agentKey_;
+        getAgentIdBytes() {
+      java.lang.Object ref = agentId_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        agentKey_ = b;
+        agentId_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string agent_key = 1;</code>
-     * @param value The agentKey to set.
+     * <code>string agent_id = 1;</code>
+     * @param value The agentId to set.
      * @return This builder for chaining.
      */
-    public Builder setAgentKey(
+    public Builder setAgentId(
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
-      agentKey_ = value;
+      agentId_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>string agent_key = 1;</code>
+     * <code>string agent_id = 1;</code>
      * @return This builder for chaining.
      */
-    public Builder clearAgentKey() {
-      agentKey_ = getDefaultInstance().getAgentKey();
+    public Builder clearAgentId() {
+      agentId_ = getDefaultInstance().getAgentId();
       bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
     /**
-     * <code>string agent_key = 1;</code>
-     * @param value The bytes for agentKey to set.
+     * <code>string agent_id = 1;</code>
+     * @param value The bytes for agentId to set.
      * @return This builder for chaining.
      */
-    public Builder setAgentKeyBytes(
+    public Builder setAgentIdBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
-      agentKey_ = value;
+      agentId_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;

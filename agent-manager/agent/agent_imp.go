@@ -4,17 +4,61 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"regexp"
+	"strconv"
+	sync "sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthResponse, error) {
+var (
+	AgentServ     *AgentService
+	agentServOnce sync.Once
+)
+
+type AgentService struct {
+	UnimplementedAgentServiceServer
+	UnimplementedPanelServiceServer
+
+	AgentStreamMap        map[uint]AgentService_AgentStreamServer
+	AgentStreamMutex      sync.Mutex
+	CacheAgentKey         map[uint]string
+	CacheAgentKeyMutex    sync.Mutex
+	CommandResultChannel  map[string]chan *CommandResult
+	CommandResultChannelM sync.Mutex
+
+	DBConnection *database.DB
+}
+
+func InitAgentService() error {
+	var err error
+	agentServOnce.Do(func() {
+		AgentServ = &AgentService{
+			AgentStreamMap:       make(map[uint]AgentService_AgentStreamServer),
+			CacheAgentKey:        make(map[uint]string),
+			CommandResultChannel: make(map[string]chan *CommandResult),
+			DBConnection:         database.GetDB(),
+		}
+
+		agents := []models.Agent{}
+		_, err = AgentServ.DBConnection.GetAll(&agents, "")
+		if err != nil {
+			err = fmt.Errorf("failed to fetch agents: %v", err)
+			return
+		}
+		for _, agent := range agents {
+			AgentServ.CacheAgentKey[agent.ID] = agent.AgentKey
+		}
+	})
+	return err
+}
+
+func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthResponse, error) {
 	agent := &models.Agent{
 		Ip:             req.GetIp(),
 		Hostname:       req.GetHostname(),
@@ -29,11 +73,12 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 		Addresses:      req.GetAddresses(),
 	}
 
-	oldAgent, err := s.GetAgentByHostname(ctx, &Hostname{Hostname: agent.Hostname})
+	oldAgent := &models.Agent{}
+	err := s.DBConnection.GetFirst(oldAgent, "hostname = ?", agent.Hostname)
 	if err == nil {
 		if oldAgent.Ip == agent.Ip {
 			return &AuthResponse{
-				Id:  oldAgent.Id,
+				Id:  uint32(oldAgent.ID),
 				Key: oldAgent.AgentKey,
 			}, nil
 		} else {
@@ -44,244 +89,225 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 
 	key := uuid.New().String()
 	agent.AgentKey = key
-	err = agentService.Create(agent)
+	err = s.DBConnection.Create(agent)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to create agent: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create agent: %v", err))
 	}
 
-	s.cacheAgentKeyMutex.Lock()
-	CacheAgentKey[agent.ID] = key
-	s.cacheAgentKeyMutex.Unlock()
+	s.CacheAgentKeyMutex.Lock()
+	s.CacheAgentKey[agent.ID] = key
+	s.CacheAgentKeyMutex.Unlock()
 
-	err = lastSeenService.Set(key, time.Now())
-	if err != nil {
-		utils.ALogger.ErrorF("failed to set last seen: %v", err)
-		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to set last seen: %v", err))
-	}
-	res := &AuthResponse{
-		Id:  uint32(agent.ID),
-		Key: key,
+	LastSeenChannel <- models.LastSeen{
+		ConnectorType: "agent",
+		ID:            uint(agent.ID),
+		LastPing:      time.Now(),
 	}
 
 	utils.ALogger.Info("Agent %s with id %d registered correctly", agent.Hostname, agent.ID)
-	return res, nil
+	return &AuthResponse{
+		Id:  uint32(agent.ID),
+		Key: key,
+	}, nil
 }
 
-func (s *Grpc) DeleteAgent(ctx context.Context, req *AgentDelete) (*AuthResponse, error) {
-	key, err := getKeyFromContext(ctx)
+func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*AuthResponse, error) {
+	id, key, _, err := utils.GetItemsFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, "invalid context")
+	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid id")
 	}
 
-	id, err := agentService.Delete(uuid.MustParse(key), req.DeletedBy)
+	err = s.DBConnection.Upsert(&models.Agent{}, "id = ?", map[string]interface{}{"deleted_by": req.DeletedBy}, id)
+	if err != nil {
+		utils.ALogger.ErrorF("unable to update delete_by field in agent: %v", err)
+	}
+
+	err = s.DBConnection.Delete(&models.AgentCommand{}, "agent_id = ?", false, uint(idInt))
+	if err != nil {
+		utils.ALogger.ErrorF("unable to delete agent commands: %v", err)
+		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent commands: %v", err.Error()))
+	}
+
+	err = s.DBConnection.Delete(&models.Agent{}, "id", false, id)
 	if err != nil {
 		utils.ALogger.ErrorF("unable to delete agent: %v", err)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))
 	}
 
-	s.cacheAgentKeyMutex.Lock()
-	delete(CacheAgentKey, id)
-	s.cacheAgentKeyMutex.Unlock()
+	s.CacheAgentKeyMutex.Lock()
+	delete(s.CacheAgentKey, uint(idInt))
+	s.CacheAgentKeyMutex.Unlock()
 
-	s.agentStreamMutex.Lock()
-	delete(s.AgentStreamMap, key)
-	s.agentStreamMutex.Unlock()
+	s.AgentStreamMutex.Lock()
+	delete(s.AgentStreamMap, uint(idInt))
+	s.AgentStreamMutex.Unlock()
 
 	utils.ALogger.Info("Agent with key %s deleted by %s", key, req.DeletedBy)
 
 	return &AuthResponse{
-		Id:  uint32(id),
+		Id:  uint32(idInt),
 		Key: key,
 	}, nil
 }
 
-func (s *Grpc) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsResponse, error) {
+func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListAgentsResponse, error) {
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
-
 	filter := utils.NewFilter(req.SearchQuery)
 
-	agents, total, err := agentService.ListAgents(page, filter)
+	agents := []models.Agent{}
+	total, err := s.DBConnection.GetByPagination(&agents, page, filter, "", false, "")
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
-	return convertToAgentResponse(agents, total), nil
+	return convertModelToAgentResponse(agents, total), nil
 }
 
-func (s *Grpc) AgentStream(stream AgentService_AgentStreamServer) error {
-	key, err := getKeyFromContext(stream.Context())
+func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error {
+	id, _, _, err := utils.GetItemsFromContext(stream.Context())
 	if err != nil {
 		return err
 	}
-
-	s.agentStreamMutex.Lock()
-	if _, ok := s.AgentStreamMap[key]; ok {
-		s.agentStreamMutex.Unlock()
-		return fmt.Errorf("agent already connected")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return status.Error(codes.InvalidArgument, "invalid id")
 	}
-	s.AgentStreamMap[key] = stream
-	s.agentStreamMutex.Unlock()
+	idUint := uint(idInt)
+
+	s.AgentStreamMutex.Lock()
+	if _, ok := s.AgentStreamMap[idUint]; ok {
+		s.AgentStreamMutex.Unlock()
+		return status.Error(codes.AlreadyExists, "stream already exists")
+	}
+	s.AgentStreamMap[idUint] = stream
+	s.AgentStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = s.waitForReconnect(s.AgentStreamMap[key].Context(), key, ConnectorType_AGENT)
+			err = utils.WaitForReconnect(stream.Context(), stream)
 			if err != nil {
-				s.agentStreamMutex.Lock()
-				delete(s.AgentStreamMap, key)
-				s.agentStreamMutex.Unlock()
+				s.AgentStreamMutex.Lock()
+				delete(s.AgentStreamMap, idUint)
+				s.AgentStreamMutex.Unlock()
 
-				return fmt.Errorf("failed to reconnect to client: %v", err)
+				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect: %v", err))
 			}
 			continue
 		}
 		if err != nil {
-			s.agentStreamMutex.Lock()
-			delete(s.AgentStreamMap, key)
-			s.agentStreamMutex.Unlock()
-			return err
+			s.AgentStreamMutex.Lock()
+			delete(s.AgentStreamMap, idUint)
+			s.AgentStreamMutex.Unlock()
+			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message: %v", err))
 		}
 
 		switch msg := in.StreamMessage.(type) {
-		case *BidirectionalStream_Command:
-			utils.ALogger.Info("Received command: %s", msg.Command.CmdId)
-
 		case *BidirectionalStream_Result:
 			utils.ALogger.Info("Received command result: %s", msg.Result.CmdId)
-
 			cmdID := msg.Result.GetCmdId()
 
-			// Send the result back to the server
-			if err := stream.Send(&BidirectionalStream{
-				StreamMessage: &BidirectionalStream_Result{
-					Result: &CommandResult{
-						AgentKey:   msg.Result.AgentKey,
-						Result:     msg.Result.Result,
-						CmdId:      cmdID,
-						ExecutedAt: msg.Result.ExecutedAt,
-					},
-				},
-			}); err != nil {
-				utils.ALogger.ErrorF("failed to send result to server: %v", err)
-			}
-			s.resultChannelM.Lock()
-			if resultChan, ok := s.ResultChannel[cmdID]; ok {
+			s.CommandResultChannelM.Lock()
+			if resultChan, ok := s.CommandResultChannel[cmdID]; ok {
 				resultChan <- &CommandResult{
-					AgentKey:   msg.Result.AgentKey,
+					AgentId:    msg.Result.AgentId,
 					Result:     msg.Result.Result,
 					CmdId:      cmdID,
 					ExecutedAt: msg.Result.ExecutedAt,
 				}
-
 			} else {
 				utils.ALogger.ErrorF("failed to find result channel for CmdID: %s", cmdID)
 			}
-			s.resultChannelM.Unlock()
+			s.CommandResultChannelM.Unlock()
 		}
 	}
 }
 
-func (s *Grpc) replaceSecretValues(input string) string {
-	pattern := regexp.MustCompile(`\$\[(\w+):([^]]+)]`)
-	return pattern.ReplaceAllStringFunc(input, func(match string) string {
-		matches := pattern.FindStringSubmatch(match)
-		if len(matches) < 3 {
-			return match // In case of no match, return the original
-		}
-		encryptedValue := matches[2]
-		decryptedValue, _ := utils.DecryptValue(encryptedValue)
-		return decryptedValue
-	})
-}
-
-func (s *Grpc) ProcessCommand(stream PanelService_ProcessCommandServer) error {
+func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) error {
 	for {
 		cmd, err := stream.Recv()
 		if err == io.EOF {
-			return nil
+			return status.Error(codes.Internal, "stream closed")
 		}
 		if err != nil {
-			return err
+			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message: %v", err))
 		}
-
-		// Get the agent from the agents map
-		agentStream, ok := s.AgentStreamMap[cmd.AgentKey]
+		streamId, err := strconv.Atoi(cmd.AgentId)
+		if err != nil {
+			return status.Error(codes.InvalidArgument, "invalid agent ID")
+		}
+		agentStream, ok := s.AgentStreamMap[uint(streamId)]
 		if !ok {
 			return status.Errorf(codes.NotFound, "agent not found or is disconnected")
 		}
-
 		if cmd.GetOriginId() == "" {
 			return status.Errorf(codes.NotFound, "agent origin ID not provided")
 		}
-
 		if cmd.GetOriginType() == "" {
 			return status.Errorf(codes.NotFound, "agent origin TYPE not provided")
 		}
-
 		if cmd.GetReason() == "" {
 			return status.Errorf(codes.NotFound, "agent command reason not provided")
 		}
 
-		// Generate a unique command ID
 		cmdID := uuid.New().String()
+		s.CommandResultChannelM.Lock()
+		s.CommandResultChannel[cmdID] = make(chan *CommandResult)
+		s.CommandResultChannelM.Unlock()
 
-		// Create a channel for the agent result and store it in the map
-		s.resultChannelM.Lock()
-		resultChan := make(chan *CommandResult)
-		s.ResultChannel[cmdID] = resultChan
-		s.resultChannelM.Unlock()
+		histCommand := createHistoryCommand(cmd, cmdID, uint(streamId))
+		err = s.DBConnection.Create(&histCommand)
+		if err != nil {
+			utils.ALogger.ErrorF("unable to create a new command history")
+		}
 
-		createHistoryCommand(cmd, cmdID)
-		// Send the command to the agent along with the command ID
 		err = agentStream.Send(&BidirectionalStream{
 			StreamMessage: &BidirectionalStream_Command{
 				Command: &UtmCommand{
-					AgentKey: cmd.AgentKey,
-					Command:  s.replaceSecretValues(cmd.Command),
-					CmdId:    cmdID,
+					AgentId: cmd.AgentId,
+					Command: replaceSecretValues(cmd.Command),
+					CmdId:   cmdID,
 				},
 			},
 		})
 		if err != nil {
-			return err
+			return status.Errorf(codes.Internal, "failed to send command to agent: %v", err)
 		}
 
-		// Wait for the result from the agent
-		result := <-resultChan
-		updateHistoryCommand(result, cmdID)
-		// Send the result back to the PanelService
+		result := <-s.CommandResultChannel[cmdID]
+		err = s.DBConnection.Upsert(
+			&models.AgentCommand{},
+			"agent_id = ? AND cmd_id = ?",
+			map[string]interface{}{"command_status": models.Executed, "result": result.Result},
+			cmd.AgentId, cmdID,
+		)
+		if err != nil {
+			utils.ALogger.ErrorF("failed to update command status: %v", err)
+		}
+
 		err = stream.Send(result)
 		if err != nil {
 			return err
 		}
 
-		// Remove the result channel from the map
-		s.resultChannelM.Lock()
-		delete(s.ResultChannel, cmdID)
-		s.resultChannelM.Unlock()
+		s.CommandResultChannelM.Lock()
+		delete(s.CommandResultChannel, cmdID)
+		s.CommandResultChannelM.Unlock()
 	}
 }
 
-func (s *Grpc) UpdateAgentGroup(ctx context.Context, req *AgentGroupUpdate) (*Agent, error) {
-	if req.AgentId == 0 || req.AgentGroup == 0 {
-		utils.ALogger.ErrorF("error in req")
-		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
-	}
-	agent, err := agentService.UpdateAgentGroup(uint(req.AgentId), uint(req.AgentGroup))
-	if err != nil {
-		utils.ALogger.ErrorF("unable to update group: %v", err)
-		return nil, status.Errorf(codes.Internal, "unable to update group: %v", err)
-	}
-	return parseAgentToProto(agent), nil
-}
-
-func (s *Grpc) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, error) {
+func (s *AgentService) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, error) {
 	if req.Hostname == "" {
 		utils.ALogger.ErrorF("error in req")
 		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
 	}
-	agent, err := agentService.FindByHostname(req.Hostname)
+	agent := &models.Agent{}
+	err := s.DBConnection.GetFirst(agent, "hostname = ?", req.Hostname)
 	if err != nil {
 		utils.ALogger.ErrorF("unable to find agent with hostname: %s: %v", req.Hostname, err)
 		return nil, status.Errorf(codes.NotFound, "unable to find agent with hostname: %s: %v", req.Hostname, err)
@@ -289,97 +315,19 @@ func (s *Grpc) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, e
 	return parseAgentToProto(*agent), nil
 }
 
-func (s *Grpc) UpdateAgentType(ctx context.Context, req *AgentTypeUpdate) (*Agent, error) {
-	if req.AgentId == 0 || req.AgentType == 0 {
-		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
-	}
-	agent, err := agentService.UpdateAgentType(uint(req.AgentId), uint(req.AgentType))
-	if err != nil {
-		utils.ALogger.ErrorF("unable to update type: %v", err)
-		return nil, status.Errorf(codes.Internal, "unable to update type: %v", err)
-	}
-	return parseAgentToProto(agent), nil
-}
-
-func (s *Grpc) LoadAgentCacheFromDatabase() error {
-	agents, err := agentService.FindAll()
-	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch agents from database: %v", err)
-		return err
-	}
-	for _, agent := range agents {
-		CacheAgentKey[agent.ID] = agent.AgentKey
-	}
-	return nil
-}
-
-func (s *Grpc) ListAgentsWithCommands(ctx context.Context, req *ListRequest) (*ListAgentsResponse, error) {
+func (s *AgentService) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAgentsCommandsResponse, error) {
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
-
 	filter := utils.NewFilter(req.SearchQuery)
 
-	agents, total, err := agentService.ListAgentWithCommands(page, filter)
+	commands := []models.AgentCommand{}
+	total, err := s.DBConnection.GetByPagination(&commands, page, filter, "", false, "Agent")
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
-	return convertToAgentResponse(agents, total), nil
-}
-
-func convertToAgentResponse(agents []models.Agent, total int64) *ListAgentsResponse {
-	var agentMessages []*Agent
-	for _, agent := range agents {
-		agentProto := parseAgentToProto(agent)
-		agentMessages = append(agentMessages, agentProto)
-	}
-	return &ListAgentsResponse{
-		Rows:  agentMessages,
+	return &ListAgentsCommandsResponse{
+		Rows:  convertModelToAgentCommandsProto(commands),
 		Total: int32(total),
-	}
-}
-
-func createHistoryCommand(cmd *UtmCommand, cmdID string) {
-	cmdHistory := &models.AgentCommand{
-		AgentID:       findAgentIdByKey(CacheAgentKey, cmd.AgentKey),
-		Command:       cmd.Command,
-		CommandStatus: models.Pending,
-		Result:        "",
-		ExecutedBy:    cmd.ExecutedBy,
-		CmdId:         cmdID,
-		OriginType:    cmd.OriginType,
-		OriginId:      cmd.OriginId,
-		Reason:        cmd.Reason,
-	}
-	err := agentCommandService.Create(cmdHistory)
-	if err != nil {
-		utils.ALogger.ErrorF("unable to create a new command history")
-	}
-}
-
-func updateHistoryCommand(cmdResult *CommandResult, cmdID string) {
-	err := agentCommandService.UpdateCommandStatusAndResult(findAgentIdByKey(CacheAgentKey, cmdResult.AgentKey), cmdID, models.Executed, cmdResult.Result)
-	if err != nil {
-		utils.ALogger.ErrorF("failed to update command status")
-	}
-}
-
-func parseAgentToProto(agent models.Agent) *Agent {
-	agentStatus, lastSeen := lastSeenService.GetStatus(agent.AgentKey)
-	return &Agent{
-		Id:             uint32(agent.ID),
-		Ip:             agent.Ip,
-		Status:         Status(agentStatus),
-		Hostname:       agent.Hostname,
-		Os:             agent.Os,
-		Platform:       agent.Platform,
-		Version:        agent.Version,
-		AgentKey:       agent.AgentKey,
-		LastSeen:       lastSeen,
-		Aliases:        agent.Aliases,
-		Addresses:      agent.Addresses,
-		Mac:            agent.Mac,
-		OsMajorVersion: agent.OsMajorVersion,
-		OsMinorVersion: agent.OsMinorVersion,
-	}
+	}, nil
 }

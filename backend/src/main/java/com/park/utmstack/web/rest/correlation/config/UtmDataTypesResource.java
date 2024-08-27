@@ -90,6 +90,23 @@ public class UtmDataTypesResource {
     }
 
     /**
+     * {@code PUT  /data-types/include-exclude-list} : Used to update only the datatype included field and synchronize the assets
+     * */
+    @PutMapping("/data-types/include-exclude-list")
+    public ResponseEntity<Void> updateDataTypesList(@Valid @RequestBody List<UtmDataTypes> dataTypes) {
+        final String ctx = CLASSNAME + ".updateDataTypesList";
+        try {
+            dataTypesService.updateList(dataTypes);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
+    }
+
+    /**
      * {@code DELETE  /data-types/:id} : Remove a datatype.
      *
      * @param id the id of the datatype to remove.

@@ -60,8 +60,6 @@ public class UtmLogstashFilter implements Serializable {
     @Column(name = "filter_version")
     private String filterVersion;
 
-    @Column(name = "created_at")
-    private Instant createdAt;
 
     @Column(name = "updated_at")
     private Instant updatedAt;
@@ -174,15 +172,6 @@ public class UtmLogstashFilter implements Serializable {
 
     public void setModule(UtmModule module) {
         this.module = module;
-    }
-
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 
     public Instant getUpdatedAt() {

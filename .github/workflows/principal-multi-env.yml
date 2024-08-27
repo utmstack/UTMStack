@@ -43,9 +43,6 @@ jobs:
               - 'backend/**'
               - 'version.yml'
             frontend: frontend/**
-            bitdefender: bitdefender/**
-            office365: office365/**
-            sophos: sophos/**
             user-auditor: user-auditor/**
             web-pdf: web-pdf/**
   
@@ -70,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        service: ['agent-manager', 'backend', 'frontend', 'bitdefender', 'office365', 'sophos', 'user-auditor', 'web-pdf'] 
+        service: ['agent-manager', 'backend', 'frontend', 'user-auditor', 'web-pdf'] 
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}

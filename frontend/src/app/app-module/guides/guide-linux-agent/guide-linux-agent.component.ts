@@ -35,7 +35,7 @@ export class GuideLinuxAgentComponent implements OnInit {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
     return `sudo bash -c "apt update -y && apt install curl jq -y && mkdir -p /opt/utmstack-linux-agent && ` +
-    `curl -k -L -H 'connection-key: <secret>${this.token}</secret>' 'http://${ip}/dependencies/agent?version=0&os=windows&type=installer&partIndex=1&partSize=20' ` +
+    `curl -k -L -H 'connection-key: <secret>${this.token}</secret>' 'http://${ip}/dependencies/agent?version=0&os=linux&type=installer&partIndex=1&partSize=20' ` +
     `| jq -r '.fileContent' | base64 -d > /opt/utmstack-linux-agent/utmstack_agent_installer && ` +
     `chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && ` +
     `/opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
@@ -45,7 +45,7 @@ export class GuideLinuxAgentComponent implements OnInit {
 
     return `sudo bash -c "yum install curl jq -y && mkdir -p /opt/utmstack-linux-agent && ` +
       `curl -k -L -H 'connection-key: <secret>${this.token}</secret>' ` +
-      `'http://${ip}/dependencies/agent?version=0&os=windows&type=installer&partIndex=1&partSize=20' ` +
+      `'http://${ip}/dependencies/agent?version=0&os=linux&type=installer&partIndex=1&partSize=20' ` +
       `| jq -r '.fileContent' | base64 -d > /opt/utmstack-linux-agent/utmstack_agent_installer && ` +
       `chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && ` +
       `/opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
@@ -55,7 +55,7 @@ export class GuideLinuxAgentComponent implements OnInit {
 
     return `sudo bash -c "dnf install curl jq -y && mkdir -p /opt/utmstack-linux-agent && ` +
       `curl -k -L -H 'connection-key: <secret>${this.token}</secret>' ` +
-      `'http://${ip}/dependencies/agent?version=0&os=windows&type=installer&partIndex=1&partSize=20' ` +
+      `'http://${ip}/dependencies/agent?version=0&os=linux&type=installer&partIndex=1&partSize=20' ` +
       `| jq -r '.fileContent' | base64 -d > /opt/utmstack-linux-agent/utmstack_agent_installer && ` +
       `chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && ` +
       `/opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;

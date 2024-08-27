@@ -1,7 +1,10 @@
 *~
 vendor/
-.idea/
-.DS_Store
+
+**/.idea
+**/.DS_Store
 
 installer/installer
-*/.vscode
+
+**/.vscode
+**/*.plugin

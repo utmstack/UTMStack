@@ -5,13 +5,7 @@
 
     <changeSet id="20240819001" author="Manuel">
         <addColumn tableName="utm_logstash_filter">
-            <column name="created_at" type="datetime">
-                <constraints nullable="true" />
-            </column>
-        </addColumn>
-        <addColumn tableName="utm_logstash_filter">
-            <column name="updated_at" type="datetime">
-                <constraints nullable="true" />
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"><constraints nullable="true" />
             </column>
         </addColumn>
     </changeSet>

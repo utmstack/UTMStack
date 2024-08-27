@@ -1,15 +1,14 @@
 package com.park.utmstack.web.rest.incident_response;
 
+import agent.Common.Hostname;
 import com.google.gson.Gson;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.dto.agent_manager.AgentDTO;
 import com.park.utmstack.service.dto.agent_manager.AgentStatusEnum;
 import com.park.utmstack.service.grpc.CommandResult;
-import com.park.utmstack.service.grpc.Hostname;
 import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.service.incident_response.grpc_impl.IncidentResponseCommandService;
-import com.park.utmstack.util.exceptions.InvalidEchoCommandException;
 import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import com.park.utmstack.web.rest.errors.AgentOfflineException;
 import com.park.utmstack.web.rest.errors.InternalServerErrorException;
@@ -64,7 +63,7 @@ public class UTMIncidentCommandWebsocket {
                 CommandVM commandVM = new Gson().fromJson(command, CommandVM.class);
                 String commandVar = utmIncidentVariableService.replaceVariablesInCommand(commandVM.getCommand());
 
-                incidentResponseCommandService.sendCommand(agentDTO.getAgentKey(), commandVar, commandVM.getOriginType(),
+                incidentResponseCommandService.sendCommand(String.valueOf(agentDTO.getId()), commandVar, commandVM.getOriginType(),
                         commandVM.getOriginId(), commandVM.getReason(), executedBy, new StreamObserver<>() {
                             @Override
                             public void onNext(CommandResult value) {

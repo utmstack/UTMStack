@@ -1,19 +1,104 @@
 package agent
 
 import (
-	"context"
+	context "context"
 	"fmt"
 	"io"
+	"strconv"
+	sync "sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/utmstack/UTMStack/agent-manager/config"
+	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	utmconf "github.com/utmstack/config-client-go"
+	"github.com/utmstack/config-client-go/enum"
+	"github.com/utmstack/config-client-go/types"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
-func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*AuthResponse, error) {
+var (
+	CollectorServ     *CollectorService
+	collectorServOnce sync.Once
+)
+
+type ConfigStatus int32
+
+const (
+	ConfigSent    ConfigStatus = 1
+	ConfigPending ConfigStatus = 2
+)
+
+type CollectorService struct {
+	UnimplementedCollectorServiceServer
+	UnimplementedPanelCollectorServiceServer
+
+	CollectorStreamMap        map[uint]CollectorService_CollectorStreamServer
+	CollectorStreamMutex      sync.Mutex
+	CollectorConfigsCache     map[uint][]*CollectorConfigGroup
+	CollectorConfigsCacheM    sync.Mutex
+	CacheCollectorKey         map[uint]string
+	CacheCollectorKeyMutex    sync.Mutex
+	CollectorPendigConfigChan chan *CollectorConfig
+	CollectorTypes            []enum.UTMModule
+
+	DBConnection *database.DB
+}
+
+func InitCollectorService() error {
+	var err error
+	collectorServOnce.Do(func() {
+		CollectorServ = &CollectorService{
+			CollectorStreamMap:        make(map[uint]CollectorService_CollectorStreamServer),
+			CollectorConfigsCache:     make(map[uint][]*CollectorConfigGroup),
+			CacheCollectorKey:         make(map[uint]string),
+			CollectorPendigConfigChan: make(chan *CollectorConfig, 1000),
+			CollectorTypes:            []enum.UTMModule{enum.IBM_AS_400},
+			DBConnection:              database.GetDB(),
+		}
+		collectors := []models.Collector{}
+		_, err = CollectorServ.DBConnection.GetAll(&collectors, "")
+		if err != nil {
+			err = fmt.Errorf("failed to get collectors: %v", err)
+			return
+		}
+		for _, c := range collectors {
+			CollectorServ.CacheCollectorKey[c.ID] = c.CollectorKey
+		}
+
+		client := utmconf.NewUTMClient(config.GetInternalKey(), config.GetPanelServiceName())
+		for _, moduleType := range CollectorServ.CollectorTypes {
+			moduleConfig := &types.ConfigurationSection{}
+			moduleConfig, err = client.GetUTMConfig(moduleType)
+			if err != nil {
+				err = fmt.Errorf("failed to get module config: %v", err)
+				return
+			}
+
+			for _, group := range moduleConfig.ConfigurationGroups {
+				var idInt int
+				idInt, err = strconv.Atoi(group.CollectorID)
+				if err != nil {
+					err = fmt.Errorf("failed to convert collector id to int: %v", err)
+					return
+				}
+
+				CollectorServ.CollectorConfigsCache[uint(idInt)] = append(
+					CollectorServ.CollectorConfigsCache[uint(idInt)],
+					convertModuleGroupToCollectorProto(group),
+				)
+			}
+		}
+
+		go CollectorServ.ProcessPendingConfigs()
+	})
+	return err
+}
+
+func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterRequest) (*AuthResponse, error) {
 	collector := &models.Collector{
 		Ip:       req.GetIp(),
 		Hostname: req.GetHostname(),
@@ -21,158 +106,155 @@ func (s *Grpc) RegisterCollector(ctx context.Context, req *RegisterRequest) (*Au
 		Module:   models.CollectorModule(req.GetCollector().String()),
 	}
 
-	oldCollector, err := collectorService.GetCollectorByHostnameAndModule(collector.Hostname, string(collector.Module))
-	if err == nil && len(oldCollector) > 0 {
-		if oldCollector[0].Ip == collector.Ip {
+	oldCollector := &models.Collector{}
+	err := s.DBConnection.GetFirst(oldCollector, "hostname = ? and module = ?", collector.Hostname, string(collector.Module))
+	if err == nil {
+		if oldCollector.Ip == collector.Ip {
 			return &AuthResponse{
-				Id:  uint32(oldCollector[0].ID),
-				Key: oldCollector[0].CollectorKey,
+				Id:  uint32(oldCollector.ID),
+				Key: oldCollector.CollectorKey,
 			}, nil
 		} else {
-			utils.ALogger.ErrorF("collector %s(%s) with id %d already registered with different IP", oldCollector[0].Hostname, oldCollector[0].Module, oldCollector[0].ID)
+			utils.ALogger.ErrorF("collector %s(%s) with id %d already registered with different IP", oldCollector.Hostname, oldCollector.Module, oldCollector.ID)
 			return nil, status.Errorf(codes.AlreadyExists, "hostname has already been registered")
 		}
 	}
 
 	key := uuid.New().String()
 	collector.CollectorKey = key
-	err = collectorService.Create(collector)
+	err = s.DBConnection.Create(collector)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to create collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create collector: %v", err))
 	}
 
-	s.cacheCollectorKeyMutex.Lock()
-	CacheCollectorKey[collector.ID] = key
-	s.cacheCollectorKeyMutex.Unlock()
+	s.CacheCollectorKeyMutex.Lock()
+	s.CacheCollectorKey[collector.ID] = key
+	s.CacheCollectorKeyMutex.Unlock()
 
-	err = lastSeenService.Set(key, time.Now())
-	if err != nil {
-		utils.ALogger.ErrorF("failed to set last seen: %v", err)
-		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to set last seen: %v", err))
-	}
-	res := &AuthResponse{
-		Id:  uint32(collector.ID),
-		Key: key,
+	LastSeenChannel <- models.LastSeen{
+		ConnectorType: "collector",
+		ID:            collector.ID,
+		LastPing:      time.Now(),
 	}
 
 	utils.ALogger.Info("Collector %s(%s) with id %d registered correctly", collector.Hostname, collector.Module, collector.ID)
-	return res, nil
+	return &AuthResponse{
+		Id:  uint32(collector.ID),
+		Key: key,
+	}, nil
 }
 
-func (s *Grpc) DeleteCollector(ctx context.Context, req *CollectorDelete) (*AuthResponse, error) {
-	key, err := getKeyFromContext(ctx)
+func (s *CollectorService) DeleteCollector(ctx context.Context, req *DeleteRequest) (*AuthResponse, error) {
+	id, key, _, err := utils.GetItemsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid id")
+	}
 
-	id, err := collectorService.Delete(uuid.MustParse(key), req.DeletedBy)
+	err = s.DBConnection.Upsert(&models.Collector{}, "id = ?", map[string]interface{}{"deleted_by": req.DeletedBy}, id)
+	if err != nil {
+		utils.ALogger.ErrorF("unable to delete collector: %v", err)
+	}
+
+	err = s.DBConnection.Delete(&models.Collector{}, "id", false, id)
 	if err != nil {
 		utils.ALogger.ErrorF("unable to delete collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
 	}
 
-	s.cacheCollectorKeyMutex.Lock()
-	delete(CacheCollectorKey, id)
-	s.cacheCollectorKeyMutex.Unlock()
+	s.CacheCollectorKeyMutex.Lock()
+	delete(s.CacheCollectorKey, uint(idInt))
+	s.CacheCollectorKeyMutex.Unlock()
 
-	s.collectorStreamMutex.Lock()
-	delete(s.CollectorStreamMap, key)
-	s.collectorStreamMutex.Unlock()
+	s.CollectorStreamMutex.Lock()
+	delete(s.CollectorStreamMap, uint(idInt))
+	s.CollectorStreamMutex.Unlock()
 
 	utils.ALogger.Info("Collector with key %s deleted by %s", key, req.DeletedBy)
-
 	return &AuthResponse{
-		Id:  uint32(id),
+		Id:  uint32(idInt),
 		Key: key,
 	}, nil
 }
 
-func (s *Grpc) ListCollector(ctx context.Context, req *ListRequest) (*ListCollectorResponse, error) {
+func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) (*ListCollectorResponse, error) {
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
-
 	filter := utils.NewFilter(req.SearchQuery)
 
-	collectors, total, err := collectorService.ListCollectors(page, filter)
+	collectors := []models.Collector{}
+	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false, "")
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch collectors: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
-	return convertToCollectorResponse(collectors, total), nil
+	return convertModelToCollectorResponse(collectors, total), nil
 }
 
-func (s *Grpc) ProcessPendingConfigs() {
-	go func() {
-		ticker := time.NewTicker(5 * time.Minute)
-		defer ticker.Stop()
+func (s *CollectorService) ProcessPendingConfigs() {
+	for configs := range s.CollectorPendigConfigChan {
+		collectorID, err := strconv.Atoi(configs.CollectorId)
+		if err != nil {
+			utils.ALogger.ErrorF("invalid collector ID: %v", err)
+			continue
+		}
 
-		for range ticker.C {
-			s.pendingConfigM.Lock()
-			copyPendingConfigs := make(map[string]string)
-			for key, value := range s.PendingConfigs {
-				copyPendingConfigs[key] = value
-			}
-			s.pendingConfigM.Unlock()
+		s.CollectorStreamMutex.Lock()
+		stream, ok := s.CollectorStreamMap[uint(collectorID)]
+		s.CollectorStreamMutex.Unlock()
 
-			for key := range copyPendingConfigs {
-
-				s.collectorStreamMutex.Lock()
-				stream, ok := s.CollectorStreamMap[key]
-				s.collectorStreamMutex.Unlock()
-
-				if ok {
-					collector, err := collectorService.GetByKey(key)
-					if err != nil {
-						utils.ALogger.ErrorF("unable to get collector config to send config to stream : %v", err)
-						continue
-					}
-
-					err = stream.Send(&CollectorMessages{
-						StreamMessage: &CollectorMessages_Config{
-							Config: convertToCollectorConfig(collector),
-						},
-					})
-					if err != nil {
-						utils.ALogger.ErrorF("failed to send config to collector: %v", err)
-					}
-				}
+		if ok {
+			err = stream.Send(&CollectorMessages{
+				StreamMessage: &CollectorMessages_Config{
+					Config: &CollectorConfig{
+						Groups: configs.Groups,
+					},
+				},
+			})
+			if err != nil {
+				utils.ALogger.ErrorF("failed to send config to collector: %v", err)
 			}
 		}
-	}()
+	}
 }
 
-func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) error {
-	key, err := getKeyFromContext(stream.Context())
+func (s *CollectorService) CollectorStream(stream CollectorService_CollectorStreamServer) error {
+	id, _, _, err := utils.GetItemsFromContext(stream.Context())
 	if err != nil {
-		return err
+		return status.Error(codes.InvalidArgument, fmt.Errorf("unable to get items from context: %v", err).Error())
+	}
+	uid, err := strconv.Atoi(id)
+	if err != nil {
+		return status.Error(codes.InvalidArgument, fmt.Errorf("invalid id: %v", err).Error())
 	}
 
-	s.collectorStreamMutex.Lock()
-	if _, ok := s.CollectorStreamMap[key]; ok {
-		s.collectorStreamMutex.Unlock()
+	s.CollectorStreamMutex.Lock()
+	if _, ok := s.CollectorStreamMap[uint(uid)]; ok {
+		s.CollectorStreamMutex.Unlock()
 		return status.Error(codes.AlreadyExists, "client is already connected")
 	}
-	s.CollectorStreamMap[key] = stream
-	s.collectorStreamMutex.Unlock()
+	s.CollectorStreamMap[uint(uid)] = stream
+	s.CollectorStreamMutex.Unlock()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = s.waitForReconnect(s.CollectorStreamMap[key].Context(), key, ConnectorType_COLLECTOR)
+			err = utils.WaitForReconnect(stream.Context(), stream)
 			if err != nil {
-				s.collectorStreamMutex.Lock()
-				delete(s.CollectorStreamMap, key)
-				s.collectorStreamMutex.Unlock()
-
+				s.CollectorStreamMutex.Lock()
+				delete(s.CollectorStreamMap, uint(uid))
+				s.CollectorStreamMutex.Unlock()
 				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect to client: %v", err))
 			}
-
 			continue
 		}
 		if err != nil {
-			s.collectorStreamMutex.Lock()
-			delete(s.CollectorStreamMap, key)
-			s.collectorStreamMutex.Unlock()
+			s.CollectorStreamMutex.Lock()
+			delete(s.CollectorStreamMap, uint(uid))
+			s.CollectorStreamMutex.Unlock()
 			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message from client: %v", err))
 		}
 
@@ -180,76 +262,62 @@ func (s *Grpc) CollectorStream(stream CollectorService_CollectorStreamServer) er
 		case *CollectorMessages_Result:
 			utils.ALogger.Info("Received Knowlodge: %s", msg.Result.RequestId)
 
-			s.pendingConfigM.Lock()
-			if s.PendingConfigs[key] == msg.Result.RequestId {
-				delete(s.PendingConfigs, key)
-			}
-			s.pendingConfigM.Unlock()
-
 		case *CollectorMessages_Config:
 			// Not implemented
 		}
 	}
 }
 
-func (s *Grpc) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*CollectorConfig, error) {
-	key, err := getKeyFromContext(ctx)
+func (s *CollectorService) GetCollectorConfig(ctx context.Context, in *ConfigRequest) (*CollectorConfig, error) {
+	id, _, _, err := utils.GetItemsFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, fmt.Errorf("unable to get items from context: %v", err).Error())
 	}
-
-	collector, err := collectorService.GetByKey(key)
+	uid, err := strconv.Atoi(id)
 	if err != nil {
-		utils.ALogger.ErrorF("unable to get collector config: %v", err)
-		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to get collector config: %v", err.Error()))
+		return nil, status.Error(codes.InvalidArgument, fmt.Errorf("invalid id: %v", err).Error())
 	}
 
-	return convertToCollectorConfig(collector), nil
-}
+	s.CollectorConfigsCacheM.Lock()
+	defer s.CollectorConfigsCacheM.Unlock()
 
-func (s *Grpc) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig) (*ConfigKnowledge, error) {
-	collectorConfig := &CollectorConfig{
-		CollectorKey: in.GetCollectorKey(),
-		Groups:       in.GetGroups(),
-		RequestId:    in.GetRequestId(),
-	}
-
-	collectorKey := collectorConfig.CollectorKey
-	if collectorKey == "" {
-		return nil, status.Errorf(codes.NotFound, "collector key is not provided")
-	}
-
-	collector, err := collectorService.GetByKey(collectorKey)
-	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "collector not found in database or is deleted")
-	}
-
-	collectorConf := protoToModelCollectorGroups(collectorConfig.Groups, collector.ID)
-
-	err = collectorService.SaveCollectorConfigs(collectorConf, collector.ID)
-	if err != nil {
-		utils.ALogger.ErrorF("error saving collector configuration: %v", err)
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error saving collector configuration: %v", err.Error()))
-	}
-
-	s.pendingConfigM.Lock()
-	s.PendingConfigs[collectorKey] = collectorConfig.RequestId
-	s.pendingConfigM.Unlock()
-
-	return &ConfigKnowledge{
-		Accepted:  "true",
-		RequestId: collectorConfig.RequestId,
+	return &CollectorConfig{
+		Groups: s.CollectorConfigsCache[uint(uid)],
 	}, nil
 }
 
-func (s *Grpc) ListCollectorHostnames(ctx context.Context, req *ListRequest) (*CollectorHostnames, error) {
+func (s *CollectorService) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig) (*ConfigKnowledge, error) {
+	collectorID, err := strconv.Atoi(in.CollectorId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid collector ID")
+	}
+
+	s.CollectorPendigConfigChan <- in
+
+	s.CollectorConfigsCacheM.Lock()
+	s.CollectorConfigsCache[uint(collectorID)] = in.Groups
+	s.CollectorConfigsCacheM.Unlock()
+
+	return &ConfigKnowledge{
+		Accepted:  "true",
+		RequestId: in.RequestId,
+	}, nil
+}
+
+func (s *CollectorService) ListCollectorHostnames(ctx context.Context, req *ListRequest) (*CollectorHostnames, error) {
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 	filter := utils.NewFilter(req.SearchQuery)
 
-	hostnames, _, err := collectorService.GetHostnames(page, filter)
+	collectors := []models.Collector{}
+	_, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false, "")
 	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch hostnames: %v", err)
-		return nil, status.Errorf(codes.NotFound, "failed to fetch hostnames: %v", err)
+		utils.ALogger.ErrorF("failed to fetch collectors: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
+	}
+
+	hostnames := []string{}
+	for _, collector := range collectors {
+		hostnames = append(hostnames, collector.Hostname)
 	}
 
 	return &CollectorHostnames{
@@ -257,69 +325,13 @@ func (s *Grpc) ListCollectorHostnames(ctx context.Context, req *ListRequest) (*C
 	}, nil
 }
 
-func (s *Grpc) GetCollectorsByHostnameAndModule(ctx context.Context, filter *FilterByHostAndModule) (*ListCollectorResponse, error) {
-	collectors, err := collectorService.GetCollectorByHostnameAndModule(filter.GetHostname(), filter.GetModule().String())
+func (s *CollectorService) GetCollectorsByHostnameAndModule(ctx context.Context, filter *FilterByHostAndModule) (*ListCollectorResponse, error) {
+	collectors := []models.Collector{}
+	count, err := s.DBConnection.GetAll(&collectors, "hostname = ? and module = ?", filter.GetHostname(), filter.GetModule().String())
 	if err != nil {
 		utils.ALogger.ErrorF("unable to get hostname: %v", err)
 		return nil, status.Errorf(codes.NotFound, "unable to get hostname: %v", err)
 	}
 
-	return convertToCollectorResponse(collectors, int64(len(collectors))), nil
-}
-
-func (s *Grpc) LoadCollectorsCacheFromDatabase() error {
-	collectors, err := collectorService.FindAll()
-	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch collectors from database: %v", err)
-		return status.Error(codes.Internal, fmt.Sprintf("failed to fetch collectors from database: %v", err))
-	}
-	for _, colect := range collectors {
-		CacheCollectorKey[colect.ID] = colect.CollectorKey
-	}
-	return nil
-}
-
-func convertToCollectorResponse(collectors []models.Collector, total int64) *ListCollectorResponse {
-	var collectorMessages []*Collector
-	for _, collector := range collectors {
-		collectorProto := modelToProtoCollector(collector)
-		collectorMessages = append(collectorMessages, collectorProto)
-	}
-	return &ListCollectorResponse{
-		Rows:  collectorMessages,
-		Total: int32(total),
-	}
-}
-
-func convertToCollectorConfig(collectorConfig *models.Collector) *CollectorConfig {
-	var protoGroups []*CollectorConfigGroup
-	for _, group := range collectorConfig.Groups {
-		protoGroup := &CollectorConfigGroup{
-			Id:               int32(group.ID),
-			GroupName:        group.GroupName,
-			GroupDescription: group.GroupDescription,
-			CollectorId:      int32(group.CollectorID),
-		}
-
-		for _, config := range group.Configurations {
-			protoConfig := &CollectorGroupConfigurations{
-				GroupId:         int32(config.ConfigGroupID),
-				ConfKey:         config.ConfKey,
-				ConfValue:       config.ConfValue,
-				ConfName:        config.ConfName,
-				ConfDescription: config.ConfDescription,
-				ConfDataType:    config.ConfDataType,
-				ConfRequired:    config.ConfRequired,
-			}
-			protoGroup.Configurations = append(protoGroup.Configurations, protoConfig)
-		}
-
-		protoGroups = append(protoGroups, protoGroup)
-	}
-	cnf := &CollectorConfig{
-		CollectorKey: collectorConfig.CollectorKey,
-		RequestId:    "",
-		Groups:       protoGroups,
-	}
-	return cnf
+	return convertModelToCollectorResponse(collectors, count), nil
 }
