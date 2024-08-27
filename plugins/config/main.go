@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -68,14 +69,26 @@ func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	}
 }
 
-func (a *Asset) FromVar(name interface{}, hostnames []interface{}, ips []interface{}, confidentiality, integrity, availability interface{}) {
+func (a *Asset) FromVar(name interface{}, hostnames interface{}, ips interface{}, confidentiality, integrity, availability interface{}) {
 	a.Name = helpers.CastString(name)
 
-	for _, hostname := range hostnames {
+	hostnamesStr := helpers.CastString(hostnames)
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, "[", "")
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, "]", "")
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, ",", "")
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, "\"", "")
+
+	for _, hostname := range strings.Fields(hostnamesStr) {
 		a.Hostnames = append(a.Hostnames, helpers.CastString(hostname))
 	}
 
-	for _, ip := range ips {
+	ipsStr := helpers.CastString(ips)
+	ipsStr = strings.ReplaceAll(ipsStr, "[", "")
+	ipsStr = strings.ReplaceAll(ipsStr, "]", "")
+	ipsStr = strings.ReplaceAll(ipsStr, ",", "")
+	ipsStr = strings.ReplaceAll(ipsStr, "\"", "")
+
+	for _, ip := range strings.Fields(ipsStr) {
 		a.IPs = append(a.IPs, helpers.CastString(ip))
 	}
 
@@ -86,23 +99,38 @@ func (a *Asset) FromVar(name interface{}, hostnames []interface{}, ips []interfa
 
 func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface{}, integrity interface{},
 	availability interface{}, category interface{}, technique interface{}, description interface{},
-	references []interface{}, where interface{}, dataTypes []interface{}) {
+	references interface{}, where interface{}, dataTypes interface{}) {
+
+	referencesStr := helpers.CastString(references)
+	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
+	referencesStr = strings.ReplaceAll(referencesStr, "]", "")
+	referencesStr = strings.ReplaceAll(referencesStr, ",", "")
+	referencesStr = strings.ReplaceAll(referencesStr, "\"", "")
+	referencesList := strings.Fields(referencesStr)
+
+	dataTypesStr := helpers.CastString(dataTypes)
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, "[", "")
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, "]", "")
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, ",", "")
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, "\"", "")
+	dataTypesList := strings.Fields(dataTypesStr)
+
 	r.Id = id
-	r.DataTypes = make([]string, len(dataTypes))
+	r.DataTypes = make([]string, len(dataTypesList))
 	r.Name = helpers.CastString(ruleName)
 	r.Impact.Confidentiality = int32(helpers.CastInt64(confidentiality))
 	r.Impact.Integrity = int32(helpers.CastInt64(integrity))
 	r.Impact.Availability = int32(helpers.CastInt64(availability))
 	r.Category = helpers.CastString(category)
 	r.Technique = helpers.CastString(technique)
-	r.References = make([]string, len(references))
+	r.References = make([]string, len(referencesList))
 	r.Description = helpers.CastString(description)
 
-	for i, dataType := range dataTypes {
+	for i, dataType := range dataTypesList {
 		r.DataTypes[i] = helpers.CastString(dataType)
 	}
 
-	for i, reference := range references {
+	for i, reference := range referencesList {
 		r.References[i] = helpers.CastString(reference)
 	}
 
@@ -263,8 +291,8 @@ func getAssets(db *sql.DB) ([]Asset, *logger.Error) {
 		var (
 			id              int
 			name            interface{}
-			hostnames       []interface{}
-			ips             []interface{}
+			hostnames       interface{}
+			ips             interface{}
 			confidentiality interface{}
 			integrity       interface{}
 			availability    interface{}
@@ -307,7 +335,7 @@ func getRules(db *sql.DB) ([]Rule, *logger.Error) {
 			category        interface{}
 			technique       interface{}
 			description     interface{}
-			references      []interface{}
+			references      interface{}
 			where           interface{}
 		)
 
