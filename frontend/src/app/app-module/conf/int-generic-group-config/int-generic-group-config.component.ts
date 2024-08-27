@@ -1,10 +1,12 @@
-import { HttpResponse } from '@angular/common/http';
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {forkJoin, of} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {of} from 'rxjs';
 import {catchError, finalize, map, switchMap, tap} from 'rxjs/operators';
 import {ModalService} from '../../../core/modal/modal.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {ModalConfirmationComponent} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {
+  ModalConfirmationComponent
+} from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {EncryptService} from '../../../shared/services/util/encrypt.service';
 import {ModuleChangeStatusBehavior} from '../../shared/behavior/module-change-status.behavior';
 import {IntCreateGroupComponent} from '../../shared/components/int-create-group/int-create-group.component';
@@ -23,13 +25,15 @@ import {UtmModuleGroupType} from '../../shared/type/utm-module-group.type';
   templateUrl: './int-generic-group-config.component.html',
   styleUrls: ['./int-generic-group-config.component.css']
 })
-export class IntGenericGroupConfigComponent implements OnInit {
+export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
   @Input() serverId: number;
   @Input() moduleId: number;
   @Input() groupType = GroupTypeEnum.TENANT;
   @Input() allowAdd = true;
   @Input() editable = true;
+  @Input() disablePreAction = false;
   @Output() configValidChange = new EventEmitter<boolean>();
+  @Output() runDisablePreAction = new EventEmitter<boolean>();
   groups: UtmModuleGroupType[];
   loading = true;
   pendingChanges = false;
@@ -58,6 +62,13 @@ export class IntGenericGroupConfigComponent implements OnInit {
       'Add tenant' : 'Add collector';
     this.groupName = this.groupType === GroupTypeEnum.TENANT ? 'tenant' : 'collector';
 
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log(changes);
+    if (changes.disablePreAction.currentValue) {
+      console.log('reset');
+    }
   }
 
   getGroups() {
@@ -134,20 +145,26 @@ export class IntGenericGroupConfigComponent implements OnInit {
     deleteModal.componentInstance.confirmBtnIcon = 'icon-stack-cancel';
     deleteModal.componentInstance.confirmBtnType = 'delete';
     deleteModal.result.then(() => {
-      const collector = this.collectors.find(c => c.id === parseInt(group.collector, 10));
-      const collectorToSave = {
-        ...collector,
-        groups: collector.groups.filter(g => g.id !== group.id)
-      };
-      this.deleteAction(collectorToSave);
+      if (this.groupType === GroupTypeEnum.COLLECTOR) {
+        const collector = this.collectors.find(c => c.id === parseInt(group.collector, 10));
+        const collectorToSave = {
+          ...collector,
+          groups: collector.groups.filter(g => g.id !== group.id)
+        };
+        this.deleteAction(collectorToSave);
+      } else {
+        this.deleteAction(group);
+      }
     });
   }
 
-  deleteAction(collector: any) {
-    this.saveCollector(this.getBody(collector))
-      .subscribe(response => {
+  deleteAction(param: any) {
+    const request$ = this.groupType === GroupTypeEnum.COLLECTOR ?
+      this.saveCollector(this.getBody(param)) : this.utmModuleGroupService.delete(param.id);
+
+    request$.subscribe(response => {
         if (this.groups.length === 1) {
-          this.moduleChangeStatusBehavior.setStatus(false);
+          this.moduleChangeStatusBehavior.setStatus(false, false);
         } else {
           this.toast.showSuccessBottom(`${this.groupName.toUpperCase()} group deleted successfully`);
         }
@@ -216,7 +233,6 @@ export class IntGenericGroupConfigComponent implements OnInit {
   }
 
   addChange(integrationConfig: UtmModuleGroupConfType) {
-    const collector = this.collectors.find(c => c.groups.find(g => g.id === integrationConfig.groupId));
     this.pendingChanges = true;
     const index = this.changes.keys
                             .findIndex(value =>
@@ -285,16 +301,21 @@ export class IntGenericGroupConfigComponent implements OnInit {
       this.changes = {keys: [], moduleId: this.moduleId};
       this.configValidChange.emit(this.tenantGroupConfigValid());
       this.toast.showSuccessBottom('Configuration saved successfully');
-      if (!this.moduleChangeStatusBehavior.getLastStatus()) {
-        this.moduleChangeStatusBehavior.setStatus(true);
-      }
-    }, () => {
-      this.toast.showError('Error saving configuration',
-          'Error while trying to save collector configuration , please try again');
+      this.activeModule();
+    }, (err) => {
+        if (err.status === 502) {
+          this.toast.showWarning('The configuration was saved, but there was an issue sending it to the service. ' +
+            'It will be applied once the service is back online.',
+            'Configuration saved');
+          this.activeModule();
+        } else {
+          this.toast.showError('Error saving configuration',
+            'Error while trying to save collector configuration , please try again');
+        }
     });
   }
 
-  saveCollector(body: any){
+  saveCollector(body: any) {
     return this.collectorService.create(body);
   }
 
@@ -377,5 +398,9 @@ export class IntGenericGroupConfigComponent implements OnInit {
     } else {
       return true;
     }
+  }
+
+  private activeModule() {
+    this.moduleChangeStatusBehavior.setStatus(!this.moduleChangeStatusBehavior.getLastStatus() ? true : null, true);
   }
 }

@@ -27,7 +27,8 @@ export class GuideAs400Component implements OnInit {
     token: string;
     ip: string;
     vars: any;
-
+    disablePreAction = false;
+    performPreAction = true;
     constructor(private formBuilder: FormBuilder,
                 private federationConnectionService: FederationConnectionService) {
     }
@@ -53,5 +54,15 @@ export class GuideAs400Component implements OnInit {
 
   configValidChange($event: boolean) {
     this.configValidity = !$event;
+  }
+
+  onDisable() {
+    console.log('Disabled');
+    this.disablePreAction = true;
+  }
+
+  onRunDisable($event: any) {
+    this.performPreAction = $event;
+    console.log(this.performPreAction);
   }
 }

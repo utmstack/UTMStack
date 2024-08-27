@@ -27,6 +27,8 @@
                                     <app-int-generic-group-config [moduleId]="integrationId"
                                                                   [groupType]="groupType"
                                                                   (configValidChange)="configValidChange($event)"
+                                                                  (runDisablePreAction) = onRunDisable($event)
+                                                                  [disablePreAction] = disablePreAction
                                                                   [serverId]="serverId"></app-int-generic-group-config>
                                 </ng-template>
 
@@ -34,7 +36,9 @@
                                     <div  class="mt-3">
                                         <app-app-module-activate-button [module]="module.AS_400" [type]="'integration'"
                                                                         [disabled]="configValidity"
-                                                                        [serverId]="serverId">
+                                                                        [serverId]="serverId"
+                                                                        [performPreAction]= performPreAction
+                                                                        (disableModuleClicked)="onDisable()">
                                         </app-app-module-activate-button>
                                     </div>
                                 </ng-template>
