@@ -89,7 +89,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		e = cleanUpFiles(gCfg, filters)
+		e = cleanUpFilters(gCfg, filters)
 		if e != nil {
 			os.Exit(1)
 		}
@@ -186,17 +186,13 @@ func listFiles(folder string) ([]string, *logger.Error) {
 	})
 
 	if err != nil {
-		if logger.Is(err, "no such file or directory") {
-			return []string{}, nil
-		}
-
 		return nil, helpers.Logger().ErrorF("failed to list files: %v", err)
 	}
 
 	return files, nil
 }
 
-func cleanUpFiles(gCfg *helpers.Config, filters []Filter) *logger.Error {
+func cleanUpFilters(gCfg *helpers.Config, filters []Filter) *logger.Error {
 	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"))
 	if e != nil {
 		os.Exit(1)
