@@ -62,13 +62,13 @@ align-items-center h-100 w-100 mt-auto utm-login-cover">
   </div>
   <!-- /login form -->
   <ng-template #loading>
-    <app-utm-spinner [loading]="true" label="Loading"></app-utm-spinner>
+    <app-utm-spinner [loading]="loadingLogin" label="Loading"></app-utm-spinner>
   </ng-template>
 
 </div>
 
 <!-- /content area -->
 <div *appHasAnyAuthority="roles" class="content d-flex justify-content-center align-items-center h-100 w-100">
-  <app-utm-spinner [height]="'35px'" [label]="'Loading modules...'" [loading]="true"
+  <app-utm-spinner [height]="'35px'" [label]="'Loading modules...'" [loading]="!isInternalNavigation"
                    [width]="'35px'"></app-utm-spinner>
 </div>
