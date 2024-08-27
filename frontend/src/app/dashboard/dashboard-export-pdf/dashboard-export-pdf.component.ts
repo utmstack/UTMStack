@@ -65,7 +65,6 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
         });
       }
     });
-    this.spinner.show('buildPrint');
     this.accountService.identity().then(account => {
       this.account = account;
     });
@@ -144,12 +143,8 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
   }
 
   onVisualizationLoaded() {
-    this.setVisFilter().then(() => {
-      this.spinner.hide('buildPrint').then(() => {
-        this.preparingPrint = false;
-        // this.print();
-      });
-    });
+    this.preparingPrint = false;
+    console.log('onVisualizationLoaded');
   }
 
   getTimeFilterValue() {
