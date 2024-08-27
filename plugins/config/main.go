@@ -121,10 +121,10 @@ func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface
 	}
 }
 
-func (f *Filter) FromVar(id int, name string, filter string) {
+func (f *Filter) FromVar(id int, name interface{}, filter interface{}) {
 	f.Id = id
-	f.Name = name
-	f.Filter = filter
+	f.Name = helpers.CastString(name)
+	f.Filter = helpers.CastString(filter)
 }
 
 func main() {
@@ -240,8 +240,8 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 		filter := Filter{}
 		filter.FromVar(
 			id,
-			helpers.CastString(name),
-			helpers.CastString(body),
+			name,
+			body,
 		)
 		filters = append(filters, filter)
 	}
