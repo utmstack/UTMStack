@@ -75,6 +75,13 @@ func main() {
 
 	helpers.Logger().Info("connected to database")
 
+	e = createFolderStructure(gCfg)
+	if e != nil {
+		os.Exit(1)
+	}
+
+	helpers.Logger().Info("created folder structure")
+
 	for {
 		filters, e := getFilters(db)
 		if e != nil {
@@ -143,15 +150,15 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 
 		filter := Filter{}
 		filter.FromVar(
-			id, 
-			helpers.CastString(name), 
-			helpers.CastString(body), 
-			helpers.CastInt64(groupId), 
-			helpers.CastBool(systemOwned), 
-			helpers.CastString(moduleName), 
-			helpers.CastBool(isActive), 
-			helpers.CastString(filterVersion), 
-			helpers.CastInt64(dataTypeId), 
+			id,
+			helpers.CastString(name),
+			helpers.CastString(body),
+			helpers.CastInt64(groupId),
+			helpers.CastBool(systemOwned),
+			helpers.CastString(moduleName),
+			helpers.CastBool(isActive),
+			helpers.CastString(filterVersion),
+			helpers.CastInt64(dataTypeId),
 			helpers.CastString(updatedAt),
 		)
 		filters = append(filters, filter)
@@ -227,6 +234,26 @@ func writeFilters(pCfg *helpers.Config, filters []Filter) *logger.Error {
 		err = file.Close()
 		if err != nil {
 			return helpers.Logger().ErrorF("failed to close file: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func createFolderStructure(gCfg *helpers.Config) *logger.Error {
+	folders := []string{
+		filepath.Join(gCfg.Env.Workdir, "pipeline"),
+		filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"),
+	}
+
+	for _, folder := range folders {
+		if _, err := os.Stat(folder); err == nil {
+			continue
+		}
+
+		err := os.MkdirAll(folder, os.ModePerm)
+		if err != nil {
+			return helpers.Logger().ErrorF("failed to create folder: %v", err)
 		}
 	}
 
