@@ -68,12 +68,12 @@ export class DashboardExportPdfComponent implements OnInit, AfterViewInit {
     this.accountService.identity().then(account => {
       this.account = account;
     });
-    window.addEventListener('beforeprint', (event) => {
+    /*window.addEventListener('beforeprint', (event) => {
       this.printFormat = true;
     });
     window.addEventListener('afterprint', (event) => {
       this.printFormat = false;
-    });
+    });*/
     this.activatedRoute.params.subscribe(params => {
       this.dashboardId = params.id;
       if (this.dashboardId) {
