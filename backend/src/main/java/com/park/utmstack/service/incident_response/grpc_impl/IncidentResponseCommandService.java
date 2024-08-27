@@ -16,7 +16,7 @@ public class IncidentResponseCommandService {
         this.nonBlockingStub = PanelServiceGrpc.newStub(grpcManagedChannel);
     }
 
-    public void sendCommand(String agentKey,
+    public void sendCommand(String agentId,
                             String command,
                             String originType,
                             String originId,
@@ -27,7 +27,7 @@ public class IncidentResponseCommandService {
         // Create the UtmCommand with the provided agent key and command
 
         UtmCommand utmCommand = UtmCommand.newBuilder()
-            .setAgentKey(agentKey)
+            .setAgentId(agentId)
             .setCommand(command)
             .setOriginId(originId)
             .setOriginType(originType)

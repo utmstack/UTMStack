@@ -14,7 +14,6 @@ import com.park.utmstack.domain.alert_response_rule.enums.RuleNonExecutionCause;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
-import com.park.utmstack.domain.incident_response.UtmIncidentVariable;
 import com.park.utmstack.domain.shared_types.AlertType;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleExecutionRepository;
 import com.park.utmstack.repository.alert_response_rule.UtmAlertResponseRuleHistoryRepository;
@@ -28,7 +27,6 @@ import com.park.utmstack.service.dto.agent_manager.AgentStatusEnum;
 import com.park.utmstack.service.grpc.CommandResult;
 import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.service.incident_response.grpc_impl.IncidentResponseCommandService;
-import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.UtilJson;
 import com.park.utmstack.util.exceptions.UtmNotImplementedException;
 import io.grpc.stub.StreamObserver;
@@ -291,7 +289,7 @@ public class UtmAlertResponseRuleService {
                     if (agent.getStatus().equals(AgentStatusEnum.ONLINE)) {
                         String reason = "The incident response automation executed this command because it was accomplished the conditions of the rule with ID: " + cmd.getRuleId();
                         final StringBuilder results = new StringBuilder();
-                        incidentResponseCommandService.sendCommand(agent.getAgentKey(), utmIncidentVariableService.replaceVariablesInCommand(cmd.getCommand()), "INCIDENT_RESPONSE_AUTOMATION",
+                        incidentResponseCommandService.sendCommand(String.valueOf(agent.getId()), utmIncidentVariableService.replaceVariablesInCommand(cmd.getCommand()), "INCIDENT_RESPONSE_AUTOMATION",
                                 cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, new StreamObserver<>() {
                                     @Override
                                     public void onNext(CommandResult commandResult) {

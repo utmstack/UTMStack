@@ -443,10 +443,6 @@ private static final long serialVersionUID = 0L;
   @SuppressWarnings("serial")
   private volatile java.lang.Object addresses_ = "";
   /**
-   * <pre>
-   * IP secondary ips
-   * </pre>
-   *
    * <code>string addresses = 11;</code>
    * @return The addresses.
    */
@@ -464,10 +460,6 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <pre>
-   * IP secondary ips
-   * </pre>
-   *
    * <code>string addresses = 11;</code>
    * @return The bytes for addresses.
    */
@@ -1774,10 +1766,6 @@ private static final long serialVersionUID = 0L;
 
     private java.lang.Object addresses_ = "";
     /**
-     * <pre>
-     * IP secondary ips
-     * </pre>
-     *
      * <code>string addresses = 11;</code>
      * @return The addresses.
      */
@@ -1794,10 +1782,6 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <pre>
-     * IP secondary ips
-     * </pre>
-     *
      * <code>string addresses = 11;</code>
      * @return The bytes for addresses.
      */
@@ -1815,10 +1799,6 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <pre>
-     * IP secondary ips
-     * </pre>
-     *
      * <code>string addresses = 11;</code>
      * @param value The addresses to set.
      * @return This builder for chaining.
@@ -1832,10 +1812,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * IP secondary ips
-     * </pre>
-     *
      * <code>string addresses = 11;</code>
      * @return This builder for chaining.
      */
@@ -1846,10 +1822,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * IP secondary ips
-     * </pre>
-     *
      * <code>string addresses = 11;</code>
      * @param value The bytes for addresses to set.
      * @return This builder for chaining.
