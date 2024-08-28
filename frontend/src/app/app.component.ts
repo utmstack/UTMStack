@@ -1,7 +1,7 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {debounceTime, delay, filter, tap} from 'rxjs/operators';
+import {delay, filter, tap} from 'rxjs/operators';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
 import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
