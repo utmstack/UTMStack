@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
@@ -235,10 +234,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"8080:8080",
 		},
 		Volumes: []string{
-			filepath.Join(stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
-			filepath.Join(stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
-			filepath.Join(stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
-			filepath.Join(stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 			stack.Cert + ":/cert",
 		},
 		Environment: []string{
