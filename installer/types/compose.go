@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
@@ -235,11 +234,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"8080:8080",
 		},
 		Volumes: []string{
-			"rules:/workdir/rules/utmstack",
-			"geoip_data:/workdir/geolocation",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 			stack.Cert + ":/cert",
-			filepath.Join(stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
-			filepath.Join(stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
@@ -384,14 +383,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	}
 
 	c.Volumes["postgres_data"] = Volume{
-		"external": false,
-	}
-
-	c.Volumes["geoip_data"] = Volume{
-		"external": false,
-	}
-
-	c.Volumes["rules"] = Volume{
 		"external": false,
 	}
 

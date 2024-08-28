@@ -160,8 +160,7 @@ public class UtmComplianceReportScheduleService extends QueryService<UtmComplian
                     // Set the next execution time (Base time seed)
                     current.setLastExecutionTime(next);
                     utmComplianceReportScheduleRepository.save(current);
-                    complianceMailService.sendComplianceByMail(Constants.FRONT_BASE_URL + current.getUrlWithParams(),
-                        user.get().getEmail());
+                    complianceMailService.sendComplianceByMail(current.getUrlWithParams(), user.get().getEmail());
                 }
 
             } catch (Exception e) {

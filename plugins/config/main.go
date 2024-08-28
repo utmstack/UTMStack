@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -68,14 +69,26 @@ func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	}
 }
 
-func (a *Asset) FromVar(name interface{}, hostnames []interface{}, ips []interface{}, confidentiality, integrity, availability interface{}) {
+func (a *Asset) FromVar(name interface{}, hostnames interface{}, ips interface{}, confidentiality, integrity, availability interface{}) {
 	a.Name = helpers.CastString(name)
 
-	for _, hostname := range hostnames {
+	hostnamesStr := helpers.CastString(hostnames)
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, "[", "")
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, "]", "")
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, ",", "")
+	hostnamesStr = strings.ReplaceAll(hostnamesStr, "\"", "")
+
+	for _, hostname := range strings.Fields(hostnamesStr) {
 		a.Hostnames = append(a.Hostnames, helpers.CastString(hostname))
 	}
 
-	for _, ip := range ips {
+	ipsStr := helpers.CastString(ips)
+	ipsStr = strings.ReplaceAll(ipsStr, "[", "")
+	ipsStr = strings.ReplaceAll(ipsStr, "]", "")
+	ipsStr = strings.ReplaceAll(ipsStr, ",", "")
+	ipsStr = strings.ReplaceAll(ipsStr, "\"", "")
+
+	for _, ip := range strings.Fields(ipsStr) {
 		a.IPs = append(a.IPs, helpers.CastString(ip))
 	}
 
@@ -86,23 +99,38 @@ func (a *Asset) FromVar(name interface{}, hostnames []interface{}, ips []interfa
 
 func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface{}, integrity interface{},
 	availability interface{}, category interface{}, technique interface{}, description interface{},
-	references []interface{}, where interface{}, dataTypes []interface{}) {
+	references interface{}, where interface{}, dataTypes interface{}) {
+
+	referencesStr := helpers.CastString(references)
+	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
+	referencesStr = strings.ReplaceAll(referencesStr, "]", "")
+	referencesStr = strings.ReplaceAll(referencesStr, ",", "")
+	referencesStr = strings.ReplaceAll(referencesStr, "\"", "")
+	referencesList := strings.Fields(referencesStr)
+
+	dataTypesStr := helpers.CastString(dataTypes)
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, "[", "")
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, "]", "")
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, ",", "")
+	dataTypesStr = strings.ReplaceAll(dataTypesStr, "\"", "")
+	dataTypesList := strings.Fields(dataTypesStr)
+
 	r.Id = id
-	r.DataTypes = make([]string, len(dataTypes))
+	r.DataTypes = make([]string, len(dataTypesList))
 	r.Name = helpers.CastString(ruleName)
 	r.Impact.Confidentiality = int32(helpers.CastInt64(confidentiality))
 	r.Impact.Integrity = int32(helpers.CastInt64(integrity))
 	r.Impact.Availability = int32(helpers.CastInt64(availability))
 	r.Category = helpers.CastString(category)
 	r.Technique = helpers.CastString(technique)
-	r.References = make([]string, len(references))
+	r.References = make([]string, len(referencesList))
 	r.Description = helpers.CastString(description)
 
-	for i, dataType := range dataTypes {
+	for i, dataType := range dataTypesList {
 		r.DataTypes[i] = helpers.CastString(dataType)
 	}
 
-	for i, reference := range references {
+	for i, reference := range referencesList {
 		r.References[i] = helpers.CastString(reference)
 	}
 
@@ -119,6 +147,8 @@ func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface
 			OfType: gjson.Get(variable.String(), "of_type").String(),
 		})
 	}
+
+	r.Where = whereObj
 }
 
 func (f *Filter) FromVar(id int, name interface{}, filter interface{}) {
@@ -232,7 +262,7 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 			body interface{}
 		)
 
-		err = rows.Scan(&id, &body, &name)
+		err = rows.Scan(&id, &name, &body)
 		if err != nil {
 			return nil, helpers.Logger().ErrorF("failed to scan row: %v", err)
 		}
@@ -263,8 +293,8 @@ func getAssets(db *sql.DB) ([]Asset, *logger.Error) {
 		var (
 			id              int
 			name            interface{}
-			hostnames       []interface{}
-			ips             []interface{}
+			hostnames       interface{}
+			ips             interface{}
 			confidentiality interface{}
 			integrity       interface{}
 			availability    interface{}
@@ -307,7 +337,7 @@ func getRules(db *sql.DB) ([]Rule, *logger.Error) {
 			category        interface{}
 			technique       interface{}
 			description     interface{}
-			references      []interface{}
+			references      interface{}
 			where           interface{}
 		)
 
@@ -397,7 +427,7 @@ func cleanUpFilters(gCfg *helpers.Config, filters []Filter) *logger.Error {
 	for _, file := range files {
 		var keep bool
 		for _, filter := range filters {
-			if file == filepath.Join(gCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%s.yaml", filter.Id)) {
+			if file == filepath.Join(gCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)) {
 				keep = true
 				break
 			}
@@ -415,7 +445,7 @@ func cleanUpFilters(gCfg *helpers.Config, filters []Filter) *logger.Error {
 }
 
 func cleanUpRules(gCfg *helpers.Config, rules []Rule) *logger.Error {
-	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules"))
+	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
 	if e != nil {
 		os.Exit(1)
 	}
@@ -423,7 +453,7 @@ func cleanUpRules(gCfg *helpers.Config, rules []Rule) *logger.Error {
 	for _, file := range files {
 		var keep bool
 		for _, rule := range rules {
-			if file == filepath.Join(gCfg.Env.Workdir, "rules", fmt.Sprintf("%s.yaml", rule.Id)) {
+			if file == filepath.Join(gCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)) {
 				keep = true
 				break
 			}
@@ -442,7 +472,7 @@ func cleanUpRules(gCfg *helpers.Config, rules []Rule) *logger.Error {
 
 func writeFilters(pCfg *helpers.Config, filters []Filter) *logger.Error {
 	for _, filter := range filters {
-		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%s.yaml", filter.Id)))
+		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)))
 		if err != nil {
 			return helpers.Logger().ErrorF("failed to create file: %v", err)
 		}
@@ -462,17 +492,21 @@ func writeFilters(pCfg *helpers.Config, filters []Filter) *logger.Error {
 }
 
 func writeTenant(pCfg *helpers.Config, tenant Tenant) *logger.Error {
-	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", fmt.Sprintf("%s.yaml", "tenant")))
+	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "tenant.yaml"))
 	if err != nil {
 		return helpers.Logger().ErrorF("failed to create file: %v", err)
 	}
 
-	bTenant, err := yaml.Marshal(tenant)
+	tenants := helpers.Config{
+		Tenants: []helpers.Tenant{helpers.Tenant(tenant)},
+	}
+
+	bTenants, err := yaml.Marshal(tenants)
 	if err != nil {
 		return helpers.Logger().ErrorF("failed to marshal tenant: %v", err)
 	}
 
-	_, err = file.Write(bTenant)
+	_, err = file.Write(bTenants)
 	if err != nil {
 		return helpers.Logger().ErrorF("failed to write to file: %v", err)
 	}
@@ -487,7 +521,7 @@ func writeTenant(pCfg *helpers.Config, tenant Tenant) *logger.Error {
 
 func writeRules(pCfg *helpers.Config, rules []Rule) *logger.Error {
 	for _, rule := range rules {
-		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", fmt.Sprintf("%s.yaml", rule.Id)))
+		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)))
 		if err != nil {
 			return helpers.Logger().ErrorF("failed to create file: %v", err)
 		}

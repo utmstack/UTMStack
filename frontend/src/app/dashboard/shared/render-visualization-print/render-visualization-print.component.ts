@@ -39,7 +39,7 @@ export class RenderVisualizationPrintComponent implements OnInit {
     if (this.runList === this.visualizationRender.length) {
       this.loadingVisualizations = true;
       console.log('All the visualizations data has loaded, waiting for rendering');
-      setTimeout(() => this.visualizationLoaded.emit(true), 1000);
+      setTimeout(() => this.visualizationLoaded.emit(true), 3000);
       console.log('All the visualizations now has rendered');
     }
   }
