@@ -1,9 +1,6 @@
 syntax = "proto3";
 
-option java_multiple_files = true;
-option java_generic_services = true;
-option java_outer_classname = "Common";
-option java_package = "com.park.utmstack.service.grpc";
+option go_package = "github.com/utmstack/UTMStack/agent-manager/agent";
 
 package agent;
 
@@ -32,4 +29,8 @@ message AuthResponse {
 
 message Hostname{
   string hostname = 1;
+}
+
+message DeleteRequest {
+  string deleted_by = 1;
 }

@@ -1,5 +1,8 @@
 package com.park.utmstack.service.agent_manager;
 
+import agent.Common.DeleteRequest;
+import agent.Common.Hostname;
+import agent.Common.ListRequest;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.dto.agent_manager.AgentCommandDTO;
@@ -38,9 +41,9 @@ public class AgentGrpcService {
         return mapToListAgentsCommandsResponseDTO(blockingStub.listAgentCommands(request));
     }
 
-    public ListAgentsResponseDTO listAgentWithCommands(ListRequest request) throws Exception {
+    /*public ListAgentsResponseDTO listAgentWithCommands(ListRequest request) throws Exception {
         return mapToListAgentsResponseDTO(blockingStub.listAgentsWithCommands(request));
-    }
+    }*/
 
 
     public ListAgentsResponseDTO mapToListAgentsResponseDTO(ListAgentsResponse response) throws Exception {
@@ -89,26 +92,6 @@ public class AgentGrpcService {
     }
 
 
-    public AgentDTO updateAgentType(AgentTypeUpdate newType) throws Exception {
-        final String ctx = CLASSNAME + ".updateAgentType";
-        try {
-            Agent agent = blockingStub.updateAgentType(newType);
-            return protoToDTOAgent(agent);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
-        }
-    }
-
-    public AgentDTO updateAgentGroup(AgentGroupUpdate newGroup) throws Exception {
-        final String ctx = CLASSNAME + ".updateAgentGroup";
-        try {
-            Agent agent = blockingStub.updateAgentGroup(newGroup);
-            return protoToDTOAgent(agent);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
-        }
-    }
-
     public AgentDTO getAgentByHostname(Hostname hostname) {
         final String ctx = CLASSNAME + ".getAgentByHostname";
         try {
@@ -138,7 +121,7 @@ public class AgentGrpcService {
                 }
             }
 
-            AgentDelete request = AgentDelete.newBuilder().setDeletedBy(currentUser).build();
+            DeleteRequest request = DeleteRequest.newBuilder().setDeletedBy(currentUser).build();
 
             Metadata customHeaders = new Metadata();
             customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());

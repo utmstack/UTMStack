@@ -52,7 +52,7 @@ public interface AgentOrBuilder extends
    * <code>.agent.Status status = 4;</code>
    * @return The status.
    */
-  com.park.utmstack.service.grpc.Status getStatus();
+  agent.Common.Status getStatus();
 
   /**
    * <code>string platform = 5;</code>

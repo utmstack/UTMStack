@@ -8,16 +8,16 @@ public interface CommandResultOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>string agent_key = 1;</code>
-   * @return The agentKey.
+   * <code>string agent_id = 1;</code>
+   * @return The agentId.
    */
-  java.lang.String getAgentKey();
+  java.lang.String getAgentId();
   /**
-   * <code>string agent_key = 1;</code>
-   * @return The bytes for agentKey.
+   * <code>string agent_id = 1;</code>
+   * @return The bytes for agentId.
    */
   com.google.protobuf.ByteString
-      getAgentKeyBytes();
+      getAgentIdBytes();
 
   /**
    * <code>string result = 2;</code>

@@ -128,19 +128,11 @@ public interface AgentRequestOrBuilder extends
       getAliasesBytes();
 
   /**
-   * <pre>
-   * IP secondary ips
-   * </pre>
-   *
    * <code>string addresses = 11;</code>
    * @return The addresses.
    */
   java.lang.String getAddresses();
   /**
-   * <pre>
-   * IP secondary ips
-   * </pre>
-   *
    * <code>string addresses = 11;</code>
    * @return The bytes for addresses.
    */

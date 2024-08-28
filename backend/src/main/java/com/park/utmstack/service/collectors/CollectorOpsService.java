@@ -1,7 +1,6 @@
 package com.park.utmstack.service.collectors;
 
 import agent.CollectorOuterClass.CollectorGroupConfigurations;
-import agent.CollectorOuterClass.CollectorDelete;
 import agent.CollectorOuterClass.ListCollectorResponse;
 import agent.CollectorOuterClass.ConfigKnowledge;
 import agent.CollectorOuterClass.CollectorConfig;
@@ -14,11 +13,11 @@ import agent.CollectorOuterClass.ConfigRequest;
 import agent.Common;
 import agent.Common.ListRequest;
 import agent.Common.AuthResponse;
+import agent.Common.DeleteRequest;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_modules.UtmModule;
 import com.park.utmstack.domain.application_modules.UtmModuleGroup;
 import com.park.utmstack.domain.application_modules.UtmModuleGroupConfiguration;
-import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.domain.collector.UtmCollector;
 import com.park.utmstack.domain.network_scan.AssetGroupFilter;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
@@ -36,7 +35,6 @@ import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.network_scan.AssetGroupDTO;
 import com.park.utmstack.service.validators.collector.CollectorValidatorService;
 import com.park.utmstack.util.CipherUtil;
-import com.park.utmstack.web.rest.application_modules.UtmModuleGroupConfigurationResource;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.utmstack.grpc.connection.GrpcConnection;
 import com.utmstack.grpc.exception.CollectorConfigurationGrpcException;
@@ -281,7 +279,7 @@ public class CollectorOpsService {
 
         // Creating the final CollectorConfig object
         collectorConfig = CollectorConfig.newBuilder()
-                .setCollectorKey(collectorDTO.getCollectorKey())
+                .setCollectorId(String.valueOf(collectorDTO.getId()))
                 .setRequestId(String.valueOf(System.currentTimeMillis()))
                 .addAllGroups(collectorGroups)
                 .build();
@@ -336,7 +334,7 @@ public class CollectorOpsService {
                 }
             }
 
-            CollectorDelete collectorDelete = CollectorDelete.newBuilder().setDeletedBy(currentUser).build();
+            DeleteRequest collectorDelete = DeleteRequest.newBuilder().setDeletedBy(currentUser).build();
             AuthResponse auth = Common.AuthResponse.newBuilder()
                     .setId(collectorToSearch.get().getId())
                     .setKey(collectorToSearch.get().getCollectorKey())

@@ -12,19 +12,19 @@ public  abstract class AgentService
 
   public interface Interface {
     /**
-     * <code>rpc DeleteAgent(.agent.AgentDelete) returns (.agent.AuthResponse);</code>
+     * <code>rpc DeleteAgent(.agent.DeleteRequest) returns (.agent.AuthResponse);</code>
      */
     public abstract void deleteAgent(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentDelete request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done);
+        agent.Common.DeleteRequest request,
+        com.google.protobuf.RpcCallback<agent.Common.AuthResponse> done);
 
     /**
      * <code>rpc ListAgents(.agent.ListRequest) returns (.agent.ListAgentsResponse);</code>
      */
     public abstract void listAgents(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request,
+        agent.Common.ListRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done);
 
     /**
@@ -36,27 +36,11 @@ public  abstract class AgentService
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.BidirectionalStream> done);
 
     /**
-     * <code>rpc UpdateAgentType(.agent.AgentTypeUpdate) returns (.agent.Agent);</code>
-     */
-    public abstract void updateAgentType(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentTypeUpdate request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done);
-
-    /**
-     * <code>rpc UpdateAgentGroup(.agent.AgentGroupUpdate) returns (.agent.Agent);</code>
-     */
-    public abstract void updateAgentGroup(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentGroupUpdate request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done);
-
-    /**
      * <code>rpc ListAgentCommands(.agent.ListRequest) returns (.agent.ListAgentsCommandsResponse);</code>
      */
     public abstract void listAgentCommands(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request,
+        agent.Common.ListRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsCommandsResponse> done);
 
     /**
@@ -64,16 +48,8 @@ public  abstract class AgentService
      */
     public abstract void getAgentByHostname(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.Hostname request,
+        agent.Common.Hostname request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done);
-
-    /**
-     * <code>rpc ListAgentsWithCommands(.agent.ListRequest) returns (.agent.ListAgentsResponse);</code>
-     */
-    public abstract void listAgentsWithCommands(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done);
 
   }
 
@@ -83,15 +59,15 @@ public  abstract class AgentService
       @java.lang.Override
       public  void deleteAgent(
           com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.AgentDelete request,
-          com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
+          agent.Common.DeleteRequest request,
+          com.google.protobuf.RpcCallback<agent.Common.AuthResponse> done) {
         impl.deleteAgent(controller, request, done);
       }
 
       @java.lang.Override
       public  void listAgents(
           com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.ListRequest request,
+          agent.Common.ListRequest request,
           com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done) {
         impl.listAgents(controller, request, done);
       }
@@ -105,25 +81,9 @@ public  abstract class AgentService
       }
 
       @java.lang.Override
-      public  void updateAgentType(
-          com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.AgentTypeUpdate request,
-          com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done) {
-        impl.updateAgentType(controller, request, done);
-      }
-
-      @java.lang.Override
-      public  void updateAgentGroup(
-          com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.AgentGroupUpdate request,
-          com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done) {
-        impl.updateAgentGroup(controller, request, done);
-      }
-
-      @java.lang.Override
       public  void listAgentCommands(
           com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.ListRequest request,
+          agent.Common.ListRequest request,
           com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsCommandsResponse> done) {
         impl.listAgentCommands(controller, request, done);
       }
@@ -131,17 +91,9 @@ public  abstract class AgentService
       @java.lang.Override
       public  void getAgentByHostname(
           com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.Hostname request,
+          agent.Common.Hostname request,
           com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done) {
         impl.getAgentByHostname(controller, request, done);
-      }
-
-      @java.lang.Override
-      public  void listAgentsWithCommands(
-          com.google.protobuf.RpcController controller,
-          com.park.utmstack.service.grpc.ListRequest request,
-          com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done) {
-        impl.listAgentsWithCommands(controller, request, done);
       }
 
     };
@@ -167,21 +119,15 @@ public  abstract class AgentService
         }
         switch(method.getIndex()) {
           case 0:
-            return impl.deleteAgent(controller, (com.park.utmstack.service.grpc.AgentDelete)request);
+            return impl.deleteAgent(controller, (agent.Common.DeleteRequest)request);
           case 1:
-            return impl.listAgents(controller, (com.park.utmstack.service.grpc.ListRequest)request);
+            return impl.listAgents(controller, (agent.Common.ListRequest)request);
           case 2:
             return impl.agentStream(controller, (com.park.utmstack.service.grpc.BidirectionalStream)request);
           case 3:
-            return impl.updateAgentType(controller, (com.park.utmstack.service.grpc.AgentTypeUpdate)request);
+            return impl.listAgentCommands(controller, (agent.Common.ListRequest)request);
           case 4:
-            return impl.updateAgentGroup(controller, (com.park.utmstack.service.grpc.AgentGroupUpdate)request);
-          case 5:
-            return impl.listAgentCommands(controller, (com.park.utmstack.service.grpc.ListRequest)request);
-          case 6:
-            return impl.getAgentByHostname(controller, (com.park.utmstack.service.grpc.Hostname)request);
-          case 7:
-            return impl.listAgentsWithCommands(controller, (com.park.utmstack.service.grpc.ListRequest)request);
+            return impl.getAgentByHostname(controller, (agent.Common.Hostname)request);
           default:
             throw new java.lang.AssertionError("Can't get here.");
         }
@@ -197,21 +143,15 @@ public  abstract class AgentService
         }
         switch(method.getIndex()) {
           case 0:
-            return com.park.utmstack.service.grpc.AgentDelete.getDefaultInstance();
+            return agent.Common.DeleteRequest.getDefaultInstance();
           case 1:
-            return com.park.utmstack.service.grpc.ListRequest.getDefaultInstance();
+            return agent.Common.ListRequest.getDefaultInstance();
           case 2:
             return com.park.utmstack.service.grpc.BidirectionalStream.getDefaultInstance();
           case 3:
-            return com.park.utmstack.service.grpc.AgentTypeUpdate.getDefaultInstance();
+            return agent.Common.ListRequest.getDefaultInstance();
           case 4:
-            return com.park.utmstack.service.grpc.AgentGroupUpdate.getDefaultInstance();
-          case 5:
-            return com.park.utmstack.service.grpc.ListRequest.getDefaultInstance();
-          case 6:
-            return com.park.utmstack.service.grpc.Hostname.getDefaultInstance();
-          case 7:
-            return com.park.utmstack.service.grpc.ListRequest.getDefaultInstance();
+            return agent.Common.Hostname.getDefaultInstance();
           default:
             throw new java.lang.AssertionError("Can't get here.");
         }
@@ -227,21 +167,15 @@ public  abstract class AgentService
         }
         switch(method.getIndex()) {
           case 0:
-            return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
+            return agent.Common.AuthResponse.getDefaultInstance();
           case 1:
             return com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance();
           case 2:
             return com.park.utmstack.service.grpc.BidirectionalStream.getDefaultInstance();
           case 3:
-            return com.park.utmstack.service.grpc.Agent.getDefaultInstance();
+            return com.park.utmstack.service.grpc.ListAgentsCommandsResponse.getDefaultInstance();
           case 4:
             return com.park.utmstack.service.grpc.Agent.getDefaultInstance();
-          case 5:
-            return com.park.utmstack.service.grpc.ListAgentsCommandsResponse.getDefaultInstance();
-          case 6:
-            return com.park.utmstack.service.grpc.Agent.getDefaultInstance();
-          case 7:
-            return com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance();
           default:
             throw new java.lang.AssertionError("Can't get here.");
         }
@@ -251,19 +185,19 @@ public  abstract class AgentService
   }
 
   /**
-   * <code>rpc DeleteAgent(.agent.AgentDelete) returns (.agent.AuthResponse);</code>
+   * <code>rpc DeleteAgent(.agent.DeleteRequest) returns (.agent.AuthResponse);</code>
    */
   public abstract void deleteAgent(
       com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.AgentDelete request,
-      com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done);
+      agent.Common.DeleteRequest request,
+      com.google.protobuf.RpcCallback<agent.Common.AuthResponse> done);
 
   /**
    * <code>rpc ListAgents(.agent.ListRequest) returns (.agent.ListAgentsResponse);</code>
    */
   public abstract void listAgents(
       com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.ListRequest request,
+      agent.Common.ListRequest request,
       com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done);
 
   /**
@@ -275,27 +209,11 @@ public  abstract class AgentService
       com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.BidirectionalStream> done);
 
   /**
-   * <code>rpc UpdateAgentType(.agent.AgentTypeUpdate) returns (.agent.Agent);</code>
-   */
-  public abstract void updateAgentType(
-      com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.AgentTypeUpdate request,
-      com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done);
-
-  /**
-   * <code>rpc UpdateAgentGroup(.agent.AgentGroupUpdate) returns (.agent.Agent);</code>
-   */
-  public abstract void updateAgentGroup(
-      com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.AgentGroupUpdate request,
-      com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done);
-
-  /**
    * <code>rpc ListAgentCommands(.agent.ListRequest) returns (.agent.ListAgentsCommandsResponse);</code>
    */
   public abstract void listAgentCommands(
       com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.ListRequest request,
+      agent.Common.ListRequest request,
       com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsCommandsResponse> done);
 
   /**
@@ -303,16 +221,8 @@ public  abstract class AgentService
    */
   public abstract void getAgentByHostname(
       com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.Hostname request,
+      agent.Common.Hostname request,
       com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done);
-
-  /**
-   * <code>rpc ListAgentsWithCommands(.agent.ListRequest) returns (.agent.ListAgentsResponse);</code>
-   */
-  public abstract void listAgentsWithCommands(
-      com.google.protobuf.RpcController controller,
-      com.park.utmstack.service.grpc.ListRequest request,
-      com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done);
 
   public static final
       com.google.protobuf.Descriptors.ServiceDescriptor
@@ -337,12 +247,12 @@ public  abstract class AgentService
     }
     switch(method.getIndex()) {
       case 0:
-        this.deleteAgent(controller, (com.park.utmstack.service.grpc.AgentDelete)request,
-          com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.AuthResponse>specializeCallback(
+        this.deleteAgent(controller, (agent.Common.DeleteRequest)request,
+          com.google.protobuf.RpcUtil.<agent.Common.AuthResponse>specializeCallback(
             done));
         return;
       case 1:
-        this.listAgents(controller, (com.park.utmstack.service.grpc.ListRequest)request,
+        this.listAgents(controller, (agent.Common.ListRequest)request,
           com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.ListAgentsResponse>specializeCallback(
             done));
         return;
@@ -352,28 +262,13 @@ public  abstract class AgentService
             done));
         return;
       case 3:
-        this.updateAgentType(controller, (com.park.utmstack.service.grpc.AgentTypeUpdate)request,
-          com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.Agent>specializeCallback(
-            done));
-        return;
-      case 4:
-        this.updateAgentGroup(controller, (com.park.utmstack.service.grpc.AgentGroupUpdate)request,
-          com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.Agent>specializeCallback(
-            done));
-        return;
-      case 5:
-        this.listAgentCommands(controller, (com.park.utmstack.service.grpc.ListRequest)request,
+        this.listAgentCommands(controller, (agent.Common.ListRequest)request,
           com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.ListAgentsCommandsResponse>specializeCallback(
             done));
         return;
-      case 6:
-        this.getAgentByHostname(controller, (com.park.utmstack.service.grpc.Hostname)request,
+      case 4:
+        this.getAgentByHostname(controller, (agent.Common.Hostname)request,
           com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.Agent>specializeCallback(
-            done));
-        return;
-      case 7:
-        this.listAgentsWithCommands(controller, (com.park.utmstack.service.grpc.ListRequest)request,
-          com.google.protobuf.RpcUtil.<com.park.utmstack.service.grpc.ListAgentsResponse>specializeCallback(
             done));
         return;
       default:
@@ -391,21 +286,15 @@ public  abstract class AgentService
     }
     switch(method.getIndex()) {
       case 0:
-        return com.park.utmstack.service.grpc.AgentDelete.getDefaultInstance();
+        return agent.Common.DeleteRequest.getDefaultInstance();
       case 1:
-        return com.park.utmstack.service.grpc.ListRequest.getDefaultInstance();
+        return agent.Common.ListRequest.getDefaultInstance();
       case 2:
         return com.park.utmstack.service.grpc.BidirectionalStream.getDefaultInstance();
       case 3:
-        return com.park.utmstack.service.grpc.AgentTypeUpdate.getDefaultInstance();
+        return agent.Common.ListRequest.getDefaultInstance();
       case 4:
-        return com.park.utmstack.service.grpc.AgentGroupUpdate.getDefaultInstance();
-      case 5:
-        return com.park.utmstack.service.grpc.ListRequest.getDefaultInstance();
-      case 6:
-        return com.park.utmstack.service.grpc.Hostname.getDefaultInstance();
-      case 7:
-        return com.park.utmstack.service.grpc.ListRequest.getDefaultInstance();
+        return agent.Common.Hostname.getDefaultInstance();
       default:
         throw new java.lang.AssertionError("Can't get here.");
     }
@@ -421,21 +310,15 @@ public  abstract class AgentService
     }
     switch(method.getIndex()) {
       case 0:
-        return com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance();
+        return agent.Common.AuthResponse.getDefaultInstance();
       case 1:
         return com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance();
       case 2:
         return com.park.utmstack.service.grpc.BidirectionalStream.getDefaultInstance();
       case 3:
-        return com.park.utmstack.service.grpc.Agent.getDefaultInstance();
+        return com.park.utmstack.service.grpc.ListAgentsCommandsResponse.getDefaultInstance();
       case 4:
         return com.park.utmstack.service.grpc.Agent.getDefaultInstance();
-      case 5:
-        return com.park.utmstack.service.grpc.ListAgentsCommandsResponse.getDefaultInstance();
-      case 6:
-        return com.park.utmstack.service.grpc.Agent.getDefaultInstance();
-      case 7:
-        return com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance();
       default:
         throw new java.lang.AssertionError("Can't get here.");
     }
@@ -459,22 +342,22 @@ public  abstract class AgentService
 
     public  void deleteAgent(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentDelete request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.AuthResponse> done) {
+        agent.Common.DeleteRequest request,
+        com.google.protobuf.RpcCallback<agent.Common.AuthResponse> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(0),
         controller,
         request,
-        com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance(),
+        agent.Common.AuthResponse.getDefaultInstance(),
         com.google.protobuf.RpcUtil.generalizeCallback(
           done,
-          com.park.utmstack.service.grpc.AuthResponse.class,
-          com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance()));
+          agent.Common.AuthResponse.class,
+          agent.Common.AuthResponse.getDefaultInstance()));
     }
 
     public  void listAgents(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request,
+        agent.Common.ListRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(1),
@@ -502,42 +385,12 @@ public  abstract class AgentService
           com.park.utmstack.service.grpc.BidirectionalStream.getDefaultInstance()));
     }
 
-    public  void updateAgentType(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentTypeUpdate request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done) {
-      channel.callMethod(
-        getDescriptor().getMethods().get(3),
-        controller,
-        request,
-        com.park.utmstack.service.grpc.Agent.getDefaultInstance(),
-        com.google.protobuf.RpcUtil.generalizeCallback(
-          done,
-          com.park.utmstack.service.grpc.Agent.class,
-          com.park.utmstack.service.grpc.Agent.getDefaultInstance()));
-    }
-
-    public  void updateAgentGroup(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentGroupUpdate request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done) {
-      channel.callMethod(
-        getDescriptor().getMethods().get(4),
-        controller,
-        request,
-        com.park.utmstack.service.grpc.Agent.getDefaultInstance(),
-        com.google.protobuf.RpcUtil.generalizeCallback(
-          done,
-          com.park.utmstack.service.grpc.Agent.class,
-          com.park.utmstack.service.grpc.Agent.getDefaultInstance()));
-    }
-
     public  void listAgentCommands(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request,
+        agent.Common.ListRequest request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsCommandsResponse> done) {
       channel.callMethod(
-        getDescriptor().getMethods().get(5),
+        getDescriptor().getMethods().get(3),
         controller,
         request,
         com.park.utmstack.service.grpc.ListAgentsCommandsResponse.getDefaultInstance(),
@@ -549,10 +402,10 @@ public  abstract class AgentService
 
     public  void getAgentByHostname(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.Hostname request,
+        agent.Common.Hostname request,
         com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.Agent> done) {
       channel.callMethod(
-        getDescriptor().getMethods().get(6),
+        getDescriptor().getMethods().get(4),
         controller,
         request,
         com.park.utmstack.service.grpc.Agent.getDefaultInstance(),
@@ -560,21 +413,6 @@ public  abstract class AgentService
           done,
           com.park.utmstack.service.grpc.Agent.class,
           com.park.utmstack.service.grpc.Agent.getDefaultInstance()));
-    }
-
-    public  void listAgentsWithCommands(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request,
-        com.google.protobuf.RpcCallback<com.park.utmstack.service.grpc.ListAgentsResponse> done) {
-      channel.callMethod(
-        getDescriptor().getMethods().get(7),
-        controller,
-        request,
-        com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance(),
-        com.google.protobuf.RpcUtil.generalizeCallback(
-          done,
-          com.park.utmstack.service.grpc.ListAgentsResponse.class,
-          com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance()));
     }
   }
 
@@ -584,14 +422,14 @@ public  abstract class AgentService
   }
 
   public interface BlockingInterface {
-    public com.park.utmstack.service.grpc.AuthResponse deleteAgent(
+    public agent.Common.AuthResponse deleteAgent(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentDelete request)
+        agent.Common.DeleteRequest request)
         throws com.google.protobuf.ServiceException;
 
     public com.park.utmstack.service.grpc.ListAgentsResponse listAgents(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request)
+        agent.Common.ListRequest request)
         throws com.google.protobuf.ServiceException;
 
     public com.park.utmstack.service.grpc.BidirectionalStream agentStream(
@@ -599,29 +437,14 @@ public  abstract class AgentService
         com.park.utmstack.service.grpc.BidirectionalStream request)
         throws com.google.protobuf.ServiceException;
 
-    public com.park.utmstack.service.grpc.Agent updateAgentType(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentTypeUpdate request)
-        throws com.google.protobuf.ServiceException;
-
-    public com.park.utmstack.service.grpc.Agent updateAgentGroup(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentGroupUpdate request)
-        throws com.google.protobuf.ServiceException;
-
     public com.park.utmstack.service.grpc.ListAgentsCommandsResponse listAgentCommands(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request)
+        agent.Common.ListRequest request)
         throws com.google.protobuf.ServiceException;
 
     public com.park.utmstack.service.grpc.Agent getAgentByHostname(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.Hostname request)
-        throws com.google.protobuf.ServiceException;
-
-    public com.park.utmstack.service.grpc.ListAgentsResponse listAgentsWithCommands(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request)
+        agent.Common.Hostname request)
         throws com.google.protobuf.ServiceException;
   }
 
@@ -632,21 +455,21 @@ public  abstract class AgentService
 
     private final com.google.protobuf.BlockingRpcChannel channel;
 
-    public com.park.utmstack.service.grpc.AuthResponse deleteAgent(
+    public agent.Common.AuthResponse deleteAgent(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentDelete request)
+        agent.Common.DeleteRequest request)
         throws com.google.protobuf.ServiceException {
-      return (com.park.utmstack.service.grpc.AuthResponse) channel.callBlockingMethod(
+      return (agent.Common.AuthResponse) channel.callBlockingMethod(
         getDescriptor().getMethods().get(0),
         controller,
         request,
-        com.park.utmstack.service.grpc.AuthResponse.getDefaultInstance());
+        agent.Common.AuthResponse.getDefaultInstance());
     }
 
 
     public com.park.utmstack.service.grpc.ListAgentsResponse listAgents(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request)
+        agent.Common.ListRequest request)
         throws com.google.protobuf.ServiceException {
       return (com.park.utmstack.service.grpc.ListAgentsResponse) channel.callBlockingMethod(
         getDescriptor().getMethods().get(1),
@@ -668,36 +491,12 @@ public  abstract class AgentService
     }
 
 
-    public com.park.utmstack.service.grpc.Agent updateAgentType(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentTypeUpdate request)
-        throws com.google.protobuf.ServiceException {
-      return (com.park.utmstack.service.grpc.Agent) channel.callBlockingMethod(
-        getDescriptor().getMethods().get(3),
-        controller,
-        request,
-        com.park.utmstack.service.grpc.Agent.getDefaultInstance());
-    }
-
-
-    public com.park.utmstack.service.grpc.Agent updateAgentGroup(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.AgentGroupUpdate request)
-        throws com.google.protobuf.ServiceException {
-      return (com.park.utmstack.service.grpc.Agent) channel.callBlockingMethod(
-        getDescriptor().getMethods().get(4),
-        controller,
-        request,
-        com.park.utmstack.service.grpc.Agent.getDefaultInstance());
-    }
-
-
     public com.park.utmstack.service.grpc.ListAgentsCommandsResponse listAgentCommands(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request)
+        agent.Common.ListRequest request)
         throws com.google.protobuf.ServiceException {
       return (com.park.utmstack.service.grpc.ListAgentsCommandsResponse) channel.callBlockingMethod(
-        getDescriptor().getMethods().get(5),
+        getDescriptor().getMethods().get(3),
         controller,
         request,
         com.park.utmstack.service.grpc.ListAgentsCommandsResponse.getDefaultInstance());
@@ -706,25 +505,13 @@ public  abstract class AgentService
 
     public com.park.utmstack.service.grpc.Agent getAgentByHostname(
         com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.Hostname request)
+        agent.Common.Hostname request)
         throws com.google.protobuf.ServiceException {
       return (com.park.utmstack.service.grpc.Agent) channel.callBlockingMethod(
-        getDescriptor().getMethods().get(6),
+        getDescriptor().getMethods().get(4),
         controller,
         request,
         com.park.utmstack.service.grpc.Agent.getDefaultInstance());
-    }
-
-
-    public com.park.utmstack.service.grpc.ListAgentsResponse listAgentsWithCommands(
-        com.google.protobuf.RpcController controller,
-        com.park.utmstack.service.grpc.ListRequest request)
-        throws com.google.protobuf.ServiceException {
-      return (com.park.utmstack.service.grpc.ListAgentsResponse) channel.callBlockingMethod(
-        getDescriptor().getMethods().get(7),
-        controller,
-        request,
-        com.park.utmstack.service.grpc.ListAgentsResponse.getDefaultInstance());
     }
 
   }
