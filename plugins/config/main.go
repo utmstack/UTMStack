@@ -260,7 +260,7 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 			body interface{}
 		)
 
-		err = rows.Scan(&id, &body, &name)
+		err = rows.Scan(&id, &name, &body)
 		if err != nil {
 			return nil, helpers.Logger().ErrorF("failed to scan row: %v", err)
 		}
