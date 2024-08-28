@@ -40,6 +40,8 @@
 </div>
 
 <div [ngClass]="printFormat?'vis-container-print':'mt-4'" class="w-100">
+    <span *ngIf="preparingPrint" class="text-primary">
+    <i class="spinner icon-spinner2"></i> Loading content, please wait</span>
   <div *ngIf="dashboardDescription != ''" class="report-desc-container w-100 d-flex justify-content-center align-items-center flex-column">
     <div class="report-description dashboard-info-container d-flex align-items-start w-100">
       <p class="font-size-lg mb-3">{{dashboardDescription}}</p>
@@ -69,7 +71,6 @@
   </div>
 
 
-  <app-render-visualization-print [loadingVisualizations]="loadingVisualizations"
-                                  (visualizationLoaded)="onVisualizationLoaded()"
+  <app-render-visualization-print (visualizationLoaded)="onVisualizationLoaded()"
                                   [visualizationRender]="visualizationRender"></app-render-visualization-print>
 </div>
