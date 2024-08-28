@@ -497,12 +497,16 @@ func writeTenant(pCfg *helpers.Config, tenant Tenant) *logger.Error {
 		return helpers.Logger().ErrorF("failed to create file: %v", err)
 	}
 
-	bTenant, err := yaml.Marshal(tenant)
+	tenants := helpers.Config{
+		Tenants: []helpers.Tenant{helpers.Tenant(tenant)},
+	}
+
+	bTenants, err := yaml.Marshal(tenants)
 	if err != nil {
 		return helpers.Logger().ErrorF("failed to marshal tenant: %v", err)
 	}
 
-	_, err = file.Write(bTenant)
+	_, err = file.Write(bTenants)
 	if err != nil {
 		return helpers.Logger().ErrorF("failed to write to file: %v", err)
 	}
