@@ -147,6 +147,8 @@ func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface
 			OfType: gjson.Get(variable.String(), "of_type").String(),
 		})
 	}
+
+	r.Where = whereObj
 }
 
 func (f *Filter) FromVar(id int, name interface{}, filter interface{}) {
