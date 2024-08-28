@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -25,17 +24,9 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		branch = "release"
 	}
 
-	pluginsFolder := filepath.Join(stack.EventsEngineWorkdir, "plugins")
-	err := os.MkdirAll(pluginsFolder, 0777)
-	if err != nil {
-		return err
-	}
+	pluginsFolder := utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins")
 
-	pipelineFolder := filepath.Join(stack.EventsEngineWorkdir, "pipeline")
-	err = os.MkdirAll(pipelineFolder, 0777)
-	if err != nil {
-		return err
-	}
+	pipelineFolder := utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline")
 
 	var downloads = map[string]string{
 		// Plugins

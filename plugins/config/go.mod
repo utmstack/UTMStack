@@ -6,6 +6,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/threatwinds/go-sdk v0.6.6
 	github.com/threatwinds/logger v1.1.9
+	github.com/tidwall/gjson v1.17.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -31,7 +32,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
-	github.com/tidwall/gjson v1.17.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
