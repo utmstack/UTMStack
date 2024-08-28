@@ -17,6 +17,8 @@
   </div>
 </div>
 
+
+<div *ngIf="preparingPrint" class="report-loading"></div>
 <div class="d-flex justify-content-center align-items-start w-100 m-0 d-print-block">
   <div class="compliance-front-page">
 
@@ -74,7 +76,6 @@
 
 <div [ngClass]="printFormat?'vis-container-print':'mt-4'" class="w-100">
 
-  <app-render-visualization-print [loadingVisualizations]="loadingVisualizations"
-                                  (visualizationLoaded)="onVisualizationLoaded()"
+  <app-render-visualization-print (visualizationLoaded)="onVisualizationLoaded()"
                                   [visualizationRender]="visualizationRender"></app-render-visualization-print>
 </div>
