@@ -427,7 +427,7 @@ func cleanUpFilters(gCfg *helpers.Config, filters []Filter) *logger.Error {
 	for _, file := range files {
 		var keep bool
 		for _, filter := range filters {
-			if file == filepath.Join(gCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%s.yaml", filter.Id)) {
+			if file == filepath.Join(gCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)) {
 				keep = true
 				break
 			}
@@ -445,7 +445,7 @@ func cleanUpFilters(gCfg *helpers.Config, filters []Filter) *logger.Error {
 }
 
 func cleanUpRules(gCfg *helpers.Config, rules []Rule) *logger.Error {
-	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules"))
+	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
 	if e != nil {
 		os.Exit(1)
 	}
@@ -453,7 +453,7 @@ func cleanUpRules(gCfg *helpers.Config, rules []Rule) *logger.Error {
 	for _, file := range files {
 		var keep bool
 		for _, rule := range rules {
-			if file == filepath.Join(gCfg.Env.Workdir, "rules", fmt.Sprintf("%s.yaml", rule.Id)) {
+			if file == filepath.Join(gCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)) {
 				keep = true
 				break
 			}
@@ -521,7 +521,7 @@ func writeTenant(pCfg *helpers.Config, tenant Tenant) *logger.Error {
 
 func writeRules(pCfg *helpers.Config, rules []Rule) *logger.Error {
 	for _, rule := range rules {
-		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", fmt.Sprintf("%d.yaml", rule.Id)))
+		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)))
 		if err != nil {
 			return helpers.Logger().ErrorF("failed to create file: %v", err)
 		}
