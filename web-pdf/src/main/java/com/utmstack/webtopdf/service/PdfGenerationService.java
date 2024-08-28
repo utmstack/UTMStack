@@ -37,11 +37,8 @@ public class PdfGenerationService {
 
         try {
             webDriver.get(reportUrl);
-
-            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".report-loading")));
-
-            wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(".report-loading")));
+            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".report-loading")));
 
             Pdf print = ((PrintsPage) webDriver).print(printOptions);
             webDriver.quit();
