@@ -34,6 +34,7 @@ export class LoginComponent implements OnInit {
   loadingAuth = true;
   loginImage$: Observable<string>;
   loadingLogin = false;
+  isInternalNavigation = false;
 
   constructor(
     private loginService: LoginService,
@@ -61,10 +62,13 @@ export class LoginComponent implements OnInit {
           if (params.token) {
             this.loadingLogin = false;
             this.loginService.loginWithToken(params.token, true).then(() => {
+              this.loadingLogin = false;
+              this.isInternalNavigation = true;
               this.startInternalNavigation(params);
             });
           } else if (params.key) {
             this.loadingLogin = false;
+            this.isInternalNavigation = true;
             this.loginService.loginWithKey(params.key, true).then(() => {
               this.startInternalNavigation(params);
             });
