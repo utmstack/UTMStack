@@ -235,11 +235,11 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"8080:8080",
 		},
 		Volumes: []string{
-			"rules:/workdir/rules/utmstack",
-			"geoip_data:/workdir/geolocation",
-			stack.Cert + ":/cert",
 			filepath.Join(stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			filepath.Join(stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
+			filepath.Join(stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
 			filepath.Join(stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
+			stack.Cert + ":/cert",
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
@@ -384,14 +384,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	}
 
 	c.Volumes["postgres_data"] = Volume{
-		"external": false,
-	}
-
-	c.Volumes["geoip_data"] = Volume{
-		"external": false,
-	}
-
-	c.Volumes["rules"] = Volume{
 		"external": false,
 	}
 
