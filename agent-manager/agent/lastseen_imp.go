@@ -96,7 +96,7 @@ func (s *LastSeenService) flushLastSeenToDB() {
 		s.CacheCollectorLastSeenMutex.Unlock()
 
 		for _, ping := range pings {
-			err := s.DBConnection.Upsert(&ping, "id = ?", nil, ping.ConnectorID)
+			err := s.DBConnection.Upsert(&ping, "connector_id = ?", nil, ping.ConnectorID)
 			if err != nil {
 				utils.ALogger.ErrorF("failed to save LastSeen item: %v", err)
 			}
