@@ -160,7 +160,7 @@ func (s *CollectorService) DeleteCollector(ctx context.Context, req *DeleteReque
 		utils.ALogger.ErrorF("unable to delete collector: %v", err)
 	}
 
-	err = s.DBConnection.Delete(&models.Collector{}, "id", false, id)
+	err = s.DBConnection.Delete(&models.Collector{}, "id = ?", false, id)
 	if err != nil {
 		utils.ALogger.ErrorF("unable to delete collector: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("unable to delete collector: %v", err.Error()))
