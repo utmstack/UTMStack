@@ -33,6 +33,8 @@ export class LoginComponent implements OnInit {
   isInDemo: boolean;
   loadingAuth = true;
   loginImage$: Observable<string>;
+  loadingLogin = false;
+  isInternalNavigation = false;
 
   constructor(
     private loginService: LoginService,
@@ -58,23 +60,23 @@ export class LoginComponent implements OnInit {
       if (result) {
         this.activatedRoute.queryParams.subscribe(params => {
           if (params.token) {
+            this.loadingLogin = false;
             this.loginService.loginWithToken(params.token, true).then(() => {
-              if (params.url) {
-                this.checkLogin(params.url);
-              } else {
-                this.router.navigate(['/dashboard/overview']).then(() => {
-                  this.spinner.hide('loadingSpinner');
-                });
-              }
+              this.loadingLogin = false;
+              this.isInternalNavigation = true;
+              this.startInternalNavigation(params);
             });
           } else if (params.key) {
+            this.loadingLogin = false;
+            this.isInternalNavigation = true;
             this.loginService.loginWithKey(params.key, true).then(() => {
-              this.startInternalNavigation();
+              this.startInternalNavigation(params);
             });
+          } else {
+            this.initForm();
+            this.loadingAuth = false;
           }
         });
-        this.initForm();
-        this.loadingAuth = false;
       }
     });
   }
@@ -82,30 +84,30 @@ export class LoginComponent implements OnInit {
   checkLogin(url ?: string) {
     console.log('Checking URL token');
     this.accountService.identity(true).then(value => {
-      if (value) {
-        this.spinner.show('loadingSpinner');
-        if (url) {
-          const urlRoute = url.split('<-PARAMS->');
-          const route = urlRoute[0];
-          const params = urlRoute[1];
-          if (params) {
-            stringParamToQueryParams(params).then(queryParams => {
-              this.router.navigate([route],
-                {queryParams}).then(() => {
-                this.menuBehavior.$menu.next(false);
-                this.spinner.hide('loadingSpinner');
+      setTimeout(() => {
+        if (value) {
+          //this.spinner.show('loadingSpinner');
+          if (url) {
+            const urlRoute = url.split('<-PARAMS->');
+            const route = urlRoute[0];
+            const params = urlRoute[1];
+            if (params) {
+              stringParamToQueryParams(params).then(queryParams => {
+                this.router.navigate([route],
+                  {queryParams}).then(() => {
+                  this.menuBehavior.$menu.next(false);
+                  //this.spinner.hide('loadingSpinner');
+                });
               });
-            });
-          } else {
-            this.router.navigate([route]).then(() => {
-              this.spinner.hide('loadingSpinner');
-            });
+            } else {
+              this.router.navigate([route]);
+            }
           }
+        } else {
+          //this.spinner.hide('loadingSpinner');
+          this.loadingAuth = false;
         }
-      } else {
-        this.spinner.hide('loadingSpinner');
-        this.loadingAuth = false;
-      }
+      }, 1000);
     });
   }
 
@@ -175,8 +177,14 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  startInternalNavigation() {
-    this.router.navigate(['/dashboard/overview']);
+  startInternalNavigation(params) {
+    if (params.url) {
+      this.checkLogin(params.url);
+    } else {
+      this.router.navigate(['/dashboard/overview']).then(() => {
+        this.spinner.hide('loadingSpinner');
+      });
+    }
   }
 
 }

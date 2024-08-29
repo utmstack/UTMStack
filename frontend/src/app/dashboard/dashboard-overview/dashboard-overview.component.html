@@ -6,11 +6,11 @@
       <app-elastic-filter-time [invertContent]="true"
                                [isEmitter]="true"
                                container="body"></app-elastic-filter-time>
-      <button (click)="exportToPdf()"
+      <!--<button (click)="exportToPdf()"
               [disabled]="pdfExport" class="btn utm-button utm-button-primary ml-2">
         <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
         {{pdfExport ? 'Generating...' : 'Save to PDF'}}
-      </button>
+      </button>-->
     </div>
   </div>
   <app-utm-report-header *ngIf="pdfExport" [reportName]="'UTMSTACK Overview'"></app-utm-report-header>

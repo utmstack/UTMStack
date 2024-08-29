@@ -101,7 +101,7 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 
 	LastSeenChannel <- models.LastSeen{
 		ConnectorType: "agent",
-		ID:            uint(agent.ID),
+		ConnectorID:   agent.ID,
 		LastPing:      time.Now(),
 	}
 
@@ -133,7 +133,7 @@ func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*Au
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent commands: %v", err.Error()))
 	}
 
-	err = s.DBConnection.Delete(&models.Agent{}, "id", false, id)
+	err = s.DBConnection.Delete(&models.Agent{}, "id = ?", false, id)
 	if err != nil {
 		utils.ALogger.ErrorF("unable to delete agent: %v", err)
 		return &AuthResponse{}, status.Error(codes.Internal, fmt.Sprintf("unable to delete agent: %v", err.Error()))

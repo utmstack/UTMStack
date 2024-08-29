@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"os/exec"
@@ -33,6 +34,15 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 
 func Execute(c string, dir string, arg ...string) error {
 	cmd := exec.Command(c, arg...)
+	if dir != "" {
+		cmd.Dir = dir
+	}
+
+	return cmd.Run()
+}
+
+func ExecuteWithContext(ctx context.Context, c string, dir string, arg ...string) error {
+	cmd := exec.CommandContext(ctx, c, arg...)
 	if dir != "" {
 		cmd.Dir = dir
 	}

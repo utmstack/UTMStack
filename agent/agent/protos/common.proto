@@ -30,3 +30,7 @@ message AuthResponse {
 message Hostname{
   string hostname = 1;
 }
+
+message DeleteRequest {
+  string deleted_by = 1;
+}

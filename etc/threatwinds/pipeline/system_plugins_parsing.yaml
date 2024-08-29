@@ -3,6 +3,8 @@ plugins:
     order:
     - kv
     - grok
+    - json
+    - csv
     - trim
     - rename
     - reformat

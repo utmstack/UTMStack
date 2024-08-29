@@ -3,10 +3,12 @@ package module
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/utmstack/UTMStack/collector-installer/config"
 	"github.com/utmstack/UTMStack/collector-installer/models"
@@ -15,9 +17,8 @@ import (
 )
 
 var (
-	as400Collector   AS400
-	as400Once        sync.Once
-	As400JavaVersion = "jdk-11.0.13.8"
+	as400Collector AS400
+	as400Once      sync.Once
 )
 
 type AS400 struct {
@@ -34,7 +35,7 @@ func getAS400Collector() *AS400 {
 					DisplayName: "UTMStack Collector AS400",
 					Description: "UTMStack Collector AS400",
 					CMDRun:      getJavaCommand(),
-					CMDArgs:     []string{"-jar", filepath.Join(currentPath, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400)), "-option=RUN"},
+					CMDArgs:     []string{"-jar", filepath.Join(currentPath, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, "")), "-option=RUN"},
 					CMDPath:     currentPath,
 				},
 			},
@@ -68,7 +69,7 @@ func (a *AS400) Install(ip, utmKey, skip string) error {
 	}
 
 	result, errB := utils.ExecuteWithResult(
-		getJavaCommand(), "", "-jar", config.GetDownloadFilePath(config.DependServiceLabel, config.AS400), "-option=INSTALL",
+		getJavaCommand(), "", "-jar", config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, ""), "-option=INSTALL",
 		fmt.Sprintf("-collector-manager-host=%s", ip), fmt.Sprintf("-collector-manager-port=%s", config.AgentManagerPort),
 		fmt.Sprintf("-logs-port=%s", config.LogAuthProxyPort), fmt.Sprintf("-connection-key=%s", utmKey),
 	)
@@ -92,7 +93,7 @@ func (a *AS400) Install(ip, utmKey, skip string) error {
 
 func (a *AS400) Uninstall() error {
 	result, errB := utils.ExecuteWithResult(
-		getJavaCommand(), "", "-jar", config.GetDownloadFilePath(config.DependServiceLabel, config.AS400), "-option=UNINSTALL",
+		getJavaCommand(), "", "-jar", config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, ""), "-option=UNINSTALL",
 	)
 	if errB {
 		return fmt.Errorf("error executing uninstall command: %v", result)
@@ -122,13 +123,13 @@ func (a *AS400) downloadDependencies(ip, utmKey string, skip bool) error {
 
 	headers := map[string]string{"connection-key": utmKey}
 
-	if version.ServiceVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependServiceLabel, string(config.AS400)), headers, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400), skip); err != nil {
+	if version.ServiceVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependServiceLabel, string(config.AS400)), headers, config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, ""), skip); err != nil {
 		return fmt.Errorf("error downloading service: %v", err)
 	}
 
 	switch runtime.GOOS {
 	case "windows":
-		if version.DependenciesVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependZipLabel, string(config.AS400)), headers, config.GetDownloadFilePath(config.DependZipLabel, config.AS400), skip); err != nil {
+		if version.DependenciesVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, ip, "0", runtime.GOOS, config.DependZipLabel, string(config.AS400)), headers, config.GetDownloadFilePath(config.DependZipLabel, config.AS400, ""), skip); err != nil {
 			return fmt.Errorf("error downloading dependencies: %v", err)
 		}
 	case "linux":
@@ -172,9 +173,52 @@ func getJavaCommand() string {
 	javaCommand := ""
 	switch runtime.GOOS {
 	case "windows":
-		javaCommand = filepath.Join(currentPath, As400JavaVersion, "bin", "java.exe")
+		javaCommand = filepath.Join(currentPath, "jdk", "bin", "java.exe")
 	case "linux":
 		javaCommand = "java"
 	}
 	return javaCommand
+}
+
+func (a *AS400) CheckUpdates() {
+	for {
+		var updateType string
+		if utils.CheckIfPathExist(config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, "_new")) {
+			updateType = "service"
+		} else if utils.CheckIfPathExist(config.GetDownloadFilePath(config.DependZipLabel, config.AS400, "")) {
+			updateType = "dependencies"
+		}
+
+		if updateType != "" {
+			if !utils.CheckIfPathExist(config.GetUpdateLockFilePath()) {
+				serv.UpdateChann <- true
+			}
+
+			time.Sleep(20 * time.Second)
+
+			switch updateType {
+			case "service":
+				err := os.Remove(config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, ""))
+				if err != nil {
+					utils.Logger.WriteFatal(fmt.Sprintf("error deleting old service file: %v", err))
+				}
+				err = os.Rename(config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, "_new"), config.GetDownloadFilePath(config.DependServiceLabel, config.AS400, ""))
+				if err != nil {
+					utils.Logger.WriteFatal(fmt.Sprintf("error renaming new service file: %v", err))
+				}
+			case "dependencies":
+				if runtime.GOOS == "windows" {
+					err := os.RemoveAll(filepath.Join(utils.GetMyPath(), "jdk"))
+					if err != nil {
+						utils.Logger.WriteFatal(fmt.Sprintf("error deleting old dependencies: %v", err))
+					}
+					err = utils.Unzip(config.GetDownloadFilePath(config.DependZipLabel, config.AS400, ""), utils.GetMyPath())
+					if err != nil {
+						utils.Logger.WriteFatal(fmt.Sprintf("error unzipping new dependencies: %v", err))
+					}
+				}
+			}
+			serv.UpdateChann <- false
+		}
+	}
 }

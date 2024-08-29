@@ -31,6 +31,7 @@ func main() {
 				utils.Logger.WriteFatal("error reading config", err)
 			}
 			collector := module.GetCollectorProcess(config.Collector(cnf.CollectorType))
+			go collector.CheckUpdates()
 			err = collector.Run()
 			if err != nil {
 				utils.Logger.WriteFatal(fmt.Sprintf("error running %s collector:", cnf.CollectorType), err)
@@ -71,6 +72,7 @@ func main() {
 			utils.Logger.WriteFatal("error reading config", err)
 		}
 		collector := module.GetCollectorProcess(config.Collector(cnf.CollectorType))
+		go collector.CheckUpdates()
 		err = collector.Run()
 		if err != nil {
 			utils.Logger.WriteFatal(fmt.Sprintf("error running %s collector:", cnf.CollectorType), err)

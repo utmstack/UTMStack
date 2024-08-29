@@ -3,6 +3,7 @@ package agent
 import (
 	context "context"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -124,7 +125,7 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	// Send the result back to the server
 	if err := stream.Send(&BidirectionalStream{
 		StreamMessage: &BidirectionalStream_Result{
-			Result: &CommandResult{Result: result, AgentKey: cnf.AgentKey, ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
+			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
 		},
 	}); err != nil {
 		return err

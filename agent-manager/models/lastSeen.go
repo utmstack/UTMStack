@@ -4,6 +4,6 @@ import "time"
 
 type LastSeen struct {
 	ConnectorType string
-	ID            uint      `gorm:"primaryKey"`
-	LastPing      time.Time `gorm:"index"`
+	ConnectorID   uint
+	LastPing      time.Time
 }

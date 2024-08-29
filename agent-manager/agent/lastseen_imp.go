@@ -68,11 +68,11 @@ func (s *LastSeenService) processPings() {
 	for ping := range LastSeenChannel {
 		if ping.ConnectorType == "agent" {
 			s.CacheAgentLastSeenMutex.Lock()
-			s.CacheAgentLastSeen[ping.ID] = ping
+			s.CacheAgentLastSeen[ping.ConnectorID] = ping
 			s.CacheAgentLastSeenMutex.Unlock()
 		} else if ping.ConnectorType == "collector" {
 			s.CacheCollectorLastSeenMutex.Lock()
-			s.CacheCollectorLastSeen[ping.ID] = ping
+			s.CacheCollectorLastSeen[ping.ConnectorID] = ping
 			s.CacheCollectorLastSeenMutex.Unlock()
 		}
 	}
@@ -96,7 +96,7 @@ func (s *LastSeenService) flushLastSeenToDB() {
 		s.CacheCollectorLastSeenMutex.Unlock()
 
 		for _, ping := range pings {
-			err := s.DBConnection.Upsert(&ping, "id = ?", nil, ping.ID)
+			err := s.DBConnection.Upsert(&ping, "connector_id = ?", nil, ping.ConnectorID)
 			if err != nil {
 				utils.ALogger.ErrorF("failed to save LastSeen item: %v", err)
 			}
@@ -123,7 +123,7 @@ func (s *LastSeenService) Ping(stream PingService_PingServer) error {
 			return status.Error(codes.Internal, err.Error())
 		}
 		LastSeenChannel <- models.LastSeen{
-			ID:            uint(idInt),
+			ConnectorID:   uint(idInt),
 			ConnectorType: typ,
 			LastPing:      time.Now(),
 		}

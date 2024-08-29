@@ -30,7 +30,7 @@ func DeleteAgent(cnf *config.Config) error {
 		return fmt.Errorf("error getting user: %v", err)
 	}
 
-	delet := &AgentDelete{
+	delet := &DeleteRequest{
 		DeletedBy: currentUser.Username,
 	}
 

@@ -1,13 +1,50 @@
 syntax = "proto3";
 
-option go_package = "github.com/utmstack/UTMStack/log-auth-proxy/agent";
+option go_package = "github.com/utmstack/UTMStack/agent-manager/agent";
 
 package agent;
 
+import "google/protobuf/timestamp.proto";
 import "common.proto";
 
 service AgentService {
+  rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
+  rpc DeleteAgent(DeleteRequest) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+  rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
+  rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
+  rpc GetAgentByHostname (Hostname) returns (Agent) {}
+}
+
+service PanelService {
+  rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
+}
+
+enum AgentCommandStatus {
+  NOT_EXECUTED = 0;
+  QUEUE = 1;
+  PENDING = 2;
+  EXECUTED = 3;
+  ERROR = 4;
+}
+
+message AgentRequest {
+  string ip = 1;
+  string hostname = 2;
+  string os = 3;
+  string platform = 4;
+  string version = 5;
+  string register_by = 6;
+  string mac = 7 ;
+  string os_major_version = 8;
+  string os_minor_version = 9;
+  string aliases = 10;
+  string addresses = 11;
+}
+
+message ListAgentsResponse {
+  repeated Agent rows = 1;
+  int32 total = 2;
 }
 
 message Agent {
@@ -27,7 +64,46 @@ message Agent {
   string addresses = 14;
 }
 
-message ListAgentsResponse {
-  repeated Agent rows = 1;
+message BidirectionalStream {
+  oneof stream_message {
+    UtmCommand command = 1;
+    CommandResult result = 2;
+  }
+}
+
+message UtmCommand {
+  string agent_id = 1;
+  string command = 2;
+  string executed_by = 3;
+  string cmd_id = 4;
+  string origin_type = 5;
+  string origin_id = 6;
+  string reason = 7;
+}
+
+message CommandResult {
+  string agent_id = 1;
+  string result = 2;
+  google.protobuf.Timestamp executed_at = 3;
+  string cmd_id = 4;
+}
+
+message ListAgentsCommandsResponse {
+  repeated AgentCommand rows = 1;
   int32 total = 2;
+}
+
+message AgentCommand {
+  google.protobuf.Timestamp created_at = 1;
+  google.protobuf.Timestamp updated_at = 2;
+  uint32 agent_id = 3;
+  string command = 4;
+  AgentCommandStatus command_status = 5;
+  string result = 6;
+  string executed_by = 7;
+  string cmd_id = 8;
+  Agent agent = 9;
+  string reason = 10;
+  string origin_type = 11;
+  string origin_id = 12;
 }
