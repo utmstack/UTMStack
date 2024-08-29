@@ -238,6 +238,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
 			stack.Cert + ":/cert",
 		},
 		Environment: []string{
