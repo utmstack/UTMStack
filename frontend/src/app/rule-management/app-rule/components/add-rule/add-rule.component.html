@@ -196,7 +196,7 @@
             <div class="input-group">
               <fieldset class="border p-3 w-100">
                 <legend>
-                  <label>{{ 'Variable ' + (i + 1) }}
+                  <label>{{ variable.valid && variable.value.as ? 'Variable ' + variable.value.as : 'New Variable'  }}
                     <span class="span-small-icon ml-2">
                                                             <i (click)="removeVariable(i)"
                                                                class="icon-cross2 mr-1 cursor-pointer"
@@ -270,6 +270,7 @@
                   </div>
                   <div class="col-1 d-flex justify-content-center align-items-center">
                     <button (click)="saveVariable(i)"
+                            [disabled]="variable.value.as == '' || variable.get('of_type').value == null || variable.get('get').value == null"
                             class="btn utm-button utm-button-primary"
                             type="button">Add
                     </button>

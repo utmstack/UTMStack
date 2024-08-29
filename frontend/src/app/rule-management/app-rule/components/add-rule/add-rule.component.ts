@@ -1,10 +1,7 @@
-import {HttpResponse} from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
-import { filter, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {FieldDataService} from '../../../../shared/services/elasticsearch/field-data.service';
 import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
@@ -13,7 +10,7 @@ import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
 
-const variableTemplate = {get: [null, Validators.required] , as: ['', Validators.required] , of_type: [null, Validators.required]};
+const variableTemplate = {get: [null] , as: [''] , of_type: [null]};
 
 @Component({
     selector: 'app-add-rule',
@@ -101,7 +98,6 @@ export class AddRuleComponent implements OnInit, OnDestroy {
                 get: variable.get,
                 of_type: variable.of_type
             }));
-            const expression =
             this.isSubmitting = true;
             const rule: Rule = {
                 ...this.ruleForm.value,
@@ -142,7 +138,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
             description: [rule ? rule.description : '', Validators.required],
             references: this.initReferences(rule ? rule.references : []),
             definition: this.fb.group({
-                ruleVariables: rule ? this.fb.array([]) : this.fb.array([this.fb.group(variableTemplate)]),
+                ruleVariables: this.fb.array([this.fb.group(variableTemplate)]),
                 ruleExpression: [rule ? rule.definition.ruleExpression : '', Validators.required]
             })
         });
@@ -196,6 +192,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
         const variable = { ...this.variables.at(index).value, isEditing: false };
         this.savedVariables.push(variable);
         this.variables.removeAt(index);
+        this.addVariable();
     }
 
     editVariable(index: number): void {
