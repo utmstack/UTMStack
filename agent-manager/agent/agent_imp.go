@@ -101,7 +101,7 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 
 	LastSeenChannel <- models.LastSeen{
 		ConnectorType: "agent",
-		ID:            agent.ID,
+		ConnectorID:   agent.ID,
 		LastPing:      time.Now(),
 	}
 

@@ -4,6 +4,6 @@ import "time"
 
 type LastSeen struct {
 	ConnectorType string
-	ID            uint
+	ConnectorID   uint
 	LastPing      time.Time
 }

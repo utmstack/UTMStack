@@ -134,7 +134,7 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 
 	LastSeenChannel <- models.LastSeen{
 		ConnectorType: "collector",
-		ID:            collector.ID,
+		ConnectorID:   collector.ID,
 		LastPing:      time.Now(),
 	}
 
