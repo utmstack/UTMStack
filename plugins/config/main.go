@@ -526,7 +526,7 @@ func writeRules(pCfg *helpers.Config, rules []Rule) *logger.Error {
 			return helpers.Logger().ErrorF("failed to create file: %v", err)
 		}
 
-		bRule, err := yaml.Marshal(rule)
+		bRule, err := yaml.Marshal([]Rule{rule})
 		if err != nil {
 			return helpers.Logger().ErrorF("failed to marshal rule: %v", err)
 		}
