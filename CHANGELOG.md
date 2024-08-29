@@ -1,4 +1,4 @@
 
-# UTMStack 10.5.5 Release Notes
+# UTMStack 10.5.6 Release Notes
 ## Bugfix
-- Fixed a bug in the correlation engine that could cause the correlation to close when reading and writing the statistics map simultaneously.
+- Fixed a bug on the dashboard save to pdf operation.
