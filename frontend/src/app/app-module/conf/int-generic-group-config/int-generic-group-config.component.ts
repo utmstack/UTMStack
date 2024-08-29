@@ -147,19 +147,20 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
     deleteModal.result.then(() => {
       if (this.groupType === GroupTypeEnum.COLLECTOR) {
         const collector = this.collectors.find(c => c.id === parseInt(group.collector, 10));
-        const collectorToSave = {
-          ...collector,
-          groups: collector.groups.filter(g => g.id !== group.id)
-        };
-        this.deleteAction(collectorToSave);
-      } else {
-        this.deleteAction(group);
+        if (collector && collector.collector !== '') {
+          const collectorToSave = {
+            ...collector,
+            groups: collector.groups.filter(g => g.id !== group.id)
+          };
+          this.deleteAction(collectorToSave);
+        }
       }
+      this.deleteAction(group);
     });
   }
 
   deleteAction(param: any) {
-    const request$ = this.groupType === GroupTypeEnum.COLLECTOR ?
+    const request$ = this.groupType === GroupTypeEnum.COLLECTOR && param.collector && param.collector.collector ?
       this.saveCollector(this.getBody(param)) : this.utmModuleGroupService.delete(param.id);
 
     request$.subscribe(response => {
