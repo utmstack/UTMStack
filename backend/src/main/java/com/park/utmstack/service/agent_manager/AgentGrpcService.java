@@ -1,7 +1,6 @@
 package com.park.utmstack.service.agent_manager;
 
 import agent.Common.DeleteRequest;
-import agent.Common.Hostname;
 import agent.Common.ListRequest;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.security.SecurityUtils;
@@ -10,6 +9,7 @@ import com.park.utmstack.service.dto.agent_manager.AgentDTO;
 import com.park.utmstack.service.dto.agent_manager.ListAgentsCommandsResponseDTO;
 import com.park.utmstack.service.dto.agent_manager.ListAgentsResponseDTO;
 import com.park.utmstack.service.grpc.*;
+import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import io.grpc.*;
 import io.grpc.Status;
 import io.grpc.stub.MetadataUtils;
@@ -92,11 +92,22 @@ public class AgentGrpcService {
     }
 
 
-    public AgentDTO getAgentByHostname(Hostname hostname) {
+    public AgentDTO getAgentByHostname(String hostname) throws AgentNotfoundException {
         final String ctx = CLASSNAME + ".getAgentByHostname";
         try {
-            Agent agent = blockingStub.getAgentByHostname(hostname);
-            return protoToDTOAgent(agent);
+            ListRequest req = ListRequest.newBuilder()
+                    .setPageNumber(1)
+                    .setPageSize(1000)
+                    .setSearchQuery("hostname.Is=" + hostname)
+                    .setSortBy("")
+                    .build();
+            ListAgentsResponseDTO response = listAgents(req);
+            List<AgentDTO> agentDTOList = response.getAgents();
+            if (agentDTOList.isEmpty()) {
+                throw new AgentNotfoundException();
+            }
+
+            return agentDTOList.get(0);
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -107,9 +118,9 @@ public class AgentGrpcService {
         final String ctx = CLASSNAME + ".deleteAgent";
         try {
             String currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user login"));
-            Agent agent = null;
+            AgentDTO agent = null;
             try {
-                agent = blockingStub.getAgentByHostname(Hostname.newBuilder().setHostname(hostname).build());
+                agent = getAgentByHostname(hostname);
                 if (agent == null) {
                     log.error(String.format("%1$s: Agent %2$s could not be deleted because no information was obtained from the agent", ctx, hostname));
                     return;
@@ -119,6 +130,9 @@ public class AgentGrpcService {
                     log.error(String.format("%1$s: Agent %2$s could not be deleted because was not found", ctx, hostname));
                     return;
                 }
+            } catch (AgentNotfoundException e) {
+                    log.error(String.format("%1$s: Agent %2$s could not be deleted because was not found", ctx, hostname));
+                    return;
             }
 
             DeleteRequest request = DeleteRequest.newBuilder().setDeletedBy(currentUser).build();
