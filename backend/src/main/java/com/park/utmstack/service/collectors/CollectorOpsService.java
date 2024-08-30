@@ -4,8 +4,6 @@ import agent.CollectorOuterClass.CollectorGroupConfigurations;
 import agent.CollectorOuterClass.ListCollectorResponse;
 import agent.CollectorOuterClass.ConfigKnowledge;
 import agent.CollectorOuterClass.CollectorConfig;
-import agent.CollectorOuterClass.CollectorHostnames;
-import agent.CollectorOuterClass.FilterByHostAndModule;
 import agent.CollectorOuterClass.Collector;
 import agent.CollectorOuterClass.CollectorModule;
 import agent.CollectorOuterClass.CollectorConfigGroup;
@@ -28,6 +26,7 @@ import com.park.utmstack.repository.collector.UtmCollectorRepository;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.application_modules.UtmModuleService;
+import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.service.dto.collectors.dto.ListCollectorsResponseDTO;
@@ -178,7 +177,14 @@ public class CollectorOpsService {
         }
 
         try {
-            return collectorService.ListCollectorHostnames(request, internalKey);
+            ListCollectorResponse response = collectorService.listCollector(request, internalKey);
+            CollectorHostnames collectorHostnames = new CollectorHostnames();
+
+            response.getRowsList().forEach(c->{
+                collectorHostnames.getHostname().add(c.getHostname());
+            });
+
+            return collectorHostnames;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             throw new CollectorServiceGrpcException(msg);
@@ -191,7 +197,7 @@ public class CollectorOpsService {
      * @param request contains the filter information used to search.
      * @throws CollectorServiceGrpcException if the action can't be performed or the request is malformed.
      */
-    public ListCollectorsResponseDTO getCollectorsByHostnameAndModule(FilterByHostAndModule request) throws CollectorServiceGrpcException {
+    public ListCollectorsResponseDTO getCollectorsByHostnameAndModule(ListRequest request) throws CollectorServiceGrpcException {
         final String ctx = CLASSNAME + ".GetCollectorsByHostnameAndModule";
 
         String internalKey = System.getenv(Constants.ENV_INTERNAL_KEY);
@@ -201,7 +207,7 @@ public class CollectorOpsService {
         }
 
         try {
-            return mapToListCollectorsResponseDTO(collectorService.GetCollectorsByHostnameAndModule(request, internalKey));
+            return mapToListCollectorsResponseDTO(collectorService.listCollector(request, internalKey));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             throw new CollectorServiceGrpcException(msg);
@@ -316,11 +322,9 @@ public class CollectorOpsService {
         final String ctx = CLASSNAME + ".deleteCollector";
         try {
             String currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user login"));
-            FilterByHostAndModule request = FilterByHostAndModule.newBuilder()
-                    .setHostname(hostname)
-                    .setModule(CollectorModule.valueOf(module.toString()))
-                    .build();
-            Optional<CollectorDTO> collectorToSearch = getCollectorsByHostnameAndModule(request).getCollectors()
+
+            Optional<CollectorDTO> collectorToSearch = getCollectorsByHostnameAndModule(
+                    getListRequestByHostnameAndModule(hostname, module)).getCollectors()
                     .stream().findFirst();
             try {
                 if (collectorToSearch.isEmpty()) {
@@ -567,5 +571,23 @@ public class CollectorOpsService {
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
+    }
+
+    public ListRequest getListRequestByHostnameAndModule(String hostname, CollectorModuleEnum module) {
+        String query = "";
+        if (module != null && StringUtils.hasText(hostname)) {
+            query = "module.Is=" + module.name() + "&hostname.Is=" + hostname;
+        } else if (StringUtils.hasText(hostname)) {
+            query = "hostname.Is=" + hostname;
+        } else if (module != null) {
+            query = "module.Is=" + module.name();
+        }
+        ListRequest request = ListRequest.newBuilder()
+                .setPageNumber(1)
+                .setPageSize(1000000)
+                .setSearchQuery(query)
+                .setSortBy("id,desc")
+                .build();
+        return request;
     }
 }

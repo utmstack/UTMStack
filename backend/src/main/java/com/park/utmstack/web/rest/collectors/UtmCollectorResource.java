@@ -1,8 +1,5 @@
 package com.park.utmstack.web.rest.collectors;
 
-import agent.CollectorOuterClass.CollectorModule;
-import agent.CollectorOuterClass.FilterByHostAndModule;
-import agent.CollectorOuterClass.CollectorHostnames;
 import agent.CollectorOuterClass.CollectorConfig;
 import agent.Common.ListRequest;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
@@ -15,6 +12,7 @@ import com.park.utmstack.service.application_modules.UtmModuleGroupService;
 import com.park.utmstack.service.collectors.CollectorOpsService;
 import com.park.utmstack.service.collectors.UtmCollectorService;
 import com.park.utmstack.service.dto.collectors.CollectorActionEnum;
+import com.park.utmstack.service.dto.collectors.CollectorHostnames;
 import com.park.utmstack.service.dto.collectors.dto.CollectorConfigKeysDTO;
 import com.park.utmstack.service.dto.collectors.dto.CollectorDTO;
 import com.park.utmstack.service.dto.collectors.CollectorModuleEnum;
@@ -37,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -103,7 +102,7 @@ public class UtmCollectorResource {
         }
 
         try {
-            cacheConfig  = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
+            cacheConfig = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
             this.upsert(collectorConfig);
             return ResponseEntity.noContent().build();
 
@@ -116,9 +115,9 @@ public class UtmCollectorResource {
      * {@code GET  /collectors-list} : Get all collectors list by module.
      *
      * @param pageNumber the page number to show results from.
-     * @param pageSize the number of items to show in the page.
-     * @param module the module used to filter the collectors list. If no value is set, returns collectors by all modules
-     * @param sortBy the criteria to sort the results.
+     * @param pageSize   the number of items to show in the page.
+     * @param module     the module used to filter the collectors list. If no value is set, returns collectors by all modules
+     * @param sortBy     the criteria to sort the results.
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, status {@code 400 (Bad request)} if the internal key is not set,
      * or with status {@code 502 (Bad Gateway)} if the agent manager returns an error.
      */
@@ -157,9 +156,9 @@ public class UtmCollectorResource {
      * {@code GET  /collector-hostnames} : Get all collector hostnames by module.
      *
      * @param pageNumber the page number to show results from.
-     * @param pageSize the number of items to show in the page.
-     * @param module the module used to filter the collectors list. If no value is set, returns collectors by all modules
-     * @param sortBy the criteria to sort the results.
+     * @param pageSize   the number of items to show in the page.
+     * @param module     the module used to filter the collectors list. If no value is set, returns collectors by all modules
+     * @param sortBy     the criteria to sort the results.
      * @return the {@link ResponseEntity} with status {@code 200 (Ok)}, status {@code 400 (Bad request)} if the internal key is not set,
      * or with status {@code 502 (Bad Gateway)} if the agent manager returns an error.
      */
@@ -194,20 +193,17 @@ public class UtmCollectorResource {
      * {@code GET  /collector-by-hostname-and-module} : Get collector's list according to the request params.
      *
      * @param hostname the host name to search for.
-     * @param module the collector module to search for
+     * @param module   the collector module to search for
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}, status {@code 400 (Bad request)} if the internal key is not set,
      * or with status {@code 502 (Bad Gateway)} if the agent manager returns an error.
      */
     @GetMapping("/collector-by-hostname-and-module")
     public ResponseEntity<ListCollectorsResponseDTO> listCollectorByHostNameAndModule(@RequestParam String hostname,
-                                                                                  @RequestParam CollectorModuleEnum module) {
+                                                                                      @RequestParam CollectorModuleEnum module) {
         final String ctx = CLASSNAME + ".listCollectorByHostNameAndModule";
         try {
-            FilterByHostAndModule request = FilterByHostAndModule.newBuilder()
-                    .setHostname(hostname)
-                    .setModule(CollectorModule.valueOf(module.toString()))
-                    .build();
-            return ResponseEntity.ok().body(collectorService.getCollectorsByHostnameAndModule(request));
+            return ResponseEntity.ok().body(collectorService.listCollector(
+                    collectorService.getListRequestByHostnameAndModule(hostname, module)));
         } catch (BadRequestAlertException e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
@@ -272,12 +268,12 @@ public class UtmCollectorResource {
                                                               @ParameterObject Pageable pageable) {
         final String ctx = CLASSNAME + ".searchByFilters";
         try {
-             collectorService.listCollector(ListRequest.newBuilder()
-                     .setPageNumber(0)
-                     .setPageSize(100)
-                     .setSearchQuery("module.Is=" + CollectorModuleEnum.AS_400)
-                     .setSortBy("")
-                     .build());
+            collectorService.listCollector(ListRequest.newBuilder()
+                    .setPageNumber(0)
+                    .setPageSize(100)
+                    .setSearchQuery("module.Is=" + CollectorModuleEnum.AS_400)
+                    .setSortBy("")
+                    .build());
             Page<CollectorDTO> page = this.utmCollectorService.searchByFilters(filters, pageable);
             HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/search-by-filters");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -315,7 +311,7 @@ public class UtmCollectorResource {
             Map<String, Object> collectorResult = new HashMap<>();
             collectorResult.put("collectorId", collectorConfig.getCollector().getId());
             try {
-                cacheConfig  = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
+                cacheConfig = this.collectorService.cacheCurrentCollectorConfig(collectorConfig.getCollector());
                 this.upsert(collectorConfig);
                 collectorResult.put("status", "success");
             } catch (Exception e) {
@@ -326,7 +322,7 @@ public class UtmCollectorResource {
             collectorsResults.add(collectorResult);
         }
 
-        results.put("results", collectorsResults );
+        results.put("results", collectorsResults);
         return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(results);
     }
 
@@ -371,7 +367,7 @@ public class UtmCollectorResource {
         return UtilResponse.buildErrorResponse(error.getStatus(), error.getMessage());
     }
 
-    private void upsert (CollectorConfigKeysDTO collectorConfig) throws Exception {
+    private void upsert(CollectorConfigKeysDTO collectorConfig) throws Exception {
 
         // Update local database with new configuration
         this.collectorService.updateCollectorConfigurationKeys(collectorConfig);
