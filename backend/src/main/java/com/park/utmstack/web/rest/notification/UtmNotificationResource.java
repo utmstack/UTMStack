@@ -9,8 +9,6 @@ import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
 import com.park.utmstack.service.notification.UtmNotificationService;
 import com.park.utmstack.util.UtilResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @Slf4j
