@@ -89,30 +89,30 @@ public final class AgentManagerGrpc {
       "sult\030\002 \001(\t\022/\n\013executed_at\030\003 \001(\0132\032.google" +
       ".protobuf.Timestamp\022\016\n\006cmd_id\030\004 \001(\t\"N\n\032L" +
       "istAgentsCommandsResponse\022!\n\004rows\030\001 \003(\0132" +
-      "\023.agent.AgentCommand\022\r\n\005total\030\002 \001(\005\"\316\002\n\014" +
+      "\023.agent.AgentCommand\022\r\n\005total\030\002 \001(\005\"\261\002\n\014" +
       "AgentCommand\022.\n\ncreated_at\030\001 \001(\0132\032.googl" +
       "e.protobuf.Timestamp\022.\n\nupdated_at\030\002 \001(\013" +
       "2\032.google.protobuf.Timestamp\022\020\n\010agent_id" +
       "\030\003 \001(\r\022\017\n\007command\030\004 \001(\t\0221\n\016command_statu" +
       "s\030\005 \001(\0162\031.agent.AgentCommandStatus\022\016\n\006re" +
       "sult\030\006 \001(\t\022\023\n\013executed_by\030\007 \001(\t\022\016\n\006cmd_i" +
-      "d\030\010 \001(\t\022\033\n\005agent\030\t \001(\0132\014.agent.Agent\022\016\n\006" +
-      "reason\030\n \001(\t\022\023\n\013origin_type\030\013 \001(\t\022\021\n\tori" +
-      "gin_id\030\014 \001(\t*W\n\022AgentCommandStatus\022\020\n\014NO" +
-      "T_EXECUTED\020\000\022\t\n\005QUEUE\020\001\022\013\n\007PENDING\020\002\022\014\n\010" +
-      "EXECUTED\020\003\022\t\n\005ERROR\020\0042\333\002\n\014AgentService\022:" +
-      "\n\013DeleteAgent\022\024.agent.DeleteRequest\032\023.ag" +
-      "ent.AuthResponse\"\000\022=\n\nListAgents\022\022.agent" +
-      ".ListRequest\032\031.agent.ListAgentsResponse\"" +
-      "\000\022K\n\013AgentStream\022\032.agent.BidirectionalSt" +
-      "ream\032\032.agent.BidirectionalStream\"\000(\0010\001\022L" +
-      "\n\021ListAgentCommands\022\022.agent.ListRequest\032" +
-      "!.agent.ListAgentsCommandsResponse\"\000\0225\n\022" +
-      "GetAgentByHostname\022\017.agent.Hostname\032\014.ag" +
-      "ent.Agent\"\0002O\n\014PanelService\022?\n\016ProcessCo" +
-      "mmand\022\021.agent.UtmCommand\032\024.agent.Command" +
-      "Result\"\000(\0010\001B7\n\036com.park.utmstack.servic" +
-      "e.grpcB\020AgentManagerGrpcP\001\210\001\001b\006proto3"
+      "d\030\010 \001(\t\022\016\n\006reason\030\t \001(\t\022\023\n\013origin_type\030\n" +
+      " \001(\t\022\021\n\torigin_id\030\013 \001(\t*W\n\022AgentCommandS" +
+      "tatus\022\020\n\014NOT_EXECUTED\020\000\022\t\n\005QUEUE\020\001\022\013\n\007PE" +
+      "NDING\020\002\022\014\n\010EXECUTED\020\003\022\t\n\005ERROR\020\0042\341\002\n\014Age" +
+      "ntService\022;\n\rRegisterAgent\022\023.agent.Agent" +
+      "Request\032\023.agent.AuthResponse\"\000\022:\n\013Delete" +
+      "Agent\022\024.agent.DeleteRequest\032\023.agent.Auth" +
+      "Response\"\000\022=\n\nListAgents\022\022.agent.ListReq" +
+      "uest\032\031.agent.ListAgentsResponse\"\000\022K\n\013Age" +
+      "ntStream\022\032.agent.BidirectionalStream\032\032.a" +
+      "gent.BidirectionalStream\"\000(\0010\001\022L\n\021ListAg" +
+      "entCommands\022\022.agent.ListRequest\032!.agent." +
+      "ListAgentsCommandsResponse\"\0002O\n\014PanelSer" +
+      "vice\022?\n\016ProcessCommand\022\021.agent.UtmComman" +
+      "d\032\024.agent.CommandResult\"\000(\0010\001B7\n\036com.par" +
+      "k.utmstack.service.grpcB\020AgentManagerGrp" +
+      "cP\001\210\001\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -167,7 +167,7 @@ public final class AgentManagerGrpc {
     internal_static_agent_AgentCommand_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_agent_AgentCommand_descriptor,
-        new java.lang.String[] { "CreatedAt", "UpdatedAt", "AgentId", "Command", "CommandStatus", "Result", "ExecutedBy", "CmdId", "Agent", "Reason", "OriginType", "OriginId", });
+        new java.lang.String[] { "CreatedAt", "UpdatedAt", "AgentId", "Command", "CommandStatus", "Result", "ExecutedBy", "CmdId", "Reason", "OriginType", "OriginId", });
     com.google.protobuf.TimestampProto.getDescriptor();
     agent.Common.getDescriptor();
   }

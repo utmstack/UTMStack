@@ -103,51 +103,36 @@ public interface AgentCommandOrBuilder extends
       getCmdIdBytes();
 
   /**
-   * <code>.agent.Agent agent = 9;</code>
-   * @return Whether the agent field is set.
-   */
-  boolean hasAgent();
-  /**
-   * <code>.agent.Agent agent = 9;</code>
-   * @return The agent.
-   */
-  com.park.utmstack.service.grpc.Agent getAgent();
-  /**
-   * <code>.agent.Agent agent = 9;</code>
-   */
-  com.park.utmstack.service.grpc.AgentOrBuilder getAgentOrBuilder();
-
-  /**
-   * <code>string reason = 10;</code>
+   * <code>string reason = 9;</code>
    * @return The reason.
    */
   java.lang.String getReason();
   /**
-   * <code>string reason = 10;</code>
+   * <code>string reason = 9;</code>
    * @return The bytes for reason.
    */
   com.google.protobuf.ByteString
       getReasonBytes();
 
   /**
-   * <code>string origin_type = 11;</code>
+   * <code>string origin_type = 10;</code>
    * @return The originType.
    */
   java.lang.String getOriginType();
   /**
-   * <code>string origin_type = 11;</code>
+   * <code>string origin_type = 10;</code>
    * @return The bytes for originType.
    */
   com.google.protobuf.ByteString
       getOriginTypeBytes();
 
   /**
-   * <code>string origin_id = 12;</code>
+   * <code>string origin_id = 11;</code>
    * @return The originId.
    */
   java.lang.String getOriginId();
   /**
-   * <code>string origin_id = 12;</code>
+   * <code>string origin_id = 11;</code>
    * @return The bytes for originId.
    */
   com.google.protobuf.ByteString

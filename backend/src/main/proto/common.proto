@@ -27,10 +27,6 @@ message AuthResponse {
   string key = 2;
 }
 
-message Hostname{
-  string hostname = 1;
-}
-
 message DeleteRequest {
   string deleted_by = 1;
 }

@@ -283,37 +283,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int AGENT_FIELD_NUMBER = 9;
-  private com.park.utmstack.service.grpc.Agent agent_;
-  /**
-   * <code>.agent.Agent agent = 9;</code>
-   * @return Whether the agent field is set.
-   */
-  @java.lang.Override
-  public boolean hasAgent() {
-    return agent_ != null;
-  }
-  /**
-   * <code>.agent.Agent agent = 9;</code>
-   * @return The agent.
-   */
-  @java.lang.Override
-  public com.park.utmstack.service.grpc.Agent getAgent() {
-    return agent_ == null ? com.park.utmstack.service.grpc.Agent.getDefaultInstance() : agent_;
-  }
-  /**
-   * <code>.agent.Agent agent = 9;</code>
-   */
-  @java.lang.Override
-  public com.park.utmstack.service.grpc.AgentOrBuilder getAgentOrBuilder() {
-    return agent_ == null ? com.park.utmstack.service.grpc.Agent.getDefaultInstance() : agent_;
-  }
-
-  public static final int REASON_FIELD_NUMBER = 10;
+  public static final int REASON_FIELD_NUMBER = 9;
   @SuppressWarnings("serial")
   private volatile java.lang.Object reason_ = "";
   /**
-   * <code>string reason = 10;</code>
+   * <code>string reason = 9;</code>
    * @return The reason.
    */
   @java.lang.Override
@@ -330,7 +304,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string reason = 10;</code>
+   * <code>string reason = 9;</code>
    * @return The bytes for reason.
    */
   @java.lang.Override
@@ -348,11 +322,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int ORIGIN_TYPE_FIELD_NUMBER = 11;
+  public static final int ORIGIN_TYPE_FIELD_NUMBER = 10;
   @SuppressWarnings("serial")
   private volatile java.lang.Object originType_ = "";
   /**
-   * <code>string origin_type = 11;</code>
+   * <code>string origin_type = 10;</code>
    * @return The originType.
    */
   @java.lang.Override
@@ -369,7 +343,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string origin_type = 11;</code>
+   * <code>string origin_type = 10;</code>
    * @return The bytes for originType.
    */
   @java.lang.Override
@@ -387,11 +361,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int ORIGIN_ID_FIELD_NUMBER = 12;
+  public static final int ORIGIN_ID_FIELD_NUMBER = 11;
   @SuppressWarnings("serial")
   private volatile java.lang.Object originId_ = "";
   /**
-   * <code>string origin_id = 12;</code>
+   * <code>string origin_id = 11;</code>
    * @return The originId.
    */
   @java.lang.Override
@@ -408,7 +382,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string origin_id = 12;</code>
+   * <code>string origin_id = 11;</code>
    * @return The bytes for originId.
    */
   @java.lang.Override
@@ -464,17 +438,14 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(cmdId_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 8, cmdId_);
     }
-    if (agent_ != null) {
-      output.writeMessage(9, getAgent());
-    }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(reason_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 10, reason_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 9, reason_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(originType_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 11, originType_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 10, originType_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(originId_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 12, originId_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 11, originId_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -513,18 +484,14 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(cmdId_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, cmdId_);
     }
-    if (agent_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(9, getAgent());
-    }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(reason_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, reason_);
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, reason_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(originType_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, originType_);
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, originType_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(originId_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, originId_);
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, originId_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -562,11 +529,6 @@ private static final long serialVersionUID = 0L;
         .equals(other.getExecutedBy())) return false;
     if (!getCmdId()
         .equals(other.getCmdId())) return false;
-    if (hasAgent() != other.hasAgent()) return false;
-    if (hasAgent()) {
-      if (!getAgent()
-          .equals(other.getAgent())) return false;
-    }
     if (!getReason()
         .equals(other.getReason())) return false;
     if (!getOriginType()
@@ -604,10 +566,6 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getExecutedBy().hashCode();
     hash = (37 * hash) + CMD_ID_FIELD_NUMBER;
     hash = (53 * hash) + getCmdId().hashCode();
-    if (hasAgent()) {
-      hash = (37 * hash) + AGENT_FIELD_NUMBER;
-      hash = (53 * hash) + getAgent().hashCode();
-    }
     hash = (37 * hash) + REASON_FIELD_NUMBER;
     hash = (53 * hash) + getReason().hashCode();
     hash = (37 * hash) + ORIGIN_TYPE_FIELD_NUMBER;
@@ -761,11 +719,6 @@ private static final long serialVersionUID = 0L;
       result_ = "";
       executedBy_ = "";
       cmdId_ = "";
-      agent_ = null;
-      if (agentBuilder_ != null) {
-        agentBuilder_.dispose();
-        agentBuilder_ = null;
-      }
       reason_ = "";
       originType_ = "";
       originId_ = "";
@@ -831,17 +784,12 @@ private static final long serialVersionUID = 0L;
         result.cmdId_ = cmdId_;
       }
       if (((from_bitField0_ & 0x00000100) != 0)) {
-        result.agent_ = agentBuilder_ == null
-            ? agent_
-            : agentBuilder_.build();
-      }
-      if (((from_bitField0_ & 0x00000200) != 0)) {
         result.reason_ = reason_;
       }
-      if (((from_bitField0_ & 0x00000400) != 0)) {
+      if (((from_bitField0_ & 0x00000200) != 0)) {
         result.originType_ = originType_;
       }
-      if (((from_bitField0_ & 0x00000800) != 0)) {
+      if (((from_bitField0_ & 0x00000400) != 0)) {
         result.originId_ = originId_;
       }
     }
@@ -922,22 +870,19 @@ private static final long serialVersionUID = 0L;
         bitField0_ |= 0x00000080;
         onChanged();
       }
-      if (other.hasAgent()) {
-        mergeAgent(other.getAgent());
-      }
       if (!other.getReason().isEmpty()) {
         reason_ = other.reason_;
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         onChanged();
       }
       if (!other.getOriginType().isEmpty()) {
         originType_ = other.originType_;
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000200;
         onChanged();
       }
       if (!other.getOriginId().isEmpty()) {
         originId_ = other.originId_;
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00000400;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -1011,27 +956,20 @@ private static final long serialVersionUID = 0L;
               break;
             } // case 66
             case 74: {
-              input.readMessage(
-                  getAgentFieldBuilder().getBuilder(),
-                  extensionRegistry);
+              reason_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000100;
               break;
             } // case 74
             case 82: {
-              reason_ = input.readStringRequireUtf8();
+              originType_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000200;
               break;
             } // case 82
             case 90: {
-              originType_ = input.readStringRequireUtf8();
+              originId_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000400;
               break;
             } // case 90
-            case 98: {
-              originId_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000800;
-              break;
-            } // case 98
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1660,128 +1598,9 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private com.park.utmstack.service.grpc.Agent agent_;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.park.utmstack.service.grpc.Agent, com.park.utmstack.service.grpc.Agent.Builder, com.park.utmstack.service.grpc.AgentOrBuilder> agentBuilder_;
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     * @return Whether the agent field is set.
-     */
-    public boolean hasAgent() {
-      return ((bitField0_ & 0x00000100) != 0);
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     * @return The agent.
-     */
-    public com.park.utmstack.service.grpc.Agent getAgent() {
-      if (agentBuilder_ == null) {
-        return agent_ == null ? com.park.utmstack.service.grpc.Agent.getDefaultInstance() : agent_;
-      } else {
-        return agentBuilder_.getMessage();
-      }
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    public Builder setAgent(com.park.utmstack.service.grpc.Agent value) {
-      if (agentBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        agent_ = value;
-      } else {
-        agentBuilder_.setMessage(value);
-      }
-      bitField0_ |= 0x00000100;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    public Builder setAgent(
-        com.park.utmstack.service.grpc.Agent.Builder builderForValue) {
-      if (agentBuilder_ == null) {
-        agent_ = builderForValue.build();
-      } else {
-        agentBuilder_.setMessage(builderForValue.build());
-      }
-      bitField0_ |= 0x00000100;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    public Builder mergeAgent(com.park.utmstack.service.grpc.Agent value) {
-      if (agentBuilder_ == null) {
-        if (((bitField0_ & 0x00000100) != 0) &&
-          agent_ != null &&
-          agent_ != com.park.utmstack.service.grpc.Agent.getDefaultInstance()) {
-          getAgentBuilder().mergeFrom(value);
-        } else {
-          agent_ = value;
-        }
-      } else {
-        agentBuilder_.mergeFrom(value);
-      }
-      bitField0_ |= 0x00000100;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    public Builder clearAgent() {
-      bitField0_ = (bitField0_ & ~0x00000100);
-      agent_ = null;
-      if (agentBuilder_ != null) {
-        agentBuilder_.dispose();
-        agentBuilder_ = null;
-      }
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    public com.park.utmstack.service.grpc.Agent.Builder getAgentBuilder() {
-      bitField0_ |= 0x00000100;
-      onChanged();
-      return getAgentFieldBuilder().getBuilder();
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    public com.park.utmstack.service.grpc.AgentOrBuilder getAgentOrBuilder() {
-      if (agentBuilder_ != null) {
-        return agentBuilder_.getMessageOrBuilder();
-      } else {
-        return agent_ == null ?
-            com.park.utmstack.service.grpc.Agent.getDefaultInstance() : agent_;
-      }
-    }
-    /**
-     * <code>.agent.Agent agent = 9;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.park.utmstack.service.grpc.Agent, com.park.utmstack.service.grpc.Agent.Builder, com.park.utmstack.service.grpc.AgentOrBuilder> 
-        getAgentFieldBuilder() {
-      if (agentBuilder_ == null) {
-        agentBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            com.park.utmstack.service.grpc.Agent, com.park.utmstack.service.grpc.Agent.Builder, com.park.utmstack.service.grpc.AgentOrBuilder>(
-                getAgent(),
-                getParentForChildren(),
-                isClean());
-        agent_ = null;
-      }
-      return agentBuilder_;
-    }
-
     private java.lang.Object reason_ = "";
     /**
-     * <code>string reason = 10;</code>
+     * <code>string reason = 9;</code>
      * @return The reason.
      */
     public java.lang.String getReason() {
@@ -1797,7 +1616,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string reason = 10;</code>
+     * <code>string reason = 9;</code>
      * @return The bytes for reason.
      */
     public com.google.protobuf.ByteString
@@ -1814,7 +1633,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string reason = 10;</code>
+     * <code>string reason = 9;</code>
      * @param value The reason to set.
      * @return This builder for chaining.
      */
@@ -1822,22 +1641,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       reason_ = value;
-      bitField0_ |= 0x00000200;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
     /**
-     * <code>string reason = 10;</code>
+     * <code>string reason = 9;</code>
      * @return This builder for chaining.
      */
     public Builder clearReason() {
       reason_ = getDefaultInstance().getReason();
-      bitField0_ = (bitField0_ & ~0x00000200);
+      bitField0_ = (bitField0_ & ~0x00000100);
       onChanged();
       return this;
     }
     /**
-     * <code>string reason = 10;</code>
+     * <code>string reason = 9;</code>
      * @param value The bytes for reason to set.
      * @return This builder for chaining.
      */
@@ -1846,14 +1665,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       reason_ = value;
-      bitField0_ |= 0x00000200;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
 
     private java.lang.Object originType_ = "";
     /**
-     * <code>string origin_type = 11;</code>
+     * <code>string origin_type = 10;</code>
      * @return The originType.
      */
     public java.lang.String getOriginType() {
@@ -1869,7 +1688,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string origin_type = 11;</code>
+     * <code>string origin_type = 10;</code>
      * @return The bytes for originType.
      */
     public com.google.protobuf.ByteString
@@ -1886,7 +1705,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string origin_type = 11;</code>
+     * <code>string origin_type = 10;</code>
      * @param value The originType to set.
      * @return This builder for chaining.
      */
@@ -1894,22 +1713,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       originType_ = value;
-      bitField0_ |= 0x00000400;
+      bitField0_ |= 0x00000200;
       onChanged();
       return this;
     }
     /**
-     * <code>string origin_type = 11;</code>
+     * <code>string origin_type = 10;</code>
      * @return This builder for chaining.
      */
     public Builder clearOriginType() {
       originType_ = getDefaultInstance().getOriginType();
-      bitField0_ = (bitField0_ & ~0x00000400);
+      bitField0_ = (bitField0_ & ~0x00000200);
       onChanged();
       return this;
     }
     /**
-     * <code>string origin_type = 11;</code>
+     * <code>string origin_type = 10;</code>
      * @param value The bytes for originType to set.
      * @return This builder for chaining.
      */
@@ -1918,14 +1737,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       originType_ = value;
-      bitField0_ |= 0x00000400;
+      bitField0_ |= 0x00000200;
       onChanged();
       return this;
     }
 
     private java.lang.Object originId_ = "";
     /**
-     * <code>string origin_id = 12;</code>
+     * <code>string origin_id = 11;</code>
      * @return The originId.
      */
     public java.lang.String getOriginId() {
@@ -1941,7 +1760,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string origin_id = 12;</code>
+     * <code>string origin_id = 11;</code>
      * @return The bytes for originId.
      */
     public com.google.protobuf.ByteString
@@ -1958,7 +1777,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string origin_id = 12;</code>
+     * <code>string origin_id = 11;</code>
      * @param value The originId to set.
      * @return This builder for chaining.
      */
@@ -1966,22 +1785,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       originId_ = value;
-      bitField0_ |= 0x00000800;
+      bitField0_ |= 0x00000400;
       onChanged();
       return this;
     }
     /**
-     * <code>string origin_id = 12;</code>
+     * <code>string origin_id = 11;</code>
      * @return This builder for chaining.
      */
     public Builder clearOriginId() {
       originId_ = getDefaultInstance().getOriginId();
-      bitField0_ = (bitField0_ & ~0x00000800);
+      bitField0_ = (bitField0_ & ~0x00000400);
       onChanged();
       return this;
     }
     /**
-     * <code>string origin_id = 12;</code>
+     * <code>string origin_id = 11;</code>
      * @param value The bytes for originId to set.
      * @return This builder for chaining.
      */
@@ -1990,7 +1809,7 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       originId_ = value;
-      bitField0_ |= 0x00000800;
+      bitField0_ |= 0x00000400;
       onChanged();
       return this;
     }
