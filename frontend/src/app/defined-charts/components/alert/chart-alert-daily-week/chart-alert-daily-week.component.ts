@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {ALERT_GLOBAL_FIELD, ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
@@ -13,6 +13,7 @@ import {ChartSerieValueType} from '../../../../shared/types/chart-reponse/chart-
 })
 export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;
+  @Output() loaded = new EventEmitter<void>();
   interval: any;
   dailyAlert: ChartSerieValueType[] = [];
   loadingChartDailyAlert = true;
@@ -39,6 +40,7 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
     this.overviewAlertDashboardService.getCardAlertTodayWeek().subscribe(response => {
       this.dailyAlert = response.body;
       this.loadingChartDailyAlert = false;
+      this.loaded.emit();
     });
   }
 
