@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,9 +69,25 @@ public class AgentGrpcService {
         final String ctx = CLASSNAME + ".mapToListAgentsCommandsResponseDTO";
         try {
             ListAgentsCommandsResponseDTO dto = new ListAgentsCommandsResponseDTO();
+            // Load agent list one time, will be used to search the agent that execute the command, by agent_id
+            ListRequest req = ListRequest.newBuilder()
+                    .setPageNumber(1)
+                    .setPageSize(1000000)
+                    .setSearchQuery("")
+                    .setSortBy("")
+                    .build();
+
+            ListAgentsResponse agentResp = blockingStub.listAgents(req);
+            List<Agent> agentList = agentResp.getRowsList();
 
             List<AgentCommandDTO> agentCommandDTOs = response.getRowsList().stream()
-                .map(this::protoToDTOAgentCommand)
+                .map(ac-> {
+                    try {
+                        return this.protoToDTOAgentCommand(ac,agentList);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .collect(Collectors.toList());
 
             dto.setAgentCommands(agentCommandDTOs);
@@ -82,8 +99,13 @@ public class AgentGrpcService {
         }
     }
 
-    public AgentCommandDTO protoToDTOAgentCommand(AgentCommand agentCommand) {
-        return new AgentCommandDTO(agentCommand);
+    public AgentCommandDTO protoToDTOAgentCommand(AgentCommand agentCommand, List<Agent> agentList) throws Exception {
+        // Look for the agent with id = agentCommand.getAgentId() to get the agent that executed the command
+        Optional<Agent> agent = agentList.stream().filter(a->agentCommand.getAgentId()==a.getId()).findFirst();
+        if (agentList.isEmpty() || agent.isEmpty()) {
+            throw new AgentNotfoundException();
+        }
+        return new AgentCommandDTO(agentCommand, agent.get());
     }
 
 

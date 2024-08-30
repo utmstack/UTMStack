@@ -1,5 +1,6 @@
 package com.park.utmstack.service.dto.agent_manager;
 
+import com.park.utmstack.service.grpc.Agent;
 import com.park.utmstack.service.grpc.AgentCommand;
 
 import java.time.Instant;
@@ -20,7 +21,7 @@ public class AgentCommandDTO {
     private String originType;
     private String originId;
 
-    public AgentCommandDTO(AgentCommand agentCommand) {
+    public AgentCommandDTO(AgentCommand agentCommand, Agent originalAgent) {
         this.createdAt = Instant.ofEpochSecond(agentCommand.getCreatedAt().getSeconds()).toString();
         this.updatedAt = agentCommand.getUpdatedAt().toString();
         this.agentId = agentCommand.getAgentId();
@@ -29,7 +30,7 @@ public class AgentCommandDTO {
         this.result = agentCommand.getResult();
         this.executedBy = agentCommand.getExecutedBy();
         this.cmdId = agentCommand.getCmdId();
-        this.agent = new AgentDTO(agentCommand.getAgent());
+        this.agent = new AgentDTO(originalAgent);
         this.agent.setAgentKey("SECRET");
         this.reason = agentCommand.getReason();
         this.originId = agentCommand.getOriginId();
