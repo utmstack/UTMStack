@@ -27,7 +27,6 @@
       <h5 class="mt-5 ">Generated on {{date | date:'short':'UTC'}}</h5>
     </div>
 
-    <div *ngIf="!preparingPrint" class="report-loading"></div>
     <!--    <img class="img-front-page" src="/assets/img/report/A4_compliance.png">-->
     <img [src]="sanitizer.bypassSecurityTrustUrl(cover)"
          *ngIf="cover;else loadImage"
