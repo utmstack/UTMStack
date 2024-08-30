@@ -1,7 +1,6 @@
 package com.park.utmstack.web.rest.agent_manager;
 
 import agent.Common.ListRequest;
-import agent.Common.Hostname;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -99,10 +98,7 @@ public class AgentManagerResource {
             @RequestParam @NotNull String hostname) {
         final String ctx = CLASSNAME + ".getAgentByHostname";
         try {
-            Hostname request = Hostname.newBuilder()
-                    .setHostname(hostname)
-                    .build();
-            AgentDTO response = agentGrpcService.getAgentByHostname(request);
+            AgentDTO response = agentGrpcService.getAgentByHostname(hostname);
             response.setAgentKey("SECRET");
             HttpHeaders headers = new HttpHeaders();
             return ResponseEntity.ok().headers(headers).body(response);
@@ -154,10 +150,7 @@ public class AgentManagerResource {
     public ResponseEntity<Boolean> canRunCommand(@RequestParam String hostname) {
         final String ctx = CLASSNAME + ".canRunCommand";
         try {
-            Hostname request = Hostname.newBuilder()
-                    .setHostname(hostname)
-                    .build();
-            AgentDTO response = agentGrpcService.getAgentByHostname(request);
+            AgentDTO response = agentGrpcService.getAgentByHostname(hostname);
             return ResponseEntity.ok(response.getStatus() == AgentStatusEnum.ONLINE);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
