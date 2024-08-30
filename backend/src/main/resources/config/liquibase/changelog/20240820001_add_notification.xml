@@ -21,10 +21,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="updated_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
-            <column name="read" type="BOOLEAN" defaultValue="false">
-                <constraints nullable="false"/>
+            <column name="read" type="BOOLEAN">
+                <constraints nullable="true"/>
             </column>
         </createTable>
     </changeSet>
