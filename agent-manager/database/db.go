@@ -82,19 +82,16 @@ func (d *DB) GetAll(data interface{}, query string, args ...interface{}) (int64,
 	return result.RowsAffected, nil
 }
 
-func (d *DB) GetByPagination(data interface{}, p utils.Pagination, f []utils.Filter, join string, getDeleted bool, preload string) (int64, error) {
+func (d *DB) GetByPagination(data interface{}, p utils.Pagination, f []utils.Filter, join string, getDeleted bool) (int64, error) {
 	d.locker.Lock()
 	defer d.locker.Unlock()
 	var count int64
-	tx := d.conn.Model(data).Scopes(p.PagingScope).Scopes(utils.FilterScope(f)).Count(&count)
+	tx := d.conn.Model(data).Scopes(utils.FilterScope(f)).Count(&count).Scopes(p.PagingScope)
 	if getDeleted {
 		tx = tx.Unscoped()
 	}
 	if join != "" {
 		tx = tx.Joins(join)
-	}
-	if preload != "" {
-		tx = tx.Preload(preload)
 	}
 	tx = tx.Find(data)
 	if tx.Error != nil {

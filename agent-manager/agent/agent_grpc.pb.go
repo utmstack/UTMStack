@@ -27,7 +27,6 @@ type AgentServiceClient interface {
 	ListAgents(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	AgentStream(ctx context.Context, opts ...grpc.CallOption) (AgentService_AgentStreamClient, error)
 	ListAgentCommands(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsCommandsResponse, error)
-	GetAgentByHostname(ctx context.Context, in *Hostname, opts ...grpc.CallOption) (*Agent, error)
 }
 
 type agentServiceClient struct {
@@ -105,15 +104,6 @@ func (c *agentServiceClient) ListAgentCommands(ctx context.Context, in *ListRequ
 	return out, nil
 }
 
-func (c *agentServiceClient) GetAgentByHostname(ctx context.Context, in *Hostname, opts ...grpc.CallOption) (*Agent, error) {
-	out := new(Agent)
-	err := c.cc.Invoke(ctx, "/agent.AgentService/GetAgentByHostname", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility
@@ -123,7 +113,6 @@ type AgentServiceServer interface {
 	ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error)
 	AgentStream(AgentService_AgentStreamServer) error
 	ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error)
-	GetAgentByHostname(context.Context, *Hostname) (*Agent, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -145,9 +134,6 @@ func (UnimplementedAgentServiceServer) AgentStream(AgentService_AgentStreamServe
 }
 func (UnimplementedAgentServiceServer) ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgentCommands not implemented")
-}
-func (UnimplementedAgentServiceServer) GetAgentByHostname(context.Context, *Hostname) (*Agent, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAgentByHostname not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 
@@ -260,24 +246,6 @@ func _AgentService_ListAgentCommands_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentService_GetAgentByHostname_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Hostname)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServiceServer).GetAgentByHostname(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/agent.AgentService/GetAgentByHostname",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServiceServer).GetAgentByHostname(ctx, req.(*Hostname))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -300,10 +268,6 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgentCommands",
 			Handler:    _AgentService_ListAgentCommands_Handler,
-		},
-		{
-			MethodName: "GetAgentByHostname",
-			Handler:    _AgentService_GetAgentByHostname_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

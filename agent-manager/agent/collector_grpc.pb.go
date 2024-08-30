@@ -26,8 +26,6 @@ type CollectorServiceClient interface {
 	DeleteCollector(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListCollector(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListCollectorResponse, error)
 	CollectorStream(ctx context.Context, opts ...grpc.CallOption) (CollectorService_CollectorStreamClient, error)
-	ListCollectorHostnames(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*CollectorHostnames, error)
-	GetCollectorsByHostnameAndModule(ctx context.Context, in *FilterByHostAndModule, opts ...grpc.CallOption) (*ListCollectorResponse, error)
 	GetCollectorConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*CollectorConfig, error)
 }
 
@@ -97,24 +95,6 @@ func (x *collectorServiceCollectorStreamClient) Recv() (*CollectorMessages, erro
 	return m, nil
 }
 
-func (c *collectorServiceClient) ListCollectorHostnames(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*CollectorHostnames, error) {
-	out := new(CollectorHostnames)
-	err := c.cc.Invoke(ctx, "/agent.CollectorService/ListCollectorHostnames", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *collectorServiceClient) GetCollectorsByHostnameAndModule(ctx context.Context, in *FilterByHostAndModule, opts ...grpc.CallOption) (*ListCollectorResponse, error) {
-	out := new(ListCollectorResponse)
-	err := c.cc.Invoke(ctx, "/agent.CollectorService/GetCollectorsByHostnameAndModule", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *collectorServiceClient) GetCollectorConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*CollectorConfig, error) {
 	out := new(CollectorConfig)
 	err := c.cc.Invoke(ctx, "/agent.CollectorService/GetCollectorConfig", in, out, opts...)
@@ -132,8 +112,6 @@ type CollectorServiceServer interface {
 	DeleteCollector(context.Context, *DeleteRequest) (*AuthResponse, error)
 	ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error)
 	CollectorStream(CollectorService_CollectorStreamServer) error
-	ListCollectorHostnames(context.Context, *ListRequest) (*CollectorHostnames, error)
-	GetCollectorsByHostnameAndModule(context.Context, *FilterByHostAndModule) (*ListCollectorResponse, error)
 	GetCollectorConfig(context.Context, *ConfigRequest) (*CollectorConfig, error)
 	mustEmbedUnimplementedCollectorServiceServer()
 }
@@ -153,12 +131,6 @@ func (UnimplementedCollectorServiceServer) ListCollector(context.Context, *ListR
 }
 func (UnimplementedCollectorServiceServer) CollectorStream(CollectorService_CollectorStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method CollectorStream not implemented")
-}
-func (UnimplementedCollectorServiceServer) ListCollectorHostnames(context.Context, *ListRequest) (*CollectorHostnames, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListCollectorHostnames not implemented")
-}
-func (UnimplementedCollectorServiceServer) GetCollectorsByHostnameAndModule(context.Context, *FilterByHostAndModule) (*ListCollectorResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollectorsByHostnameAndModule not implemented")
 }
 func (UnimplementedCollectorServiceServer) GetCollectorConfig(context.Context, *ConfigRequest) (*CollectorConfig, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectorConfig not implemented")
@@ -256,42 +228,6 @@ func (x *collectorServiceCollectorStreamServer) Recv() (*CollectorMessages, erro
 	return m, nil
 }
 
-func _CollectorService_ListCollectorHostnames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CollectorServiceServer).ListCollectorHostnames(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/agent.CollectorService/ListCollectorHostnames",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectorServiceServer).ListCollectorHostnames(ctx, req.(*ListRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CollectorService_GetCollectorsByHostnameAndModule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FilterByHostAndModule)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CollectorServiceServer).GetCollectorsByHostnameAndModule(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/agent.CollectorService/GetCollectorsByHostnameAndModule",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectorServiceServer).GetCollectorsByHostnameAndModule(ctx, req.(*FilterByHostAndModule))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _CollectorService_GetCollectorConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConfigRequest)
 	if err := dec(in); err != nil {
@@ -328,14 +264,6 @@ var CollectorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCollector",
 			Handler:    _CollectorService_ListCollector_Handler,
-		},
-		{
-			MethodName: "ListCollectorHostnames",
-			Handler:    _CollectorService_ListCollectorHostnames_Handler,
-		},
-		{
-			MethodName: "GetCollectorsByHostnameAndModule",
-			Handler:    _CollectorService_GetCollectorsByHostnameAndModule_Handler,
 		},
 		{
 			MethodName: "GetCollectorConfig",

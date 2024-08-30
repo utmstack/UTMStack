@@ -186,7 +186,7 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 	filter := utils.NewFilter(req.SearchQuery)
 
 	collectors := []models.Collector{}
-	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false, "")
+	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch collectors: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
@@ -302,36 +302,4 @@ func (s *CollectorService) RegisterCollectorConfig(ctx context.Context, in *Coll
 		Accepted:  "true",
 		RequestId: in.RequestId,
 	}, nil
-}
-
-func (s *CollectorService) ListCollectorHostnames(ctx context.Context, req *ListRequest) (*CollectorHostnames, error) {
-	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
-	filter := utils.NewFilter(req.SearchQuery)
-
-	collectors := []models.Collector{}
-	_, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false, "")
-	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch collectors: %v", err)
-		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
-	}
-
-	hostnames := []string{}
-	for _, collector := range collectors {
-		hostnames = append(hostnames, collector.Hostname)
-	}
-
-	return &CollectorHostnames{
-		Hostname: hostnames,
-	}, nil
-}
-
-func (s *CollectorService) GetCollectorsByHostnameAndModule(ctx context.Context, filter *FilterByHostAndModule) (*ListCollectorResponse, error) {
-	collectors := []models.Collector{}
-	count, err := s.DBConnection.GetAll(&collectors, "hostname = ? and module = ?", filter.GetHostname(), filter.GetModule().String())
-	if err != nil {
-		utils.ALogger.ErrorF("unable to get hostname: %v", err)
-		return nil, status.Errorf(codes.NotFound, "unable to get hostname: %v", err)
-	}
-
-	return convertModelToCollectorResponse(collectors, count), nil
 }

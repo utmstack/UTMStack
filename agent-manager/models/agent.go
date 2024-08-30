@@ -22,10 +22,9 @@ type Agent struct {
 	Os             string
 	Platform       string
 	Version        string
-	AgentKey       string         `gorm:"type:string;index"`
-	Commands       []AgentCommand `gorm:"foreignKey:AgentID"`
-	DeletedAt      *time.Time     `gorm:"uniqueIndex:idx_hostname_deleted;index:idx_agent_delete"`
-	RegisterBy     string         `gorm:"not null"`
+	AgentKey       string     `gorm:"type:string;index"`
+	DeletedAt      *time.Time `gorm:"uniqueIndex:idx_hostname_deleted;index:idx_agent_delete"`
+	RegisterBy     string     `gorm:"not null"`
 	DeletedBy      string
 	Mac            string
 	OsMajorVersion string
@@ -40,7 +39,6 @@ type AgentCommand struct {
 	Command       string
 	CommandStatus AgentCommandStatus
 	Result        string
-	Agent         Agent  `gorm:"foreignKey:AgentID;constraint:OnDelete:CASCADE;"`
 	ExecutedBy    string `gorm:"not null"`
 	CmdId         string `gorm:"not null"`
 	OriginType    string `gorm:"not null"`

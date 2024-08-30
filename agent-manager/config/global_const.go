@@ -33,12 +33,8 @@ func InternalKeyRoutes() []string {
 	return []string{
 		"/agent.AgentService/ListAgents",
 		"/agent.AgentService/ListAgentCommands",
-		"/agent.AgentService/GetAgentByHostname",
-		"/agent.AgentService/ListAgentsWithCommands",
 
 		"/agent.CollectorService/ListCollector",
-		"/agent.CollectorService/ListCollectorHostnames",
-		"/agent.CollectorService/GetCollectorsByHostnameAndModule",
 
 		"/agent.PanelService/ProcessCommand",
 		"/agent.PanelCollectorService/RegisterCollectorConfig",

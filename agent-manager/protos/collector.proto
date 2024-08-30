@@ -10,8 +10,6 @@ service CollectorService {
   rpc DeleteCollector(DeleteRequest) returns (AuthResponse) {}
   rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
-  rpc ListCollectorHostnames (ListRequest) returns (CollectorHostnames) {}
-  rpc GetCollectorsByHostnameAndModule (FilterByHostAndModule) returns (ListCollectorResponse) {}
   rpc GetCollectorConfig (ConfigRequest) returns (CollectorConfig) {}
 }
 
@@ -81,15 +79,6 @@ message CollectorGroupConfigurations {
 message ConfigKnowledge{
   string accepted = 1;
   string request_id = 2;
-}
-
-message CollectorHostnames{
-  repeated string hostname = 1;
-}
-
-message FilterByHostAndModule{
-  string hostname = 1;
-  CollectorModule module = 2;
 }
 
 message ConfigRequest {

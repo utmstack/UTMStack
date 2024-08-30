@@ -160,7 +160,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 	filter := utils.NewFilter(req.SearchQuery)
 
 	agents := []models.Agent{}
-	total, err := s.DBConnection.GetByPagination(&agents, page, filter, "", false, "")
+	total, err := s.DBConnection.GetByPagination(&agents, page, filter, "", false)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
@@ -255,7 +255,11 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 			return status.Errorf(codes.NotFound, "agent command reason not provided")
 		}
 
-		cmdID := uuid.New().String()
+		cmdID := cmd.GetCmdId()
+		if cmdID == "" {
+			cmdID = uuid.New().String()
+		}
+
 		s.CommandResultChannelM.Lock()
 		s.CommandResultChannel[cmdID] = make(chan *CommandResult)
 		s.CommandResultChannelM.Unlock()
@@ -301,26 +305,12 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 	}
 }
 
-func (s *AgentService) GetAgentByHostname(ctx context.Context, req *Hostname) (*Agent, error) {
-	if req.Hostname == "" {
-		utils.ALogger.ErrorF("error in req")
-		return nil, status.Errorf(codes.FailedPrecondition, "error in req")
-	}
-	agent := &models.Agent{}
-	err := s.DBConnection.GetFirst(agent, "hostname = ?", req.Hostname)
-	if err != nil {
-		utils.ALogger.ErrorF("unable to find agent with hostname: %s: %v", req.Hostname, err)
-		return nil, status.Errorf(codes.NotFound, "unable to find agent with hostname: %s: %v", req.Hostname, err)
-	}
-	return parseAgentToProto(*agent), nil
-}
-
 func (s *AgentService) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAgentsCommandsResponse, error) {
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 	filter := utils.NewFilter(req.SearchQuery)
 
 	commands := []models.AgentCommand{}
-	total, err := s.DBConnection.GetByPagination(&commands, page, filter, "", false, "Agent")
+	total, err := s.DBConnection.GetByPagination(&commands, page, filter, "", false)
 	if err != nil {
 		utils.ALogger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
