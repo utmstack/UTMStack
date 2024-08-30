@@ -1,6 +1,5 @@
 package com.park.utmstack.web.rest.incident_response;
 
-import agent.Common.Hostname;
 import com.google.gson.Gson;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
@@ -51,12 +50,10 @@ public class UTMIncidentCommandWebsocket {
             String executedBy = SecurityUtils.getCurrentUserLogin()
                     .orElseThrow(() -> new InternalServerErrorException("Current user login not found"));
             String destination = String.format("/topic/%1$s", hostname);
-            Hostname req = Hostname.newBuilder()
-                    .setHostname(hostname)
-                    .build();
+
+            AgentDTO agentDTO = this.agentGrpcService.getAgentByHostname(hostname);
             try {
-                AgentDTO agentDTO = agentGrpcService.getAgentByHostname(req);
-                if (agentDTO.getStatus() == AgentStatusEnum.OFFLINE) {
+                if (agentDTO == null || agentDTO.getStatus() == AgentStatusEnum.OFFLINE) {
                     throw new AgentOfflineException();
                 }
 
