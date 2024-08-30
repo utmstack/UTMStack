@@ -12,6 +12,7 @@ import (
 const REPLACE_KEY string = ""
 
 const (
+	AgentVersion                 = "10.6.0"
 	DEPEND_URL                   = "https://%s/dependencies/agent?version=%s&os=%s&type=%s"
 	AGENTMANAGERPORT      string = "9000"
 	CORRELATIONLOGSPORT   string = "50051"

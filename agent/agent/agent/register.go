@@ -37,7 +37,7 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 		Hostname:       osInfo.Hostname,
 		Os:             osInfo.OsType,
 		Platform:       osInfo.Platform,
-		Version:        osInfo.Version,
+		Version:        config.AgentVersion,
 		RegisterBy:     osInfo.CurrentUser,
 		Mac:            osInfo.Mac,
 		OsMajorVersion: osInfo.OsMajorVersion,
