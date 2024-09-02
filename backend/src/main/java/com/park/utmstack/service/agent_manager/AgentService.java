@@ -54,7 +54,7 @@ public class AgentService {
 
             ListRequest request = ListRequest.newBuilder()
                 .setPageNumber(1)
-                .setPageSize(100000)
+                .setPageSize(1000000)
                 .setSearchQuery("")
                 .setSortBy("")
                 .build();

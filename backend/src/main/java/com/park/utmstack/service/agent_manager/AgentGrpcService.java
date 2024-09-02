@@ -42,9 +42,9 @@ public class AgentGrpcService {
         return mapToListAgentsCommandsResponseDTO(blockingStub.listAgentCommands(request));
     }
 
-    /*public ListAgentsResponseDTO listAgentWithCommands(ListRequest request) throws Exception {
-        return mapToListAgentsResponseDTO(blockingStub.listAgentsWithCommands(request));
-    }*/
+    public ListAgentsResponseDTO listAgentWithCommands(ListRequest request) throws Exception {
+        return mapToListAgentsResponseDTO(blockingStub.listAgents(request));
+    }
 
 
     public ListAgentsResponseDTO mapToListAgentsResponseDTO(ListAgentsResponse response) throws Exception {
@@ -119,7 +119,7 @@ public class AgentGrpcService {
         try {
             ListRequest req = ListRequest.newBuilder()
                     .setPageNumber(1)
-                    .setPageSize(1000)
+                    .setPageSize(1000000)
                     .setSearchQuery("hostname.Is=" + hostname)
                     .setSortBy("")
                     .build();

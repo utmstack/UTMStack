@@ -130,7 +130,7 @@ public class UtmCollectorResource {
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 100)
+                    .setPageSize(pageSize != null ? pageSize : 1000000)
                     .setSearchQuery(module != null ? "module.Is=" + module.name() : "")
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();
@@ -171,7 +171,7 @@ public class UtmCollectorResource {
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 0)
+                    .setPageSize(pageSize != null ? pageSize : 1000000)
                     .setSearchQuery(module != null ? "module.Is=" + module : "")
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();
@@ -270,7 +270,7 @@ public class UtmCollectorResource {
         try {
             collectorService.listCollector(ListRequest.newBuilder()
                     .setPageNumber(0)
-                    .setPageSize(100)
+                    .setPageSize(1000000)
                     .setSearchQuery("module.Is=" + CollectorModuleEnum.AS_400)
                     .setSortBy("")
                     .build());
