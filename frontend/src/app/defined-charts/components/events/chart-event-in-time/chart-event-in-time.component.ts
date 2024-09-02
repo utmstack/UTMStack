@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable, Subject} from 'rxjs';
@@ -19,6 +19,8 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
   styleUrls: ['./chart-event-in-time.component.scss']
 })
 export class ChartEventInTimeComponent implements OnInit, OnDestroy {
+  @Input() refreshInterval;
+  @Output() loaded = new EventEmitter<void>();
   @Input() type: RefreshType;
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};

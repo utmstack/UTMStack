@@ -1,3 +1,4 @@
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -18,6 +19,8 @@ import {filter, map, startWith, switchMap, takeUntil, tap} from "rxjs/operators"
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
+  @Input() refreshInterval;
+  @Output() loaded = new EventEmitter<void>();
   interval: any;
   dailyAlert: ChartSerieValueType[] = [];
   loadingChartDailyAlert = false;
