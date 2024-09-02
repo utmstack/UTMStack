@@ -10,6 +10,7 @@ import com.park.utmstack.service.dto.network_scan.UtmNetworkScanCriteria;
 import com.park.utmstack.service.network_scan.UtmNetworkScanQueryService;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -250,6 +251,13 @@ public class UtmNetworkScanResource {
         final String ctx = CLASSNAME + ".deleteCustomAsset";
         try {
             networkScanService.deleteCustomAsset(id);
+            return ResponseEntity.ok().build();
+        } catch (AgentNotfoundException anfe) {
+            String msg = ctx + ": The agent was removed from local database but," +
+                    " wasn't found when trying to remove from manager. Most of the times, means that it " +
+                    "was removed outside the platform.";
+            log.info(msg);
+            eventService.createEvent(msg, ApplicationEventType.INFO);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

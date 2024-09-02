@@ -53,8 +53,8 @@ public class AgentGrpcService {
             ListAgentsResponseDTO dto = new ListAgentsResponseDTO();
 
             List<AgentDTO> agentDTOs = response.getRowsList().stream()
-                .map(this::protoToDTOAgent)
-                .collect(Collectors.toList());
+                    .map(this::protoToDTOAgent)
+                    .collect(Collectors.toList());
 
             dto.setAgents(agentDTOs);
             dto.setTotal(response.getTotal());
@@ -81,14 +81,14 @@ public class AgentGrpcService {
             List<Agent> agentList = agentResp.getRowsList();
 
             List<AgentCommandDTO> agentCommandDTOs = response.getRowsList().stream()
-                .map(ac-> {
-                    try {
-                        return this.protoToDTOAgentCommand(ac,agentList);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
+                    .map(ac -> {
+                        try {
+                            return this.protoToDTOAgentCommand(ac, agentList);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
 
             dto.setAgentCommands(agentCommandDTOs);
             dto.setTotal(response.getTotal());
@@ -101,7 +101,7 @@ public class AgentGrpcService {
 
     public AgentCommandDTO protoToDTOAgentCommand(AgentCommand agentCommand, List<Agent> agentList) throws Exception {
         // Look for the agent with id = agentCommand.getAgentId() to get the agent that executed the command
-        Optional<Agent> agent = agentList.stream().filter(a->agentCommand.getAgentId()==a.getId()).findFirst();
+        Optional<Agent> agent = agentList.stream().filter(a -> agentCommand.getAgentId() == a.getId()).findFirst();
         if (agentList.isEmpty() || agent.isEmpty()) {
             throw new AgentNotfoundException();
         }
@@ -130,13 +130,15 @@ public class AgentGrpcService {
             }
 
             return agentDTOList.get(0);
+        } catch (AgentNotfoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void deleteAgent(String hostname) {
+    public void deleteAgent(String hostname) throws AgentNotfoundException {
         final String ctx = CLASSNAME + ".deleteAgent";
         try {
             String currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user login"));
@@ -153,8 +155,7 @@ public class AgentGrpcService {
                     return;
                 }
             } catch (AgentNotfoundException e) {
-                    log.error(String.format("%1$s: Agent %2$s could not be deleted because was not found", ctx, hostname));
-                    return;
+                throw e;
             }
 
             DeleteRequest request = DeleteRequest.newBuilder().setDeletedBy(currentUser).build();
@@ -168,6 +169,8 @@ public class AgentGrpcService {
             AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
             newStub.deleteAgent(request);
 
+        } catch (AgentNotfoundException e) {
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);

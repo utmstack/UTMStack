@@ -15,6 +15,7 @@ import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 import com.park.utmstack.util.PdfUtil;
 import com.park.utmstack.util.UtilPagination;
+import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
@@ -313,7 +314,7 @@ public class UtmNetworkScanService {
      *
      * @param id Asset identifier
      */
-    public void deleteCustomAsset(Long id) {
+    public void deleteCustomAsset(Long id) throws AgentNotfoundException {
         final String ctx = CLASSNAME + ".deleteCustomAsset";
         try {
             networkScanRepository.findById(id).ifPresent(asset -> {
@@ -323,6 +324,8 @@ public class UtmNetworkScanService {
                 if (asset.getIsAgent())
                     agentGrpcService.deleteAgent(src);
             });
+        } catch (AgentNotfoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
