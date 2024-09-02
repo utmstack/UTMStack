@@ -1,7 +1,18 @@
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChildren} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren
+} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Observable, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {TableBuilderResponseType} from '../../../../shared/chart/types/response/table-builder-response.type';
 import {SortableDirective} from '../../../../shared/directives/sortable/sortable.directive';
 import {SortDirection} from '../../../../shared/directives/sortable/type/sort-direction.type';
@@ -11,11 +22,9 @@ import {ElasticTimeEnum} from '../../../../shared/enums/elastic-time.enum';
 import {
   OverviewAlertDashboardService
 } from '../../../../shared/services/charts-overview/overview-alert-dashboard.service';
+import {RefreshService, RefreshType} from '../../../../shared/services/util/refresh.service';
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
-import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
-import {Observable, Subject} from "rxjs";
-import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-chart-common-table',
@@ -87,6 +96,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
           this.pageEnd = this.itemsPerPage;
           this.responseRows = data.rows;
           this.totalItems = data.rows.length;
+          this.loaded.emit();
         }
       ));
   }

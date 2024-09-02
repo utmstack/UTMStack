@@ -3,7 +3,6 @@ import {ActivatedRoute} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
 import {map, takeUntil} from 'rxjs/operators';
-import {filter, map, takeUntil} from 'rxjs/operators';
 import {UtmModulesEnum} from '../../app-module/shared/enum/utm-module.enum';
 import {UtmModuleType} from '../../app-module/shared/type/utm-module.type';
 import {AccountService} from '../../core/auth/account.service';
@@ -24,12 +23,11 @@ import {OverviewAlertDashboardService} from '../../shared/services/charts-overvi
 import {IndexPatternService} from '../../shared/services/elasticsearch/index-pattern.service';
 import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
+import {RefreshService, RefreshType} from '../../shared/services/util/refresh.service';
 import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-value.type';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {UtmIndexPatternFields} from '../../shared/types/index-pattern/utm-index-pattern-fields';
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
-import {RefreshService, RefreshType} from "../../shared/services/util/refresh.service";
-import {UtmIndexPatternFields} from '../../shared/types/index-pattern/utm-index-pattern-fields';
 
 @Component({
   selector: 'app-dashboard-overview',

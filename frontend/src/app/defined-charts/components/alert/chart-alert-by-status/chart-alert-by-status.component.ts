@@ -34,7 +34,6 @@ import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
   styleUrls: ['./chart-alert-by-status.component.scss']
 })
 export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
-  @Input() refreshInterval;
   @Output() loaded = new EventEmitter<void>();
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
@@ -86,7 +85,10 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
     };
     return this.overviewAlertDashboardService.getCardAlertByStatus(req)
       .pipe(
-        tap(() => this.loadingStatusAlert = false),
+        tap(() => {
+          this.loaded.emit();
+          this.loadingStatusAlert = false;
+        }),
         map( response => response.body)
       );
   }

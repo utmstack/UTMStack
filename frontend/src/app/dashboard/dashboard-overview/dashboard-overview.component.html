@@ -21,15 +21,10 @@
     </div>
     <div class="row">
       <div class="col-lg-4 col-md-12 col-sm-12">
-        <app-chart-alert-daily-week></app-chart-alert-daily-week>
-        <app-chart-alert-daily-week [refreshInterval]="refreshInterval"
-                                    (loaded)="onRun()">
-        </app-chart-alert-daily-week>
+        <app-chart-alert-daily-week (loaded)="onRun()"></app-chart-alert-daily-week>
       </div>
       <div class="col-lg-8 col-md-12 col-sm-12">
-        <app-chart-alert-by-status [refreshInterval]="refreshInterval"
-                                   (loaded)="onRun()">
-        </app-chart-alert-by-status>
+        <app-chart-alert-by-status (loaded)="onRun()"></app-chart-alert-by-status>
       </div>
     </div>
 
@@ -77,9 +72,8 @@
                               [type]="RefreshType.CHART_COMMON_PIE_EVENT"></app-chart-common-pie>
       </div>
       <div class="col-lg-5 col-md-12 col-sm-12">
-        <app-chart-event-in-time [type]="RefreshType.CHART_EVENT_IN_TIME"></app-chart-event-in-time>
-        <app-chart-event-in-time [refreshInterval]="refreshInterval"
-                                 (loaded)="onRun()"></app-chart-event-in-time>
+        <app-chart-event-in-time [type]="RefreshType.CHART_EVENT_IN_TIME" (loaded)="onRun()">
+        </app-chart-event-in-time>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12">
         <app-chart-common-table [endpoint]="'top-windows-events'"
@@ -87,9 +81,8 @@
                                 [navigateUrl]="LOG_ANALYZER_ROUTE"
                                 [paramClick]="paramEvenTopCLick"
                                 [params]="paramsTopEvent"
-                                [type]="RefreshType.CHART_COMMON_TABLE_TOP_EVENT">
-                                (loaded)="onRun()"
-                                [refreshInterval]="refreshInterval">
+                                [type]="RefreshType.CHART_COMMON_TABLE_TOP_EVENT"
+                                (loaded)="onRun()">
         </app-chart-common-table>
       </div>
     </div>

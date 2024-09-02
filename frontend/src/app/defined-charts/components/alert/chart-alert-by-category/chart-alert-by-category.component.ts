@@ -1,5 +1,4 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable, Subject} from 'rxjs';
@@ -30,7 +29,6 @@ import {deleteNullValues} from '../../../../shared/util/object-util';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
-  @Input() refreshInterval;
   @Output() loaded = new EventEmitter<void>();
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
@@ -82,6 +80,7 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
           } else {
             this.noData = true;
           }
+          this.loaded.emit();
         }),
       );
   }

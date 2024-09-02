@@ -1,5 +1,4 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable, Subject} from 'rxjs';
@@ -85,8 +84,8 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
           } else {
             this.noData = true;
           }
-        })
-      );
+          this.loaded.emit();
+        }));
   }
 
   buildPieChart(data: PieResponseType) {
@@ -148,7 +147,6 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
     } else {
       return UTM_COLOR_THEME[Math.random() * UTM_COLOR_THEME.length];
     }
-
   }
 
   private processMapColor(chart: PieResponseType): { name: string, itemStyle: any, value: number }[] {

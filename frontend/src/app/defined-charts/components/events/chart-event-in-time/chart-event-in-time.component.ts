@@ -108,6 +108,7 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
           } else {
             this.noData = true;
           }
+          this.loaded.emit();
         })
       );
   }
