@@ -1,7 +1,7 @@
 package com.park.utmstack.service.agent_manager;
 
-import agent.Common.DeleteRequest;
-import agent.Common.ListRequest;
+import com.park.utmstack.service.grpc.DeleteRequest;
+import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.dto.agent_manager.AgentCommandDTO;

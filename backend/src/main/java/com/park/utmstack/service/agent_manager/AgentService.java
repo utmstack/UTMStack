@@ -1,6 +1,6 @@
 package com.park.utmstack.service.agent_manager;
 
-import agent.Common.ListRequest;
+import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.domain.agents_manager.Agent;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;

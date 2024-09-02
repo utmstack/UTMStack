@@ -119,7 +119,7 @@ public final class AgentManagerGrpc {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.google.protobuf.TimestampProto.getDescriptor(),
-          agent.Common.getDescriptor(),
+          com.park.utmstack.service.grpc.Common.getDescriptor(),
         });
     internal_static_agent_AgentRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -170,7 +170,7 @@ public final class AgentManagerGrpc {
         internal_static_agent_AgentCommand_descriptor,
         new java.lang.String[] { "CreatedAt", "UpdatedAt", "AgentId", "Command", "CommandStatus", "Result", "ExecutedBy", "CmdId", "Reason", "OriginType", "OriginId", });
     com.google.protobuf.TimestampProto.getDescriptor();
-    agent.Common.getDescriptor();
+    com.park.utmstack.service.grpc.Common.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
