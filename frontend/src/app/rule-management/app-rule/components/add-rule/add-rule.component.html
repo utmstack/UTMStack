@@ -45,6 +45,7 @@
         <div class="form-group-select">
           <label>Data Types:</label>
           <ng-select (change)="onDataTypeChange($event)"
+                     (search)="onSearch($event)"
                      (scrollToEnd)="loadDataTypes()"
                      [addTag]="true"
                      [items]="(types$ | async)"

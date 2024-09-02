@@ -21,9 +21,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     ruleForm: FormGroup;
     mode: Mode = 'ADD';
     loadingDataTypes = false;
-    daTypeRequest: {page: number, size: number} = {
+    daTypeRequest: {page: number, size: number, sort: string} = {
         page: -1,
-        size: 10
+        size: 10,
+        sort: 'dataType,ASC'
     };
     types$: Observable<DataType[]>;
     isSubmitting = false;
@@ -44,10 +45,6 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
       this.mode = this.rule ? 'EDIT' : 'ADD';
-      this.daTypeRequest = {
-        page: -1,
-        size: 10
-      };
       this.initializeForm(this.rule);
 
       this.types$ = this.dataTypeService.type$;
@@ -64,7 +61,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     }
 
     onDataTypeChange(selectedDataTypes: DataType[]) {
-        this.ruleForm.get('dataTypes').patchValue(selectedDataTypes);
+      this.ruleForm.get('dataTypes').patchValue(selectedDataTypes);
+      this.dataTypeService.resetTypes();
+      this.daTypeRequest.page = -1;
+      this.loadDataTypes();
     }
 
   onFieldChange(selectField: string) {
@@ -221,4 +221,16 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.dataTypeService.resetTypes();
     }
+
+  onSearch(event: { term: string; items: any[] }) {
+    this.dataTypeService.resetTypes();
+    const request = {
+      search: event.term
+    };
+
+    this.dataTypeService.getAll(request)
+      .subscribe( data => {
+        this.loadingDataTypes = false;
+      });
+  }
 }
