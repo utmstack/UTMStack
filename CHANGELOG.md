@@ -1,4 +1,4 @@
 
-# UTMStack 10.5.6 Release Notes
+# UTMStack 10.5.7 Release Notes
 ## Bugfix
-- Fixed a bug on the dashboard save to pdf operation.
+- Fixed the dashboard overview save to pdf operation.
