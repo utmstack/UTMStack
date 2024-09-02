@@ -18,6 +18,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -25,6 +26,9 @@ import java.util.Map;
 public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer {
     private static final String CLASSNAME = "WebsocketConfiguration";
     private static final String IP_ADDRESS = "IP_ADDRESS";
+    private static final String CNX_HEADER = "Connection";
+    private static final String UPGRADE_HEADER = "Upgrade";
+    private static final String UPGRADE_HEADER_VALUE = "websocket";
     private final TokenProvider tokenProvider;
 
     public WebsocketConfiguration(TokenProvider tokenProvider) {
@@ -40,10 +44,10 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-            .addInterceptors(httpSessionHandshakeInterceptor())
-            .setHandshakeHandler(defaultHandshakeHandler())
-            .setAllowedOriginPatterns("*")
-            .withSockJS();
+                .addInterceptors(httpSessionHandshakeInterceptor())
+                .setHandshakeHandler(defaultHandshakeHandler())
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     private DefaultHandshakeHandler defaultHandshakeHandler() {
@@ -78,6 +82,8 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
                                            @NotNull WebSocketHandler wsHandler, @NotNull Map<String, Object> attributes) {
                 if (request instanceof ServletServerHttpRequest)
                     attributes.put(IP_ADDRESS, request.getRemoteAddress());
+                request.getHeaders().put(CNX_HEADER, List.of(UPGRADE_HEADER));
+                request.getHeaders().put(UPGRADE_HEADER, List.of(UPGRADE_HEADER_VALUE));
                 return true;
             }
 
