@@ -55,13 +55,11 @@ func GetAgentManagerConnection(cnf *config.Config) (*grpc.ClientConn, error) {
 	state := agentManagerConn.GetState()
 	if state == connectivity.Shutdown || state == connectivity.TransientFailure {
 		agentManagerConn.Close()
-
 		var err error
 		agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to Agent Manager: %v", err)
 		}
-
 	}
 
 	return agentManagerConn, nil

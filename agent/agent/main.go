@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"net/http"
 	_ "net/http/pprof"
 
 	pb "github.com/utmstack/UTMStack/agent/agent/agent"
@@ -21,11 +20,6 @@ import (
 )
 
 func main() {
-	go func() {
-		// http://localhost:6060/debug/pprof/
-		http.ListenAndServe("0.0.0.0:6060", nil)
-	}()
-
 	path := utils.GetMyPath()
 	utils.InitLogger(filepath.Join(path, "logs", config.SERV_LOG))
 
