@@ -23,11 +23,11 @@ import {OverviewAlertDashboardService} from '../../shared/services/charts-overvi
 import {IndexPatternService} from '../../shared/services/elasticsearch/index-pattern.service';
 import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
+import {RefreshService, RefreshType} from '../../shared/services/util/refresh.service';
 import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-value.type';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {UtmIndexPatternFields} from '../../shared/types/index-pattern/utm-index-pattern-fields';
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
-import {RefreshService, RefreshType} from "../../shared/services/util/refresh.service";
 
 @Component({
   selector: 'app-dashboard-overview',
@@ -76,6 +76,9 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   filterTime: { from: string, to: string };
   filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject();
+  runList = 0;
+  visualizationRender = 8;
+  preparingPrint = true;
   RefreshType = RefreshType;
 
 
@@ -249,6 +252,15 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
             });
       }
     });
+  }
+
+  onRun() {
+    this.runList += 1;
+    if (this.runList === this.visualizationRender) {
+      console.log('All the visualizations data has loaded, waiting for rendering');
+      setTimeout(() => this.preparingPrint = false, 3000);
+      console.log('All the visualizations now has rendered');
+    }
   }
 
   ngOnDestroy(): void {

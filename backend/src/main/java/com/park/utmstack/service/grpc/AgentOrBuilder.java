@@ -52,7 +52,7 @@ public interface AgentOrBuilder extends
    * <code>.agent.Status status = 4;</code>
    * @return The status.
    */
-  agent.Common.Status getStatus();
+  com.park.utmstack.service.grpc.Status getStatus();
 
   /**
    * <code>string platform = 5;</code>
@@ -167,4 +167,28 @@ public interface AgentOrBuilder extends
    */
   com.google.protobuf.ByteString
       getAddressesBytes();
+
+  /**
+   * <code>repeated .agent.AgentCommand commands = 15;</code>
+   */
+  java.util.List<com.park.utmstack.service.grpc.AgentCommand> 
+      getCommandsList();
+  /**
+   * <code>repeated .agent.AgentCommand commands = 15;</code>
+   */
+  com.park.utmstack.service.grpc.AgentCommand getCommands(int index);
+  /**
+   * <code>repeated .agent.AgentCommand commands = 15;</code>
+   */
+  int getCommandsCount();
+  /**
+   * <code>repeated .agent.AgentCommand commands = 15;</code>
+   */
+  java.util.List<? extends com.park.utmstack.service.grpc.AgentCommandOrBuilder> 
+      getCommandsOrBuilderList();
+  /**
+   * <code>repeated .agent.AgentCommand commands = 15;</code>
+   */
+  com.park.utmstack.service.grpc.AgentCommandOrBuilder getCommandsOrBuilder(
+      int index);
 }

@@ -1,6 +1,6 @@
 package com.park.utmstack.web.rest.agent_manager;
 
-import agent.Common.ListRequest;
+import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -51,7 +51,7 @@ public class AgentManagerResource {
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 0)
+                    .setPageSize(pageSize != null ? pageSize : 1000000)
                     .setSearchQuery(searchQuery != null ? searchQuery : "")
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();
@@ -69,13 +69,13 @@ public class AgentManagerResource {
         }
     }
 
-    /*@GetMapping("/agents-with-commands")
+    @GetMapping("/agents-with-commands")
     public ResponseEntity<List<AgentDTO>> listAgentsWithCommands() {
         final String ctx = CLASSNAME + ".listAgentsWithCommands";
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(1)
-                    .setPageSize(1000)
+                    .setPageSize(1000000)
                     .setSearchQuery("")
                     .setSortBy("")
                     .build();
@@ -91,7 +91,7 @@ public class AgentManagerResource {
             eventService.createEvent(msg, ApplicationEventType.ERROR);
             return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
-    }*/
+    }
 
     @GetMapping("/agent-by-hostname")
     public ResponseEntity<AgentDTO> getAgentByHostname(
@@ -121,7 +121,7 @@ public class AgentManagerResource {
         try {
             ListRequest request = ListRequest.newBuilder()
                     .setPageNumber(pageNumber != null ? pageNumber : 0)
-                    .setPageSize(pageSize != null ? pageSize : 0)
+                    .setPageSize(pageSize != null ? pageSize : 1000000)
                     .setSearchQuery(searchQuery != null ? searchQuery : "")
                     .setSortBy(sortBy != null ? sortBy : "")
                     .build();

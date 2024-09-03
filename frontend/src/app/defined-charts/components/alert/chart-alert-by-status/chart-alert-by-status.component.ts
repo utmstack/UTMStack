@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {
@@ -34,7 +34,7 @@ import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
   styleUrls: ['./chart-alert-by-status.component.scss']
 })
 export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
-  @Input() refreshInterval;
+  @Output() loaded = new EventEmitter<void>();
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   time: TimeFilterType = {timeTo: 'now-7d/d', timeFrom: 'now'};
@@ -85,7 +85,10 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
     };
     return this.overviewAlertDashboardService.getCardAlertByStatus(req)
       .pipe(
-        tap(() => this.loadingStatusAlert = false),
+        tap(() => {
+          this.loaded.emit();
+          this.loadingStatusAlert = false;
+        }),
         map( response => response.body)
       );
   }
