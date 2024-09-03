@@ -310,22 +310,30 @@ public class UtmNetworkScanService {
     }
 
     /**
-     * Remove the asset information and all his data sources
+     * Remove the asset information and all his data sources. Also return source information if it is an agent,
+     * that information will be used to remove agent from agent manager
      *
      * @param id Asset identifier
      */
-    public void deleteCustomAsset(Long id) throws AgentNotfoundException {
+    public void deleteCustomAsset(Long id) {
         final String ctx = CLASSNAME + ".deleteCustomAsset";
+        String src = "";
+        Optional<UtmNetworkScan> asset = networkScanRepository.findById(id);
         try {
-            networkScanRepository.findById(id).ifPresent(asset -> {
-                String src = StringUtils.hasText(asset.getAssetName()) ? asset.getAssetName() : asset.getAssetIp();
+            if (asset.isPresent()) {
+                src = StringUtils.hasText(asset.get().getAssetName()) ? asset.get().getAssetName() : asset.get().getAssetIp();
+
+                if (asset.get().getIsAgent())
+                    agentGrpcService.deleteAgent(src);
                 utmDataInputStatusRepository.deleteAllBySource(src);
                 networkScanRepository.deleteById(id);
-                if (asset.getIsAgent())
-                    agentGrpcService.deleteAgent(src);
-            });
+            };
         } catch (AgentNotfoundException e) {
-            throw e;
+            // If agent wasn't found, remove from database anyway
+            if (StringUtils.hasText(src)) {
+                utmDataInputStatusRepository.deleteAllBySource(src);
+                networkScanRepository.deleteById(id);
+            }
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }

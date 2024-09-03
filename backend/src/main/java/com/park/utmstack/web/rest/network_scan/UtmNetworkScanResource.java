@@ -252,13 +252,6 @@ public class UtmNetworkScanResource {
         try {
             networkScanService.deleteCustomAsset(id);
             return ResponseEntity.ok().build();
-        } catch (AgentNotfoundException anfe) {
-            String msg = ctx + ": The agent was removed from local database but," +
-                    " wasn't found when trying to remove from manager. Most of the times, means that it " +
-                    "was removed outside the platform.";
-            log.info(msg);
-            eventService.createEvent(msg, ApplicationEventType.INFO);
-            return ResponseEntity.ok().build();
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

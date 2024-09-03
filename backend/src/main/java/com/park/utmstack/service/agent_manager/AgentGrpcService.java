@@ -151,8 +151,7 @@ public class AgentGrpcService {
                 }
             } catch (StatusRuntimeException e) {
                 if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
-                    log.error(String.format("%1$s: Agent %2$s could not be deleted because was not found", ctx, hostname));
-                    return;
+                    throw new AgentNotfoundException();
                 }
             } catch (AgentNotfoundException e) {
                 throw e;
@@ -172,7 +171,12 @@ public class AgentGrpcService {
         } catch (AgentNotfoundException e) {
             throw e;
         } catch (Exception e) {
-            String msg = ctx + ": " + e.getLocalizedMessage();
+            String msg = e.getLocalizedMessage();
+            if(msg.contains("UNAVAILABLE")) {
+                msg = ctx + ": Agent couldn't be deleted, agent manager is not available.";
+            } else {
+                msg = ctx + ": " + e.getMessage();
+            }
             log.error(msg);
             throw new RuntimeException(msg);
         }
