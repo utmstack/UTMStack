@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -25,5 +26,5 @@ func GetItemsFromContext(ctx context.Context) (string, string, string, error) {
 	if !ok || len(typ) == 0 {
 		return "", "", "", status.Error(codes.Unauthenticated, "type is not provided")
 	}
-	return id[0], key[0], typ[0], nil
+	return id[0], key[0], strings.ToLower(typ[0]), nil
 }
