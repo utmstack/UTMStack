@@ -7,9 +7,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 @Service
 public class IncidentResponseCommandService {
 
@@ -41,18 +38,13 @@ public class IncidentResponseCommandService {
         // Send command using the bidirectional stream
         StreamObserver<UtmCommand> requestObserver = nonBlockingStub.processCommand(responseObserver);
         try {
-            CountDownLatch timeoutLatch = new CountDownLatch(1);
             requestObserver.onNext(utmCommand);
             // Mark the end of requests
-            timeoutLatch.await(30, TimeUnit.SECONDS);
             requestObserver.onCompleted();
         } catch (RuntimeException e) {
             // Cancel RPC
             requestObserver.onError(e);
             throw e;
-        } catch (InterruptedException e) {
-            requestObserver.onError(e);
-            throw new RuntimeException(e);
         }
     }
 }
