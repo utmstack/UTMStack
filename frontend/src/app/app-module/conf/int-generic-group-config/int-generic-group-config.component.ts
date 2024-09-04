@@ -148,11 +148,15 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
       if (this.groupType === GroupTypeEnum.COLLECTOR) {
         const collector = this.collectors.find(c => c.id === parseInt(group.collector, 10));
         if (collector && collector.collector !== '') {
-          const collectorToSave = {
+          group = {
             ...collector,
             groups: collector.groups.filter(g => g.id !== group.id)
           };
-          this.deleteAction(collectorToSave);
+        } else {
+          group = {
+            ...group,
+            collector: null
+          };
         }
       }
       this.deleteAction(group);
@@ -160,7 +164,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
   }
 
   deleteAction(param: any) {
-    const request$ = this.groupType === GroupTypeEnum.COLLECTOR && param.collector && param.collector.collector ?
+    const request$ = this.groupType === GroupTypeEnum.COLLECTOR && param.collector ?
       this.saveCollector(this.getBody(param)) : this.utmModuleGroupService.delete(param.id);
 
     request$.subscribe(response => {
@@ -401,7 +405,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
     }
   }
 
-  private activeModule() {
+  activeModule() {
     this.moduleChangeStatusBehavior.setStatus(!this.moduleChangeStatusBehavior.getLastStatus() ? true : null, true);
   }
 }
