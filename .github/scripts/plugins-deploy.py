@@ -52,7 +52,6 @@ def main(environment):
 	pipeline_correlation_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_correlation.yaml"))
 	pipeline_input_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_input.yaml"))
 	pipeline_notification_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_notification.yaml"))
-	pipeline_parsing_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "etc", "threatwinds", "pipeline", "system_plugins_parsing.yaml"))
 		
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update UTMStack Dependencies in Google Cloud Storage")
