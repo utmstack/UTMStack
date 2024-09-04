@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/shirou/gopsutil/v3 v3.24.5
-	github.com/threatwinds/go-sdk v0.9.0
+	github.com/threatwinds/go-sdk v0.9.1
 	github.com/threatwinds/logger v1.1.12
 	github.com/tidwall/gjson v1.17.3
 	google.golang.org/grpc v1.66.0
@@ -54,4 +54,5 @@ require (
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
