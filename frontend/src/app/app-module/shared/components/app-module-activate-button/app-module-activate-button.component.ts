@@ -44,7 +44,7 @@ export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
               takeUntil(this.destroy$))
         .subscribe( value => {
           this.performPreAction = value.hasPreAction;
-          if (this.moduleDetail && (this.moduleDetail.moduleActive && !value.status ||
+          if (value.status != null && this.moduleDetail && (this.moduleDetail.moduleActive && !value.status ||
                 this.moduleDetail && !this.moduleDetail.moduleActive && value.status)) {
             this.changeModuleStatus(value.status);
           }

@@ -67,7 +67,29 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     console.log(changes);
     if (changes.disablePreAction.currentValue) {
-      console.log('reset');
+      const collectors = [];
+      this.collectorList.forEach( c => {
+        collectors.push({
+          moduleId: this.moduleId,
+          keys: this.configs,
+          collector: {
+            ...c,
+            group: null,
+          }
+        });
+      });
+      this.collectorService.bulkCreate(collectors)
+          .pipe(map(response => response.body.results))
+          .subscribe( results => {
+            if (results.every( r => r.status === 'success')) {
+              this.moduleChangeStatusBehavior.setStatus(false, false);
+              this.getGroups().subscribe();
+            } else {
+              this.toast.showError('Error Removing Collector Configuration',
+                  'An error occurred while trying to remove the collector configuration. Please try again.');
+            }
+          },
+          error => console.log(error));
     }
   }
 
@@ -88,6 +110,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
                 tap((response: HttpResponse<UtmListCollectorType>) => {
                   this.collectors = this.collectorService.getCollectorGroupConfig(this.groups, response.body.collectors);
                   this.collectorList = response.body.collectors;
+                  this.moduleChangeStatusBehavior.setStatus(null, true);
                 }),
                 catchError(error => {
                   this.toast.showError('Error listing collectors',
