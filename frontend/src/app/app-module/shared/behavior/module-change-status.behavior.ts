@@ -1,4 +1,4 @@
-import {Inject, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable({providedIn: 'root'})
@@ -7,7 +7,8 @@ export class ModuleChangeStatusBehavior {
   public moduleStatus$: Observable<{status: boolean, hasPreAction: boolean}> = this.moduleChangeStatusBehavior.asObservable();
 
   getLastStatus() {
-    return this.moduleChangeStatusBehavior.value.status;
+    return this.moduleChangeStatusBehavior.value && this.moduleChangeStatusBehavior.value.status ?
+        this.moduleChangeStatusBehavior.value.status : false;
   }
   setStatus(status: boolean, hasPreAction: boolean) {
     this.moduleChangeStatusBehavior.next({ status, hasPreAction});

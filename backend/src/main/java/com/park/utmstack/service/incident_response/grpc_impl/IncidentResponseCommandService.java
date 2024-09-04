@@ -40,7 +40,7 @@ public class IncidentResponseCommandService {
         try {
             requestObserver.onNext(utmCommand);
             // Mark the end of requests
-            requestObserver.onCompleted();
+            // requestObserver.onCompleted();
         } catch (RuntimeException e) {
             // Cancel RPC
             requestObserver.onError(e);

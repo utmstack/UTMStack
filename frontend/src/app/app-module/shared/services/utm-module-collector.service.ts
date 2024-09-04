@@ -24,6 +24,10 @@ export class UtmModuleCollectorService {
     return this.http.post<any>(`${this.resourceUrl}/collector-config/`, body.collectorConfig, {params: options, observe: 'response'});
   }
 
+  bulkCreate(body: any): Observable<HttpResponse<{results: {collectorId: string, status: string}[]}>> {
+    return this.http.post<any>(`${this.resourceUrl}/collectors-config/`, body, {observe: 'response'});
+  }
+
   reset(body: any): Observable<HttpResponse<UtmModuleGroupType>> {
     return this.http.post<any>(`${this.resourceUrl}/collectors-config/`, body.collectorConfig, {observe: 'response'});
   }
