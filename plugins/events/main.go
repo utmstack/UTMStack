@@ -7,54 +7,53 @@ import (
 	"os"
 	"path"
 
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/events/search"
 	"google.golang.org/grpc"
 )
 
 type analysisServer struct {
-	plugins.UnimplementedAnalysisServer
+	go_sdk.UnimplementedAnalysisServer
 }
 
 func main() {
 	os.Remove(path.Join(
-		helpers.GetCfg().Env.Workdir,
+		go_sdk.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.events_analysis.sock"))
 
 	laddr, err := net.ResolveUnixAddr("unix",
-		path.Join(helpers.GetCfg().Env.Workdir, "sockets",
+		path.Join(go_sdk.GetCfg().Env.Workdir, "sockets",
 			"com.utmstack.events_analysis.sock"))
 
 	if err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 
 	listener, err := net.ListenUnix("unix", laddr)
 	if err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 
 	grpcServer := grpc.NewServer()
-	plugins.RegisterAnalysisServer(grpcServer, &analysisServer{})
+	go_sdk.RegisterAnalysisServer(grpcServer, &analysisServer{})
 
 	if err := grpcServer.Serve(listener); err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 }
 
 func (p *analysisServer) Analyze(ctx context.Context,
-	event *plugins.Event) (*plugins.Alert, error) {
+	event *go_sdk.Event) (*go_sdk.Alert, error) {
 
-	jLog, e := helpers.ToString(event)
+	jLog, e := go_sdk.ToString(event)
 	if e != nil {
 		return nil, fmt.Errorf(e.Message)
 	}
 
-	helpers.Logger().LogF(100, "received event: %s", *jLog)
+	go_sdk.Logger().LogF(100, "received event: %s", *jLog)
 
 	search.AddToQueue(*jLog)
 

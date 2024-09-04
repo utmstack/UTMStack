@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -14,15 +14,15 @@ import (
 )
 
 func CheckAgentManagerHealth() {
-	pCfg, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
-		helpers.Logger().ErrorF("failed to get the PluginConfig: %v", e)
+		go_sdk.Logger().ErrorF("failed to get the PluginConfig: %v", e)
 		os.Exit(1)
 	}
 
 	serverAddress := pCfg.AgentManager
 	if serverAddress == "" {
-		helpers.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
+		go_sdk.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
 		os.Exit(1)
 	}
 

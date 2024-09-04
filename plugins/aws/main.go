@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/aws/processor"
 	"github.com/utmstack/UTMStack/plugins/aws/schema"
 	utmconf "github.com/utmstack/config-client-go"
@@ -17,7 +17,7 @@ import (
 const delayCheck = 300
 
 func main() {
-	pCfg, e := helpers.PluginCfg[schema.PluginConfig]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[schema.PluginConfig]("com.utmstack")
 	if e != nil {
 		log.Fatalf("failed to load plugin config: %v", e)
 	}
@@ -36,10 +36,10 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				helpers.Logger().ErrorF("error getting configuration of the AWS module: %v", err)
+				go_sdk.Logger().ErrorF("error getting configuration of the AWS module: %v", err)
 			}
 
-			helpers.Logger().Info("sync complete waiting %v seconds", delayCheck)
+			go_sdk.Logger().Info("sync complete waiting %v seconds", delayCheck)
 			time.Sleep(time.Second * delayCheck)
 			st = et.Add(1)
 			continue
@@ -55,7 +55,7 @@ func main() {
 
 					for _, cnf := range group.Configurations {
 						if cnf.ConfValue == "" || cnf.ConfValue == " " {
-							helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
+							go_sdk.Logger().Info("program not configured yet for group: %s", group.GroupName)
 							skip = true
 							break
 						}
@@ -70,7 +70,7 @@ func main() {
 			}
 
 			wg.Wait()
-			helpers.Logger().Info("sync complete waiting %d seconds", delayCheck)
+			go_sdk.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		}
 
 		time.Sleep(time.Second * delayCheck)

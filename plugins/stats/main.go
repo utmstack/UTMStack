@@ -6,14 +6,13 @@ import (
 	"os"
 	"path"
 
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type notificationServer struct {
-	plugins.UnimplementedNotificationServer
+	go_sdk.UnimplementedNotificationServer
 }
 
 type Message struct {
@@ -23,35 +22,35 @@ type Message struct {
 }
 
 func main() {
-	os.Remove(path.Join(helpers.GetCfg().Env.Workdir,
+	os.Remove(path.Join(go_sdk.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.stats_notification.sock"))
 
 	laddr, err := net.ResolveUnixAddr(
-		"unix", path.Join(helpers.GetCfg().Env.Workdir,
+		"unix", path.Join(go_sdk.GetCfg().Env.Workdir,
 			"sockets", "com.utmstack.stats_notification.sock"))
 
 	if err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 
 	listener, err := net.ListenUnix("unix", laddr)
 	if err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 
 	grpcServer := grpc.NewServer()
-	plugins.RegisterNotificationServer(grpcServer, &notificationServer{})
+	go_sdk.RegisterNotificationServer(grpcServer, &notificationServer{})
 
 	if err := grpcServer.Serve(listener); err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 }
 
-func (p *notificationServer) Notify(ctx context.Context, msg *plugins.Message) (*emptypb.Empty, error) {
-	helpers.Logger().LogF(100, "received message: %v", msg.Message)
+func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*emptypb.Empty, error) {
+	go_sdk.Logger().LogF(100, "received message: %v", msg.Message)
 
 	// TODO: implement statistics logic here
 

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -20,7 +20,7 @@ type PluginConfig struct {
 const delayCheck = 300
 
 func main() {
-	pCfg, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
 		os.Exit(1)
 	}
@@ -37,10 +37,10 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				helpers.Logger().ErrorF("error getting configuration of the AZURE module: %v", err)
+				go_sdk.Logger().ErrorF("error getting configuration of the AZURE module: %v", err)
 			}
 
-			helpers.Logger().Info("sync complete waiting %v seconds", delayCheck)
+			go_sdk.Logger().Info("sync complete waiting %v seconds", delayCheck)
 			time.Sleep(time.Second * delayCheck)
 			continue
 		}
@@ -55,7 +55,7 @@ func main() {
 
 					for _, cnf := range group.Configurations {
 						if cnf.ConfValue == "" || cnf.ConfValue == " " {
-							helpers.Logger().Info("program not configured yet for group: %s", group.GroupName)
+							go_sdk.Logger().Info("program not configured yet for group: %s", group.GroupName)
 							skip = true
 							break
 						}
@@ -71,7 +71,7 @@ func main() {
 			}
 
 			wg.Wait()
-			helpers.Logger().Info("sync complete waiting %d seconds", delayCheck)
+			go_sdk.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		}
 
 		time.Sleep(time.Second * delayCheck)

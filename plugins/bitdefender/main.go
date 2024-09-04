@@ -8,7 +8,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/processor"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/server"
@@ -23,7 +23,7 @@ var (
 func main() {
 	cert, key, err := loadCerts()
 	if err != nil {
-		helpers.Logger().ErrorF("failed to load certificates: %v", err)
+		go_sdk.Logger().ErrorF("failed to load certificates: %v", err)
 		os.Exit(1)
 	}
 
