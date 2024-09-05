@@ -1,6 +1,10 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	go_sdk "github.com/threatwinds/go-sdk"
 )
 
@@ -17,4 +21,9 @@ func main() {
 	go processNotification()
 
 	StartGroupModuleManager()
+
+	// lock main until signal
+	signs := make(chan os.Signal, 1)
+	signal.Notify(signs, syscall.SIGINT, syscall.SIGTERM)
+	<-signs
 }
