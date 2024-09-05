@@ -65,7 +65,11 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		agent.CheckGRPCHealth(conn, ctx)
+		err = agent.CheckGRPCHealth(conn, ctx)
+		if err != nil {
+			time.Sleep(timeToSleep)
+			continue
+		}
 
 		client := plugins.NewIntegrationClient(conn)
 		plClient := createClient(client, ctx)

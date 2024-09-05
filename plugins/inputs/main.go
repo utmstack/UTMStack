@@ -6,14 +6,13 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 )
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
-var localLogsChannel chan *plugins.Log
-var localNotificationsChannel chan *plugins.Message
+var localLogsChannel chan *go_sdk.Log
+var localNotificationsChannel chan *go_sdk.Message
 
 type PluginConfig struct {
 	ServerName   string `yaml:"server_name"`
@@ -34,14 +33,14 @@ func main() {
 
 	cert, key, err := loadCerts()
 	if err != nil {
-		helpers.Logger().ErrorF("failed to load certificates: %v", err)
+		go_sdk.Logger().ErrorF("failed to load certificates: %v", err)
 		os.Exit(1)
 	}
 
 	cpu := runtime.NumCPU()
 
-	localLogsChannel = make(chan *plugins.Log, cpu*100)
-	localNotificationsChannel = make(chan *plugins.Message, cpu*100)
+	localLogsChannel = make(chan *go_sdk.Log, cpu*100)
+	localNotificationsChannel = make(chan *go_sdk.Message, cpu*100)
 
 	for i := 0; i < cpu; i++ {
 		go sendLog()
@@ -53,7 +52,7 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	cnf, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	cnf, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
 		os.Exit(1)
 	}

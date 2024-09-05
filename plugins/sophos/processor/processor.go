@@ -9,15 +9,14 @@ import (
 	"os"
 	"path"
 
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/sophos/utils"
 	"github.com/utmstack/config-client-go/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var LogQueue = make(chan *plugins.Log)
+var LogQueue = make(chan *go_sdk.Log)
 
 type SophosCentralProcessor struct {
 	XApiKey       string
@@ -76,7 +75,7 @@ func (p *SophosCentralProcessor) GetLogs(group types.ModuleGroup, fromTime int) 
 	for _, item := range response.Items {
 		jsonItem, err := json.Marshal(item)
 		if err != nil {
-			helpers.Logger().ErrorF("error marshalling item: %v", err)
+			go_sdk.Logger().ErrorF("error marshalling item: %v", err)
 			continue
 		}
 		logs = append(logs, string(jsonItem))
@@ -86,36 +85,36 @@ func (p *SophosCentralProcessor) GetLogs(group types.ModuleGroup, fromTime int) 
 }
 
 func ProcessLogs() {
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(go_sdk.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
+		go_sdk.Logger().ErrorF("failed to connect to engine server: %v", err)
 		os.Exit(1)
 	}
 
-	client := plugins.NewEngineClient(conn)
+	client := go_sdk.NewEngineClient(conn)
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		helpers.Logger().ErrorF("failed to create input client: %v", err)
+		go_sdk.Logger().ErrorF("failed to create input client: %v", err)
 		os.Exit(1)
 	}
 
 	for {
 		log := <-LogQueue
-		helpers.Logger().LogF(100, "sending log: %v", log)
+		go_sdk.Logger().LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
-			helpers.Logger().ErrorF("failed to send log: %v", err)
+			go_sdk.Logger().ErrorF("failed to send log: %v", err)
 		} else {
-			helpers.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
+			go_sdk.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
 		}
 
 		ack, err := inputClient.Recv()
 		if err != nil {
-			helpers.Logger().ErrorF("failed to receive ack: %v", err)
+			go_sdk.Logger().ErrorF("failed to receive ack: %v", err)
 			os.Exit(1)
 		}
 
-		helpers.Logger().LogF(100, "received ack: %v", ack)
+		go_sdk.Logger().LogF(100, "received ack: %v", ack)
 	}
 }

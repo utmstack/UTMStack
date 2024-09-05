@@ -7,47 +7,47 @@ import (
 	"os"
 	"path"
 
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
+	
 	"github.com/utmstack/UTMStack/plugins/alerts/correlation"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type correlationServer struct {
-	plugins.UnimplementedCorrelationServer
+	go_sdk.UnimplementedCorrelationServer
 }
 
 func main() {
-	os.Remove(path.Join(helpers.GetCfg().Env.Workdir,
+	os.Remove(path.Join(go_sdk.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.alerts_correlation.sock"))
 
 	laddr, err := net.ResolveUnixAddr(
-		"unix", path.Join(helpers.GetCfg().Env.Workdir,
+		"unix", path.Join(go_sdk.GetCfg().Env.Workdir,
 			"sockets", "com.utmstack.alerts_correlation.sock"))
 
 	if err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 
 	listener, err := net.ListenUnix("unix", laddr)
 	if err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 
 	grpcServer := grpc.NewServer()
-	plugins.RegisterCorrelationServer(grpcServer, &correlationServer{})
+	go_sdk.RegisterCorrelationServer(grpcServer, &correlationServer{})
 
 	if err := grpcServer.Serve(listener); err != nil {
-		helpers.Logger().ErrorF(err.Error())
+		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
 }
 
 func (p *correlationServer) Correlate(ctx context.Context,
-	alert *plugins.Alert) (*emptypb.Empty, error) {
+	alert *go_sdk.Alert) (*emptypb.Empty, error) {
 
 	correlation.Alert(
 		alert.Id,
@@ -66,7 +66,7 @@ func (p *correlationServer) Correlate(ctx context.Context,
 	return nil, nil
 }
 
-func getDetails(alert *plugins.Alert) map[string]string {
+func getDetails(alert *go_sdk.Alert) map[string]string {
 	var details = make(map[string]string, 10)
 	if len(alert.Events) != 0 {
 		details["id"] = alert.Events[0].Id

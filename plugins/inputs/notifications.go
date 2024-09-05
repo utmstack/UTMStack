@@ -9,8 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -23,18 +22,18 @@ type Message struct {
 
 func sendNotification() {
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(
-		helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")),
+		go_sdk.GetCfg().Env.Workdir, "sockets", "engine_server.sock")),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
+		go_sdk.Logger().ErrorF("failed to connect to engine server: %v", err)
 		os.Exit(1)
 	}
 
-	client := plugins.NewEngineClient(conn)
+	client := go_sdk.NewEngineClient(conn)
 
 	notifyClient, err := client.Notify(context.Background())
 	if err != nil {
-		helpers.Logger().ErrorF("failed to create notify client: %v", err)
+		go_sdk.Logger().ErrorF("failed to create notify client: %v", err)
 		os.Exit(1)
 	}
 
@@ -43,29 +42,29 @@ func sendNotification() {
 
 		err = notifyClient.Send(msg)
 		if err != nil {
-			helpers.Logger().ErrorF("failed to send notification: %v", err)
+			go_sdk.Logger().ErrorF("failed to send notification: %v", err)
 			return
 		}
 
 		// TODO: implement a logic to resend failed notifications
 		ack, err := notifyClient.Recv()
 		if err != nil {
-			helpers.Logger().ErrorF("failed to receive notification ack: %v", err)
+			go_sdk.Logger().ErrorF("failed to receive notification ack: %v", err)
 			return
 		}
 
-		helpers.Logger().LogF(100, "received notification ack: %v", ack)
+		go_sdk.Logger().LogF(100, "received notification ack: %v", ack)
 	}
 }
 
 func notify(topic string, body Message) {
 	mByte, err := json.Marshal(body)
 	if err != nil {
-		helpers.Logger().ErrorF("failed to marshal notification body: %v", err)
+		go_sdk.Logger().ErrorF("failed to marshal notification body: %v", err)
 		return
 	}
 
-	msg := &plugins.Message{
+	msg := &go_sdk.Message{
 		Id:        uuid.NewString(),
 		Timestamp: time.Now().UTC().Format(time.RFC3339Nano),
 		Topic:     topic,

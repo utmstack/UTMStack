@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/plugins/events/utils"
 )
@@ -20,7 +20,7 @@ func AddToQueue(l string) {
 }
 
 func init() {
-	pCfg, e := helpers.PluginCfg[utils.Config]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[utils.Config]("com.utmstack")
 	if e != nil {
 		return
 	}
@@ -54,7 +54,7 @@ func init() {
 
 					bJson := bodyBuffer.Bytes()
 
-					_, _, e := helpers.DoReq[interface{}](url, bJson, "POST", map[string]string{"Content-Type": "application/json"})
+					_, _, e := go_sdk.DoReq[interface{}](url, bJson, "POST", map[string]string{"Content-Type": "application/json"})
 					if e != nil {
 						time.Sleep(10 * time.Second)
 						continue
@@ -73,12 +73,12 @@ func init() {
 				timestamp := gjson.Get(l, "@timestamp").String()
 
 				if timestamp == "" {
-					helpers.Logger().ErrorF("cannot found @timestamp in log or it is empty")
+					go_sdk.Logger().ErrorF("cannot found @timestamp in log or it is empty")
 					timestamp = gjson.Get(l, "timestamp").String()
 				}
 
 				if timestamp == "" {
-					helpers.Logger().ErrorF("cannot found timestamp in log or it is empty")
+					go_sdk.Logger().ErrorF("cannot found timestamp in log or it is empty")
 					timestamp = time.Now().Format(time.RFC3339Nano)
 				}
 

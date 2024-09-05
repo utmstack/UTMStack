@@ -47,7 +47,6 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_correlation.yaml", branch):  filepath.Join(pipelineFolder, "system_plugins_correlation.yaml"),
 		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_input.yaml", branch):        filepath.Join(pipelineFolder, "system_plugins_input.yaml"),
 		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_notification.yaml", branch): filepath.Join(pipelineFolder, "system_plugins_notification.yaml"),
-		fmt.Sprintf("https://cdn.utmstack.com/%s/pipeline/system_plugins_parsing.yaml", branch):      filepath.Join(pipelineFolder, "system_plugins_parsing.yaml"),
 	}
 
 	if err := utils.RunCmd("systemctl", "stop", "docker"); err != nil {

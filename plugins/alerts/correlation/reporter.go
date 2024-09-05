@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/alerts/search"
 	"github.com/utmstack/UTMStack/plugins/alerts/utils"
 )
@@ -89,7 +89,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 		return false
 	}
 
-	pCfg, e := helpers.PluginCfg[utils.Config]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[utils.Config]("com.utmstack")
 	if e != nil {
 		return false
 	}
@@ -181,11 +181,11 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 
 	requestBytes, err := json.Marshal(request)
 	if err != nil {
-		helpers.Logger().ErrorF("could not check existent alert: %v", err)
+		go_sdk.Logger().ErrorF("could not check existent alert: %v", err)
 		return false
 	}
 
-	response, _, e := helpers.DoReq[map[string]interface{}](pCfg.Elasticsearch+"/"+index+"/_search", requestBytes, "POST", map[string]string{"Content-Type": "application/json"})
+	response, _, e := go_sdk.DoReq[map[string]interface{}](pCfg.Elasticsearch+"/"+index+"/_search", requestBytes, "POST", map[string]string{"Content-Type": "application/json"})
 	if e != nil {
 		return false
 	}
@@ -208,11 +208,11 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 
 					bodyBytes, err := json.Marshal(body)
 					if err != nil {
-						helpers.Logger().ErrorF("could not update existent alert: %v", err)
+						go_sdk.Logger().ErrorF("could not update existent alert: %v", err)
 						return false
 					}
 
-					_, _, e := helpers.DoReq[interface{}](pCfg.Elasticsearch+"/"+index+"/_update/"+response["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_id"].(string), bodyBytes, "POST", map[string]string{"Content-Type": "application/json"})
+					_, _, e := go_sdk.DoReq[interface{}](pCfg.Elasticsearch+"/"+index+"/_update/"+response["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_id"].(string), bodyBytes, "POST", map[string]string{"Content-Type": "application/json"})
 					if e != nil {
 						return false
 					}
@@ -301,24 +301,24 @@ func NewAlert(id, name, severity, description, solution, category, tactic string
 		Logs: []string{details["id"]},
 	}
 
-	pCfg, _ := helpers.PluginCfg[utils.Config]("com.utmstack")
+	pCfg, _ := go_sdk.PluginCfg[utils.Config]("com.utmstack")
 
 	aj, err := json.Marshal(a)
 	if err != nil {
-		helpers.Logger().ErrorF("could not encode alert in JSON: %v", err)
+		go_sdk.Logger().ErrorF("could not encode alert in JSON: %v", err)
 		return
 	}
 
 	index, e := search.IndexBuilder("alert", time.Now().UTC().Format(time.RFC3339Nano))
 	if e != nil {
-		helpers.Logger().ErrorF("could not build index name: %v", err)
+		go_sdk.Logger().ErrorF("could not build index name: %v", err)
 		return
 	}
 
 	url := pCfg.Elasticsearch + "/" + index + "/_doc"
 
-	_, _, e = helpers.DoReq[interface{}](url, aj, "POST", map[string]string{"Content-Type": "application/json"})
+	_, _, e = go_sdk.DoReq[interface{}](url, aj, "POST", map[string]string{"Content-Type": "application/json"})
 	if e != nil {
-		helpers.Logger().ErrorF("could not send alert to Elasticsearch: %v", err)
+		go_sdk.Logger().ErrorF("could not send alert to Elasticsearch: %v", err)
 	}
 }

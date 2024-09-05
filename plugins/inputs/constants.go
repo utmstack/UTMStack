@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 )
 
 const panelConnectionKeyEndpoint = "%s/api/federation-service/token"
@@ -13,7 +13,7 @@ const utmCertFileName = "utm.crt"
 const utmCertFileKey = "utm.key"
 
 func LogstashHost() string {
-	cnf, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	cnf, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
 		os.Exit(1)
 	}

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/utmstack-inputs/agent"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -51,14 +51,14 @@ func (auth *LogAuthService) SyncAuth() {
 }
 
 func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
-	pCfg, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
 		return
 	}
 
 	serverAddress := pCfg.AgentManager
 	if serverAddress == "" {
-		helpers.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
+		go_sdk.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
 		os.Exit(1)
 	}
 
@@ -69,7 +69,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	tlsCredentials := credentials.NewTLS(tlsConfig)
 	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
-		helpers.Logger().ErrorF("failed to connect to gRPC server: %v", err)
+		go_sdk.Logger().ErrorF("failed to connect to gRPC server: %v", err)
 		return
 	}
 	defer conn.Close()
@@ -89,7 +89,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		})
 		if err != nil {
 			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
-				helpers.Logger().ErrorF("error sync collector keys: %v", err)
+				go_sdk.Logger().ErrorF("error sync collector keys: %v", err)
 			}
 			return
 		}
@@ -113,7 +113,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		})
 		if err != nil {
 			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
-				helpers.Logger().ErrorF("error sync agent keys: %v", err)
+				go_sdk.Logger().ErrorF("error sync agent keys: %v", err)
 			}
 			return
 		}

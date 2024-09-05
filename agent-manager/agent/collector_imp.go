@@ -69,6 +69,8 @@ func InitCollectorService() error {
 			CollectorServ.CacheCollectorKey[c.ID] = c.CollectorKey
 		}
 
+		go CollectorServ.ProcessPendingConfigs()
+
 		client := utmconf.NewUTMClient(config.GetInternalKey(), config.GetPanelServiceName())
 		for _, moduleType := range CollectorServ.CollectorTypes {
 			moduleConfig := &types.ConfigurationSection{}
@@ -78,6 +80,7 @@ func InitCollectorService() error {
 				return
 			}
 
+			pendigConfigs := make(map[string][]*CollectorConfigGroup)
 			for _, group := range moduleConfig.ConfigurationGroups {
 				var idInt int
 				idInt, err = strconv.Atoi(group.CollectorID)
@@ -90,10 +93,18 @@ func InitCollectorService() error {
 					CollectorServ.CollectorConfigsCache[uint(idInt)],
 					convertModuleGroupToCollectorProto(group),
 				)
+
+				pendigConfigs[group.CollectorID] = append(pendigConfigs[group.CollectorID], convertModuleGroupToCollectorProto(group))
+			}
+
+			for id, configs := range pendigConfigs {
+				CollectorServ.CollectorPendigConfigChan <- &CollectorConfig{
+					CollectorId: id,
+					RequestId:   uuid.New().String(),
+					Groups:      configs,
+				}
 			}
 		}
-
-		go CollectorServ.ProcessPendingConfigs()
 	})
 	return err
 }

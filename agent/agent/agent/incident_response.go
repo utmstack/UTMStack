@@ -30,7 +30,11 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		CheckGRPCHealth(conn, ctx)
+		err = CheckGRPCHealth(conn, ctx)
+		if err != nil {
+			time.Sleep(timeToSleep)
+			continue
+		}
 
 		client := NewAgentServiceClient(conn)
 		stream, err := client.AgentStream(ctx)

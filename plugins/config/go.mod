@@ -4,7 +4,7 @@ go 1.22.6
 
 require (
 	github.com/lib/pq v1.10.9
-	github.com/threatwinds/go-sdk v0.7.3
+	github.com/threatwinds/go-sdk v0.9.4
 	github.com/threatwinds/logger v1.1.12
 	github.com/tidwall/gjson v1.17.3
 	gopkg.in/yaml.v3 v3.0.1
@@ -37,15 +37,16 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	golang.org/x/arch v0.9.0 // indirect
+	golang.org/x/arch v0.10.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240827150818-7e3bb234dfed // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/grpc v1.66.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )

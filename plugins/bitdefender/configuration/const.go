@@ -3,7 +3,7 @@ package configuration
 import (
 	"log"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/schema"
 )
 
@@ -15,7 +15,7 @@ const UtmCertFileKey = "utm.key"
 
 func GetConfig() *schema.PluginConfig {
 
-	pCfg, e := helpers.PluginCfg[schema.PluginConfig]("com.utmstack")
+	pCfg, e := go_sdk.PluginCfg[schema.PluginConfig]("com.utmstack")
 	if e != nil {
 		log.Fatalf("Failed to load plugin config: %v", e)
 	}

@@ -6,8 +6,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/config-client-go/types"
 	"google.golang.org/api/option"
 )
@@ -32,23 +31,23 @@ func (g *GroupModule) PullLogs() {
 	for {
 		select {
 		case <-g.CTX.Done():
-			helpers.Logger().LogF(100, "stopping logs puller for %s", g.GroupName)
+			go_sdk.Logger().LogF(100, "stopping logs puller for %s", g.GroupName)
 			return
 		default:
-			helpers.Logger().LogF(100, "pulling logs for %s", g.GroupName)
+			go_sdk.Logger().LogF(100, "pulling logs for %s", g.GroupName)
 			client, err := pubsub.NewClient(g.CTX, g.ProjectID, option.WithCredentialsJSON([]byte(g.JsonKey)))
 			if err != nil {
-				helpers.Logger().ErrorF("failed to create client: %v", err)
+				go_sdk.Logger().ErrorF("failed to create client: %v", err)
 				return
 			}
 			defer client.Close()
 
 			sub := client.Subscription(g.SubscriptionID)
-			helpers.Logger().LogF(100, "subscribing to %s", g.SubscriptionID)
+			go_sdk.Logger().LogF(100, "subscribing to %s", g.SubscriptionID)
 
 			err = sub.Receive(g.CTX, func(ctx context.Context, msg *pubsub.Message) {
-				helpers.Logger().LogF(100, "received message: %v", string(msg.Data))
-				logsQueue <- &plugins.Log{
+				go_sdk.Logger().LogF(100, "received message: %v", string(msg.Data))
+				logsQueue <- &go_sdk.Log{
 					Id:         uuid.New().String(),
 					TenantId:   DefaultTenant,
 					DataType:   "google",
@@ -60,7 +59,7 @@ func (g *GroupModule) PullLogs() {
 				msg.Ack()
 			})
 			if err != nil {
-				helpers.Logger().ErrorF("failed to receive messages: %v", err)
+				go_sdk.Logger().ErrorF("failed to receive messages: %v", err)
 				continue
 			}
 		}
@@ -70,7 +69,7 @@ func (g *GroupModule) PullLogs() {
 func (g *GroupModule) VerifyCredentials() bool {
 	client, err := pubsub.NewClient(g.CTX, g.ProjectID, option.WithCredentialsJSON([]byte(g.JsonKey)))
 	if err != nil {
-		helpers.Logger().ErrorF("failed to create client at verify credentials: %v", err)
+		go_sdk.Logger().ErrorF("failed to create client at verify credentials: %v", err)
 		return false
 	}
 	defer client.Close()
@@ -78,11 +77,11 @@ func (g *GroupModule) VerifyCredentials() bool {
 	sub := client.Subscription(g.SubscriptionID)
 	exist, err := sub.Exists(g.CTX)
 	if err != nil {
-		helpers.Logger().ErrorF("failed to verify subscription: %v", err)
+		go_sdk.Logger().ErrorF("failed to verify subscription: %v", err)
 		return false
 	}
 	if !exist {
-		helpers.Logger().ErrorF("subscription does not exist")
+		go_sdk.Logger().ErrorF("subscription does not exist")
 		return false
 	}
 	return true
