@@ -10,12 +10,12 @@
       <span class="p-1 utm-box-label">
            {{collector.collector}}
 
-        <span *ngIf="(collectorValid(collector.groups) && this.changes.keys.length === 0)" class="span-small-icon ml-3" >
+        <span *ngIf="(collector.collector !=='' && collectorValid(collector.groups) && this.changes.keys.length === 0)" class="span-small-icon ml-3" >
           <i  (click)="addConfig(collector)" class="icon-plus2 mr-2  cursor-pointer"
              ngbTooltip="Add configuration">
          </i>
 
-          <i *ngIf="(collectorValid(collector.groups) && this.changes.keys.length === 0)"
+          <i *ngIf="(collector.collector !=='' && collectorValid(collector.groups) && this.changes.keys.length === 0)"
              (click)="deleteCollectorConfig(collector)" class="icon-cross2 ml-2 cursor-pointer"
              ngbTooltip="Delete configuration">
          </i>

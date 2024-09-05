@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/schema"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
@@ -15,11 +15,11 @@ import (
 
 func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		helpers.Logger().Info("New group of events received")
+		go_sdk.Logger().Info("New group of events received")
 		if config.ModuleActive {
 			if r.Header.Get("authorization") == "" {
 				messag := "401 Missing Authorization Header"
-				helpers.Logger().ErrorF(messag)
+				go_sdk.Logger().ErrorF(messag)
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -34,7 +34,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			}
 			if !isAuth {
 				messag := "401 Invalid Authentication Credentials"
-				helpers.Logger().ErrorF(messag)
+				go_sdk.Logger().ErrorF(messag)
 				j, _ := json.Marshal(messag)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(j)
@@ -44,7 +44,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				helpers.Logger().ErrorF("error to decode body: %v", err)
+				go_sdk.Logger().ErrorF("error to decode body: %v", err)
 				return
 			}
 
@@ -55,7 +55,7 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			w.Write(j)
 		} else {
-			helpers.Logger().ErrorF("Bitdefender module disabled")
+			go_sdk.Logger().ErrorF("Bitdefender module disabled")
 		}
 	}
 }
@@ -78,10 +78,10 @@ func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
 	}
 
 	go func() {
-		helpers.Logger().Info("Listening in port %s...\n", configuration.GetConfig().BdgzPort)
+		go_sdk.Logger().Info("Listening in port %s...\n", configuration.GetConfig().BdgzPort)
 		err := server.ListenAndServeTLS(cert, key)
 		if err != nil {
-			helpers.Logger().ErrorF("error creating server: %v", err)
+			go_sdk.Logger().ErrorF("error creating server: %v", err)
 		}
 	}()
 }

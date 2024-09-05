@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -48,13 +48,13 @@ func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		connectionKey := c.GetHeader(proxyAPIKeyHeader)
 		if connectionKey == "" {
-			e := helpers.Logger().ErrorF("connection key not provided")
+			e := go_sdk.Logger().ErrorF("connection key not provided")
 			e.GinError(c)
 			return
 		}
 		isValid := m.AuthService.IsConnectionKeyValid(connectionKey)
 		if !isValid {
-			e := helpers.Logger().ErrorF("invalid connection key")
+			e := go_sdk.Logger().ErrorF("invalid connection key")
 			e.GinError(c)
 			return
 		}
@@ -66,13 +66,13 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			e := helpers.Logger().ErrorF("error reading request body: %v", err)
+			e := go_sdk.Logger().ErrorF("error reading request body: %v", err)
 			e.GinError(c)
 			return
 		}
 		sig := c.GetHeader("X-Hub-Signature-256")
 		if len(sig) == 0 {
-			e := helpers.Logger().ErrorF("missing X-Hub-Signature-256")
+			e := go_sdk.Logger().ErrorF("missing X-Hub-Signature-256")
 			e.GinError(c)
 			return
 		}
@@ -80,7 +80,7 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 		key := m.AuthService.GetConnectionKey()
 		err = verifySignature(body, key, sig)
 		if err != nil {
-			e := helpers.Logger().ErrorF(err.Error())
+			e := go_sdk.Logger().ErrorF(err.Error())
 			e.GinError(c)
 			return
 		}
@@ -90,7 +90,7 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 }
 
 func (m *Middlewares) authFromContext(ctx context.Context) error {
-	cnf, e := helpers.PluginCfg[PluginConfig]("com.utmstack")
+	cnf, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
 		return status.Error(codes.Internal, "failed to get config")
 	}

@@ -8,15 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/threatwinds/go-sdk/helpers"
+	go_sdk "github.com/threatwinds/go-sdk"
 )
 
 // Goroutine for update geolocalization databases
 func update() {
 	first := true
 	for {
-		helpers.Logger().Info("updating GeoIP databases")
-		workdir := path.Join(helpers.GetCfg().Env.Workdir, "geolocation")
+		go_sdk.Logger().Info("updating GeoIP databases")
+		workdir := path.Join(go_sdk.GetCfg().Env.Workdir, "geolocation")
 		var files = map[string]string{
 			filepath.Join(workdir, "asn-blocks-v4.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v4.csv",
 			filepath.Join(workdir, "asn-blocks-v6.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v6.csv",
@@ -31,7 +31,7 @@ func update() {
 
 		if _, err := os.Stat(filepath.Join(workdir, "locations-en.csv")); os.IsNotExist(err) || !first {
 			for file, url := range files {
-				if err := helpers.Download(url, file); err != nil {
+				if err := go_sdk.Download(url, file); err != nil {
 					continue
 				}
 			}
@@ -44,7 +44,7 @@ func update() {
 		cityLocations = nil
 
 		for file := range files {
-			csv, err := helpers.ReadCSV(file)
+			csv, err := go_sdk.ReadCSV(file)
 			if err != nil {
 				continue
 			}
@@ -81,7 +81,7 @@ func populateASNBlocks(csv [][]string) {
 
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse CIDR in populateASNBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse CIDR in populateASNBlocks: %s", err.Error())
 			continue
 		}
 
@@ -92,7 +92,7 @@ func populateASNBlocks(csv [][]string) {
 			return "0"
 		}())
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse ASN in populateASNBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse ASN in populateASNBlocks: %s", err.Error())
 			continue
 		}
 
@@ -119,7 +119,7 @@ func populateCityBlocks(csv [][]string) {
 
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse CIDR in populateCityBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse CIDR in populateCityBlocks: %s", err.Error())
 			continue
 		}
 
@@ -130,7 +130,7 @@ func populateCityBlocks(csv [][]string) {
 			return "0"
 		}())
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse geonameID in populateCityBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityBlocks: %s", err.Error())
 			continue
 		}
 
@@ -141,7 +141,7 @@ func populateCityBlocks(csv [][]string) {
 			return "0.0"
 		}(), 64)
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse latitude in populateCityBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse latitude in populateCityBlocks: %s", err.Error())
 			continue
 		}
 
@@ -152,7 +152,7 @@ func populateCityBlocks(csv [][]string) {
 			return "0.0"
 		}(), 64)
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse longitude in populateCityBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse longitude in populateCityBlocks: %s", err.Error())
 			continue
 		}
 
@@ -163,7 +163,7 @@ func populateCityBlocks(csv [][]string) {
 			return "0"
 		}())
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse accuracyRadius in populateCityBlocks: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse accuracyRadius in populateCityBlocks: %s", err.Error())
 			continue
 		}
 
@@ -187,7 +187,7 @@ func populateCityLocations(csv [][]string) {
 
 		geonameID, err := strconv.Atoi(line[0])
 		if err != nil {
-			helpers.Logger().ErrorF("could not parse geonameID in populateCityLocations: %s", err.Error())
+			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityLocations: %s", err.Error())
 			continue
 		}
 

@@ -392,11 +392,14 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
     deleteModal.componentInstance.confirmBtnIcon = 'icon-stack-cancel';
     deleteModal.componentInstance.confirmBtnType = 'delete';
     deleteModal.result.then(() => {
-      const collectorToSave = {
-        ...collector,
-        groups: []
-      };
-      this.deleteAction(collectorToSave);
+      if (collector && collector.collector !== '') {
+        const collectorToSave = {
+          ...collector,
+          groups: []
+        };
+        this.deleteAction(collectorToSave);
+      }
+
     });
   }
 

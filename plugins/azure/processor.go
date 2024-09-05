@@ -12,14 +12,13 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/monitor/azquery"
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/helpers"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/config-client-go/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var LogQueue = make(chan *plugins.Log)
+var LogQueue = make(chan *go_sdk.Log)
 
 type AzureConfig struct {
 	GroupName         string
@@ -49,17 +48,17 @@ func getAzureProcessor(group types.ModuleGroup) AzureConfig {
 }
 
 func (ap *AzureConfig) pullLogs() {
-	helpers.Logger().Info("starting log sync for : %s", ap.GroupName)
+	go_sdk.Logger().Info("starting log sync for : %s", ap.GroupName)
 
 	cred, err := azidentity.NewClientSecretCredential(ap.TenantID, ap.ClientID, ap.ClientSecretValue, nil)
 	if err != nil {
-		helpers.Logger().ErrorF("error creating credentials: %v", err)
+		go_sdk.Logger().ErrorF("error creating credentials: %v", err)
 		return
 	}
 
 	client, err := azquery.NewLogsClient(cred, nil)
 	if err != nil {
-		helpers.Logger().ErrorF("error creating logs client: %v", err)
+		go_sdk.Logger().ErrorF("error creating logs client: %v", err)
 		return
 	}
 
@@ -72,11 +71,11 @@ func (ap *AzureConfig) pullLogs() {
 		nil,
 	)
 	if err != nil {
-		helpers.Logger().ErrorF("error querying workspace: %v", err)
+		go_sdk.Logger().ErrorF("error querying workspace: %v", err)
 		return
 	}
 	if res.Error != nil {
-		helpers.Logger().ErrorF("error in response: %v", res.Error)
+		go_sdk.Logger().ErrorF("error in response: %v", res.Error)
 		return
 	}
 
@@ -100,10 +99,10 @@ func (ap *AzureConfig) pullLogs() {
 		for _, log := range logs {
 			jsonLog, err := json.Marshal(log)
 			if err != nil {
-				helpers.Logger().ErrorF("error marshalling log: %v", err)
+				go_sdk.Logger().ErrorF("error marshalling log: %v", err)
 				continue
 			}
-			LogQueue <- &plugins.Log{
+			LogQueue <- &go_sdk.Log{
 				Id:         uuid.New().String(),
 				TenantId:   DefaultTenant,
 				DataType:   "azure",
@@ -113,41 +112,41 @@ func (ap *AzureConfig) pullLogs() {
 			}
 		}
 	} else {
-		helpers.Logger().LogF(100, "no new azure logs found for %s", ap.GroupName)
+		go_sdk.Logger().LogF(100, "no new azure logs found for %s", ap.GroupName)
 	}
 }
 
 func processLogs() {
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(helpers.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(go_sdk.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		helpers.Logger().ErrorF("failed to connect to engine server: %v", err)
+		go_sdk.Logger().ErrorF("failed to connect to engine server: %v", err)
 		os.Exit(1)
 	}
 
-	client := plugins.NewEngineClient(conn)
+	client := go_sdk.NewEngineClient(conn)
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		helpers.Logger().ErrorF("failed to create input client: %v", err)
+		go_sdk.Logger().ErrorF("failed to create input client: %v", err)
 		os.Exit(1)
 	}
 
 	for {
 		log := <-LogQueue
-		helpers.Logger().LogF(100, "sending log: %v", log)
+		go_sdk.Logger().LogF(100, "sending log: %v", log)
 		err := inputClient.Send(log)
 		if err != nil {
-			helpers.Logger().ErrorF("failed to send log: %v", err)
+			go_sdk.Logger().ErrorF("failed to send log: %v", err)
 		} else {
-			helpers.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
+			go_sdk.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
 		}
 
 		ack, err := inputClient.Recv()
 		if err != nil {
-			helpers.Logger().ErrorF("failed to receive ack: %v", err)
+			go_sdk.Logger().ErrorF("failed to receive ack: %v", err)
 			os.Exit(1)
 		}
 
-		helpers.Logger().LogF(100, "received ack: %v", ack)
+		go_sdk.Logger().LogF(100, "received ack: %v", ack)
 	}
 }

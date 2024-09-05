@@ -4,7 +4,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 )
 
 var mu = &sync.RWMutex{}
@@ -97,7 +97,7 @@ func getLocation(geonameID int) cityLocation {
 	return location
 }
 
-func geolocate(ip string) plugins.Geolocation {
+func geolocate(ip string) go_sdk.Geolocation {
 	mu.RLock()
 	defer mu.RUnlock()
 	
@@ -105,7 +105,7 @@ func geolocate(ip string) plugins.Geolocation {
 	city := getCity(ip)
 	location := getLocation(city.geonameID)
 
-	return plugins.Geolocation{
+	return go_sdk.Geolocation{
 		Country:     location.countryName,
 		CountryCode: location.countryISOCode,
 		City:        location.cityName,
