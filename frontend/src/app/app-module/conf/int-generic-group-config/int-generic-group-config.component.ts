@@ -108,7 +108,7 @@ export class IntGenericGroupConfigComponent implements OnInit, OnChanges {
                   return response;
                 }),
                 tap((response: HttpResponse<UtmListCollectorType>) => {
-                  this.collectors = this.collectorService.getCollectorGroupConfig(this.groups, []);
+                  this.collectors = this.collectorService.getCollectorGroupConfig(this.groups, response.body.collectors);
                   this.collectorList = response.body.collectors;
                   this.moduleChangeStatusBehavior.setStatus(null, true);
                 }),
