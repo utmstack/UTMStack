@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/shirou/gopsutil/v3 v3.24.5
-	github.com/threatwinds/go-sdk v0.9.1
+	github.com/threatwinds/go-sdk v0.9.4
 	github.com/threatwinds/logger v1.1.12
 	github.com/tidwall/gjson v1.17.3
 	google.golang.org/grpc v1.66.0
@@ -45,7 +45,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/arch v0.10.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect

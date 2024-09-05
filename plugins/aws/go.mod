@@ -5,7 +5,7 @@ go 1.22.5
 require (
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.9.1
+	github.com/threatwinds/go-sdk v0.9.4
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/grpc v1.66.0
 )
@@ -41,7 +41,7 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.10.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
