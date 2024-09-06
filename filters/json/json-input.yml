@@ -1,0 +1,6 @@
+pipeline:
+  - dataTypes:
+      - json-input
+    steps:
+      - json:
+          source: raw
