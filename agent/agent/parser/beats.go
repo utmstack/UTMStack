@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 )
 
@@ -55,7 +55,7 @@ func (p *BeatsParser) IdentifySource(log string) (config.DataType, error) {
 	return config.DataTypeGeneric, nil
 }
 
-func (p *BeatsParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
+func (p *BeatsParser) ProcessData(logMessage interface{}, datasource string, queue chan *go_sdk.Log) error {
 	log, ok := logMessage.(string)
 	if !ok {
 		return fmt.Errorf("log is not of type string")
@@ -64,7 +64,7 @@ func (p *BeatsParser) ProcessData(logMessage interface{}, datasource string, que
 	if err != nil {
 		return err
 	}
-	queue <- &plugins.Log{
+	queue <- &go_sdk.Log{
 		DataType:   string(DataType),
 		DataSource: datasource,
 		Raw:        log,

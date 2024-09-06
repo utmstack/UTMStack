@@ -217,7 +217,7 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 
 		switch msg := in.StreamMessage.(type) {
 		case *BidirectionalStream_Result:
-			utils.ALogger.Info("Received command result: %s", msg.Result.CmdId)
+			utils.ALogger.Info("Received command result from agent %s: %s", msg.Result.AgentId, msg.Result.Result)
 			cmdID := msg.Result.GetCmdId()
 
 			s.CommandResultChannelM.Lock()

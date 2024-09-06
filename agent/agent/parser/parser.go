@@ -1,9 +1,9 @@
 package parser
 
-import "github.com/threatwinds/go-sdk/plugins"
+import go_sdk "github.com/threatwinds/go-sdk"
 
 type Parser interface {
-	ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error
+	ProcessData(logMessage interface{}, datasource string, queue chan *go_sdk.Log) error
 }
 
 func GetParser(typ string) Parser {

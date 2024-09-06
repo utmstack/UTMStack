@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
@@ -74,7 +74,7 @@ func (w Winlogbeat) SendSystemLogs() {
 			continue
 		}
 		host, _ := os.Hostname()
-		logservice.LogQueue <- &plugins.Log{
+		logservice.LogQueue <- &go_sdk.Log{
 			DataType:   string(config.DataTypeWindowsAgent),
 			DataSource: host,
 			Raw:        validatedLog,

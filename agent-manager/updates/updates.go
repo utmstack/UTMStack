@@ -242,7 +242,7 @@ func updateCurrentVersions(downloadPath string, currentVersions *models.Version)
 }
 
 func updateLatestVersions(env string, dependType string, downloadPath string, masterVersion string, latestVersions, currentVersions *models.Version) error {
-	err := utils.DownloadFile("http://192.168.1.18:10081/"+env+"/"+dependType+"/"+config.VersionsFile, filepath.Join(downloadPath, config.VersionsFile)) // DEBUG Change to config.Bucket
+	err := utils.DownloadFile(config.Bucket+env+"/"+dependType+"/"+config.VersionsFile, filepath.Join(downloadPath, config.VersionsFile))
 	if err != nil {
 		return fmt.Errorf("error downloading latest versions file for %s: %v", dependType, err)
 	}
