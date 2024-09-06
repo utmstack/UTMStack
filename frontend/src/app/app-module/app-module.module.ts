@@ -57,6 +57,9 @@ import {AppModuleSharedModule} from './shared/app-module-shared.module';
 import {LogCollectorComponent} from './guides/shared/components/log-collector.component';
 import {InstallLogCollectorComponent} from './guides/shared/components/install-log-collector.component';
 import {ModuleResolverService} from "./services/module.resolver.service";
+import {GenericConfiguration} from "./conf/int-generic-group-config/int-config-types/generic-configuration";
+import {CollectorConfiguration} from "./conf/int-generic-group-config/int-config-types/collector-configuration";
+import {IntegrationConfigFactory} from "./conf/int-generic-group-config/int-config-types/IntegrationConfigFactory";
 
 
 @NgModule({
@@ -126,7 +129,10 @@ import {ModuleResolverService} from "./services/module.resolver.service";
     NgSelectModule,
   ],
   providers: [
-    ModuleResolverService
+    ModuleResolverService,
+    GenericConfiguration,
+    CollectorConfiguration,
+    IntegrationConfigFactory
   ],
   entryComponents: [],
   exports: [],
