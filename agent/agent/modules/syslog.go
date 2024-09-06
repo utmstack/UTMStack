@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/logservice"
@@ -321,7 +321,7 @@ func (m *SyslogModule) handleMessageTCP(logsChannel chan config.MSGDS) {
 					continue
 				}
 			} else {
-				logservice.LogQueue <- &plugins.Log{
+				logservice.LogQueue <- &go_sdk.Log{
 					DataType:   m.DataType,
 					DataSource: msgDS.DataSource,
 					Raw:        message,
@@ -354,7 +354,7 @@ func (m *SyslogModule) handleConnectionUDP(logsChannel chan config.MSGDS) {
 					continue
 				}
 			} else {
-				logservice.LogQueue <- &plugins.Log{
+				logservice.LogQueue <- &go_sdk.Log{
 					DataType:   m.DataType,
 					DataSource: msgDS.DataSource,
 					Raw:        message,

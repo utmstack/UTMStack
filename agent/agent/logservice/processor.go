@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	"github.com/utmstack/UTMStack/agent/agent/conn"
@@ -19,8 +20,6 @@ import (
 	"github.com/utmstack/UTMStack/agent/agent/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/threatwinds/go-sdk/plugins"
 )
 
 type LogProcessor struct {
@@ -33,7 +32,7 @@ type LogProcessor struct {
 var (
 	processor     LogProcessor
 	processorOnce sync.Once
-	LogQueue      = make(chan *plugins.Log)
+	LogQueue      = make(chan *go_sdk.Log)
 	timeToSleep   = time.Duration(10 * time.Second)
 	timeCLeanLogs = time.Duration(10 * time.Minute)
 )
@@ -71,7 +70,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		client := plugins.NewIntegrationClient(conn)
+		client := go_sdk.NewIntegrationClient(conn)
 		plClient := createClient(client, ctx)
 		l.connErrWritten = false
 
@@ -80,7 +79,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 	}
 }
 
-func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+func (l *LogProcessor) handleAcknowledgements(plClient go_sdk.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -124,7 +123,7 @@ func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_Proce
 	}
 }
 
-func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+func (l *LogProcessor) processLogs(plClient go_sdk.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -201,7 +200,7 @@ func (l *LogProcessor) CleanCountedLogs() {
 
 		if found {
 			for _, log := range unprocessed {
-				LogQueue <- &plugins.Log{
+				LogQueue <- &go_sdk.Log{
 					Id:         log.ID,
 					Raw:        log.Log,
 					DataType:   log.Type,
@@ -213,7 +212,7 @@ func (l *LogProcessor) CleanCountedLogs() {
 	}
 }
 
-func createClient(client plugins.IntegrationClient, ctx context.Context) plugins.Integration_ProcessLogClient {
+func createClient(client go_sdk.IntegrationClient, ctx context.Context) go_sdk.Integration_ProcessLogClient {
 	var connErrMsgWritten bool
 	invalidKeyCounter := 0
 	for {

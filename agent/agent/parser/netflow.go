@@ -11,7 +11,7 @@ import (
 	"github.com/tehmaze/netflow/netflow6"
 	"github.com/tehmaze/netflow/netflow7"
 	"github.com/tehmaze/netflow/netflow9"
-	"github.com/threatwinds/go-sdk/plugins"
+	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/agent/config"
 	pnf "github.com/utmstack/UTMStack/agent/agent/parser/netflow"
@@ -38,7 +38,7 @@ type NetflowObject struct {
 	Message netflow.Message
 }
 
-func (p *NetflowParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
+func (p *NetflowParser) ProcessData(logMessage interface{}, datasource string, queue chan *go_sdk.Log) error {
 	var metrics []pnf.Metric
 	var remote string
 
@@ -71,7 +71,7 @@ func (p *NetflowParser) ProcessData(logMessage interface{}, datasource string, q
 			utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 			continue
 		}
-		queue <- &plugins.Log{
+		queue <- &go_sdk.Log{
 			DataType:   string(config.DataTypeNetflow),
 			DataSource: remote,
 			Raw:        msg,
