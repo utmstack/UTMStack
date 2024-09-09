@@ -1,0 +1,73 @@
+.message {
+  font-size: .75rem;
+}
+
+.date {
+  font-size: .65rem;
+  color: rgba(100,116,139, 1) !important;
+}
+
+.badge-position {
+  top: -14px;
+  left: 6px;
+}
+
+#notification .dropdown-toggle::after {
+  display: none!important;
+}
+
+.rounded-full {
+  border-radius: 9999px !important;
+}
+
+.w-2 {
+  width: .5rem !important;
+}
+
+.h-2 {
+  height: .5rem !important;
+}
+
+.w-3 {
+  width: 1.3rem !important;
+}
+
+.h-3 {
+  height: 1.3rem !important;
+}
+
+.notification-item .btn-remove,
+.notification-item .btn-read {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.notification-item:hover {
+  cursor: pointer;
+  opacity: 1;
+  background-color: rgba(248, 250, 252, 1) !important;
+}
+
+.notification-item:hover .btn-remove,
+.notification-item:hover .btn-read{
+  opacity: 1;
+}
+
+.btn-remove .icon-cross2:before {
+  color: #777!important;
+}
+
+.bg-gray-400 {
+  opacity: 1;
+  background-color: rgba(148, 163, 184, 1) !important;
+}
+
+#notification .dropdown-menu {
+  z-index: 9000;
+}
+
+.notification-list{
+  width: 320px;
+  max-height: 300px;
+  overflow-y: scroll;
+}

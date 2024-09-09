@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import {TIME_REFRESH} from "../../components/utm/filters/refresh-filter/refresh-filter.component";
-import {LocalStorageService} from "ngx-webstorage";
 
 export enum RefreshType {
   ALL = 'ALL',

@@ -217,8 +217,14 @@ import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
-import {RefreshFilterComponent} from "./components/utm/filters/refresh-filter/refresh-filter.component";
+import {RefreshFilterComponent} from './components/utm/filters/refresh-filter/refresh-filter.component';
 import {LocalStorageService} from "ngx-webstorage";
+import {UtmNotificationComponent} from './components/layout/header/shared/utm-notification/utm-notification.component';
+import {NotificationService} from './components/layout/header/shared/utm-notification/service/notification.service';
+import {
+  NotificationRefreshService
+} from "./components/layout/header/shared/utm-notification/service/notification-refresh.service";
+import {InfiniteScrollModule} from "ngx-infinite-scroll";
 
 
 @NgModule({
@@ -236,7 +242,8 @@ import {LocalStorageService} from "ngx-webstorage";
     NgxJsonViewerModule,
     AssetsApplyTypeModule,
     AssetsApplyNoteModule,
-    AssetsGroupAddModule
+    AssetsGroupAddModule,
+    InfiniteScrollModule
   ],
   declarations: [
     ElasticFilterComponent,
@@ -359,7 +366,8 @@ import {LocalStorageService} from "ngx-webstorage";
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
-    RefreshFilterComponent
+    RefreshFilterComponent,
+    UtmNotificationComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -453,7 +461,8 @@ import {LocalStorageService} from "ngx-webstorage";
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
-    RefreshFilterComponent
+    RefreshFilterComponent,
+    UtmNotificationComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -506,7 +515,9 @@ import {LocalStorageService} from "ngx-webstorage";
     VersionUpdateBehavior,
     AuthServerProvider,
     NgbActiveModal,
-    LocalStorageService],
+    LocalStorageService,
+    NotificationService,
+    NotificationRefreshService],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UtmSharedModule {
