@@ -1,0 +1,60 @@
+pipeline:
+  - dataTypes:
+      - postgresql
+    steps:
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.log.file.path
+          to: local.file
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: "[]string"
+          fields:
+            - local.ips
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.log
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log.file
