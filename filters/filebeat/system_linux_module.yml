@@ -1,0 +1,8 @@
+pipeline:
+  - dataTypes:
+      - linux
+    steps:
+      - grok:
+          patterns:
+            - field_name: "log.message"
+              pattern: ".*"
