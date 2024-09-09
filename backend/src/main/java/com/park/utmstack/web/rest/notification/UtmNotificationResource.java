@@ -92,11 +92,20 @@ public class UtmNotificationResource {
         try{
             UtmNotification notification = notificationService.updateNotificationReadStatus(id, read);
             return ResponseEntity.ok(notificationMapper.toDto(notification));
-        } catch (EntityNotFoundException e) {
-            return logAndResponse(new ErrorResponse(ctx + ": " + e.getMessage(), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            return logAndResponse(new ErrorResponse(ctx + ": " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
+            log.error(ctx + ": " + e.getMessage());
+            throw e;
         }
+    }
+
+    /**
+     * Get the count of unread notifications.
+     *
+     * @return the count of unread notifications
+     */
+    @GetMapping("/unread-count")
+    public ResponseEntity<Integer> getUnreadNotificationCount() {
+        return ResponseEntity.ok(notificationService.getUnreadNotifications());
     }
 
     /**
@@ -111,28 +120,9 @@ public class UtmNotificationResource {
         try {
             notificationService.deleteNotification(id);
             return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException e) {
-            return logAndResponse(new ErrorResponse(ctx + ": " + e.getMessage(), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            return logAndResponse(new ErrorResponse(ctx + ": " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
+            log.error(ctx + ": " + e.getMessage());
+            throw e;
         }
-    }
-
-    /**
-     * Get notifications by user ID.
-     *
-     * @param userId the ID of the user
-     * @return the list of notifications for the user
-     */
-    /*@GetMapping("/user/{userId}")
-    public ResponseEntity<List<NotificationDTO>> getNotificationsByUserId(@PathVariable Long userId) {
-        List<NotificationDTO> notifications = notificationService.getNotificationsByUserId(userId);
-        return ResponseEntity.ok(notifications);
-    }*/
-
-    private ResponseEntity<Void> logAndResponse(ErrorResponse error) {
-        log.error(error.getMessage());
-        applicationEventService.createEvent(error.getMessage(), ApplicationEventType.ERROR);
-        return UtilResponse.buildErrorResponse(error.getStatus(), error.getMessage());
     }
 }

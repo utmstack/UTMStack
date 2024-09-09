@@ -36,10 +36,10 @@ public class UtmNotificationService {
     }
 
     public Page<NotificationDTO> getNotifications(Pageable pageable) {
-        Page<UtmNotification> page = notificationRepository.findAll(pageable);
         List<NotificationDTO> notificationDTOS = notificationRepository.findAll(pageable).getContent()
-                .stream().map(notificationMapper::toDto)
-                .collect(Collectors.toList());
+                .stream()
+                    .map(notificationMapper::toDto)
+                    .collect(Collectors.toList());
         return new PageImpl<>(notificationDTOS, pageable, notificationDTOS.size());
     }
 
@@ -56,6 +56,10 @@ public class UtmNotificationService {
 
     public void deleteNotification(Long id) {
         notificationRepository.deleteById(id);
+    }
+
+    public int getUnreadNotifications(){
+        return this.notificationRepository.countUtmNotificationByReadIsFalse();
     }
 }
 
