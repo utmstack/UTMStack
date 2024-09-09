@@ -1,0 +1,8 @@
+pipeline:
+  - dataTypes:
+      - redis
+    steps:
+      - grok:
+          patterns:
+            - field_name: "log.message"
+              pattern: ".*"
