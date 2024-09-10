@@ -21,7 +21,7 @@ type PluginConfig struct {
 	Elasticsearch string        `yaml:"elasticsearch"`
 	PostgreSQL    PostgreConfig `yaml:"postgresql"`
 	ServerName    string        `yaml:"serverName"`
-	InternalKey   string        `yaml:"internal_key"`
+	InternalKey   string        `yaml:"internalKey"`
 	AgentManager  string        `yaml:"agentManager"`
 	Backend       string        `yaml:"backend"`
 	Logstash      string        `yaml:"logstash"`
