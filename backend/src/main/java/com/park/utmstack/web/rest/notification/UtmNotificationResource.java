@@ -86,7 +86,7 @@ public class UtmNotificationResource {
      * @param read the new read status
      * @return the updated notification
      */
-    @PatchMapping("/{id}/read")
+    @PutMapping("/{id}/read")
     public ResponseEntity<?> updateNotificationReadStatus(@PathVariable Long id, @RequestParam boolean read) {
         final String ctx = CLASSNAME + ".updateNotificationReadStatus";
         try{
