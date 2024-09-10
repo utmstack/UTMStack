@@ -16,16 +16,16 @@ import (
 )
 
 type PluginConfig struct {
-	RulesFolder   string        `yaml:"rules_folder"`
-	GeoIPFolder   string        `yaml:"geoip_folder"`
+	RulesFolder   string        `yaml:"rulesFolder"`
+	GeoIPFolder   string        `yaml:"geoipFolder"`
 	Elasticsearch string        `yaml:"elasticsearch"`
 	PostgreSQL    PostgreConfig `yaml:"postgresql"`
-	ServerName    string        `yaml:"server_name"`
+	ServerName    string        `yaml:"serverName"`
 	InternalKey   string        `yaml:"internal_key"`
-	AgentManager  string        `yaml:"agent_manager"`
+	AgentManager  string        `yaml:"agentManager"`
 	Backend       string        `yaml:"backend"`
 	Logstash      string        `yaml:"logstash"`
-	CertsFolder   string        `yaml:"certs_folder"`
+	CertsFolder   string        `yaml:"certsFolder"`
 }
 
 type PostgreConfig struct {
@@ -45,9 +45,10 @@ type Filter struct {
 type Tenant go_sdk.Tenant
 
 type Asset go_sdk.Asset
+
 type Rule struct {
 	Id          int64         `yaml:"id"`
-	DataTypes   []string      `yaml:"data_types"`
+	DataTypes   []string      `yaml:"dataTypes"`
 	Name        string        `yaml:"name"`
 	Impact      go_sdk.Impact `yaml:"impact"`
 	Category    string        `yaml:"category"`
@@ -143,7 +144,7 @@ func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface
 		whereObj.Variables = append(whereObj.Variables, &go_sdk.Variable{
 			Get:    gjson.Get(variable.String(), "get").String(),
 			As:     gjson.Get(variable.String(), "as").String(),
-			OfType: gjson.Get(variable.String(), "of_type").String(),
+			OfType: gjson.Get(variable.String(), "ofType").String(),
 		})
 	}
 
