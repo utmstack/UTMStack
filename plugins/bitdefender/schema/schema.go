@@ -46,10 +46,10 @@ type TemplateTestPush struct {
 }
 
 type PluginConfig struct {
-	InternalKey string `yaml:"internal_key"`
+	InternalKey string `yaml:"internalKey"`
 	Backend     string `yaml:"backend"`
-	CertsFolder string `yaml:"certs_folder"`
-	BdgzPort    string `yaml:"bdgz_port"`
+	CertsFolder string `yaml:"certsFolder"`
+	BdgzPort    string `yaml:"bdgzPort"`
 }
 
 type ModuleConfig struct {

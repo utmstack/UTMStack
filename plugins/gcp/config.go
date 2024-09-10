@@ -14,7 +14,7 @@ import (
 const DefaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
 type PluginConfig struct {
-	InternalKey string `yaml:"internal_key"`
+	InternalKey string `yaml:"internalKey"`
 	Backend     string `yaml:"backend"`
 }
 

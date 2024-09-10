@@ -9,6 +9,6 @@ type AWSConfig struct {
 }
 
 type PluginConfig struct {
-	InternalKey string `yaml:"internal_key"`
+	InternalKey string `yaml:"internalKey"`
 	Backend     string `yaml:"backend"`
 }

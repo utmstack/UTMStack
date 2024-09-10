@@ -15,12 +15,12 @@ var localLogsChannel chan *go_sdk.Log
 var localNotificationsChannel chan *go_sdk.Message
 
 type PluginConfig struct {
-	ServerName   string `yaml:"server_name"`
-	InternalKey  string `yaml:"internal_key"`
-	AgentManager string `yaml:"agent_manager"`
+	ServerName   string `yaml:"serverName"`
+	InternalKey  string `yaml:"internalKey"`
+	AgentManager string `yaml:"agentManager"`
 	Backend      string `yaml:"backend"`
 	Logstash     string `yaml:"logstash"`
-	CertsFolder  string `yaml:"certs_folder"`
+	CertsFolder  string `yaml:"certsFolder"`
 }
 
 func main() {
