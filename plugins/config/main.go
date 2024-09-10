@@ -46,14 +46,14 @@ type Tenant go_sdk.Tenant
 
 type Asset go_sdk.Asset
 type Rule struct {
-	Id          int64          `yaml:"id"`
-	DataTypes   []string       `yaml:"data_types"`
-	Name        string         `yaml:"name"`
+	Id          int64         `yaml:"id"`
+	DataTypes   []string      `yaml:"data_types"`
+	Name        string        `yaml:"name"`
 	Impact      go_sdk.Impact `yaml:"impact"`
-	Category    string         `yaml:"category"`
-	Technique   string         `yaml:"technique"`
-	References  []string       `yaml:"references"`
-	Description string         `yaml:"description"`
+	Category    string        `yaml:"category"`
+	Technique   string        `yaml:"technique"`
+	References  []string      `yaml:"references"`
+	Description string        `yaml:"description"`
 	Where       go_sdk.Where  `yaml:"where"`
 }
 
