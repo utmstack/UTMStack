@@ -5,7 +5,7 @@ import {filter} from 'rxjs/operators';
 @Injectable()
 export class NotificationRefreshService {
   private refreshNotificationBehavior = new BehaviorSubject<boolean>(null);
-  private onScrollNotificationBehavior = new BehaviorSubject<boolean>(null);
+  private loadDataBehavior = new BehaviorSubject<boolean>(null);
   private subscription: Subscription;
   private interval$: Observable<number>;
 
@@ -25,13 +25,13 @@ export class NotificationRefreshService {
       .pipe(filter(value => !!value));
   }
 
-  get onScrollNotification$(){
-    return this.onScrollNotificationBehavior.asObservable();
+  get loadData$() {
+    return this.loadDataBehavior.asObservable();
   }
 
-  onScroll() {
-    console.log('click');
-    this.onScrollNotificationBehavior.next(true);
+  loadData() {
+    console.log('onScroll!!!');
+    this.loadDataBehavior.next(true);
   }
 
   sendRefresh() {

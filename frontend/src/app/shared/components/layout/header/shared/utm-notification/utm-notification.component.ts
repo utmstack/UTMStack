@@ -34,17 +34,14 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit {
         startWith(() => 0),
         switchMap(() => this.notificationService.getUnreadNotificationCount()));
 
-    this.notifications$ = this.notificationRefreshService.onScrollNotification$
+    this.notifications$ = this.notificationRefreshService.loadData$
       .pipe(
-        filter((onScroll) => !!onScroll),
-        switchMap(() => {
+        filter((value) => !!value),
+        switchMap((value) => {
           return this.notificationService.getAll(this.request)
             .pipe(
               tap(() => this.loadingMore = false),
-              map(response =>  {
-                /* this.notifications = [...this.notifications, ...response.body.content];*/
-                return response.body.content;
-              }),
+              map(response =>  response.body.content),
               catchError(err => {
                 this.utmToastService.showError('Failed to fetch notifications',
                   'An error occurred while fetching notifications data.');
@@ -64,6 +61,7 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit {
 
   loadNotifications() {
     this.loadingMore = true;
+    this.notificationRefreshService.loadData();
   }
 
   viewAllNotifications() {
@@ -83,7 +81,6 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit {
   }
 
   onScroll() {
-    console.log('onScroll');
     this.request.size += 5;
     this.loadNotifications();
   }

@@ -22,8 +22,7 @@
       <button class="btn btn-link p-0 text-muted" (click)="markAllAsRead()">Mark All as Read</button>
     </div>
 
-    <div (click)="notificationRefreshService.onScroll()"
-         (scrolled)="notificationRefreshService.onScroll()"
+    <div (scrolled)="onScroll()"
          [fromRoot]="true"
          [infiniteScrollDistance]="1"
          [infiniteScrollThrottle]="50"
