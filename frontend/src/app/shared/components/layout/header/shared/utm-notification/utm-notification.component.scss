@@ -69,5 +69,17 @@
 .notification-list{
   width: 320px;
   max-height: 300px;
-  overflow-y: scroll;
+}
+
+.bg-primary-100 {
+  opacity: 1 !important;
+  background-color: rgba(224,231,255, 1) !important;
+}
+
+.w-4 {
+  width: 3.5rem !important;
+}
+
+.h-4 {
+  height: 3.5rem !important;
 }

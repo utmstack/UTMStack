@@ -9,9 +9,12 @@
      ngbDropdown
      placement="bottom-right">
 
-  <div (click)="loadNotifications()" class="dropdown-toggle h-100 d-flex justify-content-center align-items-center position-relative" ngbDropdownToggle>
+  <div (click)="loadNotifications()"
+       class="dropdown-toggle h-100 d-flex justify-content-center align-items-center position-relative"
+       ngbDropdownToggle>
     <div class="svg-icon svg-icon-sm text-white" inlineSVG="assets/icons/header/notification_bell.svg"></div>
-    <span *ngIf="unreadNotificationsCount$ | async as unreadNotificationsCount" class="badge rounded-circle badge-primary position-absolute badge-position end-0">
+    <span *ngIf="unreadNotificationsCount$ | async as unreadNotificationsCount"
+          class="badge rounded-circle badge-primary position-absolute badge-position end-0">
       {{ unreadNotificationsCount }}
     </span>
   </div>
@@ -28,45 +31,61 @@
          [infiniteScrollThrottle]="50"
          [scrollWindow]="false"
          class="notification-list"
+         [ngClass]="{'overflow-auto': total > 0}"
          infiniteScroll>
 
       <ng-container *ngIf="notifications$ | async as notifications">
-        <div class="notification-item mb-2 border-bottom d-flex align-items-start justify-content-between"
-             *ngFor="let notification of notifications; trackBy: trackByFn">
-          <div class="flex-grow-1 pt-2 pl-3 pb-2">
-            <div class="font-weight-bold label-header">{{ notification.source }}</div>
-            <div class="message mt-1">{{ notification.message }}</div>
-            <div class="date mt-1 text-muted small">{{ notification.createdAt | date:'shortTime' }}</div>
-          </div>
-          <div class="d-flex flex-column pl-2 pr-2">
-            <button (click)="updateRead(notification)" class="btn btn-icon btn-sm mb-1 rounded-circle w-3 h-3 d-flex justify-content-center align-items-center"
-                    [ngbTooltip]="!notification.read ? 'Mark as Read' : 'Mark as Unread'"
-                    [ngClass]="{'btn-read': notification.read}">
-              <div class="rounded-circle">
-                <div class="h-2 w-2 rounded-full" [ngClass]="{'bg-primary': !notification.read, 'bg-gray-400': notification.read}"></div>
+        <ng-container *ngIf="notifications.length > 0; else noData">
+          <div class="notification-item mb-2 border-bottom d-flex align-items-start justify-content-between"
+               *ngFor="let notification of notifications; trackBy: trackByFn">
+            <div class="flex-grow-1 pt-2 pl-3 pb-2">
+              <div class="label-header" [ngClass]="{'font-weight-bold': !notification.read}">{{ notification.source }}
               </div>
-            </button>
-            <button class="btn btn-icon btn-sm mb-1 rounded-circle w-3 h-3 d-flex justify-content-center align-items-center btn-remove" ngbTooltip="Remove">
-              <div class="rounded-circle">
-                <div class="h-2 w-2 d-flex justify-content-center align-items-center">
-                  <i class="icon-cross2" style="font-size: 10px!important; top:0!important;"></i>
+              <div class="message mt-1">{{ notification.message }}</div>
+              <div class="date mt-1 text-muted small">{{ notification.createdAt | date:'shortTime' }}</div>
+            </div>
+            <div class="d-flex flex-column pl-2 pr-2">
+              <button *ngIf="!notification.read" (click)="updateRead(notification)"
+                      class="btn btn-icon btn-sm mb-1 rounded-circle w-3 h-3 d-flex justify-content-center align-items-center"
+                      [ngbTooltip]="'Mark as Read'">
+                <div class="rounded-circle">
+                  <div class="h-2 w-2 rounded-full" [ngClass]="{'bg-primary': !notification.read}"></div>
                 </div>
-              </div>
-            </button>
+              </button>
+              <button
+                class="btn btn-icon btn-sm mb-1 rounded-circle w-3 h-3 d-flex justify-content-center align-items-center btn-remove"
+                ngbTooltip="Remove">
+                <div class="rounded-circle">
+                  <div class="h-2 w-2 d-flex justify-content-center align-items-center">
+                    <i class="icon-cross2" style="font-size: 10px!important; top:0!important;"></i>
+                  </div>
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
+        </ng-container>
       </ng-container>
 
-      <ng-template>
-        <div class="d-flex justify-content-center align-items-center p-3 loading">
-          <app-utm-spinner [height]="'35px'" [loading]="true"
-                           [width]="'35px'" label="Loading more"></app-utm-spinner>
+      <ng-template #noData>
+        <div class="d-flex flex-column justify-content-center align-items-center">
+          <div class="d-flex h-4 w-4  align-items-center justify-content-center rounded-full bg-primary">
+              <div class="svg-icon" inlineSVG="assets/icons/header/notification_bell.svg"></div>
+          </div>
+          <div class="mt-5 font-semibold"> No notifications</div>
+          <div class="text-muted small text-center mt-1 w-100"> When you have notifications, they will
+            appear here.
+          </div>
         </div>
       </ng-template>
+
+      <div *ngIf="loadingMore" class="d-flex justify-content-center align-items-center p-3 loading">
+        <app-utm-spinner [height]="'35px'" [loading]="true"
+                         [width]="'35px'" label="Loading more"></app-utm-spinner>
+      </div>
     </div>
 
 
-    <div class="text-center mt-3">
+    <div *ngIf="total > 0" class="text-center mt-3">
       <button class="btn utm-button utm-button-primary" (click)="viewAllNotifications()">View All</button>
     </div>
   </div>

@@ -11,12 +11,17 @@ export class NotificationService {
   constructor(private http: HttpClient) {
   }
 
-  getAll(request: any): Observable<HttpResponse<UtmNotification>> {
+  getAll(request: any): Observable<UtmNotification> {
     const req = createRequestOption(request);
-    return this.http.get<UtmNotification>(`${URL}`, {params: req, observe: 'response'});
+    return this.http.get<UtmNotification>(`${URL}`, {params: req});
   }
 
   getUnreadNotificationCount(): Observable<number>{
     return this.http.get<number>(`${URL}/unread-count`);
+  }
+
+  updateNotificationReadStatus(id: number) {
+    const options = createRequestOption({read: true});
+    return this.http.put<UtmNotification>(`${URL}/${id}/read`, {},{params: options});
   }
 }

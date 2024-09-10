@@ -30,7 +30,6 @@ export class NotificationRefreshService {
   }
 
   loadData() {
-    console.log('onScroll!!!');
     this.loadDataBehavior.next(true);
   }
 
