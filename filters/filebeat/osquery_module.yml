@@ -1,0 +1,33 @@
+pipeline:
+  - dataTypes:
+      - osquery
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.hostIdentifier
+          to: local.host
+
+      - rename:
+          from:
+            - log.columns.description
+          to: action
+
+      - rename:
+          from:
+            - log.columns.description
+          to: action
+
+      - rename:
+          from:
+            - log.columns.description.directory
+          to: local.file
+
+      - reformat:
+          fields:
+            - calendarTime
+          function: "time"
+          from_format: "Sat Mar 5 02:17:15 2022 UTC"
+          to_format: "2006-01-02T15:04:05.000Z"
