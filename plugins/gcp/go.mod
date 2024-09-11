@@ -5,9 +5,9 @@ go 1.22.5
 require (
 	cloud.google.com/go/pubsub v1.43.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.9.5
+	github.com/threatwinds/go-sdk v0.9.6
 	github.com/utmstack/config-client-go v1.2.6
-	google.golang.org/api v0.196.0
+	google.golang.org/api v0.197.0
 	google.golang.org/grpc v1.66.1
 )
 
@@ -54,9 +54,9 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.54.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect
-	go.opentelemetry.io/otel v1.29.0 // indirect
-	go.opentelemetry.io/otel/metric v1.29.0 // indirect
-	go.opentelemetry.io/otel/trace v1.29.0 // indirect
+	go.opentelemetry.io/otel v1.30.0 // indirect
+	go.opentelemetry.io/otel/metric v1.30.0 // indirect
+	go.opentelemetry.io/otel/trace v1.30.0 // indirect
 	golang.org/x/arch v0.10.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
