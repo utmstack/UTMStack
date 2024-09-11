@@ -1,0 +1,56 @@
+pipeline:
+  - dataTypes:
+      - elasticsearch
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from: 
+            - log.host.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      - rename:
+          from:
+            - log.host.ip.1
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.ip.0
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.mac.0
+          to: local.macs
+
+      - rename:
+          from:
+            - log.host.os.name
+          to: log.os
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.log.file.path
+          to: local.file
+
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+          
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
