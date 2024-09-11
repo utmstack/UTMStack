@@ -1,0 +1,66 @@
+pipeline:
+  - dataTypes:
+      - logstash
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.logEvent.event.log.file.path
+          to: local.file
+
+      - rename:
+          from:
+            - log.logEvent.event.host.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.logEvent.event.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.logEvent.event.host.os.name
+          to: log.os
+
+      - rename:
+          from:
+            - log.logEvent.event.host.os.type
+          to: log.osType
+
+      - rename:
+          from:
+            - log.logEvent.event.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.logEvent.event.host.architecture
+          to: log.cpuArchitecture
+
+      - rename:
+          from:
+            - log.logEvent.event.host.ip
+          to: local.ips
+
+      - rename:
+          from:
+            - log.logEvent.event.host.mac
+          to: local.macs
+
+      - rename:
+          from:
+            - log.logEvent.event.event.dataset
+          to: action
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
