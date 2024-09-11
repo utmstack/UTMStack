@@ -12,17 +12,17 @@ type PluginsConfig struct {
 }
 
 type PluginConfig struct {
-	RulesFolder   string        `yaml:"rules_folder"`
-	GeoIPFolder   string        `yaml:"geoip_folder"`
+	RulesFolder   string        `yaml:"rulesFolder"`
+	GeoIPFolder   string        `yaml:"geoipFolder"`
 	Elasticsearch string        `yaml:"elasticsearch"`
 	PostgreSQL    PostgreConfig `yaml:"postgresql"`
-	ServerName    string        `yaml:"server_name"`
-	InternalKey   string        `yaml:"internal_key"`
-	AgentManager  string        `yaml:"agent_manager"`
+	ServerName    string        `yaml:"serverName"`
+	InternalKey   string        `yaml:"internalKey"`
+	AgentManager  string        `yaml:"agentManager"`
 	Backend       string        `yaml:"backend"`
 	Logstash      string        `yaml:"logstash"`
-	CertsFolder   string        `yaml:"certs_folder"`
-	BdgzPort      string        `yaml:"bdgz_port"`
+	CertsFolder   string        `yaml:"certsFolder"`
+	BdgzPort      string        `yaml:"bdgzPort"`
 }
 
 type PostgreConfig struct {

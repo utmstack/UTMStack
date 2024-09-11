@@ -195,6 +195,11 @@ func main() {
 			os.Exit(1)
 		}
 
+		patterns, e := getPatterns(db)
+		if e != nil {
+			os.Exit(1)
+		}
+
 		tenant := Tenant{}
 		tenant.FromVar([]int64{}, assets)
 
@@ -223,6 +228,11 @@ func main() {
 			os.Exit(1)
 		}
 
+		e = writePatterns(gCfg, patterns)
+		if e != nil {
+			os.Exit(1)
+		}
+
 		time.Sleep(5 * time.Minute)
 	}
 }
@@ -243,6 +253,31 @@ func connect(password string) (*sql.DB, *logger.Error) {
 	}
 
 	return db, nil
+}
+
+func getPatterns(db *sql.DB) (map[string]string, *logger.Error) {
+	rows, err := db.Query("SELECT pattern_id, pattern_definition FROM utm_regex_pattern")
+	if err != nil {
+		return nil, go_sdk.Logger().ErrorF("failed to get patterns: %v", err)
+	}
+
+	defer rows.Close()
+
+	patterns := make(map[string]string, 10)
+
+	for rows.Next() {
+		var name string
+		var pattern string
+
+		err = rows.Scan(&name, &pattern)
+		if err != nil {
+			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+		}
+
+		patterns[name] = pattern
+	}
+
+	return patterns, nil
 }
 
 func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
@@ -349,7 +384,7 @@ func getRules(db *sql.DB) ([]Rule, *logger.Error) {
 
 		rule := Rule{}
 
-		dataTypes, e := getRuleDataTypes(db)
+		dataTypes, e := getRuleDataTypes(db, id)
 		if e != nil {
 			return nil, e
 		}
@@ -362,8 +397,8 @@ func getRules(db *sql.DB) ([]Rule, *logger.Error) {
 	return rules, nil
 }
 
-func getRuleDataTypes(db *sql.DB) ([]interface{}, *logger.Error) {
-	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type")
+func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, *logger.Error) {
+	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type WHERE rule_id = $1", ruleId)
 	if err != nil {
 		return nil, go_sdk.Logger().ErrorF("failed to get data types: %v", err)
 	}
@@ -540,6 +575,34 @@ func writeRules(pCfg *go_sdk.Config, rules []Rule) *logger.Error {
 		if err != nil {
 			return go_sdk.Logger().ErrorF("failed to close file: %v", err)
 		}
+	}
+
+	return nil
+}
+
+func writePatterns(pCfg *go_sdk.Config, patterns map[string]string) *logger.Error {
+	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "patterns.yaml"))
+	if err != nil {
+		return go_sdk.Logger().ErrorF("failed to create file: %v", err)
+	}
+
+	config := go_sdk.Config{
+		Patterns: patterns,
+	}
+
+	bPatterns, err := yaml.Marshal(config)
+	if err != nil {
+		return go_sdk.Logger().ErrorF("failed to marshal patterns: %v", err)
+	}
+
+	_, err = file.Write(bPatterns)
+	if err != nil {
+		return go_sdk.Logger().ErrorF("failed to write to file: %v", err)
+	}
+
+	err = file.Close()
+	if err != nil {
+		return go_sdk.Logger().ErrorF("failed to close file: %v", err)
 	}
 
 	return nil
