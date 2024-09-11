@@ -1,0 +1,37 @@
+pipeline:
+  - dataTypes:
+      - logstash
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.event.action
+          to: action
+
+      - rename:
+          from:
+            - log.event.outcome
+          to: actionResult
+
+      - rename:
+          from:
+            - log.url.domain
+          to: remote.domain
+
+      - rename:
+          from:
+            - log.url.path
+          to: remote.path
+
+      - rename:
+          from:
+            - log.url.port
+          to: remote.port
+
+      - rename:
+          from:
+            - log.user.name
+          to: remote.user
+          
