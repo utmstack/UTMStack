@@ -1,12 +1,18 @@
 package com.park.utmstack.domain.notification;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "utm_notification")
 
 public class UtmNotification {
@@ -34,7 +40,6 @@ public class UtmNotification {
 
     @Column(nullable = false)
     private Boolean read;
-
 
 }
 
