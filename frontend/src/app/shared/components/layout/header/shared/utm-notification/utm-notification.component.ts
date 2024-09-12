@@ -20,7 +20,7 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
   request = {page: 0, size: 5, sort: 'createdAt,DESC' };
   @ViewChild('dropNotification') dropNotification: NgbDropdown;
   total = 0;
-  destroy$: Subject<void>;
+  destroy$ = new Subject<void>();
 
   constructor(private notificationService: NotificationService,
               private utmToastService: UtmToastService,
@@ -48,6 +48,7 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
               catchError(err => {
                 this.utmToastService.showError('Failed to fetch notifications',
                   'An error occurred while fetching notifications data.');
+                this.loadingMore = false;
                 return of([]);
               }));
         })

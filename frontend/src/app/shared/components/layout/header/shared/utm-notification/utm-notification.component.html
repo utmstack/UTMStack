@@ -22,7 +22,7 @@
   <div class="dropdown-menu mt-2 shadow-lg border-0" ngbDropdownMenu>
     <div class="d-flex p-2 border-bottom justify-content-between align-items-center mb-3">
       <h6 class="mb-0 font-weight-bold label-header text-uppercase text-primary">Notifications</h6>
-      <button class="btn btn-link p-0 text-muted" (click)="markAllAsRead()">Mark All as Read</button>
+      <button *ngIf="total > 0" class="btn btn-link p-0 text-muted" (click)="markAllAsRead()">Mark All as Read</button>
     </div>
 
     <div (scrolled)="onScroll()"
