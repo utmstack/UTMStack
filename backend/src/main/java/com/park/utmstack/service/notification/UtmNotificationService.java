@@ -64,7 +64,7 @@ public class UtmNotificationService {
         return this.notificationRepository.countUtmNotificationByReadIsFalse();
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 1800000)
     public void loadOpenAlerts() {
         if (this.countAlert == -1) {
             this.countAlert = this.alertUtil.countAlertsByStatus(2);
