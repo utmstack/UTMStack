@@ -3,7 +3,7 @@ import {NgbDropdown} from '@ng-bootstrap/ng-bootstrap';
 import {Observable, of, Subject} from 'rxjs';
 import {catchError, filter, map, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../alert/utm-toast.service';
-import {NotificationDTO} from './models/utm-notification.model';
+import {NotificationDTO, UtmNotification} from './models/utm-notification.model';
 import {NotificationRefreshService} from './service/notification-refresh.service';
 import {NotificationService} from './service/notification.service';
 
@@ -95,6 +95,10 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
 
   trackByFn(index: number, notification: NotificationDTO) {
     return notification.id;
+  }
+
+  getSource(notification: NotificationDTO){
+    return notification.source.replace('_', ' ');
   }
 
   resetRequest() {

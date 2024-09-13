@@ -38,8 +38,8 @@
         <ng-container *ngIf="notifications.length > 0; else noData">
           <div class="notification-item mb-2 border-bottom d-flex align-items-start justify-content-between"
                *ngFor="let notification of notifications; trackBy: trackByFn">
-            <div class="flex-grow-1 pt-2 pl-3 pb-2">
-              <div class="label-header" [ngClass]="{'font-weight-bold': !notification.read}">{{ notification.source }}
+            <div (click)="updateRead(notification)" class="flex-grow-1 pt-2 pl-3 pb-2">
+              <div class="label-header" [ngClass]="{'font-weight-bold': !notification.read}">{{ getSource(notification)  | titlecase }}
               </div>
               <div class="message mt-1">{{ notification.message }}</div>
               <div class="date mt-1 text-muted small">{{ notification.createdAt | date:'shortTime' }}</div>
