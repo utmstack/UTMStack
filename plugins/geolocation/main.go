@@ -46,17 +46,20 @@ func main() {
 func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transform) (*go_sdk.JLog, error) {
 	source, ok := transform.Step.Dynamic.Params["source"]
 	if !ok {
-		return transform.Jlog, fmt.Errorf("'source' parameter required")
+		e := go_sdk.Logger().ErrorF("'source' parameter required")
+		return transform.Jlog, fmt.Errorf(e.Message)
 	}
 
 	destination, ok := transform.Step.Dynamic.Params["destination"]
 	if !ok {
-		return transform.Jlog, fmt.Errorf("'destination' parameter required")
+		e := go_sdk.Logger().ErrorF("'destination' parameter required")
+		return transform.Jlog, fmt.Errorf(e.Message)
 	}
 
 	value := gjson.Get(transform.Jlog.Log, source.String()).String()
 	if value == "" {
-		return transform.Jlog, fmt.Errorf("source field not found")
+		go_sdk.Logger().LogF(100, "source field not found")
+		return transform.Jlog, nil
 	}
 
 	geo := geolocate(value)
@@ -64,6 +67,7 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 	var err error
 	transform.Jlog.Log, err = sjson.Set(transform.Jlog.Log, destination.String(), geo)
 	if err != nil {
+		go_sdk.Logger().ErrorF(err.Error())
 		return transform.Jlog, err
 	}
 
