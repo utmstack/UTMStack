@@ -5,10 +5,10 @@ go 1.22.4
 toolchain go1.22.5
 
 require (
-	github.com/threatwinds/go-sdk v0.9.6
+	github.com/threatwinds/go-sdk v0.9.7
 	github.com/tidwall/gjson v1.17.3
 	github.com/tidwall/sjson v1.2.5
-	google.golang.org/grpc v1.66.1
+	google.golang.org/grpc v1.66.2
 )
 
 require (

@@ -7,9 +7,9 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.7.0
 	github.com/Azure/azure-sdk-for-go/sdk/monitor/azquery v1.1.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.9.6
+	github.com/threatwinds/go-sdk v0.9.7
 	github.com/utmstack/config-client-go v1.2.6
-	google.golang.org/grpc v1.66.1
+	google.golang.org/grpc v1.66.2
 )
 
 require (

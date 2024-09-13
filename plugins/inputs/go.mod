@@ -5,9 +5,9 @@ go 1.22.4
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.9.6
+	github.com/threatwinds/go-sdk v0.9.7
 	github.com/threatwinds/logger v1.1.12
-	google.golang.org/grpc v1.66.1
+	google.golang.org/grpc v1.66.2
 	google.golang.org/protobuf v1.34.2
 )
 
