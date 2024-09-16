@@ -43,7 +43,9 @@ import {MenuComponent} from './menu/menu.component';
 import {RolloverConfigComponent} from './rollover-config/rollover-config.component';
 import {AppManagementSharedModule} from './shared/app-management-shared.module';
 import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
-
+import {
+  UtmNotificationViewComponent
+} from "./utm-notification/components/notifications-view/utm-notification-view.component";
 
 @NgModule({
   declarations: [
@@ -75,7 +77,8 @@ import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
     HealthClusterComponent,
     TokenActivateComponent,
     UtmHttpRequestsPreviewComponent,
-    UtmServicesOverviewComponent],
+    UtmServicesOverviewComponent,
+    UtmNotificationViewComponent],
   entryComponents: [
     IndexPatternHelpComponent,
     IndexPatternDeleteComponent,
@@ -96,7 +99,7 @@ import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
     DndModule,
     NgxSortableModule,
     InlineSVGModule,
-    NgxGaugeModule,
+    NgxGaugeModule
   ],
   exports: [
     HealthChecksComponent,

@@ -5,7 +5,7 @@ export interface SortDTO {
 }
 
 export interface PageableDTO {
-  sort: SortDTO;
+  sort?: SortDTO;
   offset: number;
   pageNumber: number;
   pageSize: number;

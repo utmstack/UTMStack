@@ -1,0 +1,94 @@
+<div class="card w-100 h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="card-title mb-0 text-uppercase label-header">
+      Notifications
+    </h6>
+    <app-filter-time #timeFilter
+                     [timeDefault]="eventDate"></app-filter-time>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table text-nowrap">
+        <thead>
+        <tr>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Source&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Type&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Message&nbsp;
+          </th>
+          <th class="font-weight-semibold text-uppercase cursor-pointer w-25">
+            Generated&nbsp;
+          </th>
+        </tr>
+        </thead>
+        <tbody *ngIf="notifications$ | async as notifications; else noData">
+          <tr *ngFor="let notification of notifications">
+            <td>
+              <span>{{ getSource(notification) | uppercase }}</span></td>
+            <td>
+              <span [ngClass]="getClassByType(notification.type)"
+                    class="p-1 border-1 rounded">
+              {{notification.type}}
+            </span>
+            </td>
+            <td>
+              <span>
+                {{ notification.message }}
+              </span>
+            </td>
+            <td>
+              <span>
+                {{ notification.createdAt | date: 'short'}}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="loading">
+        <tr>
+          <td colspan="5">
+            <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading audits'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div [hidden]="page.empty" class="mb-4">
+      <div class="row justify-content-center">
+        <ngb-pagination
+          #paginator
+          (pageChange)="loadPage($event)"
+          [(page)]="page.number"
+          [boundaryLinks]="true"
+          [collectionSize]="page.totalElements"
+          [maxSize]="page.size"
+          [pageSize]="page.size"
+          [rotate]="true"
+          [size]="'sm'">
+        </ngb-pagination>
+        <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                class="ml-3">
+        </app-utm-items-per-page>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #noData>
+  <tbody>
+  <tr>
+    <td colspan="5">
+      <app-no-data-found></app-no-data-found>
+    </td>
+  </tr>
+  </tbody>
+</ng-template>

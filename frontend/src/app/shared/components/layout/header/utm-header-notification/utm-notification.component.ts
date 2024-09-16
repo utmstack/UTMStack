@@ -2,10 +2,13 @@ import {AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, Vi
 import {NgbDropdown} from '@ng-bootstrap/ng-bootstrap';
 import {Observable, of, Subject} from 'rxjs';
 import {catchError, filter, map, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {UtmToastService} from '../../../../../alert/utm-toast.service';
-import {NotificationDTO, UtmNotification} from './models/utm-notification.model';
-import {NotificationRefreshService} from './service/notification-refresh.service';
-import {NotificationService} from './service/notification.service';
+import {NotificationDTO, UtmNotification} from '../../../../../app-management/utm-notification/models/utm-notification.model';
+import {
+  ComponentType,
+  NotificationRefreshService
+} from '../../../../../app-management/utm-notification/service/notification-refresh.service';
+import {NotificationService} from '../../../../../app-management/utm-notification/service/notification.service';
+import {UtmToastService} from "../../../../alert/utm-toast.service";
 
 @Component({
   selector: 'app-utm-notification',
@@ -38,7 +41,8 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
     this.notifications$ = this.notificationRefreshService.loadData$
       .pipe(
         takeUntil(this.destroy$),
-        filter((value) => !!value),
+        filter(data =>
+          !!data && data.type === ComponentType.NOTIFICATION_LIST && data.value),
         switchMap((value) => {
           return this.notificationService.getAll(this.request)
             .pipe(

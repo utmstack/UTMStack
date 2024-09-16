@@ -106,6 +106,16 @@
           </span>
     </a>
 
+    <a *appHasAnyAuthority="adminAuth"
+       class="list-group-item"
+       routerLink="/app-management/settings/notifications"
+       routerLinkActive="router-link-active">
+          <span class="font-weight-semibold">
+             <i class="icon-bell2 font-size-sm"></i>&nbsp;
+            Notifications
+          </span>
+    </a>
+
     <a *appHasAnyAuthority="adminAuth" class="list-group-item"
        routerLink="/app-management/settings/menu-management"
        routerLinkActive="router-link-active">

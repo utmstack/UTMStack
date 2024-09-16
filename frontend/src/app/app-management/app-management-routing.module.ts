@@ -15,6 +15,7 @@ import {IndexPatternListComponent} from './index-pattern/index-pattern-list/inde
 import {MenuComponent} from './menu/menu.component';
 import {RolloverConfigComponent} from './rollover-config/rollover-config.component';
 import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
+import {UtmNotificationViewComponent} from './utm-notification/components/notifications-view/utm-notification-view.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'settings', pathMatch: 'full'},
@@ -102,6 +103,14 @@ const routes: Routes = [
       {
         path: 'application-config',
         component: AppConfigComponent,
+        canActivate: [UserRouteAccessService],
+        data: {
+          authorities: [ADMIN_ROLE]
+        },
+      },
+      {
+        path: 'notifications',
+        component: UtmNotificationViewComponent,
         canActivate: [UserRouteAccessService],
         data: {
           authorities: [ADMIN_ROLE]

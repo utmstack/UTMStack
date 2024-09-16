@@ -7,8 +7,10 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {TranslateModule} from '@ngx-translate/core';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
+import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NgxSortableModule} from 'ngx-sortable-2';
+import {LocalStorageService} from "ngx-webstorage";
 import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-group-add/assets-group-add.module';
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
@@ -116,6 +118,7 @@ import {
 } from './components/utm/filters/dashboard-filter-view/dashboard-filter-view.component';
 import {DateRangeComponent} from './components/utm/filters/date-range/date-range.component';
 import {ElasticFilterTimeComponent} from './components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {RefreshFilterComponent} from './components/utm/filters/refresh-filter/refresh-filter.component';
 import {TimeFilterComponent} from './components/utm/filters/time-filter/time-filter.component';
 import {UtmDataLimitComponent} from './components/utm/filters/utm-data-limit/utm-data-limit.component';
 import {
@@ -176,6 +179,7 @@ import {
 } from './components/utm/util/utm-change-dashboard-time/utm-change-dashboard-time.component';
 import {UtmCodeHighlightComponent} from './components/utm/util/utm-code-highlight/utm-code-highlight.component';
 import {UtmCodeViewComponent} from './components/utm/util/utm-code-view/utm-code-view.component';
+import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 import {UtmColorsOrderComponent} from './components/utm/util/utm-colors-order/utm-colors-order.component';
 import {UtmConsoleCheckComponent} from './components/utm/util/utm-console-check/utm-console-check.component';
 import {UtmCountryFlagComponent} from './components/utm/util/utm-country-flag/utm-country-flag.component';
@@ -216,15 +220,7 @@ import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
-import {RefreshFilterComponent} from './components/utm/filters/refresh-filter/refresh-filter.component';
-import {LocalStorageService} from "ngx-webstorage";
-import {UtmNotificationComponent} from './components/layout/header/shared/utm-notification/utm-notification.component';
-import {NotificationService} from './components/layout/header/shared/utm-notification/service/notification.service';
-import {
-  NotificationRefreshService
-} from "./components/layout/header/shared/utm-notification/service/notification-refresh.service";
-import {InfiniteScrollModule} from "ngx-infinite-scroll";
+import {UtmNotificationComponent} from './components/layout/header/utm-header-notification/utm-notification.component';
 
 
 @NgModule({
@@ -515,9 +511,7 @@ import {InfiniteScrollModule} from "ngx-infinite-scroll";
     VersionUpdateBehavior,
     AuthServerProvider,
     NgbActiveModal,
-    LocalStorageService,
-    NotificationService,
-    NotificationRefreshService],
+    LocalStorageService],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UtmSharedModule {

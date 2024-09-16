@@ -1,4 +1,5 @@
-import {PageableDTO, SortDTO} from '../../../../../../types/page/page.model';
+import {PageableDTO, SortDTO} from '../../../shared/types/page/page.model';
+
 export interface NotificationDTO {
   id: number;
   source: string;
@@ -10,8 +11,8 @@ export interface NotificationDTO {
 }
 
 export interface UtmNotification {
-  content: NotificationDTO[];
-  pageable: PageableDTO;
+  content?: NotificationDTO[];
+  pageable?: PageableDTO;
   last: boolean;
   totalElements: number;
   totalPages: number;

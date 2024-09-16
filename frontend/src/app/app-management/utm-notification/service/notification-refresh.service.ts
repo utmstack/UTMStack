@@ -2,10 +2,17 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, interval, Observable, Subscription} from 'rxjs';
 import {filter} from 'rxjs/operators';
 
-@Injectable()
+export enum ComponentType {
+  NOTIFICATION_LIST,
+  NOTIFICATION_VIEW
+}
+
+@Injectable({
+  providedIn: 'root'
+})
 export class NotificationRefreshService {
   private refreshNotificationBehavior = new BehaviorSubject<boolean>(null);
-  private loadDataBehavior = new BehaviorSubject<boolean>(null);
+  private loadDataBehavior = new BehaviorSubject<{ type: ComponentType, value: boolean }>(null);
   private subscription: Subscription;
   private interval$: Observable<number>;
 
@@ -29,8 +36,8 @@ export class NotificationRefreshService {
     return this.loadDataBehavior.asObservable();
   }
 
-  loadData() {
-    this.loadDataBehavior.next(true);
+  loadData(type = ComponentType.NOTIFICATION_LIST, value = true) {
+    this.loadDataBehavior.next({type, value});
   }
 
   sendRefresh() {
