@@ -42,7 +42,7 @@ public class UtmNotificationService {
                 .stream()
                 .map(notificationMapper::toDto)
                 .collect(Collectors.toList());
-        return new PageImpl<>(notificationDTOS, pageable, notificationDTOS.size());
+        return new PageImpl<>(notificationDTOS, pageable, notificationRepository.count());
     }
 
     public UtmNotification getNotificationById(Long id) {
@@ -85,7 +85,7 @@ public class UtmNotificationService {
     private void sendNotification(){
         saveNotification(UtmNotification.builder()
                 .message(String.format("There are %1$s pending alerts to manage", this.countAlert))
-                .source(NotificationSource.OPEN_ALERTS)
+                .source(NotificationSource.ALERTS)
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NotificationType.INFO)
