@@ -30,7 +30,7 @@
             <td>
               <span>{{ getSource(notification) | uppercase }}</span></td>
             <td>
-              <span [ngClass]="getClassByType(notification.type)"
+              <span [appBadgeType]="notification.type"
                     class="p-1 border-1 rounded">
               {{notification.type}}
             </span>

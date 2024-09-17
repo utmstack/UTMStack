@@ -88,6 +88,7 @@ import {
 import {
   UtmNotificationUserSettingComponent
 } from './components/layout/header/shared/notification/utm-notification-user-setting/utm-notification-user-setting.component';
+import {UtmNotificationComponent} from './components/layout/header/utm-header-notification/utm-notification.component';
 import {SidebarComponent} from './components/layout/sidebar/sidebar.component';
 import {NotFoundComponent} from './components/not-found/not-found.component';
 import {
@@ -210,6 +211,7 @@ import {UtmToggleComponent} from './components/utm/util/utm-toggle/utm-toggle.co
 import {UtmUserSelectComponent} from './components/utm/util/utm-user-select/utm-user-select.component';
 import {HasAnyAuthorityDirective} from './directives/auth/has-any-authority.directive';
 import {HasEnterpriseLicenseDirective} from './directives/auth/has-enterprise-license.directive';
+import { BadgeTypeDirective } from './directives/badge-type/badge-type.directive';
 import {UtmInputErrorDirective} from './directives/input-error/utm-input-error.directive';
 import {SortableDirective} from './directives/sortable/sortable.directive';
 import {ZoomDirective} from './directives/zoom.directive';
@@ -220,7 +222,6 @@ import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import {UtmNotificationComponent} from './components/layout/header/utm-header-notification/utm-notification.component';
 
 
 @NgModule({
@@ -363,7 +364,8 @@ import {UtmNotificationComponent} from './components/layout/header/utm-header-no
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
     RefreshFilterComponent,
-    UtmNotificationComponent
+    UtmNotificationComponent,
+    BadgeTypeDirective
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -458,7 +460,8 @@ import {UtmNotificationComponent} from './components/layout/header/utm-header-no
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
     RefreshFilterComponent,
-    UtmNotificationComponent
+    UtmNotificationComponent,
+    BadgeTypeDirective
   ],
   entryComponents: [
     LoginComponent,

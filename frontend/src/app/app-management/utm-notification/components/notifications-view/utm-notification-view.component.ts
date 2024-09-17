@@ -78,17 +78,6 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
     return notification.source.replace('_', ' ');
   }
 
-  getClassByType(type: string) {
-    switch (type) {
-      case AppLogTypeEnum.ERROR:
-        return 'border-danger-600 text-danger-600';
-      case AppLogTypeEnum.INFO:
-        return 'border-info-600 text-info-600';
-      case AppLogTypeEnum.WARNING:
-        return 'border-warning text-warning';
-    }
-  }
-
   loadPage(page: number) {
     this.page.number = page;
     this.request = {...this.request, page: this.page.number - 1};
