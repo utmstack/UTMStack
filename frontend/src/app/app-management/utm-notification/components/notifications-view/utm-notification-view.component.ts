@@ -1,6 +1,6 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {TimeFilterComponent} from '../../../../shared/components/utm/filters/time-filter/time-filter.component';
 import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
@@ -80,7 +80,13 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
     return  this.notificationService.getAll(this.request)
       .pipe(
         tap((response) =>  this.page = {...response, number: response.number + 1}),
-        map(response => response.content));
+        map(response => response.content),
+        catchError(err => {
+          this.utmToastService.showError('Failed to fetch notifications',
+            'An error occurred while fetching notifications data.');
+          this.loadingMore = false;
+          return of([]);
+        }));
   }
 
   trackByFn(index: number, notification: NotificationDTO) {
