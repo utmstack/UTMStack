@@ -5,6 +5,7 @@ import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.notification.NotificationSource;
 import com.park.utmstack.domain.notification.NotificationType;
 import com.park.utmstack.domain.notification.UtmNotification;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,5 +27,6 @@ public interface UtmNotificationRepository extends JpaRepository<UtmNotification
     List<UtmNotification> searchByFilters(@Param("source") NotificationSource source,
                                           @Param("type") NotificationType type,
                                           @Param("from") LocalDateTime from,
-                                          @Param("to") LocalDateTime to);
+                                          @Param("to") LocalDateTime to,
+                                          Pageable pageable);
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -42,11 +43,14 @@ public class UtmNotificationService {
         List<NotificationDTO> notificationDTOS = notificationRepository.searchByFilters(filters.getSource(),
                         filters.getType(),
                         filters.getFrom(),
-                        filters.getTo())
+                        filters.getTo(),
+                        pageable)
                 .stream()
                 .map(notificationMapper::toDto)
                 .collect(Collectors.toList());
-        return new PageImpl<>(notificationDTOS, pageable, notificationDTOS.size());
+        return new PageImpl<>(notificationDTOS, pageable, (!Objects.isNull(filters.getType())   ||
+                                                           !Objects.isNull(filters.getSource()) ||
+                                                           !Objects.isNull(filters.getFrom()) ) ? notificationDTOS.size() : notificationRepository.count());
     }
 
     public UtmNotification getNotificationById(Long id) {
