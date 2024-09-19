@@ -1,6 +1,7 @@
 package com.park.utmstack.web.rest.notification;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.notification.NotificationFilters;
 import com.park.utmstack.domain.notification.UtmNotification;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
@@ -9,6 +10,7 @@ import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
 import com.park.utmstack.service.notification.UtmNotificationService;
 import com.park.utmstack.util.UtilResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -52,13 +54,17 @@ public class UtmNotificationResource {
     }
 
     /**
-     * Get all notifications.
+     * Retrieves a paginated list of notifications based on the provided filters.
      *
-     * @return the list of notifications
+     * @param filters  the filters to apply for the notification search
+     * @param pageable the pagination information (page number, size, sort order)
+     * @return a ResponseEntity containing a Page of NotificationDTOs
      */
     @GetMapping
-    public ResponseEntity<Page<NotificationDTO>> getAllNotifications(Pageable pageable) {
-        return ResponseEntity.ok(notificationService.getNotifications(pageable));
+    public ResponseEntity<Page<NotificationDTO>> getAllNotifications(
+            @ParameterObject NotificationFilters filters,
+            @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(notificationService.getNotifications(filters, pageable));
     }
 
     /**

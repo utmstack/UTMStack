@@ -1,5 +1,6 @@
 package com.park.utmstack.service.notification;
 
+import com.park.utmstack.domain.notification.NotificationFilters;
 import com.park.utmstack.domain.notification.NotificationSource;
 import com.park.utmstack.domain.notification.NotificationType;
 import com.park.utmstack.domain.notification.UtmNotification;
@@ -37,12 +38,19 @@ public class UtmNotificationService {
         return notificationRepository.save(notification);
     }
 
-    public Page<NotificationDTO> getNotifications(Pageable pageable) {
-        List<NotificationDTO> notificationDTOS = notificationRepository.findAll(pageable).getContent()
+    public Page<NotificationDTO> getNotifications(NotificationFilters filters, Pageable pageable) {
+        /*List<NotificationDTO> notificationDTOS = notificationRepository.findAll(pageable).getContent()
+                .stream()
+                .map(notificationMapper::toDto)
+                .collect(Collectors.toList());*/
+        List<NotificationDTO> notificationDTOS = notificationRepository.searchByFilters(filters.getSource(),
+                        filters.getType(),
+                        filters.getFrom(),
+                        filters.getTo())
                 .stream()
                 .map(notificationMapper::toDto)
                 .collect(Collectors.toList());
-        return new PageImpl<>(notificationDTOS, pageable, notificationRepository.count());
+        return new PageImpl<>(notificationDTOS, pageable, notificationDTOS.size());
     }
 
     public UtmNotification getNotificationById(Long id) {
