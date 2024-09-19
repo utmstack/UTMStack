@@ -103,12 +103,6 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
     this.notificationRefreshService.loadData(ComponentType.NOTIFICATION_VIEW);
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.notificationRefreshService.loadData(null);
-  }
-
   onSelectSourceChange(source: string) {
     this.request = {
       ...this.request,
@@ -123,5 +117,11 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
       type
     };
     this.notificationRefreshService.loadData(ComponentType.NOTIFICATION_VIEW);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.notificationRefreshService.loadData(null);
   }
 }

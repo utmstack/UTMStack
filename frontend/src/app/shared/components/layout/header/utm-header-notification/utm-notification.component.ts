@@ -73,7 +73,7 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   viewAllNotifications() {
-
+    this.dropNotification.close();
   }
 
   markAllAsRead() {

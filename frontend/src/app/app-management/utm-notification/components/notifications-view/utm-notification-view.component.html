@@ -46,7 +46,7 @@
         </tr>
         </thead>
         <tbody *ngIf="notifications$ | async as notifications; else noData">
-          <tr *ngFor="let notification of notifications">
+          <tr *ngFor="let notification of notifications; trackBy: trackByFn">
             <td>
               <span>{{ getSource(notification) | uppercase }}</span></td>
             <td>
