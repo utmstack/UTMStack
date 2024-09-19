@@ -3,8 +3,28 @@
     <h6 class="card-title mb-0 text-uppercase label-header">
       Notifications
     </h6>
-    <app-filter-time #timeFilter
-                     [timeDefault]="eventDate"></app-filter-time>
+    <div class="d-flex justify-content-end align-items-center">
+      <ng-select (change)="onSelectSourceChange($event)"
+                 placeholder="Sources"
+                 [clearable]="true"
+                 [items]="sources"
+                 id="source"
+                 class="items-select mr-4"
+                 style="width: 160px">
+      </ng-select>
+      <ng-select (change)="onSelectTypeChange($event)"
+                 placeholder="Types"
+                 [clearable]="true"
+                 [items]="types"
+                 id="type"
+                 class="items-select mr-4"
+                 style="width: 160px">
+      </ng-select>
+      <app-filter-time #timeFilter
+                       [timeDefault]="eventDate">
+      </app-filter-time>
+    </div>
+
   </div>
   <div class="card-body">
     <div class="table-responsive">

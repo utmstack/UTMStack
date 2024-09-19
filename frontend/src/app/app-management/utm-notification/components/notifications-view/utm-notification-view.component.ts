@@ -6,7 +6,12 @@ import {TimeFilterComponent} from '../../../../shared/components/utm/filters/tim
 import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {resolveRangeByTime} from '../../../../shared/util/resolve-date';
-import {NotificationDTO, UtmNotification} from '../../models/utm-notification.model';
+import {
+  NotificationDTO,
+  NotificationRequest,
+  NotificationSource,
+  UtmNotification
+} from '../../models/utm-notification.model';
 import {ComponentType, NotificationRefreshService} from '../../service/notification-refresh.service';
 import {NotificationService} from '../../service/notification.service';
 import {AppLogTypeEnum} from "../../../app-logs/shared/enum/app-log-type.enum";
@@ -22,7 +27,7 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
   notifications$: Observable<NotificationDTO[]>;
   itemsPerPage = ITEMS_PER_PAGE;
   loadingMore = false;
-  request = {page: 0, size: 25, sort: 'createdAt,DESC' };
+  request: NotificationRequest = {page: 0, size: 25, sort: 'createdAt,DESC'};
   destroy$ = new Subject<void>();
   loading: any;
   @ViewChild('timeFilter') timeFilter: TimeFilterComponent;
@@ -41,7 +46,8 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
     numberOfElements: 0,
     empty: true
   };
-  pageT = 0;
+  sources = Object.keys(NotificationSource).filter(n => isNaN(Number(n)));
+  types = Object.keys(AppLogTypeEnum).filter(n => isNaN(Number(n)));
   constructor(private notificationService: NotificationService,
               private utmToastService: UtmToastService,
               public notificationRefreshService: NotificationRefreshService) {
@@ -60,7 +66,14 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
   ngAfterViewInit() {
     this.timeFilter.timeFilterChange
       .pipe(takeUntil(this.destroy$))
-      .subscribe((time) => console.log(time));
+      .subscribe((time) => {
+        this.request = {
+          ...this.request,
+          from: time.timeFrom.slice(0, 19),
+          to: time.timeTo.slice(0, 19)
+        };
+        this.notificationRefreshService.loadData(ComponentType.NOTIFICATION_VIEW);
+      });
   }
 
   load() {
@@ -94,5 +107,21 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
     this.destroy$.next();
     this.destroy$.complete();
     this.notificationRefreshService.loadData(null);
+  }
+
+  onSelectSourceChange(source: string) {
+    this.request = {
+      ...this.request,
+      source
+    };
+    this.notificationRefreshService.loadData(ComponentType.NOTIFICATION_VIEW);
+  }
+
+  onSelectTypeChange(type: string) {
+    this.request = {
+      ...this.request,
+      type
+    };
+    this.notificationRefreshService.loadData(ComponentType.NOTIFICATION_VIEW);
   }
 }

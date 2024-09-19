@@ -24,3 +24,26 @@ export interface UtmNotification {
   empty: boolean;
 }
 
+export interface NotificationRequest {
+    page: number;
+    size: number;
+    sort: string;
+    source?: string;
+    type?: string;
+    from?: string;
+    to?: string;
+}
+
+export enum NotificationSource {
+  AS400,
+  BIT_DEFENDER,
+  AWS,
+  AZURE,
+  OFFICE_365,
+
+  SOPHOS,
+  GOOGLE,
+  EMAIL_SETTING,
+  ALERTS
+}
+
