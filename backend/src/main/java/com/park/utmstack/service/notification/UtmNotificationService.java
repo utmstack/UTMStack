@@ -39,10 +39,6 @@ public class UtmNotificationService {
     }
 
     public Page<NotificationDTO> getNotifications(NotificationFilters filters, Pageable pageable) {
-        /*List<NotificationDTO> notificationDTOS = notificationRepository.findAll(pageable).getContent()
-                .stream()
-                .map(notificationMapper::toDto)
-                .collect(Collectors.toList());*/
         List<NotificationDTO> notificationDTOS = notificationRepository.searchByFilters(filters.getSource(),
                         filters.getType(),
                         filters.getFrom(),
