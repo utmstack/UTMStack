@@ -13,17 +13,42 @@ type Logging struct {
 }
 
 type Placement struct {
-	Constraints []string `yaml:"constraints,omitempty"`
+	Constraints []string          `yaml:"constraints,omitempty"`
+	Preferences map[string]string `yaml:"preferences,omitempty"`
 }
 
 type Deploy struct {
-	Placement *Placement `yaml:"placement,omitempty"`
-	Resources *Resources `yaml:"resources,omitempty"`
+	Mode           *string           `yaml:"mode,omitempty"`
+	Replicas       *int              `yaml:"replicas,omitempty"`
+	EndpointMode   *string           `yaml:"endpoint_mode,omitempty"`
+	Labels         map[string]string `yaml:"labels,omitempty"`
+	Placement      *Placement        `yaml:"placement,omitempty"`
+	Resources      *Resources        `yaml:"resources,omitempty"`
+	RestartPolicy  *RestartPolicy    `yaml:"restart_policy,omitempty"`
+	RollbackConfig *RUConfig         `yaml:"rollback_config,omitempty"`
+	UpdateConfig   *RUConfig         `yaml:"update_config,omitempty"`
+}
+
+type RUConfig struct {
+	Parallelism     *int     `yaml:"parallelism,omitempty"`
+	Delay           *string  `yaml:"delay,omitempty"`
+	FailureAction   *string  `yaml:"failure_action,omitempty"`
+	Monitor         *string  `yaml:"monitor,omitempty"`
+	MaxFailureRatio *float64 `yaml:"max_failure_ratio,omitempty"`
+	Order           *string  `yaml:"order,omitempty"`
+}
+
+type RestartPolicy struct {
+	Condition   *string `yaml:"condition,omitempty"`
+	Delay       *string `yaml:"delay,omitempty"`
+	MaxAttempts *int    `yaml:"max_attempts,omitempty"`
+	Window      *string `yaml:"window,omitempty"`
 }
 
 type Res struct {
-	CPUs   *string `yaml:"cpus,omitempty"`
-	Memory *string `yaml:"memory,omitempty"`
+	CPUs    *string                  `yaml:"cpus,omitempty"`
+	Memory  *string                  `yaml:"memory,omitempty"`
+	Devices []map[string]interface{} `yaml:"devices,omitempty"`
 }
 
 type Resources struct {
@@ -66,7 +91,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		return err
 	}
 
-	c.Version = utils.Str("3.8")
+	c.Version = utils.PointerOf[string]("3.8")
 	c.Services = make(map[string]Service)
 	c.Volumes = make(map[string]Volume)
 
@@ -75,7 +100,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	}
 
 	dLogging := Logging{
-		Driver: utils.Str("json-file"),
+		Driver: utils.PointerOf[string]("json-file"),
 		Options: map[string]interface{}{
 			"max-size": "50m",
 		},
@@ -83,7 +108,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	agentManagerMem := stack.ServiceResources["agentmanager"].AssignedMemory
 	c.Services["agentmanager"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
 			stack.AgentManager + ":/data",
@@ -108,7 +133,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", agentManagerMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", agentManagerMem)),
 				},
 			},
 		},
@@ -121,7 +146,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
-		Image: utils.Str("postgres:13"),
+		Image: utils.PointerOf[string]("postgres:13"),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
@@ -137,10 +162,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", postgresMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", postgresMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", postgresMin)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", postgresMin)),
 				},
 			},
 		},
@@ -149,7 +174,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	frontEndMem := stack.ServiceResources["frontend"].AssignedMemory
 	c.Services["frontend"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/frontend:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/frontend:" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"filebrowser",
@@ -166,7 +191,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", frontEndMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", frontEndMem)),
 				},
 			},
 		},
@@ -175,7 +200,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	backendMin := stack.ServiceResources["backend"].MinMemory
 	c.Services["backend"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -204,10 +229,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", backendMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", backendMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", backendMin)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", backendMin)),
 				},
 			},
 		},
@@ -216,7 +241,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
 	correlationMin := stack.ServiceResources["correlation"].MinMemory
 	c.Services["correlation"] = Service{
-		Image: utils.Str("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
+		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
 				"postgres",
@@ -250,13 +275,13 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
-			Placement: &pManager,
+			Mode: utils.PointerOf[string]("global"),
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", correlationMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", correlationMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", correlationMin)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", correlationMin)),
 				},
 			},
 		},
@@ -268,7 +293,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
-			Image: utils.Str("opensearchproject/opensearch:2"),
+			Image: utils.PointerOf[string]("opensearchproject/opensearch:2"),
 			Ports: []string{
 				"9200:9200",
 			},
@@ -298,10 +323,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 				Placement: &pManager,
 				Resources: &Resources{
 					Limits: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem)),
+						Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem)),
 					},
 					Reservations: &Res{
-						Memory: utils.Str(fmt.Sprintf("%vM", opensearchMem/2)),
+						Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem/2)),
 					},
 				},
 			},
@@ -310,7 +335,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	socAIMem := stack.ServiceResources["socai"].AssignedMemory
 	c.Services["socai"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
 		DependsOn: []string{
 			"node1",
 			"backend",
@@ -327,7 +352,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", socAIMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", socAIMem)),
 				},
 			},
 		},
@@ -335,7 +360,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -356,7 +381,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", userAuditorMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", userAuditorMem)),
 				},
 			},
 		},
@@ -364,7 +389,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
 	c.Services["web-pdf"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
 		Volumes: []string{
 			stack.ShmFolder + ":/dev/shm",
 		},
@@ -377,7 +402,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.Str(fmt.Sprintf("%vM", webPDFMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", webPDFMem)),
 				},
 			},
 		},
