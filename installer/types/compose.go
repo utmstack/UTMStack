@@ -70,7 +70,6 @@ type Service struct {
 type Volume map[string]interface{}
 
 type Compose struct {
-	Version  *string            `yaml:"version,omitempty"`
 	Volumes  map[string]Volume  `yaml:"volumes,omitempty"`
 	Services map[string]Service `yaml:"services,omitempty"`
 }
@@ -91,7 +90,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		return err
 	}
 
-	c.Version = utils.PointerOf[string]("3.8")
 	c.Services = make(map[string]Service)
 	c.Volumes = make(map[string]Volume)
 
