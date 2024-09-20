@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -17,6 +18,11 @@ import (
 const delayCheck = 300
 
 func main() {
+	mode := os.Getenv("MODE")
+	if mode != "manager" {
+		os.Exit(0)
+	}
+	
 	pCfg, e := go_sdk.PluginCfg[schema.PluginConfig]("com.utmstack")
 	if e != nil {
 		log.Fatalf("failed to load plugin config: %v", e)

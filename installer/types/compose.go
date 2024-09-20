@@ -273,9 +273,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Mode: utils.PointerOf[string]("global"),
-			Placement: &Placement{
-				Constraints: []string{"node.role != manager"},
-			},
 			Resources: &Resources{
 				Limits: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
@@ -302,8 +299,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			},
 		}).([]string),
 		Ports: []string{
-			"50051:50051",
-			"8080:8080",
+			"8000:8000",
 		},
 		Volumes: []string{
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",

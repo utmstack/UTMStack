@@ -21,6 +21,11 @@ var (
 )
 
 func main() {
+	mode := os.Getenv("MODE")
+	if mode != "manager" {
+		os.Exit(0)
+	}
+	
 	cert, key, err := loadCerts()
 	if err != nil {
 		go_sdk.Logger().ErrorF("failed to load certificates: %v", err)

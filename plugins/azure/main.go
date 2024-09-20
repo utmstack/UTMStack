@@ -20,6 +20,11 @@ type PluginConfig struct {
 const delayCheck = 300
 
 func main() {
+	mode := os.Getenv("MODE")
+	if mode != "manager" {
+		os.Exit(0)
+	}
+	
 	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
 	if e != nil {
 		os.Exit(1)

@@ -24,6 +24,11 @@ type PluginConfig struct {
 }
 
 func main() {
+	mode := os.Getenv("MODE")
+	if mode == "manager" {
+		os.Exit(0)
+	}
+
 	CheckAgentManagerHealth()
 
 	autService := NewLogAuthService()

@@ -29,12 +29,17 @@ func update() {
 			os.MkdirAll(workdir, os.ModeDir)
 		}
 
-		if _, err := os.Stat(filepath.Join(workdir, "locations-en.csv")); os.IsNotExist(err) || !first {
-			for file, url := range files {
-				if err := go_sdk.Download(url, file); err != nil {
-					continue
+		mode := os.Getenv("MODE")
+		if mode == "manager" {
+			if _, err := os.Stat(filepath.Join(workdir, "locations-en.csv")); os.IsNotExist(err) || !first {
+				for file, url := range files {
+					if err := go_sdk.Download(url, file); err != nil {
+						continue
+					}
 				}
 			}
+		} else {
+			time.Sleep(5 * time.Minute)
 		}
 
 		mu.Lock()
