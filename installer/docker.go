@@ -95,10 +95,6 @@ func PostInstallation() error {
 		return err
 	}
 
-	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "10000", "utmstack_correlation"); err != nil {
-		return err
-	}
-
 	fmt.Println("Securing ports 9200, 5432 and 10000 [OK]")
 
 	fmt.Println("Restarting Stack")
