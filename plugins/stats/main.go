@@ -50,7 +50,7 @@ func main() {
 }
 
 func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*emptypb.Empty, error) {
-	go_sdk.Logger().LogF(100, "received message: %v", msg.Message)
+	go_sdk.Logger().LogF(100, "%s: %s", msg.Topic, msg.Message)
 
 	// TODO: implement statistics logic here
 
