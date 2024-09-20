@@ -268,8 +268,6 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"WORK_DIR=/workdir",
 			"LOG_LEVEL=100",
 			"GIN_MODE=release",
-			"NODE_GROUPS=main",
-			"NODE_NAME=node1",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
