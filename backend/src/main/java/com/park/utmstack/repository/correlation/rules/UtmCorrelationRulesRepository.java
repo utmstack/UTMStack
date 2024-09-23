@@ -1,5 +1,7 @@
 package com.park.utmstack.repository.correlation.rules;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -34,16 +36,17 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
             "(cr.ruleName LIKE :ruleSearch OR lower(cr.ruleName) LIKE lower(:ruleSearch))) " +
             "AND ((cast(:ruleInitDate as timestamp) is null) or (cast(:ruleEndDate as timestamp) is null) or (cr.ruleLastUpdate BETWEEN :ruleInitDate AND :ruleEndDate)) " +
             "AND ((:dataTypes) IS NULL OR dt.dataType IN (:dataTypes))")
-    List<UtmCorrelationRules> searchByFilters(@Param("ruleName") String ruleName,
-                                         @Param("ruleConfidentiality") List<Integer> ruleConfidentiality,
-                                         @Param("ruleIntegrity") List<Integer> ruleIntegrity,
-                                         @Param("ruleAvailability") List<Integer> ruleAvailability,
-                                         @Param("ruleCategory") List<String> ruleCategory,
-                                         @Param("ruleTechnique") List<String> ruleTechnique,
-                                         @Param("ruleActive") List<Boolean> ruleActive,
-                                         @Param("systemOwner") List<Boolean> systemOwner,
-                                         @Param("dataTypes") List<String> dataTypes,
-                                         @Param("ruleInitDate") Instant ruleInitDate,
-                                         @Param("ruleEndDate") Instant ruleEndDate,
-                                         @Param("ruleSearch")  String ruleSearch   );
+    Page<UtmCorrelationRules> searchByFilters(@Param("ruleName") String ruleName,
+                                              @Param("ruleConfidentiality") List<Integer> ruleConfidentiality,
+                                              @Param("ruleIntegrity") List<Integer> ruleIntegrity,
+                                              @Param("ruleAvailability") List<Integer> ruleAvailability,
+                                              @Param("ruleCategory") List<String> ruleCategory,
+                                              @Param("ruleTechnique") List<String> ruleTechnique,
+                                              @Param("ruleActive") List<Boolean> ruleActive,
+                                              @Param("systemOwner") List<Boolean> systemOwner,
+                                              @Param("dataTypes") List<String> dataTypes,
+                                              @Param("ruleInitDate") Instant ruleInitDate,
+                                              @Param("ruleEndDate") Instant ruleEndDate,
+                                              @Param("ruleSearch")  String ruleSearch,
+                                              Pageable pageable);
 }

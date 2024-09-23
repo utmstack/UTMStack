@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
@@ -84,7 +85,7 @@ public class UtmCorrelationRulesService {
         if (optionalCorrelationRule.isEmpty()) {
             throw new EntityNotFoundException("Rule with ID " + id + " not found");
         }
-        if (optionalCorrelationRule.get().getDataTypes().isEmpty()) {
+        if (correlationRule.getDataTypes().isEmpty()) {
             throw new BadRequestException(ctx + ": The rule must have at least one data type.");
         }
         if(optionalCorrelationRule.get().getSystemOwner()) {
@@ -161,17 +162,13 @@ public class UtmCorrelationRulesService {
     private Page<UtmCorrelationRulesDTO> filter(UtmCorrelationRulesFilter f, Pageable p) throws Exception {
         final String ctx = CLASSNAME + ".filter";
         try {
-            List<UtmCorrelationRules> rulesList = utmCorrelationRulesRepository.searchByFilters(
+            Page<UtmCorrelationRules> page = utmCorrelationRulesRepository.searchByFilters(
                     f.getName() == null ? null : "%" + f.getName() + "%",f.getConfidentiality(),f.getIntegrity(),f.getAvailability(),
                     f.getCategory(),f.getTechnique(),f.getActive(),f.getSystemOwner(),f.getDataTypes(),
-                    f.getInitDate(),f.getEndDate(), f.getSearch() == null ? null :"%" + f.getSearch() + "%" );
+                    f.getInitDate(),f.getEndDate(), f.getSearch() == null ? null :"%" + f.getSearch() + "%", p );
 
-
-            PagedListHolder<UtmCorrelationRulesDTO> pageDefinition = new PagedListHolder<>();
-            pageDefinition.setSource(this.utmCorrelationRulesMapper.toListDTO(rulesList));
-            pageDefinition.setPageSize(p.getPageSize());
-            pageDefinition.setPage(p.getPageNumber());
-            return PageableExecutionUtils.getPage(pageDefinition.getPageList(), p, rulesList::size);
+            List<UtmCorrelationRulesDTO> rulesList = this.utmCorrelationRulesMapper.toListDTO(page.getContent());
+            return new PageImpl<>(rulesList, p, page.getTotalElements());
         } catch (InvalidDataAccessResourceUsageException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             throw new Exception(msg);
