@@ -19,6 +19,7 @@ import {UtmToastService} from './alert/utm-toast.service';
 import {DashboardBehavior} from './behaviors/dashboard.behavior';
 import {MenuBehavior} from './behaviors/menu.behavior';
 import {VersionUpdateBehavior} from './behaviors/version-update.behavior';
+import {AppFilterComponent} from './components/app-filter/app-filter.component';
 import {ConfirmIdentityComponent} from './components/auth/confirm-identity/confirm-identity.component';
 import {LoginComponent} from './components/auth/login/login.component';
 import {PasswordResetFinishComponent} from './components/auth/password-reset/finish/password-reset-finish.component';
@@ -214,6 +215,7 @@ import {HasEnterpriseLicenseDirective} from './directives/auth/has-enterprise-li
 import { BadgeTypeDirective } from './directives/badge-type/badge-type.directive';
 import {UtmInputErrorDirective} from './directives/input-error/utm-input-error.directive';
 import {SortableDirective} from './directives/sortable/sortable.directive';
+import { TemplateSelectorDirective } from './directives/template-selector/template-selector.directive';
 import {ZoomDirective} from './directives/zoom.directive';
 import {CapitalizePipe} from './pipes/capitalize.pipe';
 import {UtmDatePipe} from './pipes/date.pipe';
@@ -365,7 +367,9 @@ import {UtmNotifier} from './websocket/utm-notifier';
     EmailSettingNotificactionComponent,
     RefreshFilterComponent,
     UtmNotificationComponent,
-    BadgeTypeDirective
+    BadgeTypeDirective,
+    AppFilterComponent,
+    TemplateSelectorDirective
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -461,7 +465,9 @@ import {UtmNotifier} from './websocket/utm-notifier';
     EmailSettingNotificactionComponent,
     RefreshFilterComponent,
     UtmNotificationComponent,
-    BadgeTypeDirective
+    BadgeTypeDirective,
+    AppFilterComponent,
+    TemplateSelectorDirective
   ],
   entryComponents: [
     LoginComponent,
