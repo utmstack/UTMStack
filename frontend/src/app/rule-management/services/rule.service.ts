@@ -3,10 +3,10 @@ import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, delay} from 'rxjs/operators';
 import {SERVER_API_URL} from '../../app.constants';
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {RefreshDataService} from '../../shared/services/util/refresh-data.service';
 import {createRequestOption} from '../../shared/util/request-util';
 import {Mode, Rule} from '../models/rule.model';
-import {UtmToastService} from '../../shared/alert/utm-toast.service';
 
 const resourceUrl = `${SERVER_API_URL}api/correlation-rule`;
 
