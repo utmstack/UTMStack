@@ -5,8 +5,11 @@ import com.park.utmstack.domain.notification.NotificationSource;
 import com.park.utmstack.domain.notification.NotificationType;
 import com.park.utmstack.domain.notification.UtmNotification;
 import com.park.utmstack.repository.notification.UtmNotificationRepository;
+import com.park.utmstack.service.MailService;
+import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.dto.notification.NotificationDTO;
 import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
+import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.util.AlertUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,6 +35,10 @@ public class UtmNotificationService {
 
     private final AlertUtil alertUtil;
 
+    private final MailService mailService;
+
+    private final MailConfigService mailConfigService;
+
     private long countAlert = -1;
 
     public UtmNotification saveNotification(UtmNotification notification) {
@@ -40,17 +48,20 @@ public class UtmNotificationService {
     }
 
     public Page<NotificationDTO> getNotifications(NotificationFilters filters, Pageable pageable) {
-        List<NotificationDTO> notificationDTOS = notificationRepository.searchByFilters(filters.getSource(),
+
+        Page<UtmNotification> page = notificationRepository.searchByFilters(filters.getSource(),
                         filters.getType(),
                         filters.getFrom(),
                         filters.getTo(),
-                        pageable)
+                        pageable);
+
+        List<NotificationDTO> notificationDTOS = page.getContent()
                 .stream()
                 .map(notificationMapper::toDto)
                 .collect(Collectors.toList());
-        return new PageImpl<>(notificationDTOS, pageable, (!Objects.isNull(filters.getType())   ||
-                                                           !Objects.isNull(filters.getSource()) ||
-                                                           !Objects.isNull(filters.getFrom()) ) ? notificationDTOS.size() : notificationRepository.count());
+
+
+        return new PageImpl<>(notificationDTOS, pageable, page.getTotalElements());
     }
 
     public UtmNotification getNotificationById(Long id) {
@@ -72,12 +83,12 @@ public class UtmNotificationService {
         return this.notificationRepository.countUtmNotificationByReadIsFalse();
     }
 
-    @Scheduled(fixedDelay = 1800000)
+   /* @Scheduled(fixedDelay = 1800000)
     public void loadOpenAlerts() {
         if (this.countAlert == -1) {
             this.countAlert = this.alertUtil.countAlertsByStatus(2);
             if(this.countAlert > 0){
-                this.sendNotification();
+                this.sendNotification(String.format("There are %1$s pending alerts to manage", this.countAlert), NotificationSource.ALERTS, NotificationType.INFO);
             }
         } else {
             Long latestCountAlert = this.alertUtil.countAlertsByStatus(2, LocalDateTime.now().minusMinutes(30), LocalDateTime.now());
@@ -85,18 +96,27 @@ public class UtmNotificationService {
 
             if (this.countAlert != totalAlert && latestCountAlert > 0) {
                 this.countAlert = totalAlert;
-                this.sendNotification();
+                this.sendNotification(String.format("There are %1$s pending alerts to manage", this.countAlert), NotificationSource.ALERTS, NotificationType.INFO);
             }
+        }
+    }*/
+
+    @Scheduled(fixedDelay = 4320000)
+    public void checkEmailConfig() {
+        try {
+            this.mailService.getJavaMailSender();
+        } catch (MessagingException e) {
+            this.sendNotification(e.getMessage(), NotificationSource.EMAIL_SETTING, NotificationType.ERROR);
         }
     }
 
-    private void sendNotification(){
+    public void sendNotification(String message, NotificationSource source, NotificationType type){
         saveNotification(UtmNotification.builder()
-                .message(String.format("There are %1$s pending alerts to manage", this.countAlert))
-                .source(NotificationSource.ALERTS)
+                .message(message)
+                .source(source)
                 .createdAt(LocalDateTime.now())
                 .read(false)
-                .type(NotificationType.INFO)
+                .type(type)
                 .build());
     }
 }
