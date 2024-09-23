@@ -11,13 +11,13 @@
                          [width]="'5px'">
         </app-utm-spinner>
     </div>
-    <div *ngIf="filters.length == 0">
+    <ng-template #empty>
         <div class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
             <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
         </div>
-    </div>
+    </ng-template>
 
-    <div class="w-100">
+    <div *ngIf="fieldValues$ | async as items; else empty" class="w-100">
         <div (scrolled)="onScroll()"
              [fromRoot]="true"
              [infiniteScrollDistance]="1"
@@ -25,24 +25,25 @@
              [scrollWindow]="false"
              class="filter-value-field-container"
              infiniteScroll>
-            <div *ngFor="let value of fieldValues$ | async; trackBy: trackByFn; let i=index "
-                 class="d-flex justify-content-start align-items-center p-2 ">
-                <input (change)="selectValue(value[0])"
+            <app-filter [list]="items">
+              <ng-template appTemplateSelector let-item let-i>
+                <input (change)="selectValue(item[0])"
                        [attr.id]="'g-check-box-'+fieldFilter.field+'-'+i"
-                       [checked]="selected.includes(value[0])"
+                       [checked]="selected.includes(item[0])"
                        [name]="'g-check-box-'+fieldFilter.field+'-'+i"
-                       [value]="value[0]"
+                       [value]="item[0]"
                        class="form-check-input magic-checkbox"
                        style="font-size: smaller"
                        type="checkbox">
-                <label [for]="'g-check-box-'+fieldFilter.field+'-'+i" [ngbTooltip]="value[0]"
+                <label [for]="'g-check-box-'+fieldFilter.field+'-'+i" [ngbTooltip]="item[0]"
                        [openDelay]="1000"
                        class="mb-0 text-filter"
                        placement="bottom"
                        tooltipClass="utm-tooltip-bottom">
-                    {{value[0]}}
+                      {{item[0]}}
                 </label>
-            </div>
+              </ng-template>
+            </app-filter>
             <div *ngIf="loadMore"
                  class="d-flex justify-content-center align-items-center p-3 loading">
                 <app-utm-spinner [height]="'35px'" [loading]="true"

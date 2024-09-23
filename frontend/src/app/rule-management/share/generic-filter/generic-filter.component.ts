@@ -1,112 +1,100 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subject} from 'rxjs';
-import {distinctUntilChanged, filter, map, takeUntil, tap} from 'rxjs/operators';
-import {STATICS_FILTERS} from '../../../assets-discover/shared/const/filter-const';
-import {AssetFieldFilterEnum} from '../../../assets-discover/shared/enums/asset-field-filter.enum';
-import {AssetMapFilterFieldEnum} from '../../../assets-discover/shared/enums/asset-map-filter-field.enum';
-import {CollectorFieldFilterEnum} from '../../../assets-discover/shared/enums/collector-field-filter.enum';
-import {AssetFilterType} from '../../../assets-discover/shared/types/asset-filter.type';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
-import {FilterType} from '../../models/filter.type';
 import {FilterService} from '../../services/filter.service';
 
 
 @Component({
-    selector: 'app-generic-filter',
-    templateUrl: './generic-filter.component.html',
-    styleUrls: ['./generic-filter.component.css']
+  selector: 'app-generic-filter',
+  templateUrl: './generic-filter.component.html',
+  styleUrls: ['./generic-filter.component.css']
 })
-export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, OnDestroy {
-    @Input() fieldFilter: T;
-    @Input() url: string;
-    @Input() forGroups = false;
+export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, AfterViewInit, OnDestroy {
+  @Input() fieldFilter: T;
+  @Input() url: string;
+  @Input() forGroups = false;
 
-    fieldValues$: Observable<Array<[string, number]>>;
-    loading = false;
-    loadMore = false;
-    selected = [];
-    searching = false;
-    requestParams: any;
-    destroy$: Subject<void> = new Subject();
-    filters: Array<[string, number]> = [];
-    totalItems = 0;
+  fieldValues$: Observable<Array<[string, number]>>;
+  loading = true;
+  loadMore = false;
+  selected = [];
+  searching = false;
+  requestParams: any;
+  destroy$: Subject<void> = new Subject();
+  filters: Array<[string, number]> = [];
+  totalItems = 0;
 
-    constructor(private filterService: FilterService) {
+  constructor(private filterService: FilterService) {
+  }
+
+  ngOnInit(): void {
+    this.requestParams = {page: 0, prop: this.fieldFilter.filterField, size: 6, forGroups: this.forGroups};
+    this.fieldValues$ = this.filterService.onRefresh$
+      .pipe(
+        filter(refresh => !!refresh &&
+          (refresh === 'ALL' || refresh === this.fieldFilter.filterField)),
+        switchMap(() => this.getFieldFilterValues()),
+        tap(() => this.loading = false),
+      );
+    this.filterService.resetFilter
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(status => !!status)
+      )
+      .subscribe(status => {
+        this.selected = [];
+        this.filterService.onFilterChange({});
+      });
+  }
+
+  ngAfterViewInit(): void {
+    this.filterService.notifyRefresh(this.fieldFilter.filterField);
+  }
+
+  getFieldFilterValues() {
+    return this.filterService.fetchData({
+      url: this.url,
+      params: this.requestParams
+    })
+      .pipe(
+        tap((response) => {
+          this.searching = false;
+        }));
+  }
+
+  onScroll() {
+    this.requestParams.size += 6;
+    console.log(this.fieldFilter.filterField);
+    this.filterService.notifyRefresh(this.fieldFilter.filterField);
+  }
+
+  onSortValuesChange($event: { orderByCount: boolean; sortAsc: boolean }) {
+  }
+
+  selectValue(value: string) {
+    const index = this.selected.findIndex(val => val === value);
+    if (index === -1) {
+      this.selected.push(value);
+    } else {
+      this.selected.splice(index, 1);
     }
 
-    ngOnInit(): void {
+    this.filterService.onFilterChange({prop: this.fieldFilter.field, values: this.selected});
 
-      this.fieldValues$ = this.filterService.fieldsValues$
-                            .pipe(
-                                map(values => {
-                                    const key = this.fieldFilter.filterField;
-                                    return values.get(key);
-                                })
-                            );
+  }
 
-      this.requestParams = {page: 0, prop: this.fieldFilter.filterField, size: 6, forGroups: this.forGroups};
-      this.getFieldFilterValues();
-      this.filterService.resetFilter
-          .pipe(
-              takeUntil(this.destroy$),
-              filter(status => !!status)
-          )
-          .subscribe( status => {
-              this.selected = [];
-              this.filterService.onFilterChange({});
-          });
-    }
+  searchInValues($event: string) {
+    this.requestParams.value = $event;
+    this.requestParams.page = 0;
+    this.searching = true;
+    this.filterService.notifyRefresh(this.fieldFilter.filterField);
+  }
 
-    getFieldFilterValues() {
-        if (this.requestParams.prop) {
-            this.filterService.getFieldValues(this.url, this.requestParams, this.loadMore)
-                .pipe(
-                    map((response) => this.loadMore ? this.filters.concat(response) : this.filters = response),
-                    tap((response) => {
-                        this.filters = response;
-                        this.loadMore = false;
-                        this.searching = false;
-                    })
-                ).subscribe();
-        }
-    }
-
-    onScroll() {
-        this.requestParams.page += 1;
-        this.loadMore = true;
-        this.getFieldFilterValues();
-    }
-
-    onSortValuesChange($event: { orderByCount: boolean; sortAsc: boolean }) {
-    }
-
-    selectValue(value: string) {
-        const index = this.selected.findIndex(val => val === value);
-        if (index === -1) {
-            this.selected.push(value);
-        } else {
-            this.selected.splice(index, 1);
-        }
-
-        this.filterService.onFilterChange({prop: this.fieldFilter.field, values: this.selected});
-
-    }
-
-    searchInValues($event: string) {
-        this.requestParams.value = $event;
-        this.requestParams.page = 0;
-        this.searching = true;
-        this.getFieldFilterValues();
-    }
-
-    trackByFn(index: number , value: [string, number]) {
-        return value[0];
-    }
-
-    ngOnDestroy(): void {
-        this.filterService.resetFieldValues();
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+  ngOnDestroy(): void {
+    this.filterService.resetFieldValues();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
 }

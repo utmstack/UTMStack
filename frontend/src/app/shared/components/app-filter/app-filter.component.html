@@ -1,0 +1,6 @@
+<div *ngFor="let item of list; trackBy: trackByFn; let i=index "
+     class="d-flex justify-content-start align-items-center p-2 ">
+  <ng-template [ngTemplateOutlet]="templateRef"
+               [ngTemplateOutletContext]="{ $implicit: item, index: i }">
+  </ng-template>
+</div>

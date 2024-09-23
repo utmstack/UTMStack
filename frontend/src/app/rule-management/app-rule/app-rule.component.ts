@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {SERVER_API_URL} from '../../app.constants';
 import {EventDataTypeEnum} from '../../data-management/alert-management/shared/enums/event-data-type.enum';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {Actions} from '../app-correlation-management/models/config.type';
+import {ConfigService} from '../app-correlation-management/services/config.service';
 import {FILTER_RULE_FIELDS} from '../models/rule.constant';
 import {FilterService} from '../services/filter.service';
-import {SERVER_API_URL} from '../../app.constants';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {ConfigService} from '../app-correlation-management/services/config.service';
-import {Actions} from '../app-correlation-management/models/config.type';
 
 
 @Component({
@@ -35,36 +35,7 @@ export class AppRuleComponent implements OnInit {
       this.configService.onAction(Actions.CREATE_RULE);
     }
 
-  handleResponse(modal: NgbModalRef) {
-    modal.result.then((result: boolean) => {
-      if (result) {
-
-      }
-    });
-  }
-
-    loadPage($event: number) {
-
-    }
-
-    onItemsPerPageChange($event: number) {
-
-    }
-
-
     resetAllFilters() {
-        this.filterService.resetAllFilters();
+      this.filterService.resetAllFilters();
     }
-
-    /*onFilterChange($event: { prop: string, values: any }) {
-        this.requestParam = {
-            ...this.requestParam,
-            [$event.prop]: $event.values.length > 0 ? $event.values : null
-        };
-        console.log(this.requestParam);
-
-       /!* this.assetFiltersBehavior.$assetAppliedFilter.next(this.requestParam);
-        this.assetFiltersBehavior.$assetFilter.next(this.requestParam);*!/
-        this.getAssets();
-    }*/
 }
