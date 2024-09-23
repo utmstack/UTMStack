@@ -55,7 +55,7 @@ public class AlertUtil {
 
         try {
             if (!elasticsearchService.indexExist(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS)))
-                return -1L;
+                return 0L;
 
             SearchRequest.Builder srb = new SearchRequest.Builder();
             srb.query(SearchUtil.toQuery(filters))

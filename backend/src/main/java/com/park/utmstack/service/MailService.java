@@ -110,7 +110,7 @@ public class MailService {
         return mailSender;
     }
 
-    private @NotNull JavaMailSender getJavaMailSender() throws MessagingException {
+    public @NotNull JavaMailSender getJavaMailSender() throws MessagingException {
 
         String authType = Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH);
 
