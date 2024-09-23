@@ -58,9 +58,7 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
       .pipe(takeUntil(this.destroy$),
         filter(data =>
           !!data && data.type === ComponentType.NOTIFICATION_VIEW && data.value),
-        switchMap(() => {
-          return this.load();
-        }));
+        switchMap(() => this.load()));
   }
 
   ngAfterViewInit() {
@@ -85,7 +83,7 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
           this.utmToastService.showError('Failed to fetch notifications',
             'An error occurred while fetching notifications data.');
           this.loadingMore = false;
-          return of([]);
+          return of(null);
         }));
   }
 
