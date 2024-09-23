@@ -4,19 +4,17 @@ import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/rou
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
-import { Rule } from '../models/rule.model';
+import {Rule, RULE_REQUEST} from '../models/rule.model';
 import {RuleService} from './rule.service';
 
-export const itemsPerPage = 10;
-
 @Injectable()
-export class RulesResolverService implements Resolve<Observable<HttpResponse<Rule[]>>> {
+export class RulesResolverService implements Resolve<HttpResponse<Rule[]>> {
 
     constructor(private ruleService: RuleService,
                 private spinner: NgxSpinnerService) {}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<HttpResponse<Rule[]>> {
         this.spinner.show('loadingSpinner');
-        return this.ruleService.getRules({page: 0, size: itemsPerPage})
+        return this.ruleService.fetchData(RULE_REQUEST)
             .pipe(tap(() => this.spinner.hide('loadingSpinner')));
     }
 }

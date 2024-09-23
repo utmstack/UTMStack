@@ -2,21 +2,21 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, takeUntil, tap} from 'rxjs/operators';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {merge, Observable, of, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import { SortEvent } from 'src/app/shared/directives/sortable/type/sort-event';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
-import {RULE_FIELDS} from '../../../models/rule.constant';
-import {Asset, Rule} from '../../../models/rule.model';
-import {FilterService} from '../../../services/filter.service';
-import {RuleService} from '../../../services/rule.service';
-import {itemsPerPage} from '../../../services/rules.resolver.service';
 import {Actions} from '../../../app-correlation-management/models/config.type';
 import {ConfigService} from '../../../app-correlation-management/services/config.service';
+import {RULE_FIELDS} from '../../../models/rule.constant';
+import { Rule, RULE_REQUEST} from '../../../models/rule.model';
+import {FilterService} from '../../../services/filter.service';
+import {RuleService} from '../../../services/rule.service';
 import {AddRuleComponent} from '../add-rule/add-rule.component';
 
 
@@ -40,14 +40,13 @@ export class RuleListComponent implements OnInit, OnDestroy {
 
   page = 0;
   totalItems: number;
-  itemsPerPage = itemsPerPage;
 
   dataType: any;
   loading: any;
   viewRuleDetail: any;
   ruleDetail: Rule;
   isInitialized = false;
-  request: any;
+  request = RULE_REQUEST;
   destroy$: Subject<void> = new Subject<void>();
 
   constructor(private route: ActivatedRoute,
@@ -58,20 +57,21 @@ export class RuleListComponent implements OnInit, OnDestroy {
               private configService: ConfigService) { }
 
   ngOnInit() {
-    this.request = {
-      page: this.page,
-      size: this.itemsPerPage
-    };
 
-    this.rules$ = this.route.data
+    this.rules$ = merge(
+      this.ruleService.onRefresh$.pipe(
+        filter(refresh => !!refresh),
+        switchMap(() => this.ruleService.fetchData(this.request))
+      ),
+      this.route.data
         .pipe(
           tap((data: { response: HttpResponse<Rule[]> }) => {
-            this.rules = data.response.body;
             this.totalItems = parseInt(data.response.headers.get('X-Total-Count') || '0', 10);
             this.isInitialized = true;
           }),
-          map((data: { response: HttpResponse<Rule[]> }) =>  data.response.body)
-    );
+          map((data: { response: HttpResponse<Rule[]> }) => data.response))
+    ).pipe(
+      map(( response: HttpResponse<Rule[]>) => response.body));
 
     this.filterService.filterChange
         .pipe(
@@ -79,18 +79,14 @@ export class RuleListComponent implements OnInit, OnDestroy {
             filter( (request: { prop: string, values: any }) => !!request),
             tap((request) => {
               if (request && Object.keys(request).length === 0) {
-                this.request = {
-                  page: 0,
-                  size: this.itemsPerPage
-                };
+                this.request = RULE_REQUEST;
               } else {
                 this.request = {
-                  ...this.request,
+                  ...RULE_REQUEST,
                   [request.prop]: request.values.length > 0 ? request.values : null
                 };
               }
-
-              this.loadRules();
+              this.ruleService.notifyRefresh(true);
             })
         ).subscribe();
 
@@ -102,21 +98,9 @@ export class RuleListComponent implements OnInit, OnDestroy {
       .subscribe(() => this.addRule());
   }
 
-  addRule(){
+  addRule() {
     const modalRef = this.modalService.open(AddRuleComponent, {size: 'lg', centered: true});
     this.handleResponse(modalRef);
-  }
-
-  loadRules() {
-    this.loading = true;
-    this.rules$ = this.ruleService.getRules(this.request)
-        .pipe(
-            tap(( response: HttpResponse<Rule[]> ) => {
-              this.rules = response.body;
-              this.totalItems = parseInt(response.headers.get('X-Total-Count') || '0', 10);
-              this.loading = false;
-            }),
-            map((response: HttpResponse<Rule[]> ) =>  response.body));
   }
 
   loadPage($event: number) {
@@ -129,28 +113,15 @@ export class RuleListComponent implements OnInit, OnDestroy {
       ...this.request,
       page
     };
-    this.loadRules();
+    this.ruleService.notifyRefresh(true);
   }
 
-  onItemsPerPageChange($event: number) {
-
-  }
-  getRowToFiltersData(alert: any) {
-    /*const modalRef = this.modalService.open(RowToFiltersComponent, {centered: true});
-    modalRef.componentInstance.alert = alert;
-    modalRef.componentInstance.fields = this.fields;
-    modalRef.componentInstance.addRowToFilter.subscribe(filterRow => {
-      mergeParams(filterRow, this.filters).then(value => {
-        this.filters = value;
-        this.page = 1;
-        this.getAlert('on add row to filter');
-        this.alertFiltersBehavior.$filters.next(this.filters);
-      });
-    });*/
-  }
-
-  onRefreshData($event: boolean) {
-
+  onItemsPerPageChange(size: number) {
+    this.request = {
+      ...this.request,
+      size
+    };
+    this.ruleService.notifyRefresh(true);
   }
 
   onSortBy($event: SortEvent) {
@@ -159,33 +130,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
       ...this.request,
       sort
     };
-    this.loadRules();
-  }
-  toggleCheck() {
-    this.checkbox = !this.checkbox;
-    if (!this.checkbox) {
-      this.rulesSelected = [];
-    } else {
-      for (const rule of this.rules) {
-        const index = this.rulesSelected.indexOf(rule);
-        if (index === -1) {
-          this.rulesSelected.push(rule);
-        }
-      }
-    }
-  }
-
-  addToSelected(alert: any) {
-    const index = this.rulesSelected.indexOf(alert);
-    if (index === -1) {
-      this.rulesSelected.push(alert);
-    } else {
-      this.rulesSelected.splice(index, 1);
-    }
-  }
-
-  isSelected(alert: any): boolean {
-    return this.rulesSelected.findIndex(value => value.id === alert.id) !== -1;
+    this.ruleService.notifyRefresh(true);
   }
 
   viewDetailRule(rule: Rule) {
@@ -193,14 +138,14 @@ export class RuleListComponent implements OnInit, OnDestroy {
     this.viewRuleDetail = true;
   }
 
-  activeRule(rule: Rule){
+  activeRule(rule: Rule) {
     const params = {
       id: rule.id,
       active: !rule.ruleActive
     };
 
     this.ruleService.activeRule(params)
-      .subscribe(() => this.loadRules(),
+      .subscribe(() =>  this.ruleService.notifyRefresh(true),
         () => {
           this.utmToast.showError('Error', 'Error changing rule status');
         });
@@ -212,10 +157,10 @@ export class RuleListComponent implements OnInit, OnDestroy {
 
   onSearch($event: string | number) {
     this.request = {
-      page: 0,
+      ...RULE_REQUEST,
       search: $event
     };
-    this.loadRules();
+    this.ruleService.notifyRefresh(true);
   }
 
   deleteRule(event: Event, rule: Rule) {
@@ -234,7 +179,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   delete(rule: Rule) {
     this.ruleService.delete(rule.id)
       .subscribe(() => {
-        this.loadRules();
+        this.ruleService.notifyRefresh(true);
         this.utmToast.showSuccessBottom('Rule deleted successfully');
       }, () => {
         this.utmToast.showError('Error', 'Error deleting rule');
@@ -251,7 +196,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   handleResponse(modal: NgbModalRef) {
     modal.result.then((result: boolean) => {
       if (result) {
-        this.loadRules();
+        this.filterService.notifyRefresh('ALL');
       }
     });
   }

@@ -1,3 +1,8 @@
+export const RULE_REQUEST: {size: number, page: number, sort: string, search?: string | number} = {
+  size: 25,
+  page: 0,
+  sort: 'ruleLastUpdate,DESC,op,DESC',
+};
 export interface Impact {
     confidentiality: number;
     integrity: number;

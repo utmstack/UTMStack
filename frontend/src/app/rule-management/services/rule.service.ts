@@ -1,29 +1,38 @@
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, delay} from 'rxjs/operators';
 import {SERVER_API_URL} from '../../app.constants';
+import {RefreshDataService} from '../../shared/services/util/refresh-data.service';
 import {createRequestOption} from '../../shared/util/request-util';
 import {Mode, Rule} from '../models/rule.model';
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
 
 const resourceUrl = `${SERVER_API_URL}api/correlation-rule`;
 
 @Injectable()
-export class RuleService {
+export class RuleService extends RefreshDataService<boolean, HttpResponse<Rule[]>> {
   rules: Rule[] = [];
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private utmToast: UtmToastService) {
+    super();
   }
 
-  getRules(req: any): Observable<HttpResponse<Rule[]>> {
-    const options = createRequestOption(req);
+  fetchData(req: any): Observable<HttpResponse<Rule[]>> {
+    return this.getRules(createRequestOption(req));
+  }
+
+  private getRules(options: HttpParams): Observable<HttpResponse<Rule[]>> {
     return this.http.get<Rule[]>(`${resourceUrl}/search-by-filters`, {params: options, observe: 'response'})
       .pipe(
         catchError((error: any): Observable<HttpResponse<Rule[]>> => {
           console.error('Error loading rules', error);
+          this.utmToast.showError('Failed to fetch notifications',
+            'An error occurred while fetching rules data.');
           return of(new HttpResponse({
             headers: new HttpHeaders({'X-Total-Count': '0'}),
-            body: []
+            body: null
           }));
         })
       );

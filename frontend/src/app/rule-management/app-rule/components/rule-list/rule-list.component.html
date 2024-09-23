@@ -28,46 +28,48 @@
         </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let rule of rules$ | async; trackBy: trackByFn" class="cursor-pointer">
-          <ng-container *ngFor="let field of fields">
-            <td [ngStyle]="{'width': field.width}"
-                *ngIf="(field.visible)">
+          <ng-container *ngIf="rules$ | async as rules; else empty">
+            <tr *ngFor="let rule of rules; trackBy: trackByFn" class="cursor-pointer">
+              <ng-container *ngFor="let field of fields">
+                <td [ngStyle]="{'width': field.width}"
+                    *ngIf="(field.visible)">
                   <app-rule-field
                     [rule] = "rule"
                     [column] = "field">
                   </app-rule-field>
-            </td>
+                </td>
+              </ng-container>
+              <td class="td-action">
+                <div class="d-flex justify-content-end align-items-center medium-icon">
+
+                  <i (click)="activeRule(rule)"
+                     class="cursor-pointer ml-2"
+                     [ngClass]="{'icon-blocked': rule.ruleActive, 'icon-check2': !rule.ruleActive}"
+                     ngbTooltip="{{ !rule.ruleActive ? 'Active' : 'Deactivate' }}"
+                     container="body"
+                     placement="left"></i>
+
+                  <i (click)="editRule(rule)" class="icon-pencil3 cursor-pointer ml-2"
+                     ngbTooltip="Edit"
+                     container="body"
+                     placement="left"></i>
+
+                  <i *ngIf="!rule.systemOwner"
+                     (click)="deleteRule($event, rule)" class="icon-cross2 cursor-pointer ml-2"
+                     ngbTooltip="Delete"
+                     container="body"
+                     placement="auto"></i>
+                </div>
+              </td>
+            </tr>
           </ng-container>
-            <td class="td-action">
-              <div class="d-flex justify-content-end align-items-center medium-icon">
-
-                <i (click)="activeRule(rule)"
-                   class="cursor-pointer ml-2"
-                   [ngClass]="{'icon-blocked': rule.ruleActive, 'icon-check2': !rule.ruleActive}"
-                   ngbTooltip="{{ !rule.ruleActive ? 'Active' : 'Deactivate' }}"
-                   container="body"
-                   placement="left"></i>
-
-                <i (click)="editRule(rule)" class="icon-pencil3 cursor-pointer ml-2"
-                   ngbTooltip="Edit"
-                   container="body"
-                   placement="left"></i>
-
-                <i *ngIf="!rule.systemOwner"
-                  (click)="deleteRule($event, rule)" class="icon-cross2 cursor-pointer ml-2"
-                   ngbTooltip="Delete"
-                   container="body"
-                   placement="auto"></i>
-              </div>
+        <ng-template #empty>
+          <tr>
+            <td [attr.colspan]="fields.length + 1">
+              <app-no-data-found></app-no-data-found>
             </td>
-        </tr>
-        </tbody>
-        <tbody *ngIf="rules.length === 0">
-        <tr>
-          <td [attr.colspan]="fields.length + 1">
-            <app-no-data-found></app-no-data-found>
-          </td>
-        </tr>
+          </tr>
+        </ng-template>
         </tbody>
         <tbody *ngIf="loading">
         <tr>
@@ -84,14 +86,14 @@
         </tbody>
       </table>
     </div>
-    <div *ngIf="rules.length > 0" class="mb-3 mt-3">
+    <div *ngIf="totalItems > 0" class="mb-3 mt-3">
         <div class="row justify-content-center">
             <ngb-pagination (pageChange)="loadPage($event)"
                             [(page)]="page"
                             [boundaryLinks]="true"
                             [collectionSize]="totalItems"
-                            [maxSize]="10"
-                            [pageSize]="itemsPerPage"
+                            [maxSize]="request.size"
+                            [pageSize]="request.size"
                             [rotate]="true"
                             [size]="'sm'"></ngb-pagination>
             <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
@@ -109,7 +111,7 @@
       <h6 class="card-title text-blue-800 font-weight-light">
         {{ ruleDetail?.name }}
       </h6>
-      <button (click)="viewRuleDetail = false;onRefreshData(true)" aria-label="Close"
+      <button (click)="viewRuleDetail = false;" aria-label="Close"
               class="close button-close" type="button">
         <div class="close-icon"></div>
       </button>
