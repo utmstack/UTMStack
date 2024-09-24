@@ -236,9 +236,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 	}
 
-	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
-	correlationMin := stack.ServiceResources["correlation"].MinMemory
-	c.Services["correlation"] = Service{
+	epMem := stack.ServiceResources["event-processor"].AssignedMemory
+	epMin := stack.ServiceResources["event-processor"].MinMemory
+	c.Services["event-processor"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
@@ -276,10 +276,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			Mode: utils.PointerOf[string]("global"),
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", correlationMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", correlationMin)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMin)),
 				},
 			},
 		},
