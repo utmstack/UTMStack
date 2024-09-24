@@ -1,3 +1,7 @@
+# Apache filter
+# Compatible with Common Apache Log and Combined Apache Log. See: https://httpd.apache.org/docs/2.2/logs.html
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the apache log
 pipeline:
   - dataTypes:
       - apache
@@ -45,20 +49,103 @@ pipeline:
             - log.host.architecture
           to: log.cpuArchitecture
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.ips
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.macs
+      # Common apache log parsing
+      - grok:
+          patterns:
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.userIdent
+              pattern: '{{.word}}|(-)'
+            - fieldName: local.user
+              pattern: '{{.word}}|(-)'
+            - fieldName: log.time
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.request
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.message
+      # Parsing Common and Combined end of apache log
+      # Common
+      - grok:
+          patterns:
+            - fieldName: local.bytesReceived
+              pattern: '{{.integer}}|(-)'
+          source: log.rest
+      # Combined
+      - grok:
+          patterns:
+            - fieldName: local.bytesReceived
+              pattern: '{{.integer}}|(-)'
+            - fieldName: log.referer
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.userAgent
+              pattern: '\"(.*)\"'
+          source: log.rest
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.time
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.time
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referer
+            - log.userAgent
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referer
+            - log.userAgent
+      # Extracting request parts
+      - grok:
+          patterns:
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: "local.path"
+              pattern: '(.*)\s+'
+            - fieldName: protocol
+              pattern: '{{.greedy}}'
+          source: log.request
+      # Reformat and field conversions
+      - cast:
+          fields:
+            - log.statusCode
+            - local.bytesReceived
+          to: int
+      - reformat:
+          fields:
+            - log.time
+          function: time
+          fromFormat: '14/Feb/2022:15:40:53 -0500'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Removing unused fields
       - delete:
           fields:
             - log.service
             - log.metadata
-            - log.log.offset
             - log.agent
             - log.host
             - log.event
             - log.ecs
-            - log.log.file
+            - log.log
+            - log.rest
+            - log.fileset
