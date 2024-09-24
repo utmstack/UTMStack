@@ -236,9 +236,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 	}
 
-	epMem := stack.ServiceResources["event-processor"].AssignedMemory
-	epMin := stack.ServiceResources["event-processor"].MinMemory
-	c.Services["event-processor-worker"] = Service{
+	correlationMem := stack.ServiceResources["correlation"].AssignedMemory
+	correlationMin := stack.ServiceResources["correlation"].MinMemory
+	c.Services["correlation"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
 			"aio": []string{
@@ -268,64 +268,18 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 			"WORK_DIR=/workdir",
 			"LOG_LEVEL=100",
 			"GIN_MODE=release",
-			"MODE=worker",
+			"NODE_GROUPS=main",
+			"NODE_NAME=node1",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Mode: utils.PointerOf[string]("global"),
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", correlationMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMin)),
-				},
-			},
-		},
-	}
-
-	c.Services["event-processor-manager"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
-		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
-			"aio": []string{
-				"postgres",
-				"node1",
-				"backend",
-			},
-			"cloud": []string{
-				"postgres",
-				"node1",
-				"backend",
-			},
-		}).([]string),
-		Ports: []string{
-			"8000:8000",
-		},
-		Volumes: []string{
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
-			stack.Cert + ":/cert",
-		},
-		Environment: []string{
-			"WORK_DIR=/workdir",
-			"LOG_LEVEL=100",
-			"GIN_MODE=release",
-			"MODE=manager",
-		},
-		Logging: &dLogging,
-		Deploy: &Deploy{
-			Placement: &Placement{
-				Constraints: []string{"node.role == manager"},
-			},
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
-				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMin)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", correlationMin)),
 				},
 			},
 		},
