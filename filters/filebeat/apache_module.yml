@@ -1,5 +1,7 @@
-# Apache filter
+# Apache filter, version 3.0.0
 # Compatible with Common Apache Log and Combined Apache Log. See: https://httpd.apache.org/docs/2.2/logs.html
+#Filter Input requirements -> fileset: datatype
+#                             access: plain text
 # 1. Parsing the json from beats
 # 2. Parsing the message field containing the apache log
 pipeline:
