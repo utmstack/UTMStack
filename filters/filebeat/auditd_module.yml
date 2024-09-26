@@ -1,3 +1,12 @@
+# Auditd filter, version 3.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-auditd.html
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/security_guide/sec-understanding_audit_log_files
+# https://linux.die.net/man/5/auditd.conf
+# and filebeat fields.yml version 7.13.4 oss
+# As the docs says this module work with one event per line, filebeat must ensure to send one event per line.
+  
+# Filter Input requirements -> fileset: datatype
+#                              log: plain text
 pipeline:
   - dataTypes:
       - auditd
@@ -45,20 +54,20 @@ pipeline:
             - log.host.architecture
           to: log.cpuArchitecture
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.ips
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.macs
       - delete:
           fields:
             - log.service
             - log.metadata
-            - log.log.offset
             - log.agent
             - log.host
             - log.event
             - log.ecs
-            - log.log.file
+            - log.log
+            - log.fileset
