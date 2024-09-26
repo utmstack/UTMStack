@@ -1,8 +1,71 @@
+# System linux filter, version 3.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-system.html
+# and filebeat fields.yml version 7.13.4 oss
+# As the docs says this module work with one event per line, filebeat must ensure to send one event per line.
+  
+# Filter Input requirements -> fileset: datatype
+#                              syslog: plain text
 pipeline:
   - dataTypes:
       - linux
     steps:
-      - grok:
-          patterns:
-            - field_name: "log.message"
-              pattern: ".*"
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.url
+          to: local.url
+      - rename:
+          from:
+            - log.log.file.path
+          to: local.file
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - local.macs
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.fileset
