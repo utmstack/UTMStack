@@ -1,9 +1,15 @@
+# Nats filter, version 2.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-nats.html
 pipeline:
   - dataTypes:
       - nats
     steps:
       - json:
           source: raw
+      - rename:
+          from:
+            - log.url
+          to: local.url
       - rename:
           from:
             - log.log.file.path
@@ -41,19 +47,20 @@ pipeline:
             - log.host.architecture
           to: log.cpuArchitecture
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.ips
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.macs
       - delete:
           fields:
             - log.service
             - log.metadata
-            - log.log
             - log.agent
             - log.host
             - log.event
             - log.ecs
+            - log.log
+            - log.fileset
