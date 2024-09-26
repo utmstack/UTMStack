@@ -5,7 +5,7 @@
 # and filebeat fields.yml version 7.13.4 oss
 # Support logs from MySQL 8.0 ++
 # Filter Input requirements -> fileset: datatype
-#                              server: plain text
+#                              error: plain text
 # 1. Parsing the json from beats
 # 2. Parsing the message field containing the mysql log
 pipeline:
