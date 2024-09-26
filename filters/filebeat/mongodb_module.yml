@@ -67,24 +67,12 @@ pipeline:
       # Renaming fields of mongodb log
       - rename:
           from:
-            - t.$date
+            - log.t.$date
           to: log.time
       - rename:
           from:
-            - c
+            - log.c
           to: log.component
-      - rename:
-          from:
-            - ctx
-          to: log.ctx
-      - rename:
-          from:
-            - attr
-          to: log.attr
-      - rename:
-          from:
-            - msg
-          to: log.msg
       - reformat:
           fields:
             - log.time
@@ -102,4 +90,4 @@ pipeline:
             - log.ecs
             - log.log
             - log.fileset
-            - t
+            - log.t
