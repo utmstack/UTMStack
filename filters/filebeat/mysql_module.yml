@@ -1,0 +1,111 @@
+# MySQL filter, version 3.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-logstash.html
+# https://dev.mysql.com/doc/refman/8.0/en/error-log-format.html
+# https://docs.oracle.com/en-us/iaas/Content/Logging/Reference/top_level_logging_format.htm
+# and filebeat fields.yml version 7.13.4 oss
+# Support logs from MySQL 8.0 ++
+# Filter Input requirements -> fileset: datatype
+#                              server: plain text
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the mysql log
+pipeline:
+  - dataTypes:
+      - mysql
+    steps:
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.url
+          to: local.url
+      - rename:
+          from:
+            - log.log.file.path
+          to: local.file
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - local.macs
+      # Parsing common log parts
+      - grok:
+          patterns:
+            - fieldName: log.time
+              pattern: '{{.data}}\s'
+            - fieldName: log.thread
+              pattern: '{{.integer}}'
+            - fieldName: log.level
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.errorCode
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.subsystem
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.level
+            - log.errorCode
+            - log.subsystem
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.level
+            - log.errorCode
+            - log.subsystem
+      - reformat:
+          fields:
+            - log.time
+          function: time
+          fromFormat: '2020-08-06T14:25:03.109022Z'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.fileset
