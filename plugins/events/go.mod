@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/shirou/gopsutil/v3 v3.24.5
-	github.com/threatwinds/go-sdk v0.10.0
+	github.com/threatwinds/go-sdk v0.10.1
 	github.com/threatwinds/logger v1.1.12
 	github.com/tidwall/gjson v1.17.3
 	google.golang.org/grpc v1.67.0

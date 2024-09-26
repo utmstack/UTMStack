@@ -16,10 +16,15 @@ type notificationServer struct {
 }
 
 type Message struct {
-	Cause      string `json:"cause"`
-	DataType   string `json:"data_type"`
-	DataSource string `json:"data_source"`
+	Cause      *string `json:"cause,omitempty"`
+	DataType   string  `json:"dataType"`
+	DataSource string  `json:"dataSource"`
 }
+
+const (
+	TOPIC_ENQUEUE_FAILURE = "enqueue_failure"
+	TOPIC_ENQUEUE_SUCCESS = "enqueue_success"
+)
 
 func main() {
 	os.Remove(path.Join(go_sdk.GetCfg().Env.Workdir,

@@ -33,20 +33,20 @@ func sendLog() {
 
 		err := inputClient.Send(l)
 		if err != nil {
-			go_sdk.Logger().ErrorF("failed to send log: %v", err)
-			notify("enqueue_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
+			e := go_sdk.Logger().ErrorF("failed to send log: %v", err)
+			notify(TOPIC_ENQUEUE_FAILURE, Message{Cause: go_sdk.PointerOf(e.Message), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
 		// TODO: implement a logic to resend failed logs
 		ack, err := inputClient.Recv()
 		if err != nil {
-			go_sdk.Logger().ErrorF("failed to receive ack: %v", err)
-			notify("ack_failure", Message{Cause: err.Error(), DataType: l.DataType, DataSource: l.DataSource})
+			e := go_sdk.Logger().ErrorF("failed to receive ack: %v", err)
+			notify(TOPIC_ENQUEUE_FAILURE, Message{Cause: go_sdk.PointerOf(e.Message), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
 		go_sdk.Logger().LogF(100, "received ack: %v", ack)
-		notify("enqueue_success", Message{DataType: l.DataType, DataSource: l.DataSource})
+		notify(TOPIC_ENQUEUE_SUCCESS, Message{DataType: l.DataType, DataSource: l.DataSource})
 	}
 }
