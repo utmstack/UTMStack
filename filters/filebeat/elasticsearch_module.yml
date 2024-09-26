@@ -1,56 +1,63 @@
+# Elasticsearch filter, version 3.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-elasticsearch.html
+# and filebeat fields.yml version 7.13.4 oss
+# Support logs from elasticsearch 7++
+# Filter Input requirements -> fileset: datatype
+#                              server: plain text
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the elasticsearch log
 pipeline:
   - dataTypes:
       - elasticsearch
     steps:
       - json:
           source: raw
-
-      - rename:
-          from: 
-            - log.host.hostname
-          to: local.host
-
       - rename:
           from:
-            - log.host.architecture
-          to: log.cpuArchitecture
-
-      - rename:
-          from:
-            - log.host.ip.1
-          to: local.ips
-
-      - rename:
-          from:
-            - log.host.ip.0
-          to: local.ips
-
-      - rename:
-          from:
-            - log.host.mac.0
-          to: local.macs
-
-      - rename:
-          from:
-            - log.host.os.name
-          to: log.os
-
-      - rename:
-          from:
-            - log.host.os.kernel
-          to: log.osVersion
-
+            - log.url
+          to: local.url
       - rename:
           from:
             - log.log.file.path
           to: local.file
-
       - rename:
           from:
-            - log.agent.version
-          to: log.agentVersion
-          
+            - log.host.ip
+          to: local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
       - rename:
           from:
             - log.event.dataset
           to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - local.macs
+
