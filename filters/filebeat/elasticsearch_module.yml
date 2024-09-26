@@ -60,4 +60,49 @@ pipeline:
           to: '[]string'
           fields:
             - local.macs
-
+      - grok:
+          patterns:
+            - fieldName: log.time
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.level
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.nodeName
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: log.message
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.time
+            - log.level
+            - log.component
+            - log.nodeName
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.time
+            - log.level
+            - log.component
+            - log.nodeName
+      - reformat:
+          fields:
+            - log.time
+          function: time
+          fromFormat: '2022-01-20T22:52:07,431'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.fileset
