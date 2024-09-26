@@ -1,11 +1,13 @@
-# Generic syslog filter, version 2.0.0
-# Allow processing of any syslog log
+# Generic filter, version 2.0
+# Allow processing of any one line json or syslog logs 
 pipeline:
   - dataTypes:
-      - syslog
+      - generic
     steps:
       - grok:
           patterns:
             - field_name: log.message
               pattern: '(.*)'
           source: raw
+      - json:
+          source: log.message
