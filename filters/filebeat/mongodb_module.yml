@@ -1,9 +1,22 @@
+# MongoDb filter, version 3.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-mongodb.html
+# https://docs.mongodb.com/manual/reference/log-messages/
+# and filebeat fields.yml version 7.13.4 oss
+# Support logs from MongoDb 4.4 ++
+# Filter Input requirements -> fileset: datatype
+#                              log: json
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the mysql log
 pipeline:
   - dataTypes:
       - mongodb
     steps:
       - json:
           source: raw
+      - rename:
+          from:
+            - log.url
+          to: local.url
       - rename:
           from:
             - log.log.file.path
@@ -41,20 +54,52 @@ pipeline:
             - log.host.architecture
           to: log.cpuArchitecture
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.ips
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - local.macs
+      # Parsing json log
+      - json:
+          source: log.message
+      # Renaming fields of mongodb log
+      - rename:
+          from:
+            - t.$date
+          to: log.time
+      - rename:
+          from:
+            - c
+          to: log.component
+      - rename:
+          from:
+            - ctx
+          to: log.ctx
+      - rename:
+          from:
+            - attr
+          to: log.attr
+      - rename:
+          from:
+            - msg
+          to: log.msg
+      - reformat:
+          fields:
+            - log.time
+          function: time
+          fromFormat: '2020-05-18T20:18:12.814+00:00'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Removing unused fields
       - delete:
           fields:
             - log.service
             - log.metadata
-            - log.log.offset
             - log.agent
             - log.host
             - log.event
             - log.ecs
-            - log.log.file
+            - log.log
+            - log.fileset
+            - t
