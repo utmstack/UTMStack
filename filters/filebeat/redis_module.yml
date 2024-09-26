@@ -1,8 +1,75 @@
+# Redis filter, version 2.0.0
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-redis.html
+# https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-redis.html
+# https://redis.io/ version 6.2.6 stable
+# https://build47.com/redis-log-format-levels/
+# and filebeat fields.yml version 7.13.4 oss
+# As the docs says this module work with one event per line, filebeat must ensure to send one event per line.
+  
+# Supports older 2.x log versions to latter (6.2.6)
+# Filter Input requirements -> fileset: datatype
+#                              log: plain text
 pipeline:
   - dataTypes:
       - redis
     steps:
-      - grok:
-          patterns:
-            - field_name: "log.message"
-              pattern: ".*"
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.url
+          to: local.url
+      - rename:
+          from:
+            - log.log.file.path
+          to: local.file
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+      - cast:
+          to: '[]string'
+          fields:
+            - local.ips
+      - cast:
+          to: '[]string'
+          fields:
+            - local.macs
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log
+            - log.fileset
