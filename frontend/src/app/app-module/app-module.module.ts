@@ -54,7 +54,7 @@ import {StepComponent, StepDirective} from './guides/shared/components/step.comp
 import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {ModuleIntegrationComponent} from './module-integration/module-integration.component';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
-import {LogCollectorComponent} from './guides/shared/components/log-collector.component';
+import {AgentActionCommandComponent} from './guides/shared/components/agent-action-command.component';
 import {InstallLogCollectorComponent} from './guides/shared/components/install-log-collector.component';
 import {ModuleResolverService} from "./services/module.resolver.service";
 import {GenericConfiguration} from "./conf/int-generic-group-config/int-config-types/generic-configuration";
@@ -114,7 +114,7 @@ import {IntegrationConfigFactory} from "./conf/int-generic-group-config/int-conf
     UtmListComponent,
     StepComponent,
     StepDirective,
-    LogCollectorComponent,
+    AgentActionCommandComponent,
     InstallLogCollectorComponent
   ],
   imports: [

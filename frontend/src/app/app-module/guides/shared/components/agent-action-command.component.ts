@@ -1,27 +1,31 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ModalService} from '../../../../core/modal/modal.service';
 import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {replaceCommandTokens} from '../../../../shared/util/replace-command-tokens.util';
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-log-colletor',
+  selector: 'app-agent-action-command',
   template: `
     <div class="flex-container mt-2 mb-3">
       <ng-select [items]="platforms"
+                 (change)="platformEmitter.emit($event)"
                  bindLabel="name"
                  placeholder="Select platform"
                  [(ngModel)]="selectedPlatform"
                  class="flex-item">
       </ng-select>
-      <ng-select [items]="protocols"
+      <ng-select *ngIf="!hideProtocols"
+                [items]="protocols"
                  bindLabel="name"
                  placeholder="Select Protocol"
                  [(ngModel)]="selectedProtocol"
                  class="flex-item">
       </ng-select>
-      <ng-select [items]="actions"
+      <ng-select *ngIf="!hideActions"
+                 [items]="actions"
                  (change)="onChangeAction($event)"
                  bindLabel="name"
                  placeholder="Select Action"
@@ -29,7 +33,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
                  class="flex-item">
       </ng-select>
     </div>
-    <ng-container *ngIf="selectedProtocol && selectedPlatform && selectedAction">
+    <ng-container *ngIf="(selectedProtocol && selectedPlatform && selectedAction || (hideActions && hideProtocols && selectedPlatform))">
       <span class="font-weight-semibold mb-2">{{selectedPlatform.shell}}</span>
       <app-utm-code-view class="" [code]=command></app-utm-code-view>
     </ng-container>
@@ -47,8 +51,12 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class LogCollectorComponent {
-
+export class AgentActionCommandComponent implements OnInit{
+  @Output() platformEmitter = new EventEmitter();
+  @Input() platforms: any[];
+  @Input() agent: string;
+  @Input() hideActions = false;
+  @Input() hideProtocols = false;
   @Input() protocols = [
     {id: 1, name: 'TCP'},
     {id: 2, name: 'UDP'}
@@ -59,21 +67,6 @@ export class LogCollectorComponent {
     {id: 2, name: 'DISABLE', action: 'disable-integration'}
   ];
 
-  platforms = [
-    {
-      id: 1, name: 'WINDOWS',
-      command: 'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
-      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
-    },
-    {
-      id: 2,
-      name: 'LINUX', command: 'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENTNAME PORT"',
-      shell: 'Linux bash terminal'
-    }
-  ];
-
-  @Input() agent: string;
-
   _selectedProtocol: any;
   _selectedPlatform: any;
   _selectedAction: any;
@@ -82,18 +75,23 @@ export class LogCollectorComponent {
   constructor(private modalService: ModalService) {
   }
 
+  ngOnInit(): void {
+   console.log(this.selectedPlatform);
+  }
+
   get command() {
-    return this.replaceAll(this.selectedPlatform.command, {
-      PORT: this.selectedProtocol.name.toLowerCase(),
-      AGENTNAME: this.agent,
-      ACTION: this.selectedAction.action
-    });
+    return replaceCommandTokens(this.selectedPlatform.command, {
+        PORT: this.selectedProtocol && this.selectedProtocol.name.toLowerCase() || '',
+        AGENT_NAME: this.agent,
+        ACTION: this.selectedAction && this.selectedAction.action || ''
+      });
   }
 
   get selectedPlatform() {
     return this._selectedPlatform;
   }
 
+  @Input()
   set selectedPlatform(platform) {
     this._selectedPlatform = platform;
   }
@@ -113,15 +111,6 @@ export class LogCollectorComponent {
   set selectedAction(action) {
     this._selectedAction = action;
   }
-
-  replaceAll(command, wordsToReplace) {
-    return Object.keys(wordsToReplace).reduce(
-      (f, s, i) =>
-        `${f}`.replace(new RegExp(s, 'ig'), wordsToReplace[s]),
-      command
-    );
-  }
-
   onChangeAction(action: any) {
     if (this.selectedPlatform && this.selectedProtocol && action.name === 'DISABLE') {
       this.openModal();

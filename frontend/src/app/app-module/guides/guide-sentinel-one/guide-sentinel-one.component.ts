@@ -4,6 +4,7 @@ import {SyslogModulePorts} from '../guide-syslog/guide-syslog.component';
 import {VMWARE_STEPS} from '../guide-vmware-syslog/vmware.steps';
 import {Step} from '../shared/step';
 import {SENTINELSTEPS} from './sentinel.steps';
+import {PLATFORMS} from "../shared/constant";
 
 @Component({
   selector: 'app-guide-sentinel-one',
@@ -16,6 +17,7 @@ export class GuideSentinelOneComponent implements OnInit {
   @Input() serverId: number;
   steps: Step[] = SENTINELSTEPS;
   @Input() dataType!: string;
+  platforms = PLATFORMS;
 
   constructor() {
   }

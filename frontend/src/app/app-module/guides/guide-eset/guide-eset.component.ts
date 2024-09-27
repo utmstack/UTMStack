@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
-import {VMWARE_STEPS} from "../guide-vmware-syslog/vmware.steps";
-import {Step} from "../shared/step";
-import {ESET_STEPS} from "./eset-steps";
-import {SyslogModulePorts} from "../guide-syslog/guide-syslog.component";
+import {SyslogModulePorts} from '../guide-syslog/guide-syslog.component';
+import {PLATFORMS} from '../shared/constant';
+import {Step} from '../shared/step';
+import {ESET_STEPS} from './eset-steps';
 
 @Component({
   selector: 'app-guide-eset',
@@ -17,6 +17,8 @@ export class GuideEsetComponent implements OnInit {
   module = UtmModulesEnum;
   @Input() serverId: number;
   steps: Step[] = ESET_STEPS;
+  dataType = 'antivirus-esmc-eset';
+  platforms = PLATFORMS;
   constructor() {
   }
 
@@ -29,14 +31,4 @@ export class GuideEsetComponent implements OnInit {
       {module: UtmModulesEnum.SENTINEL_ONE, port: '7003 UDP'}
     ];
   }
-
-  getProtocols() {
-    return this.getPorts().map((port, index) => {
-      return {
-        id: index,
-        name: port.port.split(' ')[1]
-      };
-    });
-  }
-
 }

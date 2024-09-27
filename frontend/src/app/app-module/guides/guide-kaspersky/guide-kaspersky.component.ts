@@ -3,6 +3,7 @@ import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 import {SyslogModulePorts} from '../guide-syslog/guide-syslog.component';
 import {Step} from '../shared/step';
 import {KASP_STEPS} from './kasp-steps';
+import {PLATFORMS} from "../shared/constant";
 
 @Component({
   selector: 'app-guide-kaspersky',
@@ -15,6 +16,7 @@ export class GuideKasperskyComponent implements OnInit {
   @Input() serverId: number;
   @Input() dataType: string;
   steps: Step[] = KASP_STEPS;
+  platforms = PLATFORMS;
 
   constructor() {
   }

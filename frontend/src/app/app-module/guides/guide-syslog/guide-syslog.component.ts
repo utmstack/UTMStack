@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 import {Step} from '../shared/step';
 import {SYSLOGSTEPS} from './syslog.steps';
+import {PLATFORMS} from "../shared/constant";
 
 @Component({
   selector: 'app-guide-syslog',
@@ -75,6 +76,7 @@ export class GuideSyslogComponent implements OnInit {
   ];
 
   steps: Step[] = SYSLOGSTEPS;
+  platforms = PLATFORMS;
 
   constructor() {
   }

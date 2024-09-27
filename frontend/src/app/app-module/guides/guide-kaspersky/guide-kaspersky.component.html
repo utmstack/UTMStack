@@ -37,7 +37,8 @@
                 </ng-template>
 
                 <ng-template [ngIf]="step.content.id === 'stepContent4'">
-                  <app-log-colletor [agent] = "dataType"></app-log-colletor>
+                  <app-agent-action-command [agent] = "dataType"
+                                             [platforms]="platforms"></app-agent-action-command>
                 </ng-template>
 
                 <ng-template [ngIf]="step.content.id === 'stepContent5'">

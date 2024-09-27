@@ -32,7 +32,7 @@
                          [integrationId]="module.id"></app-guide-azure>
         <app-guide-filebeat [serverId]="serverId" *ngSwitchCase="moduleEnum.LINUX_LOGS"
                             [integrationId]="module.id"></app-guide-filebeat>
-        <app-guide-iis [serverId]="serverId" *ngSwitchCase="moduleEnum.IIS" [integrationId]="module.id"></app-guide-iis>
+       <!-- <app-guide-iis [serverId]="serverId" *ngSwitchCase="moduleEnum.IIS" [integrationId]="module.id"></app-guide-iis>-->
         <app-guide-ldap [serverId]="serverId" *ngSwitchCase="moduleEnum.AD_AUDIT"
                         [integrationId]="module.id"></app-guide-ldap>
         <app-guide-office365 [serverId]="serverId" *ngSwitchCase="moduleEnum.O365"

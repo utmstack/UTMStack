@@ -1,5 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {Step} from "../shared/step";
+import {SYSLOGSTEPS} from "../guide-syslog/syslog.steps";
+import {FILEBEAT_STEPS} from './filebeat.steps';
+import {FILEBEAT_PLATFORMS, Platform} from '../shared/constant';
+import {replaceCommandTokens} from '../../../shared/util/replace-command-tokens.util';
 
 @Component({
   selector: 'app-guide-filebeat-generic',
@@ -12,6 +17,15 @@ export class GuideFilebeatGenericComponent implements OnInit {
   @Input() filebeatModuleName: string;
   module = UtmModulesEnum;
   @Input() serverId: number;
+  platform: Platform;
+  platformOnlyModules = [{
+    module: UtmModulesEnum.AUDITD,
+    os: 'LINUX'
+  },{
+
+    module: UtmModulesEnum.IIS,
+    os: 'WINDOWS'
+  }];
   commandsActivate: FilebeatCommands[] = [
     {module: UtmModulesEnum.TRAEFIK, os: 'linux', command: 'cd /opt/utmstack-linux-agent/beats/filebeat/ && '
         + './filebeat modules enable traefik',
@@ -135,10 +149,14 @@ export class GuideFilebeatGenericComponent implements OnInit {
     {module: UtmModulesEnum.AUDITD, img: 'config-auditd.png'},
   ];
 
+  steps: Step[] = FILEBEAT_STEPS;
+  platforms = FILEBEAT_PLATFORMS;
+
   constructor() {
   }
 
   ngOnInit() {
+    this.getPlatforms();
   }
 
   getCommand(): FilebeatCommands[] {
@@ -149,47 +167,21 @@ export class GuideFilebeatGenericComponent implements OnInit {
     return this.moduleConfigs.filter(value => value.module === this.filebeatModule)[0];
   }
 
-  showStep1(): boolean {
-    switch (this.filebeatModule) {
-      case (UtmModulesEnum.APACHE):
-        return true;
-      case (UtmModulesEnum.APACHE2):
-        return true;
-      case (UtmModulesEnum.AUDITD):
-        return true;
-      case (UtmModulesEnum.ELASTICSEARCH):
-        return true;
-      case (UtmModulesEnum.KIBANA):
-        return true;
-      case (UtmModulesEnum.LOGSTASH):
-        return true;
-      case (UtmModulesEnum.POSTGRESQL):
-        return true;
-      case (UtmModulesEnum.OSQUERY):
-        return true;
-      case (UtmModulesEnum.KAFKA):
-        return true;
-      case (UtmModulesEnum.MONGODB):
-        return true;
-      case (UtmModulesEnum.MYSQL):
-        return true;
-      case (UtmModulesEnum.TRAEFIK):
-        return true;
-      case (UtmModulesEnum.NATS):
-        return true;
-      case (UtmModulesEnum.HAPROXY):
-        return true;
-      case (UtmModulesEnum.NGINX):
-        return true;
-      case (UtmModulesEnum.REDIS):
-        return true;
-      default:
-        return false;
-    }
-  }
-
   getFullPath(path: string, module: string) {
     return path + module + '.yml';
+  }
+
+  getName(name: string) {
+    return replaceCommandTokens(name, {AGENT_NAME: this.filebeatModuleName});
+  }
+  changePlatform(platform: Platform) {
+    this.platform = platform;
+  }
+
+  getPlatforms() {
+    const module = this.platformOnlyModules.find(m => m.module === this.filebeatModule);
+    this.platforms = module ? this.platforms.filter(p => p.name.toLowerCase() === module.os.toLowerCase()) : this.platforms;
+    this.platform = module ? this.platforms[0] : null;
   }
 }
 
