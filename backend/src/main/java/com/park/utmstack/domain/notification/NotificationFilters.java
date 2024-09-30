@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class NotificationFilters {
     NotificationSource source;
     NotificationType type;
+    NotificationStatus status;
     LocalDateTime from;
     LocalDateTime to;
 }

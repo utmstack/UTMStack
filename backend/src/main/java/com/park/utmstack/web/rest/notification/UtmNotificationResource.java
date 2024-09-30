@@ -1,14 +1,11 @@
 package com.park.utmstack.web.rest.notification;
 
-import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.notification.NotificationFilters;
+import com.park.utmstack.domain.notification.NotificationStatus;
 import com.park.utmstack.domain.notification.UtmNotification;
-import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.collectors.dto.ErrorResponse;
 import com.park.utmstack.service.dto.notification.NotificationDTO;
 import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
 import com.park.utmstack.service.notification.UtmNotificationService;
-import com.park.utmstack.util.UtilResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -17,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
 
@@ -32,12 +28,10 @@ public class UtmNotificationResource {
 
     private final UtmNotificationMapper notificationMapper;
 
-    private final ApplicationEventService applicationEventService;
 
-    public UtmNotificationResource(UtmNotificationService notificationService, UtmNotificationMapper notificationMapper, ApplicationEventService applicationEventService) {
+    public UtmNotificationResource(UtmNotificationService notificationService, UtmNotificationMapper notificationMapper) {
         this.notificationService = notificationService;
         this.notificationMapper = notificationMapper;
-        this.applicationEventService = applicationEventService;
     }
 
     /**
@@ -105,6 +99,25 @@ public class UtmNotificationResource {
     }
 
     /**
+     * Update the "status" status of a notification.
+     *
+     * @param id the ID of the notification to update
+     * @param status the new status
+     * @return the updated notification
+     */
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateNotificationStatus(@PathVariable Long id, @RequestParam NotificationStatus status) {
+        final String ctx = CLASSNAME + ".updateNotificationStatus";
+        try{
+            UtmNotification notification = notificationService.updateNotificationStatus(id, status);
+            return ResponseEntity.ok(notificationMapper.toDto(notification));
+        } catch (Exception e) {
+            log.error(ctx + ": " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
      * Get the count of unread notifications.
      *
      * @return the count of unread notifications
@@ -113,6 +126,18 @@ public class UtmNotificationResource {
     public ResponseEntity<Integer> getUnreadNotificationCount() {
         return ResponseEntity.ok(notificationService.getUnreadNotifications());
     }
+
+    /**
+     * Marks all notifications as read.
+     *
+     * This method does not return any data.
+     */
+    @PutMapping("/read-all")
+    public ResponseEntity<Void> markAllNotificationsAsRead() {
+        notificationService.markAllNotificationsAsRead();
+        return ResponseEntity.ok().build();
+    }
+
 
     /**
      * Delete a notification by ID.

@@ -41,5 +41,9 @@ public class UtmNotification {
     @Column(nullable = false)
     private Boolean read;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus status;
+
 }
 

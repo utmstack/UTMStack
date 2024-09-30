@@ -26,6 +26,9 @@
             <column name="read" type="BOOLEAN">
                 <constraints nullable="true"/>
             </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

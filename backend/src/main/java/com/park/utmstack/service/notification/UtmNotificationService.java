@@ -1,12 +1,8 @@
 package com.park.utmstack.service.notification;
 
-import com.park.utmstack.domain.notification.NotificationFilters;
-import com.park.utmstack.domain.notification.NotificationSource;
-import com.park.utmstack.domain.notification.NotificationType;
-import com.park.utmstack.domain.notification.UtmNotification;
+import com.park.utmstack.domain.notification.*;
 import com.park.utmstack.repository.notification.UtmNotificationRepository;
 import com.park.utmstack.service.MailService;
-import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.dto.notification.NotificationDTO;
 import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
 import com.park.utmstack.service.mail_config.MailConfigService;
@@ -17,16 +13,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class UtmNotificationService {
 
     private final UtmNotificationRepository notificationRepository;
@@ -39,11 +36,10 @@ public class UtmNotificationService {
 
     private final MailConfigService mailConfigService;
 
-    private long countAlert = -1;
-
     public UtmNotification saveNotification(UtmNotification notification) {
         notification.setCreatedAt(LocalDateTime.now());
         notification.setRead(false);
+        notification.setStatus(NotificationStatus.ACTIVE);
         return notificationRepository.save(notification);
     }
 
@@ -51,6 +47,7 @@ public class UtmNotificationService {
 
         Page<UtmNotification> page = notificationRepository.searchByFilters(filters.getSource(),
                         filters.getType(),
+                        filters.getStatus(),
                         filters.getFrom(),
                         filters.getTo(),
                         pageable);
@@ -75,12 +72,24 @@ public class UtmNotificationService {
         return notificationRepository.save(notification);
     }
 
+    public UtmNotification updateNotificationStatus(Long id, NotificationStatus status) {
+        UtmNotification notification = getNotificationById(id);
+        notification.setStatus(status);
+        notification.setRead(true);
+        return notificationRepository.save(notification);
+    }
+
+    public void markAllNotificationsAsRead() {
+        this.notificationRepository.updateUnreadNotifications(true);
+    }
+
+
     public void deleteNotification(Long id) {
         notificationRepository.deleteById(id);
     }
 
     public int getUnreadNotifications() {
-        return this.notificationRepository.countUtmNotificationByReadIsFalse();
+        return this.notificationRepository.countUtmNotificationByReadIsFalseAndStatusIsLike(NotificationStatus.ACTIVE);
     }
 
    /* @Scheduled(fixedDelay = 1800000)

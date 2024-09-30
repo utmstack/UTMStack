@@ -2,6 +2,7 @@ package com.park.utmstack.service.dto.notification;
 
 
 import com.park.utmstack.domain.notification.NotificationSource;
+import com.park.utmstack.domain.notification.NotificationStatus;
 import com.park.utmstack.domain.notification.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,4 +36,6 @@ public class NotificationDTO {
     private LocalDateTime updatedAt;
 
     private boolean read;
+
+    private NotificationStatus status;
 }
