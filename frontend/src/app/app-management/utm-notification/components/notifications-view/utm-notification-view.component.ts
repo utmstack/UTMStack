@@ -27,7 +27,12 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
   notifications$: Observable<NotificationDTO[]>;
   itemsPerPage = ITEMS_PER_PAGE;
   loadingMore = false;
-  request: NotificationRequest = {page: 0, size: 25, sort: 'createdAt,DESC'};
+  request: NotificationRequest = {
+    page: 0,
+    size: 25,
+    sort: 'createdAt,DESC',
+    from: this.eventDate.timeFrom.slice(0, 19),
+    to: this.eventDate.timeTo.slice(0, 19)};
   destroy$ = new Subject<void>();
   loading: any;
   @ViewChild('timeFilter') timeFilter: TimeFilterComponent;

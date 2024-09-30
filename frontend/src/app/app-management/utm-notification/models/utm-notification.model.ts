@@ -47,3 +47,9 @@ export enum NotificationSource {
   ALERTS
 }
 
+export enum NotificationStatus {
+  ACTIVE,
+  HIDDEN,
+  DELETED
+}
+

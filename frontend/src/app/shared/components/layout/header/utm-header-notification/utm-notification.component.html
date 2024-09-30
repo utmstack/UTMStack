@@ -3,14 +3,14 @@
      id="notification"
      (close)="resetRequest()"
      autoClose="outside"
-     class="dropdown h-100 cursor-pointer"
+     class="dropdown h-100"
      container="header"
      display="dynamic"
      ngbDropdown
      placement="bottom-right">
 
   <div (click)="loadNotifications()"
-       class="dropdown-toggle h-100 d-flex justify-content-center align-items-center position-relative"
+       class="dropdown-toggle h-100 d-flex justify-content-center align-items-center position-relative cursor-pointer"
        ngbDropdownToggle>
     <div class="svg-icon svg-icon-sm text-white" inlineSVG="assets/icons/header/notification_bell.svg"></div>
     <span *ngIf="unreadNotificationsCount$ | async as unreadNotificationsCount"
@@ -52,7 +52,7 @@
                   <div class="h-2 w-2 rounded-full" [ngClass]="{'bg-primary': !notification.read}"></div>
                 </div>
               </button>
-              <button
+              <button (click)="setStatus(notification)"
                 class="btn btn-icon btn-sm mb-1 rounded-circle w-3 h-3 d-flex justify-content-center align-items-center btn-remove"
                 ngbTooltip="Remove">
                 <div class="rounded-circle">
