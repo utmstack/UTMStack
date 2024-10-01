@@ -1,11 +1,14 @@
 # Kafka module filter, version 3.0.0
 # Filter Input requirements -> fileset: datatype
 #                              log: plain text
-# Compatible any kind of Kafka logs 
+# 
+# Compatible any of Kafka logs 
 # like: Server, Controller, Log-cleaner and so on
+# 
 # Documentations
 # 1- https://kafka.apache.org/documentation/
 # 2- https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-kafka.html
+# 
 # Implementation
 # 1. Parsing the json from beats
 # 2. Parsing the message field containing the apache log
@@ -16,6 +19,7 @@ pipeline:
       - json:
           source: raw
 
+      # Parse beats field    
       - rename:
           from:
             - log.log.file.path
@@ -73,34 +77,38 @@ pipeline:
             - fieldName: log.restData
               pattern: '{{.greedy}}'
           source: log.message
+          
       # Logs Server Kafka parsing
       - grok:
           patterns:
-            - fieldName: log.actionResult
+            - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: log.restData
+
       # Logs Controller Kafka parsing
       - grok:
           patterns:
-            - fieldName: log.controllerId
+            - fieldName: log.component
               pattern: '\[{{.data}}\]'
-            - fieldName: log.actionResult
+            - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: log.restData
       
+      # Removing unused caracters
       - trim:
           function: prefix
           substring: '['
           fields:
             - log.deviceTime
-            - log.controllerId
+            - log.component
       - trim:
           function: suffix
           substring: ']'
           fields:
             - log.deviceTime
-            - log.controllerId
+            - log.component
       
+      # Removing unused fields
       - delete:
           fields:
             - log.service

@@ -1,24 +1,36 @@
-# Redis filter, version 2.0.0
-# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-redis.html
-# https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-redis.html
-# https://redis.io/ version 6.2.6 stable
-# https://build47.com/redis-log-format-levels/
-# and filebeat fields.yml version 7.13.4 oss
-# As the docs says this module work with one event per line, filebeat must ensure to send one event per line.
-  
-# Supports older 2.x log versions to latter (6.2.6)
+# Redis module filter, version 3.0.0
 # Filter Input requirements -> fileset: datatype
 #                              log: plain text
+# 
+# Documentations
+# 1- https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-redis.html
+# 2- https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-redis.html
+# 3- https://redis.io/docs/latest/operate/rs/clusters/logging/redis-slow-log/
+# 4- https://build47.com/redis-log-format-levels/
+# Implementation
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the redis log
 pipeline:
   - dataTypes:
       - redis
     steps:
       - json:
           source: raw
-      - rename:
-          from:
-            - log.url
-          to: local.url
+      
+      # Parse message field in plain text format
+      - grok:
+          patterns:
+            - fieldName: log.pidRole
+              pattern: '((\d+)?:([A-Z])?)|\[{{.data}}\]'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthDay}}{{.space}}{{.monthName}}{{.space}}{{.year}}{{.space}}{{.time}}'
+            - fieldName: log.logLevel
+              pattern: '(.)|(-)(\*)(#)'
+            - fieldName: log.actionResult
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Parse beats field
       - rename:
           from:
             - log.log.file.path
@@ -55,21 +67,25 @@ pipeline:
           from:
             - log.host.architecture
           to: log.cpuArchitecture
+
+      # Fields conversions
       - cast:
-          to: '[]string'
+          to: "[]string"
           fields:
             - local.ips
       - cast:
-          to: '[]string'
+          to: "[]string"
           fields:
             - local.macs
+
+      # Removing unused fields
       - delete:
           fields:
             - log.service
             - log.metadata
+            - log.log.offset
             - log.agent
             - log.host
             - log.event
             - log.ecs
-            - log.log
-            - log.fileset
+            - log.log.file
