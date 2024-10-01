@@ -1,37 +1,117 @@
+# Kibana filter
+# Supports Kibana Log and Kibana Audit version 7.17 or later.
+# See: https://www.elastic.co/guide/en/kibana/7.17/xpack-security-audit-logging.html
+# and https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-kibana.html#_fields_27 
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the kibana log
 pipeline:
   - dataTypes:
-      - logstash
+      - kibana
     steps:
       - json:
           source: raw
 
       - rename:
           from:
-            - log.event.action
+            - log.log.file.path
+          to: local.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.event.dataset
           to: action
 
       - rename:
           from:
-            - log.event.outcome
-          to: actionResult
+            - log.agent.version
+          to: log.agentVersion
 
       - rename:
           from:
-            - log.url.domain
-          to: remote.domain
+            - log.host.os.kernel
+          to: log.osVersion
 
       - rename:
           from:
-            - log.url.path
-          to: remote.path
+            - log.host.os.name
+          to: log.osType
 
       - rename:
           from:
-            - log.url.port
-          to: remote.port
+            - log.host.architecture
+          to: log.cpuArchitecture
 
-      - rename:
-          from:
-            - log.user.name
-          to: remote.user
-          
+      - cast:
+          to: "[]string"
+          fields:
+            - local.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
+
+      # Parsing the message field
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.logLevel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.actionResult
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.deviceTime
+            - log.logLevel
+            - log.component
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.deviceTime
+            - log.logLevel
+            - log.component
+
+      # Reformatting timestamps field
+      - reformat:
+          fields:
+            - log.deviceTime
+          function: time
+          fromFormat: '2022-01-01T00:05:07.292-05:00'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.metadata
+            - log.agent
+            - log.ecs
+            - log.event
+            - log.host
+            - log.input
+            - log.log
+            - log.service
+            - log.fileset
