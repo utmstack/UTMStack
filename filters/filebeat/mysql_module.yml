@@ -65,7 +65,7 @@ pipeline:
       # Parsing common log parts
       - grok:
           patterns:
-            - fieldName: log.time
+            - fieldName: deviceTime
               pattern: '{{.data}}\s'
             - fieldName: log.thread
               pattern: '{{.integer}}'
@@ -94,7 +94,7 @@ pipeline:
             - log.subsystem
       - reformat:
           fields:
-            - log.time
+            - deviceTime
           function: time
           fromFormat: '2020-08-06T14:25:03.109022Z'
           toFormat: '2024-09-23T15:57:40.338364445Z'

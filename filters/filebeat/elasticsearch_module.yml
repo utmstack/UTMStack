@@ -62,7 +62,7 @@ pipeline:
             - local.macs
       - grok:
           patterns:
-            - fieldName: log.time
+            - fieldName: deviceTime
               pattern: '\[{{.data}}\]'
             - fieldName: log.level
               pattern: '\[{{.data}}\]'
@@ -77,7 +77,7 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.time
+            - deviceTime
             - log.level
             - log.component
             - log.nodeName
@@ -85,13 +85,13 @@ pipeline:
           function: suffix
           substring: ']'
           fields:
-            - log.time
+            - deviceTime
             - log.level
             - log.component
             - log.nodeName
       - reformat:
           fields:
-            - log.time
+            - deviceTime
           function: time
           fromFormat: '2022-01-20T22:52:07,431'
           toFormat: '2024-09-23T15:57:40.338364445Z'

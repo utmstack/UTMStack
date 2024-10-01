@@ -73,6 +73,14 @@ pipeline:
           from:
             - log.c
           to: log.component
+      - rename:
+          from:
+            - log.attr.host
+          to: local.host
+      - rename:
+          from:
+            - log.attr.port
+          to: local.port
       - reformat:
           fields:
             - log.time

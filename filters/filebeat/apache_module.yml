@@ -67,7 +67,7 @@ pipeline:
               pattern: '{{.word}}|(-)'
             - fieldName: local.user
               pattern: '{{.word}}|(-)'
-            - fieldName: log.time
+            - fieldName: deviceTime
               pattern: '\[{{.data}}\]'
             - fieldName: log.request
               pattern: '\"{{.data}}\"'
@@ -97,12 +97,12 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.time
+            - deviceTime
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.time
+            - deviceTime
       - trim:
           function: prefix
           substring: '"'
@@ -135,7 +135,7 @@ pipeline:
           to: int
       - reformat:
           fields:
-            - log.time
+            - deviceTime
           function: time
           fromFormat: '14/Feb/2022:15:40:53 -0500'
           toFormat: '2024-09-23T15:57:40.338364445Z'

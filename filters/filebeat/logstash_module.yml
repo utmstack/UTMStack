@@ -63,7 +63,7 @@ pipeline:
       # Parsing common log parts
       - grok:
           patterns:
-            - fieldName: log.time
+            - fieldName: deviceTime
               pattern: '\[{{.data}}\]'
             - fieldName: log.level
               pattern: '\[{{.data}}\]'
@@ -77,7 +77,7 @@ pipeline:
       # Parsing when pipeline is not present
       - grok:
           patterns:
-            - fieldName: log.time
+            - fieldName: deviceTime
               pattern: '\[{{.data}}\]'
             - fieldName: log.level
               pattern: '\[{{.data}}\]'
@@ -90,7 +90,7 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.time
+            - deviceTime
             - log.level
             - log.component
             - log.pipelineName
@@ -98,13 +98,13 @@ pipeline:
           function: suffix
           substring: ']'
           fields:
-            - log.time
+            - deviceTime
             - log.level
             - log.component
             - log.pipelineName
       - reformat:
           fields:
-            - log.time
+            - deviceTime
           function: time
           fromFormat: '2024-07-31T17:02:07,154'
           toFormat: '2024-09-23T15:57:40.338364445Z'
