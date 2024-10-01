@@ -6,7 +6,7 @@
 # Filter Input requirements -> fileset: datatype
 #                              log: json
 # 1. Parsing the json from beats
-# 2. Parsing the message field containing the mysql log
+# 2. Parsing the message field containing the MongoDb log
 pipeline:
   - dataTypes:
       - mongodb
