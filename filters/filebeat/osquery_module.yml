@@ -1,3 +1,9 @@
+# Osquery filter
+# Supports other_info, system_info and other log
+# See: https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-osquery.html
+# and https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-osquery.html for more documentation
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the other_info, system_info and other log
 pipeline:
   - dataTypes:
       - osquery
@@ -7,27 +13,130 @@ pipeline:
 
       - rename:
           from:
-            - log.hostIdentifier
+            - log.log.file.path
+          to: local.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+
+      - rename:
+          from:
+            - log.host.hostname
           to: local.host
 
       - rename:
           from:
-            - log.columns.description
+            - log.event.dataset
           to: action
 
       - rename:
           from:
-            - log.columns.description
-          to: action
+            - log.agent.version
+          to: log.agentVersion
 
       - rename:
           from:
-            - log.columns.description.directory
-          to: local.file
+            - log.host.os.kernel
+          to: log.osVersion
 
-      - reformat:
+      - rename:
+          from:
+            - log.host.os.name
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      # Parsing the message field for the other_info, system_info and other log
+      - rename:
+          from:
+            - log.json.action
+          to: actionResult
+
+      - rename:
+          from:
+            - log.json.columns.description
+          to: log.message
+
+      - rename:
+          from:
+            - log.json.columns.cpu_brand
+          to: log.cpuBrand
+
+      - rename:
+          from:
+            - log.json.columns.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.json.model
+          to: log.deviceModel
+
+      - rename:
+          from:
+            - log.json.vendor
+          to: log.deviceVendor
+
+      - rename:
+          from:
+            - log.json.calendarTime
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.json.hostIdentifier
+          to: local.host
+
+      - rename:
+          from:
+            - log.json.name
+          to: log.eventName
+
+      - rename:
+          from:
+            - log.json.columns.username
+          to: local.user
+
+      - rename:
+          from:
+            - log.json.columns.directory
+          to: local.path
+
+      - rename:
+          from:
+            - log.json.columns.uuid
+          to: log.localUserUuid
+
+      - cast:
+          to: "[]string"
           fields:
-            - calendarTime
-          function: "time"
-          from_format: "Sat Mar 5 02:17:15 2022 UTC"
-          to_format: "2006-01-02T15:04:05.000Z"
+            - local.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.metadata
+            - log.agent
+            - log.ecs
+            - log.event
+            - log.host
+            - log.input
+            - log.log
+            - log.service
+            - log.fileset
+            - log.json
