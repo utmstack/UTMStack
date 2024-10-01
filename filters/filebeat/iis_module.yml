@@ -1,58 +1,123 @@
+# Internet Information Services Filter
+# Supports IIS 7 and later versions. See: https://learn.microsoft.com/es-es/iis/configuration/system.applicationhost/log/
+# and https://learn.microsoft.com/es-es/iis/configuration/system.applicationhost/sites/site/logfile/
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the iis log
 pipeline:
   - dataTypes:
       - iis
     steps:
       - json:
           source: raw
+
       - rename:
           from:
             - log.log.file.path
           to: local.file
+
       - rename:
           from:
             - log.host.ip
           to: local.ips
+
       - rename:
           from:
             - log.host.mac
           to: local.macs
+
       - rename:
           from:
             - log.host.hostname
           to: local.host
+
       - rename:
           from:
             - log.event.dataset
           to: action
+
       - rename:
           from:
             - log.agent.version
           to: log.agentVersion
+
       - rename:
           from:
             - log.host.os.kernel
           to: log.osVersion
+
       - rename:
           from:
             - log.host.os.type
           to: log.osType
+
       - rename:
           from:
             - log.host.architecture
           to: log.cpuArchitecture
+
       - cast:
           to: "[]string"
           fields:
             - local.ips
+
       - cast:
           to: "[]string"
           fields:
             - local.macs
+
+      # Parsing the message field
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\-{{.monthNumber}}\-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.localIpv6
+              pattern: '{{.ipv6}}'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: remote.path
+              pattern: '\/[^ ]*|(-)'
+            - fieldName: log.userIdent
+              pattern: '{{.integer}}|(-)'
+            - fieldName: log.remotePort
+              pattern: '\b([0-9]{1,5})\b'
+            - fieldName: remote.user
+              pattern: '{{.word}}|(-)'
+            - fieldName: remote.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: log.userAgent
+              pattern: 'Mozilla(.*?)\s'
+            - fieldName: log.referrer
+              pattern: 'https?:\/\/[^\s]+|(-)'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+            - fieldName: log.subStatusCode
+              pattern: '{{.integer}}'
+            - fieldName: log.win32Status
+              pattern: '{{.integer}}'
+            - fieldName: log.timeSpent
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      - cast:
+          fields:
+            - log.remotePort
+            - log.statusCode
+            - log.subStatusCode
+            - log.win32Status
+            - log.timeTaken
+          to: int
+
+      # Removing unused fields
       - delete:
           fields:
             - log.service
             - log.metadata
             - log.log.offset
+            - log.log
+            - log.input.type
+            - log.input
+            - log.fileset.name
+            - log.fileset
             - log.agent
             - log.host
             - log.event
