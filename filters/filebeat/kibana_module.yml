@@ -56,6 +56,47 @@ pipeline:
             - log.host.architecture
           to: log.cpuArchitecture
 
+      # Parsing the message field for the log "audit"
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.action
+          to: actionResult
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.category
+          to: log.eventCategory
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.timestamp
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.@timestamp
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.user.name
+          to: local.user
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.type
+          to: log.logLevel
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.outcome
+          to: log.outcome
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.message
+          to: log.message
+
       - cast:
           to: "[]string"
           fields:
@@ -75,7 +116,7 @@ pipeline:
               pattern: '\[{{.data}}\]'
             - fieldName: log.component
               pattern: '\[{{.data}}\]'
-            - fieldName: log.actionResult
+            - fieldName: log.actionMessage
               pattern: '{{.greedy}}'
           source: log.message
 
@@ -95,7 +136,7 @@ pipeline:
             - log.logLevel
             - log.component
 
-      # Reformatting timestamps field
+      # Reformatting timestamps Kibana Log field
       - reformat:
           fields:
             - log.deviceTime
@@ -115,3 +156,4 @@ pipeline:
             - log.log
             - log.service
             - log.fileset
+            - log.kibana
