@@ -16,8 +16,8 @@ import {takeUntil} from "rxjs/operators";
 })
 export class UtmNotificationAlertComponent implements OnInit, OnDestroy {
   @ViewChild('iconBell') iconBell: ElementRef;
-  totalAlerts = 0;
-  prevTotal = 0;
+  totalAlerts = 10;
+  prevTotal = 5;
   timeoutAlert: number;
   intervalAlert: number;
   destroy$: Subject<boolean> = new Subject<boolean>();

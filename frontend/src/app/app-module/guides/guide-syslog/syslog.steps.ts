@@ -1,4 +1,4 @@
-import {Step} from '../shared/step';
+import {COLLECTOR_MESSAGE, Step} from '../shared/step';
 
 export const SYSLOGSTEPS: Step[] = [
   {id: '1', name: 'Configure your device to send logs to a UTMStack agent on ports:',
@@ -6,9 +6,7 @@ export const SYSLOGSTEPS: Step[] = [
       id: 'stepContent1'
     }
    },
-  {id: '2', name: 'Enable log collector.<br>' +
-                   'To enable the log collector where you have the UTMStack agent installed, ' +
-                    'follow the instructions below based on your operating system and preferred protocol.\n',
+  {id: '2', name: COLLECTOR_MESSAGE,
     content: {
       id: 'stepContent2'
     }

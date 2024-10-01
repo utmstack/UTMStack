@@ -1,5 +1,9 @@
 <div class="card p-2 d-flex flex-row justify-content-between w-100 align-items-center">
-    <code *ngIf="code" [innerHTML]="code" (copy)="preventCopy($event)" class="user-select"></code>
+    <code *ngIf="code; else noCodePlaceholder" [innerHTML]="code" (copy)="preventCopy($event)" class="user-select"></code>
     <i (click)="copyCode()" *ngIf="allowCopy" class="icon-copy cursor-pointer"
        ngbTooltip="Copy"></i>
+  <ng-template  #noCodePlaceholder>
+    <code class="user-select text-muted">No code available</code>
+    <i class="icon-warning"></i>
+  </ng-template>
 </div>

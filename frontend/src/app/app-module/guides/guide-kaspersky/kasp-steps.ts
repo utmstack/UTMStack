@@ -1,4 +1,4 @@
-import {Step} from '../shared/step';
+import {COLLECTOR_MESSAGE, Step} from '../shared/step';
 
 export const KASP_STEPS: Step[] = [
   {id: '1', name: 'Click on the “Console Settings” menu in the Kaspersky Security sidebar, in click in the “Integration” submenu.',
@@ -24,9 +24,7 @@ export const KASP_STEPS: Step[] = [
       id: 'stepContent3'
     }
   },
-  {id: '4', name: 'Enable log collector.<br>' +
-                   'To enable the log collector where you have the UTMStack agent installed, ' +
-                    'follow the instructions below based on your operating system and preferred protocol.\n',
+  {id: '4', name: COLLECTOR_MESSAGE,
     content: {
       id: 'stepContent4'
     }

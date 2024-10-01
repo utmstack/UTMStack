@@ -1,4 +1,4 @@
-import {Step} from '../shared/step';
+import {COLLECTOR_MESSAGE, Step} from '../shared/step';
 
 export const SENTINELSTEPS: Step[] = [
   {id: '1', name: 'Click on the "Settings" menu in the SentinelOne sidebar.',
@@ -12,9 +12,7 @@ export const SENTINELSTEPS: Step[] = [
       id: 'stepContent2'
     }
    },
-  {id: '3', name: 'Enable log collector.<br>' +
-                   'To enable the log collector where you have the UTMStack agent installed, ' +
-                    'follow the instructions below based on your operating system and preferred protocol.\n',
+  {id: '3', name: COLLECTOR_MESSAGE,
     content: {
       id: 'stepContent3'
     }
