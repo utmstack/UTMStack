@@ -1,19 +1,23 @@
-# PostgreSql module filter, version 3.0.0
+# Postgres module filter, version 3.0.0
 # Filter Input requirements -> fileset: datatype
-#                              log: plain text
-# Compatible any kind of PostgreSql logs 
+#                              log    : plain text
+# 
 # Documentations
 # 1- https://www.postgresql.org/docs/
-# 2- https://www.elastic.co/guide/en/beats/filebeat/7.13/exported-fields-postgresql.html
+# 2- https://www.postgresql.org/docs/current/runtime-config-logging.html
+# 3- https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-postgresql.html
+# 
 # Implementation
 # 1. Parsing the json from beats
-# 2. Parsing the message field containing the apache log
+# 2. Parsing the message field containing the postgres log
 pipeline:
   - dataTypes:
       - postgresql
     steps:
       - json:
           source: raw
+
+      # Parse beats field    
       - rename:
           from:
             - log.log.file.path
@@ -50,6 +54,7 @@ pipeline:
           from:
             - log.host.architecture
           to: log.cpuArchitecture
+
       # Fields conversions
       - cast:
           to: '[]string'
@@ -59,40 +64,43 @@ pipeline:
           to: '[]string'
           fields:
             - local.macs
+
       # Common postgresql log parsing
       # Example Log 
       # Mar 24 14:58:08 webappsecure postgres[7694]: [10-2] 42701 530b5e00.1e0e STATEMENT: ALTER TABLE sessiongroup ADD COLUMN requests bigint    
       - grok:
           patterns:
-            - fieldName: deviceTime
-              pattern: '(?:[Jj]an(?:uary|uar)?|[Ff]eb(?:ruary|ruar)?|[Mm](?:a|ä)?r(?:ch|z)?|[Aa]pr(?:il)?|[Mm]a(?:y|i)?|[Jj]un(?:e|i)?|[Jj]ul(?:y|i)?|[Aa]ug(?:ust)?|[Ss]ep(?:tember)?|[Oo](?:c|k)?t(?:ober)?|[Nn]ov(?:ember)?|[Dd]e(?:c|z)(?:ember)?)\s(?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])\s(([01][0-9])|2[0-4])(:[0-5][0-9])(:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
             - fieldName: from.host
-              pattern: '{{.word}}'
+              pattern: '{{.hostname}}'
             - fieldName: from.process
               pattern: '{{.word}}'
             - fieldName: log.processId
-              pattern: '((\[\d+\]:)?)'
+              pattern: '((\[{{.data}}\]:)?)'
             - fieldName: log.messageNumber
-              pattern: '((\[)(\d+)-(\d+)(\]))'
+              pattern: '(\[{{.data}}\])'
             - fieldName: log.error
               pattern: '((\d+)?)'
             - fieldName: log.sessionId
               pattern: '(([0-9a-f]{8}\.[0-9a-f]{4})?)'
-            - fieldName: actionResult
+            - fieldName: log.actionResult
               pattern: '{{.greedy}}' 
           source: log.message
+
       # Common postgresql log parsing
       # Example Log 
       # 2022-02-15 19:43:52.364 UTC [25] LOG:  database system was shut down at 2022-02-11 20:01:30 UTC
       - grok:
           patterns:
-            - fieldName: deviceTime
-              pattern: '(\d{4}(-\d{2}){2})\s(\d{2}(:\d{2}){2}\.\d{3})(\s(UTC)?)'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}{{.space}}{{.time}}{{.space}}((UTC)?)'
             - fieldName: log.processId
-              pattern: '((\[\d+\])?)'
-            - fieldName: actionResult
+              pattern: '((\[{{.data}}\])?)'
+            - fieldName: log.actionResult
               pattern: '{{.greedy}}' 
           source: log.message
+
       # Removing unused caracters
       - trim:
           function: prefix
@@ -111,6 +119,7 @@ pipeline:
           fields:
             - log.messageNumber
             - log.processId
+            
       # Removing unused fields
       - delete:
           fields:
