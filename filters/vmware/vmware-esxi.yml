@@ -1,0 +1,99 @@
+# VMWare-ESXi module filter, version 3.0.0
+# Based on real logs provided
+# 
+# Documentations
+# 1- https://core.vmware.com/esxi-log-message-formats 
+# 
+# Implementation
+# 1. Parsing the RAW field containing the VMWare-ESXi log
+# 
+# Example log
+# <132><166>2022-06-07T23:50:09.785Z prodesx03.pnbdomain.local hostd-probe: quiet hostd-probe[2101754] [Originator@6876 sub=Default] Successfully acquired advanced option: UserVars.ESXiShellTimeOut = 0
+
+pipeline:
+  - dataTypes:
+      - vmware-esxi
+    steps:
+      # Parsing the RAW field containing the VMWare-ESXi log
+      # Example log
+      # <132><166>2022-06-07T23:50:09.785Z prodesx03.pnbdomain.local hostd-probe: quiet hostd-probe[2101754] [Originator@6876 sub=Default] Successfully acquired advanced option: UserVars.ESXiShellTimeOut = 0
+      
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.msgType
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
+            - fieldName: log.hostname
+              pattern: '{{.hostname}}'
+            - fieldName: log.process
+              pattern: '{{.hostname}}(\:)'
+            - fieldName: log.logLevel
+              pattern: '{{.word}}'
+            - fieldName: log.processName
+              pattern: '{{.hostname}}'
+            - fieldName: log.pid
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.eventInfo
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+
+      # Example log
+      # TODO: parse message
+      # <169><14>2022-06-07T23:50:00.573Z prodesx03.pnbdomain.local crx-cli[4519096]: Log for VMware ESXi version=7.0.3 build=build-19193900 option=Release
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.msgType
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
+            - fieldName: log.hostname
+              pattern: '{{.hostname}}'
+            - fieldName: log.process
+              pattern: '{{.hostname}}'
+            - fieldName: log.pid
+              pattern: '\[{{.data}}\]:'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+              
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+            - log.msgType
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.pid
+            - log.eventInfo
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+            - log.msgType
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.pid
+            - log.process
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.pid
+            - log.eventInfo
+                    
+        # Removing unused fields
+      - delete:
+          fields:
+            - log.processName
