@@ -1,0 +1,70 @@
+# ESET filter version 3.0.0
+pipeline:
+  - dataTypes:
+      - antivirus-esmc-eset
+    steps:
+      # Parsing RAW field log
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.msgType
+              pattern: '{{.integer}}'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
+            - fieldName: log.headHostname
+              pattern: '{{.hostname}}'
+            - fieldName: log.serviceName
+              pattern: '{{.hostname}}'
+            - fieldName: log.pid
+              pattern: '{{.integer}}'
+            - fieldName: log.restHead
+              pattern: '\-{{.data}}\-'
+            - fieldName: log.jsonMessage
+              pattern: '{{.greedy}}'
+
+      # Remove inecesarie caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      # Parsing jsonMessage field log
+      - json:
+          source: log.jsonMessage
+      
+      - rename:
+          from:
+            - log.ipv4
+          to: local.ip
+      - rename:
+          from:
+            - log.hostname
+          to: local.host
+      - rename:
+          from:
+            - log.action
+          to: action
+      - rename:
+          from:
+            - log.event
+          to: actionResult
+      - rename:
+          from:
+            - log.sourceaddress
+          to: from.ip
+      - rename:
+          from:
+            - log.protocol
+          to: protocol
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.jsonMessage
