@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {HttpCancelService} from '../../../../../blocks/service/httpcancel.service';
 import {DashboardBehavior} from '../../../../behaviors/dashboard.behavior';
 import {MenuBehavior} from '../../../../behaviors/menu.behavior';
@@ -11,7 +11,9 @@ import {ActiveAdModuleActiveService} from '../../../../services/active-modules/a
 import {MenuService} from '../../../../services/menu/menu.service';
 import {Menu} from '../../../../types/menu/menu.model';
 import {stringParamToQueryParams} from '../../../../util/query-params-to-filter.util';
-import { takeUntil } from 'rxjs/operators';
+import {takeUntil, tap} from 'rxjs/operators';
+import {OpenAlertsService} from "../../../../../data-management/alert-management/shared/services/open-alerts.service";
+import {UtmToastService} from "../../../../alert/utm-toast.service";
 
 @Component({
   selector: 'app-header-menu-navigation',
@@ -25,15 +27,15 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
   iconPath = SYSTEM_MENU_ICONS_PATH;
   active: number;
   destroy$: Subject<void> =  new Subject<void>();
+  prevTotal$: Observable<number>;
 
-  constructor(private adModuleActiveService: ActiveAdModuleActiveService,
-              private navBehavior: NavBehavior,
+  constructor(private navBehavior: NavBehavior,
               private spinner: NgxSpinnerService,
               public router: Router,
-              private dashboardBehavior: DashboardBehavior,
               private menuBehavior: MenuBehavior,
-              private httpCancelService: HttpCancelService,
-              private menuService: MenuService) {
+              private openAlertsService: OpenAlertsService,
+              private menuService: MenuService,
+              private toast: UtmToastService) {
   }
 
   ngOnInit() {
@@ -47,6 +49,15 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
         this.loadMenus();
       }
     });
+
+    this.prevTotal$ = this.openAlertsService.openAlerts$
+      .pipe(takeUntil(this.destroy$),
+        tap((openAlerts) => {
+          if (!this.router.url.includes('/dashboard/export')) {
+            this.toast.showWarning('There are ' + openAlerts +
+              ' pending alerts to manage', 'New alerts');
+          }
+        }));
   }
 
   /**
@@ -133,5 +144,6 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.openAlertsService.stopInterval();
   }
 }

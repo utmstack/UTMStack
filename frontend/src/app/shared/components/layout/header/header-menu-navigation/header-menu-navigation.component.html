@@ -13,13 +13,16 @@
             id="{{i+'-' + menu.id}}"
             ngbDropdown>
           <a class="utm-nav-link dropdown-toggle text-capitalize"
-             [ngClass]="{'active-menu':isActiveChildren(menu.childrens,menu.actions,menu.id)}"
+             [ngClass]="{'active-menu':isActiveChildren(menu.childrens,menu.actions,menu.id), 'container_notify': menu.name.toLowerCase() === 'threat management' }"
              data-toggle="dropdown"
              ngbDropdownToggle>
              <span *ngIf="menu.menuIcon" class="svg-icon svg-icon-md mr-2"
                    [ngClass]="isActiveChildren(menu.childrens, menu.actions,menu.id)?'svg-icon-active':'svg-icon-primary'"
                    [inlineSVG]="iconPath+menu.menuIcon"></span>
             {{menu.name | titlecase}}
+            <div *ngIf="menu.name.toLowerCase() === 'threat management' && prevTotal$ | async as prevTotal" class="notification_number">
+              {{prevTotal > 20 ? '+20' : prevTotal}}
+            </div>
           </a>
           <div [ngClass]="i===0?'first':i===list.length-1?'last':''" class="dropdown-menu scroll-menu-y" ngbDropdownMenu
                aria-labelledby="{{i+ '-' + menu.id}}"

@@ -54,6 +54,7 @@ import {AlertManagementService} from '../shared/services/alert-management.servic
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
 import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
+import {OpenAlertsService} from "../shared/services/open-alerts.service";
 
 @Component({
   selector: 'app-alert-view',
@@ -112,7 +113,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private updateStatusServiceBehavior: AlertStatusBehavior,
               private activatedRoute: ActivatedRoute,
               public router: Router,
-              private newAlertBehavior: NewAlertBehavior,
+              private openAlertsService: OpenAlertsService,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
@@ -166,7 +167,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.alertFiltersBehavior.$filters.next(this.filters);
       }
     });
-    this.newAlertBehavior.$alertChange.subscribe(newAlerts => {
+    this.openAlertsService.openAlerts$.subscribe(newAlerts => {
       if (newAlerts && newAlerts !== 0) {
         this.incomingAlert = newAlerts;
       }
