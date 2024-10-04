@@ -6,16 +6,13 @@ import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {AutomationVariablesRoutingModule} from "./automation-variables-routing.module";
 
 @NgModule({
-    declarations: [VariablesComponent],
-    exports: [
-        VariablesComponent
-    ],
-    imports: [
-        CommonModule,
-        UtmSharedModule,
-        NgbModule,
-        AutomationVariablesRoutingModule
-    ]
+  declarations: [VariablesComponent],
+  imports: [
+    CommonModule,
+    UtmSharedModule,
+    NgbModule,
+    AutomationVariablesRoutingModule
+  ]
 })
 export class AutomationVariablesModule {
 }
