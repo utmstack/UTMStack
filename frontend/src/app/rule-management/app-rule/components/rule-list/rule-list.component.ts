@@ -71,10 +71,8 @@ export class RuleListComponent implements OnInit, OnDestroy {
           }),
           map((data: { response: HttpResponse<Rule[]> }) => data.response))
     ).pipe(
-      map(( response: HttpResponse<Rule[]>) => {
-        console.log(response.body);
-        return response.body;
-      }));
+      map(( response: HttpResponse<Rule[]>) => response.body)
+    );
 
     this.filterService.filterChange
         .pipe(

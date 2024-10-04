@@ -26,6 +26,11 @@ export class AddVariableComponent implements OnInit {
   ngOnInit() {
     this.fields$ = this.getFields('log-*');
     this.savedVariables = this.rule && this.rule.definition ? this.rule.definition.ruleVariables : [];
+
+    this.formGroup.setControl('definition', this.fb.group({
+      ruleVariables: this.fb.array([this.fb.group(variableTemplate)]),
+      ruleExpression: [this.rule ? this.rule.definition.ruleExpression : '', Validators.required]
+    }));
   }
 
   getFields(indexPattern: string) {

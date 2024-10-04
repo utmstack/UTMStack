@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {urlValidator} from "../../../custom-validators";
+import {minLengthArray, urlValidator} from "../../../custom-validators";
 import {Rule} from "../../../models/rule.model";
 
 @Component({
@@ -26,16 +26,7 @@ export class AddReferenceComponent implements OnInit {
       [Validators.required, urlValidator]));
 
     return this.fb.array(formArray.length > 0 ? formArray : [this.fb.control('', [Validators.required, urlValidator])],
-      this.minLengthArray(1));
-  }
-
-  minLengthArray(min: number) {
-    return (control: FormArray): { [key: string]: boolean } | null => {
-      if (control.length >= min) {
-        return null;
-      }
-      return {minLengthArray: true};
-    };
+      minLengthArray(1));
   }
 
   get references() {

@@ -10,3 +10,7 @@ legend {
     font-size: .60rem !important;
   }
 }
+
+fieldset {
+  margin-bottom: 1rem;
+}

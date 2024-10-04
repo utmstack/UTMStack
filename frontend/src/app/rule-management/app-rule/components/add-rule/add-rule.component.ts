@@ -73,7 +73,6 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       this.ruleService.saveRule(this.mode, rule)
         .subscribe({
           next: response => {
-            console.log('Rule saved successfully', response);
             this.dataTypeService.resetTypes();
             this.isSubmitting = false;
             this.utmToastService.showSuccessBottom(this.mode === 'ADD'
@@ -102,11 +101,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       availability: [rule ? rule.availability : 0, [Validators.required, Validators.min(0), Validators.max(3)]],
       category: [rule ? rule.category : '', Validators.required],
       technique: [rule ? rule.technique : '', Validators.required],
-      description: [rule ? rule.description : '', Validators.required],
-      definition: this.fb.group({
-        ruleVariables: this.fb.array([this.fb.group(variableTemplate)]),
-        ruleExpression: [rule ? rule.definition.ruleExpression : '', Validators.required]
-      })
+      description: [rule ? rule.description : '', Validators.required]
     });
     this.savedVariables = rule ? rule.definition.ruleVariables : [];
   }

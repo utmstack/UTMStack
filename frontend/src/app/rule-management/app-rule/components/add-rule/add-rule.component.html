@@ -141,9 +141,7 @@
         </div>
       </div>
 
-      <fieldset class="form-fieldset border p-3">
-        <app-variables [formGroup]="ruleForm" [rule]="rule" (variablesEmitter)="onChangeVariables($event)"></app-variables>
-      </fieldset>
+      <app-variables [formGroup]="ruleForm" [rule]="rule" (variablesEmitter)="onChangeVariables($event)"></app-variables>
     </form>
   </div>
   <div class="button-container d-flex justify-content-end pr-3 w-100">
