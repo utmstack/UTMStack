@@ -71,7 +71,10 @@ export class RuleListComponent implements OnInit, OnDestroy {
           }),
           map((data: { response: HttpResponse<Rule[]> }) => data.response))
     ).pipe(
-      map(( response: HttpResponse<Rule[]>) => response.body));
+      map(( response: HttpResponse<Rule[]>) => {
+        console.log(response.body);
+        return response.body;
+      }));
 
     this.filterService.filterChange
         .pipe(
@@ -196,6 +199,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   handleResponse(modal: NgbModalRef) {
     modal.result.then((result: boolean) => {
       if (result) {
+        this.ruleService.notifyRefresh(true);
         this.filterService.notifyRefresh('ALL');
       }
     });

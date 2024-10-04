@@ -1,0 +1,132 @@
+<div [formGroup]="formGroup">
+  <legend>
+    <label>Definition</label>
+    <span class="span-small-icon ml-2">
+      <i (click)="addVariable()" *ngIf="variables.length === 0"
+         class="icon-plus2 mr-1 cursor-pointer"
+         ngbTooltip="Add variable">
+      </i>
+    </span>
+  </legend>
+  <div formGroupName="definition">
+    <div formArrayName="ruleVariables">
+      <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i">
+        <div class="input-group">
+          <fieldset class="border p-3 w-100">
+            <legend>
+              <label>{{ variable.valid && variable.value.as ? 'Variable ' + variable.value.as : 'New Variable' }}
+                <span class="span-small-icon ml-2">
+                  <i (click)="removeVariable(i)"
+                     class="icon-cross2 mr-1 cursor-pointer"
+                     ngbTooltip="Delete variable">
+                  </i>
+                </span>
+              </label>
+            </legend>
+            <div class="row">
+              <div class="col-5">
+                <div class="form-group-select">
+                  <label>Field:</label>
+                  <ng-select (change)="onFieldChange($event)"
+                             [addTag]="true"
+                             [items]="(fields$ | async)"
+                             [ngClass]="{'is-invalid': variable.get('get').invalid && variable.get('get').touched}"
+                             [trackByFn]="trackByFnField"
+                             bindLabel="name"
+                             bindValue="name"
+                             class="flex-item type-select"
+                             formControlName="get"
+                             placeholder="Choose field">
+                  </ng-select>
+                  <div *ngIf="variable.get('get').invalid && variable.get('get').touched"
+                       class="invalid-feedback">
+                    Field is required.
+                  </div>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Alias:</label>
+                  <input [ngClass]="{'is-invalid': (variable.get('as').errors?.noSpaces || variable.get('as').errors?.required)
+                                                          && (variable.get('as').dirty || variable.get('as').touched)}"
+                         class="form-control mr-2"
+                         formControlName="as"
+                         type="text">
+                  <div
+                    *ngIf="variable.get('as').errors?.required && (variable.get('as').touched || variable.get('as').dirty)"
+                    class="invalid-feedback">
+                    Alias is required.
+                  </div>
+                  <div *ngIf="!!variable.get('as').value && variable.get('as').errors?.noSpaces"
+                       class="invalid-feedback">
+                    Must be a single word without spaces.
+                  </div>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="form-group-select">
+                  <label>Type:</label>
+                  <ng-select
+                    [ngClass]="{'is-invalid': variable.get('of_type').invalid && variable.get('of_type').touched}"
+                    [items]="variablesDataType"
+                    class="flex-item type-select"
+                    bindLabel="label"
+                    bindValue="value"
+                    formControlName="of_type"
+                    placeholder="Select type">
+                  </ng-select>
+                  <div *ngIf="variable.get('of_type').invalid && variable.get('of_type').touched"
+                       class="invalid-feedback">
+                    Type is required.
+                  </div>
+                </div>
+              </div>
+              <div class="col-1 d-flex justify-content-center align-items-center">
+                <button (click)="saveVariable(i)"
+                        [disabled]="variable.invalid || variable.get('of_type').value == null || variable.get('get').value == null"
+                        class="btn utm-button utm-button-primary"
+                        type="button">Add
+                </button>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <fieldset *ngIf="savedVariables.length > 0" class="border p-3 w-100">
+        <legend>
+          <label>Saved Variables:</label>
+        </legend>
+        <div class="d-flex flex-wrap justify-content-start">
+          <div *ngFor="let savedVariable of savedVariables; let j = index">
+            <div class="mr-2" *ngIf="!savedVariable.isEditing">
+              <div style="min-width: 100px"
+                   class="d-flex flex-wrap cursor-pointer badge p-2 border-1 badge-flat font-weight-light border-primary-800 text-primary-800">
+                <div (click)="copyVariable(savedVariable.as)" [ngbTooltip]="savedVariable.get">
+                  <i class="mr-1 font-size-sm icon-cog7"></i>
+                  <span>
+                          {{ savedVariable.as }}
+                        </span>
+                </div>
+                <span class="ml-2 badge-actions">
+                        <i (click)="editVariable(j)" class="icon-pencil3 small-icon cursor-pointer mr-1"></i>
+                        <i (click)="removeSavedVariable(j)" class="icon-cross2 small-icon cursor-pointer"></i>
+                      </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <label for="expression">Expression:</label>
+      <textarea
+        [ngClass]="{'is-invalid': formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched}"
+        class="form-control" formControlName="ruleExpression" id="expression" rows="6"></textarea>
+      <div
+        *ngIf="formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched"
+        class="invalid-feedback">
+        Expression is required.
+      </div>
+    </div>
+  </div>
+</div>

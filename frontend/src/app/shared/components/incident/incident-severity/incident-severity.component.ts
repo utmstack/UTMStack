@@ -1,25 +1,22 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {IncidentSeverityEnum} from '../../../enums/incident/incident-severity.enum';
 
 @Component({
   selector: 'app-incident-severity',
   templateUrl: './incident-severity.component.html',
-  styleUrls: ['./incident-severity.component.css']
+  styleUrls: ['./incident-severity.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class IncidentSeverityComponent implements OnInit {
-  @Input() severity: IncidentSeverityEnum;
+export class IncidentSeverityComponent {
   label: string;
   background: string;
 
   constructor() {
   }
 
-  ngOnInit() {
-    this.setBackgroundColor();
-  }
-
-  private setBackgroundColor() {
-    switch (this.severity) {
+  @Input()
+  set severity(severity: IncidentSeverityEnum) {
+    switch (severity) {
       case IncidentSeverityEnum.HIGH:
         this.background = 'border-danger-800 text-danger-800';
         this.label = 'HIGH';

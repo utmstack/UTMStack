@@ -31,8 +31,7 @@
           <ng-container *ngIf="rules$ | async as rules; else empty">
             <tr *ngFor="let rule of rules; trackBy: trackByFn" class="cursor-pointer">
               <ng-container *ngFor="let field of fields">
-                <td [ngStyle]="{'width': field.width}"
-                    *ngIf="(field.visible)">
+                <td [ngStyle]="{'width': field.width}" *ngIf="(field.visible)">
                   <app-rule-field
                     [rule] = "rule"
                     [column] = "field">

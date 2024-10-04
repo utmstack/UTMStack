@@ -38,6 +38,8 @@ import {AssetManagerService} from './app-correlation-management/services/asset-m
 import {
   AssetDetailComponent
 } from './app-correlation-management/components/assets/components/components/asset-detail/asset-detail.component';
+import {AddReferenceComponent} from "./app-rule/components/reference/add-reference.component";
+import {AddVariableComponent} from "./app-rule/components/add-variable/add-variable.component";
 
 
 @NgModule({
@@ -57,7 +59,10 @@ import {
       AddTypeComponent,
       AddPatternComponent,
       AddAssetComponent,
-      AssetDetailComponent
+      AssetDetailComponent,
+      AddReferenceComponent,
+      AddVariableComponent
+
   ],
     imports: [
         CommonModule,

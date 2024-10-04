@@ -1,0 +1,40 @@
+<fieldset [formGroup]="formGroup" class="form-fieldset references-container border p-3">
+  <legend>
+    <label>References:</label>
+    <span class="span-small-icon ml-2">
+              <i (click)="addReference()" class="icon-plus2 mr-1 cursor-pointer"
+                 ngbTooltip="Add reference">
+              </i>
+            </span>
+  </legend>
+  <div [formArrayName]="'references'" *ngFor="let reference of references.controls; let i = index"
+       class="form-group">
+    <label> {{ 'Reference ' + (i + 1) }}</label>
+    <div class="input-group">
+      <input [formControlName]="i"
+             [ngClass]="{'is-invalid': reference.invalid && reference.touched}"
+             class="form-control"
+             type="text">
+      <div class="input-group-append">
+        <button (click)="removeReference(i)"
+                [disabled]="references.length === 1"
+                class="btn btn-danger btn-close text-white"
+                type="button">
+          <i class="icon-trash text-white"></i>
+        </button>
+      </div>
+      <div *ngIf="reference.errors?.required && reference.touched"
+           class="invalid-feedback">
+        Reference is required.
+      </div>
+      <div *ngIf="reference.errors?.invalidUrl && reference.touched"
+           class="invalid-feedback">
+        Reference must be a valid URL.
+      </div>
+    </div>
+  </div>
+  <div *ngIf="references.errors?.required && references.touched"
+       class="invalid-feedback d-block">
+    At least one reference is required.
+  </div>
+</fieldset>

@@ -23,20 +23,4 @@ export class RuleFieldComponent {
     RULE_INTEGRITY = RULE_INTEGRITY;
     RULE_AVAILABILITY = RULE_AVAILABILITY;
     RULE_CONFIDENTIALITY = RULE_CONFIDENTIALITY;
-
-    constructor() {}
-
-  getSeverity(value: any): IncidentSeverityEnum {
-    switch (value) {
-      case 1: return IncidentSeverityEnum.LOW;
-      case 2: return IncidentSeverityEnum.MEDIUM;
-      case 3: return IncidentSeverityEnum.HIGH;
-
-      default: return IncidentSeverityEnum.UNIMPORTANT;
-    }
-  }
-
-  isImpactType(field: string): boolean {
-    return field === RULE_INTEGRITY || field === RULE_CONFIDENTIALITY || field === RULE_AVAILABILITY;
-  }
 }
