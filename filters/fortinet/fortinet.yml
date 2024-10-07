@@ -1,0 +1,66 @@
+# Fortinet firewall module filter, version 3.0.0
+# Based in docs and samples provided
+# 
+# Documentations
+# 1- https://docs.fortinet.com/document/fortigate/7.0.4/fortios-log-message-reference/357866/log-message-fields 
+# 2- https://docs.fortinet.com/document/fortigate/7.0.4/fortios-log-message-reference/656858/log-id-definitions 
+# 
+# Implementation
+# 1. Parsing the RAW field containing the Fortinet firewall
+pipeline:
+  - dataTypes:
+      - firewall-fortigate-traffic
+    steps:
+
+      #Using grok to parse priority if present
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.kvMessage
+              pattern: '{{.greedy}}'
+
+      #Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          source: log.kvMessage
+          fieldSplit: " "
+          valueSplit: "="
+
+      # Rename standard fields and fields out of kv result
+      - rename:
+          from:
+            - log.action
+          to: action
+      - rename:
+          from:
+            - log.dstip
+          to: to.ip
+      - rename:
+          from:
+            - log.dstport
+          to: to.port
+      - rename:
+          from:
+            - log.srcip
+          to: from.ip
+      - rename:
+          from:
+            - log.srcport
+          to: from.port
+
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.kvMessage
