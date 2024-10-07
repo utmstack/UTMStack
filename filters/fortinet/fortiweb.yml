@@ -1,0 +1,67 @@
+# FortiWeb firewall module filter, version 2.0.0
+# Based on real logs provided
+# 
+# Documentations
+# 1- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/470577/introduction 
+# 2- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event 
+# 3- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/280306/how-to-interpret-fortiweb-logs 
+# 
+# Implementation
+# 1. Parsing the RAW field containing the Fortiweb firewall
+pipeline:
+  - dataTypes:
+      - firewall-fortiweb
+    steps:
+
+      #Using grok to parse priority if present
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.kvMessage
+              pattern: '{{.greedy}}'
+
+      #Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          source: log.kvMessage
+          fieldSplit: " "
+          valueSplit: "="
+
+      # Rename standard fields and fields out of kv result
+      - rename:
+          from:
+            - log.action
+          to: action
+      - rename:
+          from:
+            - log.dstip
+          to: to.ip
+      - rename:
+          from:
+            - log.dstport
+          to: to.port
+      - rename:
+          from:
+            - log.srcip
+          to: from.ip
+      - rename:
+          from:
+            - log.srcport
+          to: from.port
+
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.kvMessage
