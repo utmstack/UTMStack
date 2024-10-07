@@ -1,0 +1,293 @@
+# Nginx filter
+# Supports Nginx access, error, emergency and notice  log
+# See: https://github.com/nginx/nginx
+# and https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-nginx.html for more documentation
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the Nginx log
+pipeline:
+  - dataTypes:
+      - nginx
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.log.file.path
+          to: local.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.event.dataset
+          to: action
+
+      - rename:
+          from:
+            - log.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.os.type
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
+
+      # Parsing the message field for the log "access" type
+      - grok:
+          patterns:
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.userIdent
+              pattern: '{{.word}}|(-)'
+            - fieldName: local.user
+              pattern: '{{.word}}\.{{.word}}|(-)'
+            - fieldName: log.deviceTime
+              pattern: '\[(.*?)\]'
+            - fieldName: log.request
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+            - fieldName: local.bytesReceived
+              pattern: '{{.integer}}|(-)'
+            - fieldName: log.referrer
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.userAgent
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.deviceTime
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.deviceTime
+
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referrer
+            - log.userAgent
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.request
+            - log.referrer
+            - log.userAgent
+
+      # Parsing the request for the log "access" type
+      - grok:
+          patterns:
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: local.path
+              pattern: '\/[^ ]*'
+            - fieldName: protocol
+              pattern: '{{.greedy}}'
+          source: log.request
+
+      # Parsing the message field for the log "error" type
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.logLevel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.processPidThreadId
+              pattern: '{{.integer}}\#{{.integer}}'
+            - fieldName: log.requestId
+              pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
+            - fieldName: log.message
+              pattern: '{{.data}}\,'
+            - fieldName: local.ip
+              pattern: '{{.data}}\,'
+            - fieldName: remote.ip
+              pattern: '{{.data}}\,'
+            - fieldName: log.quest
+              pattern: '{{.word}}\:'
+            - fieldName: log.request
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.restdata
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.request
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.request
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.logLevel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.logLevel
+
+      - trim:
+          function: prefix
+          substring: ','
+          fields:
+            - log.restdata
+
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.message
+            - local.ip
+            - remote.ip
+
+      # Parsing the request for the log "error" type
+      - grok:
+          patterns:
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: local.path
+              pattern: '\/[^ ]*'
+            - fieldName: protocol
+              pattern: '{{.greedy}}'
+          source: log.request
+
+      # Parsing the message field for the log "emergency" type
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.logLevel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.processPidThreadId
+              pattern: '{{.integer}}\#{{.integer}}'
+            - fieldName: log.requestId
+              pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.logLevel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.logLevel
+
+      # Parsing the message field for the log "notice" type
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.logLevel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.processPidThreadId
+              pattern: '{{.integer}}\#{{.integer}}'
+            - fieldName: log.requestId
+              pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.logLevel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.logLevel
+
+      # Reformat and field conversions
+      - cast:
+          fields:
+            - log.statusCode
+            - local.bytesReceived
+          to: int
+
+      - reformat:
+          fields:
+            - log.deviceTime
+          function: time
+          fromFormat: '01/Feb/2022:08:01:18 -0500'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.service
+            - log.metadata
+            - log.log.offset
+            - log.log
+            - log.quest
+            - log.input.type
+            - log.input
+            - log.fileset.name
+            - log.fileset
+            - log.agent
+            - log.host
+            - log.event
+            - log.ecs
+            - log.log.file

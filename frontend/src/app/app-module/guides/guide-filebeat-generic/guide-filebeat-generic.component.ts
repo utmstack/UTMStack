@@ -167,8 +167,8 @@ export class GuideFilebeatGenericComponent implements OnInit {
     return this.moduleConfigs.filter(value => value.module === this.filebeatModule)[0];
   }
 
-  getFullPath(path: string, module: string) {
-    return path + module + '.yml';
+  getFullPath(platform: Platform, module: string) {
+    return platform ? platform.path + module + '.yml' : '';
   }
 
   getName(name: string) {

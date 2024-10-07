@@ -2,8 +2,8 @@ import {Step} from '../shared/step';
 
 export const FILEBEAT_STEPS: Step[] = [
   {id: '1', name: 'Enable Filebeat module: <br>' +
-                   'To enable the AGENT_NAME module where you have the UTMStack agent installed, ' +
-                   'follow the instructions below based on your operating system.',
+                   'Follow the instructions below, based on your operating system, ' +
+                   'to enable the AGENT_NAME module where the UTMStack agent is installed.',
     content: {
       id: 'stepContent1'
     }

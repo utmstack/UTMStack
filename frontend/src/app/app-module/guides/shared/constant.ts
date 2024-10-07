@@ -17,7 +17,7 @@ export const createPlatforms = (windowsCommand: string,
     id: 1,
     name: 'WINDOWS',
     command: windowsCommand,
-    shell: 'Windows Powershell terminal as “ADMINISTRATOR”',
+    shell: 'Run the following powershell script as “ADMINISTRATOR” in a Server with the UTMStack agent Installed.',
     path: windowsPath,
     restart: windowsRestart
   },
@@ -25,7 +25,7 @@ export const createPlatforms = (windowsCommand: string,
     id: 2,
     name: 'LINUX',
     command: linuxCommand,
-    shell: 'Linux bash terminal',
+    shell: 'Run the following bash script as “ADMINISTRATOR” in a Server with the UTMStack agent Installed.',
     path: linuxPath,
     restart: linuxRestart
   }

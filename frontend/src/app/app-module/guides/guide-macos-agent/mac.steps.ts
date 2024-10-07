@@ -1,4 +1,4 @@
-import {Step} from '../shared/step';
+import {COLLECTOR_MESSAGE, Step} from '../shared/step';
 
 export const MAC_STEPS: Step[] = [
   {id: '1', name: 'Install Homebrew, using the official documentation\n' +
@@ -30,9 +30,7 @@ export const MAC_STEPS: Step[] = [
                  'sudo launchctl start /System/Library/LaunchDaemons/com.apple.syslogd.plist']
     }
   },
-  {id: '6', name: 'Enable log collector.<br>' +
-      'To enable the log collector where you have the UTMStack agent installed, ' +
-      'follow the instructions below based on your operating system and preferred protocol.\n',
+  {id: '6', name: COLLECTOR_MESSAGE,
     content: {
       id: 'stepContent6'
     }

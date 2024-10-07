@@ -135,5 +135,6 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
   ngOnDestroy(): void {
    this.destroy$.next();
    this.destroy$.complete();
+   this.notificationRefreshService.stopInterval();
   }
 }

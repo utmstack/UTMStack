@@ -80,6 +80,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   visualizationRender = 8;
   preparingPrint = true;
   RefreshType = RefreshType;
+  timeOutId: any;
 
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
@@ -129,7 +130,8 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     //   }
     // });
 
-    setTimeout(() => {
+    this.timeOutId = setTimeout(() => {
+      console.log('emitting');
       this.synchronizeFields();
     }, 100000);
 
@@ -267,5 +269,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.refreshService.stopInterval();
+    clearTimeout(this.timeOutId);
   }
 }

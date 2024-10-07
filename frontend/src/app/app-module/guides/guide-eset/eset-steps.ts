@@ -1,4 +1,4 @@
-import {Step} from '../shared/step';
+import {COLLECTOR_MESSAGE, Step} from '../shared/step';
 
 export const ESET_STEPS: Step[] = [
   {id: '1', name: 'Click on the "More" menu in the ESET Protect sidebar.',
@@ -33,9 +33,7 @@ export const ESET_STEPS: Step[] = [
       id: 'stepContent4'
     }
   },
-  {id: '5', name: 'Enable log collector.<br>' +
-                   'To enable the log collector where you have the UTMStack agent installed, ' +
-                    'follow the instructions below based on your operating system and preferred protocol.\n',
+  {id: '5', name: COLLECTOR_MESSAGE,
     content: {
       id: 'stepContent5'
     }

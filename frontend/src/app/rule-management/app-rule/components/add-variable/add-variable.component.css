@@ -1,0 +1,16 @@
+legend {
+  width: auto;
+  border-bottom: 0;
+  font-size: .75rem;
+  font-weight: 400;
+}
+
+.badge-actions {
+  .small-icon {
+    font-size: .60rem !important;
+  }
+}
+
+fieldset {
+  margin-bottom: 1rem;
+}

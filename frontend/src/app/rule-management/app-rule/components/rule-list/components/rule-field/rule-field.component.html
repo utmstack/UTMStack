@@ -4,15 +4,15 @@
     </span>
 
   <ng-container *ngSwitchCase="RULE_INTEGRITY">
-    <app-incident-severity [severity]="getSeverity(rule[column.field])"></app-incident-severity>
+    <app-incident-severity [severity]="rule[column.field]"></app-incident-severity>
   </ng-container>
 
   <ng-container *ngSwitchCase="RULE_CONFIDENTIALITY">
-    <app-incident-severity [severity]="getSeverity(rule[column.field])"></app-incident-severity>
+    <app-incident-severity [severity]="rule[column.field]"></app-incident-severity>
   </ng-container>
 
   <ng-container *ngSwitchCase="RULE_AVAILABILITY">
-    <app-incident-severity [severity]="getSeverity(rule[column.field])"></app-incident-severity>
+    <app-incident-severity [severity]="rule[column.field]"></app-incident-severity>
   </ng-container>
 
     <ng-container *ngSwitchCase="RULE_DATA_TYPES">

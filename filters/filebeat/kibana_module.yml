@@ -1,37 +1,159 @@
+# Kibana filter
+# Supports Kibana Log and Kibana Audit version 7.17 or later.
+# See: https://www.elastic.co/guide/en/kibana/7.17/xpack-security-audit-logging.html
+# and https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-kibana.html#_fields_27 
+# 1. Parsing the json from beats
+# 2. Parsing the message field containing the kibana log
 pipeline:
   - dataTypes:
-      - logstash
+      - kibana
     steps:
       - json:
           source: raw
 
       - rename:
           from:
-            - log.event.action
+            - log.log.file.path
+          to: local.file
+
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.event.dataset
           to: action
 
       - rename:
           from:
-            - log.event.outcome
+            - log.agent.version
+          to: log.agentVersion
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.os.name
+          to: log.osType
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      # Parsing the message field for the log "audit"
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.action
           to: actionResult
 
       - rename:
           from:
-            - log.url.domain
-          to: remote.domain
+            - log.kibana._audit_temp.event.category
+          to: log.eventCategory
 
       - rename:
           from:
-            - log.url.path
-          to: remote.path
+            - log.kibana._audit_temp.timestamp
+          to: log.deviceTime
 
       - rename:
           from:
-            - log.url.port
-          to: remote.port
+            - log.kibana._audit_temp.@timestamp
+          to: log.deviceTime
 
       - rename:
           from:
-            - log.user.name
-          to: remote.user
-          
+            - log.kibana._audit_temp.user.name
+          to: local.user
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.type
+          to: log.logLevel
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.event.outcome
+          to: log.outcome
+
+      - rename:
+          from:
+            - log.kibana._audit_temp.message
+          to: log.message
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.ips
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
+
+      # Parsing the message field
+      - grok:
+          patterns:
+            - fieldName: log.deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.logLevel
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.component
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.actionMessage
+              pattern: '{{.greedy}}'
+          source: log.message
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.deviceTime
+            - log.logLevel
+            - log.component
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.deviceTime
+            - log.logLevel
+            - log.component
+
+      # Reformatting timestamps Kibana Log field
+      - reformat:
+          fields:
+            - log.deviceTime
+          function: time
+          fromFormat: '2022-01-01T00:05:07.292-05:00'
+          toFormat: '2024-09-23T15:57:40.338364445Z'
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.metadata
+            - log.agent
+            - log.ecs
+            - log.event
+            - log.host
+            - log.input
+            - log.log
+            - log.service
+            - log.fileset
+            - log.kibana
