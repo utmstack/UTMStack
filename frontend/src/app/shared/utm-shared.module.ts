@@ -217,6 +217,7 @@ import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
+import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 
 
 @NgModule({
@@ -356,7 +357,8 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
     ZoomDirective,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
-    EmailSettingNotificactionComponent
+    EmailSettingNotificactionComponent,
+    TimezoneOffsetPipe
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -449,7 +451,8 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
     UtmVersionInfoComponent,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
-    EmailSettingNotificactionComponent
+    EmailSettingNotificactionComponent,
+    TimezoneOffsetPipe
   ],
   entryComponents: [
     LoginComponent,
