@@ -1,3 +1,3 @@
-# UTMStack 10.5.8 Release Notes
+# UTMStack 10.5.9 Release Notes
 ## Bugfix
-- Fixed table display issue in dashboard PDF export by adjusting height for print layout.
+- The fix ensures that the correct GMT offset is now included when showing timezones, providing more accurate information to the user.
