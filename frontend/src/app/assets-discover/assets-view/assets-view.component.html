@@ -92,7 +92,12 @@
                    style="font-size: small"
                    tooltipClass="utm-tooltip-top"></i>
               </th>
-              <th class="font-weight-semibold cursor-pointer">
+              <th (sort)="onSortBy($event)"
+                  [isSortable]="true"
+                  [sortEvent]="sortEvent"
+                  [sortable]="'assetAlive'"
+                  appColumnSortable
+                  class="font-weight-semibold cursor-pointer">
                 Status
               </th>
               <th (sort)="onSortBy($event)"
