@@ -55,8 +55,58 @@ pipeline:
           fields:
             - log.messageId
           to: int
+      # Begining specific message parsing
+      #......................................................................#
+      # ASA-2-106001
+      - grok:
+          patterns:
+            - fieldName: log.direction
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: from.port
+              pattern: '/{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: to.port
+              pattern: '/{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'flags'
+            - fieldName: log.flags
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'on\sinterface'
+            - fieldName: log.interface
+              pattern: '{{.greedy}}'
+          source: log.msg
+
+      - trim:
+          function: prefix
+          substring: '/'
+          fields:
+            - from.port
+            - to.port
+      # Field conversions
+      - cast:
+          fields:
+            - from.port
+            - to.port
+          to: int
+
       # Removing unused fields
       - delete:
           fields:
             - log.asaHeader
             - log.ciscoSeparator
+            - log.irrelevant
+            - log.syslogPri
