@@ -166,14 +166,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 
-	commands := []models.AgentCommand{}
-	_, err = s.DBConnection.GetAll(&commands, "")
-	if err != nil {
-		utils.ALogger.ErrorF("failed to fetch agent commands: %v", err)
-		return nil, status.Errorf(codes.Internal, "failed to fetch agent commands: %v", err)
-	}
-
-	return convertModelToAgentResponse(agents, commands, total), nil
+	return convertModelToAgentResponse(agents, total), nil
 }
 
 func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error {

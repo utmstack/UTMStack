@@ -9,17 +9,10 @@ import (
 	"github.com/utmstack/config-client-go/types"
 )
 
-func convertModelToAgentResponse(agents []models.Agent, commands []models.AgentCommand, total int64) *ListAgentsResponse {
+func convertModelToAgentResponse(agents []models.Agent, total int64) *ListAgentsResponse {
 	var agentMessages []*Agent
 	for _, agent := range agents {
-		agentCommands := make([]models.AgentCommand, 0)
-		for _, command := range commands {
-			if command.AgentID == agent.ID {
-				agentCommands = append(agentCommands, command)
-			}
-		}
-		agentProto := parseAgentToProto(agent, agentCommands)
-		agentMessages = append(agentMessages, agentProto)
+		agentMessages = append(agentMessages, parseAgentToProto(agent))
 	}
 	return &ListAgentsResponse{
 		Rows:  agentMessages,
@@ -42,7 +35,7 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string, agentId uint) *models.A
 	return cmdHistory
 }
 
-func parseAgentToProto(agent models.Agent, commands []models.AgentCommand) *Agent {
+func parseAgentToProto(agent models.Agent) *Agent {
 	agentStatus, lastSeen, err := LastSeenServ.GetLastSeenStatus(agent.ID, "agent")
 	if err != nil {
 		utils.ALogger.ErrorF("failed to get last seen status for agent %d: %v", agent.ID, err)
@@ -62,9 +55,6 @@ func parseAgentToProto(agent models.Agent, commands []models.AgentCommand) *Agen
 		Mac:            agent.Mac,
 		OsMajorVersion: agent.OsMajorVersion,
 		OsMinorVersion: agent.OsMinorVersion,
-	}
-	if len(commands) > 0 {
-		agentResult.Commands = convertModelToAgentCommandsProto(commands)
 	}
 	return agentResult
 }
