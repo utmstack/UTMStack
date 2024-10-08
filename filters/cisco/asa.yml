@@ -1,0 +1,62 @@
+# CISCO ASA filter, version 3.0.0
+# Based on examples provided and https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field containing the Cisco ASA log
+pipeline:
+  - dataTypes:
+      - firewall-cisco-asa
+    steps:
+      # Common ASA fields
+      - grok:
+          patterns:
+            - fieldName: log.syslogPri
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.asaHeader
+              pattern: '{{.data}}ASA-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+            - fieldName: log.messageId
+              pattern: '-{{.integer}}'
+            - fieldName: log.ciscoSeparator
+              pattern: '\:{{.space}}'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.asaHeader
+              pattern: '{{.data}}ASA-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+            - fieldName: log.messageId
+              pattern: '-{{.integer}}'
+            - fieldName: log.ciscoSeparator
+              pattern: '\:{{.space}}'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      # Removing unwanted prefixes
+      - trim:
+          function: prefix
+          substring: '-'
+          fields:
+            - log.messageId
+      # Field conversions
+      - cast:
+          fields:
+            - log.messageId
+          to: int
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.asaHeader
+            - log.ciscoSeparator
