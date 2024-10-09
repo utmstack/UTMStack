@@ -29,7 +29,6 @@ private static final long serialVersionUID = 0L;
     osMinorVersion_ = "";
     aliases_ = "";
     addresses_ = "";
-    commands_ = java.util.Collections.emptyList();
   }
 
   @java.lang.Override
@@ -549,47 +548,6 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int COMMANDS_FIELD_NUMBER = 15;
-  @SuppressWarnings("serial")
-  private java.util.List<com.park.utmstack.service.grpc.AgentCommand> commands_;
-  /**
-   * <code>repeated .agent.AgentCommand commands = 15;</code>
-   */
-  @java.lang.Override
-  public java.util.List<com.park.utmstack.service.grpc.AgentCommand> getCommandsList() {
-    return commands_;
-  }
-  /**
-   * <code>repeated .agent.AgentCommand commands = 15;</code>
-   */
-  @java.lang.Override
-  public java.util.List<? extends com.park.utmstack.service.grpc.AgentCommandOrBuilder> 
-      getCommandsOrBuilderList() {
-    return commands_;
-  }
-  /**
-   * <code>repeated .agent.AgentCommand commands = 15;</code>
-   */
-  @java.lang.Override
-  public int getCommandsCount() {
-    return commands_.size();
-  }
-  /**
-   * <code>repeated .agent.AgentCommand commands = 15;</code>
-   */
-  @java.lang.Override
-  public com.park.utmstack.service.grpc.AgentCommand getCommands(int index) {
-    return commands_.get(index);
-  }
-  /**
-   * <code>repeated .agent.AgentCommand commands = 15;</code>
-   */
-  @java.lang.Override
-  public com.park.utmstack.service.grpc.AgentCommandOrBuilder getCommandsOrBuilder(
-      int index) {
-    return commands_.get(index);
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -646,9 +604,6 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(addresses_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 14, addresses_);
     }
-    for (int i = 0; i < commands_.size(); i++) {
-      output.writeMessage(15, commands_.get(i));
-    }
     getUnknownFields().writeTo(output);
   }
 
@@ -702,10 +657,6 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(addresses_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, addresses_);
     }
-    for (int i = 0; i < commands_.size(); i++) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(15, commands_.get(i));
-    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -748,8 +699,6 @@ private static final long serialVersionUID = 0L;
         .equals(other.getAliases())) return false;
     if (!getAddresses()
         .equals(other.getAddresses())) return false;
-    if (!getCommandsList()
-        .equals(other.getCommandsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -789,10 +738,6 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getAliases().hashCode();
     hash = (37 * hash) + ADDRESSES_FIELD_NUMBER;
     hash = (53 * hash) + getAddresses().hashCode();
-    if (getCommandsCount() > 0) {
-      hash = (37 * hash) + COMMANDS_FIELD_NUMBER;
-      hash = (53 * hash) + getCommandsList().hashCode();
-    }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -938,13 +883,6 @@ private static final long serialVersionUID = 0L;
       osMinorVersion_ = "";
       aliases_ = "";
       addresses_ = "";
-      if (commandsBuilder_ == null) {
-        commands_ = java.util.Collections.emptyList();
-      } else {
-        commands_ = null;
-        commandsBuilder_.clear();
-      }
-      bitField0_ = (bitField0_ & ~0x00004000);
       return this;
     }
 
@@ -971,22 +909,9 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.park.utmstack.service.grpc.Agent buildPartial() {
       com.park.utmstack.service.grpc.Agent result = new com.park.utmstack.service.grpc.Agent(this);
-      buildPartialRepeatedFields(result);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
-    }
-
-    private void buildPartialRepeatedFields(com.park.utmstack.service.grpc.Agent result) {
-      if (commandsBuilder_ == null) {
-        if (((bitField0_ & 0x00004000) != 0)) {
-          commands_ = java.util.Collections.unmodifiableList(commands_);
-          bitField0_ = (bitField0_ & ~0x00004000);
-        }
-        result.commands_ = commands_;
-      } else {
-        result.commands_ = commandsBuilder_.build();
-      }
     }
 
     private void buildPartial0(com.park.utmstack.service.grpc.Agent result) {
@@ -1145,32 +1070,6 @@ private static final long serialVersionUID = 0L;
         bitField0_ |= 0x00002000;
         onChanged();
       }
-      if (commandsBuilder_ == null) {
-        if (!other.commands_.isEmpty()) {
-          if (commands_.isEmpty()) {
-            commands_ = other.commands_;
-            bitField0_ = (bitField0_ & ~0x00004000);
-          } else {
-            ensureCommandsIsMutable();
-            commands_.addAll(other.commands_);
-          }
-          onChanged();
-        }
-      } else {
-        if (!other.commands_.isEmpty()) {
-          if (commandsBuilder_.isEmpty()) {
-            commandsBuilder_.dispose();
-            commandsBuilder_ = null;
-            commands_ = other.commands_;
-            bitField0_ = (bitField0_ & ~0x00004000);
-            commandsBuilder_ = 
-              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                 getCommandsFieldBuilder() : null;
-          } else {
-            commandsBuilder_.addAllMessages(other.commands_);
-          }
-        }
-      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -1267,19 +1166,6 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00002000;
               break;
             } // case 114
-            case 122: {
-              com.park.utmstack.service.grpc.AgentCommand m =
-                  input.readMessage(
-                      com.park.utmstack.service.grpc.AgentCommand.parser(),
-                      extensionRegistry);
-              if (commandsBuilder_ == null) {
-                ensureCommandsIsMutable();
-                commands_.add(m);
-              } else {
-                commandsBuilder_.addMessage(m);
-              }
-              break;
-            } // case 122
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -2244,246 +2130,6 @@ private static final long serialVersionUID = 0L;
       bitField0_ |= 0x00002000;
       onChanged();
       return this;
-    }
-
-    private java.util.List<com.park.utmstack.service.grpc.AgentCommand> commands_ =
-      java.util.Collections.emptyList();
-    private void ensureCommandsIsMutable() {
-      if (!((bitField0_ & 0x00004000) != 0)) {
-        commands_ = new java.util.ArrayList<com.park.utmstack.service.grpc.AgentCommand>(commands_);
-        bitField0_ |= 0x00004000;
-       }
-    }
-
-    private com.google.protobuf.RepeatedFieldBuilderV3<
-        com.park.utmstack.service.grpc.AgentCommand, com.park.utmstack.service.grpc.AgentCommand.Builder, com.park.utmstack.service.grpc.AgentCommandOrBuilder> commandsBuilder_;
-
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public java.util.List<com.park.utmstack.service.grpc.AgentCommand> getCommandsList() {
-      if (commandsBuilder_ == null) {
-        return java.util.Collections.unmodifiableList(commands_);
-      } else {
-        return commandsBuilder_.getMessageList();
-      }
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public int getCommandsCount() {
-      if (commandsBuilder_ == null) {
-        return commands_.size();
-      } else {
-        return commandsBuilder_.getCount();
-      }
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public com.park.utmstack.service.grpc.AgentCommand getCommands(int index) {
-      if (commandsBuilder_ == null) {
-        return commands_.get(index);
-      } else {
-        return commandsBuilder_.getMessage(index);
-      }
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder setCommands(
-        int index, com.park.utmstack.service.grpc.AgentCommand value) {
-      if (commandsBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        ensureCommandsIsMutable();
-        commands_.set(index, value);
-        onChanged();
-      } else {
-        commandsBuilder_.setMessage(index, value);
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder setCommands(
-        int index, com.park.utmstack.service.grpc.AgentCommand.Builder builderForValue) {
-      if (commandsBuilder_ == null) {
-        ensureCommandsIsMutable();
-        commands_.set(index, builderForValue.build());
-        onChanged();
-      } else {
-        commandsBuilder_.setMessage(index, builderForValue.build());
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder addCommands(com.park.utmstack.service.grpc.AgentCommand value) {
-      if (commandsBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        ensureCommandsIsMutable();
-        commands_.add(value);
-        onChanged();
-      } else {
-        commandsBuilder_.addMessage(value);
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder addCommands(
-        int index, com.park.utmstack.service.grpc.AgentCommand value) {
-      if (commandsBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        ensureCommandsIsMutable();
-        commands_.add(index, value);
-        onChanged();
-      } else {
-        commandsBuilder_.addMessage(index, value);
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder addCommands(
-        com.park.utmstack.service.grpc.AgentCommand.Builder builderForValue) {
-      if (commandsBuilder_ == null) {
-        ensureCommandsIsMutable();
-        commands_.add(builderForValue.build());
-        onChanged();
-      } else {
-        commandsBuilder_.addMessage(builderForValue.build());
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder addCommands(
-        int index, com.park.utmstack.service.grpc.AgentCommand.Builder builderForValue) {
-      if (commandsBuilder_ == null) {
-        ensureCommandsIsMutable();
-        commands_.add(index, builderForValue.build());
-        onChanged();
-      } else {
-        commandsBuilder_.addMessage(index, builderForValue.build());
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder addAllCommands(
-        java.lang.Iterable<? extends com.park.utmstack.service.grpc.AgentCommand> values) {
-      if (commandsBuilder_ == null) {
-        ensureCommandsIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, commands_);
-        onChanged();
-      } else {
-        commandsBuilder_.addAllMessages(values);
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder clearCommands() {
-      if (commandsBuilder_ == null) {
-        commands_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00004000);
-        onChanged();
-      } else {
-        commandsBuilder_.clear();
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public Builder removeCommands(int index) {
-      if (commandsBuilder_ == null) {
-        ensureCommandsIsMutable();
-        commands_.remove(index);
-        onChanged();
-      } else {
-        commandsBuilder_.remove(index);
-      }
-      return this;
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public com.park.utmstack.service.grpc.AgentCommand.Builder getCommandsBuilder(
-        int index) {
-      return getCommandsFieldBuilder().getBuilder(index);
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public com.park.utmstack.service.grpc.AgentCommandOrBuilder getCommandsOrBuilder(
-        int index) {
-      if (commandsBuilder_ == null) {
-        return commands_.get(index);  } else {
-        return commandsBuilder_.getMessageOrBuilder(index);
-      }
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public java.util.List<? extends com.park.utmstack.service.grpc.AgentCommandOrBuilder> 
-         getCommandsOrBuilderList() {
-      if (commandsBuilder_ != null) {
-        return commandsBuilder_.getMessageOrBuilderList();
-      } else {
-        return java.util.Collections.unmodifiableList(commands_);
-      }
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public com.park.utmstack.service.grpc.AgentCommand.Builder addCommandsBuilder() {
-      return getCommandsFieldBuilder().addBuilder(
-          com.park.utmstack.service.grpc.AgentCommand.getDefaultInstance());
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public com.park.utmstack.service.grpc.AgentCommand.Builder addCommandsBuilder(
-        int index) {
-      return getCommandsFieldBuilder().addBuilder(
-          index, com.park.utmstack.service.grpc.AgentCommand.getDefaultInstance());
-    }
-    /**
-     * <code>repeated .agent.AgentCommand commands = 15;</code>
-     */
-    public java.util.List<com.park.utmstack.service.grpc.AgentCommand.Builder> 
-         getCommandsBuilderList() {
-      return getCommandsFieldBuilder().getBuilderList();
-    }
-    private com.google.protobuf.RepeatedFieldBuilderV3<
-        com.park.utmstack.service.grpc.AgentCommand, com.park.utmstack.service.grpc.AgentCommand.Builder, com.park.utmstack.service.grpc.AgentCommandOrBuilder> 
-        getCommandsFieldBuilder() {
-      if (commandsBuilder_ == null) {
-        commandsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-            com.park.utmstack.service.grpc.AgentCommand, com.park.utmstack.service.grpc.AgentCommand.Builder, com.park.utmstack.service.grpc.AgentCommandOrBuilder>(
-                commands_,
-                ((bitField0_ & 0x00004000) != 0),
-                getParentForChildren(),
-                isClean());
-        commands_ = null;
-      }
-      return commandsBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

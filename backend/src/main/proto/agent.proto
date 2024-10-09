@@ -64,7 +64,6 @@ message Agent {
     string os_minor_version = 12;
     string aliases = 13;
     string addresses = 14;
-    repeated AgentCommand commands = 15;
 }
 
 message BidirectionalStream {
