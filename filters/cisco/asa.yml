@@ -12,7 +12,7 @@ pipeline:
           patterns:
             - fieldName: log.syslogPri
               pattern: '(\<{{.integer}}\>)'
-            - fieldName: deviceTime
+            - fieldName: log.ciscoTime
               pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
               pattern: '{{.ipv4}}|{{.ipv6}}'
@@ -29,7 +29,7 @@ pipeline:
           source: raw
       - grok:
           patterns:
-            - fieldName: deviceTime
+            - fieldName: log.ciscoTime
               pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
               pattern: '{{.ipv4}}|{{.ipv6}}'
@@ -119,6 +119,30 @@ pipeline:
               pattern: 'to'
             - fieldName: to.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - action
+      #......................................................................#
+      # ASA-1-106021
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: action
+              pattern: '{{.greedy}}from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: log.irrelevant
+              pattern: 'on\sinterface'
+            - fieldName: log.interface
+              pattern: '{{.greedy}}'
           source: log.msg
       - trim:
           function: suffix
