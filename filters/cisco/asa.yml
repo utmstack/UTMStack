@@ -178,6 +178,11 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
+      # Field conversions
+      - cast:
+          fields:
+            - log.numFlows
+          to: int
       
       # Removing unused fields
       - delete:
