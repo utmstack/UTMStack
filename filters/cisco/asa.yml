@@ -96,12 +96,6 @@ pipeline:
           fields:
             - from.port
             - to.port
-      # Field conversions
-      - cast:
-          fields:
-            - from.port
-            - to.port
-          to: int
 
       #......................................................................#
       #ASA-2-106017
@@ -184,6 +178,65 @@ pipeline:
             - log.numFlows
           to: int
       
+      #......................................................................#
+      # ASA-6-106102,106103
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'access-list'
+            - fieldName: log.accessList
+              pattern: '{{.data}}\s'
+            - fieldName: action
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: local.user
+              pattern: '(''{{.data}}''|{{.data}})\s'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}/'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}/'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'hit-cnt'
+            - fieldName: log.hitCount
+              pattern: '{{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - local.user
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - local.user
+      
+      #......................................................................#
+      # Common field conversions
+      - cast:
+          fields:
+            - from.port
+            - to.port
+          to: int
       # Removing unused fields
       - delete:
           fields:
