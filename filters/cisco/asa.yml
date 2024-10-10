@@ -13,9 +13,9 @@ pipeline:
             - fieldName: log.syslogPri
               pattern: '(\<{{.integer}}\>)'
             - fieldName: log.ciscoTime
-              pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+              pattern: '({{.day}}\s)?{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
-              pattern: '{{.ipv4}}|{{.ipv6}}'
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.asaHeader
               pattern: '{{.data}}ASA-'
             - fieldName: log.severity
@@ -30,9 +30,9 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.ciscoTime
-              pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+              pattern: '({{.day}}\s)?{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
-              pattern: '{{.ipv4}}|{{.ipv6}}'
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.asaHeader
               pattern: '{{.data}}ASA-'
             - fieldName: log.severity
@@ -180,6 +180,7 @@ pipeline:
       
       #......................................................................#
       # ASA-6-106102,106103
+      # First variant
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -213,6 +214,42 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'access-list'
+            - fieldName: log.accessList
+              pattern: '{{.data}}\s'
+            - fieldName: action
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: local.user
+              pattern: '(''{{.data}}''|{{.data}})\s'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}/'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: from.port
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '-\>'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}/'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: to.port
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'hit-cnt'
+            - fieldName: log.hitCount
+              pattern: '{{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
       - trim:
           function: suffix
           substring: '/'
@@ -229,6 +266,18 @@ pipeline:
           substring: ''''
           fields:
             - local.user
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - from.port
+            - to.port
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - from.port
+            - to.port
       
       #......................................................................#
       # Common field conversions
