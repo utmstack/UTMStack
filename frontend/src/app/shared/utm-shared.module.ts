@@ -224,6 +224,8 @@ import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
+import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 
 
 @NgModule({
@@ -365,6 +367,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
+    TimezoneOffsetPipe
+    EmailSettingNotificactionComponent,
     RefreshFilterComponent,
     UtmNotificationComponent,
     BadgeTypeDirective,
@@ -462,6 +466,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmVersionInfoComponent,
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
+    EmailSettingNotificactionComponent,
+    TimezoneOffsetPipe
     EmailSettingNotificactionComponent,
     RefreshFilterComponent,
     UtmNotificationComponent,

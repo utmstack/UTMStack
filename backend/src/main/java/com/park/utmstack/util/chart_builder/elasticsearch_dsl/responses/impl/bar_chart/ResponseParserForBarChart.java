@@ -106,6 +106,9 @@ public class ResponseParserForBarChart implements ResponseParser<BarChartResult>
                 if (CollectionUtils.isEmpty(_buckets))
                     return;
                 for (BucketAggregation _bucket : _buckets) {
+                    if(_bucket.getKey().isEmpty()){
+                        _bucket.setKey("UNKNOWN");
+                    }
                     if (bucket.getType().equals(BucketType.AXIS))
                         retValue.addCategory(_bucket.getKey());
                     keys.add(_bucket.getKey());

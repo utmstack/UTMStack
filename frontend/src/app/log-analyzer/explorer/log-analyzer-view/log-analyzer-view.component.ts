@@ -4,6 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
+import {Observable} from 'rxjs';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ElasticFilterDefaultTime} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
@@ -16,7 +17,6 @@ import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum
 import {DataNatureTypeEnum, NatureDataPrefixEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataExportService} from '../../../shared/services/elasticsearch/elastic-data-export.service';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
-import {ElasticSearchIndexService} from '../../../shared/services/elasticsearch/elasticsearch-index.service';
 import {TimezoneFormatService} from '../../../shared/services/utm-timezone.service';
 import {DatePipeDefaultOptions} from '../../../shared/types/date-pipe-default-options';
 import {ElasticSearchFieldInfoType} from '../../../shared/types/elasticsearch/elastic-search-field-info.type';
@@ -25,7 +25,6 @@ import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pat
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {parseQueryParamsToFilter} from '../../../shared/util/query-params-to-filter.util';
 import {LogAnalyzerQueryCreateComponent} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
-import {DataSortBehavior} from '../../shared/behaviors/data-sort.behavior';
 import {IndexFieldController} from '../../shared/behaviors/index-field-controller.behavior';
 import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavior';
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
@@ -67,11 +66,10 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   patterns: UtmIndexPattern[];
   paramLoaded = false;
   defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
-  dateFormat: DatePipeDefaultOptions;
+  dateFormat$: Observable<DatePipeDefaultOptions>;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
               private logAnalyzerService: ElasticDataService,
-              private indexPatternFieldService: ElasticSearchIndexService,
               private indexFieldController: IndexFieldController,
               private modalService: NgbModal,
               private queryRunBehavior: QueryRunBehavior,
@@ -79,7 +77,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
               private utmToastService: UtmToastService,
               private utmFilterBehavior: UtmFilterBehavior,
               private elasticDataExportService: ElasticDataExportService,
-              private dataSortBehavior: DataSortBehavior,
               private timezoneFormatService: TimezoneFormatService,
               private logFilterBehavior: LogFilterBehavior) {
     this.detailWidth = (this.pageWidth - 310);
@@ -98,15 +95,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.timezoneFormatService.getDateFormatSubject().subscribe(format => {
-      this.dateFormat = format;
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.filters = [];
-    this.utmFilterBehavior.$filterChange.next(null);
-    this.utmFilterBehavior.$filterExistChange.next(null);
   }
 
   ngOnInit() {
@@ -117,6 +105,8 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     } else {
       this.initExplorer();
     }
+
+    this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
   }
 
   initExplorer() {
@@ -337,5 +327,11 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       this.detailWidth = (this.pageWidth - $event.rectangle.width - 10);
       this.fieldWidth = $event.rectangle.width + 'px';
     }
+  }
+
+  ngOnDestroy(): void {
+    this.filters = [];
+    this.utmFilterBehavior.$filterChange.next(null);
+    this.utmFilterBehavior.$filterExistChange.next(null);
   }
 }
