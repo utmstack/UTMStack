@@ -7,10 +7,10 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {TranslateModule} from '@ngx-translate/core';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
-import {InfiniteScrollModule} from "ngx-infinite-scroll";
+import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NgxSortableModule} from 'ngx-sortable-2';
-import {LocalStorageService} from "ngx-webstorage";
+import {LocalStorageService} from 'ngx-webstorage';
 import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-group-add/assets-group-add.module';
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
@@ -223,9 +223,8 @@ import {ThousandSuffPipe} from './pipes/numbers/thousand-suff.pipe';
 import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
-import {UtmNotifier} from './websocket/utm-notifier';
-import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
+import {UtmNotifier} from './websocket/utm-notifier';
 
 
 @NgModule({
@@ -367,8 +366,7 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
-    TimezoneOffsetPipe
-    EmailSettingNotificactionComponent,
+    TimezoneOffsetPipe,
     RefreshFilterComponent,
     UtmNotificationComponent,
     BadgeTypeDirective,
@@ -467,8 +465,7 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
-    TimezoneOffsetPipe
-    EmailSettingNotificactionComponent,
+    TimezoneOffsetPipe,
     RefreshFilterComponent,
     UtmNotificationComponent,
     BadgeTypeDirective,
