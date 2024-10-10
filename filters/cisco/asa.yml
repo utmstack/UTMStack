@@ -278,7 +278,31 @@ pipeline:
           fields:
             - from.port
             - to.port
-      
+      #......................................................................#
+      # ASA-4-109017
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'User at'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: log.irrelevant
+              pattern: 'exceeded auth proxy connection limit'
+            - fieldName: log.limit
+              pattern: '\({{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - log.limit
+      - cast:
+          fields:
+            - log.limit
+          to: int
       #......................................................................#
       # Common field conversions
       - cast:
