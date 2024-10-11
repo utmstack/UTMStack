@@ -8,12 +8,9 @@ import {
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Observable} from 'rxjs';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {FieldDataService} from '../../../../shared/services/elasticsearch/field-data.service';
-import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
 import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
-import {urlValidator, variableTemplate} from "../../../custom-validators";
 
 @Component({
   selector: 'app-add-rule',
