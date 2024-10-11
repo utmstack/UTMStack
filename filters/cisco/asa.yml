@@ -493,6 +493,17 @@ pipeline:
             - to.ip
             - local.user
       #......................................................................#
+      # ASA-6-113008
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA transaction status ACCEPT(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?(u|U)ser(\s)?=(\s)?'
+            - fieldName: local.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
