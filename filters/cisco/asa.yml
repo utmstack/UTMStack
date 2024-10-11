@@ -393,6 +393,33 @@ pipeline:
           fields:
             - local.user
       #......................................................................#
+      # ASA-109201 to 109213
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'UAUTH(:)? Session(\s|=)'
+            - fieldName: log.session
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'User(\s|=)'
+            - fieldName: local.user
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'Assigned IP(\s|=)'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: action
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.session
+            - local.user
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
