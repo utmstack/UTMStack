@@ -56,6 +56,7 @@ export class UtmTableDetailViewComponent implements OnInit {
   }
 
   isDate(key: string, value: string): boolean {
-    return (key.toLowerCase().includes('time') || key.toLowerCase().includes('date')) && !isNaN(new Date(value).getDate());
+    return (key.toLowerCase().includes('time') || key.toLowerCase().includes('date'))
+      && (isNaN(Number(value)) && !isNaN(new Date(value).getDate()));
   }
 }
