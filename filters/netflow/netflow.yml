@@ -1,0 +1,63 @@
+# Netflow firewall module filter, version 3.0.0
+# Based in docs and samples provided
+# 
+# Documentations
+# 1- https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html 
+# 2- http://www.iana.org/assignments/ipfix/ipfix.xhtml 
+# 3- https://helpdesk.kaseya.com/hc/en-gb/articles/115003522631-How-to-view-NetFlow-in-WireShark 
+# 
+# Implementation
+# 1. Parsing the RAW field containing the Netflow
+pipeline:
+  - dataTypes:
+      - netflow
+    steps:
+
+      #Using grok to parse priority if present
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.kvMessage
+              pattern: '{{.greedy}}'
+
+      #Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          source: log.kvMessage
+          fieldSplit: " "
+          valueSplit: "="
+
+      # Rename standard fields and fields out of kv result
+      - rename:
+          from:
+            - log.dstAddr
+          to: to.ip
+      - rename:
+          from:
+            - log.dstport
+          to: to.port
+      - rename:
+          from:
+            - log.srcAddr
+          to: from.ip
+      - rename:
+          from:
+            - log.srcPort
+          to: from.port
+
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.kvMessage
