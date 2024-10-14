@@ -34,7 +34,7 @@ pipeline:
           to: action
       - rename:
           from:
-            - log.dstip
+            - log.dst
           to: to.ip
       - rename:
           from:
@@ -42,7 +42,7 @@ pipeline:
           to: to.port
       - rename:
           from:
-            - log.srcip
+            - log.src
           to: from.ip
       - rename:
           from:
