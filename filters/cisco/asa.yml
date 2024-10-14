@@ -527,6 +527,23 @@ pipeline:
           substring: ')'
           fields:
             - log.policy
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA retrieved default group policy'
+            - fieldName: log.policy
+              pattern: '{{.data}}\sfor'
+            - fieldName: log.irrelevant
+              pattern: '(u|U)ser(\s)?'
+            - fieldName: local.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.policy
       #......................................................................#
       # Common field conversions
       - cast:
