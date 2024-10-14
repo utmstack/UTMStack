@@ -1,0 +1,192 @@
+# Mikrotik firewall module filter, version 3.0.0
+# Based in docs and samples provided
+# 
+# Documentations
+# 1- https://wiki.mikrotik.com/wiki/Manual:System/Log 
+# 2- https://wiki.mikrotik.com/wiki/Manual:Routing_Table_Matcher 
+# 3- https://datatracker.ietf.org/doc/html/rfc3164 
+# 
+# Implementation
+# 1. Parsing the RAW field containing the Mikrotik
+pipeline:
+  - dataTypes:
+      - firewall-mikrotik
+    steps:
+
+      # Using grok to parse header of the message
+      # First if message begins with time format
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+
+      # Using grok to parse rest of the message        
+      - grok:
+          patterns:
+            - fieldName: log.topics
+              pattern: '{{.word}}'
+            - fieldName: log.chain
+              pattern: '\,{{.data}}\s'
+            - fieldName: log.kvMessage
+              pattern: '{{.data}}\,'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Using kv to parse message
+      - kv:
+          source: log.kvMessage
+          fieldSplit: " "
+          valueSplit: ":"
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.kvMessage
+      
+      # Using grok to parse rest of the message with IP and Port  
+      # Example 192.168.1.2:8080->10.5.5.1:3000 
+      - grok:
+          patterns:
+            - fieldName: log.trash
+              pattern: '{{.word}}(-){{.word}}'
+            - fieldName: log.srcMac
+              pattern: '{{.commonMacAddr}}'
+            - fieldName: log.trash2
+              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: log.proto
+              pattern: '{{.word}}|{{.integer}}'
+            - fieldName: log.trash3
+              pattern: '{{.data}}\)'
+            - fieldName: log.srcIp
+              pattern: '\,{{.space}}{{.ipv4}}'
+            - fieldName: log.srcPort
+              pattern: '\:{{.integer}}'
+            - fieldName: log.trash4
+              pattern: '(->)'
+            - fieldName: log.dstIp
+              pattern: '{{.ipv4}}'
+            - fieldName: log.dstPort
+              pattern: '\:{{.integer}}'
+            - fieldName: log.trash5
+              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: log.len
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Using grok to parse rest of the message with IP without Port  
+      # Example 192.168.1.2->10.5.5.1
+      - grok:
+          patterns:
+            - fieldName: log.trash
+              pattern: '{{.word}}(-){{.word}}'
+            - fieldName: log.srcMac
+              pattern: '{{.commonMacAddr}}'
+            - fieldName: log.trash2
+              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: log.proto
+              pattern: '{{.word}}|{{.integer}}'
+            - fieldName: log.srcIp
+              pattern: '\,{{.space}}{{.ipv4}}'
+            - fieldName: log.trash4
+              pattern: '(->)'
+            - fieldName: log.dstIp
+              pattern: '{{.ipv4}}'
+            - fieldName: log.trash5
+              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: log.len
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Using grok to parse rest of the message with IP without Port  
+      # Example 192.168.1.2->10.5.5.1:8080
+      - grok:
+          patterns:
+            - fieldName: log.trash
+              pattern: '{{.word}}(-){{.word}}'
+            - fieldName: log.srcMac
+              pattern: '{{.commonMacAddr}}'
+            - fieldName: log.trash2
+              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: log.proto
+              pattern: '{{.word}}|{{.integer}}'
+            - fieldName: log.trash3
+              pattern: '{{.data}}\)'
+            - fieldName: log.srcIp
+              pattern: '\,{{.space}}{{.ipv4}}'
+            - fieldName: log.trash4
+              pattern: '(->)'
+            - fieldName: log.dstIp
+              pattern: '{{.ipv4}}'
+            - fieldName: log.dstPort
+              pattern: '\:{{.integer}}'
+            - fieldName: log.trash5
+              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: log.len
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Rename filds
+      - rename:
+          from:
+            - log.srcIp
+          to: from.ip
+      - rename:
+          from:
+            - log.dstIp
+          to: to.ip
+      - rename:
+          from:
+            - log.srcMac
+          to: from.mac
+      - rename:
+          from:
+            - log.proto
+          to: protocol
+
+      # Removing unused caracters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: prefix
+          substring: ':'
+          fields:
+            - log.dstPort
+            - log.srcPort
+      - trim:
+          function: prefix
+          substring: ','
+          fields:
+            - log.chain
+            - from.ip
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      # Fields conversions
+      - cast:
+          to: 'int'
+          fields:
+            - log.priority
+            - log.len
+            - log.srcPort
+            - log.dstPort
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.trash
+            - log.trash2
+            - log.trash3
+            - log.trash4
+            - log.trash5
+            - log.restData
