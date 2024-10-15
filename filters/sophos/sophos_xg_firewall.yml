@@ -1,5 +1,9 @@
 # Sophos_GX filter using "SF syslog file guide 20.0"
-# Supports log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed".
+# Supports
+# log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed".
+# log_type="Content Filtering" log_component="Application" log_subtype="Denied"
+# log_type="Anti-Virus" log_component="HTTPS|FTP" log_subtype="Virus"
+
 # See: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
 # and https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
 
@@ -8,7 +12,7 @@ pipeline:
   - dataTypes:
       - firewall-sophos-xg
     steps:
-      # Parsing the raw field
+      # Parsing the raw field for log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed"
       - grok:
           patterns:
             - fieldName: log.1trash
@@ -43,7 +47,7 @@ pipeline:
               pattern: '{{.data}}timezone=\"{{.data}}\"'
             - fieldName: log.3trash
               pattern: '{{.word}}\='
-            - fieldName: log.deviceName
+            - fieldName: log.devicename
               pattern: '\"{{.data}}\"'
           source: log.2blockToParse
 
@@ -56,15 +60,15 @@ pipeline:
               pattern: '{{.word}}\s'
             - fieldName: log.5trash
               pattern: '{{.data}}\='
-            - fieldName: log.logId
+            - fieldName: log.logid
               pattern: '{{.word}}\s'
             - fieldName: log.6trash
               pattern: '{{.data}}\='
-            - fieldName: log.logType
+            - fieldName: log.logtype
               pattern: '\"{{.data}}\"'
             - fieldName: log.7trash
               pattern: '{{.data}}\='
-            - fieldName: log.logComponent
+            - fieldName: log.logcomponent
               pattern: '\"{{.data}}\"'
           source: log.3blockToParse
 
@@ -129,7 +133,7 @@ pipeline:
               pattern: '{{.time}}'
             - fieldName: log.15trash
               pattern: '{{.data}}\='
-            - fieldName: log.zone
+            - fieldName: log.timezone
               pattern: '\"{{.data}}\"'
           source: log.7blockToParse
 
@@ -162,6 +166,179 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.9blockToParse
 
+      # Parsing the raw field for log_type="Content Filtering" log_component="Application" log_subtype="Denied"
+      - grok:
+          patterns:
+            - fieldName: log.1trash
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.2blockToParse
+              pattern: '{{.data}}device_name=\"{{.data}}\"'
+            - fieldName: log.3blockToParse
+              pattern: '{{.data}}log_component=\"{{.data}}\"'
+            - fieldName: log.4blockToParse
+              pattern: '{{.data}}category=\"{{.data}}\"'
+            - fieldName: log.5blockToParse
+              pattern: '{{.data}}application_name=\"{{.data}}\"'
+            - fieldName: log.6blockToParse
+              pattern: '{{.data}}application_technology=\"{{.data}}\"'
+            - fieldName: log.7blockToParse
+              pattern: '{{.data}}application_category=\"{{.data}}\"'
+            - fieldName: log.8blockToParse
+              pattern: '{{.data}}message=\"{{.data}}\"'
+            - fieldName: log.1blockToParse
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.1blockToParse
+
+      # Parsing the 2block field
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.word}}\='
+            - fieldName: log.deviceType
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.9blockToParse
+              pattern: '{{.data}}timezone=\"{{.data}}\"'
+            - fieldName: log.3trash
+              pattern: '{{.word}}\='
+            - fieldName: log.devicename
+              pattern: '\"{{.data}}\"'
+          source: log.2blockToParse
+
+      # Parsing the 3block field
+      - grok:
+          patterns:
+            - fieldName: log.10blockToParse
+              pattern: '{{.data}}log_type='
+            - fieldName: log.logtype
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.4trash
+              pattern: '{{.data}}\='
+            - fieldName: log.logcomponent
+              pattern: '{{.greedy}}'
+          source: log.3blockToParse
+
+      # Parsing the 9block field
+      - grok:
+          patterns:
+            - fieldName: log.13trash
+              pattern: '{{.data}}\='
+            - fieldName: log.date
+              pattern: '{{.year}}\-{{.monthNumber}}\-{{.monthDay}}'
+            - fieldName: log.14trash
+              pattern: '{{.data}}\='
+            - fieldName: log.time
+              pattern: '{{.time}}'
+            - fieldName: log.15trash
+              pattern: '{{.data}}\='
+            - fieldName: log.timezone
+              pattern: '\"{{.data}}\"'
+          source: log.9blockToParse
+
+      # Parsing the 4block field
+      - grok:
+          patterns:
+            - fieldName: log.11blockToParse
+              pattern: '{{.data}}category='
+            - fieldName: log.category
+              pattern: '\"{{.data}}\"'
+          source: log.4blockToParse
+
+      # Parsing the 5block field
+      - grok:
+          patterns:
+            - fieldName: log.14trash
+              pattern: '{{.data}}\='
+            - fieldName: log.applicationName
+              pattern: '{{.greedy}}'
+          source: log.5blockToParse
+
+      # Parsing the 6block field
+      - grok:
+          patterns:
+            - fieldName: log.15trash
+              pattern: '{{.data}}\='
+            - fieldName: log.applicationRisk
+              pattern: '{{.integer}}'
+            - fieldName: log.16trash
+              pattern: '{{.data}}\='
+            - fieldName: log.applicationTech
+              pattern: '{{.greedy}}'
+          source: log.6blockToParse
+
+      # Parsing the 7block field
+      - grok:
+          patterns:
+            - fieldName: log.17trash
+              pattern: '{{.data}}\='
+            - fieldName: log.applicationCategory
+              pattern: '{{.greedy}}'
+          source: log.7blockToParse
+
+      # Parsing the 8block field
+      - grok:
+          patterns:
+            - fieldName: log.4blockToKv
+              pattern: '{{.data}}status={{.data}}'
+            - fieldName: log.18trash
+              pattern: '{{.data}}\='
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.8blockToParse
+
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.4blockToKv
+
+      # Parsing the 10block field
+      - grok:
+          patterns:
+            - fieldName: log.5trash
+              pattern: '{{.data}}\='
+            - fieldName: log.deviceId
+              pattern: '{{.word}}'
+            - fieldName: log.6trash
+              pattern: '{{.data}}\='
+            - fieldName: log.logid
+              pattern: '{{.word}}'
+            - fieldName: log.7trash
+              pattern: '{{.greedy}}'
+          source: log.10blockToParse
+
+      # Parsing the 11block field
+      - grok:
+          patterns:
+            - fieldName: log.3blockToKv
+              pattern: '{{.data}}application_filter_policy={{.word}}'
+            - fieldName: log.8trash
+              pattern: '{{.greedy}}'
+          source: log.11blockToParse
+
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.3blockToKv
+
+      # Parsing the raw field for log_type="Anti-Virus" log_component="HTTPS|FTP" log_subtype="Virus"
+      - grok:
+          patterns:
+            - fieldName: log.1trash
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.1blockToParse
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.1blockToParse
+
+      # Renaming useful fields
       - rename:
           from:
             - log.appiscloud
@@ -224,17 +401,17 @@ pipeline:
 
       - rename:
           from:
-            - log.logComponent
+            - log.logcomponent
           to: log.component
 
       - rename:
           from:
-            - log.logId
+            - log.logid
           to: log.Id
 
       - rename:
           from:
-            - log.logType
+            - log.logtype
           to: log.type
 
       - rename:
@@ -282,6 +459,66 @@ pipeline:
             - log.username
           to: log.userName
 
+      - rename:
+          from:
+            - log.srccountrycode
+          to: log.srcCountryCode
+
+      - rename:
+          from:
+            - log.dstcountrycode
+          to: log.dstCountryCode
+
+      - rename:
+          from:
+            - log.appresolvedby
+          to: log.appResolvedBy
+
+      - rename:
+          from:
+            - log.applicationfilterpolicy
+          to: log.applicationFilterPolicy
+
+      - rename:
+          from:
+            - log.device
+          to: log.deviceType
+
+      - rename:
+          from:
+            - log.devicename
+          to: log.deviceName
+
+      - rename:
+          from:
+            - log.domainname
+          to: log.domainName
+
+      - rename:
+          from:
+            - log.timezone
+          to: log.timeZone
+
+      - rename:
+          from:
+            - log.filename
+          to: log.fileName
+
+      - rename:
+          from:
+            - log.filepath
+          to: log.filePath
+
+      - rename:
+          from:
+            - log.ftpcommand
+          to: log.ftpCommand
+
+      - rename:
+          from:
+            - log.dstdomain
+          to: log.dstDomain
+
       # Removing unnecessary characters
       - trim:
           function: prefix
@@ -292,7 +529,14 @@ pipeline:
             - log.component
             - log.contentType
             - log.deviceName
+            - log.domainName
+            - log.dstDomain
             - log.deviceType
+            - log.ftpCommand
+            - log.fileName
+            - log.filePath
+            - log.FTPdirection
+            - log.FTPurl
             - log.downloadFileName
             - log.downloadFileType
             - log.protocol
@@ -305,10 +549,15 @@ pipeline:
             - log.uploadFileName
             - log.uploadfiletype
             - log.url
+            - log.virus
             - log.userAgent
             - log.userGroup
             - log.userName
-            - log.zone
+            - log.timeZone
+            - log.applicationCategory
+            - log.applicationName
+            - log.applicationTech
+            - log.appResolvedBy
 
       - trim:
           function: suffix
@@ -319,7 +568,14 @@ pipeline:
             - log.component
             - log.contentType
             - log.deviceName
+            - log.domainName
+            - log.dstDomain
             - log.deviceType
+            - log.ftpCommand
+            - log.fileName
+            - log.filePath
+            - log.FTPdirection
+            - log.FTPurl
             - log.downloadFileName
             - log.downloadFileType
             - log.protocol
@@ -332,10 +588,15 @@ pipeline:
             - log.uploadFileName
             - log.uploadfiletype
             - log.url
+            - log.virus
             - log.userAgent
             - log.userGroup
             - log.userName
-            - log.zone
+            - log.timeZone
+            - log.applicationCategory
+            - log.applicationName
+            - log.applicationTech
+            - log.appResolvedBy
 
       # Field conversions
       - cast:
@@ -376,8 +637,12 @@ pipeline:
             - log.7blockToParse
             - log.8blockToParse
             - log.9blockToParse
+            - log.10blockToParse
+            - log.11blockToParse
             - log.1blockToKv
             - log.2blockToKv
+            - log.3blockToKv
+            - log.4blockToKv
             - log.activityname
             - log.application
             - log.httpresponsecode
