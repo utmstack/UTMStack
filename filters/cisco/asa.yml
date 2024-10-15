@@ -545,6 +545,63 @@ pipeline:
           fields:
             - log.policy
       #......................................................................#
+      # ASA-6-113010
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA challenge received for user'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}}) from server'
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: 'from server'
+          fields:
+            - from.user
+      #......................................................................#
+      # ASA-6-113011
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA retrieved user specific group policy'
+            - fieldName: log.policy
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'for (u|U)ser(\s)?=(\s)?'
+            - fieldName: local.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - log.policy
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.policy
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA retrieved user specific group policy'
+            - fieldName: log.policy
+              pattern: '{{.data}}\sfor'
+            - fieldName: log.irrelevant
+              pattern: '(u|U)ser(\s)?'
+            - fieldName: local.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.policy
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
