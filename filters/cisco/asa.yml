@@ -193,7 +193,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '(''{{.data}}''|{{.data}})\s'
             - fieldName: log.srcInterface
               pattern: '{{.data}}/'
@@ -227,7 +227,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '(''{{.data}}''|{{.data}})\s'
             - fieldName: log.srcInterface
               pattern: '{{.data}}/'
@@ -260,12 +260,12 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - local.user
+            - from.user
       - trim:
           function: suffix
           substring: ''''
           fields:
-            - local.user
+            - from.user
       - trim:
           function: prefix
           substring: '('
@@ -315,7 +315,7 @@ pipeline:
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '(''{{.data}}''|{{.data}}),'
             - fieldName: log.irrelevant
               pattern: 'with\saudit-session-id:'
@@ -336,7 +336,7 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - local.user
+            - from.user
       #......................................................................#
       # ASA-4-109102
       - grok:
@@ -372,7 +372,7 @@ pipeline:
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'failed for user'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '(''{{.data}}''|{{.data}}),'
             - fieldName: log.irrelevant
               pattern: 'with session ID:'
@@ -391,7 +391,7 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - local.user
+            - from.user
       #......................................................................#
       # ASA-109201 to 109213
       - grok:
@@ -402,7 +402,7 @@ pipeline:
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'User(\s|=)'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'Assigned IP(\s|=)'
@@ -418,7 +418,7 @@ pipeline:
           substring: ','
           fields:
             - log.session
-            - local.user
+            - from.user
       #......................................................................#
       # ASA-6-113004
       - grok:
@@ -433,7 +433,7 @@ pipeline:
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser(\s)?=(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
       # Action result
@@ -470,7 +470,7 @@ pipeline:
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser(\s)?=(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser IP(\s)?=(\s)?'
@@ -491,7 +491,7 @@ pipeline:
           fields:
             - log.reason
             - to.ip
-            - local.user
+            - from.user
       #......................................................................#
       # ASA-6-113008
       - grok:
@@ -500,7 +500,7 @@ pipeline:
               pattern: 'AAA transaction status ACCEPT(\s)?'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?(u|U)ser(\s)?=(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
       #......................................................................#
@@ -514,7 +514,7 @@ pipeline:
               pattern: '\({{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'for (u|U)ser(\s)?=(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
       - trim:
@@ -536,7 +536,7 @@ pipeline:
               pattern: '{{.data}}\sfor'
             - fieldName: log.irrelevant
               pattern: '(u|U)ser(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
       - trim:
@@ -571,7 +571,7 @@ pipeline:
               pattern: '\({{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'for (u|U)ser(\s)?=(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
       - trim:
@@ -593,7 +593,7 @@ pipeline:
               pattern: '{{.data}}\sfor'
             - fieldName: log.irrelevant
               pattern: '(u|U)ser(\s)?'
-            - fieldName: local.user
+            - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
       - trim:
@@ -601,6 +601,25 @@ pipeline:
           substring: 'for'
           fields:
             - log.policy
+      #......................................................................#
+      # ASA-6-113012
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA user authentication Successful(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\local database(\s)?:(\s)?user(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'AAA user authentication'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
       #......................................................................#
       # Common field conversions
       - cast:
