@@ -656,6 +656,39 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.msg
       #......................................................................#
+      # ASA-6-113015, 113017
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '(AAA user authentication|AAA credentials)\s(R|r)ejected(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?reason(\s)?=(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.data}}(\s)?\:'
+            - fieldName: log.irrelevant
+              pattern: 'local database(\s)?:(\s)?(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?:'
+            - fieldName: log.irrelevant
+              pattern: 'user IP(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.reason
+            - from.user
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(AAA user authentication|AAA credentials)\s'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
