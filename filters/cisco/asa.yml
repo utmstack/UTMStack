@@ -608,7 +608,7 @@ pipeline:
             - fieldName: action
               pattern: 'AAA user authentication Successful(\s)?'
             - fieldName: log.irrelevant
-              pattern: '\local database(\s)?:(\s)?user(\s)?=(\s)?'
+              pattern: '\:(\s)?local database(\s)?:(\s)?user(\s)?=(\s)?'
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
@@ -620,6 +620,26 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+      #......................................................................#
+      # ASA-6-113013
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA unable to complete the request'
+            - fieldName: log.irrelevant
+              pattern: 'Error(\s)?:(\s)?reason(\s)?=(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.data}}\:'
+            - fieldName: log.irrelevant
+              pattern: 'user(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.reason
       #......................................................................#
       # Common field conversions
       - cast:
