@@ -641,6 +641,21 @@ pipeline:
           fields:
             - log.reason
       #......................................................................#
+      # ASA-6-113014
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA authentication server not accessible(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?server(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
