@@ -163,7 +163,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
   }
 
   deleteUser(user: User) {
-    console.log('delete');
     if (!window.location.href.includes(DEMO_URL)) {
       const modalRef = this.modalService.open(UserMgmtDeleteDialogComponent, {
         size: 'sm',
