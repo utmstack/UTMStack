@@ -15,4 +15,5 @@ export class AssetFilterType {
   groups?: string[];
   alias?: string[];
   registeredMode?: string;
+  dataTypes?: string[];
 }

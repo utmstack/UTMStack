@@ -113,6 +113,12 @@ export const ASSETS_FIELDS_FILTERS: UtmFieldType[] = [
     type: ElasticDataTypesEnum.STRING,
     visible: true
   },
+  {
+    label: 'Data Types',
+    field: AssetFieldFilterEnum.DATA_TYPES,
+    type: ElasticDataTypesEnum.STRING,
+    visible: true
+  },
   // {
   //   label: 'Alias',
   //   field: AssetFieldFilterEnum.ALIAS,

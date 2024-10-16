@@ -6,7 +6,9 @@ import * as moment from 'moment';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {AccountService} from '../../core/auth/account.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
+import {
+  ModalConfirmationComponent
+} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {ALERT_SENSOR_FIELD} from '../../shared/constants/alert/alert-field.constant';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
@@ -67,7 +69,8 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     sort: 'id,desc',
     status: null,
     type: null,
-    groups: null
+    groups: null,
+    dataTypes: null,
   };
   assetsSelected: number[] = [];
   interval: any;
@@ -103,11 +106,6 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       };
     });
 
-  }
-
-  ngOnDestroy(): void {
-    this.stopInterval(true);
-    this.assetFiltersBehavior.$assetFilter.next(null);
   }
 
   setInitialWidth() {
@@ -230,6 +228,9 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
         break;
       case AssetFieldFilterEnum.GROUP:
         this.requestParam.groups = $event.values.length > 0 ? $event.values : null;
+        break;
+      case AssetFieldFilterEnum.DATA_TYPES:
+        this.requestParam.dataTypes = $event.values.length > 0 ? $event.values : null;
         break;
     }
     this.assetFiltersBehavior.$assetAppliedFilter.next(this.requestParam);
@@ -376,5 +377,10 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
         this.getAssets();
       }, 10000);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.stopInterval(true);
+    this.assetFiltersBehavior.$assetFilter.next(null);
   }
 }

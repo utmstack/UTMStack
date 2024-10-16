@@ -10,5 +10,6 @@ export enum AssetFieldFilterEnum {
   PORTS = 'PORTS',
   ALIVE = 'ALIVE',
   GROUP = 'GROUP',
-  ALIAS = 'ALIAS'
+  ALIAS = 'ALIAS',
+  DATA_TYPES = 'DATA_TYPES'
 }

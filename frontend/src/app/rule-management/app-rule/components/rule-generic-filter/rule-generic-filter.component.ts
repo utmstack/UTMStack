@@ -104,7 +104,6 @@ export class RuleGenericFilterComponent implements OnInit {
   }
 
   setValueOfFilter(filters: AssetFilterType) {
-    console.log('setValueOfFilter');
     for (const key of Object.keys(filters)) {
       const filterKey = AssetFieldFilterEnum[this.fieldFilter.field] ?
         AssetFieldFilterEnum[this.fieldFilter.field] : CollectorFieldFilterEnum[this.fieldFilter.field];

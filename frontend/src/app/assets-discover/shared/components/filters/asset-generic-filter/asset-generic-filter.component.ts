@@ -70,6 +70,7 @@ export class AssetGenericFilterComponent implements OnInit {
   }
 
   selectValue(value: string) {
+    console.log(value);
     const index = this.selected.findIndex(val => val === value);
     if (index === -1) {
       this.selected.push(value);
