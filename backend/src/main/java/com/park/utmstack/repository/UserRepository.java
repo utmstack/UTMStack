@@ -32,6 +32,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where upper(u.login) like concat('%', UPPER(:login) , '%') and (u.fsManager is null or u.fsManager is false)")
     Page<User> findAllByLoginLike(Pageable pageable, @Param("login") String login);
 
+    @Query(nativeQuery = true, value = "SELECT count(jhi_user.id) FROM jhi_user WHERE jhi_user.id IN (SELECT jhi_user_authority.user_id FROM jhi_user_authority WHERE jhi_user_authority.authority_name = 'ROLE_ADMIN')")
+    int countAdmins();
+
     @Query(nativeQuery = true, value = "SELECT jhi_user.* FROM jhi_user WHERE jhi_user.id IN (SELECT jhi_user_authority.user_id FROM jhi_user_authority WHERE jhi_user_authority.authority_name = 'ROLE_ADMIN')")
     List<User> findAllAdmins();
 

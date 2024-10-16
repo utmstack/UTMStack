@@ -1,4 +1,3 @@
-# UTMStack 10.5.10 Release Notes
+# UTMStack 10.5.11 Release Notes
 ## Bugfix
-- Improved timezone handling for Data Source -> Last Input and Log Explorer views
-- Implemented a check to assign 'UNKNOWN' as the default key for buckets with empty keys to ensure data consistency.
+- Implemented validation checks during the user deletion process to prevent the deletion of the last admin user. This ensures that at least one admin user remains in the system, maintaining the integrity of the authentication process.
