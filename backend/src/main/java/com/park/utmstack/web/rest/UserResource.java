@@ -237,14 +237,26 @@ public class UserResource {
         try {
             userService.deleteUser(login);
             return ResponseEntity.ok()
-                .headers(HeaderUtil.createAlert("A user is deleted with identifier " + login, login))
-                .build();
+                    .headers(HeaderUtil.createAlert("A user is deleted with identifier " + login, login))
+                    .build();
+        } catch (NoSuchMethodException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        } catch (BadRequestAlertException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 
