@@ -727,6 +727,61 @@ pipeline:
               pattern: '{{.greedy}}'
           source: action
       #......................................................................#
+      # ASA-4-113019
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?=(\s)?'
+            - fieldName: log.group
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.irrelevant
+              pattern: '(U|u)sername(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?,'
+            - fieldName: log.irrelevant
+              pattern: 'IP(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.data}},'
+            - fieldName: action
+              pattern: '(\s)?Session disconnected\.'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Session Type:(\s)?'
+            - fieldName: log.sessionType
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Duration:(\s)?'
+            - fieldName: log.duration
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Bytes xmt:(\s)?'
+            - fieldName: from.bytesSent
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Bytes rcv:(\s)?'
+            - fieldName: from.bytesReceived
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Reason:(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.group
+            - from.user
+            - from.ip
+            - log.sessionType
+            - log.duration
+            - from.bytesSent
+            - from.bytesReceived
+      - cast:
+          fields:
+            - from.bytesSent
+            - from.bytesReceived
+          to: int
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
