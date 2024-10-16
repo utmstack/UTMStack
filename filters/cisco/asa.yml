@@ -830,6 +830,45 @@ pipeline:
           fields:
             - log.filter
       #......................................................................#
+      # ASA-113034,113035,113036,113038,113039
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?'
+            - fieldName: from.group
+              pattern: '(\<)?{{.data}}(\>)?\sUser'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|(\<)?{{.data}}(\>)?)(\s)?IP'
+            - fieldName: from.ip
+              pattern: '(\<)?({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\>)?'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: 'User'
+          fields:
+            - from.group
+      - trim:
+          function: suffix
+          substring: 'IP'
+          fields:
+            - from.user
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - from.group
+            - from.user
+            - from.ip
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - from.group
+            - from.user
+            - from.ip
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
