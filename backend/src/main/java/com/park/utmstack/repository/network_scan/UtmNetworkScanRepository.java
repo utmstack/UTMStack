@@ -25,7 +25,10 @@ import java.util.Optional;
 @Repository
 public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, Long>, JpaSpecificationExecutor<UtmNetworkScan> {
 
-    @Query(value = "SELECT ns FROM UtmNetworkScan ns WHERE" +
+    @Query(value = "SELECT ns FROM UtmNetworkScan ns " +
+            "LEFT JOIN ns.dataInputIpList dti " +
+            "LEFT JOIN ns.dataInputSourceList dts " +
+            "WHERE" +
         "(:assetIpMacName IS NULL OR (ns.assetIp LIKE :assetIpMacName OR lower(ns.assetMac) LIKE lower(:assetIpMacName) OR lower(ns.assetName) LIKE lower(:assetIpMacName))) " +
         "AND ((:assetOs) IS NULL OR ns.assetOs IN :assetOs) " +
         "AND ((:assetType) IS NULL OR ns.assetTypeId IN (SELECT types.id FROM UtmAssetTypes types WHERE types.typeName IN :assetType)) " +
@@ -38,6 +41,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "AND ((:isAgent) IS NULL OR ns.isAgent IN :isAgent) " +
         "AND ((:assetOsPlatform) IS NULL OR ns.assetOsPlatform IN :assetOsPlatform) " +
         "AND ((cast(:initDate as timestamp) is null) or (cast(:endDate as timestamp) is null) or (ns.discoveredAt BETWEEN :initDate AND :endDate)) " +
+        "AND ((:dataTypes) IS NULL OR dti.dataType IN (:dataTypes) OR dts.dataType IN (:dataTypes))" +
         "AND ((:ports) IS NULL OR ns.id IN (SELECT DISTINCT ins.id FROM UtmNetworkScan ins INNER JOIN UtmPorts p ON ins.id = p.scanId WHERE p.port IN :ports))")
     Page<UtmNetworkScan> searchByFilters(@Param("assetIpMacName") String assetIpMacName,
                                          @Param("assetOs") List<String> assetOs,
@@ -53,6 +57,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
                                          @Param("registeredMode") AssetRegisteredMode registeredMode,
                                          @Param("isAgent") List<Boolean> isAgent,
                                          @Param("assetOsPlatform") List<String> assetOsPlatform,
+                                         @Param("dataTypes") List<String> dataTypes,
                                          Pageable pageable);
 
     @Modifying

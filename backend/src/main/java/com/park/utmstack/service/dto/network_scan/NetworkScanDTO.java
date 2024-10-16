@@ -72,7 +72,11 @@ public class NetworkScanDTO {
         this.assetAlias = scan.getAssetAlias();
         this.isAgent = scan.getIsAgent();
 
-        this.dataInputList = !CollectionUtils.isEmpty(scan.getDataInputList()) ? scan.getDataInputList() : new ArrayList<>();
+        List<UtmDataInputStatus> dataInputSourceList = Objects.requireNonNullElse(scan.getDataInputSourceList(), Collections.emptyList());
+        List<UtmDataInputStatus> dataInputIpList = Objects.requireNonNullElse(scan.getDataInputIpList(), Collections.emptyList());
+
+        this.dataInputList = new ArrayList<>(dataInputSourceList);
+        this.dataInputList.addAll(dataInputIpList);
 
         if (!CollectionUtils.isEmpty(scan.getMetrics()))
             scan.getMetrics().forEach(metric -> this.metrics.put(metric.getMetric(), metric.getAmount()));

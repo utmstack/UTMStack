@@ -2,6 +2,7 @@ package com.park.utmstack.web.rest.network_scan;
 
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
+import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
@@ -10,7 +11,6 @@ import com.park.utmstack.service.dto.network_scan.UtmNetworkScanCriteria;
 import com.park.utmstack.service.network_scan.UtmNetworkScanQueryService;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.UtilResponse;
-import com.park.utmstack.web.rest.errors.AgentNotfoundException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -194,7 +194,7 @@ public class UtmNetworkScanResource {
     }
 
     @GetMapping("/utm-network-scans/searchPropertyValues")
-    public ResponseEntity<List<?>> searchPropertyValues(@RequestParam PropertyFilter prop,
+    public ResponseEntity<List<?>> searchPropertyValues(@RequestParam Property prop,
                                                         @RequestParam(required = false) String value,
                                                         @RequestParam Boolean forGroups,
                                                         Pageable pageable) {

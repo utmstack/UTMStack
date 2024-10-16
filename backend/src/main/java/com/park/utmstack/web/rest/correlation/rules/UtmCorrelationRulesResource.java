@@ -3,6 +3,7 @@ package com.park.utmstack.web.rest.correlation.rules;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
+import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
@@ -176,7 +177,7 @@ public class UtmCorrelationRulesResource {
     }
 
     @GetMapping("/correlation-rule/search-property-values")
-    public ResponseEntity<List<?>> searchPropertyValues(@RequestParam PropertyFilter prop,
+    public ResponseEntity<List<?>> searchPropertyValues(@RequestParam Property prop,
                                                         @RequestParam(required = false) String value,
                                                         Pageable pageable) {
         final String ctx = CLASSNAME + ".searchPropertyValues";

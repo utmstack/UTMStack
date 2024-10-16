@@ -1,6 +1,12 @@
 package com.park.utmstack.domain.network_scan.enums;
 
-public enum PropertyFilter {
+import com.park.utmstack.domain.network_scan.Property;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum PropertyFilter implements Property {
     IP("assetIp", "UtmNetworkScan", ""),
     MAC("assetMac", "UtmNetworkScan", ""),
     ALIAS("assetAlias", "UtmNetworkScan", ""),
@@ -16,26 +22,11 @@ public enum PropertyFilter {
     COLLECTOR_IP("ip", "UtmCollector", ""),
     COLLECTOR_GROUP("assetGroup.groupName", "UtmCollector", ""),
     RULE_TECHNIQUE("ruleTechnique","UtmCorrelationRules", ""),
-    RULE_CATEGORY("ruleCategory","UtmCorrelationRules", ""),
-    RULE_DATA_TYPES("jt.dataType","UtmCorrelationRules", "dataTypes");
+    RULE_CATEGORY("ruleCategory","UtmCorrelationRules", "");
+    //RULE_DATA_TYPES("jt.dataType","UtmCorrelationRules", "dataTypes");
+    //DATA_TYPES("jt.dataType","UtmNetworkScan", "dataInputSourceList");
+
     private final String propertyName;
     private final String fromTable;
-
     private final String joinTable;
-
-    PropertyFilter(String propertyName, String fromTable, String joinTable) {
-        this.propertyName = propertyName;
-        this.fromTable = fromTable;
-        this.joinTable = joinTable;
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    public String getFromTable() {
-        return fromTable;
-    }
-
-    public String getJoinTable() { return  joinTable; }
 }

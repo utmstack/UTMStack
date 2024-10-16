@@ -10,6 +10,8 @@ import com.park.utmstack.domain.network_scan.enums.UpdateLevel;
 import com.park.utmstack.service.dto.agent_manager.AgentDTO;
 import com.park.utmstack.service.dto.agent_manager.AgentStatusEnum;
 import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.http.conn.util.InetAddressUtils;
 
 import javax.persistence.*;
@@ -26,6 +28,8 @@ import java.util.Objects;
  * A UtmNetworkScan.
  */
 @Entity
+@Setter
+@Getter
 @Table(name = "utm_network_scan")
 public class UtmNetworkScan implements Serializable {
 
@@ -133,10 +137,15 @@ public class UtmNetworkScan implements Serializable {
     @OneToMany(mappedBy = "scanId", fetch = FetchType.LAZY)
     private List<UtmPorts> ports = new ArrayList<>();
 
-    @Transient
+    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
     private List<UtmAssetMetrics> metrics;
-    @Transient
-    private List<UtmDataInputStatus> dataInputList;
+
+    @OneToMany(mappedBy = "assetName", fetch = FetchType.LAZY)
+    private List<UtmDataInputStatus> dataInputSourceList;
+
+    @OneToMany(mappedBy = "assetIp", fetch = FetchType.LAZY)
+    private List<UtmDataInputStatus> dataInputIpList;
+
     @OneToOne
     @JoinColumn(name = "group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmAssetGroup assetGroup;
@@ -212,25 +221,9 @@ public class UtmNetworkScan implements Serializable {
         this.assetSeverityMetric = -1F;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAssetIp() {
-        return assetIp;
-    }
-
     public UtmNetworkScan assetIp(String assetIp) {
         this.assetIp = assetIp;
         return this;
-    }
-
-    public String getAssetAddresses() {
-        return assetAddresses;
     }
 
     public UtmNetworkScan assetAddresses(String assetAddresses) {
@@ -238,17 +231,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public String getAssetMac() {
-        return assetMac;
-    }
-
     public UtmNetworkScan assetMac(String assetMac) {
         this.assetMac = assetMac;
         return this;
-    }
-
-    public String getAssetOs() {
-        return assetOs;
     }
 
     public UtmNetworkScan assetOs(String assetOs) {
@@ -256,17 +241,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public String getAssetOsArch() {
-        return assetOsArch;
-    }
-
     public UtmNetworkScan assetOsArch(String assetOsArch) {
         this.assetOsArch = assetOsArch;
         return this;
-    }
-
-    public String getAssetOsMajorVersion() {
-        return assetOsMajorVersion;
     }
 
     public UtmNetworkScan assetOsMajorVersion(String assetOsMajorVersion) {
@@ -274,17 +251,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public String getAssetOsMinorVersion() {
-        return assetOsMinorVersion;
-    }
-
     public UtmNetworkScan assetOsMinorVersion(String assetOsMinorVersion) {
         this.assetOsMinorVersion = assetOsMinorVersion;
         return this;
-    }
-
-    public String getAssetOsPlatform() {
-        return assetOsPlatform;
     }
 
     public UtmNetworkScan assetOsPlatform(String assetOsPlatform) {
@@ -292,17 +261,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public String getAssetOsVersion() {
-        return assetOsVersion;
-    }
-
     public UtmNetworkScan assetOsVersion(String assetOsVersion) {
         this.assetOsVersion = assetOsVersion;
         return this;
-    }
-
-    public String getAssetAlias() {
-        return assetAlias;
     }
 
     public UtmNetworkScan assetAlias(String assetAlias) {
@@ -310,17 +271,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public String getAssetName() {
-        return assetName;
-    }
-
     public UtmNetworkScan assetName(String assetName) {
         this.assetName = assetName;
         return this;
-    }
-
-    public String getAssetAliases() {
-        return assetAliases;
     }
 
     public UtmNetworkScan assetAliases(String assetAliases) {
@@ -328,17 +281,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public Boolean getAssetAlive() {
-        return assetAlive;
-    }
-
     public UtmNetworkScan assetAlive(Boolean assetAlive) {
         this.assetAlive = assetAlive;
         return this;
-    }
-
-    public AssetStatus getAssetStatus() {
-        return assetStatus;
     }
 
     public UtmNetworkScan assetStatus(AssetStatus assetStatus) {
@@ -346,29 +291,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public Float getAssetSeverityMetric() {
-        return assetSeverityMetric;
-    }
-
-    public void setAssetSeverityMetric(Float assetSeverityMetric) {
-        this.assetSeverityMetric = assetSeverityMetric;
-    }
-
     public UtmNetworkScan assetSeverityMetric(Float assetSeverityMetric) {
         this.assetSeverityMetric = assetSeverityMetric;
         return this;
-    }
-
-    public Long getAssetTypeId() {
-        return assetTypeId;
-    }
-
-    public void setAssetTypeId(Long assetTypeId) {
-        this.assetTypeId = assetTypeId;
-    }
-
-    public Instant getDiscoveredAt() {
-        return discoveredAt;
     }
 
     public UtmNetworkScan discoveredAt(Instant discoveredAt) {
@@ -376,21 +301,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public Instant getModifiedAt() {
-        return modifiedAt;
-    }
-
     public UtmNetworkScan modifiedAt(Instant modifiedAt) {
         this.modifiedAt = modifiedAt;
         return this;
-    }
-
-    public List<UtmPorts> getPorts() {
-        return ports;
-    }
-
-    public void setPorts(List<UtmPorts> ports) {
-        this.ports = ports;
     }
 
     public UtmNetworkScan ports(List<UtmPorts> ports) {
@@ -398,65 +311,9 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public String getAssetNotes() {
-        return assetNotes;
-    }
-
-    public void setAssetNotes(String assetNotes) {
-        this.assetNotes = assetNotes;
-    }
-
-    public UtmAssetTypes getAssetType() {
-        return assetType;
-    }
-
-    public void setAssetType(UtmAssetTypes assetType) {
-        this.assetType = assetType;
-    }
-
-    public List<UtmAssetMetrics> getMetrics() {
-        return metrics;
-    }
-
-    public void setMetrics(List<UtmAssetMetrics> metrics) {
-        this.metrics = metrics;
-    }
-
-    public String getServerName() {
-        return serverName;
-    }
-
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
-    }
-
     public UtmNetworkScan serverName(String serverName) {
         this.serverName = serverName;
         return this;
-    }
-
-    public Long getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
-    }
-
-    public UtmAssetGroup getAssetGroup() {
-        return assetGroup;
-    }
-
-    public void setAssetGroup(UtmAssetGroup assetGroup) {
-        this.assetGroup = assetGroup;
-    }
-
-    public AssetRegisteredMode getRegisteredMode() {
-        return registeredMode;
-    }
-
-    public void setRegisteredMode(AssetRegisteredMode registeredMode) {
-        this.registeredMode = registeredMode;
     }
 
     public UtmNetworkScan registeredMode(AssetRegisteredMode registeredMode) {
@@ -464,38 +321,14 @@ public class UtmNetworkScan implements Serializable {
         return this;
     }
 
-    public Boolean getIsAgent() {
-        return isAgent != null && isAgent;
-    }
-
-    public void setIsAgent(Boolean isAgent) {
-        this.isAgent = isAgent;
-    }
-
     public UtmNetworkScan isAgent(Boolean isAgent) {
         this.isAgent = isAgent;
         return this;
     }
 
-    public String getRegisterIp() {
-        return registerIp;
-    }
-
-    public void setRegisterIp(String registerIp) {
-        this.registerIp = assetAddresses;
-    }
-
     public UtmNetworkScan registerIp(String registerIp) {
         this.registerIp = registerIp;
         return this;
-    }
-
-    public UpdateLevel getUpdateLevel() {
-        return updateLevel;
-    }
-
-    public void setUpdateLevel(UpdateLevel updateLevel) {
-        this.updateLevel = updateLevel;
     }
 
     public UtmNetworkScan updateLevel(UpdateLevel updateLevel) {
@@ -508,17 +341,6 @@ public class UtmNetworkScan implements Serializable {
         return Objects.hash(assetIp, assetOs, assetName, assetAlive);
     }
 
-    public int getUUID() {
-        return Objects.hash(assetIp, assetMac);
-    }
-
-    public List<UtmDataInputStatus> getDataInputList() {
-        return dataInputList;
-    }
-
-    public void setDataInputList(List<UtmDataInputStatus> dataInputList) {
-        this.dataInputList = dataInputList;
-    }
 }
 
 

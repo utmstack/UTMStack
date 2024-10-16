@@ -1,16 +1,23 @@
 package com.park.utmstack.domain;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.park.utmstack.domain.network_scan.UtmNetworkScan;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
  * A UtmAssetMetrics.
  */
+@Setter
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "utm_asset_metrics")
 public class UtmAssetMetrics implements Serializable {
@@ -32,50 +39,8 @@ public class UtmAssetMetrics implements Serializable {
     @Column(name = "amount", nullable = false)
     private Long amount;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getAssetName() {
-        return assetName;
-    }
-
-    public UtmAssetMetrics assetName(String assetName) {
-        this.assetName = assetName;
-        return this;
-    }
-
-    public void setAssetName(String assetName) {
-        this.assetName = assetName;
-    }
-
-    public String getMetric() {
-        return metric;
-    }
-
-    public UtmAssetMetrics metric(String metric) {
-        this.metric = metric;
-        return this;
-    }
-
-    public void setMetric(String metric) {
-        this.metric = metric;
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public UtmAssetMetrics amount(Long amount) {
-        this.amount = amount;
-        return this;
-    }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "asset_name", referencedColumnName = "asset_name", insertable = false, updatable = false, nullable = false)
+    @JsonIgnore
+    private UtmNetworkScan asset;
 }

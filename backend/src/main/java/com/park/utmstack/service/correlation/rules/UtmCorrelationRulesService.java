@@ -3,6 +3,7 @@ package com.park.utmstack.service.correlation.rules;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
+import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.correlation.rules.UtmCorrelationRulesRepository;
@@ -13,14 +14,13 @@ import com.park.utmstack.web.rest.vm.UtmCorrelationRulesVM;
 import io.undertow.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
@@ -185,7 +185,7 @@ public class UtmCorrelationRulesService {
      * @return A list with values of the property field
      * @throws Exception In case of any error
      */
-    public List<?> searchPropertyValues(PropertyFilter prop, String value, Pageable pageable) throws Exception {
+    public List<?> searchPropertyValues(@RequestParam Property prop, String value, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".searchPropertyValues";
         try {
             return utmNetworkScanService.searchPropertyValues(prop, value, false, pageable);

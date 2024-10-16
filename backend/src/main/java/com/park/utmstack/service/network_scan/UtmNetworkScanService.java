@@ -2,6 +2,7 @@ package com.park.utmstack.service.network_scan;
 
 import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
+import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.UtmPorts;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
@@ -203,14 +204,13 @@ public class UtmNetworkScanService {
      * @return A list with values of the property field
      * @throws Exception In case of any error
      */
-    public List<?> searchPropertyValues(PropertyFilter prop, String value, boolean forGroups, Pageable pageable) throws Exception {
+    public List<?> searchPropertyValues(Property prop, String value, boolean forGroups, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".searchPropertyValues";
         try {
             StringBuilder sb = new StringBuilder("SELECT %1$s, COUNT(*) AS num FROM %2$s as p");
 
-
             if (!prop.getJoinTable().isEmpty()){
-               sb.append(" LEFT JOIN p.%4$s jt");
+               sb.append(" %4$s");
             }
 
             sb.append(" WHERE (%1$s IS NOT NULL)");
@@ -290,15 +290,15 @@ public class UtmNetworkScanService {
                 f.getAssetIpMacName() == null ? null : "%" + f.getAssetIpMacName() + "%",
                 f.getOs(), f.getAlias(), f.getType(), f.getAlive(), f.getStatus(),
                 f.getProbe(), f.getOpenPorts(), f.getDiscoveredInitDate(),
-                f.getDiscoveredEndDate(), f.getGroups(), f.getRegisteredMode(), f.getAgent(), f.getOsPlatform(), p);
+                f.getDiscoveredEndDate(), f.getGroups(), f.getRegisteredMode(), f.getAgent(), f.getOsPlatform(), f.getDataTypes(), p);
 
-            if (page.getTotalPages() > 0) {
+            /*if (page.getTotalPages() > 0) {
                 List<UtmDataInputStatus> utmDataInputStatuses = utmDataInputStatusRepository.findAll().stream().sorted(Comparator.comparing(UtmDataInputStatus::getSource)).collect(Collectors.toList());
                 page.forEach(m -> m.setMetrics(assetMetricsRepository.findAllByAssetName(m.getAssetName())));
                 page.forEach(m -> m.setDataInputList(utmDataInputStatuses.stream().filter(
                     inputStatus -> inputStatus.getSource().equalsIgnoreCase(m.getAssetName()) ||
                         inputStatus.getSource().equalsIgnoreCase(m.getAssetIp())).collect(Collectors.toList())));
-            }
+            }*/
 
             return page;
         } catch (InvalidDataAccessResourceUsageException e) {
