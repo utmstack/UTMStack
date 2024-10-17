@@ -1,4 +1,4 @@
-# UTMStack Agent Service
+# UTMStackAgent
 **UTMStack Agent** is a component of **UTMStack** responsible for the collection of logs and security events. This agent can be installed on both Windows and Linux operating systems. It connects to various services and performs tasks such as log processing, Beats logs reading, among others. 
 
 ## Features

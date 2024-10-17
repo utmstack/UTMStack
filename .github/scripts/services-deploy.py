@@ -1,86 +1,75 @@
 import argparse
 import json
 import os
+import shutil
 import requests
-from google.cloud import storage
+from datetime import datetime
 import yaml
 
-def main(environment, depend):
-	if environment.startswith("v10-"):
-		environment = environment.replace("v10-", "")
-		
-	gcp_key = json.loads(os.environ.get("GCP_KEY"))
-	storage_client = storage.Client.from_service_account_info(gcp_key)
-
-	bucket_name = "utmstack-updates"
-	bucket = storage_client.bucket(bucket_name)
-
-	# Read utmstack version from version.yml
-	with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "version.yml"), "r") as f:
-		local_master_version = yaml.safe_load(f)['version']
-
-	# Read services version from version.json
-	with open(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "version.json"), "r") as f:
-		local_versions = json.load(f)
-
-	# Download version.json from URL
-	endp = environment + "/" + depend.replace("-", "_")
-	response = requests.get("https://storage.googleapis.com/" + bucket_name + "/" + endp + "/version.json")
-	remote_versions = response.json()['versions']
-
-	# Find the object with matching master_version
-	version_found = False
-	for obj in remote_versions:
-		if obj['master_version'] == local_master_version:
-			if "installer_version" in local_versions:
-				obj['installer_version'] = local_versions["installer_version"]
-			if "service_version" in local_versions:
-				obj['service_version'] = local_versions["service_version"]
-			if "dependencies_version" in local_versions:
-				obj['dependencies_version'] = local_versions["dependencies_version"]
-			version_found = True
-			break
-
-	# If no matching object found, create a new one
-	if version_found == False:
-		version_obj = {
-			'master_version': local_master_version,
-		}
-		if "installer_version" in local_versions:
-			version_obj['installer_version'] = local_versions["installer_version"]
-		if "service_version" in local_versions:
-			version_obj['service_version'] = local_versions["service_version"]
-		if "dependencies_version" in local_versions:
-			version_obj['dependencies_version'] = local_versions["dependencies_version"]
-		remote_versions.append(version_obj)
-		
-	# Update version.json
-	version_blob = bucket.blob(endp + "/version.json")
-	version_blob.upload_from_string(json.dumps({'versions': remote_versions}, indent=4))
+def parse_readme(depend):
+	with open(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "README.md"), "r", encoding='utf-8') as f:
+		lines = f.readlines()
+		if lines[0].startswith("# "):
+			name = lines[0].replace("# ", "").strip().replace(" ", "")
+		description_lines = []
+		for line in lines[1:]:
+			if line.startswith("# "):
+				break
+			description_lines.append(line.strip())
+		description = " ".join(description_lines)
+		return name, description
 	
-	# Create blobs and upload services
-	if "service_version" in local_versions:
-		if depend == "agent":
-			service_windows_blob = bucket.blob(endp + "/utmstack_agent_service_v" + local_versions["service_version"].replace(".","_") + "_windows.exe")
-			service_linux_blob = bucket.blob(endp + "/utmstack_agent_service_v" + local_versions["service_version"].replace(".","_") + "_linux")
-			service_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service.exe"))
-			service_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "agent", "utmstack_agent_service"))
-	if "installer_version" in local_versions:
-		if depend == "agent":
-			installer_windows_blob = bucket.blob(endp + "/utmstack_agent_installer_v" + local_versions["installer_version"].replace(".","_") + "_windows.exe")
-			installer_linux_blob = bucket.blob(endp + "/utmstack_agent_installer_v" + local_versions["installer_version"].replace(".","_") + "_linux")
-			installer_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer.exe"))
-			installer_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], "agent", "installer", "utmstack_agent_installer"))
-		if depend == "collector-installer":
-			installer_windows_blob = bucket.blob(endp + "/utmstack_collector_installer_v" + local_versions["installer_version"].replace(".","_") + "_windows.exe")
-			installer_linux_blob = bucket.blob(endp + "/utmstack_collector_installer_v" + local_versions["installer_version"].replace(".","_") + "_linux")
-			installer_windows_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_collector_installer.exe"))
-			installer_linux_blob.upload_from_filename(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "utmstack_collector_installer"))
+def download_file(url, local_filename):
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(local_filename, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+
+def main(environment, depend):
+	publisher_key_json = json.loads(os.environ.get("PUBLISHER_KEY"))
+	cm_server = os.environ.get("CM_SERVER")
+	
+	with open(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "version.yml"), "r") as f:
+		local_service_version = yaml.safe_load(f)['version']
+
+	with open(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "CHANGELOG.md"), "r") as f:
+		changelog = f.read()
+
+	with open(os.path.join(os.environ["GITHUB_WORKSPACE"], depend, "files.json"), "r") as f:
+		files = json.load(f)
+
+	name, description = parse_readme(depend)
+
+	data = {
+		"version": local_service_version,
+		"build_number": int(datetime.now().strftime("%Y%m%d%H%M")),
+		"changelog": changelog,
+		"component": {
+			"name": name,
+			"description": description,
+			"types": ["Community", "Enterprise"],
+		},
+		"files": files
+	}
+
+	data_json = json.dumps(data)
+
+	filesMap = {}
+	for file in files:
+		if file["name"].endswith(".zip"):
+			download_file("https://storage.googleapis.com/utmstack-updates/" + environment + "/" + depend +"/" + file["name"], os.path.join(os.environ["GITHUB_WORKSPACE"], "build", file["name"]))
+		filesMap[file["name"]] = open(os.path.join(os.environ["GITHUB_WORKSPACE"], "build", file["name"]))
+
+	form_data = {"data": data_json}
+
+	response = requests.post(cm_server, data=form_data, files=filesMap, headers={"publisher-key": publisher_key_json["key"], "publisher-id": publisher_key_json["id"]})
+	
+	print(response.text)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Update UTMStack Dependencies in Google Cloud Storage")
-    parser.add_argument("environment", type=str, help="Environment(dev, qa, rc, release)")
-    parser.add_argument("depend", type=str, help="Dependencies to update(agent, collector-installer)")
-    
+    parser = argparse.ArgumentParser(description="Update UTMStack Dependencies in Customer Manager")
+    parser.add_argument("environment", type=str, help="Environment(dev, qa, rc, prod)")
+    parser.add_argument("depend", type=str, help="Dependency to update(agent, collector-installer)")
+
     args = parser.parse_args()
     main(args.environment, args.depend)
