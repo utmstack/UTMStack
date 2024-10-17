@@ -844,6 +844,7 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+      # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
