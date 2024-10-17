@@ -86,7 +86,7 @@ pipeline:
               pattern: '{{.data}}\s'
             - fieldName: log.irrelevant
               pattern: 'on\sinterface'
-            - fieldName: log.interface
+            - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
 
@@ -135,7 +135,7 @@ pipeline:
               pattern: '({{.ipv4}}|{{.ipv6}})'
             - fieldName: log.irrelevant
               pattern: 'on\sinterface'
-            - fieldName: log.interface
+            - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
       - trim:
@@ -869,6 +869,59 @@ pipeline:
             - from.group
             - from.user
             - from.ip
+      #......................................................................#
+      # ASA-4-113042
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'CoA: Non-HTTP connection from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: remote.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?at'
+            - fieldName: remote.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - action
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+      - trim:
+          function: suffix
+          substring: 'at'
+          fields:
+            - remote.user
       #......................................................................#
       # Common field conversions
       - cast:
