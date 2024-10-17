@@ -966,6 +966,38 @@ pipeline:
           fields:
             - log.globalIP
       #......................................................................#
+      # ASA-4-209003
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Fragment database limit of'
+            - fieldName: log.limit
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'exceeded:(\s)?src(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'dest(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'proto(\s)?=(\s)?'
+            - fieldName: protocol
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'id(\s)?=(\s)?'
+            - fieldName: log.id
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - from.ip
+            - to.ip
+            - protocol
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
