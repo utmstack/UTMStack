@@ -37,14 +37,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(nativeQuery = true, value = "SELECT jhi_user.* FROM jhi_user WHERE jhi_user.id IN (SELECT jhi_user_authority.user_id FROM jhi_user_authority WHERE jhi_user_authority.authority_name = 'ROLE_ADMIN')")
     List<User> findAllAdmins();
-    @Query(nativeQuery = true, value = "SELECT jhi_user.* \n" +
-            "FROM jhi_user \n" +
-            "WHERE jhi_user.id IN (\n" +
-            "    SELECT jhi_user_authority.user_id \n" +
-            "    FROM jhi_user_authority \n" +
-            "    WHERE jhi_user_authority.authority_name = 'ROLE_ADMIN' AND jhi_user.activated = true\n" +
-            ") \n" +
-            "LIMIT 1")
+
+    @Query("SELECT u FROM User u JOIN FETCH u.authorities a WHERE a.name = 'ROLE_ADMIN' AND u.activated = true")
     Optional<User> findAnyAdminUser();
 
     @EntityGraph(attributePaths = "authorities")

@@ -30,6 +30,7 @@ import tech.jhipster.web.util.ResponseUtil;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -137,28 +138,49 @@ public class UserResource {
         try {
             Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
             if (existingUser.isPresent() && (!existingUser.get()
-                .getId()
-                .equals(userDTO.getId()))) {
+                    .getId()
+                    .equals(userDTO.getId()))) {
                 throw new EmailAlreadyUsedException();
             }
             existingUser = userRepository.findOneByLogin(userDTO.getLogin()
-                .toLowerCase());
+                    .toLowerCase());
             if (existingUser.isPresent() && (!existingUser.get()
-                .getId()
-                .equals(userDTO.getId()))) {
+                    .getId()
+                    .equals(userDTO.getId()))) {
                 throw new LoginAlreadyUsedException();
             }
+
+            User user = userRepository.findOneWithAuthoritiesById(userDTO.getId())
+                    .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", userDTO.getId().toString())));
+            if (!userDTO.getAuthorities().contains("ROLE_ADMIN") &&
+                    user.getAuthorities().stream().anyMatch(authority -> authority.getName().equals("ROLE_ADMIN")) && userRepository.countAdmins() == 1) {
+                throw new BadRequestAlertException(ctx, "Cannot update roles for the last remaining admin user.", UserService.class.toString());
+            }
+
             Optional<UserDTO> updatedUser = userService.updateUser(userDTO);
 
             return ResponseUtil.wrapOrNotFound(updatedUser,
-                HeaderUtil.createAlert("A user is updated with identifier " + userDTO.getLogin(),
-                    userDTO.getLogin()));
+                    HeaderUtil.createAlert("A user is updated with identifier " + userDTO.getLogin(),
+                            userDTO.getLogin()));
+
+        } catch (NoSuchElementException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        } catch (BadRequestAlertException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
 
@@ -239,7 +261,7 @@ public class UserResource {
             return ResponseEntity.ok()
                     .headers(HeaderUtil.createAlert("A user is deleted with identifier " + login, login))
                     .build();
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchElementException e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
