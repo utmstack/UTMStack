@@ -1023,6 +1023,43 @@ pipeline:
               pattern: '{{.greedy}}'
           source: action
       #......................................................................#
+      # ASA-3-316002
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'VPN Handle error'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?protocol='
+            - fieldName: protocol
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'src\s'
+            - fieldName: log.inIfNum
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: ',(\s)?dst'
+            - fieldName: log.outIfNum
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - protocol
+      - cast:
+          fields:
+            - log.inIfNum
+            - log.outIfNum
+          to: int
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
