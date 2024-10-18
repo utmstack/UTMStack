@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {UtmDataInputStatus} from '../../types/data-source-input.type';
 import {NetScanType} from '../../types/net-scan.type';
+import {AssetsStatusEnum} from "../../enums/assets-status.enum";
 
 @Component({
   selector: 'app-asset-status',
@@ -51,9 +52,9 @@ export class AssetStatusComponent implements OnInit, OnChanges {
 
   getLabel(): string {
     if (!this.asset.assetAlive) {
-      return 'Disconnected';
+      return AssetsStatusEnum.DISCONNECTED;
     } else if (this.asset.assetAlive && this.asset.agent) {
-      return 'Connected';
+      return AssetsStatusEnum.CONNECTED;
     } else {
       return this.getDisconnected(this.asset.dataInputList) === 0 ? 'All connected'
         : this.getDisconnected(this.asset.dataInputList) > 0 ? (this.getDisconnected(this.asset.dataInputList) + ' delayed') : 'Unknown';

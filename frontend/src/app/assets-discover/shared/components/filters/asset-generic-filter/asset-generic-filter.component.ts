@@ -7,7 +7,8 @@ import {AssetFieldFilterEnum} from '../../../enums/asset-field-filter.enum';
 import {AssetMapFilterFieldEnum} from '../../../enums/asset-map-filter-field.enum';
 import {UtmNetScanService} from '../../../services/utm-net-scan.service';
 import {AssetFilterType} from '../../../types/asset-filter.type';
-import {CollectorFieldFilterEnum} from "../../../enums/collector-field-filter.enum";
+import {CollectorFieldFilterEnum} from '../../../enums/collector-field-filter.enum';
+import {AssetsStatusEnum} from "../../../enums/assets-status.enum";
 
 @Component({
   selector: 'app-asset-generic-filter',
@@ -54,6 +55,16 @@ export class AssetGenericFilterComponent implements OnInit {
   getPropertyValues() {
     this.utmNetScanService.getFieldValues(this.requestParams).subscribe(response => {
       this.fieldValues = this.fieldValues.concat(response.body);
+      if (this.fieldFilter.field === AssetFieldFilterEnum.ALIVE) {
+        this.fieldValues.map(f => {
+          console.log(typeof (f[0]), f[0]);
+          if (f[0]) {
+            f[0] = AssetsStatusEnum.CONNECTED;
+          } else {
+            f[0] = AssetsStatusEnum.DISCONNECTED;
+          }
+        });
+      }
       this.loading = false;
       this.searching = false;
       this.loadingMore = false;
@@ -70,7 +81,14 @@ export class AssetGenericFilterComponent implements OnInit {
   }
 
   selectValue(value: string) {
-    console.log(value);
+    if (this.fieldFilter.field === AssetFieldFilterEnum.ALIVE) {
+      console.log('Value:', value);
+      if (value === AssetsStatusEnum.CONNECTED) {
+        value = 'true';
+      } else {
+        value = 'false';
+      }
+    }
     const index = this.selected.findIndex(val => val === value);
     if (index === -1) {
       this.selected.push(value);

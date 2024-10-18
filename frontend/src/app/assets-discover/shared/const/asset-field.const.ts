@@ -88,13 +88,18 @@ export const ASSETS_FIELDS_FILTERS: UtmFieldType[] = [
   //   type: ElasticDataTypesEnum.STRING,
   //   visible: true
   // },
-  // {
+  /*// {
   //   label: 'Status',
   //   field: AssetFieldFilterEnum.STATUS,
   //   type: ElasticDataTypesEnum.STRING,
   //   visible: true
-  // },
-
+  // },*/
+  {
+     label: 'Status',
+     field: AssetFieldFilterEnum.ALIVE,
+     type: ElasticDataTypesEnum.STRING,
+      visible: true
+  },
   {
     label: 'Group',
     field: AssetFieldFilterEnum.GROUP,

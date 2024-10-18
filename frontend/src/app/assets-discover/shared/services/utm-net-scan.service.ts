@@ -4,17 +4,23 @@ import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {createRequestOption} from '../../../shared/util/request-util';
 import {NetScanType} from '../types/net-scan.type';
+import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 
 
 @Injectable({
   providedIn: 'root'
 })
 // GET /api/utm-network-scans/search-by-filters
-export class UtmNetScanService {
+export class UtmNetScanService extends RefreshDataService<boolean, HttpResponse<NetScanType[]>> {
   // GET /api/utm-network-scans
   public resourceUrl = SERVER_API_URL + 'api/utm-network-scans';
 
   constructor(private http: HttpClient) {
+    super();
+  }
+
+  fetchData(request: any): Observable<HttpResponse<NetScanType[]>> {
+    return this.query(request);
   }
 
 
