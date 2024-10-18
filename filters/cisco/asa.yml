@@ -997,6 +997,10 @@ pipeline:
             - from.ip
             - to.ip
             - protocol
+      - cast:
+          fields:
+            - log.limit
+          to: int
       #......................................................................#
       # Common field conversions
       - cast:
