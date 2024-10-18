@@ -1002,6 +1002,27 @@ pipeline:
             - log.limit
           to: int
       #......................................................................#
+      # ASA-3-316001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Denied new tunnel'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
