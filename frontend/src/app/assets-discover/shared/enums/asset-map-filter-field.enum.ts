@@ -8,7 +8,9 @@ export enum AssetMapFilterFieldEnum {
   PORTS = 'openPorts',
   TYPE = 'type',
   PROBE = 'probe',
-  GROUPS = 'groups',
+  GROUP = 'groups',
   COLLECTOR_GROUP = 'groups',
-  IP = 'assetIp'
+  IP = 'assetIp',
+  ALIVE = 'alive',
+  DATA_TYPES = 'dataTypes'
 }
