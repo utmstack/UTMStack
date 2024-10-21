@@ -1,6 +1,5 @@
 package com.park.utmstack.service.network_scan;
 
-import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
