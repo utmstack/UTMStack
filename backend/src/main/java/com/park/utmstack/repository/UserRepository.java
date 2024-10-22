@@ -39,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllAdmins();
 
     @Query("SELECT u FROM User u JOIN FETCH u.authorities a WHERE a.name = 'ROLE_ADMIN' AND u.activated = true")
-    Optional<User> findAnyAdminUser();
+    List<User> findAdminUsers();
 
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesById(Long id);
