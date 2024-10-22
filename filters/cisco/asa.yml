@@ -1073,7 +1073,7 @@ pipeline:
             - fieldName: log.tmpToip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
             - fieldName: log.irrelevant
-              pattern: '(to\s)'
+              pattern: '(to\s)?'
             - fieldName: log.localAddress
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.tmpFromip
@@ -1137,6 +1137,29 @@ pipeline:
           fields:
             - log.tmpFromip
             - log.tmpToip
+      #......................................................................#
+      # ASA-6-302012
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Pre-allocate H225 Call Signalling Connection'
+            - fieldName: log.irrelevant
+              pattern: 'for faddr'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: from.port
+              pattern: '/(\s)?{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to laddr'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+            
+          source: log.msg
+      - trim:
+          function: prefix
+          substring: '/'
+          fields:
+            - from.port
       #......................................................................#
       # Common field conversions
       - cast:
