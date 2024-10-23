@@ -1721,7 +1721,120 @@ pipeline:
           substring: '/'
           fields:
             - to.ip
-            - log.translatedIpFrom
+            - log.translatedIpTo
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - log.connectionId
+      #......................................................................#
+      # ASA-6-302018
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown GRE connection'
+            - fieldName: log.connectionId
+              pattern: '({{.data}})from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.translatedIpFrom
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.realCid
+              pattern: '{{.data}}\('
+            - fieldName: log.translatedIpTo
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.translatedCid
+              pattern: '{{.data}}\)'
+            - fieldName: log.tmpFwUserTo
+              pattern: '({{.data}})?duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+      # Parsing firewall user to
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserTo
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserTo
+      # Parsing firewall user to, and AAA name of the user if exists
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'bytes'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'  
+          source: log.rest
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'bytes'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+          source: log.rest
+
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+            - from.user
+            - log.translatedCid
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+            - log.tmpFwUserTo
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '('
+          fields:
+            - log.realCid
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - to.ip
             - log.translatedIpTo
       - trim:
           function: suffix
