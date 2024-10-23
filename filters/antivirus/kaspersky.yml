@@ -1,0 +1,659 @@
+# KAV module filter, version 3.0.0
+# Based in docs and samples log provided
+# Support Syslog CEF format
+# 
+# Documentations
+# 1- https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm 
+# 2- https://docs.devo.com/confluence/ndt/latest/devo-parsers/technologies-supported-in-cef-syslog-format/cef0-kaspersky 
+# 3- https://support.kaspersky.com/KLMS/8.2/en-US/151504.htm
+# 4- https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm
+# 
+# Implementation
+# 1. Parsing the RAW field containing the KAV
+
+pipeline:
+  - dataTypes:
+      - antivirus-kaspersky
+    steps:
+
+      # Using grok to parse syslogHeader of the message
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.cefMsgAll
+              pattern: '{{.greedy}}'
+
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.data}}\='
+            - fieldName: log.syslogIpHost
+              pattern: '{{.ipv4}}'
+            - fieldName: log.notDefined
+              pattern: '{{.integer}}'
+            - fieldName: log.cefMsgAll
+              pattern: '{{.greedy}}'
+
+      # Remove inecesarie caracters of the syslogHeader
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      - trim:
+          function: suffix
+          substring: '='
+          fields:
+            - log.syslogHost
+
+      # Using grok to parse components of the cefMessage        
+      - grok:
+          patterns:
+            - fieldName: log.cef
+              pattern: '(CEF:)'
+            - fieldName: log.cefVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.embDeviceVendor
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.embDeviceProduct
+              pattern: '{{.data}}\|'
+            - fieldName: log.deviceVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.signatureID
+              pattern: '{{.data}}\|'
+            - fieldName: log.descMsg
+              pattern: '{{.data}}\|'
+            - fieldName: log.cefDeviceSeverity
+              pattern: '{{.data}}\|'
+            - fieldName: log.cefMsg
+              pattern: '{{.greedy}}'
+          source: log.cefMsgAll
+
+      # Remove inecesarie caracters of the cefMessage
+      - trim:
+          function: prefix
+          substring: '|'
+          fields:
+            - log.embDeviceVendor
+      - trim:
+          function: suffix
+          substring: '|'
+          fields:
+            - log.embDeviceVendor
+            - log.embDeviceProduct
+            - log.deviceVersion
+            - log.signatureID
+            - log.descMsg
+            - log.cefDeviceSeverity
+
+      # Using the kv filter for cefMsg
+      - kv:
+          source: log.cefMsg
+          fieldSplit: " "
+          valueSplit: "="
+
+      #Remove fields that have issues with kv filter
+      - delete:
+          fields:
+            - log.destinationZoneURI
+            - log.msg
+            - log.customerURI
+            - log.destinationZoneExternalID
+            - log.cs1
+            - log.cs2
+            - log.cs3
+            - log.cs4
+            - log.cs5
+            - log.cs6
+            - log.cs7
+            - log.cs8
+            - log.cs9
+            - log.cs10
+            - log.originalAgentZoneURI
+            - log.flexString1
+            - log.cat
+            - log.cs1Label
+            - log.cs2Label
+            - log.cs3Label
+            - log.cs4Label
+            - log.cs5Label
+            - log.cs6Label
+            - log.cs7Label
+            - log.cs8Label
+            - log.cs9Label
+            - log.cs10Label
+            - log.cn1
+            - log.cn2
+            - log.cn3
+            - log.cn4
+            - log.cn5
+            - log.cn6
+            - log.cn7
+            - log.cn8
+            - log.cn9
+            - log.cn10
+            - log.cn1Label
+            - log.cn2Label
+            - log.cn3Label
+            - log.cn4Label
+            - log.cn5Label
+            - log.cn6Label
+            - log.cn7Label
+            - log.cn8Label
+            - log.cn9Label
+            - log.cn10Label
+      
+      # Using grok to parse kv issued fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(msg=)'
+            - fieldName: log.msg
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+          
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(customerURI=)'
+            - fieldName: log.customerURI
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(destinationZoneURI=)'
+            - fieldName: log.destinationZoneURI
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(destinationZoneExternalID=)'
+            - fieldName: log.destinationZoneExternalID
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs1=)'
+            - fieldName: log.cs1
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs2=)'
+            - fieldName: log.cs2
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs3=)'
+            - fieldName: log.cs3
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs4=)'
+            - fieldName: log.cs4
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs5=)'
+            - fieldName: log.cs5
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs6=)'
+            - fieldName: log.cs6
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs7=)'
+            - fieldName: log.cs7
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs8=)'
+            - fieldName: log.cs8
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs9=)'
+            - fieldName: log.cs9
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs10=)'
+            - fieldName: log.cs10
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn1=)'
+            - fieldName: log.cn1
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn2=)'
+            - fieldName: log.cn2
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn3=)'
+            - fieldName: log.cn3
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn4=)'
+            - fieldName: log.cn4
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn5=)'
+            - fieldName: log.cn5
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn6=)'
+            - fieldName: log.cn6
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn7=)'
+            - fieldName: log.cn7
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn8=)'
+            - fieldName: log.cn8
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn9=)'
+            - fieldName: log.cn9
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn10=)'
+            - fieldName: log.cn10
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(originalAgentZoneURI=)'
+            - fieldName: log.originalAgentZoneURI
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(flexString1=)'
+            - fieldName: log.flexString1
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cat=)'
+            - fieldName: log.cat
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs1Label=)'
+            - fieldName: log.cs1Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs2Label=)'
+            - fieldName: log.cs2Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs3Label=)'
+            - fieldName: log.cs3Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs4Label=)'
+            - fieldName: log.cs4Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs5Label=)'
+            - fieldName: log.cs5Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs6Label=)'
+            - fieldName: log.cs6Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs7Label=)'
+            - fieldName: log.cs7Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs8Label=)'
+            - fieldName: log.cs8Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs9Label=)'
+            - fieldName: log.cs9Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cs10Label=)'
+            - fieldName: log.cs10Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn1Label=)'
+            - fieldName: log.cn1Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn2Label=)'
+            - fieldName: log.cn2Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn3Label=)'
+            - fieldName: log.cn3Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn4Label=)'
+            - fieldName: log.cn4Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn5Label=)'
+            - fieldName: log.cn5Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn6Label=)'
+            - fieldName: log.cn6Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn7Label=)'
+            - fieldName: log.cn7Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn8Label=)'
+            - fieldName: log.cn8Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn9Label=)'
+            - fieldName: log.cn9Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(cn10Label=)'
+            - fieldName: log.cn10Label
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefMsg
+
+      # Rename fields
+      - rename:
+          from:
+            - log.src
+          to: from.ip
+          
+      - rename:
+          from:
+            - log.dst
+          to: to.ip
+
+      # Remove inecesarie caracters of the restData
+      - trim:
+          function: suffix
+          substring: '||=||='
+          fields:
+            - log.adarcSightEventPath
+            - log.aid
+            - log.customerID
+            - log.destinationZoneID
+            - log.originalAgentId
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.cef
+            - log.cefMsgAll
+            - log.cefMsg
+            - log.irrelevant
+            - log.notDefined
