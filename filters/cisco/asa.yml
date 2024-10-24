@@ -2042,6 +2042,108 @@ pipeline:
             - log.tmpGaddrAndFwUser
             - log.tmpLaddrAndFwUser
       #......................................................................#
+      # ASA-6-302022, 302024, 302026 (awaiting test)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Built'
+            - fieldName: log.role
+              pattern: '({{.data}})stub'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpMappedIpPortFrom
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpMappedIpPortTo
+              pattern: '\({{.data}}\)'
+          source: log.msg
+      # Parsing mapped ip,port from tmp fields
+      # With port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpFrom
+              pattern: '{{.data}}/'
+            - fieldName: log.mappedPortFrom
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortFrom
+      # Without port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpFrom
+              pattern: '{{.data}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortFrom
+      # Parsing mapped ip,port to, from tmp fields
+      # With port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpTo
+              pattern: '{{.data}}/'
+            - fieldName: log.mappedPortTo
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortTo
+      # Without port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpTo
+              pattern: '{{.data}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortTo
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'stub'
+          fields:
+            - log.role
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+            - log.mappedIpFrom
+            - log.mappedIpTo
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpMappedIpPortFrom
+            - log.tmpMappedIpPortTo
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
