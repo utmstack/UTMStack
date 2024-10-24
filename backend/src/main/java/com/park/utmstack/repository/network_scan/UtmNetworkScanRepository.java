@@ -25,7 +25,7 @@ import java.util.Optional;
 @Repository
 public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, Long>, JpaSpecificationExecutor<UtmNetworkScan> {
 
-    @Query(value = "SELECT ns FROM UtmNetworkScan ns " +
+    @Query(value = "SELECT DISTINCT ns FROM UtmNetworkScan ns " +
             "LEFT JOIN ns.dataInputIpList dti " +
             "LEFT JOIN ns.dataInputSourceList dts " +
             "WHERE" +
