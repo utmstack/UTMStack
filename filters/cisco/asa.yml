@@ -2144,6 +2144,54 @@ pipeline:
             - log.tmpMappedIpPortFrom
             - log.tmpMappedIpPortTo
       #......................................................................#
+      # ASA-6-302023, 302025, 302027 (awaiting test)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown stub'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+            - fieldName: log.irrelevant
+              pattern: 'bytes'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.reason
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
