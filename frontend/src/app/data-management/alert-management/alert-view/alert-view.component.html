@@ -38,12 +38,15 @@
               &nbsp;The system has detected new alerts, retrieving from the data engine...
             </span>
         </div>
-        <div *ngIf="incomingAlert && !firstLoad" class="d-flex justify-content-start align-items-center pt-2 pr-2 pl-2">
+        <div *ngIf="incomingAlert$ | async as openAlert" class="d-flex justify-content-start align-items-center pt-2 pr-2 pl-2">
+          <ng-container *ngIf="openAlert > 0 && showRefresh">
             <span class="span-small-icon">
               &nbsp;The system has detected new alerts.
             </span>
-          <span class="ml-1 text-blue-800 font-weight-semibold cursor-pointer"
-                (click)="refreshAlerts()">Click to update</span>
+            <span class="ml-1 text-blue-800 font-weight-semibold cursor-pointer"
+                (click)="refreshAlerts()">Click to update
+            </span>
+          </ng-container>
         </div>
         <div class="card-header p-2 w-100">
           <app-filter-applied (filterAppliedChange)="onFilterAppliedChange($event)"
