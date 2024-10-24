@@ -1842,7 +1842,8 @@ pipeline:
           fields:
             - log.connectionId
       #......................................................................#
-      # ASA-6-302020 (awaiting test)
+      # ASA-6-302020, 302021 (awaiting test)
+      # 302020
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -1864,6 +1865,27 @@ pipeline:
             - fieldName: log.icmpCode
               pattern: '{{.greedy}}'
           source: log.msg
+      # 302021
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for faddr'
+            - fieldName: log.tmpFaddrAndFwUser
+              pattern: '({{.data}})gaddr'
+            - fieldName: log.tmpGaddrAndFwUser
+              pattern: '({{.data}})laddr'
+            - fieldName: log.tmpLaddrAndFwUser
+              pattern: '({{.data}})type'
+            - fieldName: log.icmpType
+              pattern: '({{.data}})code'
+            - fieldName: log.icmpCode
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Common parsing for 302020 and 302021
       # For parsing faddr and fwuser from (Begin with ip/port), or icmpSeqNum
       - grok:
           patterns:
