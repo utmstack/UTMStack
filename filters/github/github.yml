@@ -15,81 +15,81 @@ pipeline:
             - log.baseref
           to: log.baseRef
 
-      # Parsing commits section
+      # Parsing headCommit section
       - rename:
           from:
-            - log.commits.0.added
-          to: log.commitsAdded
+            - log.headcommit.added
+          to: log.headCommitAdded
 
       - rename:
           from:
-            - log.commits.0.author.email
-          to: log.commitsAuthorEmail
+            - log.headcommit.author.email
+          to: log.headCommitAuthorEmail
 
       - rename:
           from:
-            - log.commits.0.author.name
-          to: log.commitsAuthorName
+            - log.headcommit.author.name
+          to: log.headCommitAuthorName
 
       - rename:
           from:
-            - log.commits.0.committer.email
-          to: log.commitsCommitterEmail
+            - log.headcommit.committer.email
+          to: log.headCommitCommitterEmail
 
       - rename:
           from:
-            - log.commits.0.author.username
-          to: log.commitsAuthorUsername
+            - log.headcommit.author.username
+          to: log.headCommitAuthorUsername
 
       - rename:
           from:
-            - log.commits.0.committer.name
-          to: log.commitsCommitterName
+            - log.headcommit.committer.name
+          to: log.headCommitCommitterName
 
       - rename:
           from:
-            - log.commits.0.committer.username
-          to: log.commitsCommitterUsername
+            - log.headcommit.committer.username
+          to: log.headCommitCommitterUsername
 
       - rename:
           from:
-            - log.commits.0.distinct
-          to: log.commitsDistinct
+            - log.headcommit.distinct
+          to: log.headCommitDistinct
 
       - rename:
           from:
-            - log.commits.0.id
-          to: log.commitsId
+            - log.headcommit.id
+          to: log.headCommitId
 
       - rename:
           from:
-            - log.commits.0.message
-          to: log.commitsMessage
+            - log.headcommit.message
+          to: log.headCommitMessage
 
       - rename:
           from:
-            - log.commits.0.modified.0
-          to: log.commitsModified
+            - log.headcommit.modified.0
+          to: log.headCommitModified
 
       - rename:
           from:
-            - log.commits.0.removed
-          to: log.commitsRemoved
+            - log.headcommit.removed
+          to: log.headCommitRemoved
 
       - rename:
           from:
-            - log.commits.0.timestamp
-          to: log.commitsTimesTamp
+            - log.headcommit.timestamp
+          to: log.headCommitTimesTamp
 
       - rename:
           from:
-            - log.commits.0.tree_id
-          to: log.commitsTreeId
+            - log.headcommit.tree_id
+          to: log.headCommitTreeId
 
       - rename:
           from:
-            - log.commits.0.url
-          to: log.commitsUrl
+            - log.headcommit.url
+          to: log.headCommitUrl
 
       # Parsing pusher section
       - rename:
@@ -667,7 +667,6 @@ pipeline:
       # Removing unused fields
       - delete:
           fields:
-            - log.headcommit
             - log.repository.forks_count
             - log.repository.open_issues_count
             - log.repository.owner.avatar_url
@@ -679,8 +678,4 @@ pipeline:
             - log.sender
             - log.pusher
             - log.repository.owner
-            - log.commits.0.modified
-            - log.commits.0.committer
-            - log.commits.0.author
-            - log.commits.0
             - log.repository
