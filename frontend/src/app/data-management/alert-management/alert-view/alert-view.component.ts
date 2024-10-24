@@ -5,6 +5,8 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Observable, Subject} from 'rxjs';
+import {filter, takeUntil, tap} from 'rxjs/operators';
 import {
   IrCreateRuleComponent
 } from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
@@ -36,6 +38,7 @@ import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
+import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
 import {AlertTags} from '../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -52,9 +55,8 @@ import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertManagementService} from '../shared/services/alert-management.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
+import {OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
-import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
-import {OpenAlertsService} from "../shared/services/open-alerts.service";
 
 @Component({
   selector: 'app-alert-view',
@@ -97,12 +99,14 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   IGNORED = IGNORED;
   pageWidth = window.innerWidth;
   filterWidth: number;
-  incomingAlert = 10;
+  incomingAlert$: Observable<number>;
   dataType: EventDataTypeEnum;
   eventDataTypeEnum = EventDataTypeEnum;
   refreshingAlert = false;
   firstLoad = true;
   tags: AlertTags[];
+  showRefresh = false;
+  destroy$ = new Subject<void>();
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
@@ -120,9 +124,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private spinner: NgxSpinnerService,
               private checkEmailConfigService: CheckEmailConfigService) {
     // this.tableWidth = this.pageWidth - 300;
-  }
-
-  ngOnDestroy(): void {
   }
 
   ngOnInit() {
@@ -167,19 +168,18 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.alertFiltersBehavior.$filters.next(this.filters);
       }
     });
-    this.openAlertsService.openAlerts$.subscribe(newAlerts => {
-      if (newAlerts && newAlerts !== 0) {
-        this.incomingAlert = newAlerts;
-      }
-    });
+    this.incomingAlert$ = this.openAlertsService.openAlerts$
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(() => this.showRefresh = true));
   }
 
   refreshAlerts() {
     this.refreshingAlert = true;
     this.page = 1;
-    this.incomingAlert = 0;
     this.getAlert();
     this.firstLoad = false;
+    this.showRefresh = false;
   }
 
   getTags() {
@@ -549,5 +549,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   openIncidentResponseAutomationModal(alert: UtmAlertType) {
     const modal = this.modalService.open(IrCreateRuleComponent, {size: 'lg', centered: true});
     modal.componentInstance.alert = alert;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
