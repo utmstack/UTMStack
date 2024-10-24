@@ -1,342 +1,188 @@
 # Sophos_GX filter using "SF syslog file guide 20.0"
 # Supports
-# log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed".
-# log_type="Content Filtering" log_component="Application" log_subtype="Denied"
+# log_type="Content Filtering" log_component="HTTP|Application" log_subtype="Allowed|Denied".
 # log_type="Anti-Virus" log_component="HTTPS|FTP" log_subtype="Virus"
+# log_type="Firewall" log_component="Firewall Rule|Invalid Traffic" log_subtype="Allowed|Denied"
 
 # See: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
 # and https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
-
 
 pipeline:
   - dataTypes:
       - firewall-sophos-xg
     steps:
-      # Parsing the raw field for log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed"
+      # Parsing the common fields
       - grok:
           patterns:
-            - fieldName: log.1trash
+            - fieldName: log.priority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.2blockToParse
-              pattern: '{{.data}}device_name=\"{{.data}}\"'
-            - fieldName: log.3blockToParse
-              pattern: '{{.data}}log_component=\"{{.data}}\"'
-            - fieldName: log.4blockToParse
-              pattern: '{{.data}}user_agent=\"{{.data}}\"'
-            - fieldName: log.5blockToParse
-              pattern: '{{.data}}download_file_name=\"{{.data}}\"'
-            - fieldName: log.6blockToParse
-              pattern: '{{.data}}upload_file_name=\"{{.data}}\"'
-            - fieldName: log.1blockToParse
+            - fieldName: log.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - kv:
           fieldSplit: " "
           valueSplit: "="
-          source: log.1blockToParse
+          source: log.restData
 
-      # Parsing the 2block field
+      # Extracting common fields for all logs
       - grok:
           patterns:
+            - fieldName: log.1trash
+              pattern: '{{.data}}log_type='
+            - fieldName: log.type
+              pattern: '\"{{.data}}\"'
             - fieldName: log.2trash
-              pattern: '{{.word}}\='
-            - fieldName: log.deviceType
+              pattern: '{{.data}}log_component='
+            - fieldName: log.component
               pattern: '\"{{.data}}\"'
-            - fieldName: log.7blockToParse
-              pattern: '{{.data}}timezone=\"{{.data}}\"'
             - fieldName: log.3trash
-              pattern: '{{.word}}\='
-            - fieldName: log.devicename
+              pattern: '{{.data}}log_subtype='
+            - fieldName: log.subType
               pattern: '\"{{.data}}\"'
-          source: log.2blockToParse
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
 
-      # Parsing the 3block field
+      # Parsing the raw field for log_type="Content Filtering" log_component="HTTP" log_subtype="Allowed"
       - grok:
           patterns:
             - fieldName: log.4trash
-              pattern: '{{.word}}\='
-            - fieldName: log.deviceId
-              pattern: '{{.word}}\s'
-            - fieldName: log.5trash
-              pattern: '{{.data}}\='
-            - fieldName: log.logid
-              pattern: '{{.word}}\s'
-            - fieldName: log.6trash
-              pattern: '{{.data}}\='
-            - fieldName: log.logtype
-              pattern: '\"{{.data}}\"'
-            - fieldName: log.7trash
-              pattern: '{{.data}}\='
-            - fieldName: log.logcomponent
-              pattern: '\"{{.data}}\"'
-          source: log.3blockToParse
-
-      # Parsing the 4block field
-      - grok:
-          patterns:
-            - fieldName: log.8blockToParse
               pattern: '{{.data}}user_agent='
             - fieldName: log.userAgent
               pattern: '\"{{.data}}\"'
-          source: log.4blockToParse
-
-      # Parsing the 5block field
-      - grok:
-          patterns:
-            - fieldName: log.9blockToParse
-              pattern: '{{.data}}referer='
-            - fieldName: log.referer
-              pattern: '\"{{.data}}\"'
-            - fieldName: log.9trash
-              pattern: '{{.data}}\='
-            - fieldName: log.downloadFileName
-              pattern: '\"{{.data}}\"'
-          source: log.5blockToParse
-
-      - grok:
-          patterns:
-            - fieldName: log.2blockToKv
-              pattern: '{{.data}}transactionid={{.data}}'
-            - fieldName: log.10trash
-              pattern: 'referer='
-          source: log.9blockToParse
-
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.2blockToKv
-      
-      # Parsing the 6block field
-      - grok:
-          patterns:
-            - fieldName: log.11trash
-              pattern: '{{.data}}\='
-            - fieldName: log.downloadFileType
-              pattern: '\"{{.data}}\"'
-            - fieldName: log.12trash
-              pattern: '{{.data}}\='
-            - fieldName: log.uploadFileName
-              pattern: '\"{{.data}}\"'
-          source: log.6blockToParse
-
-      # Parsing the 7block field
-      - grok:
-          patterns:
-            - fieldName: log.13trash
-              pattern: '{{.data}}\='
-            - fieldName: log.date
-              pattern: '{{.year}}\-{{.monthNumber}}\-{{.monthDay}}'
-            - fieldName: log.14trash
-              pattern: '{{.data}}\='
-            - fieldName: log.time
-              pattern: '{{.time}}'
-            - fieldName: log.15trash
-              pattern: '{{.data}}\='
-            - fieldName: log.timezone
-              pattern: '\"{{.data}}\"'
-          source: log.7blockToParse
-
-      # Parsing the 8block field
-      - grok:
-          patterns:
-            - fieldName: log.1blockToKv
-              pattern: '{{.data}}reason=\"{{.data}}\"'
-            - fieldName: log.8trash
-              pattern: 'user_agent='
-          source: log.8blockToParse
-
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.1blockToKv
-      
-      # Parsing the 9block field
-      - grok:
-          patterns:
-            - fieldName: log.16trash
-              pattern: '{{.data}}\='
-            - fieldName: log.statusCode
-              pattern: '\"{{.data}}\"'
-            - fieldName: log.17trash
-              pattern: '{{.data}}\='
-            - fieldName: log.transactionId
-              pattern: '{{.data}}'
-            - fieldName: log.18trash
+            - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
-          source: log.9blockToParse
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.5trash
+              pattern: '{{.data}}download_file_name='
+            - fieldName: log.downloadfilename
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.6trash
+              pattern: '{{.data}}upload_file_name='
+            - fieldName: log.uploadfilename
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
 
       # Parsing the raw field for log_type="Content Filtering" log_component="Application" log_subtype="Denied"
       - grok:
           patterns:
-            - fieldName: log.1trash
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.2blockToParse
-              pattern: '{{.data}}device_name=\"{{.data}}\"'
-            - fieldName: log.3blockToParse
-              pattern: '{{.data}}log_component=\"{{.data}}\"'
-            - fieldName: log.4blockToParse
-              pattern: '{{.data}}category=\"{{.data}}\"'
-            - fieldName: log.5blockToParse
-              pattern: '{{.data}}application_name=\"{{.data}}\"'
-            - fieldName: log.6blockToParse
-              pattern: '{{.data}}application_technology=\"{{.data}}\"'
-            - fieldName: log.7blockToParse
-              pattern: '{{.data}}application_category=\"{{.data}}\"'
-            - fieldName: log.8blockToParse
-              pattern: '{{.data}}message=\"{{.data}}\"'
-            - fieldName: log.1blockToParse
-              pattern: '{{.greedy}}'
-          source: raw
-
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.1blockToParse
-
-      # Parsing the 2block field
-      - grok:
-          patterns:
-            - fieldName: log.2trash
-              pattern: '{{.word}}\='
-            - fieldName: log.deviceType
-              pattern: '\"{{.data}}\"'
-            - fieldName: log.9blockToParse
-              pattern: '{{.data}}timezone=\"{{.data}}\"'
-            - fieldName: log.3trash
-              pattern: '{{.word}}\='
-            - fieldName: log.devicename
-              pattern: '\"{{.data}}\"'
-          source: log.2blockToParse
-
-      # Parsing the 3block field
-      - grok:
-          patterns:
-            - fieldName: log.10blockToParse
-              pattern: '{{.data}}log_type='
-            - fieldName: log.logtype
-              pattern: '\"{{.data}}\"'
             - fieldName: log.4trash
-              pattern: '{{.data}}\='
-            - fieldName: log.logcomponent
-              pattern: '{{.greedy}}'
-          source: log.3blockToParse
-
-      # Parsing the 9block field
-      - grok:
-          patterns:
-            - fieldName: log.13trash
-              pattern: '{{.data}}\='
-            - fieldName: log.date
-              pattern: '{{.year}}\-{{.monthNumber}}\-{{.monthDay}}'
-            - fieldName: log.14trash
-              pattern: '{{.data}}\='
-            - fieldName: log.time
-              pattern: '{{.time}}'
-            - fieldName: log.15trash
-              pattern: '{{.data}}\='
-            - fieldName: log.timezone
-              pattern: '\"{{.data}}\"'
-          source: log.9blockToParse
-
-      # Parsing the 4block field
-      - grok:
-          patterns:
-            - fieldName: log.11blockToParse
               pattern: '{{.data}}category='
             - fieldName: log.category
               pattern: '\"{{.data}}\"'
-          source: log.4blockToParse
-
-      # Parsing the 5block field
-      - grok:
-          patterns:
-            - fieldName: log.14trash
-              pattern: '{{.data}}\='
-            - fieldName: log.applicationName
+            - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
-          source: log.5blockToParse
+          source: log.restData
 
-      # Parsing the 6block field
-      - grok:
-          patterns:
-            - fieldName: log.15trash
-              pattern: '{{.data}}\='
-            - fieldName: log.applicationRisk
-              pattern: '{{.integer}}'
-            - fieldName: log.16trash
-              pattern: '{{.data}}\='
-            - fieldName: log.applicationTech
-              pattern: '{{.greedy}}'
-          source: log.6blockToParse
-
-      # Parsing the 7block field
-      - grok:
-          patterns:
-            - fieldName: log.17trash
-              pattern: '{{.data}}\='
-            - fieldName: log.applicationCategory
-              pattern: '{{.greedy}}'
-          source: log.7blockToParse
-
-      # Parsing the 8block field
-      - grok:
-          patterns:
-            - fieldName: log.4blockToKv
-              pattern: '{{.data}}status={{.data}}'
-            - fieldName: log.18trash
-              pattern: '{{.data}}\='
-            - fieldName: log.message
-              pattern: '{{.greedy}}'
-          source: log.8blockToParse
-
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.4blockToKv
-
-      # Parsing the 10block field
       - grok:
           patterns:
             - fieldName: log.5trash
-              pattern: '{{.data}}\='
-            - fieldName: log.deviceId
-              pattern: '{{.word}}'
+              pattern: '{{.data}}application_name='
+            - fieldName: log.applicationName
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
             - fieldName: log.6trash
-              pattern: '{{.data}}\='
-            - fieldName: log.logid
-              pattern: '{{.word}}'
+              pattern: '{{.data}}application_technology='
+            - fieldName: log.applicationTech
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
             - fieldName: log.7trash
+              pattern: '{{.data}}application_category='
+            - fieldName: log.applicationCategory
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
-          source: log.10blockToParse
+          source: log.restData
 
-      # Parsing the 11block field
       - grok:
           patterns:
-            - fieldName: log.3blockToKv
-              pattern: '{{.data}}application_filter_policy={{.word}}'
             - fieldName: log.8trash
+              pattern: '{{.data}}message='
+            - fieldName: log.logMessage
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
-          source: log.11blockToParse
+          source: log.restData
 
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.3blockToKv
-
-      # Parsing the raw field for log_type="Anti-Virus" log_component="HTTPS|FTP" log_subtype="Virus"
+      # Parsing the raw field for log_type="Firewall" log_component="Firewall Rule|Invalid Traffic" log_subtype="Allowed|Denied"
       - grok:
           patterns:
-            - fieldName: log.1trash
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.1blockToParse
+            - fieldName: log.4trash
+              pattern: '{{.data}}ether_type='
+            - fieldName: log.etherType
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
-          source: raw
+          source: log.restData
 
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.1blockToParse
+      # Parsing the raw field for log_type="Event" log_component="DDNS|DHCP Server|Firewall Authentication" log_subtype="System|Authentication"
+      - grok:
+          patterns:
+            - fieldName: log.4trash
+              pattern: '{{.data}}raw_data='
+            - fieldName: log.rawData
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.5trash
+              pattern: '{{.data}}raw_data='
+            - fieldName: log.rawData
+              pattern: '\"{{.data}}\"'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.6trash
+              pattern: '{{.data}}usergroupname='
+            - fieldName: log.userGroupName
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.7trash
+              pattern: '{{.data}}auth_client='
+            - fieldName: log.authClient
+              pattern: '\"{{.data}}\"'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.8trash
+              pattern: '{{.data}}message='
+            - fieldName: log.logMessage
+              pattern: '\"{{.data}}\"'
+          source: log.restData
 
       # Renaming useful fields
       - rename:
@@ -356,6 +202,26 @@ pipeline:
 
       - rename:
           from:
+            - log.uploadfilename
+          to: log.uploadFileName
+
+      - rename:
+          from:
+            - log.downloadfiletype
+          to: log.downloadFileType
+
+      - rename:
+          from:
+            - log.downloadfilename
+          to: log.downloadFileName
+
+      - rename:
+          from:
+            - log.uploadfiletype
+          to: log.uploadFileType
+
+      - rename:
+          from:
             - log.contenttype
           to: log.contentType
 
@@ -366,23 +232,23 @@ pipeline:
 
       - rename:
           from:
-            - log.deviceId
+            - log.deviceid
           to: log.connectionId
 
       - rename:
           from:
             - log.domain
-          to: log.remoteDomain
+          to: remote.domain
 
       - rename:
           from:
             - log.dstip
-          to: log.remoteIp
+          to: remote.ip
 
       - rename:
           from:
             - log.dstport
-          to: log.remotePort
+          to: remote.port
 
       - rename:
           from:
@@ -401,23 +267,18 @@ pipeline:
 
       - rename:
           from:
-            - log.logcomponent
-          to: log.component
-
-      - rename:
-          from:
             - log.logid
           to: log.Id
 
       - rename:
           from:
-            - log.logtype
-          to: log.type
+            - log.bridgedisplayname
+          to: log.bridgeDisplayName
 
       - rename:
           from:
-            - log.logsubtype
-          to: log.subType
+            - log.bridgename
+          to: log.bridgeName
 
       - rename:
           from:
@@ -476,6 +337,11 @@ pipeline:
 
       - rename:
           from:
+            - log.applicationrisk
+          to: log.applicationRisk
+
+      - rename:
+          from:
             - log.applicationfilterpolicy
           to: log.applicationFilterPolicy
 
@@ -511,13 +377,103 @@ pipeline:
 
       - rename:
           from:
+            - log.indisplayinterface
+          to: log.inDisplayInterface
+
+      - rename:
+          from:
+            - log.ininterface
+          to: log.inInterface
+
+      - rename:
+          from:
+            - log.outdisplayinterface
+          to: log.outDisplayInterface
+
+      - rename:
+          from:
+            - log.outinterface
+          to: log.outInterface
+
+      - rename:
+          from:
+            - log.vlanid
+          to: log.vLanId
+
+      - rename:
+          from:
             - log.ftpcommand
           to: log.ftpCommand
 
       - rename:
           from:
+            - log.ipspolicyid
+          to: log.ipsPolicyId
+
+      - rename:
+          from:
+            - log.appfilterpolicyid
+          to: log.appFilterPolicyId
+
+      - rename:
+          from:
+            - log.natruleid
+          to: log.natRuleId
+
+      - rename:
+          from:
+            - log.srcmac
+          to: log.srcMac
+
+      - rename:
+          from:
+            - log.policytype
+          to: log.policyType
+
+      - rename:
+          from:
+            - log.updatedip
+          to: log.updatedIp
+
+      - rename:
+          from:
+            - log.clienthostname
+          to: log.clientHostName
+
+      - rename:
+          from:
+            - log.ipaddress
+          to: log.ipAddress
+
+      - rename:
+          from:
+            - log.clientphysicaladdress
+          to: log.clientPhysicalAddress
+
+      - rename:
+          from:
+            - log.timestamp
+          to: log.timesTamp
+
+      - rename:
+          from:
+            - log.starttime
+          to: log.startTime
+
+      - rename:
+          from:
+            - log.authmechanism
+          to: log.authMechanism
+
+      - rename:
+          from:
+            - log.dstmac
+          to: remote.mac
+
+      - rename:
+          from:
             - log.dstdomain
-          to: log.dstDomain
+          to: remote.domain
 
       # Removing unnecessary characters
       - trim:
@@ -527,32 +483,47 @@ pipeline:
             - log.categoryApp
             - log.categoryType
             - log.component
+            - log.subType
+            - log.type
+            - log.logMessage
             - log.contentType
             - log.deviceName
             - log.domainName
             - log.dstDomain
+            - log.inDisplayInterface
+            - log.inInterface
+            - log.outDisplayInterface
+            - log.outInterface
+            - log.vLanId
             - log.deviceType
             - log.ftpCommand
+            - log.clientHostName
+            - log.ipAddress
+            - log.clientPhysicalAddress
+            - log.authMechanism
+            - log.rawData
+            - log.userGroupName
+            - log.authClient
             - log.fileName
             - log.filePath
             - log.FTPdirection
             - log.FTPurl
             - log.downloadFileName
             - log.downloadFileType
+            - log.uploadFileName
+            - log.uploadFileType
             - log.protocol
             - log.reason
             - log.referer
             - log.status
             - log.statusCode
-            - log.subType
-            - log.type
-            - log.uploadFileName
-            - log.uploadfiletype
             - log.url
             - log.virus
             - log.userAgent
             - log.userGroup
             - log.userName
+            - log.bridgeName
+            - log.bridgeDisplayName
             - log.timeZone
             - log.applicationCategory
             - log.applicationName
@@ -566,32 +537,47 @@ pipeline:
             - log.categoryApp
             - log.categoryType
             - log.component
+            - log.subType
+            - log.type
+            - log.logMessage
             - log.contentType
             - log.deviceName
             - log.domainName
             - log.dstDomain
+            - log.inDisplayInterface
+            - log.inInterface
+            - log.outDisplayInterface
+            - log.outInterface
+            - log.vLanId
             - log.deviceType
             - log.ftpCommand
+            - log.clientHostName
+            - log.ipAddress
+            - log.clientPhysicalAddress
+            - log.authMechanism
+            - log.rawData
+            - log.userGroupName
+            - log.authClient
             - log.fileName
             - log.filePath
             - log.FTPdirection
             - log.FTPurl
             - log.downloadFileName
             - log.downloadFileType
+            - log.uploadFileName
+            - log.uploadFileType
             - log.protocol
             - log.reason
             - log.referer
             - log.status
             - log.statusCode
-            - log.subType
-            - log.type
-            - log.uploadFileName
-            - log.uploadfiletype
             - log.url
             - log.virus
             - log.userAgent
             - log.userGroup
             - log.userName
+            - log.bridgeName
+            - log.bridgeDisplayName
             - log.timeZone
             - log.applicationCategory
             - log.applicationName
@@ -618,31 +604,11 @@ pipeline:
             - log.6trash
             - log.7trash
             - log.8trash
-            - log.9trash
-            - log.10trash
-            - log.11trash
-            - log.12trash
-            - log.13trash
-            - log.14trash
-            - log.15trash
-            - log.16trash
-            - log.17trash
-            - log.18trash
-            - log.1blockToParse
-            - log.2blockToParse
-            - log.3blockToParse
-            - log.4blockToParse
-            - log.5blockToParse
-            - log.6blockToParse
-            - log.7blockToParse
-            - log.8blockToParse
-            - log.9blockToParse
-            - log.10blockToParse
-            - log.11blockToParse
-            - log.1blockToKv
-            - log.2blockToKv
-            - log.3blockToKv
-            - log.4blockToKv
+            - log.irrelevant
+            - log.rawdata
+            - log.message
+            - log.restData
+            - log.useragent
             - log.activityname
             - log.application
             - log.httpresponsecode
@@ -650,3 +616,16 @@ pipeline:
             - log.overridename
             - log.overridetoken
             - log.transactionid
+            - log.applicationcategory
+            - log.applicationname
+            - log.applicationtechnology
+            - log.avpolicyname
+            - log.ethertype
+            - log.bridgedisplayname
+            - log.bridgename
+            - log.usergroupname
+            - log.authclient
+            - log.logcomponent
+            - log.logsubtype
+            - log.name
+            - log.logtype
