@@ -1,7 +1,7 @@
 import {HttpResponse} from '@angular/common/http';
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {AssetFiltersBehavior} from '../../../behavior/asset-filters.behavior';
 import {AssetReloadFilterBehavior} from '../../../behavior/asset-reload-filter-behavior.service';
@@ -56,7 +56,11 @@ export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
           this.searching = false;
           this.loadingMore = false;
         }),
-        map((response) => response.body));
+        map((response) => response.body),
+        catchError (err => {
+          this.loading = false;
+          return EMPTY;
+        }));
 
     this.assetFiltersBehavior.$assetFilter
       .pipe(
@@ -116,7 +120,11 @@ export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
   }
 
   searchInValues($event: string) {
-    this.requestParams.value = $event;
+    let value = $event;
+    if (this.fieldFilter.field === AssetFieldFilterEnum.ALIVE) {
+      value = this.getAliveFieldValue($event);
+    }
+    this.requestParams.value = value;
     this.requestParams.page = 0;
     this.searching = true;
     this.getPropertyValues();
@@ -142,4 +150,15 @@ export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
 
     return value;
   }
+  getAliveFieldValue(value: string): string {
+    console.log(value);
+    if (value !== '' && AssetsStatusEnum.CONNECTED.toLowerCase().indexOf(value.toLowerCase()) > -1) {
+      return 'true';
+    } else if (value !== '' && AssetsStatusEnum.DISCONNECTED.toLowerCase().indexOf(value.toLowerCase()) > -1) {
+      return 'false';
+    } else {
+      return '';
+    }
+  }
+
 }
