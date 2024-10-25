@@ -58,7 +58,7 @@ export class AssetFilterApplyingComponent implements OnInit {
       case AssetMapFilterFieldEnum.PROBE:
         return ASSETS_FIELDS_FILTERS[ASSETS_FIELDS_FILTERS
           .findIndex(value => value.field === AssetFieldFilterEnum.PROBE)].label;
-      case AssetMapFilterFieldEnum.GROUPS:
+      case AssetMapFilterFieldEnum.GROUP:
         return ASSETS_FIELDS_FILTERS[ASSETS_FIELDS_FILTERS
           .findIndex(value => value.field === AssetFieldFilterEnum.GROUP)].label;
     }

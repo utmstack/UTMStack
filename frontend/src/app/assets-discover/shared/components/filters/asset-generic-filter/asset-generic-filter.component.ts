@@ -136,7 +136,6 @@ export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
   }
 
   getValue(value: string) {
-    console.log('value');
     if (this.fieldFilter.field === AssetFieldFilterEnum.ALIVE) {
       return value ? AssetsStatusEnum.CONNECTED : AssetsStatusEnum.DISCONNECTED;
     }

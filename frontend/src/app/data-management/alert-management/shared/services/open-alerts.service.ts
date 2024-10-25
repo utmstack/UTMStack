@@ -19,13 +19,12 @@ export class OpenAlertsService {
     }, 30000);
   }
 
-  fetchOpenAlerts(){
+  fetchOpenAlerts() {
     this.subscription = this.interval$.pipe(
-      tap(() => console.log('fetching open alerts !!!')),
       switchMap( () => this.alertOpenStatusService.getOpenAlert()),
       map((response) => response.body),
       tap((openAlerts) => {
-        if (openAlerts !== this.openAlertsBehaviorSubject.value){
+        if (openAlerts > 0 && openAlerts !== this.openAlertsBehaviorSubject.value) {
           this.openAlertsBehaviorSubject.next(openAlerts);
         }
       })
@@ -40,5 +39,9 @@ export class OpenAlertsService {
     if (this.timeOutId) {
       clearTimeout(this.timeOutId);
     }
+  }
+
+  reset(){
+    this.openAlertsBehaviorSubject.next(0);
   }
 }
