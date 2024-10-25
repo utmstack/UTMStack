@@ -1,0 +1,681 @@
+# Github filter
+# Based on https://docs.github.com/es/developers/webhooks-and-events/webhooks/webhook-events-and-payloads (october 2024)
+# and real logs comming from github integration 
+# Support json format
+
+pipeline:
+  - dataTypes:
+      - github
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.baseref
+          to: log.baseRef
+
+      # Parsing headCommit section
+      - rename:
+          from:
+            - log.headcommit.added
+          to: log.headCommitAdded
+
+      - rename:
+          from:
+            - log.headcommit.author.email
+          to: log.headCommitAuthorEmail
+
+      - rename:
+          from:
+            - log.headcommit.author.name
+          to: log.headCommitAuthorName
+
+      - rename:
+          from:
+            - log.headcommit.committer.email
+          to: log.headCommitCommitterEmail
+
+      - rename:
+          from:
+            - log.headcommit.author.username
+          to: log.headCommitAuthorUsername
+
+      - rename:
+          from:
+            - log.headcommit.committer.name
+          to: log.headCommitCommitterName
+
+      - rename:
+          from:
+            - log.headcommit.committer.username
+          to: log.headCommitCommitterUsername
+
+      - rename:
+          from:
+            - log.headcommit.distinct
+          to: log.headCommitDistinct
+
+      - rename:
+          from:
+            - log.headcommit.id
+          to: log.headCommitId
+
+      - rename:
+          from:
+            - log.headcommit.message
+          to: log.headCommitMessage
+
+      - rename:
+          from:
+            - log.headcommit.modified.0
+          to: log.headCommitModified
+
+      - rename:
+          from:
+            - log.headcommit.removed
+          to: log.headCommitRemoved
+
+      - rename:
+          from:
+            - log.headcommit.timestamp
+          to: log.headCommitTimesTamp
+
+      - rename:
+          from:
+            - log.headcommit.tree_id
+          to: log.headCommitTreeId
+
+      - rename:
+          from:
+            - log.headcommit.url
+          to: log.headCommitUrl
+
+      # Parsing pusher section
+      - rename:
+          from:
+            - log.pusher.email
+          to: log.pusherEmail
+
+      - rename:
+          from:
+            - log.pusher.name
+          to: log.pusherName
+
+      # Parsing repository section
+      - rename:
+          from:
+            - log.repository.allow_forking
+          to: log.repositoryAllowForking
+
+      - rename:
+          from:
+            - log.repository.archive_url
+          to: log.repositoryArchiveUrl
+
+      - rename:
+          from:
+            - log.repository.archived
+          to: log.repositoryArchived
+
+      - rename:
+          from:
+            - log.repository.assignees_url
+          to: log.repositoryAssigneesUrl
+
+      - rename:
+          from:
+            - log.repository.blobs_url
+          to: log.repositoryBlobsUrl
+
+      - rename:
+          from:
+            - log.repository.branches_url
+          to: log.repositoryBranchesUrl
+
+      - rename:
+          from:
+            - log.repository.clone_url
+          to: log.repositoryCloneUrl
+
+      - rename:
+          from:
+            - log.repository.collaborators_url
+          to: log.repositoryCollaboratorsUrl
+
+      - rename:
+          from:
+            - log.repository.comments_url
+          to: log.repositoryCommentsUrl
+
+      - rename:
+          from:
+            - log.repository.commits_url
+          to: log.repositoryCommitsUrl
+
+      - rename:
+          from:
+            - log.repository.compare_url
+          to: log.repositoryCompareUrl
+
+      - rename:
+          from:
+            - log.repository.contents_url
+          to: log.repositoryContentsUrl
+
+      - rename:
+          from:
+            - log.repository.contributors_url
+          to: log.repositoryContributorsUrl
+
+      - rename:
+          from:
+            - log.repository.created_at
+          to: log.repositoryCreatedAt
+
+      - rename:
+          from:
+            - log.repository.default_branch
+          to: log.repositoryDefaultBranch
+
+      - rename:
+          from:
+            - log.repository.deployments_url
+          to: log.repositoryDeploymentsUrl
+
+      - rename:
+          from:
+            - log.repository.description
+          to: log.repositoryDescription
+
+      - rename:
+          from:
+            - log.repository.disabled
+          to: log.repositoryDisabled
+
+      - rename:
+          from:
+            - log.repository.downloads_url
+          to: log.repositoryDownloadsUrl
+
+      - rename:
+          from:
+            - log.repository.events_url
+          to: log.repository.events_url
+
+      - rename:
+          from:
+            - log.repository.fork
+          to: log.repositoryFork
+
+      - rename:
+          from:
+            - log.repository.forks
+          to: log.repositoryForks
+
+      - rename:
+          from:
+            - log.repository.forks_url
+          to: log.repositoryForksUrl
+
+      - rename:
+          from:
+            - log.repository.full_name
+          to: log.repositoryFullName
+
+      - rename:
+          from:
+            - log.repository.git_commits_url
+          to: log.repositoryGitCommitsUrl
+
+      - rename:
+          from:
+            - log.repository.git_refs_url
+          to: log.repositoryGitRefsUrl
+
+      - rename:
+          from:
+            - log.repository.git_tags_url
+          to: log.repositoryGitTagsUrl
+
+      - rename:
+          from:
+            - log.repository.git_url
+          to: log.repositoryGitUrl
+
+      - rename:
+          from:
+            - log.repository.has_discussions
+          to: log.repositoryHasDiscussions
+
+      - rename:
+          from:
+            - log.repository.has_downloads
+          to: log.repositoryHasDownloads
+
+      - rename:
+          from:
+            - log.repository.has_issues
+          to: log.repositoryHasIssues
+
+      - rename:
+          from:
+            - log.repository.has_pages
+          to: log.repositoryHasPages
+
+      - rename:
+          from:
+            - log.repository.has_projects
+          to: log.repositoryHasProjects
+
+      - rename:
+          from:
+            - log.repository.has_wiki
+          to: log.repositoryHasWiki
+
+      - rename:
+          from:
+            - log.repository.homepage
+          to: log.repositoryHomepage
+
+      - rename:
+          from:
+            - log.repository.hooks_url
+          to: log.repositoryHooksUrl
+
+      - rename:
+          from:
+            - log.repository.html_url
+          to: log.repositoryHtmlUrl
+
+      - rename:
+          from:
+            - log.repository.id
+          to: log.repositoryId
+
+      - rename:
+          from:
+            - log.repository.is_template
+          to: log.repositoryIsTemplate
+
+      - rename:
+          from:
+            - log.repository.issue_comment_url
+          to: log.repositoryIssueCommentUrl
+
+      - rename:
+          from:
+            - log.repository.issue_events_url
+          to: log.repositoryIssueEventsUrl
+
+      - rename:
+          from:
+            - log.repository.issues_url
+          to: log.repositoryIssuesUrl
+
+      - rename:
+          from:
+            - log.repository.keys_url
+          to: log.repositoryKeysUrl
+
+      - rename:
+          from:
+            - log.repository.labels_url
+          to: log.repositoryLabelsUrl
+
+      - rename:
+          from:
+            - log.repository.language
+          to: log.repositoryLanguage
+
+      - rename:
+          from:
+            - log.repository.languages_url
+          to: log.repositoryLanguagesUrl
+
+      - rename:
+          from:
+            - log.repository.license
+          to: log.repositoryLicense
+
+      - rename:
+          from:
+            - log.repository.master_branch
+          to: log.repositoryMasterBranch
+
+      - rename:
+          from:
+            - log.repository.merges_url
+          to: log.repositoryMergesUrl
+
+      - rename:
+          from:
+            - log.repository.milestones_url
+          to: log.repositoryMilestonesUrl
+
+      - rename:
+          from:
+            - log.repository.mirror_url
+          to: log.repositoryMirrorUrl
+
+      - rename:
+          from:
+            - log.repository.name
+          to: log.repositoryName
+
+      - rename:
+          from:
+            - log.repository.node_id
+          to: log.repositoryNodeId
+
+      - rename:
+          from:
+            - log.repository.notifications_url
+          to: log.repositoryNtificationsUrl
+
+      - rename:
+          from:
+            - log.repository.open_issues
+          to: log.repositoryOpenIssues
+
+      - rename:
+          from:
+            - log.repository.owner.email
+          to: log.repositoryOwnerEmail
+
+      - rename:
+          from:
+            - log.repository.owner.events_url
+          to: log.repositoryOwnerEventsUrl
+
+      - rename:
+          from:
+            - log.repository.owner.followers_url
+          to: log.repositoryOwnerFollowersUrl
+
+      - rename:
+          from:
+            - log.repository.owner.following_url
+          to: log.repositoryOwnerFollowingUrl
+
+      - rename:
+          from:
+            - log.repository.owner.gists_url
+          to: log.repositoryOwnerGistsUrl
+
+      - rename:
+          from:
+            - log.repository.owner.html_url
+          to: log.repositoryOwnerHtmlUrl
+
+      - rename:
+          from:
+            - log.repository.owner.id
+          to: log.repositoryOwnerId
+
+      - rename:
+          from:
+            - log.repository.owner.login
+          to: log.repositoryOwnerLogin
+
+      - rename:
+          from:
+            - log.repository.owner.name
+          to: log.repositoryOwnerName
+
+      - rename:
+          from:
+            - log.repository.owner.node_id
+          to: log.repositoryOwnerNodeId
+
+      - rename:
+          from:
+            - log.repository.owner.organizations_url
+          to: log.repositoryOwnerOrganizationsUrl
+
+      - rename:
+          from:
+            - log.repository.owner.received_events_url
+          to: log.repositoryOwnerReceivedEventsUrl
+
+      - rename:
+          from:
+            - log.repository.owner.repos_url
+          to: log.repositoryOwnerReposUrl
+
+      - rename:
+          from:
+            - log.repository.owner.site_admin
+          to: log.repositoryOwnerSiteAdmin
+
+      - rename:
+          from:
+            - log.repository.owner.starred_url
+          to: log.repositoryOwnerStarredUrl
+
+      - rename:
+          from:
+            - log.repository.owner.subscriptions_url
+          to: log.repositoryOwnerSubscriptionsUrl
+
+      - rename:
+          from:
+            - log.repository.owner.type
+          to: log.repositoryOwnerType
+
+      - rename:
+          from:
+            - log.repository.owner.url
+          to: log.repositoryOwnerUrl
+
+      - rename:
+          from:
+            - log.repository.owner.user_view_type
+          to: log.repositoryOwnerUserViewType
+
+      - rename:
+          from:
+            - log.repository.private
+          to: log.repositoryPrivate
+
+      - rename:
+          from:
+            - log.repository.pulls_url
+          to: log.repositoryPullsUrl
+
+      - rename:
+          from:
+            - log.repository.pushed_at
+          to: log.repositoryPushedAt
+
+      - rename:
+          from:
+            - log.repository.releases_url
+          to: log.repositoryReleasesUrl
+
+      - rename:
+          from:
+            - log.repository.size
+          to: log.repositorySize
+
+      - rename:
+          from:
+            - log.repository.ssh_url
+          to: log.repositorySshUrl
+
+      - rename:
+          from:
+            - log.repository.stargazers
+          to: log.repositoryStargazers
+
+      - rename:
+          from:
+            - log.repository.stargazers_url
+          to: log.repositoryStargazersUrl
+
+      - rename:
+          from:
+            - log.repository.statuses_url
+          to: log.repositoryStatusesUrl
+
+      - rename:
+          from:
+            - log.repository.subscribers_url
+          to: log.repositorySubscribersUrl
+
+      - rename:
+          from:
+            - log.repository.subscription_url
+          to: log.repositorySubscriptionUrl
+
+      - rename:
+          from:
+            - log.repository.svn_url
+          to: log.repositorySvnUrl
+
+      - rename:
+          from:
+            - log.repository.tags_url
+          to: log.repositoryTagsUrl
+
+      - rename:
+          from:
+            - log.repository.teams_url
+          to: log.repositoryTeamsUrl
+
+      - rename:
+          from:
+            - log.repository.topics
+          to: log.repositoryTopics
+
+      - rename:
+          from:
+            - log.repository.trees_url
+          to: log.repositoryTreesUrl
+
+      - rename:
+          from:
+            - log.repository.updated_at
+          to: log.repositoryUpdatedAt
+
+      - rename:
+          from:
+            - log.repository.url
+          to: log.repositoryUrl
+
+      - rename:
+          from:
+            - log.repository.visibility
+          to: log.repositoryVisibility
+
+      - rename:
+          from:
+            - log.repository.watchers
+          to: log.repositoryWatchers
+
+      - rename:
+          from:
+            - log.repository.web_commit_signoff_required
+          to: log.repositoryWebCommitSignoffRequired
+
+      # Parsing sender section
+      - rename:
+          from:
+            - log.sender.events_url
+          to: log.senderEventsUrl
+
+      - rename:
+          from:
+            - log.sender.followers_url
+          to: log.senderFllowersUrl
+
+      - rename:
+          from:
+            - log.sender.following_url
+          to: log.senderFollowingUrl
+
+      - rename:
+          from:
+            - log.sender.gists_url
+          to: log.senderGistsUrl
+
+      - rename:
+          from:
+            - log.sender.html_url
+          to: log.senderHtmlUrl
+
+      - rename:
+          from:
+            - log.sender.id
+          to: log.senderId
+
+      - rename:
+          from:
+            - log.sender.login
+          to: log.senderLogin
+
+      - rename:
+          from:
+            - log.sender.node_id
+          to: log.senderNodeId
+
+      - rename:
+          from:
+            - log.sender.organizations_url
+          to: log.senderOrganizationsUrl
+
+      - rename:
+          from:
+            - log.sender.received_events_url
+          to: log.senderReceivedEventsUrl
+
+      - rename:
+          from:
+            - log.sender.repos_url
+          to: log.senderReposUrl
+
+      - rename:
+          from:
+            - log.sender.site_admin
+          to: log.senderSiteAdmin
+
+      - rename:
+          from:
+            - log.sender.starred_url
+          to: log.senderStarredUrl
+
+      - rename:
+          from:
+            - log.sender.subscriptions_url
+          to: log.senderSubscriptionsUrl
+
+      - rename:
+          from:
+            - log.sender.type
+          to: log.senderType
+
+      - rename:
+          from:
+            - log.sender.url
+          to: log.senderUrl
+
+      - rename:
+          from:
+            - log.sender.user_view_type
+          to: log.senderUserViewType
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.repository.forks_count
+            - log.repository.open_issues_count
+            - log.repository.owner.avatar_url
+            - log.repository.owner.gravatar_id
+            - log.repository.stargazers_count
+            - log.repository.watchers_count
+            - log.sender.avatar_url
+            - log.sender.gravatar_id
+            - log.sender
+            - log.pusher
+            - log.repository.owner
+            - log.repository

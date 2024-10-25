@@ -46,6 +46,7 @@ import {AssetGenericFilterComponent} from './shared/components/filters/asset-gen
 import {AssetsFilterComponent} from './shared/components/filters/assets-filter/assets-filter.component';
 import {SourceDataTypeConfigComponent} from './source-data-type-config/source-data-type-config.component';
 import {UtmDatePipe} from "../shared/pipes/date.pipe";
+import {AssetGenericFilterService} from "./shared/services/asset-generic-filter.service";
 
 @NgModule({
   declarations: [
@@ -110,7 +111,8 @@ import {UtmDatePipe} from "../shared/pipes/date.pipe";
         InlineSVGModule
     ],
   providers: [
-    UtmDatePipe
+    UtmDatePipe,
+    AssetGenericFilterService
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })

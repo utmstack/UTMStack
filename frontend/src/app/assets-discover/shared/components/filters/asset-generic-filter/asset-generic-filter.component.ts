@@ -1,62 +1,92 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Observable, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {AssetFiltersBehavior} from '../../../behavior/asset-filters.behavior';
 import {AssetReloadFilterBehavior} from '../../../behavior/asset-reload-filter-behavior.service';
 import {STATICS_FILTERS} from '../../../const/filter-const';
 import {AssetFieldFilterEnum} from '../../../enums/asset-field-filter.enum';
 import {AssetMapFilterFieldEnum} from '../../../enums/asset-map-filter-field.enum';
-import {UtmNetScanService} from '../../../services/utm-net-scan.service';
+import {AssetsStatusEnum} from '../../../enums/assets-status.enum';
+import {CollectorFieldFilterEnum} from '../../../enums/collector-field-filter.enum';
+import {AssetGenericFilterService} from '../../../services/asset-generic-filter.service';
 import {AssetFilterType} from '../../../types/asset-filter.type';
-import {CollectorFieldFilterEnum} from "../../../enums/collector-field-filter.enum";
 
 @Component({
   selector: 'app-asset-generic-filter',
   templateUrl: './asset-generic-filter.component.html',
   styleUrls: ['./asset-generic-filter.component.scss']
 })
-export class AssetGenericFilterComponent implements OnInit {
+export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
   @Input() fieldFilter: ElasticFilterType;
   @Output() filterGenericChange = new EventEmitter<{ prop: AssetFieldFilterEnum | CollectorFieldFilterEnum, values: string[] }>();
   @Input() forGroups = false;
-  fieldValues: Array<[string, number]> = [];
+  // fieldValues: Array<[string, number]> = [];
+  fieldValues$: Observable<Array<[string, number]>>;
   loading = true;
   selected = [];
   loadingMore = false;
   searching = false;
-  requestParams: any;
+  requestParams = {
+    page: 0,
+    prop: null,
+    size: 6,
+    forGroups: this.forGroups,
+    value: null
+  };
+  destroy$: Subject<void> = new Subject<void>();
 
-  constructor(private utmNetScanService: UtmNetScanService,
+  constructor(private assetGenericFilterService: AssetGenericFilterService,
               private assetTypeChangeBehavior: AssetReloadFilterBehavior,
               private assetFiltersBehavior: AssetFiltersBehavior) {
   }
 
   ngOnInit() {
-    this.requestParams = {page: 0, prop: this.fieldFilter.field, size: 6, forGroups: this.forGroups};
-    this.getPropertyValues();
-    this.assetFiltersBehavior.$assetFilter.subscribe(filters => {
-      if (filters) {
-        this.setValueOfFilter(filters);
-      }
-    });
+    this.requestParams = {
+      ...this.requestParams,
+      prop: this.fieldFilter.field
+    };
+    this.fieldValues$ = this.assetGenericFilterService.onRefresh$
+      .pipe(
+        filter(filterData => !!filterData && filterData.refresh && filterData.fieldFilter === this.fieldFilter.field),
+        switchMap(() => this.assetGenericFilterService.fetchData(this.requestParams)),
+        tap((response: HttpResponse<Array<[string, number]>>) => {
+          this.loading = false;
+          this.searching = false;
+          this.loadingMore = false;
+        }),
+        map((response) => response.body));
+
+    this.assetFiltersBehavior.$assetFilter
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(filters => !!filters))
+      .subscribe(filters => this.setValueOfFilter(filters));
     /**
      * Update type values filter on type is applied to asset
      */
-    this.assetTypeChangeBehavior.$assetReloadFilter.subscribe(change => {
-      if (change && this.fieldFilter.field === change) {
-        this.requestParams.page = 0;
-        this.fieldValues = [];
-        this.loading = true;
-        this.getPropertyValues();
+    this.assetTypeChangeBehavior.$assetReloadFilter
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(change => {
+        if (change && this.fieldFilter.field === change) {
+          this.requestParams.page = 0;
+          this.loading = true;
+          this.selected = [];
+          this.getPropertyValues();
       }
     });
   }
 
+  ngAfterViewInit(): void {
+    this.getPropertyValues();
+  }
+
   getPropertyValues() {
-    this.utmNetScanService.getFieldValues(this.requestParams).subscribe(response => {
-      this.fieldValues = this.fieldValues.concat(response.body);
-      this.loading = false;
-      this.searching = false;
-      this.loadingMore = false;
+    this.loading = true;
+    this.assetGenericFilterService.notifyRefresh({
+      fieldFilter: this.fieldFilter.field,
+      refresh: true
     });
   }
 
@@ -64,13 +94,15 @@ export class AssetGenericFilterComponent implements OnInit {
   }
 
   onScroll() {
-    this.requestParams.page += 1;
+    this.requestParams = {
+      ...this.requestParams,
+      size: this.requestParams.size + 6
+    };
     this.loadingMore = true;
     this.getPropertyValues();
   }
 
-  selectValue(value: string) {
-    console.log(value);
+  selectValue(value: string ) {
     const index = this.selected.findIndex(val => val === value);
     if (index === -1) {
       this.selected.push(value);
@@ -87,20 +119,27 @@ export class AssetGenericFilterComponent implements OnInit {
     this.requestParams.value = $event;
     this.requestParams.page = 0;
     this.searching = true;
-    this.fieldValues = [];
     this.getPropertyValues();
   }
 
   setValueOfFilter(filters: AssetFilterType) {
-    console.log('setValueOfFilter');
-    for (const key of Object.keys(filters)) {
-      const filterKey = AssetFieldFilterEnum[this.fieldFilter.field] ?
-        AssetFieldFilterEnum[this.fieldFilter.field] : CollectorFieldFilterEnum[this.fieldFilter.field];
-      if (!STATICS_FILTERS.includes(key)
-        && key === AssetMapFilterFieldEnum[filterKey]) {
-        this.selected = filters[key] === null ? [] : filters[key];
-      }
+    const filterKey = AssetFieldFilterEnum[this.fieldFilter.field] ?
+      AssetFieldFilterEnum[this.fieldFilter.field] : CollectorFieldFilterEnum[this.fieldFilter.field];
+
+    const matchingKey = Object.keys(filters).find(key =>
+      !STATICS_FILTERS.includes(key) && key === AssetMapFilterFieldEnum[filterKey]
+    );
+
+    if (matchingKey) {
+      this.selected = filters[matchingKey] === null ? [] : filters[matchingKey];
     }
   }
 
+  getValue(value: string) {
+    if (this.fieldFilter.field === AssetFieldFilterEnum.ALIVE) {
+      return value ? AssetsStatusEnum.CONNECTED : AssetsStatusEnum.DISCONNECTED;
+    }
+
+    return value;
+  }
 }

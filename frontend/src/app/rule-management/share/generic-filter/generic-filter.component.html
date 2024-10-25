@@ -11,13 +11,8 @@
                          [width]="'5px'">
         </app-utm-spinner>
     </div>
-    <ng-template #empty>
-        <div class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
-            <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
-        </div>
-    </ng-template>
-
     <div *ngIf="fieldValues$ | async as items; else empty" class="w-100">
+      <ng-container *ngIf="items.length > 0; else empty">
         <div (scrolled)="onScroll()"
              [fromRoot]="true"
              [infiniteScrollDistance]="1"
@@ -50,6 +45,12 @@
                                  [width]="'35px'" label="Loading more"></app-utm-spinner>
             </div>
         </div>
+      </ng-container>
+      <ng-template #empty>
+        <div class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
+          <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
+        </div>
+      </ng-template>
     </div>
     <app-utm-search-input (searchFor)="searchInValues($event)"
                           [searching]="searching"

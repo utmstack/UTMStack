@@ -26,7 +26,7 @@ public class InternalApiKeyProvider {
     public UsernamePasswordAuthenticationToken getAuthentication(String apiKey) {
         final String ctx = CLASSNAME + ".getAuthentication";
         try {
-            com.park.utmstack.domain.User user = userRepository.findOneWithAuthoritiesByLogin(Constants.ADMIN_USER)
+            com.park.utmstack.domain.User user = userRepository.findAnyAdminUser()
                 .orElseThrow(() -> new RuntimeException("User not found"));
             List<SimpleGrantedAuthority> authorities = user.getAuthorities().stream().map(d -> new SimpleGrantedAuthority(d.getName()))
                 .collect(Collectors.toList());

@@ -4,6 +4,7 @@ import {JhiEventManager} from 'ng-jhipster';
 import {User} from '../../../core/user/user.model';
 import {UserService} from '../../../core/user/user.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
+import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-ser-mgmt-delete-dialog',
@@ -30,6 +31,13 @@ export class UserMgmtDeleteDialogComponent {
       });
       this.utmToast.showSuccess('User deleted successfully');
       this.activeModal.dismiss(true);
-    });
+    },
+      (error: HttpErrorResponse) => {
+        if (error.status === 400) {
+          this.utmToast.showError('Error', 'Cannot delete the last admin user.');
+        }
+        this.utmToast.showError('Error', 'An error occurred while attempting to delete the user.');
+        this.activeModal.dismiss(true);
+      });
   }
 }

@@ -75,6 +75,11 @@ export class UserMgmtUpdateComponent implements OnInit {
 
   private onSaveError(error, type) {
     this.isSaving = false;
-    this.utmToast.showError('Problem', 'The login or email is already in use, please check');
+
+    if (error.status === 400) {
+      this.utmToast.showError('Error', 'Admin role removal is prohibited for the last remaining administrator user.');
+    } else {
+      this.utmToast.showError('Problem', 'The login or email is already in use, please check');
+    }
   }
 }

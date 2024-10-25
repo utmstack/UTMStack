@@ -1,9 +1,12 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Observable} from 'rxjs';
+import {filter, map, switchMap, tap} from 'rxjs/operators';
 import {AccountService} from '../../core/auth/account.service';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {
@@ -38,8 +41,9 @@ import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-d
   templateUrl: './assets-view.component.html',
   styleUrls: ['./assets-view.component.scss']
 })
-export class AssetsViewComponent implements OnInit, OnDestroy {
-  assets: NetScanType[] = [];
+export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
+  assets$: Observable<NetScanType[]>;
+  assets: NetScanType[];
   // defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-30d', 'now');
   pageWidth = window.innerWidth;
   filterWidth: number;
@@ -90,12 +94,8 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
               private datePipe: UtmDatePipe) {
   }
 
-  // Init get asset on time filter component trigger
-
-
   ngOnInit() {
     this.setInitialWidth();
-    this.getAssets();
     this.starInterval();
     this.accountService.identity().then(account => {
       this.reasonRun = {
@@ -106,6 +106,21 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
       };
     });
 
+    this.assets$ = this.utmNetScanService.onRefresh$
+      .pipe(
+        filter(refresh => !!refresh),
+        switchMap(() => this.utmNetScanService.fetchData(this.requestParam)),
+        tap((response: HttpResponse<NetScanType[]>) => {
+          this.totalItems = Number(response.headers.get('X-Total-Count'));
+          this.loading = false;
+          this.assets = response.body;
+        }),
+        map((response) => response.body)
+      );
+  }
+
+  ngAfterViewInit() {
+    this.getAssets();
   }
 
   setInitialWidth() {
@@ -120,11 +135,11 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
   getAssets() {
-    this.utmNetScanService.query(this.requestParam).subscribe(response => {
-      this.totalItems = Number(response.headers.get('X-Total-Count'));
-      this.assets = response.body;
-      this.loading = false;
-    });
+    this.utmNetScanService.notifyRefresh(true);
+  }
+
+  trackByFn(index: number, item: NetScanType) {
+    return item.id;
   }
 
   onItemsPerPageChange($event: number) {
@@ -221,7 +236,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
         this.requestParam.os = $event.values.length > 0 ? $event.values : null;
         break;
       case AssetFieldFilterEnum.ALIVE:
-        this.requestParam.alive = $event.values;
+        this.requestParam.alive = $event.values.length > 0 ? $event.values : null;
         break;
       case AssetFieldFilterEnum.PROBE:
         this.requestParam.probe = $event.values.length > 0 ? $event.values : null;
@@ -268,7 +283,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
   }
 
 
-  deleteDataType(event: Event,dat: UtmDataInputStatus) {
+  deleteDataType(event: Event, dat: UtmDataInputStatus) {
     event.stopPropagation();
     this.deleting.push(dat.id);
     this.dataSourceInputService.delete(dat.id).subscribe(() => {
@@ -371,7 +386,7 @@ export class AssetsViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  starInterval(){
+  starInterval() {
     if (!this.interval) {
       this.interval = setInterval(() => {
         this.getAssets();
