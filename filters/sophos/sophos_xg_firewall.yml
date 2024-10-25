@@ -1,4 +1,4 @@
-# Sophos_GX filter using "SF syslog file guide 20.0"
+# Sophos_XG filter using "SF syslog file guide 20.0"
 # Supports
 # log_type="Content Filtering" log_component="HTTP|Application" log_subtype="Allowed|Denied".
 # log_type="Anti-Virus" log_component="HTTPS|FTP" log_subtype="Virus"
@@ -14,7 +14,24 @@ pipeline:
       # Parsing the common fields
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.0trash
+              pattern: '{{.data}}\='
+            - fieldName: log.syslogIpHost
+              pattern: '{{.ipv4}}'
+            - fieldName: log.notDefined
+              pattern: '{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
               pattern: '\<{{.data}}\>'
             - fieldName: log.restData
               pattern: '{{.greedy}}'
@@ -233,7 +250,7 @@ pipeline:
       - rename:
           from:
             - log.deviceid
-          to: log.connectionId
+          to: log.deviceId
 
       - rename:
           from:
@@ -283,27 +300,32 @@ pipeline:
       - rename:
           from:
             - log.recvbytes
-          to: log.localBytesReceived
+          to: local.bytesReceived
 
       - rename:
           from:
             - log.sentbytes
-          to: log.localBytesSent
+          to: local.bytesSent
 
       - rename:
           from:
             - log.srcip
-          to: log.localIp
+          to: local.ip
 
       - rename:
           from:
             - log.srcport
-          to: log.localPort
+          to: local.port
 
       - rename:
           from:
             - log.statuscode
           to: log.statusCode
+
+      - rename:
+          from:
+            - log.protocol
+          to: protocol
 
       - rename:
           from:
@@ -368,12 +390,12 @@ pipeline:
       - rename:
           from:
             - log.filename
-          to: log.fileName
+          to: remote.file
 
       - rename:
           from:
             - log.filepath
-          to: log.filePath
+          to: remote.path
 
       - rename:
           from:
@@ -403,7 +425,17 @@ pipeline:
       - rename:
           from:
             - log.ftpcommand
-          to: log.ftpCommand
+          to: remote.command
+
+      - rename:
+          from:
+            - log.FTPurl
+          to: remote.url
+
+      - rename:
+          from:
+            - log.FTPdirection
+          to: log.ftpDirection
 
       - rename:
           from:
@@ -423,7 +455,7 @@ pipeline:
       - rename:
           from:
             - log.srcmac
-          to: log.srcMac
+          to: local.mac
 
       - rename:
           from:
@@ -443,7 +475,7 @@ pipeline:
       - rename:
           from:
             - log.ipaddress
-          to: log.ipAddress
+          to: local.ip
 
       - rename:
           from:
@@ -464,6 +496,26 @@ pipeline:
           from:
             - log.authmechanism
           to: log.authMechanism
+
+      - rename:
+          from:
+            - log.eventtype
+          to: log.eventType
+
+      - rename:
+          from:
+            - log.executionpath
+          to: log.executionPath
+
+      - rename:
+          from:
+            - log.loginuser
+          to: log.loginUser
+
+      - rename:
+          from:
+            - log.processuser
+          to: log.processUser
 
       - rename:
           from:
@@ -489,30 +541,34 @@ pipeline:
             - log.contentType
             - log.deviceName
             - log.domainName
-            - log.dstDomain
+            - remote.domain
             - log.inDisplayInterface
             - log.inInterface
             - log.outDisplayInterface
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - log.ftpCommand
+            - remote.command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
             - log.authMechanism
+            - log.eventType
+            - log.executionPath
+            - log.loginUser
+            - log.processUser
             - log.rawData
             - log.userGroupName
             - log.authClient
-            - log.fileName
-            - log.filePath
-            - log.FTPdirection
-            - log.FTPurl
+            - remote.file
+            - remote.path
+            - log.ftpDirection
+            - remote.url
             - log.downloadFileName
             - log.downloadFileType
             - log.uploadFileName
             - log.uploadFileType
-            - log.protocol
+            - protocol
             - log.reason
             - log.referer
             - log.status
@@ -543,30 +599,34 @@ pipeline:
             - log.contentType
             - log.deviceName
             - log.domainName
-            - log.dstDomain
+            - remote.domain
             - log.inDisplayInterface
             - log.inInterface
             - log.outDisplayInterface
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - log.ftpCommand
+            - remote.command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
             - log.authMechanism
+            - log.eventType
+            - log.executionPath
+            - log.loginUser
+            - log.processUser
             - log.rawData
             - log.userGroupName
             - log.authClient
-            - log.fileName
-            - log.filePath
-            - log.FTPdirection
-            - log.FTPurl
+            - remote.file
+            - remote.path
+            - log.ftpDirection
+            - remote.url
             - log.downloadFileName
             - log.downloadFileType
             - log.uploadFileName
             - log.uploadFileType
-            - log.protocol
+            - protocol
             - log.reason
             - log.referer
             - log.status
@@ -584,18 +644,35 @@ pipeline:
             - log.applicationTech
             - log.appResolvedBy
 
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.syslogPriority
+
       # Field conversions
       - cast:
           fields:
             - log.statusCode
-            - log.localBytesReceived
-            - log.localBytesSent
-            - log.remotePort
+            - remote.port
           to: int
+
+      - cast:
+          fields:
+            - local.bytesReceived
+            - local.bytesSent
+          to: float
 
       # Removing unused fields
       - delete:
           fields:
+            - log.0trash
             - log.1trash
             - log.2trash
             - log.3trash
