@@ -2609,6 +2609,67 @@ pipeline:
           fields:
             - log.connectionId
       #......................................................................#
+      # ASA-6-302304
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown\s{{.word}}\sstate-bypass\sconnection'
+            - fieldName: log.connectionId
+              pattern: '({{.data}})from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: log.reason
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Protocol
+      - grok:
+        patterns:
+          - fieldName: log.irrelevant
+            pattern: 'Built'
+          - fieldName: protocol
+            pattern: '{{.word}}'
+          - fieldName: log.irrelevant
+            pattern: '{{.greedy}}'
+        source: action
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - log.connectionId
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
