@@ -41,7 +41,7 @@ pipeline:
             - fieldName: log.cefMsgAll
               pattern: '{{.greedy}}'
 
-      # Remove inecesarie caracters of the syslogHeader
+      # Removing unnecessary characters of the syslogHeader
       - trim:
           function: prefix
           substring: '<'
@@ -82,7 +82,7 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.cefMsgAll
 
-      # Remove inecesarie caracters of the cefMessage
+      # Removing unnecessary characters of the cefMessage
       - trim:
           function: prefix
           substring: '|'
@@ -105,7 +105,7 @@ pipeline:
           fieldSplit: " "
           valueSplit: "="
 
-      #Remove fields that have issues with kv filter
+      # Remove fields that have issues with kv filter
       - delete:
           fields:
             - log.destinationZoneURI
@@ -627,6 +627,383 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.cefMsg
 
+      # Applying grok to remove unnecessary data
+      - grok:
+          patterns:
+            - fieldName: log.destinationZoneURI
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.destinationZoneURI
+
+      - grok:
+          patterns:
+            - fieldName: log.msg
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.msg
+
+      - grok:
+          patterns:
+            - fieldName: log.customerURI
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.customerURI
+
+      - grok:
+          patterns:
+            - fieldName: log.destinationZoneExternalID
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.destinationZoneExternalID
+
+      - grok:
+          patterns:
+            - fieldName: log.cs1
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs1
+
+      - grok:
+          patterns:
+            - fieldName: log.cs2
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs2
+
+      - grok:
+          patterns:
+            - fieldName: log.cs3
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs3
+
+      - grok:
+          patterns:
+            - fieldName: log.cs4
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs4
+
+      - grok:
+          patterns:
+            - fieldName: log.cs5
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs5
+
+      - grok:
+          patterns:
+            - fieldName: log.cs6
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs6
+
+      - grok:
+          patterns:
+            - fieldName: log.cs7
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs7
+
+      - grok:
+          patterns:
+            - fieldName: log.cs8
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs8
+
+      - grok:
+          patterns:
+            - fieldName: log.cs9
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs9
+
+      - grok:
+          patterns:
+            - fieldName: log.cs10
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs10
+
+      - grok:
+          patterns:
+            - fieldName: log.cn1
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn1
+
+      - grok:
+          patterns:
+            - fieldName: log.cn2
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn2
+
+      - grok:
+          patterns:
+            - fieldName: log.cn3
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn3
+
+      - grok:
+          patterns:
+            - fieldName: log.cn4
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn4
+
+      - grok:
+          patterns:
+            - fieldName: log.cn5
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn5
+
+      - grok:
+          patterns:
+            - fieldName: log.cn6
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn6
+
+      - grok:
+          patterns:
+            - fieldName: log.cn7
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn7
+
+      - grok:
+          patterns:
+            - fieldName: log.cn8
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn8
+
+      - grok:
+          patterns:
+            - fieldName: log.cn9
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn9
+
+      - grok:
+          patterns:
+            - fieldName: log.cn10
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn10
+
+      - grok:
+          patterns:
+            - fieldName: log.originalAgentZoneURI
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.originalAgentZoneURI
+
+      - grok:
+          patterns:
+            - fieldName: log.flexString1
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.flexString1
+
+      - grok:
+          patterns:
+            - fieldName: log.cat
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cat
+
+      - grok:
+          patterns:
+            - fieldName: log.cs1Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs1Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs2Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs2Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs3Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs3Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs4Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs4Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs5Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs5Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs6Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs6Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs7Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs7Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs8Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs8Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs9Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs9Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cs10Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cs10Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn1Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn1Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn2Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn2Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn3Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn3Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn4Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn4Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn5Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn5Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn6Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn6Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn7Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn7Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn8Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn8Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn9Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn9Label
+
+      - grok:
+          patterns:
+            - fieldName: log.cn10Label
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.cn10Label
+      
       # Rename fields
       - rename:
           from:
@@ -638,7 +1015,7 @@ pipeline:
             - log.dst
           to: to.ip
 
-      # Remove inecesarie caracters of the restData
+      # Removing unnecessary characters of the restData
       - trim:
           function: suffix
           substring: '||=||='
