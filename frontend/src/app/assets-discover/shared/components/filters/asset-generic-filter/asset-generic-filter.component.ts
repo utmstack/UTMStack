@@ -151,7 +151,6 @@ export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
     return value;
   }
   getAliveFieldValue(value: string): string {
-    console.log(value);
     if (value !== '' && AssetsStatusEnum.CONNECTED.toLowerCase().indexOf(value.toLowerCase()) > -1) {
       return 'true';
     } else if (value !== '' && AssetsStatusEnum.DISCONNECTED.toLowerCase().indexOf(value.toLowerCase()) > -1) {
