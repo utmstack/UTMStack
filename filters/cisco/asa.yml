@@ -2348,13 +2348,6 @@ pipeline:
               pattern: '{{.data}}\)'
           source: log.tmpFwUserTo
       
-      - trim:
-          function: suffix
-          substring: ')'
-          fields:
-            - log.firewallUserFrom
-            - log.firewallUserTo
-            - from.user
       # Decoding outside and inside sg_info
       - grok:
           patterns:
@@ -2363,9 +2356,7 @@ pipeline:
             - fieldName: log.firewallUserFrom
               pattern: '{{.data}}(\s)?,'
             - fieldName: log.outsideSgInfo
-              pattern: '{{.data}}'
-            - fieldName: log.irrelevant
-              pattern: '\)'
+              pattern: '{{.data}}\)'
           source: log.firewallUserFrom
       - grok:
           patterns:
@@ -2374,10 +2365,17 @@ pipeline:
             - fieldName: log.firewallUserTo
               pattern: '{{.data}}(\s)?,'
             - fieldName: log.insideSgInfo
-              pattern: '{{.data}}'
-            - fieldName: log.irrelevant
-              pattern: '\)'
+              pattern: '{{.data}}\)'
           source: log.firewallUserTo
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+            - from.user
+            - log.insideSgInfo
+            - log.outsideSgInfo
       # Removing tmp fields
       - delete:
           fields:
@@ -2400,6 +2398,136 @@ pipeline:
             - to.ip
             - log.mappedIpFrom
             - log.mappedIpTo
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.connectionId
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+      #......................................................................#
+      # ASA-6-302036
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown\s{{.word}}\sconnection'
+            - fieldName: log.connectionId
+              pattern: '({{.data}})for'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserTo
+              pattern: '({{.data}})?duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+            - fieldName: log.irrelevant
+              pattern: 'bytes'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.reason
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Protocol
+      - grok:
+        patterns:
+          - fieldName: log.irrelevant
+            pattern: 'Teardown'
+          - fieldName: protocol
+            pattern: '{{.word}}'
+          - fieldName: log.irrelevant
+            pattern: '{{.greedy}}'
+        source: action
+      # Decoding outside and inside firewall user, and sg_info
+      # Side from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.outsideSgInfo
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+      # Side to
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserTo
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.insideSgInfo
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserTo
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserTo
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserTo
+      # Parsing from.user from log.reason field
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+          source: log.reason
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+            - from.user
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+            - log.tmpFwUserTo
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
       - trim:
           function: suffix
           substring: 'for'
