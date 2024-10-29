@@ -50,12 +50,11 @@ import {SaveAlertReportComponent} from '../alert-reports/shared/components/save-
 import {AlertDataTypeBehavior} from '../shared/behavior/alert-data-type.behavior';
 import {AlertFiltersBehavior} from '../shared/behavior/alert-filters.behavior';
 import {AlertStatusBehavior} from '../shared/behavior/alert-status.behavior';
-import {AlertUpdateTagBehavior} from '../shared/behavior/alert-update-tag.behavior';
 import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/row-to-filters.component';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
-import {AlertManagementService} from '../shared/services/alert-management.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {OpenAlertsService} from '../shared/services/open-alerts.service';
 
 
 @Component({
@@ -117,8 +116,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private activatedRoute: ActivatedRoute,
               public router: Router,
               private openAlertsService: OpenAlertsService,
-              private alertUpdateTagBehavior: AlertUpdateTagBehavior,
-              private newAlertBehavior: NewAlertBehavior,
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
               private spinner: NgxSpinnerService,
