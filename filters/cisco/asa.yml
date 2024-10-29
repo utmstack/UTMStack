@@ -3379,6 +3379,12 @@ pipeline:
             - fieldName: log.tmpIpPortTo
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       # Parsing optional ports from y to
       - grok:
           patterns:
@@ -3387,6 +3393,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpPortFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       - grok:
           patterns:
             - fieldName: to.ip
@@ -3394,11 +3406,23 @@ pipeline:
             - fieldName: to.port
               pattern: '{{.greedy}}'
           source: log.tmpIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       - grok:
           patterns:
             - fieldName: to.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
           source: log.tmpIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       # Cleaning fields
       - trim:
           function: suffix
@@ -3406,17 +3430,35 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       - trim:
           function: suffix
           substring: '/'
           fields:
             - from.ip
             - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       # Remove tmp fields
       - delete:
           fields:
             - log.tmpPortFrom
             - log.tmpIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
       #......................................................................#
       #ASA-6-302035
       - grok:
@@ -3453,8 +3495,13 @@ pipeline:
               pattern: '{{.data}}/'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
-            
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Parsing direction field
       - grok:
           patterns:
@@ -3467,6 +3514,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpDirection
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Parsing firewall user from
       - grok:
           patterns:
@@ -3477,6 +3530,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Parsing port to, firewall user to, and, from user
       - grok:
           patterns:
@@ -3487,6 +3546,12 @@ pipeline:
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
           source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Without user info
       - grok:
           patterns:
@@ -3495,6 +3560,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Parsing firewall user to
       # With from.user
       - grok:
@@ -3508,6 +3579,12 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.data}}\)'
           source: log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Without from.user
       - grok:
           patterns:
@@ -3516,6 +3593,12 @@ pipeline:
             - fieldName: log.firewallUserTo
               pattern: '{{.data}}\)'
           source: log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       
       # Decoding outside and inside sg_info
       - grok:
@@ -3525,6 +3608,12 @@ pipeline:
             - fieldName: log.outsideSgInfo
               pattern: '{{.data}}\)'
           source: log.firewallUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       - grok:
           patterns:
             - fieldName: log.firewallUserTo
@@ -3532,6 +3621,12 @@ pipeline:
             - fieldName: log.insideSgInfo
               pattern: '{{.data}}\)'
           source: log.firewallUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       - trim:
           function: suffix
           substring: ')'
@@ -3541,12 +3636,24 @@ pipeline:
             - from.user
             - log.insideSgInfo
             - log.outsideSgInfo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpDirection
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
 
       # Cleaning fields
       - trim:
@@ -3555,6 +3662,12 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       - trim:
           function: suffix
           substring: '/'
@@ -3563,17 +3676,35 @@ pipeline:
             - to.ip
             - log.mappedIpFrom
             - log.mappedIpTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       #......................................................................#
       # ASA-6-302036
       - grok:
@@ -3607,6 +3738,12 @@ pipeline:
             - fieldName: log.reason
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       # Protocol
       - grok:
         patterns:
@@ -3617,6 +3754,12 @@ pipeline:
           - fieldName: log.irrelevant
             pattern: '{{.greedy}}'
         source: action
+        where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       # Decoding outside and inside firewall user, and sg_info
       # Side from
       - grok:
@@ -3630,6 +3773,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -3639,6 +3788,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       # Side to
       - grok:
           patterns:
@@ -3651,6 +3806,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -3660,6 +3821,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       # Parsing from.user from log.reason field
       - grok:
           patterns:
@@ -3668,6 +3835,12 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.data}}\)'
           source: log.reason
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       - trim:
           function: suffix
           substring: ')'
@@ -3675,11 +3848,23 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       # Cleaning fields
       - trim:
           function: suffix
@@ -3687,23 +3872,47 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       - trim:
           function: suffix
           substring: '/'
           fields:
             - from.ip
             - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       #......................................................................#
       # ASA-6-302303
       - grok:
@@ -3743,6 +3952,12 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302303
       # Protocol
       - grok:
         patterns:
@@ -3753,6 +3968,12 @@ pipeline:
           - fieldName: log.irrelevant
             pattern: '{{.greedy}}'
         source: action
+        where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302303
       # Cleaning fields
       - trim:
           function: suffix
@@ -3760,6 +3981,12 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302303
       - trim:
           function: suffix
           substring: '/'
@@ -3768,11 +3995,23 @@ pipeline:
             - to.ip
             - log.mappedIpFrom
             - log.mappedIpTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302303
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302303
       #......................................................................#
       # ASA-6-302304
       - grok:
