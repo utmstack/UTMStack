@@ -1004,12 +1004,24 @@ pipeline:
             - fieldName: to.ip
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.reason
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
       # Action result
       - grok:
           patterns:
@@ -1018,6 +1030,12 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
       #......................................................................#
       # ASA-6-113016
       - grok:
@@ -1041,6 +1059,12 @@ pipeline:
             - fieldName: from.ip
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
       - trim:
           function: suffix
           substring: ':'
@@ -1048,6 +1072,12 @@ pipeline:
             - log.reason
             - to.ip
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
       # Action result
       - grok:
           patterns:
@@ -1056,6 +1086,12 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
       #......................................................................#
       # ASA-4-113019
       - grok:
@@ -1095,6 +1131,12 @@ pipeline:
             - fieldName: log.reason
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
       - trim:
           function: suffix
           substring: ','
@@ -1106,11 +1148,23 @@ pipeline:
             - log.duration
             - from.bytesSent
             - from.bytesReceived
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
       - cast:
           fields:
             - from.bytesSent
             - from.bytesReceived
           to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
       #......................................................................#
       # ASA-113031,113032,113033
       # Common fields
@@ -1127,16 +1181,34 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - from.group
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       # Specific fields
       - grok:
           patterns:
@@ -1147,6 +1219,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       - grok:
           patterns:
             - fieldName: action
@@ -1154,11 +1232,23 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       - trim:
           function: suffix
           substring: 'is'
           fields:
             - log.filter
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       #......................................................................#
       # ASA-113034,113035,113036,113038,113039
       - grok:
@@ -1174,17 +1264,35 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - from.group
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
       - trim:
           function: prefix
           substring: '<'
@@ -1192,6 +1300,12 @@ pipeline:
             - from.group
             - from.user
             - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
       - trim:
           function: suffix
           substring: '>'
@@ -1199,6 +1313,12 @@ pipeline:
             - from.group
             - from.user
             - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
       #......................................................................#
       # ASA-4-113042
       - grok:
