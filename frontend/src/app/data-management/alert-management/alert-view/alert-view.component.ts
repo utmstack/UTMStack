@@ -55,8 +55,8 @@ import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertManagementService} from '../shared/services/alert-management.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
-import {OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+
 
 @Component({
   selector: 'app-alert-view',
@@ -112,13 +112,13 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private modalService: NgbModal,
               private utmToastService: UtmToastService,
               private translate: TranslateService,
-              private alertServiceManagement: AlertManagementService,
               private alertFiltersBehavior: AlertFiltersBehavior,
               private updateStatusServiceBehavior: AlertStatusBehavior,
               private activatedRoute: ActivatedRoute,
               public router: Router,
               private openAlertsService: OpenAlertsService,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
+              private newAlertBehavior: NewAlertBehavior,
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
               private spinner: NgxSpinnerService,
@@ -319,6 +319,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.refreshingAlert = false;
       },
       (res: HttpResponse<any>) => {
+        this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
       }
     );
   }
