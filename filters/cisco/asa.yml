@@ -442,6 +442,12 @@ pipeline:
             - fieldName: log.auditSessionId
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
       # Action result
       - grok:
           patterns:
@@ -452,11 +458,23 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
       - trim:
           function: suffix
           substring: ','
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
       #......................................................................#
       # ASA-4-109102
       - grok:
@@ -472,6 +490,12 @@ pipeline:
             - fieldName: log.auditSessionId
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109102
       # Action result
       - grok:
           patterns:
@@ -480,6 +504,12 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109102
       #......................................................................#
       # ASA-3-109103
       - grok:
@@ -499,6 +529,12 @@ pipeline:
             - fieldName: log.auditSessionId
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109103
       # Action result
       - grok:
           patterns:
@@ -507,11 +543,23 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109103
       - trim:
           function: suffix
           substring: ','
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109103
       #......................................................................#
       # ASA-109201 to 109213
       - grok:
@@ -533,12 +581,24 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=109201 && msgId<=109213
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.session
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=109201 && msgId<=109213
       #......................................................................#
       # ASA-6-113004
       - grok:
@@ -556,6 +616,12 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
       # Action result
       - grok:
           patterns:
