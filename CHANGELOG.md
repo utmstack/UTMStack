@@ -1,3 +1,3 @@
-# UTMStack 10.5.12 Release Notes
+# UTMStack 10.5.13 Release Notes
 ## Bugfix
-- Implemented validation checks during the user deletion process to prevent the deletion of the last admin user. This ensures that at least one admin user remains in the system, maintaining the integrity of the authentication process.
+- Error on server when sorting by severity column in threat Management/Alerts view.
