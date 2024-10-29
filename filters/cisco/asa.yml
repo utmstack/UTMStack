@@ -4148,20 +4148,20 @@ pipeline:
             expression: msgId==302305
       # Protocol
       - grok:
-        patterns:
-          - fieldName: log.irrelevant
-            pattern: 'Built'
-          - fieldName: protocol
-            pattern: '{{.word}}'
-          - fieldName: log.irrelevant
-            pattern: '{{.greedy}}'
-        source: action
-        where:
-            variables:
-              - get: log.messageId
-                as: msgId
-                ofType: int
-            expression: msgId==302305
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Built'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==302305
       # Parsing firewall user from
       - grok:
           patterns:
