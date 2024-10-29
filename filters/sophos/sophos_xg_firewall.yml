@@ -1,11 +1,7 @@
-# Sophos_XG filter using "SF syslog file guide 20.0"
-# Supports
-# log_type="Content Filtering" log_component="HTTP|Application" log_subtype="Allowed|Denied".
-# log_type="Anti-Virus" log_component="HTTPS|FTP" log_subtype="Virus"
-# log_type="Firewall" log_component="Firewall Rule|Invalid Traffic" log_subtype="Allowed|Denied"
-
-# See: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
-# and https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
+# Sophos_XG filter
+# Supports SF 20.0 version log types
+# See manual: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
+# and documentation https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
 
 pipeline:
   - dataTypes:
@@ -22,12 +18,13 @@ pipeline:
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
             - fieldName: log.0trash
               pattern: '{{.data}}\='
-            - fieldName: log.syslogIpHost
+            - fieldName: log.syslogHostIP
               pattern: '{{.ipv4}}'
             - fieldName: log.notDefined
               pattern: '{{.integer}}'
             - fieldName: log.restData
               pattern: '{{.greedy}}'
+          source: raw
 
       - grok:
           patterns:
