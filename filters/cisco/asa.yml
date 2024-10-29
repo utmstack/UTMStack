@@ -89,6 +89,12 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106001
 
       - trim:
           function: prefix
@@ -96,6 +102,12 @@ pipeline:
           fields:
             - from.port
             - to.port
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106001
 
       #......................................................................#
       #ASA-2-106017
@@ -114,11 +126,23 @@ pipeline:
             - fieldName: to.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106017
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106017
       #......................................................................#
       # ASA-1-106021
       - grok:
@@ -138,11 +162,23 @@ pipeline:
             - fieldName: log.srcInterface
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106021
       - trim:
           function: suffix
           substring: 'from'
           fields:
             - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106021
       
       #......................................................................#
       # ASA-2-106101
@@ -153,6 +189,12 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -162,6 +204,12 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
       # Parsing the limit number
       - grok:
           patterns:
@@ -172,11 +220,23 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
       # Field conversions
       - cast:
           fields:
             - log.numFlows
           to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
       
       #......................................................................#
       # ASA-6-106102,106103
@@ -214,6 +274,12 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       # Second variant
       - grok:
           patterns:
@@ -250,34 +316,70 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       - trim:
           function: suffix
           substring: '/'
           fields:
             - log.srcInterface
             - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       - trim:
           function: prefix
           substring: ''''
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       - trim:
           function: suffix
           substring: ''''
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       - trim:
           function: prefix
           substring: '('
           fields:
             - from.port
             - to.port
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       - trim:
           function: suffix
           substring: ')'
           fields:
             - from.port
             - to.port
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
       #......................................................................#
       # ASA-4-109017
       - grok:
@@ -293,16 +395,34 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109017
 
       - trim:
           function: prefix
           substring: '('
           fields:
             - log.limit
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109017
       - cast:
           fields:
             - log.limit
           to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109017
       #......................................................................#
       # ASA-6-109101
       - grok:
