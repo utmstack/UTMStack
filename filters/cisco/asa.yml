@@ -630,16 +630,34 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
       - trim:
           function: suffix
           substring: ':'
           fields:
             - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
       - trim:
           function: suffix
           substring: ','
           fields:
             - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
       #......................................................................#
       # ASA-6-113005
       - grok:
@@ -663,6 +681,12 @@ pipeline:
             - fieldName: from.ip
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
       # Action result
       - grok:
           patterns:
@@ -671,6 +695,12 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
       - trim:
           function: suffix
           substring: ':'
@@ -678,6 +708,12 @@ pipeline:
             - log.reason
             - to.ip
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
       #......................................................................#
       # ASA-6-113008
       - grok:
@@ -689,6 +725,12 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113008
       #......................................................................#
       # ASA-6-113009
       # First variant
@@ -703,16 +745,34 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
       - trim:
           function: prefix
           substring: '('
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
       # Second variant
       - grok:
           patterns:
@@ -725,11 +785,23 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
       #......................................................................#
       # ASA-6-113010
       - grok:
@@ -741,11 +813,23 @@ pipeline:
             - fieldName: from.ip
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113010
       - trim:
           function: suffix
           substring: 'from server'
           fields:
             - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113010
       #......................................................................#
       # ASA-6-113011
       # First variant
@@ -760,16 +844,34 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113011
       - trim:
           function: prefix
           substring: '('
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113011
       - trim:
           function: suffix
           substring: ')'
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113011
       # Second variant
       - grok:
           patterns:
@@ -782,11 +884,23 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113011
       - trim:
           function: suffix
           substring: 'for'
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113011
       #......................................................................#
       # ASA-6-113012
       - grok:
@@ -798,6 +912,12 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113012
       # Action result
       - grok:
           patterns:
@@ -806,6 +926,12 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113012
       #......................................................................#
       # ASA-6-113013
       - grok:
@@ -821,11 +947,23 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113013
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.reason
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113013
       #......................................................................#
       # ASA-6-113014
       - grok:
@@ -841,6 +979,12 @@ pipeline:
             - fieldName: from.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113014
       #......................................................................#
       # ASA-6-113015, 113017
       - grok:
