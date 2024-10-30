@@ -48,7 +48,7 @@ func (g *GroupModule) PullLogs() {
 			err = sub.Receive(g.CTX, func(ctx context.Context, msg *pubsub.Message) {
 				go_sdk.Logger().LogF(100, "received message: %v", string(msg.Data))
 				logsQueue <- &go_sdk.Log{
-					Id:         uuid.New().String(),
+					Id:         uuid.NewString(),
 					TenantId:   DefaultTenant,
 					DataType:   "google",
 					DataSource: g.GroupName,
