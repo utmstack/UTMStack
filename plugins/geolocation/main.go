@@ -56,7 +56,7 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 		return transform.Jlog, fmt.Errorf(e.Message)
 	}
 
-	value := gjson.Get(transform.Jlog.Log, source.String()).String()
+	value := gjson.Get(transform.Jlog.Log, source.GetStringValue()).String()
 	if value == "" {
 		go_sdk.Logger().LogF(100, "source field not found")
 		return transform.Jlog, nil
@@ -65,7 +65,7 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 	geo := geolocate(value)
 
 	var err error
-	transform.Jlog.Log, err = sjson.Set(transform.Jlog.Log, destination.String(), geo)
+	transform.Jlog.Log, err = sjson.Set(transform.Jlog.Log, destination.GetStringValue(), geo)
 	if err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
 		return transform.Jlog, err

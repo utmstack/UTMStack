@@ -62,10 +62,11 @@ func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	t.Id = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	t.Name = "Default"
 	t.DisabledRules = disabledRules
-	t.Assets = make([]go_sdk.Asset, len(assets))
+	t.Assets = make([]*go_sdk.Asset, 0, len(assets))
 
 	for i, asset := range assets {
-		t.Assets[i] = go_sdk.Asset(asset)
+		sdkAsset := go_sdk.Asset(asset)
+		t.Assets[i] = &sdkAsset
 	}
 }
 
@@ -89,7 +90,7 @@ func (a *Asset) FromVar(name interface{}, hostnames interface{}, ips interface{}
 	ipsStr = strings.ReplaceAll(ipsStr, "\"", "")
 
 	for _, ip := range strings.Fields(ipsStr) {
-		a.IPs = append(a.IPs, go_sdk.CastString(ip))
+		a.Ips = append(a.Ips, go_sdk.CastString(ip))
 	}
 
 	a.Confidentiality = int32(go_sdk.CastInt64(confidentiality))
@@ -537,8 +538,10 @@ func writeTenant(pCfg *go_sdk.Config, tenant Tenant) *logger.Error {
 		return go_sdk.Logger().ErrorF("failed to create file: %v", err)
 	}
 
-	tenants := go_sdk.Config{
-		Tenants: []go_sdk.Tenant{go_sdk.Tenant(tenant)},
+	sdkTenant := go_sdk.Tenant(tenant)
+	
+	tenants := go_sdk.Config{	
+		Tenants: []*go_sdk.Tenant{&sdkTenant},
 	}
 
 	bTenants, err := yaml.Marshal(tenants)
