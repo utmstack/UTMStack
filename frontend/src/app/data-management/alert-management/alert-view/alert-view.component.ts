@@ -53,8 +53,8 @@ import {AlertStatusBehavior} from '../shared/behavior/alert-status.behavior';
 import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/row-to-filters.component';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
-import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
 import {OpenAlertsService} from '../shared/services/open-alerts.service';
+import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
 
 
 @Component({
