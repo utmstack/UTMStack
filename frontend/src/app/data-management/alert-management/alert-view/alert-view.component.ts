@@ -54,8 +54,6 @@ import {AlertManagementService} from '../shared/services/alert-management.servic
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
 import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-alert-view',
@@ -104,22 +102,26 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   refreshingAlert = false;
   firstLoad = true;
   tags: AlertTags[];
-  destroy$ = new Subject<void>();
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
               private utmToastService: UtmToastService,
               private translate: TranslateService,
+              private alertServiceManagement: AlertManagementService,
               private alertFiltersBehavior: AlertFiltersBehavior,
               private updateStatusServiceBehavior: AlertStatusBehavior,
               private activatedRoute: ActivatedRoute,
               public router: Router,
               private newAlertBehavior: NewAlertBehavior,
+              private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
               private spinner: NgxSpinnerService,
               private checkEmailConfigService: CheckEmailConfigService) {
     // this.tableWidth = this.pageWidth - 300;
+  }
+
+  ngOnDestroy(): void {
   }
 
   ngOnInit() {
@@ -164,9 +166,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.alertFiltersBehavior.$filters.next(this.filters);
       }
     });
-    this.newAlertBehavior.$alertChange
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(newAlerts => {
+    this.newAlertBehavior.$alertChange.subscribe(newAlerts => {
       if (newAlerts && newAlerts !== 0) {
         this.incomingAlert = newAlerts;
       }
@@ -318,7 +318,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.refreshingAlert = false;
       },
       (res: HttpResponse<any>) => {
-        this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
       }
     );
   }
@@ -549,10 +548,5 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   openIncidentResponseAutomationModal(alert: UtmAlertType) {
     const modal = this.modalService.open(IrCreateRuleComponent, {size: 'lg', centered: true});
     modal.componentInstance.alert = alert;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

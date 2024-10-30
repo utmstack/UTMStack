@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {NgbCollapseModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -24,6 +24,8 @@ import {
 } from "../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component";
 import {DashboardBuilderModule} from "../graphic-builder/dashboard-builder/dashboard-builder.module";
 import {AlertManagementSharedModule} from "../data-management/alert-management/shared/alert-management-shared.module";
+import { ComplianceReportViewerComponent } from './compliance-report-viewer/compliance-report-viewer.component';
+import {UtmCpStandardComponent} from "./shared/components/utm-cp-standard/utm-cp-standard.component";
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import {AlertManagementSharedModule} from "../data-management/alert-management/s
     ComplianceTemplatesComponent,
     ComplianceResultParamsComponent,
     ComplianceCustomViewComponent,
-    ComplianceScheduleComponent
+    ComplianceScheduleComponent,
+    ComplianceReportViewerComponent,
+    UtmCpStandardComponent
   ],
   imports: [
     CommonModule,
@@ -50,12 +54,14 @@ import {AlertManagementSharedModule} from "../data-management/alert-management/s
     UtmDashboardSharedModule,
     DashboardBuilderModule,
     NgbCollapseModule,
-    AlertManagementSharedModule
+    AlertManagementSharedModule,
+    ReactiveFormsModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [
     ComplianceResultParamsComponent,
-    DashboardFilterCreateComponent],
+    DashboardFilterCreateComponent,
+    UtmCpStandardComponent],
   exports: []
 })
 export class ComplianceModule {

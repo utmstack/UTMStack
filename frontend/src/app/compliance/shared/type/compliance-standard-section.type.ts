@@ -6,4 +6,5 @@ export class ComplianceStandardSectionType {
   standardId: number;
   standardSectionDescription: string;
   standardSectionName: string;
+  isCollapsed?: boolean;
 }

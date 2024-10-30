@@ -1,0 +1,30 @@
+<div class="container-fluid pr-3 pl-3 pt-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="card-title mb-0 text-uppercase label-header">Reports Templates</h5>
+    <div *appHasAnyAuthority="admin" class="header-elements">
+      <button (click)="manageStandards()" class="btn utm-button utm-button-primary">
+        <i class="icon-cog3 mr-1"></i> Manage reports
+      </button>
+    </div>
+  </div>
+  <div class="row m-0">
+    <div class="col-lg-3 col-md-3 col-sm-12 pl-0 pr-0">
+      <div class="h-100 card m-0">
+        <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+          <label class="card-title">Sections</label>
+        </div>
+        <div class="card-body p-2">
+          <div *ngFor="let section of sections$ | async" class="d-flex flex-column mb-2">
+            <app-utm-cp-section [section]="section"></app-utm-cp-section>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-9 col-md-9 col-sm-12">
+      <div class="h-100 card m-0">
+       <app-compliance-result-view></app-compliance-result-view>
+      </div>
+    </div>
+  </div>
+</div>

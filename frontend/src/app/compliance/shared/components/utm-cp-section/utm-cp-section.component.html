@@ -1,0 +1,24 @@
+<div class="d-flex justify-content-between align-items-center w-100">
+              <span class="cursor-pointer">
+                <i class="icon-shield2 font-size-sm"></i>&nbsp;
+                {{ section.standardSectionName }}
+              </span>
+  <button (click)="section.isCollapsed = !section.isCollapsed;loadReport(section)" class="btn btn-link p-0"
+          aria-expanded="{{ section.isCollapsed }}"
+          aria-controls="collapse{{ section.id }}">
+    <i class="icon-arrow-down32" [ngClass]="{'icon-arrow-up32': !section.isCollapsed}"></i>
+  </button>
+</div>
+<div class="collapse" [ngClass]="{'show': section.isCollapsed}" id="collapse{{ section.id }}">
+  <div class="mt-2 pl-4">
+    <div *ngFor="let report of reports$ | async">
+      <div class="w-100 d-flex justify-content-between align-items-center cursor-pointer mb-3 pl-2 report-hover">
+        <div class="flex-grow-1" (click)="generateReport(report)">
+          <i class="icon-file-presentation mr-2"></i>
+          <label [innerHTML]="report.associatedDashboard.name | safe:'html'" class="font-size-base cursor-pointer"
+                 *ngIf="report.associatedDashboard"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

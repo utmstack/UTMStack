@@ -20,6 +20,8 @@ import {UtmComplianceSelectComponent} from "./components/utm-compliance-select/u
 import {
   UtmComplianceScheduleDeleteComponent
 } from "./components/utm-compliance-schedule-delete/utm-compliance-schedule-delete.component";
+import { UtmCpReportComponent } from './components/utm-cp-report/utm-cp-report.component';
+import { UtmCpSectionComponent } from './components/utm-cp-section/utm-cp-section.component';
 
 
 @NgModule({
@@ -34,7 +36,9 @@ import {
     UtmComplianceScheduleCreateComponent,
     UtmCpCronEditorComponent,
     UtmComplianceSelectComponent,
-    UtmComplianceScheduleDeleteComponent
+    UtmComplianceScheduleDeleteComponent,
+    UtmCpReportComponent,
+    UtmCpSectionComponent
   ],
   imports: [
     CommonModule,
@@ -56,16 +60,17 @@ import {
     UtmComplianceScheduleCreateComponent,
     UtmComplianceScheduleDeleteComponent
   ],
-  exports: [
-    UtmSaveAsComplianceComponent,
-    UtmCpStandardSelectComponent,
-    UtmCpStSectionSelectComponent,
-    UtmCpStandardCreateComponent,
-    UtmCpStandardSectionCreateComponent,
-    UtmReportInfoViewComponent,
-    UtmComplianceScheduleCreateComponent,
-    UtmComplianceScheduleDeleteComponent
-  ]
+    exports: [
+        UtmSaveAsComplianceComponent,
+        UtmCpStandardSelectComponent,
+        UtmCpStSectionSelectComponent,
+        UtmCpStandardCreateComponent,
+        UtmCpStandardSectionCreateComponent,
+        UtmReportInfoViewComponent,
+        UtmComplianceScheduleCreateComponent,
+        UtmComplianceScheduleDeleteComponent,
+        UtmCpSectionComponent
+    ]
 })
 export class ComplianceSharedModule {
 }
