@@ -1,3 +1,3 @@
-# UTMStack 10.5.13 Release Notes
+# UTMStack 10.5.14 Release Notes
 ## Bugfix
-- Error on server when sorting by severity column in threat Management/Alerts view.
+- Remove memory usage indicator
