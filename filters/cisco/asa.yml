@@ -5206,6 +5206,73 @@ pipeline:
                 ofType: int
             expression: msgId==322003
       #......................................................................#
+      # ASA-4-400000 to 400050
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPS\:(\s)?'
+            - fieldName: log.signatureId
+              pattern: '{{.integer}}'
+            - fieldName: action
+              pattern: '{{.data}}from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'on\sinterface'
+            - fieldName: log.srcInterface
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=400000 && msgId<=400050
+      # Cleaning action before extract protocol
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=400000 && msgId<=400050
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: (msgId>=400000 && msgId<=400022) || (msgId>=400026 && msgId<=400040)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==400023 || msgId==400024 || msgId==400041
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
