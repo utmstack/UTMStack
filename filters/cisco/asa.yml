@@ -2388,7 +2388,6 @@ pipeline:
       # Removing tmp fields
       - delete:
           fields:
-            - log.tmpDirection
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
           where:
@@ -4641,7 +4640,7 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: log.mappedIpTo
+            - fieldName: to.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'duration'
@@ -4698,6 +4697,115 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==305010
+      #......................................................................#
+      # ASA-6-305011
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Built\s(dynamic|static)\s(TCP|UDP|ICMP)\stranslation'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      # Parsing protocol
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Built\s(dynamic|static)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
       #......................................................................#
       # Common field conversions
       - cast:
