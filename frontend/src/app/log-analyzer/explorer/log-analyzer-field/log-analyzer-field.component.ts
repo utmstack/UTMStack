@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
 import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
-import {ElasticSearchIndexService} from '../../../shared/services/elasticsearch/elasticsearch-index.service';
 import {FieldDataService} from '../../../shared/services/elasticsearch/field-data.service';
 import {ElasticSearchFieldInfoType} from '../../../shared/types/elasticsearch/elastic-search-field-info.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -28,8 +27,7 @@ export class LogAnalyzerFieldComponent implements OnInit {
   pageStart = 0;
   pageEnd = 100;
 
-  constructor(private elasticSearchIndexService: ElasticSearchIndexService,
-              private indexPatternBehavior: IndexPatternBehavior,
+  constructor(private indexPatternBehavior: IndexPatternBehavior,
               private fieldDataService: FieldDataService,
               private utmFilterBehavior: UtmFilterBehavior,
               private indexFieldController: IndexFieldController) {
@@ -50,6 +48,9 @@ export class LogAnalyzerFieldComponent implements OnInit {
           this.fieldSelected = this.fieldSelected ? this.fieldSelected : [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
           this.columnChange.emit(this.fieldSelected);
           this.loadingFields = false;
+        }, error => {
+          this.loadingFields = false;
+          this.fields = [];
         });
       } else {
         this.loadingFields = false;

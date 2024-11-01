@@ -22,7 +22,8 @@ export class FieldDataService {
           .subscribe(response => {
             this.localFieldService.setPatternStoredFields(pattern, response.body);
             subscriber.next(response.body);
-          });
+          },
+            error => subscriber.error(error));
       } else {
         subscriber.next(fields);
       }

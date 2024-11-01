@@ -25,7 +25,7 @@
                      [width]="'35px'"></app-utm-spinner>
   </div>
   <div *ngIf="fields.length===0 && !loadingFields"
-       class="content d-flex justify-content-center align-items-center h-100 w-100 pt-5">
+       class="content d-flex justify-content-center align-items-center h-100 w-100 analyzer-fields">
     <app-no-data-found></app-no-data-found>
   </div>
   <div (scrolled)="onScroll()" *ngIf="fields.length>0 && !loadingFields"
