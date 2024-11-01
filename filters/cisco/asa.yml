@@ -5564,6 +5564,89 @@ pipeline:
                 ofType: int
             expression: msgId==402117
       #......................................................................#
+      # ASA-4-402118
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}length'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'with offset'
+            - fieldName: log.fragmentOffset
+              pattern: '{{.integer}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
