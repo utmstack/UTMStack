@@ -64,9 +64,9 @@ func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	t.DisabledRules = disabledRules
 	t.Assets = make([]*go_sdk.Asset, 0, len(assets))
 
-	for i, asset := range assets {
+	for _, asset := range assets {
 		sdkAsset := go_sdk.Asset(asset)
-		t.Assets[i] = &sdkAsset
+		t.Assets = append(t.Assets, &sdkAsset)
 	}
 }
 

@@ -2388,7 +2388,6 @@ pipeline:
       # Removing tmp fields
       - delete:
           fields:
-            - log.tmpDirection
             - log.tmpFwUserFrom
             - log.tmpFwUserTo
           where:
@@ -4327,6 +4326,1243 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302305
+      #......................................................................#
+      # ASA-6-302306
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown\s{{.word}}\sstate-bypass\sconnection'
+            - fieldName: log.connectionId
+              pattern: '({{.data}})for'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserTo
+              pattern: '({{.data}})?duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+            - fieldName: log.irrelevant
+              pattern: 'bytes'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.reason
+              pattern: '{{.greedy}}' 
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==302306
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      # Parsing firewall user to
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserTo
+              pattern: '{{.data}}\)'
+          source: log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      
+      # Decoding outside and inside sg_info
+      - grok:
+          patterns:
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.outsideSgInfo
+              pattern: '{{.data}}\)'
+          source: log.firewallUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      - grok:
+          patterns:
+            - fieldName: log.firewallUserTo
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.insideSgInfo
+              pattern: '{{.data}}\)'
+          source: log.firewallUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+            - log.insideSgInfo
+            - log.outsideSgInfo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+            - log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      #......................................................................#
+      # ASA-6-305009
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Built (dynamic|static) translation'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.tmpAclSrcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: log.mappedIpTo
+              pattern: '{{.greedy}}' 
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      # Parsing srcInterface
+      # With ACL
+      - grok:
+          patterns:
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\('
+            - fieldName: log.accessList
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpAclSrcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      # Without ACL
+      - grok:
+          patterns:
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}:'
+          source: log.tmpAclSrcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+            - log.tmpAclSrcInterface
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.accessList
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      - trim:
+          function: suffix
+          substring: '('
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305009
+      #......................................................................#
+      # ASA-6-305010
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown (dynamic|static) translation'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305010
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305010
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305010
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305010
+      #......................................................................#
+      # ASA-6-305011
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Built\s(dynamic|static)\s(TCP|UDP|ICMP)\stranslation'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      # Parsing protocol
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Built\s(dynamic|static)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305011
+      #......................................................................#
+      # ASA-6-305012
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown\s(dynamic|static)\s(TCP|UDP|ICMP)\stranslation'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.tmpAclSrcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '({{.data}})?to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      # Parsing firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      # Parsing protocol
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown\s(dynamic|static)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      # Parsing srcInterface
+      # With ACL
+      - grok:
+          patterns:
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\('
+            - fieldName: log.accessList
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpAclSrcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      # Without ACL
+      - grok:
+          patterns:
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}:'
+          source: log.tmpAclSrcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      # Parsing srcInterface from himself to avoid parsing issues
+      - grok:
+          patterns:
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\('
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.accessList
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+            - log.tmpAclSrcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      - trim:
+          function: suffix
+          substring: '('
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==305012
+      #......................................................................#
+      # ASA-3-322001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.word}}\sMAC\saddress'
+            - fieldName: local.mac
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.reason
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - local.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - log.reason
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      #......................................................................#
+      # ASA-3-322002
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.word}}\sinspection\scheck'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for\sarp'
+            - fieldName: log.httpMessageType
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'received\sfrom\shost'
+            - fieldName: from.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\.'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Address'
+            - fieldName: log.fakeSrcMac
+              pattern: '{{.data}}for'
+            - fieldName: log.irrelevant
+              pattern: 'IP\sAddress'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Address'
+            - fieldName: log.boudSrcMac
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'inspection check'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.fakeSrcMac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      - trim:
+          function: suffix
+          substring: '.'
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      #......................................................................#
+      # ASA-3-322003
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.word}}\sinspection\scheck'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for\sarp'
+            - fieldName: log.httpMessageType
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'received\sfrom\shost'
+            - fieldName: from.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\.'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Address'
+            - fieldName: log.fakeSrcMac
+              pattern: '{{.data}}for'
+            - fieldName: log.irrelevant
+              pattern: 'IP\sAddress'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'inspection check'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.fakeSrcMac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      - trim:
+          function: suffix
+          substring: '.'
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      #......................................................................#
+      # ASA-4-400000 to 400050
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPS\:(\s)?'
+            - fieldName: log.signatureId
+              pattern: '{{.integer}}'
+            - fieldName: action
+              pattern: '{{.data}}from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'on\sinterface'
+            - fieldName: log.srcInterface
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=400000 && msgId<=400050
+      # Cleaning action before extract protocol
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=400000 && msgId<=400050
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: (msgId>=400000 && msgId<=400022) || (msgId>=400026 && msgId<=400040)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==400023 || msgId==400024 || msgId==400041
+      #......................................................................#
+      # ASA-4-402114
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      #......................................................................#
+      # ASA-4-402115
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\sa\spacket'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'containing'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'data instead of'
+            - fieldName: log.expectedProtocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402115
+      #......................................................................#
+      # ASA-4-402116
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.decapsulatedPktDestAddr
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.decapsulatedPktSrcAddr
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.decapsulatedPktProto
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.localProxyIpAddr
+              pattern: '{{.data}}/'
+            - fieldName: log.localProxyIpMask
+              pattern: '{{.data}}/'
+            - fieldName: log.localProxyProto
+              pattern: '{{.data}}/'
+            - fieldName: log.localProxyPort
+              pattern: '{{.data}}and'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.remoteProxyIpAddr
+              pattern: '{{.data}}/'
+            - fieldName: log.remoteProxyIpMask
+              pattern: '{{.data}}/'
+            - fieldName: log.remoteProxyProto
+              pattern: '{{.data}}/'
+            - fieldName: log.remoteProxyPort
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - log.localProxyIpAddr
+            - log.localProxyIpMask
+            - log.localProxyProto
+            - log.remoteProxyIpAddr
+            - log.remoteProxyIpMask
+            - log.remoteProxyPort
+            - log.remoteProxyProto
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: 'and'
+          fields:
+            - log.localProxyPort
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      #......................................................................#
+      # ASA-4-402117
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received a non-IPsec \((\s)?{{.word}}(\s)?\) packet'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402117
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received a non-IPsec \('
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402117
       #......................................................................#
       # Common field conversions
       - cast:

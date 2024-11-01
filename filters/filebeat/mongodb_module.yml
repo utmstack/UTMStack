@@ -32,7 +32,7 @@ pipeline:
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: log.agentHostName
       - rename:
           from:
             - log.event.dataset
@@ -52,7 +52,7 @@ pipeline:
       - rename:
           from:
             - log.host.architecture
-          to: log.cpuArchitecture
+          to: log.cpuAgentArchitecture
       - cast:
           to: '[]string'
           fields:
@@ -81,12 +81,80 @@ pipeline:
           from:
             - log.attr.port
           to: local.port
+      - rename:
+          from:
+            - log.attr.pid
+          to: log.pid
+      - rename:
+          from:
+            - log.attr.architecture
+          to: log.cpuArchitecture
+      - rename:
+          from:
+            - log.attr.dbPath
+          to: local.path
       - reformat:
           fields:
             - log.time
           function: time
           fromFormat: '2020-05-18T20:18:12.814+00:00'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Decoding severity
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'Fatal'
+          where:
+            variables:
+              - get: log.s
+                as: sev
+                ofType: string
+            expression: sev=="F"
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'Error'
+          where:
+            variables:
+              - get: log.s
+                as: sev
+                ofType: string
+            expression: sev=="E"
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'Warning'
+          where:
+            variables:
+              - get: log.s
+                as: sev
+                ofType: string
+            expression: sev=="W"
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'Informational'
+          where:
+            variables:
+              - get: log.s
+                as: sev
+                ofType: string
+            expression: sev=="I"
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'Debug'
+          where:
+            variables:
+              - get: log.s
+                as: sev
+                ofType: string
+            expression: sev!="F" && sev!="E" && sev!="W" && sev!="I"
       # Removing unused fields
       - delete:
           fields:
@@ -99,3 +167,7 @@ pipeline:
             - log.log
             - log.fileset
             - log.t
+            - log.agentHostName
+            - log.attr
+            - log.input
+            - log.s
