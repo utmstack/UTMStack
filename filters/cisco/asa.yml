@@ -5345,6 +5345,39 @@ pipeline:
                 ofType: int
             expression: msgId==402114
       #......................................................................#
+      # ASA-4-402115
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\sa\spacket'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'containing'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'data instead of'
+            - fieldName: log.expectedProtocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402115
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
