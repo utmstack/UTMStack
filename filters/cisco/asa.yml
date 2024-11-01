@@ -5749,6 +5749,82 @@ pipeline:
                 ofType: int
             expression: msgId==402128
       #......................................................................#
+      # ASA-4-405001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Received ARP (request|response) collision'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}with'
+            - fieldName: log.irrelevant
+              pattern: 'existing ARP entry'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.mac
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'ARP'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      - trim:
+          function: suffix
+          substring: 'with'
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
