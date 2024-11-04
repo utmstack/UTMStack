@@ -3745,20 +3745,20 @@ pipeline:
             expression: msgId==302036
       # Protocol
       - grok:
-        patterns:
-          - fieldName: log.irrelevant
-            pattern: 'Teardown'
-          - fieldName: protocol
-            pattern: '{{.word}}'
-          - fieldName: log.irrelevant
-            pattern: '{{.greedy}}'
-        source: action
-        where:
-            variables:
-              - get: log.messageId
-                as: msgId
-                ofType: int
-            expression: msgId==302036
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==302036
       # Decoding outside and inside firewall user, and sg_info
       # Side from
       - grok:
@@ -3959,20 +3959,20 @@ pipeline:
             expression: msgId==302303
       # Protocol
       - grok:
-        patterns:
-          - fieldName: log.irrelevant
-            pattern: 'Built'
-          - fieldName: protocol
-            pattern: '{{.word}}'
-          - fieldName: log.irrelevant
-            pattern: '{{.greedy}}'
-        source: action
-        where:
-            variables:
-              - get: log.messageId
-                as: msgId
-                ofType: int
-            expression: msgId==302303
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Built'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==302303
       # Cleaning fields
       - trim:
           function: suffix
@@ -4052,20 +4052,20 @@ pipeline:
             expression: msgId==302304
       # Protocol
       - grok:
-        patterns:
-          - fieldName: log.irrelevant
-            pattern: 'Built'
-          - fieldName: protocol
-            pattern: '{{.word}}'
-          - fieldName: log.irrelevant
-            pattern: '{{.greedy}}'
-        source: action
-        where:
-            variables:
-              - get: log.messageId
-                as: msgId
-                ofType: int
-            expression: msgId==302304
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Built'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==302304
       # Cleaning fields
       - trim:
           function: suffix
@@ -6049,6 +6049,60 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==407002
+      #......................................................................#
+      # ASA-6-603109
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Teardown PPPOE Tunnel'
+            - fieldName: log.irrelevant
+              pattern: 'at'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'tunnel-id(\s)?=(\s)?'
+            - fieldName: log.tunnelId
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'remote-peer(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==603109
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==603109
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.srcInterface
+            - log.tunnelId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==603109
       #......................................................................#
       # Common field conversions
       - cast:
