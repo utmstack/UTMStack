@@ -297,6 +297,11 @@ pipeline:
 
       - rename:
           from:
+            - log.winlog.event_data.Status
+          to: log.winlogEventDataStatus
+
+      - rename:
+          from:
             - log.winlog.opcode
           to: log.winlogOpcode
 
