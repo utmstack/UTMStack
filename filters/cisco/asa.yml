@@ -6104,6 +6104,108 @@ pipeline:
                 ofType: int
             expression: msgId==603109
       #......................................................................#
+      # ASA-6-605004
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Login\s{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}\:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.service
+              pattern: '{{.data}}for'
+            - fieldName: log.irrelevant
+              pattern: 'user'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Login'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+          source: action
+          where:
+              variables:
+                - get: log.messageId
+                  as: msgId
+                  ofType: int
+              expression: msgId==605004
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.service
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
