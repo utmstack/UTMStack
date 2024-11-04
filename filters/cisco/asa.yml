@@ -6019,7 +6019,7 @@ pipeline:
       # Connection number and connection limit
       - grok:
           patterns:
-            - fieldName: action
+            - fieldName: log.irrelevant
               pattern: 'Embryonic limit'
             - fieldName: log.numCons
               pattern: '{{.integer}}'
@@ -6029,7 +6029,7 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
-          source: log.msg
+          source: action
           where:
             variables:
               - get: log.messageId
