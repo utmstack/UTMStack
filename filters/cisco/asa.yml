@@ -5869,6 +5869,56 @@ pipeline:
                 ofType: int
             expression: msgId==405002
       #......................................................................#
+      # ASA-4-406001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'FTP port command low port(\s)?\:'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
+            - fieldName: log.irrelevant
+              pattern: 'on interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==406001
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==406001
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==406001
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
