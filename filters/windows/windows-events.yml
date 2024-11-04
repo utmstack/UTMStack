@@ -6020,6 +6020,139 @@ pipeline:
               oftype: string
           expression: acces=="0x1000000" && code=="4663"
 
+      # Decoding the "eventStatus" field
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account locked out'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000234"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account expired'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000193"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Clocks out of sync'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000133"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Password change required'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000224"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'User does not have logon right'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000015b"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Logon failure'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000006d"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account restriction'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000006e"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'An error occurred during logon'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc00002ee"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Password expired'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000071"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account disabled'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000072"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Authentication firewall prohibits logon'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000413"
+
       - delete:
           fields:
             - log.agent
