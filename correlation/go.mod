@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/correlation
 go 1.21
 
 require (
-	github.com/fsnotify/fsnotify v1.7.0
+	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
