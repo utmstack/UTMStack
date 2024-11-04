@@ -5458,6 +5458,112 @@ pipeline:
                 oftype: string
             expression: code=="8191"
 
+      # Decoding the "failureReason" field when the event code is 4625 and adding the "failureReasonDescription" field
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'The specified user account has expired.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2305" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'The password for the specified account has expired'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2309" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'Account currently disabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2310" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'Account logon time restriction violation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2311" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'User not allowed to logon at this computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2312" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'Unknown user name or bad password'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2313" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'An Error occurred during Logon'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2304" && code=="4625"
+
       - delete:
           fields:
             - log.agent
