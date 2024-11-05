@@ -7128,7 +7128,7 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
-      # Adding actionResult
+      # Adding actionResult and modifying some actions
       - add:
           function: 'string'
           params:
@@ -7156,6 +7156,39 @@ pipeline:
           params:
             key: actionResult
             value: 'Denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719023
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'WebVPN user is not checked against ACL'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719021
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'WebVPN user has been authenticated'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719022
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'WebVPN user has not been authenticated'
           where:
             variables:
               - get: log.messageId
