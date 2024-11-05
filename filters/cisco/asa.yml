@@ -6337,6 +6337,37 @@ pipeline:
                 ofType: int
             expression: msgId==106020
       #......................................................................#
+      # ASA-6-611301
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'NAT configured for Client Mode with no split tunneling'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}ress\:'
+            - fieldName: log.mappedIp
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611301
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'NAT'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611301
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
