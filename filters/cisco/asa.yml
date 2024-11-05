@@ -6539,7 +6539,7 @@ pipeline:
             - fieldName: actionResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
-              pattern: ':(\s)?Peer(\s)?:'
+              pattern: '\:(\s)?Peer(\s)?\:'
             - fieldName: to.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
