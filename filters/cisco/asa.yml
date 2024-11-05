@@ -6510,6 +6510,25 @@ pipeline:
                 ofType: int
             expression: msgId==611307
       #......................................................................#
+      # ASA-6-611309
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'Disconnecting from head end and uninstalling previously downloaded policy'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}End\:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611309
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
