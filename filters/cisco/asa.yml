@@ -6251,7 +6251,11 @@ pipeline:
             - fieldName: actionResult
               pattern: 'denied'
             - fieldName: log.irrelevant
-              pattern: 'by outbound list'
+              pattern: 'by'
+            - fieldName: log.direction
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'list'
             - fieldName: log.accessList
               pattern: '{{.data}}src'
             - fieldName: from.ip
@@ -6291,6 +6295,47 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106018
+      #......................................................................#
+      # ASA-2-106020
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Deny IP teardrop fragment'
+            - fieldName: log.irrelevant
+              pattern: '\((\s)?size(\s)?='
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: ',(\s)?offset(\s)?='
+            - fieldName: log.fragmentOffset
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\)(\s)?from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106020
+      # Adding actionResult
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'Denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106020
       #......................................................................#
       # Common field conversions
       - cast:
