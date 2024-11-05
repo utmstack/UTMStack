@@ -244,13 +244,13 @@ func sendStatistic(t string) {
 	case "success":
 		success := extractSuccess()
 		for _, s := range success {
-			saveToOpensearch(s, fmt.Sprintf("statistics-success-%s", time.Now().Format("2006.01")))
+			saveToOpensearch(s, fmt.Sprintf("statistics-success-%s", time.Now().UTC().Format("2006.01")))
 		}
 
 	case "fails":
 		fails := extractFails()
 		for _, f := range fails {
-			saveToOpensearch(f, fmt.Sprintf("statistics-fails-%s", time.Now().Format("2006.01")))
+			saveToOpensearch(f, fmt.Sprintf("statistics-fails-%s", time.Now().UTC().Format("2006.01")))
 		}
 	}
 }
