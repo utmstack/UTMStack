@@ -6608,6 +6608,33 @@ pipeline:
                 ofType: int
             expression: msgId==611315
       #......................................................................#
+      # ASA-6-611318
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'User Authentication Enabled'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}IP(\s)?\:'
+            - fieldName: log.authServerIp
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Port(\s)?\:'
+            - fieldName: log.authServerPort
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}out(\s)?\:'
+            - fieldName: log.timeOut
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611318
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
