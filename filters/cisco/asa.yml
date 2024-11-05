@@ -6859,6 +6859,83 @@ pipeline:
                 ofType: int
             expression: msgId==716001 || msgId==716002 || msgId==716003
       #......................................................................#
+      # ASA-6-716004,716005,716006,716007,716009
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?'
+            - fieldName: from.group
+              pattern: '{{.data}}User'
+            - fieldName: from.user
+              pattern: '{{.data}}\s'
+            - fieldName: action
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'User'
+          fields:
+            - from.group
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - from.group
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - from.group
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
