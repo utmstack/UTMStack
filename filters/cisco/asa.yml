@@ -7053,6 +7053,65 @@ pipeline:
                 ofType: int
             expression: msgId==716038
       #......................................................................#
+      # ASA-6-716039
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'group(\s)?='
+            - fieldName: from.group
+              pattern: '{{.data}}user'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: from.user
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716039
+      # Adding actionResult
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'Denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716039
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - action
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716039
+      - trim:
+          function: suffix
+          substring: 'user'
+          fields:
+            - from.group
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716039
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
