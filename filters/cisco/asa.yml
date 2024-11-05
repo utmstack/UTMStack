@@ -6422,6 +6422,56 @@ pipeline:
                 ofType: int
             expression: msgId==611303
       #......................................................................#
+      # ASA-6-611304
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'NAT exemption configured for Network Extension Mode with split tunneling'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}works\:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.netmaskFrom
+              pattern: '{{.data}}\s'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.netmaskTo
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611304
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'NAT'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611304
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611304
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
