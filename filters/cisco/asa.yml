@@ -7162,6 +7162,29 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==719023
+      # Cleaning fields
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
       #......................................................................#
       # Common field conversions
       - cast:
