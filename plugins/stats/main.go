@@ -186,7 +186,8 @@ type Fail struct {
 func saveToDB(ctx context.Context, t string) {
 	for {
 		select {
-		case <-time.After(1 * time.Minute):
+		case <-time.After(10 * time.Minute):
+			go_sdk.Logger().Info("sending %s statistics", t)
 			sendStatistic(t)
 		case <-ctx.Done():
 			return
@@ -243,12 +244,14 @@ func sendStatistic(t string) {
 	switch t {
 	case "success":
 		success := extractSuccess()
+		go_sdk.Logger().Info("sending %d success statistics", len(success))
 		for _, s := range success {
 			saveToOpensearch(s, fmt.Sprintf("statistics-success-%s", time.Now().UTC().Format("2006.01")))
 		}
 
 	case "fails":
 		fails := extractFails()
+		go_sdk.Logger().Info("sending %d fails statistics", len(fails))
 		for _, f := range fails {
 			saveToOpensearch(f, fmt.Sprintf("statistics-fails-%s", time.Now().UTC().Format("2006.01")))
 		}
