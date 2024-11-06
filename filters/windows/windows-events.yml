@@ -6158,6 +6158,30 @@ pipeline:
               oftype: string
           expression: status=="0xC0000413"
 
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Incorrect password'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000006a"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account does not exist'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc0000064"
+
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
         function: 'string'
