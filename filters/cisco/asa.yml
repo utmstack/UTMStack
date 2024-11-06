@@ -7377,6 +7377,101 @@ pipeline:
                 ofType: int
             expression: msgId==611305
       #......................................................................#
+      # ASA-4-733100
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}exceeded'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.burstRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.maxBurstRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.avgRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.maxAvgRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.cumulativeTotalCount
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733100
+      # Cleaning cumulative total count
+      - grok:
+          patterns:
+            - fieldName: log.cumulativeTotalCount
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cumulativeTotalCount
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733100
+      # Parsing drop source object
+      - grok:
+          patterns:
+            - fieldName: log.dropSourceObject
+              pattern: '{{.data}}drop'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733100
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'drop'
+          fields:
+            - log.dropSourceObject
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733100
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.dropSourceObject
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733100
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.dropSourceObject
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733100
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
