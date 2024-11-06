@@ -7472,6 +7472,96 @@ pipeline:
                 ofType: int
             expression: msgId==733100
       #......................................................................#
+      # ASA-4-733101
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}(targeted|attacking)'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.burstRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.maxBurstRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.avgRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.maxAvgRateValue
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}is'
+            - fieldName: log.cumulativeTotalCount
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733101
+      # Cleaning cumulative total count
+      - grok:
+          patterns:
+            - fieldName: log.cumulativeTotalCount
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cumulativeTotalCount
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733101
+      # Parsing drop source object
+      - grok:
+          patterns:
+            - fieldName: log.dropSourceObject
+              pattern: '{{.word}}'
+            - fieldName: log.tmpIp
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733101
+      # Renaming from or to ip, according to -> if (targeted|attacking)
+      - rename:
+          from:
+            - log.tmpIp
+          to: from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+              - get: action
+                as: act
+                ofType: string
+            expression: msgId==733101 && act.contains("attacking")
+      - rename:
+          from:
+            - log.tmpIp
+          to: to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+              - get: action
+                as: act
+                ofType: string
+            expression: msgId==733101 && act.contains("targeted")
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
