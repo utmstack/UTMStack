@@ -38,8 +38,8 @@ const (
 var statisticsQueue chan Message
 var fails map[string]map[string]map[string]int64
 var success map[string]map[string]int64
-var failsLock sync.RWMutex
-var successLock sync.RWMutex
+var failsLock sync.Mutex
+var successLock sync.Mutex
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
