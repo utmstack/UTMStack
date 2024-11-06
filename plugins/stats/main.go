@@ -30,6 +30,19 @@ type Message struct {
 	DataSource string  `json:"dataSource"`
 }
 
+type Config struct {
+	RulesFolder   string `yaml:"rules_folder"`
+	GeoIPFolder   string `yaml:"geoip_folder"`
+	Elasticsearch string `yaml:"elasticsearch"`
+	PostgreSQL    struct {
+		Server   string `yaml:"server"`
+		Port     string `yaml:"port"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
+		Database string `yaml:"database"`
+	} `yaml:"postgresql"`
+}
+
 const (
 	TOPIC_ENQUEUE_FAILURE = "enqueue_failure"
 	TOPIC_ENQUEUE_SUCCESS = "enqueue_success"
@@ -68,6 +81,16 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	go_sdk.RegisterNotificationServer(grpcServer, &notificationServer{})
+
+	pCfg, e := go_sdk.PluginCfg[Config]("com.utmstack")
+	if e != nil {
+		os.Exit(1)
+	}
+
+	if err := opensearch.Connect([]string{pCfg.Elasticsearch}); err != nil {
+		go_sdk.Logger().ErrorF(err.Error())
+		os.Exit(1)
+	}
 
 	var wg sync.WaitGroup
 
@@ -267,7 +290,7 @@ func saveToOpensearch[Data any](data Data, index string) {
 	oCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	err := opensearch.IndexDoc(oCtx, data, index, uuid.NewString())
+	err := opensearch.IndexDoc(oCtx, &data, index, uuid.NewString())
 	if err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
 	}
