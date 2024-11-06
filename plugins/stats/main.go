@@ -198,12 +198,14 @@ func processStatistics(ctx context.Context) {
 }
 
 type Success struct {
+	Timestamp  string `json:"@timestamp"`
 	DataSource string `json:"dataSource"`
 	DataType   string `json:"dataType"`
 	Count      int64  `json:"count"`
 }
 
 type Fail struct {
+	Timestamp  string `json:"@timestamp"`
 	DataSource string `json:"dataSource"`
 	DataType   string `json:"dataType"`
 	Cause      string `json:"cause"`
@@ -232,6 +234,7 @@ func extractSuccess() []Success {
 	for dataSource, dataTypes := range success {
 		for dataType, count := range dataTypes {
 			result = append(result, Success{
+				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				DataSource: dataSource,
 				DataType:   dataType,
 				Count:      count,
@@ -254,6 +257,7 @@ func extractFails() []Fail {
 		for dataType, causes := range dataTypes {
 			for cause, count := range causes {
 				result = append(result, Fail{
+					Timestamp: time.Now().UTC().Format(time.RFC3339Nano),
 					DataSource: dataSource,
 					DataType:   dataType,
 					Cause:      cause,
