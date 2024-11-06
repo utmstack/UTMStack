@@ -30,6 +30,19 @@ type Message struct {
 	DataSource string  `json:"dataSource"`
 }
 
+type Config struct {
+	RulesFolder   string `yaml:"rules_folder"`
+	GeoIPFolder   string `yaml:"geoip_folder"`
+	Elasticsearch string `yaml:"elasticsearch"`
+	PostgreSQL    struct {
+		Server   string `yaml:"server"`
+		Port     string `yaml:"port"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
+		Database string `yaml:"database"`
+	} `yaml:"postgresql"`
+}
+
 const (
 	TOPIC_ENQUEUE_FAILURE = "enqueue_failure"
 	TOPIC_ENQUEUE_SUCCESS = "enqueue_success"
@@ -68,6 +81,16 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	go_sdk.RegisterNotificationServer(grpcServer, &notificationServer{})
+
+	pCfg, e := go_sdk.PluginCfg[Config]("com.utmstack")
+	if e != nil {
+		os.Exit(1)
+	}
+
+	if err := opensearch.Connect([]string{pCfg.Elasticsearch}); err != nil {
+		go_sdk.Logger().ErrorF(err.Error())
+		os.Exit(1)
+	}
 
 	var wg sync.WaitGroup
 
@@ -175,12 +198,14 @@ func processStatistics(ctx context.Context) {
 }
 
 type Success struct {
+	Timestamp  string `json:"@timestamp"`
 	DataSource string `json:"dataSource"`
 	DataType   string `json:"dataType"`
 	Count      int64  `json:"count"`
 }
 
 type Fail struct {
+	Timestamp  string `json:"@timestamp"`
 	DataSource string `json:"dataSource"`
 	DataType   string `json:"dataType"`
 	Cause      string `json:"cause"`
@@ -209,6 +234,7 @@ func extractSuccess() []Success {
 	for dataSource, dataTypes := range success {
 		for dataType, count := range dataTypes {
 			result = append(result, Success{
+				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				DataSource: dataSource,
 				DataType:   dataType,
 				Count:      count,
@@ -231,6 +257,7 @@ func extractFails() []Fail {
 		for dataType, causes := range dataTypes {
 			for cause, count := range causes {
 				result = append(result, Fail{
+					Timestamp: time.Now().UTC().Format(time.RFC3339Nano),
 					DataSource: dataSource,
 					DataType:   dataType,
 					Cause:      cause,
@@ -267,7 +294,7 @@ func saveToOpensearch[Data any](data Data, index string) {
 	oCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	err := opensearch.IndexDoc(oCtx, data, index, uuid.NewString())
+	err := opensearch.IndexDoc(oCtx, &data, index, uuid.NewString())
 	if err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
 	}
