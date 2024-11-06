@@ -38,8 +38,8 @@ const (
 var statisticsQueue chan Message
 var fails map[string]map[string]map[string]int64
 var success map[string]map[string]int64
-var failsLock sync.RWMutex
-var successLock sync.RWMutex
+var failsLock sync.Mutex
+var successLock sync.Mutex
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -145,6 +145,8 @@ func processStatistics(ctx context.Context) {
 					success[msg.DataSource][msg.DataType] = 0
 				}
 
+				go_sdk.Logger().LogF(100, "success: %s", msg.DataType)
+
 				success[msg.DataSource][msg.DataType]++
 				successLock.Unlock()
 			} else {
@@ -160,6 +162,8 @@ func processStatistics(ctx context.Context) {
 				if _, ok := fails[msg.DataSource][msg.DataType][*msg.Cause]; !ok {
 					fails[msg.DataSource][msg.DataType][*msg.Cause] = 0
 				}
+
+				go_sdk.Logger().LogF(100, "fail: %s", msg.DataType)
 
 				fails[msg.DataSource][msg.DataType][*msg.Cause]++
 				failsLock.Unlock()
@@ -190,6 +194,7 @@ func saveToDB(ctx context.Context, t string) {
 			go_sdk.Logger().Info("sending %s statistics", t)
 			sendStatistic(t)
 		case <-ctx.Done():
+			go_sdk.Logger().Info("shutting down %s statistics", t)
 			return
 		}
 	}

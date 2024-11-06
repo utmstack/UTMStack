@@ -16,7 +16,9 @@ pipeline:
       - antivirus-kaspersky
     steps:
 
+      # .......................................................................#
       # Using grok to parse syslogHeader of the message
+      # .......................................................................#
       - grok:
           patterns:
             - fieldName: log.priority
@@ -41,7 +43,9 @@ pipeline:
             - fieldName: log.cefMsgAll
               pattern: '{{.greedy}}'
 
+      # .......................................................................#
       # Removing unnecessary characters of the syslogHeader
+      # .......................................................................#
       - trim:
           function: prefix
           substring: '<'
@@ -59,7 +63,9 @@ pipeline:
           fields:
             - log.syslogHost
 
+      # .......................................................................#
       # Using grok to parse components of the cefMessage        
+      # .......................................................................#
       - grok:
           patterns:
             - fieldName: log.cef
@@ -82,7 +88,9 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.cefMsgAll
 
+      # .......................................................................#
       # Removing unnecessary characters of the cefMessage
+      # .......................................................................#
       - trim:
           function: prefix
           substring: '|'
@@ -99,13 +107,17 @@ pipeline:
             - log.descMsg
             - log.cefDeviceSeverity
 
+      # .......................................................................#
       # Using the kv filter for cefMsg
+      # .......................................................................#
       - kv:
           source: log.cefMsg
           fieldSplit: " "
           valueSplit: "="
 
+      # .......................................................................#
       # Remove fields that have issues with kv filter
+      # .......................................................................#
       - delete:
           fields:
             - log.destinationZoneURI
@@ -155,8 +167,10 @@ pipeline:
             - log.cn8Label
             - log.cn9Label
             - log.cn10Label
-      
+
+      # .......................................................................#
       # Using grok to parse kv issued fields
+      # .......................................................................#
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -627,7 +641,9 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.cefMsg
 
+      # .................................................#
       # Applying grok to remove unnecessary data
+      # .................................................#
       - grok:
           patterns:
             - fieldName: log.destinationZoneURI
@@ -1004,18 +1020,77 @@ pipeline:
               pattern: '{{.word}}(=)'
           source: log.cn10Label
       
+      # .......................................................................#
       # Rename fields
+      # .......................................................................#
       - rename:
           from:
             - log.src
-          to: from.ip
+          to: from.ips
           
       - rename:
           from:
             - log.dst
-          to: to.ip
+          to: to.ips
 
+      - rename:
+          from:
+            - log.act
+          to: action
+
+      - rename:
+          from:
+            - log.agt
+          to: from.ips
+
+      - rename:
+          from:
+            - log.ahost
+          to: from.host
+
+      - rename:
+          from:
+            - log.amac
+          to: from.mac
+
+      - rename:
+          from:
+            - log.dhost
+          to: to.host
+
+      - rename:
+          from:
+            - log.originalAgentAddress
+          to: from.ips
+
+      - rename:
+          from:
+            - log.syslogHost
+          to: local.host
+
+      - rename:
+          from:
+            - log.syslogIpHost
+          to: local.ip
+
+      # .......................................................................#
+      # Casting the ips field to string
+      # .......................................................................#
+      - cast:
+          to: "[]string"
+          fields:
+            - from.ips
+            - to.ips
+
+      # Casting the macs field to string
+      - cast:
+          to: "[]string"
+          fields:
+            - from.macs
+
+      # .......................................................................#
       # Removing unnecessary characters of the restData
+      # .......................................................................#
       - trim:
           function: suffix
           substring: '||=||='
@@ -1026,7 +1101,9 @@ pipeline:
             - log.destinationZoneID
             - log.originalAgentId
 
+      # .......................................................................#
       # Removing unused fields
+      # .......................................................................#
       - delete:
           fields:
             - log.cef
