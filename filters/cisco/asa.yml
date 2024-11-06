@@ -7562,6 +7562,52 @@ pipeline:
                 ofType: string
             expression: msgId==733101 && act.contains("targeted")
       #......................................................................#
+      # ASA-4-733102, 733103
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}host'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733102 || msgId==733103
+      # Adding action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'Threat-detection add host to shun list'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: (msgId==733102 || msgId==733103) && msg.contains("add")
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'Threat-detection removes host to shun list'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: (msgId==733102 || msgId==733103) && msg.contains("removes")
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
