@@ -49,7 +49,7 @@ pipeline:
             - fieldName: log.deviceTime
               pattern: '{{.monthDay}}{{.space}}{{.monthName}}{{.space}}{{.time}}'
             - fieldName: log.levelEnc
-              pattern: '(.)|(-)(\*)(#)'
+              pattern: '(\.)|(-)(\*)(#)'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: log.message
@@ -243,3 +243,4 @@ pipeline:
             - log.log.file
             - log.roleEnc
             - log.levelEnc
+            - log.log
