@@ -4,7 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ElasticFilterDefaultTime} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
@@ -30,6 +30,7 @@ import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavio
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
 import {QueryRunBehavior} from '../../shared/behaviors/query-run.behavior';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
+import {filter, takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-log-analyzer-view',
@@ -67,6 +68,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   paramLoaded = false;
   defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
   dateFormat$: Observable<DatePipeDefaultOptions>;
+  destroy$ = new Subject<void>();
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
               private logAnalyzerService: ElasticDataService,
@@ -80,41 +82,37 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
               private timezoneFormatService: TimezoneFormatService,
               private logFilterBehavior: LogFilterBehavior) {
     this.detailWidth = (this.pageWidth - 310);
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.queryParams = Object.entries(params).length > 0 ? params : null;
-      if (this.queryParams) {
-        if (this.queryParams['@timestamp']) {
-          const range = this.queryParams['@timestamp'].split('->')[1].split(',');
-          this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
-          this.filters[0] = {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: [range[0], range[1]]};
-        }
-        this.dataNature = params.indexPattern;
-        if (params.patternId) {
-          this.pattern = new UtmIndexPattern(params.patternId, params.indexPattern, true);
-          this.indexPatternBehavior.$pattern.next({pattern: this.pattern, tabUUID: this.uuid});
-        }
-      }
-    });
   }
 
   ngOnInit() {
-    if (Object(this.queryParams).hasOwnProperty('patternId')) {
-      this.pattern = new UtmIndexPattern(this.queryParams.patternId, this.queryParams.indexPattern, true);
-      this.indexPatternBehavior.$pattern.next({pattern: this.pattern, tabUUID: this.uuid});
-      this.initExplorer();
-    } else {
-      this.initExplorer();
-    }
 
+    this.activatedRoute.queryParams
+      .pipe(filter((params) => !!params && this.data && params.queryName === this.data.name))
+      .subscribe(params => {
+        this.queryParams = Object.entries(params).length > 0 ? params : null;
+        if (this.queryParams) {
+          if (this.queryParams['@timestamp']) {
+            const range = this.queryParams['@timestamp'].split('->')[1].split(',');
+            this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
+            this.filters[0] = {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: [range[0], range[1]]};
+          }
+          this.dataNature = params.indexPattern;
+        }
+    });
     this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
+    this.initExplorer();
   }
 
   initExplorer() {
 
     this.logFilterBehavior.$logFilter.next({filter: this.filters, sort: this.sortBy});
     this.resolveParams().then((dataNature) => {
-      this.indexPatternBehavior.$pattern.subscribe(nature => {
-        if (nature && this.uuid === nature.tabUUID) {
+      this.indexPatternBehavior.$pattern
+        .pipe(
+          takeUntil(this.destroy$),
+          filter((nature) => !!nature && this.uuid === nature.tabUUID)
+        )
+        .subscribe(nature => {
           this.setFilterSearchOnNatureChange();
           this.pattern = nature.pattern;
           if (!this.data) {
@@ -123,10 +121,8 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
           this.rows = [];
           this.loading = true;
           setTimeout(() => {
-
             this.getData();
           }, 1000);
-        }
       });
     });
   }
@@ -333,5 +329,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     this.filters = [];
     this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
