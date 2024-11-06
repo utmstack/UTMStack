@@ -103,7 +103,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severity
+            key: log.severityLabel
             value: 'Fatal'
           where:
             variables:
@@ -114,7 +114,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severity
+            key: log.severityLabel
             value: 'Error'
           where:
             variables:
@@ -125,7 +125,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severity
+            key: log.severityLabel
             value: 'Warning'
           where:
             variables:
@@ -136,7 +136,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severity
+            key: log.severityLabel
             value: 'Informational'
           where:
             variables:
@@ -147,7 +147,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severity
+            key: log.severityLabel
             value: 'Debug'
           where:
             variables:
