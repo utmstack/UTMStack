@@ -109,6 +109,40 @@ pipeline:
                 ofType: int
             expression: msgId==106001
       #......................................................................#
+      # FTD-2-106017
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'IP\sdue\sto'
+            - fieldName: action
+              pattern: '{{.greedy}}from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106017
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106017
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
