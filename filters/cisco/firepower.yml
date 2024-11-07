@@ -15,7 +15,7 @@ pipeline:
             - fieldName: log.ciscoTime
               pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
-              pattern: '{{.ipv4}}|{{.ipv6}}'
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.asaHeader
               pattern: '{{.data}}FTD-'
             - fieldName: log.severity
@@ -32,7 +32,7 @@ pipeline:
             - fieldName: log.ciscoTime
               pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
-              pattern: '{{.ipv4}}|{{.ipv6}}'
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.firePowerHeader
               pattern: '{{.data}}FTD-'
             - fieldName: log.severity
