@@ -236,6 +236,148 @@ pipeline:
                 ofType: int
             expression: msgId==106101
       #......................................................................#
+      # FTD-6-106102,FTD-4-106103
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'access-list'
+            - fieldName: log.accessList
+              pattern: '{{.data}}\s'
+            - fieldName: action
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})\s'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}/'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}/'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'hit-cnt'
+            - fieldName: log.hitCount
+              pattern: '{{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'access-list'
+            - fieldName: log.accessList
+              pattern: '{{.data}}\s'
+            - fieldName: action
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})\s'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}/'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: from.port
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '-\>'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}/'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: to.port
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'hit-cnt'
+            - fieldName: log.hitCount
+              pattern: '{{.integer}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - from.port
+            - to.port
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - from.port
+            - to.port
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106102 || msgId==106103
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
