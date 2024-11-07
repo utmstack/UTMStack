@@ -686,6 +686,77 @@ pipeline:
                 ofType: int
             expression: msgId==113008
       #......................................................................#
+      # FTD-6-113009
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA retrieved default group policy'
+            - fieldName: log.policy
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'for (u|U)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA retrieved default group policy'
+            - fieldName: log.policy
+              pattern: '{{.data}}\sfor'
+            - fieldName: log.irrelevant
+              pattern: '(u|U)ser(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
