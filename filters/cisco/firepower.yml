@@ -6154,6 +6154,50 @@ pipeline:
                 ofType: int
             expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
       #......................................................................#
+      # FTD-6-719018
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'WebVPN user(\:)?'
+            - fieldName: from.user
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'ACL ID'
+            - fieldName: log.accessList
+              pattern: '{{.data}}not'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719018
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719018
+      - trim:
+          function: suffix
+          substring: 'not'
+          fields:
+            - log.accessList
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719018
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
