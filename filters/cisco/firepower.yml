@@ -4295,6 +4295,78 @@ pipeline:
                 ofType: int
             expression: msgId==322003
       #......................................................................#
+      # FTD-4-402114
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
