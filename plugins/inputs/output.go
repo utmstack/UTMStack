@@ -34,7 +34,7 @@ func sendLog() {
 		err := inputClient.Send(l)
 		if err != nil {
 			e := go_sdk.Logger().ErrorF("failed to send log: %v", err)
-			notify(TOPIC_ENQUEUE_FAILURE, Message{Cause: go_sdk.PointerOf(e.Message), DataType: l.DataType, DataSource: l.DataSource})
+			go_sdk.EnqueueNotification(go_sdk.TOPIC_ENQUEUE_FAILURE, go_sdk.NotificationMessage{Cause: go_sdk.PointerOf(e.Message), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
@@ -42,11 +42,11 @@ func sendLog() {
 		ack, err := inputClient.Recv()
 		if err != nil {
 			e := go_sdk.Logger().ErrorF("failed to receive ack: %v", err)
-			notify(TOPIC_ENQUEUE_FAILURE, Message{Cause: go_sdk.PointerOf(e.Message), DataType: l.DataType, DataSource: l.DataSource})
+			go_sdk.EnqueueNotification(go_sdk.TOPIC_ENQUEUE_FAILURE, go_sdk.NotificationMessage{Cause: go_sdk.PointerOf(e.Message), DataType: l.DataType, DataSource: l.DataSource})
 			continue
 		}
 
 		go_sdk.Logger().LogF(100, "received ack: %v", ack)
-		notify(TOPIC_ENQUEUE_SUCCESS, Message{DataType: l.DataType, DataSource: l.DataSource})
+		go_sdk.EnqueueNotification(go_sdk.TOPIC_ENQUEUE_SUCCESS, go_sdk.NotificationMessage{DataType: l.DataType, DataSource: l.DataSource})
 	}
 }

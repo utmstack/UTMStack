@@ -12,7 +12,6 @@ import (
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
 var localLogsChannel chan *go_sdk.Log
-var localNotificationsChannel chan *go_sdk.Message
 
 type PluginConfig struct {
 	ServerName   string `yaml:"serverName"`
@@ -45,11 +44,13 @@ func main() {
 	cpu := runtime.NumCPU()
 
 	localLogsChannel = make(chan *go_sdk.Log, cpu*100)
-	localNotificationsChannel = make(chan *go_sdk.Message, cpu*100)
 
 	for i := 0; i < cpu; i++ {
 		go sendLog()
-		go sendNotification()
+		go go_sdk.Logger().InfiniteLoop(func() error {
+			go_sdk.SendNotificationsFromChannel()
+			return nil
+		})
 	}
 
 	go startHTTPServer(middlewares, cert, key)
