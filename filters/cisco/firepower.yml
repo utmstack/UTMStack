@@ -5639,6 +5639,69 @@ pipeline:
                 ofType: int
             expression: msgId==710003
       #......................................................................#
+      # FTD-5-713252,713253
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?='
+            - fieldName: from.group
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'Username(\s)?='
+            - fieldName: from.user
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'IP(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}available(\.)?'
+            - fieldName: action
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==713252 || msgId==713253
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - from.group
+            - from.user
+            - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==713252 || msgId==713253
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==713252 || msgId==713253
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==713252 || msgId==713253
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
