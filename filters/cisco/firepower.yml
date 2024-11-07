@@ -179,6 +179,63 @@ pipeline:
                 ofType: int
             expression: msgId==106021
       #......................................................................#
+      # FTD-2-106101
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Number of cached deny-flows for ACL log has reached limit'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Number of cached'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
+      # Parsing the limit number
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.numFlows
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
+      # Field conversions
+      - cast:
+          fields:
+            - log.numFlows
+          to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106101
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
