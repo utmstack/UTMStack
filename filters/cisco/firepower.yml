@@ -757,6 +757,34 @@ pipeline:
                 ofType: int
             expression: msgId==113009
       #......................................................................#
+      # FTD-6-113010
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA challenge received for user'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}}) from server'
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113010
+      - trim:
+          function: suffix
+          substring: 'from server'
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113010
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
