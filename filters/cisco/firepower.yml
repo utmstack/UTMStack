@@ -4065,6 +4065,236 @@ pipeline:
                 ofType: int
             expression: msgId==305012
       #......................................................................#
+      # FTD-3-322001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.word}}\sMAC\saddress'
+            - fieldName: local.mac
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.reason
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - local.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - log.reason
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322001
+      #......................................................................#
+      # FTD-3-322002
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.word}}\sinspection\scheck'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for\sarp'
+            - fieldName: log.httpMessageType
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'received\sfrom\shost'
+            - fieldName: from.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\.'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Address'
+            - fieldName: log.fakeSrcMac
+              pattern: '{{.data}}for'
+            - fieldName: log.irrelevant
+              pattern: 'IP\sAddress'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Address'
+            - fieldName: log.boudSrcMac
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'inspection check'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.fakeSrcMac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      - trim:
+          function: suffix
+          substring: '.'
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322002
+      #......................................................................#
+      # FTD-3-322003
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.word}}\sinspection\scheck'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'for\sarp'
+            - fieldName: log.httpMessageType
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'received\sfrom\shost'
+            - fieldName: from.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}\.'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Address'
+            - fieldName: log.fakeSrcMac
+              pattern: '{{.data}}for'
+            - fieldName: log.irrelevant
+              pattern: 'IP\sAddress'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'inspection check'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - log.fakeSrcMac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      - trim:
+          function: suffix
+          substring: '.'
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==322003
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
