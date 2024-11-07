@@ -1120,6 +1120,90 @@ pipeline:
                 ofType: int
             expression: msgId==113019
       #......................................................................#
+      # FTD-113031,113032,113033
+      # Common fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?'
+            - fieldName: from.group
+              pattern: '{{.data}}\sUser'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?IP'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
+      - trim:
+          function: suffix
+          substring: 'User'
+          fields:
+            - from.group
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
+      - trim:
+          function: suffix
+          substring: 'IP'
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
+      # Specific fields
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AnyConnect (vpn-filter|ipv6-vpn-filter|session not allowed)'
+            - fieldName: log.filter
+              pattern: '{{.data}}\sis'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AnyConnect (vpn-filter|ipv6-vpn-filter|session not allowed)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.rest
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
+      - trim:
+          function: suffix
+          substring: 'is'
+          fields:
+            - log.filter
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
