@@ -4367,7 +4367,7 @@ pipeline:
                 ofType: int
             expression: msgId==402114
       #......................................................................#
-      # ASA-4-402115
+      # FTD-4-402115
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -4400,7 +4400,7 @@ pipeline:
                 ofType: int
             expression: msgId==402115
       #......................................................................#
-      # ASA-4-402116
+      # FTD-4-402116
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -4547,7 +4547,7 @@ pipeline:
                 ofType: int
             expression: msgId==402116
       #......................................................................#
-      # ASA-4-402117
+      # FTD-4-402117
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -4586,7 +4586,7 @@ pipeline:
                 ofType: int
             expression: msgId==402117
       #......................................................................#
-      # ASA-4-402118
+      # FTD-4-402118
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -4669,7 +4669,7 @@ pipeline:
                 ofType: int
             expression: msgId==402118
       #......................................................................#
-      # ASA-4-402119, 402120
+      # FTD-4-402119, 402120
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -4745,6 +4745,31 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==402119 || msgId==402120
+      #......................................................................#
+      # FTD-5-402128
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'CRYPTO\:(\s)?'
+            - fieldName: action
+              pattern: 'An attempt to allocate a large memory block'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\:'
+            - fieldName: log.memorySize
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\:'
+            - fieldName: log.memoryLimit
+              pattern: '{{.integer}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402128
       #......................................................................#
       # Decoding severity
       - add:
