@@ -4367,6 +4367,385 @@ pipeline:
                 ofType: int
             expression: msgId==402114
       #......................................................................#
+      # ASA-4-402115
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\sa\spacket'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'containing'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'data instead of'
+            - fieldName: log.expectedProtocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402115
+      #......................................................................#
+      # ASA-4-402116
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.decapsulatedPktDestAddr
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.decapsulatedPktSrcAddr
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.decapsulatedPktProto
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.localProxyIpAddr
+              pattern: '{{.data}}/'
+            - fieldName: log.localProxyIpMask
+              pattern: '{{.data}}/'
+            - fieldName: log.localProxyProto
+              pattern: '{{.data}}/'
+            - fieldName: log.localProxyPort
+              pattern: '{{.data}}and'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}as'
+            - fieldName: log.remoteProxyIpAddr
+              pattern: '{{.data}}/'
+            - fieldName: log.remoteProxyIpMask
+              pattern: '{{.data}}/'
+            - fieldName: log.remoteProxyProto
+              pattern: '{{.data}}/'
+            - fieldName: log.remoteProxyPort
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - log.localProxyIpAddr
+            - log.localProxyIpMask
+            - log.localProxyProto
+            - log.remoteProxyIpAddr
+            - log.remoteProxyIpMask
+            - log.remoteProxyPort
+            - log.remoteProxyProto
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      - trim:
+          function: suffix
+          substring: 'and'
+          fields:
+            - log.localProxyPort
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
+      #......................................................................#
+      # ASA-4-402117
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received a non-IPsec \((\s)?{{.word}}(\s)?\) packet'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402117
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received a non-IPsec \('
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402117
+      #......................................................................#
+      # ASA-4-402118
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}length'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'with offset'
+            - fieldName: log.fragmentOffset
+              pattern: '{{.integer}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
+      #......................................................................#
+      # ASA-4-402119, 402120
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'IPSEC\:(\s)?'
+            - fieldName: action
+              pattern: 'Received\s(an|a)\s{{.word}}\spacket'
+            - fieldName: log.irrelevant
+              pattern: '\({{.data}}='
+            - fieldName: log.spi
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.seqNum
+              pattern: '{{.integer}}(\s)?\)'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: from.user
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402119 || msgId==402120
+      # Protocol
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received\s(an|a)'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402119 || msgId==402120
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.seqNum
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402119 || msgId==402120
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402119 || msgId==402120
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
