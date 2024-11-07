@@ -2766,6 +2766,554 @@ pipeline:
                 ofType: int
             expression: msgId==302018
       #......................................................................#
+      # FTD-6-302020, 302021
+      # 302020
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Built'
+            - fieldName: log.direction
+              pattern: '{{.word}}'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for faddr'
+            - fieldName: log.tmpFaddrAndFwUser
+              pattern: '({{.data}})gaddr'
+            - fieldName: log.tmpGaddrAndFwUser
+              pattern: '({{.data}})laddr'
+            - fieldName: log.tmpLaddrAndFwUser
+              pattern: '({{.data}})type'
+            - fieldName: log.icmpType
+              pattern: '({{.data}})code'
+            - fieldName: log.icmpCode
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020
+      # 302021
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for faddr'
+            - fieldName: log.tmpFaddrAndFwUser
+              pattern: '({{.data}})gaddr'
+            - fieldName: log.tmpGaddrAndFwUser
+              pattern: '({{.data}})laddr'
+            - fieldName: log.tmpLaddrAndFwUser
+              pattern: '({{.data}})type'
+            - fieldName: log.icmpType
+              pattern: '({{.data}})code'
+            - fieldName: log.icmpCode
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302021
+      # Common parsing for 302020 and 302021
+      # For parsing faddr and fwuser from (Begin with ip/port), or icmpSeqNum
+      - grok:
+          patterns:
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '{{.greedy}}'
+          source: log.tmpFaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - grok:
+          patterns:
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '{{.greedy}}'
+          source: log.tmpFaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # icmpSeqNum variants
+      - grok:
+          patterns:
+            - fieldName: log.icmpSeqNum
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'gaddr'
+          source: log.tmpFaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - grok:
+          patterns:
+            - fieldName: log.icmpSeqNum
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserFrom
+              pattern: 'gaddr'
+          source: log.tmpFaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Cleaning icmpSeqNum
+      - trim:
+          function: suffix
+          substring: 'gaddr'
+          fields:
+            - log.icmpSeqNum
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Continue with firewall user from
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserFrom
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # For parsing gaddr and global fwuser (Begin with ip/port), or icmpType
+      - grok:
+          patterns:
+            - fieldName: log.globalIp
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.globalPort
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserGlobal
+              pattern: '{{.greedy}}'
+          source: log.tmpGaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - grok:
+          patterns:
+            - fieldName: log.globalIp
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.tmpFwUserGlobal
+              pattern: '{{.greedy}}'
+          source: log.tmpGaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # icmpType variants
+      - grok:
+          patterns:
+            - fieldName: log.icmpType
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserGlobal
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'laddr'
+          source: log.tmpGaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - grok:
+          patterns:
+            - fieldName: log.icmpType
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserGlobal
+              pattern: 'laddr'
+          source: log.tmpGaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Cleaning icmpType
+      - trim:
+          function: suffix
+          substring: 'laddr'
+          fields:
+            - log.icmpType
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - trim:
+          function: suffix
+          substring: 'code'
+          fields:
+            - log.icmpType
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Continue with global firewall
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.globalFirewallUser
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserGlobal
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # For parsing laddr and fwuser to (Begin with ip/port)
+      - grok:
+          patterns:
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpFwUserTo
+              pattern: '{{.greedy}}'
+          source: log.tmpLaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - grok:
+          patterns:
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.tmpFwUserTo
+              pattern: '{{.greedy}}'
+          source: log.tmpLaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Continue with firewall user to
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.firewallUserTo
+              pattern: '{{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpFwUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - to.ip
+            - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.firewallUserFrom
+            - log.firewallUserTo
+            - log.globalFirewallUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpFwUserFrom
+            - log.tmpFwUserTo
+            - log.tmpFwUserGlobal
+            - log.tmpFaddrAndFwUser
+            - log.tmpGaddrAndFwUser
+            - log.tmpLaddrAndFwUser
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
+      #......................................................................#
+      # FTD-6-302022, 302024, 302026
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Built'
+            - fieldName: log.role
+              pattern: '({{.data}})stub'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpMappedIpPortFrom
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.tmpMappedIpPortTo
+              pattern: '\({{.data}}\)'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Parsing mapped ip,port from tmp fields
+      # With port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpFrom
+              pattern: '{{.data}}/'
+            - fieldName: log.mappedPortFrom
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Without port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpFrom
+              pattern: '{{.data}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Parsing mapped ip,port to, from tmp fields
+      # With port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpTo
+              pattern: '{{.data}}/'
+            - fieldName: log.mappedPortTo
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Without port
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '\('
+            - fieldName: log.mappedIpTo
+              pattern: '{{.data}}'
+            - fieldName: log.irrelevant
+              pattern: '\)'
+          source: log.tmpMappedIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'stub'
+          fields:
+            - log.role
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+            - log.mappedIpFrom
+            - log.mappedIpTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Removing tmp fields
+      - delete:
+          fields:
+            - log.tmpMappedIpPortFrom
+            - log.tmpMappedIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
+      #......................................................................#
+      # FTD-6-302023, 302025, 302027
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown stub'
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'connection for'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'duration'
+            - fieldName: log.duration
+              pattern: '{{.time}}'
+            - fieldName: log.irrelevant
+              pattern: 'bytes'
+            - fieldName: from.bytesSent
+              pattern: '{{.integer}}'
+            - fieldName: log.reason
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302023 || msgId==302025 || msgId==302027
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302023 || msgId==302025 || msgId==302027
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302023 || msgId==302025 || msgId==302027
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
