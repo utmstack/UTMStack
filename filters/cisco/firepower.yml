@@ -6047,6 +6047,113 @@ pipeline:
                 ofType: int
             expression: msgId==716039
       #......................................................................#
+      # FTD-6-719017,719019,719020,719021,719022,719023
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'WebVPN user(\:)?'
+            - fieldName: from.user
+              pattern: '{{.data}}\s'
+            - fieldName: action
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
+      # Adding actionResult and modifying some actions
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'Failed'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719019
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'Success'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719020 || msgId==719022
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'Denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719023
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'WebVPN user is not checked against ACL'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719021
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'WebVPN user has been authenticated'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719022
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'WebVPN user has not been authenticated'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719023
+      # Cleaning fields
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
