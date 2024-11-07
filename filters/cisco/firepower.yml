@@ -4771,6 +4771,126 @@ pipeline:
                 ofType: int
             expression: msgId==402128
       #......................................................................#
+      # FTD-4-405001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Received ARP (request|response) collision'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'interface'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}with'
+            - fieldName: log.irrelevant
+              pattern: 'existing ARP entry'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.mac
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'ARP'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      - trim:
+          function: suffix
+          substring: 'with'
+          fields:
+            - log.srcInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405001
+      #......................................................................#
+      # FTD-4-405002
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Received mac mismatch collision'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.mac
+              pattern: '{{.data}}for'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405002
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'for'
+          fields:
+            - from.mac
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405002
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==405002
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
