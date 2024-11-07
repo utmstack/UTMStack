@@ -197,19 +197,13 @@ func processStatistics(ctx context.Context) {
 	}
 }
 
-type Success struct {
-	Timestamp  string `json:"@timestamp"`
-	DataSource string `json:"dataSource"`
-	DataType   string `json:"dataType"`
-	Count      int64  `json:"count"`
-}
-
-type Fail struct {
-	Timestamp  string `json:"@timestamp"`
-	DataSource string `json:"dataSource"`
-	DataType   string `json:"dataType"`
-	Cause      string `json:"cause"`
-	Count      int64  `json:"count"`
+type Statistic struct {
+	Timestamp  string  `json:"@timestamp"`
+	DataSource string  `json:"dataSource"`
+	DataType   string  `json:"dataType"`
+	Cause      *string `json:"cause,omitempty"`
+	Count      int64   `json:"count"`
+	Type       string  `json:"type"`
 }
 
 func saveToDB(ctx context.Context, t string) {
@@ -225,19 +219,20 @@ func saveToDB(ctx context.Context, t string) {
 	}
 }
 
-func extractSuccess() []Success {
+func extractSuccess() []Statistic {
 	successLock.Lock()
 	defer successLock.Unlock()
 
-	var result []Success
+	var result []Statistic
 
 	for dataSource, dataTypes := range success {
 		for dataType, count := range dataTypes {
-			result = append(result, Success{
+			result = append(result, Statistic{
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				DataSource: dataSource,
 				DataType:   dataType,
 				Count:      count,
+				Type:       "success",
 			})
 		}
 	}
@@ -247,21 +242,22 @@ func extractSuccess() []Success {
 	return result
 }
 
-func extractFails() []Fail {
+func extractFails() []Statistic {
 	failsLock.Lock()
 	defer failsLock.Unlock()
 
-	var result []Fail
+	var result []Statistic
 
 	for dataSource, dataTypes := range fails {
 		for dataType, causes := range dataTypes {
 			for cause, count := range causes {
-				result = append(result, Fail{
-					Timestamp: time.Now().UTC().Format(time.RFC3339Nano),
+				result = append(result, Statistic{
+					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 					DataSource: dataSource,
 					DataType:   dataType,
-					Cause:      cause,
+					Cause:      go_sdk.PointerOf(cause),
 					Count:      count,
+					Type:       "fails",
 				})
 			}
 		}
@@ -278,23 +274,23 @@ func sendStatistic(t string) {
 		success := extractSuccess()
 		go_sdk.Logger().Info("sending %d success statistics", len(success))
 		for _, s := range success {
-			saveToOpensearch(s, fmt.Sprintf("statistics-success-%s", time.Now().UTC().Format("2006.01")))
+			saveToOpensearch(s)
 		}
 
 	case "fails":
 		fails := extractFails()
 		go_sdk.Logger().Info("sending %d fails statistics", len(fails))
 		for _, f := range fails {
-			saveToOpensearch(f, fmt.Sprintf("statistics-fails-%s", time.Now().UTC().Format("2006.01")))
+			saveToOpensearch(f)
 		}
 	}
 }
 
-func saveToOpensearch[Data any](data Data, index string) {
+func saveToOpensearch[Data any](data Data) {
 	oCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	err := opensearch.IndexDoc(oCtx, &data, index, uuid.NewString())
+	err := opensearch.IndexDoc(oCtx, &data, fmt.Sprintf("statistics-%s", time.Now().UTC().Format("2006.01")), uuid.NewString())
 	if err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
 	}
