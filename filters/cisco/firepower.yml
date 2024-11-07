@@ -3314,6 +3314,105 @@ pipeline:
                 ofType: int
             expression: msgId==302023 || msgId==302025 || msgId==302027
       #......................................................................#
+      # FTD-302033,302034
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '(Pre-allocated|Unable to pre-allocate) H323 GUP Connection'
+            - fieldName: log.irrelevant
+              pattern: 'for faddr'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.tmpPortFrom
+              pattern: '{{.data}}to laddr'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: log.tmpIpPortTo
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      # Parsing optional ports from y to
+      - grok:
+          patterns:
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.tmpPortFrom
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      - grok:
+          patterns:
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.greedy}}'
+          source: log.tmpIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      - grok:
+          patterns:
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
+          source: log.tmpIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      # Remove tmp fields
+      - delete:
+          fields:
+            - log.tmpPortFrom
+            - log.tmpIpPortTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033 || msgId==302034
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
