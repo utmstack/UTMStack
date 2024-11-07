@@ -1357,6 +1357,67 @@ pipeline:
                 ofType: int
             expression: msgId==113042
       #......................................................................#
+      # FTD-2-201003
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Embryonic limit exceeded'
+            - fieldName: log.numCons
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '/(\s)?'
+            - fieldName: log.limit
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'for'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '/(\s)?'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.globalIp
+              pattern: '\({{.data}}\)'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '/(\s)?'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'on interface'
+            - fieldName: log.dstInterface
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==201003
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - log.globalIp
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==201003
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.globalIp
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==201003
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
