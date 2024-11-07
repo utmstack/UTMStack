@@ -515,6 +515,45 @@ pipeline:
                 ofType: int
             expression: msgId==109103
       #......................................................................#
+      # FTD-109201 to 109213
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'UAUTH(:)? Session(\s|=)'
+            - fieldName: log.session
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'User(\s|=)'
+            - fieldName: from.user
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'Assigned IP(\s|=)'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: action
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=109201 && msgId<=109213
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.session
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=109201 && msgId<=109213
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
