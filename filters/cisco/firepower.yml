@@ -1472,6 +1472,94 @@ pipeline:
                 ofType: int
             expression: msgId==209003
       #......................................................................#
+      # FTD-3-316001
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Denied new tunnel'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316001
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316001
+      #......................................................................#
+      # FTD-3-316002
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'VPN Handle error'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?protocol='
+            - fieldName: protocol
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'src\s'
+            - fieldName: log.inIfNum
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: ',(\s)?dst'
+            - fieldName: log.outIfNum
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316002
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316002
+      - cast:
+          fields:
+            - log.inIfNum
+            - log.outIfNum
+          to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316002
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
