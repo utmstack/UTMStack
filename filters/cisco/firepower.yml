@@ -5174,7 +5174,7 @@ pipeline:
                 ofType: int
             expression: msgId==605004
       #......................................................................#
-      # ASA-2-106018
+      # FTD-2-106018
       - grok:
           patterns:
             - fieldName: action
@@ -5231,7 +5231,7 @@ pipeline:
                 ofType: int
             expression: msgId==106018
       #......................................................................#
-      # ASA-2-106020
+      # FTD-2-106020
       - grok:
           patterns:
             - fieldName: action
@@ -5271,6 +5271,179 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106020
+      #......................................................................#
+      # FTD-6-611301
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'NAT configured for Client Mode with no split tunneling'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}ress\:'
+            - fieldName: log.mappedIp
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611301
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'NAT'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611301
+      #......................................................................#
+      # FTD-6-611303
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'NAT configured for Client Mode with split tunneling'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}ress\:'
+            - fieldName: log.mappedIp
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}works\:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.netmaskFrom
+              pattern: '{{.data}}\s'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.netmaskTo
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611303
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'NAT'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611303
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611303
+      #......................................................................#
+      # FTD-6-611304
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'NAT exemption configured for Network Extension Mode with split tunneling'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}works\:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.netmaskFrom
+              pattern: '{{.data}}\s'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: log.netmaskTo
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611304
+      # Adding protocol
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'NAT'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611304
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611304
+      #......................................................................#
+      # FTD-6-611307
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:(\s)?Head end\:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611307
+      # Adding action and actionResult
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'The VPN client is connected to the specified headend'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611307
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'Success'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611307
       #......................................................................#
       # Decoding severity
       - add:
