@@ -1,14 +1,16 @@
 module github.com/utmstack/UTMStack/plugins/gcp
 
-go 1.22.5
+go 1.22.7
+
+toolchain go1.23.1
 
 require (
 	cloud.google.com/go/pubsub v1.45.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.11.3
+	github.com/threatwinds/go-sdk v0.11.6
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/api v0.205.0
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 )
 
 require (

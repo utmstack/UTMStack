@@ -37,10 +37,10 @@ type Config struct {
 	} `yaml:"postgresql"`
 }
 
-var statisticsQueue chan go_sdk.NotificationMessage
-var fails map[string]map[string]map[string]int64
-var success map[string]map[string]int64
+var statisticsQueue chan map[string]go_sdk.DataProcessingMessage
+var fails map[string]map[string]map[string]map[string]int64
 var failsLock sync.Mutex
+var success map[string]map[string]int64
 var successLock sync.Mutex
 
 func main() {
@@ -64,8 +64,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	statisticsQueue = make(chan go_sdk.NotificationMessage, runtime.NumCPU()*100)
-	fails = make(map[string]map[string]map[string]int64)
+	statisticsQueue = make(chan map[string]go_sdk.DataProcessingMessage, runtime.NumCPU()*100)
+	fails = make(map[string]map[string]map[string]map[string]int64)
 	success = make(map[string]map[string]int64)
 
 	grpcServer := grpc.NewServer()
@@ -103,13 +103,13 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		saveToDB(ctx, go_sdk.TOPIC_ENQUEUE_SUCCESS)
+		saveToDB(ctx, "success")
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		saveToDB(ctx, go_sdk.TOPIC_ENQUEUE_FAILURE)
+		saveToDB(ctx, "failure")
 	}()
 
 	signs := make(chan os.Signal, 1)
@@ -124,13 +124,19 @@ func main() {
 func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*emptypb.Empty, error) {
 	go_sdk.Logger().LogF(100, "%s: %s", msg.Topic, msg.Message)
 
-	if msg.Topic != go_sdk.TOPIC_ENQUEUE_FAILURE && msg.Topic != go_sdk.TOPIC_ENQUEUE_SUCCESS {
+	switch msg.Topic {
+	case go_sdk.TOPIC_ENQUEUE_SUCCESS:
+	case go_sdk.TOPIC_ENQUEUE_FAILURE:
+	case go_sdk.TOPIC_PARSING_FAILURE:
+	case go_sdk.TOPIC_ANALYSIS_FAILURE:
+	case go_sdk.TOPIC_CORRELATION_FAILURE:
+	default:
 		return &emptypb.Empty{}, nil
 	}
-
+	
 	mbytes := []byte(msg.Message)
 
-	var pMsg go_sdk.NotificationMessage
+	var pMsg go_sdk.DataProcessingMessage
 
 	err := json.Unmarshal(mbytes, &pMsg)
 	if err != nil {
@@ -138,7 +144,7 @@ func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*
 		return &emptypb.Empty{}, err
 	}
 
-	statisticsQueue <- pMsg
+	statisticsQueue <- map[string]go_sdk.DataProcessingMessage{msg.Topic: pMsg}
 
 	return &emptypb.Empty{}, nil
 }
@@ -147,38 +153,45 @@ func processStatistics(ctx context.Context) {
 	for {
 		select {
 		case msg := <-statisticsQueue:
-			if msg.Cause == nil {
-				successLock.Lock()
-				if _, ok := success[msg.DataSource]; !ok {
-					success[msg.DataSource] = make(map[string]int64)
+			for k, v := range msg {
+				switch k {
+				case go_sdk.TOPIC_ENQUEUE_SUCCESS:
+					successLock.Lock()
+					if _, ok := success[v.DataSource]; !ok {
+						success[v.DataSource] = make(map[string]int64)
+					}
+
+					if _, ok := success[v.DataSource][v.DataType]; !ok {
+						success[v.DataSource][v.DataType] = 0
+					}
+
+					go_sdk.Logger().LogF(100, "success: %s", v.DataType)
+
+					success[v.DataSource][v.DataType]++
+					successLock.Unlock()
+				default:
+					failsLock.Lock()
+					if _, ok := fails[k]; !ok {
+						fails[k] = make(map[string]map[string]map[string]int64)
+					}
+
+					if _, ok := fails[k][v.DataSource]; !ok {
+						fails[k][v.DataSource] = make(map[string]map[string]int64)
+					}
+
+					if _, ok := fails[k][v.DataSource][v.DataType]; !ok {
+						fails[k][v.DataSource][v.DataType] = make(map[string]int64)
+					}
+
+					if _, ok := fails[k][v.DataSource][v.DataType][*v.Cause]; !ok {
+						fails[k][v.DataSource][v.DataType][*v.Cause] = 0
+					}
+
+					go_sdk.Logger().LogF(100, "failure: %s", v.DataType)
+
+					fails[k][v.DataSource][v.DataType][*v.Cause]++
+					failsLock.Unlock()
 				}
-
-				if _, ok := success[msg.DataSource][msg.DataType]; !ok {
-					success[msg.DataSource][msg.DataType] = 0
-				}
-
-				go_sdk.Logger().LogF(100, "success: %s", msg.DataType)
-
-				success[msg.DataSource][msg.DataType]++
-				successLock.Unlock()
-			} else {
-				failsLock.Lock()
-				if _, ok := fails[msg.DataSource]; !ok {
-					fails[msg.DataSource] = make(map[string]map[string]int64)
-				}
-
-				if _, ok := fails[msg.DataSource][msg.DataType]; !ok {
-					fails[msg.DataSource][msg.DataType] = make(map[string]int64)
-				}
-
-				if _, ok := fails[msg.DataSource][msg.DataType][*msg.Cause]; !ok {
-					fails[msg.DataSource][msg.DataType][*msg.Cause] = 0
-				}
-
-				go_sdk.Logger().LogF(100, "failure: %s", msg.DataType)
-
-				fails[msg.DataSource][msg.DataType][*msg.Cause]++
-				failsLock.Unlock()
 			}
 		case <-ctx.Done():
 			return
@@ -237,36 +250,38 @@ func extractFails() []Statistic {
 
 	var result []Statistic
 
-	for dataSource, dataTypes := range fails {
-		for dataType, causes := range dataTypes {
-			for cause, count := range causes {
-				result = append(result, Statistic{
-					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-					DataSource: dataSource,
-					DataType:   dataType,
-					Cause:      go_sdk.PointerOf(cause),
-					Count:      count,
-					Type:       go_sdk.TOPIC_ENQUEUE_FAILURE,
-				})
+	for topic, dataSources := range fails {
+		for dataSource, dataTypes := range dataSources {
+			for dataType, causes := range dataTypes {
+				for cause, count := range causes {
+					result = append(result, Statistic{
+						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+						DataSource: dataSource,
+						DataType:   dataType,
+						Cause:      go_sdk.PointerOf(cause),
+						Count:      count,
+						Type:       topic,
+					})
+				}
 			}
 		}
 	}
 
-	fails = make(map[string]map[string]map[string]int64)
+	fails = make(map[string]map[string]map[string]map[string]int64)
 
 	return result
 }
 
 func sendStatistic(t string) {
 	switch t {
-	case go_sdk.TOPIC_ENQUEUE_SUCCESS:
+	case "success":
 		success := extractSuccess()
 		go_sdk.Logger().Info("sending %d success statistics", len(success))
 		for _, s := range success {
 			saveToOpensearch(s)
 		}
 
-	case go_sdk.TOPIC_ENQUEUE_FAILURE:
+	case "failure":
 		fails := extractFails()
 		go_sdk.Logger().Info("sending %d failure statistics", len(fails))
 		for _, f := range fails {

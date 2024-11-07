@@ -1,14 +1,14 @@
 module github.com/utmstack/UTMStack/plugins/geolocation
 
-go 1.22.4
+go 1.22.7
 
-toolchain go1.22.5
+toolchain go1.23.1
 
 require (
-	github.com/threatwinds/go-sdk v0.11.3
+	github.com/threatwinds/go-sdk v0.11.6
 	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/sjson v1.2.5
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 )
 
 require (

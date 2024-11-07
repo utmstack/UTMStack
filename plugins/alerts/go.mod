@@ -1,11 +1,13 @@
 module github.com/utmstack/UTMStack/plugins/alerts
 
-go 1.22.4
+go 1.22.7
+
+toolchain go1.23.1
 
 require (
-	github.com/threatwinds/go-sdk v0.11.3
+	github.com/threatwinds/go-sdk v0.11.6
 	github.com/threatwinds/logger v1.1.12
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.1
 )
 

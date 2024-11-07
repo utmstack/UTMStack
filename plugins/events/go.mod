@@ -1,13 +1,15 @@
 module github.com/utmstack/UTMStack/plugins/events
 
-go 1.22.4
+go 1.22.7
+
+toolchain go1.23.1
 
 require (
 	github.com/shirou/gopsutil/v3 v3.24.5
-	github.com/threatwinds/go-sdk v0.11.3
+	github.com/threatwinds/go-sdk v0.11.6
 	github.com/threatwinds/logger v1.1.12
 	github.com/tidwall/gjson v1.18.0
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 )
 
 require (
