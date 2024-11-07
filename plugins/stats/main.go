@@ -24,12 +24,6 @@ type notificationServer struct {
 	go_sdk.UnimplementedNotificationServer
 }
 
-type Message struct {
-	Cause      *string `json:"cause,omitempty"`
-	DataType   string  `json:"dataType"`
-	DataSource string  `json:"dataSource"`
-}
-
 type Config struct {
 	RulesFolder   string `yaml:"rules_folder"`
 	GeoIPFolder   string `yaml:"geoip_folder"`
@@ -43,12 +37,7 @@ type Config struct {
 	} `yaml:"postgresql"`
 }
 
-const (
-	TOPIC_ENQUEUE_FAILURE = "enqueue_failure"
-	TOPIC_ENQUEUE_SUCCESS = "enqueue_success"
-)
-
-var statisticsQueue chan Message
+var statisticsQueue chan go_sdk.NotificationMessage
 var fails map[string]map[string]map[string]int64
 var success map[string]map[string]int64
 var failsLock sync.Mutex
@@ -75,7 +64,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	statisticsQueue = make(chan Message, 1000)
+	statisticsQueue = make(chan go_sdk.NotificationMessage, runtime.NumCPU()*100)
 	fails = make(map[string]map[string]map[string]int64)
 	success = make(map[string]map[string]int64)
 
@@ -114,13 +103,13 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		saveToDB(ctx, "success")
+		saveToDB(ctx, go_sdk.TOPIC_ENQUEUE_SUCCESS)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		saveToDB(ctx, "fails")
+		saveToDB(ctx, go_sdk.TOPIC_ENQUEUE_FAILURE)
 	}()
 
 	signs := make(chan os.Signal, 1)
@@ -135,13 +124,13 @@ func main() {
 func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*emptypb.Empty, error) {
 	go_sdk.Logger().LogF(100, "%s: %s", msg.Topic, msg.Message)
 
-	if msg.Topic != TOPIC_ENQUEUE_FAILURE && msg.Topic != TOPIC_ENQUEUE_SUCCESS {
+	if msg.Topic != go_sdk.TOPIC_ENQUEUE_FAILURE && msg.Topic != go_sdk.TOPIC_ENQUEUE_SUCCESS {
 		return &emptypb.Empty{}, nil
 	}
 
 	mbytes := []byte(msg.Message)
 
-	var pMsg Message
+	var pMsg go_sdk.NotificationMessage
 
 	err := json.Unmarshal(mbytes, &pMsg)
 	if err != nil {
@@ -186,7 +175,7 @@ func processStatistics(ctx context.Context) {
 					fails[msg.DataSource][msg.DataType][*msg.Cause] = 0
 				}
 
-				go_sdk.Logger().LogF(100, "fail: %s", msg.DataType)
+				go_sdk.Logger().LogF(100, "failure: %s", msg.DataType)
 
 				fails[msg.DataSource][msg.DataType][*msg.Cause]++
 				failsLock.Unlock()
@@ -232,7 +221,7 @@ func extractSuccess() []Statistic {
 				DataSource: dataSource,
 				DataType:   dataType,
 				Count:      count,
-				Type:       "success",
+				Type:       go_sdk.TOPIC_ENQUEUE_SUCCESS,
 			})
 		}
 	}
@@ -257,7 +246,7 @@ func extractFails() []Statistic {
 					DataType:   dataType,
 					Cause:      go_sdk.PointerOf(cause),
 					Count:      count,
-					Type:       "fails",
+					Type:       go_sdk.TOPIC_ENQUEUE_FAILURE,
 				})
 			}
 		}
@@ -270,16 +259,16 @@ func extractFails() []Statistic {
 
 func sendStatistic(t string) {
 	switch t {
-	case "success":
+	case go_sdk.TOPIC_ENQUEUE_SUCCESS:
 		success := extractSuccess()
 		go_sdk.Logger().Info("sending %d success statistics", len(success))
 		for _, s := range success {
 			saveToOpensearch(s)
 		}
 
-	case "fails":
+	case go_sdk.TOPIC_ENQUEUE_FAILURE:
 		fails := extractFails()
-		go_sdk.Logger().Info("sending %d fails statistics", len(fails))
+		go_sdk.Logger().Info("sending %d failure statistics", len(fails))
 		for _, f := range fails {
 			saveToOpensearch(f)
 		}
