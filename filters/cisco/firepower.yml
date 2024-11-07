@@ -613,6 +613,62 @@ pipeline:
                 ofType: int
             expression: msgId==113004
       #......................................................................#
+      # FTD-6-113005
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA user authentication Rejected(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?reason(\s)?=(\s)'
+            - fieldName: log.reason
+              pattern: '{{.data}}(\:|,)'
+            - fieldName: log.irrelevant
+              pattern: '(server|Server)(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.data}}(\:|,)'
+            - fieldName: log.irrelevant
+              pattern: '(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.data}}(\:|,)'
+            - fieldName: log.irrelevant
+              pattern: '(U|u)ser IP(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'AAA user authentication'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.reason
+            - to.ip
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
