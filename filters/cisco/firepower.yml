@@ -6281,6 +6281,37 @@ pipeline:
                 ofType: int
             expression: msgId==609002
       #......................................................................#
+      # FTD-6-611305
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient(\s)?\:'
+            - fieldName: action
+              pattern: 'DHCP Policy installed'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}DNS(\s)?\:'
+            - fieldName: log.primaryDns
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}DNS(\s)?\:'
+            - fieldName: log.secondaryDns
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}WINS(\s)?\:'
+            - fieldName: log.primaryWins
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}WINS(\s)?\:'
+            - fieldName: log.secondaryWins
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611305
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
