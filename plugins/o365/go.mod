@@ -1,14 +1,14 @@
 module github.com/utmstack/UTMStack/plugins/o365
 
-go 1.22.4
+go 1.22.7
 
-toolchain go1.23.0
+toolchain go1.23.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.11.3
+	github.com/threatwinds/go-sdk v0.11.6
 	github.com/utmstack/config-client-go v1.2.6
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 )
 
 require (

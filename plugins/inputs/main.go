@@ -47,10 +47,6 @@ func main() {
 
 	for i := 0; i < cpu; i++ {
 		go sendLog()
-		go go_sdk.Logger().InfiniteLoop(func() error {
-			go_sdk.SendNotificationsFromChannel()
-			return nil
-		})
 	}
 
 	go startHTTPServer(middlewares, cert, key)

@@ -1,11 +1,13 @@
 module github.com/utmstack/UTMStack/plugins/stats
 
-go 1.22.4
+go 1.22.7
+
+toolchain go1.23.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.11.3
-	google.golang.org/grpc v1.67.1
+	github.com/threatwinds/go-sdk v0.11.6
+	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.1
 )
 

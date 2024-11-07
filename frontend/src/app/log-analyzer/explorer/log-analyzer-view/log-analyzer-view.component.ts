@@ -30,7 +30,7 @@ import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavio
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
 import {QueryRunBehavior} from '../../shared/behaviors/query-run.behavior';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
-import {filter, takeUntil} from 'rxjs/operators';
+import {filter, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-log-analyzer-view',
@@ -85,19 +85,20 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
-    this.activatedRoute.queryParams
-      .pipe(filter((params) => !!params && this.data && params.queryName === this.data.name))
-      .subscribe(params => {
-        this.queryParams = Object.entries(params).length > 0 ? params : null;
-        if (this.queryParams) {
-          if (this.queryParams['@timestamp']) {
-            const range = this.queryParams['@timestamp'].split('->')[1].split(',');
-            this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
-            this.filters[0] = {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: [range[0], range[1]]};
-          }
-          this.dataNature = params.indexPattern;
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.queryParams = Object.entries(params).length > 0 ? params : null;
+      if (this.queryParams) {
+        if (this.queryParams['@timestamp']) {
+          const range = this.queryParams['@timestamp'].split('->')[1].split(',');
+          this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
+          this.filters[0] = {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: [range[0], range[1]]};
         }
+        this.dataNature = params.indexPattern;
+        if (params.patternId) {
+          this.pattern = new UtmIndexPattern(params.patternId, params.indexPattern, true);
+          this.indexPatternBehavior.$pattern.next({pattern: this.pattern, tabUUID: this.uuid});
+        }
+      }
     });
     this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
     this.initExplorer();
