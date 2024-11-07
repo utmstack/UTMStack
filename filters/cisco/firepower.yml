@@ -1418,6 +1418,60 @@ pipeline:
                 ofType: int
             expression: msgId==201003
       #......................................................................#
+      # FTD-4-209003
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Fragment database limit of'
+            - fieldName: log.limit
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'exceeded:(\s)?src(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'dest(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'proto(\s)?=(\s)?'
+            - fieldName: protocol
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: 'id(\s)?=(\s)?'
+            - fieldName: log.id
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==209003
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - from.ip
+            - to.ip
+            - protocol
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==209003
+      - cast:
+          fields:
+            - log.limit
+          to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==209003
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
