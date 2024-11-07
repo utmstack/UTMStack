@@ -378,6 +378,58 @@ pipeline:
                 ofType: int
             expression: msgId==106102 || msgId==106103
       #......................................................................#
+      # FTD-6-109101
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Received CoA disconnect request'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}}),'
+            - fieldName: log.irrelevant
+              pattern: 'with\saudit-session-id:'
+            - fieldName: log.auditSessionId
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received CoA'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
