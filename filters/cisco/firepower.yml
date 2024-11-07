@@ -1204,6 +1204,76 @@ pipeline:
                 ofType: int
             expression: msgId==113031 || msgId==113032 || msgId==113033
       #......................................................................#
+      # FTD-113034,113035,113036,113038,113039
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?'
+            - fieldName: from.group
+              pattern: '(\<)?{{.data}}(\>)?\sUser'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|(\<)?{{.data}}(\>)?)(\s)?IP'
+            - fieldName: from.ip
+              pattern: '(\<)?({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\>)?'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'User'
+          fields:
+            - from.group
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
+      - trim:
+          function: suffix
+          substring: 'IP'
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - from.group
+            - from.user
+            - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - from.group
+            - from.user
+            - from.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
