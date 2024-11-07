@@ -1274,6 +1274,89 @@ pipeline:
                 ofType: int
             expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
       #......................................................................#
+      # FTD-4-113042
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'CoA: Non-HTTP connection from'
+            - fieldName: log.srcInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'to'
+            - fieldName: log.dstInterface
+              pattern: '{{.data}}(\s)?:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'for user'
+            - fieldName: remote.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?at'
+            - fieldName: remote.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.rest
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113042
+      - trim:
+          function: suffix
+          substring: 'from'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113042
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.srcInterface
+            - log.dstInterface
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113042
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - from.ip
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113042
+      - trim:
+          function: suffix
+          substring: 'at'
+          fields:
+            - remote.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113042
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
