@@ -6246,6 +6246,41 @@ pipeline:
                 ofType: int
             expression: msgId==719024
       #......................................................................#
+      # FTD-7-609002
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Teardown local-host'
+            - fieldName: log.zoneName
+              pattern: '{{.data}}/'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: 'duration'
+            - fieldName: log.duration
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==609002
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - log.zoneName
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==609002
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
