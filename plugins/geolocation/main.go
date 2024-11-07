@@ -47,13 +47,13 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 	source, ok := transform.Step.Dynamic.Params["source"]
 	if !ok {
 		e := go_sdk.Logger().ErrorF("'source' parameter required")
-		return transform.Jlog, fmt.Errorf(e.Message)
+		return transform.Jlog, fmt.Errorf("'source' parameter required")
 	}
 
 	destination, ok := transform.Step.Dynamic.Params["destination"]
 	if !ok {
 		e := go_sdk.Logger().ErrorF("'destination' parameter required")
-		return transform.Jlog, fmt.Errorf(e.Message)
+		return transform.Jlog, fmt.Errorf("'destination' parameter required")
 	}
 
 	value := gjson.Get(transform.Jlog.Log, source.GetStringValue()).String()

@@ -48,7 +48,7 @@ func main() {
 func (p *analysisServer) Analyze(event *go_sdk.Event, srv grpc.ServerStreamingServer[go_sdk.Alert]) error {
 	jLog, e := go_sdk.ToString(event)
 	if e != nil {
-		return fmt.Errorf(e.Message)
+		return fmt.Errorf("error converting to string during analysis")
 	}
 
 	go_sdk.Logger().LogF(100, "received event: %s", *jLog)
