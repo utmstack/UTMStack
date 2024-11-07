@@ -430,6 +430,41 @@ pipeline:
                 ofType: int
             expression: msgId==109101
       #......................................................................#
+      # FTD-4-109102
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Received CoA {{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: ', but cannot find named session'
+            - fieldName: log.auditSessionId
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109102
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Received CoA'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109102
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
