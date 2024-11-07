@@ -856,6 +856,270 @@ pipeline:
                 ofType: int
             expression: msgId==113011
       #......................................................................#
+      # FTD-6-113012
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA user authentication Successful(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?local database(\s)?:(\s)?user(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113012
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'AAA user authentication'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113012
+      #......................................................................#
+      # FTD-6-113013
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA unable to complete the request'
+            - fieldName: log.irrelevant
+              pattern: 'Error(\s)?:(\s)?reason(\s)?=(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.data}}\:'
+            - fieldName: log.irrelevant
+              pattern: 'user(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113013
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.reason
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113013
+      #......................................................................#
+      # FTD-6-113014
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA authentication server not accessible(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?server(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113014
+      #......................................................................#
+      # FTD-6-113015, 113017
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '(AAA user authentication|AAA credentials)\s(R|r)ejected(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?reason(\s)?=(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.data}}(\s)?\:'
+            - fieldName: log.irrelevant
+              pattern: 'local database(\s)?:(\s)?(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?:'
+            - fieldName: log.irrelevant
+              pattern: 'user IP(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.reason
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(AAA user authentication|AAA credentials)\s'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
+      #......................................................................#
+      # FTD-6-113016
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA credentials rejected(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?reason(\s)?=(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.data}}(\s)?\:'
+            - fieldName: log.irrelevant
+              pattern: 'server(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.data}}(\s)?\:'
+            - fieldName: log.irrelevant
+              pattern: '(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?:'
+            - fieldName: log.irrelevant
+              pattern: 'user IP(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.reason
+            - to.ip
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'AAA credentials'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
+      #......................................................................#
+      # FTD-4-113019
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Group(\s)?=(\s)?'
+            - fieldName: from.group
+              pattern: '{{.data}}(\s)?,'
+            - fieldName: log.irrelevant
+              pattern: '(U|u)sername(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '(''{{.data}}''|{{.data}})(\s)?,'
+            - fieldName: log.irrelevant
+              pattern: 'IP(\s)?=(\s)?'
+            - fieldName: from.ip
+              pattern: '{{.data}},'
+            - fieldName: action
+              pattern: '(\s)?Session disconnected\.'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Session Type:(\s)?'
+            - fieldName: log.sessionType
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Duration:(\s)?'
+            - fieldName: log.duration
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Bytes xmt:(\s)?'
+            - fieldName: from.bytesSent
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Bytes rcv:(\s)?'
+            - fieldName: from.bytesReceived
+              pattern: '{{.data}},'
+            - fieldName: log.irrelevant
+              pattern: '(\s)?Reason:(\s)?'
+            - fieldName: log.reason
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - from.group
+            - from.user
+            - from.ip
+            - log.sessionType
+            - log.duration
+            - from.bytesSent
+            - from.bytesReceived
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
+      - cast:
+          fields:
+            - from.bytesSent
+            - from.bytesReceived
+          to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
