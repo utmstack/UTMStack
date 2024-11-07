@@ -6198,6 +6198,54 @@ pipeline:
                 ofType: int
             expression: msgId==719018
       #......................................................................#
+      # FTD-6-719024
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Email Proxy piggyback auth fail'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.sessionPointer
+              pattern: '{{.data}}user'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: from.user
+              pattern: '{{.data}}addr'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719024
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: 'user'
+          fields:
+            - log.sessionPointer
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719024
+      - trim:
+          function: suffix
+          substring: 'addr'
+          fields:
+            - from.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719024
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
