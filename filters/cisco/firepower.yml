@@ -669,6 +669,23 @@ pipeline:
                 ofType: int
             expression: msgId==113005
       #......................................................................#
+      # FTD-6-113008
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA transaction status ACCEPT(\s)?'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?(u|U)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113008
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
