@@ -271,7 +271,7 @@
         <dependency>
             <groupId>com.utmstack</groupId>
             <artifactId>opensearch-connector</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>

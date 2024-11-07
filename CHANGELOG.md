@@ -1,3 +1,3 @@
-# UTMStack 10.5.14 Release Notes
+# UTMStack 10.5.15 Release Notes
 ## Bugfix
-- Remove memory usage indicator
+- Sorting not working on any column in index management view
