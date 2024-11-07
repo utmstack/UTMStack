@@ -554,6 +554,65 @@ pipeline:
                 ofType: int
             expression: msgId>=109201 && msgId<=109213
       #......................................................................#
+      # FTD-6-113004
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'AAA user {{.word}} Successful'
+            - fieldName: log.irrelevant
+              pattern: '\:'
+            - fieldName: log.irrelevant
+              pattern: 'server(\s)?=(\s)?'
+            - fieldName: to.ip
+              pattern: '{{.data}}(\:|,)'
+            - fieldName: log.irrelevant
+              pattern: '(U|u)ser(\s)?=(\s)?'
+            - fieldName: from.user
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
+      # Action result
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'AAA user {{.word}}'
+            - fieldName: actionResult
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - to.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
