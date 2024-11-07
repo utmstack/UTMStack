@@ -109,8 +109,18 @@ pipeline:
                 ofType: int
             expression: msgId==106001
       
+      #......................................................................#
+      # Common field conversions
+      - cast:
+          fields:
+            - from.port
+            - to.port
+          to: int
       # Removing unused fields
       - delete:
           fields:
             - log.firePowerHeader
             - log.ciscoSeparator
+            - log.irrelevant
+            - log.syslogPri
+            - log.rest
