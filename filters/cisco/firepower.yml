@@ -5445,6 +5445,131 @@ pipeline:
                 ofType: int
             expression: msgId==611307
       #......................................................................#
+      # FTD-6-611309
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'Disconnecting from head end and uninstalling previously downloaded policy'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}End\:'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611309
+      #......................................................................#
+      # FTD-6-611310,611311
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'XAUTH'
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: '\:(\s)?Peer(\s)?\:'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611310 || msgId==611311
+      #......................................................................#
+      # FTD-6-611314
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:(\s)?Load Balancing Cluster with Virtual IP\:(\s)?'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}server'
+            - fieldName: to.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611314
+      # Adding action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'Load Balancing Cluster redirected the Secure Firewall'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611314
+      #......................................................................#
+      # FTD-6-611315
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:(\s)?Disconnecting from Load Balancing Cluster member(\:)?(\s)?'
+            - fieldName: from.ip
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611315
+      # Adding action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'Disconnecting from Load Balancing Cluster'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611315
+      #......................................................................#
+      # FTD-6-611318
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'VPNClient\:'
+            - fieldName: action
+              pattern: 'User Authentication Enabled'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}IP(\s)?\:'
+            - fieldName: log.authServerIp
+              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}Port(\s)?\:'
+            - fieldName: log.authServerPort
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}out(\s)?\:'
+            - fieldName: log.timeOut
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611318
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
