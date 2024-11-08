@@ -220,6 +220,9 @@ public class UtmNetworkScanService {
             if (StringUtils.hasText(value)) {
                 if (prop == PropertyFilter.PORTS)
                     sb.append(" AND cast(port as string) LIKE '%%%3$s%%'");
+                else if(prop == PropertyFilter.ALIVE && !value.isEmpty()){
+                    sb.append(" AND %1$s = %3$s");
+                }
                 else
                     sb.append(" AND lower(%1$s) LIKE '%%%3$s%%'");
             }
