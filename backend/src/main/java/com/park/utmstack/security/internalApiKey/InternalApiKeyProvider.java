@@ -1,6 +1,5 @@
 package com.park.utmstack.security.internalApiKey;
 
-import com.park.utmstack.config.Constants;
 import com.park.utmstack.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +25,7 @@ public class InternalApiKeyProvider {
     public UsernamePasswordAuthenticationToken getAuthentication(String apiKey) {
         final String ctx = CLASSNAME + ".getAuthentication";
         try {
-            com.park.utmstack.domain.User user = userRepository.findAnyAdminUser()
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            com.park.utmstack.domain.User user = this.findFirstActiveAdmin();
             List<SimpleGrantedAuthority> authorities = user.getAuthorities().stream().map(d -> new SimpleGrantedAuthority(d.getName()))
                 .collect(Collectors.toList());
             User principal = new User(user.getLogin(), "", authorities);
@@ -36,6 +34,16 @@ public class InternalApiKeyProvider {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             throw new RuntimeException(msg);
+        }
+    }
+
+    private com.park.utmstack.domain.User findFirstActiveAdmin() throws Exception {
+        List<com.park.utmstack.domain.User> users = userRepository.findAdminUsers();
+
+        if (!users.isEmpty()) {
+            return users.get(0);
+        } else {
+            throw new Exception("No active admin user found");
         }
     }
 }

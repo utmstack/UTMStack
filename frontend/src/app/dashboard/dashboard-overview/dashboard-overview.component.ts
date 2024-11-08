@@ -131,7 +131,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     // });
 
     this.timeOutId = setTimeout(() => {
-      console.log('emitting');
       this.synchronizeFields();
     }, 100000);
 

@@ -9,7 +9,7 @@ import {TabType} from '../../type/tab.type';
   styleUrls: ['./tab-content.component.scss']
 })
 export class TabContentComponent implements OnInit {
-  @Input() tab;
+  @Input() tab: TabType;
   @ViewChild(TabContentDirective)
   contentContainer: TabContentDirective;
 

@@ -1,0 +1,6881 @@
+# Windows_Agent filter
+# Based on winlogbeat fields, reference [8.15]
+# See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
+
+pipeline:
+  - dataTypes:
+      - wineventlog
+    steps:
+      - json:
+          source: raw
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.host.ip
+          to: local.ips
+
+      - rename:
+          from:
+            - log.host.mac
+          to: local.macs
+
+      - rename:
+          from:
+            - log.event.action
+          to: log.action
+
+      - rename:
+          from:
+            - log.event.outcome
+          to: actionResult
+
+      - rename:
+          from:
+            - log.host.hostname
+          to: local.host
+
+      - rename:
+          from:
+            - log.event.created
+          to: log.deviceTime
+
+      - rename:
+          from:
+            - log.host.os.name
+          to: log.os
+
+      - rename:
+          from:
+            - log.host.os.kernel
+          to: log.osVersion
+
+      - rename:
+          from:
+            - log.host.architecture
+          to: log.cpuArchitecture
+
+      - rename:
+          from:
+            - log.winlog.provider_guid
+          to: log.providerGuid
+
+      - rename:
+          from:
+            - log.winlog.event_data.PrivilegeList
+          to: log.winlogEventDataPrivilegeList
+
+      - rename:
+          from:
+            - log.winlog.event_data.SubjectDomainName
+          to: log.winlogEventDataSubjectDomainName
+
+      - rename:
+          from:
+            - log.winlog.event_data.SubjectLogonId
+          to: log.winlogEventDataSubjectLogonId
+
+      - rename:
+          from:
+            - log.winlog.event_data.SubjectUserName
+          to: log.winlogEventDataSubjectUserName
+
+      - rename:
+          from:
+            - log.winlog.event_data.SubjectUserSid
+          to: log.winlogEventDataSubjectUserSid
+
+      - rename:
+          from:
+            - log.winlog.event_data.SubjectUserSid
+          to: log.winlogEventDataSubjectUserSid
+
+      - rename:
+          from:
+            - log.winlog.event_data.PrivilegeList
+          to: log.winlogEventDataPrivilegeList
+
+      - rename:
+          from:
+            - log.winlog.event_data.ClientProcessId
+          to: log.winlogEventDataClientProcessId
+
+      - rename:
+          from:
+            - log.winlog.event_data.Flags
+          to: log.winlogEventDataFlags
+
+      - rename:
+          from:
+            - log.winlog.event_data.Identity
+          to: log.winlogEventDataIdentity
+
+      - rename:
+          from:
+            - log.winlog.event_data.ProcessCreationTime
+          to: log.winlogEventDataProcessCreationTime
+
+      - rename:
+          from:
+            - log.winlog.event_id
+          to: log.winlogEventId
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.ReturnCode
+          to: log.winlogEventDataReturnCode
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.Schema
+          to: log.winlogEventDataSchema
+
+      - rename:
+          from:
+            - log.winlog.event_data.SchemaFriendlyName
+          to: log.winlogEventDataSchemaFriendlyName
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.AuthenticationPackageName
+          to: log.winlogEventDataAuthenticationPackageName
+
+      - rename:
+          from:
+            - log.winlog.event_data.ElevatedToken
+          to: log.winlogEventDataElevatedToken
+
+      - rename:
+          from:
+            - log.winlog.event_data.ImpersonationLevel
+          to: log.winlogEventDataImpersonationLevel
+
+      - rename:
+          from:
+            - log.wineventlog.event_data.FailureReason
+          to: log.winlogEventDataFailureReason
+
+      - rename:
+          from:
+            - log.winlog.event_data.IpAddress
+          to: log.winlogEventDataIpAddress
+
+      - rename:
+          from:
+            - log.winlog.event_data.IpPort
+          to: log.winlogEventDataIpPort
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.KeyLength
+          to: log.winlogEventDataKeyLength
+
+      - rename:
+          from:
+            - log.winlog.event_data.LmPackageName
+          to: log.winlogEventDataLmPackageName
+
+      - rename:
+          from:
+            - log.winlog.event_data.LogonProcessName
+          to: log.winlogEventDataLogonProcessName
+
+      - rename:
+          from:
+            - log.winlog.event_data.LogonType
+          to: log.winlogEventDataLogonType
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.ProcessId
+          to: log.winlogEventDataProcessId
+
+      - rename:
+          from:
+            - log.winlog.event_data.ProcessName
+          to: log.winlogEventDataProcessName
+
+      - rename:
+          from:
+            - log.winlog.event_data.RestrictedAdminMode
+          to: log.winlogEventDataRestrictedAdminMode
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetDomainName
+          to: log.winlogEventDataTargetDomainName
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetLinkedLogonId
+          to: log.winlogEventDataTargetLinkedLogonId
+
+      - rename:
+          from:
+            - log.winlog.event_data.Resource
+          to: log.winlogEventDataResource
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetLogonId
+          to: log.winlogEventDataTargetLogonId
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetOutboundDomainName
+          to: log.winlogEventDataTargetOutboundDomainName
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetOutboundUserName
+          to: log.winlogEventDataTargetOutboundUserName
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetUserName
+          to: log.winlogEventDataTargetUserName
+
+      - rename:
+          from:
+            - log.winlog.event_data.TargetUserSid
+          to: log.winlogEventDataTargetUserSid
+
+      - rename:
+          from:
+            - log.winlog.event_data.TransmittedServices
+          to: log.winlogEventDataTransmittedServices
+
+      - rename:
+          from:
+            - log.winlog.event_data.VirtualAccount
+          to: log.winlogEventDataVirtualAccount
+
+      - rename:
+          from:
+            - log.winlog.event_data.WorkstationName
+          to: log.winlogEventDataWorkstationName
+
+      - rename:
+          from:
+            - log.winlog.event_data.FailureReason
+          to: log.winlogEventDataFailureReason
+
+      - rename:
+          from:
+            - log.winlog.event_data.AccessMask
+          to: log.winlogEeventDataAccessMask
+
+      - rename:
+          from:
+            - log.winlog.event_data.Status
+          to: log.winlogEventDataStatus
+
+      - rename:
+          from:
+            - log.winlog.opcode
+          to: log.winlogOpcode
+
+      - rename:
+          from:
+            - log.winlog.process.thread
+          to: log.winlogProcessThread
+
+      - rename:
+          from:
+            - log.winlog.task
+          to: log.winlogOpcode
+
+      - rename:
+          from:
+            - log.winlog.process.thread.id
+          to: log.winlogProcessThreadId
+
+      - rename:
+          from:
+            - log.winlog.process.pid
+          to: log.winlogProcessPid
+
+      - rename:
+          from:
+            - log.winlog.provider_name
+          to: log.winlogProviderName
+
+      - rename:
+          from:
+            - log.winlog.record_id
+          to: log.winlogRecordId
+
+      - rename:
+          from:
+            - log.winlog.task
+          to: log.winlogTask
+
+      - rename:
+          from:
+            - log.event.code
+          to: log.eventCode
+
+      - rename:
+          from:
+            - log.event.kind
+          to: log.eventKind
+
+      - rename:
+          from:
+            - log.event.provider
+          to: log.event.provider
+
+      - rename:
+          from:
+            - log.log.level
+          to: log.logLevel
+
+      - rename:
+          from:
+            - log.winlog.api
+          to: log.winlogApi
+
+      - rename:
+          from:
+            - log.winlog.channel
+          to: log.winlogChannel
+
+      - rename:
+          from:
+            - log.ecs.version
+          to: log.ecsVersion
+
+      - rename:
+          from:
+            - log.winlog.activity_id
+          to: log.activityId
+
+      - rename:
+          from:
+            - log.winlog.event_data.LogonGuid
+          to: log.logonGuid
+
+      - cast:
+          to: "[]string"
+          fields:
+            - local.ips
+    
+      - cast:
+          to: "[]string"
+          fields:
+            - local.macs
+
+      - trim:
+          function: prefix
+          substring: '{'
+          fields:
+            - log.providerGuid
+            - log.activityId
+            - log.logonGuid
+            - log.winlogEventDataSchema
+            - log.winlogProcessThread
+
+      - trim:
+          function: suffix
+          substring: '}'
+          fields:
+            - log.providerGuid
+            - log.activityId
+            - log.logonGuid
+            - log.winlogEventDataSchema
+            - log.winlogProcessThread
+
+      # Decoding event code
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The event logging service has shut down'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="1100"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Audit events have been dropped by the transport.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="1101"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The audit log was cleared'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="1102"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The security Log is now full'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="1104"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Event log automatic backup'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="1105"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The event logging service encountered an error'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="1108"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows is starting up'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4608"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows is shutting down'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4609"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An authentication package has been loaded by the Local Security Authority'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4610"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A trusted logon process has been registered with the Local Security Authority'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4611"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Internal resources allocated for the queuing of audit messages have been exhausted: leading to the loss of some audits.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4612"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A notification package has been loaded by the Security Account Manager.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4614"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Invalid use of LPC port'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4615"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The system time was changed.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4616"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A monitored security event pattern has occurred'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4618"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Administrator recovered system from CrashOnAuditFail'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4621"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security package has been loaded by the Local Security Authority.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4622"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An account was successfully logged on'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4624"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An account failed to log on'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'User/Device claims information'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4626"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Group membership information.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4627"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An account was logged off'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4634"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IKE DoS-prevention mode started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4646"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'User initiated logoff'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4647"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A logon was attempted using explicit credentials'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4648"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A replay attack was detected'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4649"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Main Mode security association was established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4650"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Main Mode security association was established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4651"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Main Mode negotiation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4652"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Main Mode negotiation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4653"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Quick Mode negotiation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4654"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Main Mode security association ended'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4655"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A handle to an object was requested'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4656"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A registry value was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4657"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The handle to an object was closed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4658"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A handle to an object was requested with intent to delete'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4659"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An object was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4660"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A handle to an object was requested'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4661"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An operation was performed on an object'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4662"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to access an object'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4663"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to create a hard link'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4664"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to create an application client context.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4665"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An application attempted an operation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4666"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An application client context was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4667"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An application was initialized'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4668"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Permissions on an object were changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4670"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An application attempted to access a blocked ordinal through the TBS'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4671"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Special privileges assigned to new logon'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4672"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A privileged service was called'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4673"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An operation was attempted on a privileged object'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4674"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'SIDs were filtered'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4675"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A new process has been created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4688"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A process has exited'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4689"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to duplicate a handle to an object'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4690"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Indirect access to an object was requested'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4691"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Backup of data protection master key was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4692"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Recovery of data protection master key was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4693"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Protection of auditable protected data was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4694"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Unprotection of auditable protected data was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4695"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A primary token was assigned to process'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4696"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A service was installed in the system'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4697"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A scheduled task was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4698"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A scheduled task was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4699"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A scheduled task was enabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4700"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A scheduled task was disabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4701"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A scheduled task was updated'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4702"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A token right was adjusted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4703"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user right was assigned'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4704"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user right was removed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4705"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A new trust was created to a domain'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4706"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A trust to a domain was removed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4707"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services was started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4709"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services was disabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4710"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine (1%)'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4711"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services encountered a potentially serious failure'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4712"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Kerberos policy was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4713"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Encrypted data recovery policy was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4714"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The audit policy (SACL) on an object was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4715"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Trusted domain information was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4716"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'System security access was granted to an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4717"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'System security access was removed from an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4718"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'System audit policy was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4719"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4720"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was enabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4722"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to change the password for an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4723"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to reset an accounts password'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4724"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was disabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4725"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4726"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled global group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4727"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a security-enabled global group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4728"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a security-enabled global group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4729"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled global group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4730"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled local group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4731"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a security-enabled local group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4732"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a security-enabled local group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4733"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled local group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4734"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled local group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4735"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled global group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4737"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4738"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Domain Policy was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4739"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was locked out'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4740"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A computer account was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4741"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A computer account was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4742"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A computer account was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4743"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled local group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4744"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled local group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4745"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a security-disabled local group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4746"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a security-disabled local group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4747"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled local group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4748"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled global group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4749"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled global group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4750"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a security-disabled global group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4751"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a security-disabled global group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4752"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled global group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4753"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled universal group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4754"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled universal group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4755"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a security-enabled universal group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4756"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a security-enabled universal group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4757"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled universal group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4758"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled universal group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4759"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled universal group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4760"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a security-disabled universal group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4761"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a security-disabled universal group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4762"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-disabled universal group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4763"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A groups type was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4764"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'SID History was added to an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4765"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt to add SID History to an account failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4766"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user account was unlocked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4767"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos authentication ticket (TGT) was requested'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4768"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos service ticket was requested'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4769"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos service ticket was renewed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4770"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Kerberos pre-authentication failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4771"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos authentication ticket request failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4772"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos service ticket request failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4773"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An account was mapped for logon'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4774"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An account could not be mapped for logon'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4775"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The domain controller attempted to validate the credentials for an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4776"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The domain controller failed to validate the credentials for an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4777"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A session was reconnected to a Window Station'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4778"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A session was disconnected from a Window Station'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4779"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The ACL was set on accounts which are members of administrators groups'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4780"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The name of an account was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4781"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The password hash an account was accessed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4782"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A basic application group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4783"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A basic application group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4784"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was added to a basic application group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4785"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A member was removed from a basic application group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4786"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A non-member was added to a basic application group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4787"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A non-member was removed from a basic application group.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4788"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A basic application group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4789"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An LDAP query group was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4790"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A basic application group was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4791"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An LDAP query group was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4792"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Password Policy Checking API was called'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4793"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to set the Directory Services Restore Mode administrator password'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4794"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to query the existence of a blank password for an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4797"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A users local group membership was enumerated.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4798"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security-enabled local group membership was enumerated'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4799"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The workstation was locked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4800"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The workstation was unlocked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4801"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The screen saver was invoked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4802"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The screen saver was dismissed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4803"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'RPC detected an integrity violation while decrypting an incoming message'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4816"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Auditing settings on object were changed.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4817"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Proposed Central Access Policy does not grant the same access permissions as the current Central Access Policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4818"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Central Access Policies on the machine have been changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4819"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos Ticket-granting-ticket (TGT) was denied because the device does not meet the access control restrictions'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4820"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Kerberos service ticket was denied because the user: device: or both does not meet the access control restrictions'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4821"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'NTLM authentication failed because the account was a member of the Protected User group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4822"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'NTLM authentication failed because access control restrictions are required'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4823"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Kerberos preauthentication by using DES or RC4 failed because the account was a member of the Protected User group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4824"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user was denied the access to Remote Desktop. By default: users are allowed to connect only if they are members of the Remote Desktop Users group or Administrators group'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4825"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Boot Configuration Data loaded'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4826"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'SID History was removed from an account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4830"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A namespace collision was detected'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4864"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A trusted forest information entry was added'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4865"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A trusted forest information entry was removed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4866"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A trusted forest information entry was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4867"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The certificate manager denied a pending certificate request'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4868"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services received a resubmitted certificate request'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4869"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services revoked a certificate'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4870"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services received a request to publish the certificate revocation list (CRL)'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4871"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services published the certificate revocation list (CRL)'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4872"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A certificate request extension changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4873"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'One or more certificate request attributes changed.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4874"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services received a request to shut down'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4875"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services backup started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4876"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services backup completed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4877"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services restore started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4878"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services restore completed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4879"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4880"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services stopped'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4881"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The security permissions for Certificate Services changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4882"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services retrieved an archived key'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4883"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services imported a certificate into its database'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4884"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The audit filter for Certificate Services changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4885"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services received a certificate request'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4886"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services approved a certificate request and issued a certificate'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4887"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services denied a certificate request'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4888"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services set the status of a certificate request to pending'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4889"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The certificate manager settings for Certificate Services changed.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4890"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A configuration entry changed in Certificate Services'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4891"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A property of Certificate Services changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4892"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services archived a key'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4893"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services imported and archived a key'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4894"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services published the CA certificate to Active Directory Domain Services'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4895"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'One or more rows have been deleted from the certificate database'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4896"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Role separation enabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4897"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services loaded a template'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4898"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Certificate Services template was updated'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4899"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Certificate Services template security was updated'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4900"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Per-user audit policy table was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4902"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to register a security event source'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4904"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt was made to unregister a security event source'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4905"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The CrashOnAuditFail value has changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4906"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Auditing settings on object were changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4907"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Special Groups Logon table modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4908"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The local policy settings for the TBS were changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4909"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The group policy settings for the TBS were changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4910"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Resource attributes of the object were changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4911"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Per User Audit Policy was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4912"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Central Access Policy on the object was changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4913"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An Active Directory replica source naming context was established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4928"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An Active Directory replica source naming context was removed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4929"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An Active Directory replica source naming context was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4930"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An Active Directory replica destination naming context was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4931"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Synchronization of a replica of an Active Directory naming context has begun'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4932"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Synchronization of a replica of an Active Directory naming context has ended'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4933"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Attributes of an Active Directory object were replicated'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4934"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Replication failure begins'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4935"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Replication failure ends'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4936"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A lingering object was removed from a replica'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4937"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The following policy was active when the Windows Firewall started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4944"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A rule was listed when the Windows Firewall started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4945"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to Windows Firewall exception list. A rule was added'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4946"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to Windows Firewall exception list. A rule was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4947"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to Windows Firewall exception list. A rule was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4948"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows Firewall settings were restored to the default values'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4949"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Windows Firewall setting has changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4950"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A rule has been ignored because its major version number was not recognized by Windows Firewall'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4951"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Parts of a rule have been ignored because its minor version number was not recognized by Windows Firewall'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4952"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A rule has been ignored by Windows Firewall because it could not parse the rule'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4953"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows Firewall Group Policy settings has changed. The new settings have been applied'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4954"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows Firewall has changed the active profile'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4956"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows Firewall did not apply the following rule'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4957"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows Firewall did not apply the following rule because the rule referred to items not configured on this computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4958"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec dropped an inbound packet that failed an integrity check'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4960"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec dropped an inbound packet that failed a replay check'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4961"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec dropped an inbound packet that failed a replay check'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4962"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec dropped an inbound clear text packet that should have been secured'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4963"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Special groups have been assigned to a new logon'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4964"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec received a packet from a remote computer with an incorrect Security Parameter Index (SPI).'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4965"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'During Main Mode negotiation: IPsec received an invalid negotiation packet.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4976"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'During Quick Mode negotiation: IPsec received an invalid negotiation packet.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4977"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'During Extended Mode negotiation: IPsec received an invalid negotiation packet.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4978"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Main Mode and Extended Mode security associations were established.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4979"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Main Mode and Extended Mode security associations were established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4980"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Main Mode and Extended Mode security associations were established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4981"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Main Mode and Extended Mode security associations were established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4982"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Extended Mode negotiation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4983"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Extended Mode negotiation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4984"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The state of a transaction has changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="4985"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service has started successfully'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5024"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service has been stopped'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5025"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service was unable to retrieve the security policy from the local storage'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5027"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service was unable to parse the new security policy.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5028"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service failed to initialize the driver'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5029"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service failed to start'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5030"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Service blocked an application from accepting incoming connections on the network.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5031"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Windows Firewall was unable to notify the user that it blocked an application from accepting incoming connections on the network'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5032"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Driver has started successfully'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5033"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Driver has been stopped'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5034"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Driver failed to start'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5035"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Firewall Driver detected critical runtime error. Terminating'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5037"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Code integrity determined that the image hash of a file is not valid'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5038"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A registry key was virtualized.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5039"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. An Authentication Set was added.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5040"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. An Authentication Set was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5041"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. An Authentication Set was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5042"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. A Connection Security Rule was added'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5043"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. A Connection Security Rule was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5044"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. A Connection Security Rule was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5045"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. A Crypto Set was added'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5046"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. A Crypto Set was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5047"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A change has been made to IPsec settings. A Crypto Set was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5048"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Security Association was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5049"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An attempt to programmatically disable the Windows Firewall using a call to INetFwProfile.FirewallEnabled(FALSE)'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5050"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A file was virtualized'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5051"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic self test was performed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5056"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic primitive operation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5057"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Key file operation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5058"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Key migration operation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5059"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Verification operation failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5060"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Cryptographic operation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5061"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A kernel-mode cryptographic self test was performed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5062"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic provider operation was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5063"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic context operation was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5064"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic context modification was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5065"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic function operation was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5066"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic function modification was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5067"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic function provider operation was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5068"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic function property operation was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5069"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A cryptographic function property operation was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5070"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Key access denied by Microsoft key distribution service'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5071"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'OCSP Responder Service Started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5120"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'OCSP Responder Service Stopped'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5121"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Configuration entry changed in the OCSP Responder Service'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5122"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A configuration entry changed in the OCSP Responder Service'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5123"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A security setting was updated on OCSP Responder Service'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5124"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A request was submitted to OCSP Responder Service'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5125"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Signing Certificate was automatically updated by the OCSP Responder Service'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5126"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The OCSP Revocation Provider successfully updated the revocation information'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5127"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5136"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was created'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5137"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was undeleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5138"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was moved'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5139"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A network share object was accessed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5140"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was deleted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5141"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A network share object was added.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5142"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A network share object was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5143"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A network share object was deleted.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5144"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A network share object was checked to see whether client can be granted desired access'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5145"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has blocked a packet'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5146"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A more restrictive Windows Filtering Platform filter has blocked a packet'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5147"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has detected a DoS attack and entered a defensive mode; packets associated with this attack will be discarded.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5148"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The DoS attack has subsided and normal processing is being resumed.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5149"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has blocked a packet.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5150"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A more restrictive Windows Filtering Platform filter has blocked a packet.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5151"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform blocked a packet'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5152"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A more restrictive Windows Filtering Platform filter has blocked a packet'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5153"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has permitted an application or service to listen on a port for incoming connections'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5154"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has blocked an application or service from listening on a port for incoming connections'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5155"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has allowed a connection'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5156"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has blocked a connection'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5157"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has permitted a bind to a local port'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5158"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The Windows Filtering Platform has blocked a bind to a local port'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5159"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Spn check for SMB/SMB2 fails.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5168"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5169"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A directory service object was modified during a background cleanup task'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5170"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Credential Manager credentials were backed up'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5376"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Credential Manager credentials were restored from a backup'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5377"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The requested credentials delegation was disallowed by policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5378"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Credential Manager credentials were read'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5379"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Vault Find Credential'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5380"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Vault credentials were read'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5381"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Vault credentials were read'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5382"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The following callout was present when the Windows Filtering Platform Base Filtering Engine started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5440"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The following filter was present when the Windows Filtering Platform Base Filtering Engine started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5441"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The following provider was present when the Windows Filtering Platform Base Filtering Engine started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5442"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The following provider context was present when the Windows Filtering Platform Base Filtering Engine started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5443"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The following sub-layer was present when the Windows Filtering Platform Base Filtering Engine started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5444"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Windows Filtering Platform callout has been changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5446"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Windows Filtering Platform filter has been changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5447"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Windows Filtering Platform provider has been changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5448"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Windows Filtering Platform provider context has been changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5449"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Windows Filtering Platform sub-layer has been changed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5450"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Quick Mode security association was established'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5451"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec Quick Mode security association ended'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5452"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An IPsec negotiation with a remote computer failed because the IKE and AuthIP IPsec Keying Modules (IKEEXT) service is not started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5453"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine applied Active Directory storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5456"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to apply Active Directory storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5457"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine applied locally cached copy of Active Directory storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5458"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to apply locally cached copy of Active Directory storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5459"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine applied local registry storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5460"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to apply local registry storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5461"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to apply some rules of the active IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5462"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine polled for changes to the active IPsec policy and detected no changes'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5463"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine polled for changes to the active IPsec policy: detected changes: and applied them to IPsec Services'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5464"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine received a control for forced reloading of IPsec policy and processed the control successfully'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5465"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine polled for changes to the Active Directory IPsec policy: determined that Active Directory cannot be reached: and will use the cached copy of the Active Directory IPsec policy instead'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5466"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine polled for changes to the Active Directory IPsec policy: determined that Active Directory can be reached: and found no changes to the policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5467"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine polled for changes to the Active Directory IPsec policy: determined that Active Directory can be reached: found changes to the policy: and applied those changes'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5468"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine loaded local storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5471"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to load local storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5472"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine loaded directory storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5473"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to load directory storage IPsec policy on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5474"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'PAStore Engine failed to add quick mode filter'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5477"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services has started successfully'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5478"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services has been shut down successfully'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5479"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services failed to get the complete list of network interfaces on the computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5480"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services failed to initialize RPC server. IPsec Services could not be started'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5483"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services has experienced a critical failure and has been shut down'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5484"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'IPsec Services failed to process some IPsec filters on a plug-and-play event for network interfaces'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5485"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A request was made to authenticate to a wireless network'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5632"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A request was made to authenticate to a wired network'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5633"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A Remote Procedure Call (RPC) was attempted'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5712"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An object in the COM+ Catalog was modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5888"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An object was deleted from the COM+ Catalog'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5889"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An object was added to the COM+ Catalog'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="5890"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Security policy in the group policy objects has been applied successfully'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6144"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'One or more errors occured while processing security policy in the group policy objects'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6145"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server granted access to a user'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6272"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server denied access to a user'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6273"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server discarded the request for a user'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6274"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server discarded the accounting request for a user'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6275"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server quarantined a user'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6276"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server granted access to a user but put it on probation because the host did not meet the defined health policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6277"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server granted full access to a user because the host met the defined health policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6278"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server locked the user account due to repeated failed authentication attempts'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6279"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Network Policy Server unlocked the user account'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6280"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Code Integrity determined that the page hashes of an image file are not valid...'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6281"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: Received an incorrectly formatted response while discovering availability of content.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6400"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: Received invalid data from a peer. Data discarded.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6401"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: The message to the hosted cache offering it data is incorrectly formatted.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6402"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: The hosted cache sent an incorrectly formatted response to the client message offering it data.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6403"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: Hosted cache could not be authenticated using the provisioned SSL certificate.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6404"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: %2 instance(s) of event id %1 occurred.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6405"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: '%1 registered to Windows Firewall to control filtering for the following:'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6406"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Registered product %1 failed and Windows Firewall is now controlling the filtering for %2.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6408"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'BranchCache: A service connection point object could not be parsed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6409"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Code integrity determined that a file does not meet the security requirements to load into a process. This could be due to the use of shared sections or other issues'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6410"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A new external device was recognized by the system.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6416"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The FIPS mode crypto selftests succeeded'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6417"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The FIPS mode crypto selftests failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6418"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A request was made to disable a device'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6419"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A device was disabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6420"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A request was made to enable a device'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6421"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A device was enabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6422"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The installation of this device is forbidden by system policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6423"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'The installation of this device was allowed: after having previously been forbidden by policy'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="6424"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'Highest System-Defined Audit Message Value'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+            expression: code=="8191"
+
+      # Decoding the "failureReason" field when the event code is 4625 and adding the "failureReasonDescription" field
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'The specified user account has expired.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2305" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'The password for the specified account has expired'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2309" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'Account currently disabled'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2310" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'Account logon time restriction violation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2311" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'User not allowed to logon at this computer'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2312" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'Unknown user name or bad password'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2313" && code=="4625"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.failureReasonDescription
+            value: 'An Error occurred during Logon'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataFailureReason
+                as: reason
+                oftype: string
+            expression: reason=="%%2304" && code=="4625"
+
+      # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'read'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x1" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x1" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'write'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x2" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x2" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'append'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x4" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x4" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'read_extended_attributes'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x8" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x8" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'write_extended_attributes'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x10" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to write extended file attributes.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x10" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'execute'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x20" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x20" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'delete_child'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x40" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'For a directory, the right to delete a directory and all the files it contains, including read-only files.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x40" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'read_attributes'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x80" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to read file attributes.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x80" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'write_attributes'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x100" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to write file attributes.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x100" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'delete'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x10000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to delete the object.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x10000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'read_control'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x20000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to read information in the security descriptor object, without including the information in the system access control list (SACL).'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x20000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'write_dac'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x40000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to modify the discretionary access control list (DACL) in the security descriptor object.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x40000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'write_owner'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x80000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to change the owner in the security descriptor object'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x80000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'synchronize'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x100000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x100000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessType
+          value: 'access_sys_sec'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x1000000" && code=="4663"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.accessDescription
+          value: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEeventDataAccessMask
+              as: acces
+              oftype: string
+          expression: acces=="0x1000000" && code=="4663"
+
+      # Decoding the "eventStatus" field
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account locked out'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000234"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account expired'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000193"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Clocks out of sync'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000133"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Password change required'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000224"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'User does not have logon right'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000015b"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Logon failure'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000006d"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account restriction'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000006e"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'An error occurred during logon'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc00002ee"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Password expired'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000071"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account disabled'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000072"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Authentication firewall prohibits logon'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC0000413"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Incorrect password'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc000006a"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Account does not exist'
+        where:
+          variables:
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xc0000064"
+
+      # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Customer database entry has expired'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x1" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'The server database entry has expired'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x2" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Requested protocol version not supported'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x3" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Customer key encrypted in old master key'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x4" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Server key encrypted with old master key'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x5" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Client not found in Kerberos database'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x6" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Server not found in Kerberos database'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x7" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Multiple principal entries in database'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x8" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'The client or server has a null key'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x9" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Ticket not eligible for postdating'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xA" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Requested start time is later than end time'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xB" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'KDC policy rejects request'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xC" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'KDC cannot accommodate requested option'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xD" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'KDC has no support for encryption type'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xE" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'KDC has no support for checksum type'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0xF" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'KDC has no support for padata type'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x10" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'KDC has no support for transited type'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x11" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Clients credentials have been revoked'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x12" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Credentials for server have been revoked'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x13" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'TGT has been revoked'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x14" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Client not yet valid - try again later'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x15" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Server not yet valid - try again later'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x16" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Password has expired'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x17" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Pre-authentication information was invalid'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x18" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Additional pre-authentication required'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x19" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Integrity check on decrypted field failed'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x1F" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Ticket expired'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x20" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Ticket not yet valid'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x21" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Request is a replay'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x22" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'The ticket is not for us'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x23" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Ticket and authenticator is not match'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x24" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Clock skew too great'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x25" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Incorrect net address'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x26" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Protocol version mismatch'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x27" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Invalid msg type'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x28" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Message stream modified'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x29" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Message out of order'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x2A" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Specified version of key is not available'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x2C" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Service key not available'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x2D" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Mutual authentication failed'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x2E" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Incorrect message direction'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x2F" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Alternative authentication method required'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x30" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Incorrect sequence number in message'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x31" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Inappropriate type of checksum in message'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x32" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Generic error (description in e-text)'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x3C" && code=="4771"
+
+      - add:
+        function: 'string'
+        params:
+          key: log.statusDescription
+          value: 'Field is too long for this implementation'
+        where:
+          variables:
+            - get: log.eventCode
+              as: code
+              oftype: string
+            - get: log.winlogEventDataStatus
+              as: status
+              oftype: string
+          expression: status=="0x3D" && code=="4771"
+
+      - delete:
+          fields:
+            - log.agent
+            - log.host
+            - log.winlog.computer_name
+            - log.metadata
