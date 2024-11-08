@@ -1,0 +1,393 @@
+# SentinelOne filter
+# Supports CEF Syslog format and [something@number something="xxxx"] format
+# Based on https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm
+# and https://docs.fortinet.com/document/fortisiem/6.1.0/external-systems-configuration-guide/298395/sentinelone
+
+pipeline:
+  - dataTypes:
+      - antivirus-sentinel-one
+    steps:
+      # Parsing the common fields
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.0trash
+              pattern: '{{.data}}\='
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}'
+            - fieldName: log.1trash
+              pattern: '{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.0trash
+              pattern: '{{.data}}Mgmt\|'
+            - fieldName: log.1trash
+              pattern: '{{.integer}}'
+            - fieldName: log.eventDescription
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.2trash
+              pattern: '{{.integer}}\|'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.0trash
+              pattern: '{{.data}}Mgmt\|'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      # Parsing raw field for log without syslog information
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.0trash
+              pattern: '{{.data}}Mgmt\|'
+            - fieldName: log.syslogHost
+              pattern: '{{.ipv4}}\|'
+            - fieldName: log.1trash
+              pattern: '{{.integer}}'
+            - fieldName: log.eventDescription
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.0trash
+              pattern: '{{.data}}Mgmt\|'
+            - fieldName: log.syslogHost
+              pattern: '{{.word}}\s{{.integer}}\|'
+            - fieldName: log.1trash
+              pattern: '{{.integer}}'
+            - fieldName: log.eventDescription
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}\|rt='
+            - fieldName: log.ruleTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.year}}{{.space}}{{.time}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}\|rt=#{{.word}}'
+            - fieldName: log.ruleTime
+              pattern: '\({{.data}}\)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Parsing raw field for log when it has the format [something@number something="xxxx"]
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}'
+            - fieldName: log.0trash
+              pattern: '({{.word}}{{.space}})+'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+
+      # Using grok to parse kv issued fields
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}accountName='
+            - fieldName: log.accountNameToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}eventDesc='
+            - fieldName: log.eventDescToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}suser='
+            - fieldName: log.suserToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}duser='
+            - fieldName: log.duserToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}endpointDeviceControlDeviceName='
+            - fieldName: log.endpointDeviceControlDeviceNameToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}sourceGroupName='
+            - fieldName: log.sourceGroupNameToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}sourceIpAddresses='
+            - fieldName: log.sourceIpAddressesToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}sourceMacAddresses='
+            - fieldName: log.sourceMacAddressesToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Applying grok to remove unnecessary data
+      - grok:
+          patterns:
+            - fieldName: log.accName
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.accountNameToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.eventDescription
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.eventDescToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.sourceUser
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.suserToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.destinationUser
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.duserToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.endpointDeviceName
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.endpointDeviceControlDeviceNameToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.sourceGpName
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.sourceGroupNameToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.sourceIps
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.sourceIpAddressesToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.sourceMacs
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.sourceMacAddressesToParse
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: prefix
+          substring: '|'
+          fields:
+            - log.eventDescription
+
+      - trim:
+          function: suffix
+          substring: '|'
+          fields:
+            - log.eventDescription
+            - log.syslogHost
+
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - log.syslogDeviceTime
+
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.syslogDeviceTime
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.rt
+          to: log.ruleTime
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.0trash
+            - log.1trash
+            - log.2trash
+            - log.3trash
+            - log.4trash
+            - log.restData
+            - log.1rt
+            - log.rt
+            - log.irrelevant
+            - log.accountNameToParse
+            - log.accountName
+            - log.eventDescToParse
+            - log.eventDesc
+            - log.suserToParse
+            - log.suser
+            - log.duserToParse
+            - log.duser
+            - log.endpointDeviceControlDeviceNameToParse
+            - log.endpointDeviceControlDeviceName
+            - log.sourceGroupNameToParse
+            - log.sourceGroupName
+            - log.sourceIpAddressesToParse
+            - log.sourceIpAddresses
+            - log.sourceMacAddressesToParse
+            - log.sourceMacAddresses

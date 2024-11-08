@@ -11,7 +11,7 @@
                          [width]="'5px'">
         </app-utm-spinner>
     </div>
-    <div *ngIf="fieldValues$ | async as items; else empty" class="w-100">
+    <div *ngIf="fieldValues$ | async as items;" class="w-100">
       <ng-container *ngIf="items.length > 0; else empty">
         <div (scrolled)="onScroll()"
              [fromRoot]="true"

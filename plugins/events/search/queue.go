@@ -79,7 +79,7 @@ func init() {
 
 				if timestamp == "" {
 					go_sdk.Logger().ErrorF("cannot found timestamp in log or it is empty")
-					timestamp = time.Now().Format(time.RFC3339Nano)
+					timestamp = time.Now().UTC().Format(time.RFC3339Nano)
 				}
 
 				id := gjson.Get(l, "id").String()

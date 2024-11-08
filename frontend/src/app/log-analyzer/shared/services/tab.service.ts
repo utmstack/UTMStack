@@ -1,11 +1,14 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Injectable, Query} from '@angular/core';
+import {BehaviorSubject, Subject} from 'rxjs';
+import {LogAnalyzerQueryType} from '../type/log-analyzer-query.type';
 import {TabType} from '../type/tab.type';
 
 @Injectable()
 export class TabService {
-  public tabs: TabType[] = [];
-  public tabSub = new BehaviorSubject<TabType[]>(this.tabs);
+  private tabs: TabType[] = [];
+  private tabSub = new BehaviorSubject<TabType[]>(this.tabs);
+  public tabs$ = this.tabSub.asObservable();
+  public onSaveTabSubject = new Subject<LogAnalyzerQueryType>();
 
   public removeTab(index: number) {
     this.tabs.splice(index, 1);
@@ -16,15 +19,12 @@ export class TabService {
   }
 
   public addTab(tab: TabType) {
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < this.tabs.length; i++) {
-      if (this.tabs[i].active === true) {
-        this.tabs[i].active = false;
-      }
-    }
-    tab.id = this.tabs.length + 1;
-    tab.active = true;
-    this.tabs.push(tab);
+    this.tabs.forEach(t => t.active = false);
+    tab = { ...tab, id: this.tabs.length + 1, active: true };
+    this.tabs = [
+      ...this.tabs,
+      tab
+    ];
     this.tabSub.next(this.tabs);
   }
 
@@ -36,6 +36,26 @@ export class TabService {
     });
     const index = this.tabs.findIndex(value => value.id === tabId);
     this.tabs[index].active = true;
+
+    this.tabSub.next(this.tabs);
+  }
+
+  updateActiveTab(query: LogAnalyzerQueryType){
+    const activeTab = this.tabs.find(t => t.active);
+    const tabs = this.tabs.filter(tab => !tab.active);
+
+    this.tabs = [
+      ...tabs,
+      {
+        ...activeTab,
+        title: query.name,
+      }
+    ];
+    this.tabSub.next(this.tabs);
+  }
+
+  closeAllTabs() {
+    this.tabs = [];
     this.tabSub.next(this.tabs);
   }
 }

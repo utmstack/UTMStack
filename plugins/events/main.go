@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"path"
@@ -45,17 +45,15 @@ func main() {
 	}
 }
 
-func (p *analysisServer) Analyze(ctx context.Context,
-	event *go_sdk.Event) (*go_sdk.Alert, error) {
-
+func (p *analysisServer) Analyze(event *go_sdk.Event, srv grpc.ServerStreamingServer[go_sdk.Alert]) error {
 	jLog, e := go_sdk.ToString(event)
 	if e != nil {
-		return nil, fmt.Errorf(e.Message)
+		return fmt.Errorf("error converting to string during analysis")
 	}
 
 	go_sdk.Logger().LogF(100, "received event: %s", *jLog)
 
 	search.AddToQueue(*jLog)
 
-	return nil, nil
+	return io.EOF
 }
