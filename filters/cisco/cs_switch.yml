@@ -9,15 +9,11 @@ pipeline:
   - dataTypes:
       - cisco-switch
     steps:
-      # Common fields
+      # Header fields
       - grok:
           patterns:
-            - fieldName: log.irrelevant
-              pattern: '(\<{{.integer}}\>)'
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(\s)?\:'
-            - fieldName: log.ciscoTime
-              pattern: '{{.data}}\:'
+            - fieldName: log.switchHeader
+              pattern: '{{.data}}%'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: raw
@@ -25,24 +21,26 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.irrelevant
+              pattern: '{{.integer}}(\s)?\:'
             - fieldName: log.ciscoTime
-              pattern: '{{.data}}\:'
-            - fieldName: log.msg
               pattern: '{{.greedy}}'
-          source: raw
+          source: log.switchHeader
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}{{.greedy}}'
+          source: log.switchHeader
       - grok:
           patterns:
             - fieldName: log.ciscoTime
-              pattern: '{{.data}}\:'
-            - fieldName: log.msg
-              pattern: '{{.greedy}}'
-          source: raw
+              pattern: '{{.monthName}}{{.greedy}}'
+          source: log.switchHeader
       #......................................................................#
       # Removing unused fields
       - delete:
           fields:
-            - log.asaHeader
-            - log.ciscoSeparator
+            - log.switchHeader
             - log.irrelevant
-            - log.syslogPri
-            - log.rest
