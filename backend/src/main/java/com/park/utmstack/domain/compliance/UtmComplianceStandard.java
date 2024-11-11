@@ -1,10 +1,14 @@
 package com.park.utmstack.domain.compliance;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "utm_compliance_standard")
 public class UtmComplianceStandard implements Serializable {
@@ -24,35 +28,4 @@ public class UtmComplianceStandard implements Serializable {
     @Column(name = "system_owner")
     private Boolean systemOwner;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getStandardName() {
-        return standardName;
-    }
-
-    public void setStandardName(String standardName) {
-        this.standardName = standardName;
-    }
-
-    public String getStandardDescription() {
-        return standardDescription;
-    }
-
-    public void setStandardDescription(String standardDescription) {
-        this.standardDescription = standardDescription;
-    }
-
-    public Boolean getSystemOwner() {
-        return systemOwner;
-    }
-
-    public void setSystemOwner(Boolean systemOwner) {
-        this.systemOwner = systemOwner;
-    }
 }

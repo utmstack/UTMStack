@@ -1,4 +1,4 @@
-FROM docker.elastic.co/logstash/logstash-oss:7.17.4-amd64
+FROM docker.elastic.co/logstash/logstash-oss:8.15.3-amd64
 USER root
 RUN bin/logstash-plugin install logstash-input-http
 RUN bin/logstash-plugin install logstash-output-http
