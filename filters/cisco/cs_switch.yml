@@ -39,8 +39,133 @@ pipeline:
               pattern: '{{.monthName}}{{.greedy}}'
           source: log.switchHeader
       #......................................................................#
+      # Beginning message parsing
+      # Variant -> %FACILITY-SUBFACILITY-SEVERITY-MNEMONIC: Message-text
+      - grok:
+          patterns:
+            - fieldName: log.facility
+              pattern: '{{.data}}-'
+            - fieldName: log.severity
+              pattern: '{{.data}}{{.integer}}'
+            - fieldName: log.facilityMnemonic
+              pattern: '{{.data}}\:'
+            - fieldName: log.ciscoMsg
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: '(msg.contains("-MSG:SLOT") == false) && (msg.contains("-MSG: SLOT") == false)'
+      # Extracting subfacility if present
+      - grok:
+          patterns:
+            - fieldName: log.subFacility
+              pattern: '{{.greedy}}-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+          source: log.severity
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: '(msg.contains("-MSG:SLOT") == false) && (msg.contains("-MSG: SLOT") == false)'
+      # --------------------------
+      # Variant -> %CARD-SEVERITY-MSG:SLOT %FACILITY-SEVERITY-MNEMONIC: Message-text
+      - grok:
+          patterns:
+            - fieldName: log.card
+              pattern: '{{.data}}-'
+            - fieldName: log.irrelevant
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\:'
+            - fieldName: log.slot
+              pattern: 'SLOT{{.integer}}'
+            - fieldName: log.tmpFacilityMnemonic
+              pattern: '{{.data}}\:'
+            - fieldName: log.ciscoMsg
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+
+      - trim:
+          function: prefix
+          substring: '%'
+          fields:
+            - log.tmpFacilityMnemonic
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+      # %FACILITY-SEVERITY-MNEMONIC
+      - grok:
+          patterns:
+            - fieldName: log.facility
+              pattern: '{{.data}}-'
+            - fieldName: log.severity
+              pattern: '{{.data}}{{.integer}}'
+            - fieldName: log.facilityMnemonic
+              pattern: '{{.data}}\:'
+          source: log.tmpFacilityMnemonic
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+      # Extracting subfacility if present
+      - grok:
+          patterns:
+            - fieldName: log.subFacility
+              pattern: '{{.greedy}}-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+          source: log.severity
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+
+      # Cleaning common fields
+      - trim:
+          function: suffix
+          substring: '-'
+          fields:
+            - log.facility
+            - log.subFacility
+            - log.card
+      - trim:
+          function: suffix
+          substring: '%'
+          fields:
+            - log.ciscoTime
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.facilityMnemonic
+            - log.ciscoTime
+      - trim:
+          function: prefix
+          substring: '-'
+          fields:
+            - log.facilityMnemonic
+      #......................................................................#
       # Removing unused fields
       - delete:
           fields:
             - log.switchHeader
             - log.irrelevant
+            - log.tmpFacilityMnemonic
