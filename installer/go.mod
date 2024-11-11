@@ -1,11 +1,10 @@
 module github.com/utmstack/UTMStack/installer
 
 go 1.21.0
-
-toolchain go1.22.1
+toolchain go1.22.5
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.60
+	github.com/cloudfoundry/gosigar v1.3.76
 	github.com/levigross/grequests v0.0.0-20231203190023-9c307ef1f48d
 	github.com/shirou/gopsutil/v3 v3.24.5
 	gopkg.in/yaml.v2 v2.4.0
@@ -20,8 +19,8 @@ require (
 	github.com/shoenig/test v1.8.0 // indirect
 	github.com/tklauser/numcpus v0.7.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
 )
 
 require (
