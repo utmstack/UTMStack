@@ -1,0 +1,48 @@
+# CISCO Switch filter, version 3.0.0
+# Based on https://www.cisco.com/c/en/us/support/ios-nx-os-software/index.html
+# and https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/17_xe/syslogs/17-15-x/b-system-message-guide-17-15-x.html
+# Support CISCO IOS from 15 SY to IOS XE v17
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field
+pipeline:
+  - dataTypes:
+      - cisco-switch
+    steps:
+      # Common fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(\s)?\:'
+            - fieldName: log.ciscoTime
+              pattern: '{{.data}}\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.data}}\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.data}}\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      #......................................................................#
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.asaHeader
+            - log.ciscoSeparator
+            - log.irrelevant
+            - log.syslogPri
+            - log.rest
