@@ -163,6 +163,96 @@ pipeline:
           fields:
             - log.facilityMnemonic
       #......................................................................#
+      # Decoding severity
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Emengency'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="0"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Alert'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="1"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Critical'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="2"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Error'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="3"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Warning'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="4"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Notification'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="5"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Informational'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="6"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Debugging'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="7"
+      #......................................................................#
       # Removing unused fields
       - delete:
           fields:
