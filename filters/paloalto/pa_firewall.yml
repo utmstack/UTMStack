@@ -83,7 +83,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -110,7 +110,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -138,7 +138,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -168,7 +168,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -196,7 +196,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -223,7 +223,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -250,7 +250,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -277,7 +277,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -304,7 +304,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -331,7 +331,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -358,7 +358,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -385,7 +385,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -413,7 +413,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -440,7 +440,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -543,7 +543,7 @@ pipeline:
             - log.paSenderSwVersion
             - log.paType
             - log.paSubtype
-            - log.severity
+            - log.severityLabel
 
       # .......................................................................#
       # Using grok to parse kv indiduals fields
@@ -6102,7 +6102,7 @@ pipeline:
             - log.misc
             - log.pa_threatid
             - log.category
-            - log.severity
+            - log.severityLabel
             - log.direction
             - log.seqno
             - log.actionflags
@@ -6545,7 +6545,7 @@ pipeline:
             - log.flags
             - log.proto
             - log.act
-            - log.severity
+            - log.severityLabel
             - log.seqno
             - log.actionflags
             - log.srcloc
@@ -6652,7 +6652,7 @@ pipeline:
             - log.future_use
             - log.assoc_id
             - log.ppid
-            - log.severity
+            - log.severityLabel
             - log.sctp_chunk_type
             - log.future_use
             - log.verif_tag_1
@@ -6799,7 +6799,7 @@ pipeline:
             - log.future_use
             - log.future_use
             - log.module
-            - log.severity
+            - log.severityLabel
             - log.opaque
             - log.seqno
             - log.actionflags
@@ -6836,7 +6836,7 @@ pipeline:
             - log.srcuser
             - log.vsys
             - log.category
-            - log.severity
+            - log.severityLabel
             - log.dg_hier_level_1
             - log.dg_hier_level_2
             - log.dg_hier_level_3
@@ -6900,7 +6900,7 @@ pipeline:
             - log.teid2
             - log.gtp_interface
             - log.cause_code
-            - log.severity
+            - log.severityLabel
             - log.mcc
             - log.mnc
             - log.area_code
@@ -7030,8 +7030,8 @@ pipeline:
 
       - cast:
           fields:
-            - to.dpt
-            - to.spt
+            - to.port
+            - from.port
           to: int
 
       # ..........................................................................#
