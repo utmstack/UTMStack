@@ -19,14 +19,17 @@ func RunEnvCmd(env []string, command string, arg ...string) error {
 		return fmt.Errorf("error opening log file: %v", err)
 	}
 
+	defer f.Close()
+
 	cmd.Stdout = f
 
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
+	var eBuf bytes.Buffer
+	cmd.Stderr = &eBuf
 
 	err = cmd.Run()
 	if err != nil {
-		return fmt.Errorf("error running command: %v, %v", err, stderr.String())
+		f.Write(eBuf.Bytes())
+		return fmt.Errorf("error running command: %v, %v", err, eBuf.String())
 	}
 
 	return nil
