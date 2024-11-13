@@ -87,7 +87,7 @@ func StackUP(c *types.Config, stack *types.StackConfig) error {
 func PostInstallation() error {
 	time.Sleep(3 * time.Minute)
 
-	fmt.Print("Securing ports 9200, 5432 and 10000")
+	fmt.Print("  Securing ports 9200, 5432 and 10000")
 
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {
 		return err
@@ -99,7 +99,7 @@ func PostInstallation() error {
 
 	fmt.Println(" [OK]")
 
-	fmt.Print("Restarting Stack")
+	fmt.Print("  Restarting Stack")
 
 	time.Sleep(60 * time.Second)
 
@@ -113,7 +113,7 @@ func PostInstallation() error {
 
 	fmt.Println(" [OK]")
 
-	fmt.Print("Cleaning up Docker system")
+	fmt.Print("  Cleaning up Docker system")
 
 	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
 		return err
