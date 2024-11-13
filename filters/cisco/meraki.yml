@@ -45,6 +45,40 @@ pipeline:
             - fieldName: log.genericEvent
               pattern: '{{.greedy}}'
           source: log.msg
+      # Parsing variant INT.INT mx_type mx_group
+      # ........................................
+      # event vpn connectivity change
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'vpn_type(\s)?='
+            - fieldName: log.vpnType
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: 'peer_contact(\s)?='
+            - fieldName: from.ip
+              pattern: '''{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'''
+            - fieldName: log.irrelevant
+              pattern: 'peer_ident(\s)?='
+            - fieldName: log.peerIdent
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: 'connectivity(\s)?='
+            - fieldName: log.connectivity
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+            expression: flag!="Init"
       
       # Cleaning fields
       - trim:
@@ -52,6 +86,23 @@ pipeline:
           substring: ':'
           fields:
             - local.ip
+            - from.ip
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.ip
+            - log.peerIdent
+            - log.connectivity
+            - log.vpnType
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.port
+            - log.peerIdent
+            - log.connectivity
+            - log.vpnType
       #......................................................................#
       # Removing unused fields
       - delete:
