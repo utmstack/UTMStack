@@ -51,6 +51,10 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 		return err
 	}
 
+	if err := utils.RunCmd("systemctl", "stop", "docker.socket"); err != nil {
+		return err
+	}
+
 	for k, v := range downloads {
 		fmt.Print("    Downloading ", k)
 		if err := utils.Download(k, v); err != nil {
@@ -60,6 +64,10 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	}
 
 	if err := utils.RunCmd("chmod", "+x", "-R", filepath.Join(pluginsFolder)); err != nil {
+		return err
+	}
+
+	if err := utils.RunCmd("systemctl", "start", "docker.socket"); err != nil {
 		return err
 	}
 
