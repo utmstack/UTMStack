@@ -1,5 +1,6 @@
 package com.park.utmstack.service;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
@@ -13,11 +14,19 @@ import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.logstash_pipeline.response.statistic.StatisticDocument;
 import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
 import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
+import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
+import com.utmstack.opensearch_connector.types.BucketAggregation;
 import org.apache.http.conn.util.InetAddressUtils;
+import org.opensearch.client.json.JsonData;
+import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -173,6 +182,44 @@ public class UtmDataInputStatusService {
             throw new Exception(ctx + ": " + e.getMessage());
         }
     }
+
+    @Scheduled(fixedDelay = 5000, initialDelay = 30000)
+    public void syncDataInputStatus() {
+        final String ctx = CLASSNAME + ".syncDataInputStatus";
+        try {
+            Map<String, StatisticDocument> result = getLatestStatisticsByDataType();
+
+            result.forEach((dataType, statisticDoc) -> {
+                try {
+                    // Check if the document exists in the database by its unique identifier or datatype
+                    Optional<UtmDataInputStatus> existingDataInput = dataInputStatusRepository.findByDataType(dataType);
+
+                    if (existingDataInput.isPresent()) {
+                        UtmDataInputStatus dataInputToUpdate = existingDataInput.get();
+                        dataInputToUpdate.setTimestamp(Instant.parse(statisticDoc.getTimestamp()).getEpochSecond());
+                        dataInputStatusRepository.save(dataInputToUpdate);
+                    } else {
+                        // Insert a new document if it doesn't exist
+                        dataInputStatusRepository.save(UtmDataInputStatus.builder()
+                                        .dataType(statisticDoc.getDataType())
+                                        .source(statisticDoc.getDataSource())
+                                        .timestamp(Instant.parse(statisticDoc.getTimestamp()).getEpochSecond())
+                                        .median(10800L)
+                                        .id(statisticDoc.getDataType().concat(statisticDoc.getDataSource()))
+                                .build());
+                    }
+                } catch (Exception e) {
+                    log.error(ctx + ": Error processing dataType " + dataType + " - " + e.getMessage());
+                }
+            });
+
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
 
     /**
      * Gets the sources from utm_data_input_status that are not registered in utm_network_scan table
@@ -360,5 +407,40 @@ public class UtmDataInputStatusService {
         alert.put("TagRulesApplied", null);
 
         return alert;
+    }
+
+    private Map<String, StatisticDocument> getLatestStatisticsByDataType() {
+        SearchRequest sr = SearchRequest.of(s -> s
+                .index(Constants.STATISTICS_INDEX_PATTERN)
+                .aggregations("by_dataType", agg -> agg
+                        .terms(t -> t.field("dataType.keyword")
+                                .size(100)
+                        )
+                        .aggregations("latest", latest -> latest
+                                .topHits(th -> th.sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                                        .size(1))
+                        )
+                )
+                .size(0)
+        );
+
+        SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
+        Map<String, StatisticDocument> result = new HashMap<>();
+
+        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataType"));
+
+        for (BucketAggregation bucket : dataTypeBuckets) {
+            TopHitsAggregate topHitsAgg = bucket.getSubAggregations().get("latest").topHits();
+
+            if (topHitsAgg != null && !topHitsAgg.hits().hits().isEmpty()) {
+                JsonData jsonData = topHitsAgg.hits().hits().get(0).source();
+                if(!Objects.isNull(jsonData)){
+                    StatisticDocument doc = jsonData.to(StatisticDocument.class) ;
+                    result.put(bucket.getKey(), doc);
+                }
+            }
+        }
+
+        return result;
     }
 }

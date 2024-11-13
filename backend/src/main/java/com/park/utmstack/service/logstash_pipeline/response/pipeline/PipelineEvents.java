@@ -1,19 +1,12 @@
 package com.park.utmstack.service.logstash_pipeline.response.pipeline;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@RequiredArgsConstructor
 public class PipelineEvents {
     Long out;
-
-    public PipelineEvents(){}
-
-    public PipelineEvents(Long out) {
-        this.out = out;
-    }
-
-    public Long getOut() {
-        return out;
-    }
-
-    public void setOut(Long out) {
-        this.out = out;
-    }
 }
