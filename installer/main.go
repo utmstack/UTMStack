@@ -10,7 +10,6 @@ import (
 
 func main() {
 	fmt.Println("### UTMStack Installer ###")
-	fmt.Println("Checking system requirements")
 
 	args := os.Args
 
