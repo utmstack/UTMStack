@@ -1,0 +1,61 @@
+# CISCO Meraki filter, version 3.0.0
+# Based on https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+# https://documentation.cysiv.com/articles/#!data-source-onboarding-device-configuration-reference/cisco-meraki-reference-information-and-cim-mapping
+#
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field
+pipeline:
+  - dataTypes:
+      - firewall-meraki
+    steps:
+      # Header fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      # Adding control flag field (Used to know if the message don't contains the header INT.INT mx_type mx_group)
+      - add:
+          function: 'string'
+          params:
+            key: log.controlFlag
+            value: 'Init'
+      # Begin message parsing
+      # First extract the generic message, then parse it
+      - grok:
+          patterns:
+            - fieldName: log.controlFlag
+              pattern: '{{.data}}(events|flows|urls|ids-alerts|security_event)'
+            - fieldName: log.genericEvent
+              pattern: '{{.greedy}}'
+          source: log.msg
+      
+      # Cleaning fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - local.ip
+      #......................................................................#
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.controlFlag
+            - log.irrelevant
+            - log.genericEvent
