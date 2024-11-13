@@ -14,12 +14,17 @@ func RunEnvCmd(env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
 	cmd.Env = append(os.Environ(), env...)
 
-	cmd.Stdout = os.Stdout
+	f, err := os.OpenFile("/var/log/utmstack-installer.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
+	if err != nil {
+		return fmt.Errorf("error opening log file: %v", err)
+	}
+
+	cmd.Stdout = f
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("error running command: %v, %v", err, stderr.String())
 	}
