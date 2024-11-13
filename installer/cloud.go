@@ -139,7 +139,7 @@ func Cloud(c *types.Config, update bool) error {
 			return err
 		}
 
-		fmt.Print("Installing Stack. This may take a while.")
+		fmt.Println("Installing Stack. This may take a while.")
 
 		if err := StackUP(c, stack); err != nil {
 			return err
@@ -148,8 +148,6 @@ func Cloud(c *types.Config, update bool) error {
 		if err := utils.SetLock(11, stack.LocksDir); err != nil {
 			return err
 		}
-
-		fmt.Println(" [OK]")
 	}
 
 	if utils.GetLock(12, stack.LocksDir) || update {
@@ -279,7 +277,7 @@ func Cloud(c *types.Config, update bool) error {
 	}
 
 	if utils.GetLock(13, stack.LocksDir) || update {
-		fmt.Print("Running post installation scripts. This may take a while.")
+		fmt.Println("Running post installation scripts. This may take a while.")
 
 		if err := PostInstallation(); err != nil {
 			return err
@@ -289,7 +287,6 @@ func Cloud(c *types.Config, update bool) error {
 			return err
 		}
 
-		fmt.Println(" [OK]")
 	}
 
 	fmt.Println("### Installation fisnished successfully. ###")

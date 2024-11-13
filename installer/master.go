@@ -142,13 +142,11 @@ func Master(c *types.Config) error {
 		fmt.Println(" [OK]")
 	}
 
-	fmt.Print("Installing Stack. This may take a while.")
+	fmt.Println("Installing Stack. This may take a while.")
 
 	if err := StackUP(c, stack); err != nil {
 		return err
 	}
-
-	fmt.Println(" [OK]")
 
 	fmt.Print("Installing reverse proxy. This may take a while.")
 
@@ -270,13 +268,11 @@ func Master(c *types.Config) error {
 		fmt.Println(" [OK]")
 	}
 
-	fmt.Print("Running post installation scripts. This may take a while.")
+	fmt.Println("Running post installation scripts. This may take a while.")
 
 	if err := PostInstallation(); err != nil {
 		return err
 	}
-
-	fmt.Println(" [OK]")
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
