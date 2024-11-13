@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/utmstack/UTMStack/installer/types"
@@ -54,7 +53,7 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	}
 
 	for k, v := range downloads {
-		fmt.Print("		Downloading", k)
+		fmt.Print("    Downloading ", k)
 		if err := helpers.Download(k, v); err != nil {
 			return fmt.Errorf(err.Message)
 		}
@@ -68,8 +67,6 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	if err := utils.RunCmd("systemctl", "start", "docker"); err != nil {
 		return err
 	}
-
-	time.Sleep(60 * time.Second)
 
 	return nil
 }
