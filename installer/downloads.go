@@ -54,7 +54,7 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	}
 
 	for k, v := range downloads {
-		fmt.Print("Downloading", k)
+		fmt.Print("		Downloading", k)
 		if err := helpers.Download(k, v); err != nil {
 			return fmt.Errorf(err.Message)
 		}

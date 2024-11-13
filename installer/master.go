@@ -116,13 +116,11 @@ func Master(c *types.Config) error {
 		fmt.Println(" [OK]")
 	}
 
-	fmt.Print("Downloading Plugins and Base Configurations")
+	fmt.Println("Downloading Plugins and Base Configurations:")
 
 	if err := Downloads(c, stack); err != nil {
 		return err
 	}
-
-	fmt.Println(" [OK]")
 
 	if !utils.GetLock(5, stack.LocksDir) && utils.GetLock(202407051241, stack.LocksDir) {
 		fmt.Print("Removing old services")
