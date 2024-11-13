@@ -54,9 +54,11 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 	}
 
 	for k, v := range downloads {
+		fmt.Print("Downloading", k)
 		if err := helpers.Download(k, v); err != nil {
 			return fmt.Errorf(err.Message)
 		}
+		fmt.Println(" [OK]")
 	}
 
 	if err := utils.RunCmd("chmod", "+x", "-R", filepath.Join(pluginsFolder)); err != nil {
