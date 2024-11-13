@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/threatwinds/go-sdk/helpers"
 	"github.com/utmstack/UTMStack/installer/types"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
@@ -54,8 +53,8 @@ func Downloads(conf *types.Config, stack *types.StackConfig) error {
 
 	for k, v := range downloads {
 		fmt.Print("    Downloading ", k)
-		if e := helpers.Download(k, v); e != nil {
-			return fmt.Errorf(e.Message)
+		if err := utils.Download(k, v); err != nil {
+			return err
 		}
 		fmt.Println(" [OK]")
 	}
