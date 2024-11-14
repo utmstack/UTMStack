@@ -338,6 +338,53 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("src") && gp=="urls"
+      # ........................................
+      # Event: flows, IP session initiated in Meraki MX Security Appliance
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: from.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'sport(\s)?='
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'pattern(\s)?\:'
+            - fieldName: log.pattern
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="flows"
+      # ............................................................................
       # Cleaning fields
       - trim:
           function: suffix
