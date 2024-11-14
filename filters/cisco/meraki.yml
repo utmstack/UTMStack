@@ -207,6 +207,28 @@ pipeline:
                 as: act
                 ofType: string
             expression: flag!="Init" && act.contains("Cellular connection")
+      # ........................................
+      # Event: event, dhcp no offers
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}for\smac'
+            - fieldName: from.mac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'host(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp no offers")
       
       # Cleaning fields
       - trim:
