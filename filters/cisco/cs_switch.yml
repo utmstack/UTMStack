@@ -1,0 +1,261 @@
+# CISCO Switch filter, version 3.0.0
+# Based on https://www.cisco.com/c/en/us/support/ios-nx-os-software/index.html
+# and https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/17_xe/syslogs/17-15-x/b-system-message-guide-17-15-x.html
+# Support CISCO IOS from 15 SY to IOS XE v17
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field
+pipeline:
+  - dataTypes:
+      - cisco-switch
+    steps:
+      # Header fields
+      - grok:
+          patterns:
+            - fieldName: log.switchHeader
+              pattern: '{{.data}}%'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.irrelevant
+              pattern: '{{.integer}}(\s)?\:'
+            - fieldName: log.ciscoTime
+              pattern: '{{.greedy}}'
+          source: log.switchHeader
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}{{.greedy}}'
+          source: log.switchHeader
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}{{.greedy}}'
+          source: log.switchHeader
+      #......................................................................#
+      # Beginning message parsing
+      # Variant -> %FACILITY-SUBFACILITY-SEVERITY-MNEMONIC: Message-text
+      - grok:
+          patterns:
+            - fieldName: log.facility
+              pattern: '{{.data}}-'
+            - fieldName: log.severity
+              pattern: '{{.data}}{{.integer}}'
+            - fieldName: log.facilityMnemonic
+              pattern: '{{.data}}\:'
+            - fieldName: log.ciscoMsg
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: '(msg.contains("-MSG:SLOT") == false) && (msg.contains("-MSG: SLOT") == false)'
+      # Extracting subfacility if present
+      - grok:
+          patterns:
+            - fieldName: log.subFacility
+              pattern: '{{.greedy}}-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+          source: log.severity
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: '(msg.contains("-MSG:SLOT") == false) && (msg.contains("-MSG: SLOT") == false)'
+      # --------------------------
+      # Variant -> %CARD-SEVERITY-MSG:SLOT %FACILITY-SEVERITY-MNEMONIC: Message-text
+      - grok:
+          patterns:
+            - fieldName: log.card
+              pattern: '{{.data}}-'
+            - fieldName: log.irrelevant
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}\:'
+            - fieldName: log.slot
+              pattern: 'SLOT{{.integer}}'
+            - fieldName: log.tmpFacilityMnemonic
+              pattern: '{{.data}}\:'
+            - fieldName: log.ciscoMsg
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+
+      - trim:
+          function: prefix
+          substring: '%'
+          fields:
+            - log.tmpFacilityMnemonic
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+      # %FACILITY-SEVERITY-MNEMONIC
+      - grok:
+          patterns:
+            - fieldName: log.facility
+              pattern: '{{.data}}-'
+            - fieldName: log.severity
+              pattern: '{{.data}}{{.integer}}'
+            - fieldName: log.facilityMnemonic
+              pattern: '{{.data}}\:'
+          source: log.tmpFacilityMnemonic
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+      # Extracting subfacility if present
+      - grok:
+          patterns:
+            - fieldName: log.subFacility
+              pattern: '{{.greedy}}-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+          source: log.severity
+          where:
+            variables:
+              - get: log.msg
+                as: msg
+                ofType: string
+            expression: 'msg.contains("-MSG:SLOT") || msg.contains("-MSG: SLOT")'
+
+      # Cleaning common fields
+      - trim:
+          function: suffix
+          substring: '-'
+          fields:
+            - log.facility
+            - log.subFacility
+            - log.card
+      - trim:
+          function: suffix
+          substring: '%'
+          fields:
+            - log.ciscoTime
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.facilityMnemonic
+            - log.ciscoTime
+      - trim:
+          function: prefix
+          substring: '-'
+          fields:
+            - log.facilityMnemonic
+      #......................................................................#
+      # Decoding severity
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Emengency'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="0"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Alert'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="1"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Critical'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="2"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Error'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="3"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Warning'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="4"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Notification'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="5"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Informational'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="6"
+      - add:
+          function: 'string'
+          params:
+            key: log.severityLabel
+            value: 'Debugging'
+          where:
+            variables:
+              - get: log.severity
+                as: sev
+                ofType: string
+            expression: sev=="7"
+      #......................................................................#
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.switchHeader
+            - log.irrelevant
+            - log.tmpFacilityMnemonic

@@ -16,7 +16,7 @@ pipeline:
               pattern: '{{.day}}\s{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: local.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
-            - fieldName: log.asaHeader
+            - fieldName: log.firePowerHeader
               pattern: '{{.data}}FTD-'
             - fieldName: log.severity
               pattern: '{{.integer}}'

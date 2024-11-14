@@ -76,6 +76,7 @@ func balanceMemoryAcrossTrees(trees []*serviceLevel, totalMemory int) error {
 	for _, tree := range trees {
 		totalMinMemory += tree.getMinimum()
 	}
+	
 	if totalMemory < totalMinMemory {
 		return fmt.Errorf("your system does not have the minimum required memory: %dMB", totalMinMemory+SYSTEM_RESERVED_MEMORY)
 	}
@@ -94,7 +95,7 @@ func balanceMemoryAcrossTrees(trees []*serviceLevel, totalMemory int) error {
 
 		_, err := tree.balanceMemory(tree.getMinimum() + targetMemory)
 		if err != nil {
-			fmt.Printf("err: %v\n", err)
+			return err
 		}
 	}
 
