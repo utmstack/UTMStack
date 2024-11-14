@@ -5,8 +5,6 @@ import (
 	"path/filepath"
 	"time"
 
-	_ "net/http/pprof"
-
 	pb "github.com/utmstack/UTMStack/agent/agent/agent"
 	"github.com/utmstack/UTMStack/agent/agent/beats"
 	"github.com/utmstack/UTMStack/agent/agent/config"

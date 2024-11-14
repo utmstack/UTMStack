@@ -73,7 +73,11 @@ func (w Winlogbeat) SendSystemLogs() {
 			utils.Logger.ErrorF("error validating log: %s: %v", logLine, err)
 			continue
 		}
-		host, _ := os.Hostname()
+		host, err := os.Hostname()
+		if err != nil {
+			utils.Logger.ErrorF("error getting hostname: %v", err)
+			host = "unknown"
+		}
 		logservice.LogQueue <- &go_sdk.Log{
 			DataType:   string(config.DataTypeWindowsAgent),
 			DataSource: host,

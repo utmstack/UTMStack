@@ -1,32 +1,12 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strconv"
 	"time"
 )
-
-func SentLog(msg string) error {
-	// Get current path
-	path := GetMyPath()
-	switch runtime.GOOS {
-	case "windows":
-		err := Execute("eventcreate", path, "/T", "INFORMATION", "/ID", "1000", "/SO", "UTMStackAgent", "/D", msg)
-		if err != nil {
-			return fmt.Errorf("%v", err)
-		}
-	case "linux":
-		err := Execute("logger", path, "-p", "syslog.info", msg)
-		if err != nil {
-			return fmt.Errorf("%v", err)
-		}
-	}
-	return nil
-}
 
 func FindLatestLog(path string, pattern *regexp.Regexp) (string, error) {
 	files, err := os.ReadDir(path)

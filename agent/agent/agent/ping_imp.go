@@ -31,12 +31,6 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		err = CheckGRPCHealth(conn, ctx)
-		if err != nil {
-			time.Sleep(timeToSleep)
-			continue
-		}
-
 		client := NewPingServiceClient(conn)
 		stream, err := client.Ping(ctx)
 		if err != nil {

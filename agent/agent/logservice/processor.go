@@ -64,12 +64,6 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		err = agent.CheckGRPCHealth(conn, ctx)
-		if err != nil {
-			time.Sleep(timeToSleep)
-			continue
-		}
-
 		client := go_sdk.NewIntegrationClient(conn)
 		plClient := createClient(client, ctx)
 		l.connErrWritten = false
@@ -127,6 +121,7 @@ func (l *LogProcessor) processLogs(plClient go_sdk.Integration_ProcessLogClient,
 	for {
 		select {
 		case <-ctx.Done():
+			utils.Logger.Info("context done, exiting processLogs")
 			return
 		case newLog := <-LogQueue:
 			uuid, err := uuid.NewRandom()

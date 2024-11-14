@@ -1,4 +1,4 @@
-name: Multi Environment Build
+name: Containers Build
 
 on:
   release:
@@ -13,7 +13,7 @@ jobs:
     name: Setup Deployment
     runs-on: ubuntu-latest
     outputs:
-      env_version: ${{ steps.set-env.outputs.env_version }}
+      env_tag: ${{ steps.set-env.outputs.env_tag }}
       microservices: ${{ steps.filter.outputs.changes }}
     steps:
       - name: Determine Build Environment
@@ -21,16 +21,16 @@ jobs:
         run: |
           if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') }}; then
             echo "DEV environment"
-            echo "env_version=v10-dev" >> $GITHUB_OUTPUT
+            echo "env_tag=dev" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main' && startsWith(github.event.pull_request.head.ref, 'feature/') }}; then
             echo "QA environment"
-            echo "env_version=v10-qa" >> $GITHUB_OUTPUT
+            echo "env_tag=qa" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}; then
             echo "RC environment"
-            echo "env_version=v10-rc" >> $GITHUB_OUTPUT
+            echo "env_tag=rc" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'release' }}; then
             echo "RELEASE environment"
-            echo "env_version=v10" >> $GITHUB_OUTPUT
+            echo "env_tag=latest" >> $GITHUB_OUTPUT
           fi
 
       - uses: actions/checkout@v4
@@ -39,9 +39,7 @@ jobs:
         with:
           filters: |
             agent-manager: agent-manager/**
-            backend:
-              - 'backend/**'
-              - 'version.yml'
+            backend: backend/**
             frontend: frontend/**
             user-auditor: user-auditor/**
             web-pdf: web-pdf/**
@@ -49,7 +47,7 @@ jobs:
   runner:
     name: Deployment
     needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.microservices != '[]' && needs.setup_deployment.outputs.env_version != ''}}
+    if: ${{ needs.setup_deployment.outputs.microservices != '[]' && needs.setup_deployment.outputs.env_tag != ''}}
     strategy:
       fail-fast: false
       matrix: 
@@ -57,13 +55,13 @@ jobs:
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}
-      environment: ${{ needs.setup_deployment.outputs.env_version }}
+      environment: ${{ needs.setup_deployment.outputs.env_tag }}
     secrets: inherit
   
   runner_release:
     name: Deployment for Release
     needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.env_version == 'v10' }}
+    if: ${{ needs.setup_deployment.outputs.env_tag == 'latest' }}
     strategy:
       fail-fast: false
       matrix: 
@@ -71,5 +69,5 @@ jobs:
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}
-      environment: ${{ needs.setup_deployment.outputs.env_version }}
+      environment: ${{ needs.setup_deployment.outputs.env_tag }}
     secrets: inherit
