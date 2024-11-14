@@ -33,7 +33,6 @@ public class AlertUtil {
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, status));
-            filters.add(new FilterType(Constants.alertTags, OperatorType.IS_NOT, Constants.FALSE_POSITIVE_TAG));
 
             SearchRequest.Builder srb = new SearchRequest.Builder();
             srb.query(SearchUtil.toQuery(filters))
