@@ -243,7 +243,49 @@ pipeline:
                 as: gevt
                 ofType: string
             expression: flag!="Init" && gevt.contains("dhcp no offers")
-      
+      # ........................................
+      # Event: event, dhcp lease
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}of\sip'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'from server mac'
+            - fieldName: log.serverMac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'for client mac'
+            - fieldName: from.mac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'from router'
+            - fieldName: log.routerIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'on subnet'
+            - fieldName: log.subnet
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'with dns'
+            - fieldName: log.dns
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: log.dns1
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp lease")
+
       # Cleaning fields
       - trim:
           function: suffix
