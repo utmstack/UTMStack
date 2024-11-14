@@ -285,6 +285,20 @@ pipeline:
                 as: gevt
                 ofType: string
             expression: flag!="Init" && gevt.contains("dhcp lease")
+      - trim:
+          function: suffix
+          substring: 'of ip'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp lease")
 
       # Cleaning fields
       - trim:
