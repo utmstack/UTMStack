@@ -116,6 +116,97 @@ pipeline:
                 as: flag
                 ofType: string
             expression: flag!="Init"
+      # ........................................
+      # event uplink connectivity change
+      - rename:
+          from:
+            - log.genericEvent
+          to: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("failover to")
+      # ........................................
+      # event uplink connectivity change
+      # Event: urls, HTTP GET requests in MR Access Points
+      - rename:
+          from:
+            - log.genericEvent
+          to: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("Cellular connection")
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Cellular connection'
+            - fieldName: log.connectionState
+              pattern: '(up|Up|down|Down)'
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiTypeIn
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '(events|flows|urls|ids-alerts|security_event)'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.data}}\:'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: from.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'request(\s)?\:'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: to.url
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: action
+                as: act
+                ofType: string
+            expression: flag!="Init" && act.contains("Cellular connection")
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Cellular connection'
+            - fieldName: log.connectionState
+              pattern: '(up|Up|down|Down)'
+          source: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: action
+                as: act
+                ofType: string
+            expression: flag!="Init" && act.contains("Cellular connection")
       
       # Cleaning fields
       - trim:
@@ -124,6 +215,7 @@ pipeline:
           fields:
             - local.ip
             - from.ip
+            - to.ip
             - log.serverIp
       - trim:
           function: prefix
