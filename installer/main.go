@@ -10,7 +10,6 @@ import (
 
 func main() {
 	fmt.Println("### UTMStack Installer ###")
-	fmt.Println("Checking system requirements")
 
 	args := os.Args
 
@@ -79,12 +78,14 @@ func main() {
 	case "aio":
 		err := Master(config)
 		if err != nil {
+			fmt.Println("")
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	case "cloud":
 		err := Cloud(config, update)
 		if err != nil {
+			fmt.Println("")
 			fmt.Println(err)
 			os.Exit(1)
 		}

@@ -1,0 +1,126 @@
+# Bitdefender GravityZone filter
+# Based on https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+# and the previous version of the same filter
+
+pipeline:
+  - dataTypes:
+      - antivirus-bitdefender-gz
+    steps:
+      # Using grok to parse header of the message
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
+            - fieldName: log.notDefined
+              pattern: '{{.integer}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      # Using grok to parse components of the cef_message
+      - grok:
+          patterns:
+            - fieldName: log.productVendor
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.product
+              pattern: '{{.data}}\|'
+            - fieldName: log.productVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.signatureID
+              pattern: '{{.data}}\|'
+            - fieldName: log.eventType
+              pattern: '{{.data}}\|'
+            - fieldName: log.severity
+              pattern: '{{.data}}\|'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '|'
+          fields:
+            - log.productVendor
+
+      - trim:
+          function: suffix
+          substring: '|'
+          fields:
+            - log.productVendor
+            - log.product
+            - log.productVersion
+            - log.signatureID
+            - log.eventType
+            - log.severity
+
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.syslogPriority
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.0trash
+            - log.restData
+            - log.irrelevant
