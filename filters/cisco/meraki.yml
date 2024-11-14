@@ -16,7 +16,7 @@ pipeline:
               pattern: '(\<{{.integer}}\>)'
             - fieldName: log.ciscoTime
               pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
-            - fieldName: local.ip
+            - fieldName: log.serverIp
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
@@ -25,7 +25,7 @@ pipeline:
           patterns:
             - fieldName: log.ciscoTime
               pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
-            - fieldName: local.ip
+            - fieldName: log.serverIp
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
@@ -46,6 +46,43 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.msg
       # Parsing variant INT.INT mx_type mx_group
+      # Parsing from controlFlag (Format: Date? IP PORT INT.INT mx_type mx_group)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}{{.time}}'
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: local.port
+              pattern: '{{.integer}}'
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiType
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '{{.greedy}}'
+          source: log.controlFlag
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+            expression: flag!="Init"
+      - grok:
+          patterns:
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiType
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '{{.greedy}}'
+          source: log.controlFlag
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+            expression: flag!="Init"
       # ........................................
       # event vpn connectivity change
       - grok:
@@ -87,6 +124,7 @@ pipeline:
           fields:
             - local.ip
             - from.ip
+            - log.serverIp
       - trim:
           function: prefix
           substring: ''''
