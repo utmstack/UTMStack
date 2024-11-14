@@ -229,6 +229,20 @@ pipeline:
                 as: gevt
                 ofType: string
             expression: flag!="Init" && gevt.contains("dhcp no offers")
+      - trim:
+          function: suffix
+          substring: 'for mac'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp no offers")
       
       # Cleaning fields
       - trim:
