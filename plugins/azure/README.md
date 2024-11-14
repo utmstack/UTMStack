@@ -1,0 +1,2 @@
+# UTMStack Azure Plugin
+The Azure Plugin is an integration module that collects logs from Microsoft Azure services. It facilitates the aggregation of log data from Azure sources, enhancing the visibility and monitoring capabilities within the UTMStack environment.

@@ -16,6 +16,13 @@ jobs:
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
+      
+      - name: Load Version
+        id: set-version
+        run: |
+          versions=$(cat "${{ github.workspace }}/versions.json")
+          service_version=$(echo "${versions}" | jq -r --arg s "${{inputs.image_name}}" '.[$s]')
+          echo "version=${service_version}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
@@ -43,4 +50,4 @@ jobs:
         with:
           context: ./${{inputs.image_name}}
           push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{ steps.set-version.outputs.version }}-${{inputs.environment}}

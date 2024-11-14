@@ -16,6 +16,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+    
+      - name: Load Version
+        id: set-version
+        run: |
+          versions=$(cat "${{ github.workspace }}/versions.json")
+          service_version=$(echo "${versions}" | jq -r --arg s "${{inputs.image_name}}" '.[$s]')
+          echo "version=${service_version}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4 #this installs node and npm for us
         with:
@@ -48,6 +55,6 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v2
         with:
-          context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
+          context: ./${{inputs.image_name}}
           push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{ steps.set-version.outputs.version }}-${{inputs.environment}}

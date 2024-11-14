@@ -1,0 +1,2 @@
+# UTMStack O365 Plugin
+The O365 Plugin is an integration module designed to collect logs from Microsoft Office 365 services. It ensures that log data from O365 applications are gathered and analyzed within UTMStack for enhanced security and compliance monitoring.

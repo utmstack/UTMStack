@@ -21,14 +21,14 @@ jobs:
       - name: Determine Tech
         id: get_tech
         run: |
-          folder_changed="${{inputs.microservice}}"
-          if [[ "$folder_changed" == "agent-manager" ]]; then
+          service="${{inputs.microservice}}"
+          if [[ "$service" == "agent-manager" ]]; then
             tech="golang"
-          elif [[ "$folder_changed" == "backend" ]]; then
+          elif [[ "$service" == "backend" ]]; then
             tech="java-11"
-          elif [[ "$folder_changed" == "frontend" ]]; then
+          elif [[ "$service" == "frontend" ]]; then
             tech="frontend"
-          elif [[ "$folder_changed" == "user-auditor" || "web-pdf" ]]; then
+          elif [[ "$service" == "user-auditor" || "web-pdf" ]]; then
             tech="java"
           else
             tech="unknown"
@@ -36,15 +36,6 @@ jobs:
           echo $tech
           echo "::set-output name=tech::$tech"
         shell: bash
-
-  basic_deployment:
-    name: Basic deployment
-    needs: prepare_deployment
-    if: ${{ needs.prepare_deployment.outputs.tech == 'basic' }}
-    uses: ./.github/workflows/used-docker-basic.yml
-    with:
-      image_name: ${{ inputs.microservice }}
-      environment: ${{inputs.environment}}
   
   frontend_deployment:
     name: Frontend deployment

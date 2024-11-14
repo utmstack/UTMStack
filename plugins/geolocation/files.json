@@ -1,0 +1,10 @@
+[
+    {
+        "name": "com.utmstack.geolocation.plugin",
+        "is_binary": true,
+        "destination_path": "/plugins/",
+        "os": "linux",
+        "arch": "amd64",
+        "replace_previous": true
+    }
+]

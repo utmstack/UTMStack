@@ -1,0 +1,2 @@
+# UTMStack Inputs Plugin
+The Inputs Plugin is responsible for collecting and authenticating all logs coming from agents and external integrations. It ensures that log data from various sources are securely ingested into the UTMStack platform for effective analysis and threat management.

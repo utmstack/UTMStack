@@ -1,0 +1,2 @@
+# UTMStack Sophos Plugin
+The Sophos Plugin integrates with Sophos security solutions to collect logs. It enables the collection and analysis of security logs from Sophos products, enhancing the overall threat detection and response capabilities of UTMStack.

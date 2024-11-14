@@ -1,0 +1,22 @@
+{
+    "version": "10.6.0",
+    "agent-service": "10.6.0",
+    "agent-installer": "10.6.0",
+    "agent-manager": "10.6.0",
+    "backend": "10.6.0",
+    "frontend": "10.6.0",
+    "plugins-alerts": "10.6.0",
+    "plugins-aws": "10.6.0",
+    "plugins-azure": "10.6.0",
+    "plugins-bitdefender": "10.6.0",
+    "plugins-config": "10.6.0",
+    "plugins-events": "10.6.0",
+    "plugins-gcp": "10.6.0",
+    "plugins-geolocation": "10.6.0",
+    "plugins-inputs": "10.6.0",
+    "plugins-o365": "10.6.0",
+    "plugins-sophos": "10.6.0",
+    "plugins-stats": "10.6.0",
+    "user-auditor": "10.6.0",
+    "web-pdf": "10.6.0"
+}

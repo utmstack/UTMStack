@@ -1,0 +1,2 @@
+# UTMStack GCP Plugin
+The GCP Plugin is an integration module for collecting logs from Google Cloud Platform services. It allows UTMStack to aggregate and analyze log data from GCP sources, supporting comprehensive cloud security monitoring.
