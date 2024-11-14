@@ -157,7 +157,7 @@ pipeline:
               pattern: '{{.integer}}\.{{.integer}}'
             - fieldName: log.merakiTypeIn
               pattern: '{{.data}}\s'
-            - fieldName: log.merakiGroup
+            - fieldName: log.merakiGroupIn
               pattern: '(events|flows|urls|ids-alerts|security_event)'
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
@@ -299,7 +299,45 @@ pipeline:
                 as: gevt
                 ofType: string
             expression: flag!="Init" && gevt.contains("dhcp lease")
-
+      # ........................................
+      # Event: event, HTTP GET requests in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.data}}\:'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: from.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'request(\s)?\:'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: to.url
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="urls"
       # Cleaning fields
       - trim:
           function: suffix
