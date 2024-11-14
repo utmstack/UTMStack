@@ -149,7 +149,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
                 this.changeParamsByDataType(type).then(() => this.setDefaultParams());
               });
             }
-            this.setDefaultParams();
           });
         });
       } else {
