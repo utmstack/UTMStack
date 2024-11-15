@@ -104,7 +104,7 @@ pipeline:
             - log.productVersion
             - log.signatureID
             - log.eventType
-            - log.severity
+            - log.severityLabel
 
       - trim:
           function: prefix

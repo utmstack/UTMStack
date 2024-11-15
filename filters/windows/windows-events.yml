@@ -152,11 +152,6 @@ pipeline:
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
-
-      - rename:
-          from:
             - log.winlog.event_data.AuthenticationPackageName
           to: log.winlogEventDataAuthenticationPackageName
 
@@ -358,7 +353,7 @@ pipeline:
       - rename:
           from:
             - log.log.level
-          to: log.logLevel
+          to: log.severityLabel
 
       - rename:
           from:
