@@ -469,7 +469,7 @@ pipeline:
             expression: flag!="Init" && gevt.startsWith("signature") && gp=="ids-alerts"
       - trim:
           function: suffix
-          substring: 'priority='
+          substring: 'priority'
           fields:
             - log.signature
       # ............................................................................
