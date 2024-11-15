@@ -127,8 +127,9 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildContainOperator";
         try {
             filter.validate();
+            String value = CustomStringEscapeUtil.openSearchQueryStringEscap(String.valueOf(filter.getValue()));
             bool.filter(f -> f.queryString(s -> s.fields(filter.getField())
-                .query("*" + filter.getValue() + "*")
+                .query("*" + value + "*")
                 .defaultOperator(Operator.And)
                 .lenient(true)
                 .type(TextQueryType.BestFields)));
@@ -141,8 +142,9 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildDoesNotContainOperator";
         try {
             filter.validate();
+            String value = CustomStringEscapeUtil.openSearchQueryStringEscap(String.valueOf(filter.getValue()));
             bool.mustNot(n -> n.queryString(s -> s.fields(filter.getField())
-                .query("*" + filter.getValue() + "*")
+                .query("*" + value + "*")
                 .defaultOperator(Operator.And)
                 .lenient(true)
                 .type(TextQueryType.BestFields)));

@@ -4,9 +4,7 @@ package com.park.utmstack.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.web.rest.vm.AlertTagRuleVM;
 import org.springframework.util.StringUtils;
@@ -149,16 +147,8 @@ public class UtmAlertTagRule extends AbstractAuditingEntity implements Serializa
     public List<FilterType> getConditions() throws JsonProcessingException {
         if (StringUtils.hasText(ruleConditions)) {
             ObjectMapper om = new ObjectMapper();
-
-            JsonNode rootNode = om.readTree(ruleConditions);
-
-            rootNode.forEach(node -> {
-                JsonNode valueNode = node.get("value");
-                if (valueNode != null && valueNode.asText().contains(":")) {
-                    ((ObjectNode) node).put("value", valueNode.asText().replace(":", "\\:"));
-                }
+            conditions = om.readValue(ruleConditions, new TypeReference<>() {
             });
-            conditions = om.convertValue(rootNode, new TypeReference<>() {});
         }
         return conditions;
     }
