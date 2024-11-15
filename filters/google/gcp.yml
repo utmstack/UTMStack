@@ -1,0 +1,216 @@
+# GCP filter, version 2.0.0
+# 
+# Documentations
+# 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
+
+pipeline:
+  - dataTypes:
+      - google
+    steps:
+      - json:
+          source: raw
+
+      # .......................................................................#
+      # Rename to utmstack format to normalize fields
+      # .......................................................................#
+      # Renaming httpRequest fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.httpRequest.cacheHit
+          to: log.httpRequestCacheHit
+
+      - rename:
+          from:
+            - log.httpRequest.cacheLookup
+          to: log.httpRequestCacheLookup
+
+      - rename:
+          from:
+            - log.httpRequest.latency 
+          to: log.httpRequestLatency
+      
+      - rename:
+          from:
+            - log.httpRequest.remoteIp
+          to: log.httpRequestRemoteIp
+      
+      - rename:
+          from:
+            - log.httpRequest.requestMethod
+          to: log.httpRequestMethod
+
+      - rename:
+          from:
+            - log.httpRequest.requestSize
+          to: log.httpRequestSize
+      
+      - rename:
+          from:
+            - log.httpRequest.requestUrl
+          to: log.httpRequestUrl
+
+      - rename:
+          from:
+            - log.httpRequest.responseSize
+          to: log.httpResponseSize
+      
+      - rename:
+          from:
+            - log.httpRequest.status
+          to: statusCode
+
+      - rename:
+          from:
+            - log.httpRequest.userAgent
+          to: log.httpUserAgent
+
+      # .......................................................................#
+      # Renaming jsonPayload fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.jsonPayload.type
+          to: log.jsonPayloadType
+
+      - rename:
+          from:
+            - log.jsonPayload.backendTargetProjectNumber
+          to: log.jsonPayloadBackendTargetProjectNumber
+      
+      - rename:
+          from:
+            - log.jsonPayload.cacheDecision
+          to: log.jsonPayloadCacheDecision
+      
+      - rename:
+          from:
+            - log.jsonPayload.cacheId
+          to: log.jsonPayloadCacheId
+      
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.configuredAction
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyConfiguredAction
+      
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.name
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyName
+      
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.outcome
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+      
+      - rename:
+          from:
+            - log.jsonPayload.enforcedEdgeSecurityPolicy.priority
+          to: log.jsonPayloadEnforcedEdgeSecurityPolicyPriority
+      
+      - rename:
+          from:
+            - log.jsonPayload.remoteIp
+          to: log.jsonPayloadRemoteIp
+      
+      - rename:
+          from:
+            - log.jsonPayload.statusDetails
+          to: log.jsonPayloadStatusDetails
+
+      # .......................................................................#
+      # Renaming resource fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.resource.labels.backend_service_name
+          to: log.resourceLabelsBackendServiceName
+      
+      - rename:
+          from:
+            - log.resource.labels.forwarding_rule_name
+          to: log.resourceLabelsForwardingRuleName
+      
+      - rename:
+          from:
+            - log.resource.labels.project_id
+          to: log.resourceLabelsProjectId
+      
+      - rename:
+          from:
+            - log.resource.labels.target_proxy_name
+          to: log.resourceLabelsTargetProxyName
+      
+      - rename:
+          from:
+            - log.resource.labels.url_map_name
+          to: log.resourceLabelsUrlMapName
+      
+      - rename:
+          from:
+            - log.resource.labels.zone
+          to: log.resourceLabelsZone
+
+      - rename:
+          from:
+            - log.resource.type
+          to: log.resourceType
+
+      - rename:
+          from:
+            - log.severity
+          to: log.severityLabel
+
+      # .......................................................................#
+      # Renaming operation field
+      # .......................................................................#
+      - rename:
+          from:
+            - log.operation.id
+          to: log.operationId
+      
+      - rename:
+          from: 
+            - log.operation.producer
+          to: log.operationProducer
+
+      - rename:
+          from:
+            - log.operation.first
+          to: log.operationFirst
+
+      - rename:
+          from:
+            - log.operation.last
+          to: log.operationLast
+
+      # .......................................................................#
+      # Renaming sourceLocation field
+      # .......................................................................#
+      - rename:
+          from:
+            - log.sourceLocation.file
+          to: log.sourceLocationFile
+
+      - rename:
+          from:
+            - log.sourceLocation.line
+          to: log.sourceLocationLine
+
+      - rename:
+          from:
+            - log.sourceLocation.function
+          to: log.sourceLocationFunction
+
+      # Fields conversions
+      - cast:
+          to: "[]string"
+          fields:
+            - log.jsonPayloadCacheDecision
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.httpRequest
+            - log.jsonPayload
+            - log.resource
