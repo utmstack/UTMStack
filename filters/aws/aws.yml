@@ -1,0 +1,201 @@
+pipeline:
+  - dataTypes:
+      - aws
+    steps:
+      - json:
+          source: raw
+
+      - rename:
+          from:
+            - log.userIdentity.accessKeyId
+          to: log.userIdentityAccessKeyId
+
+      - rename:
+          from:
+            - log.userIdentity.accountId
+          to: log.userIdentityAccountId
+
+      - rename:
+          from:
+            - log.userIdentity.arn
+          to: log.userIdentityArn
+
+      - rename:
+          from:
+            - log.userIdentity.invokedBy
+          to: log.userIdentityInvokedBy
+
+      - rename:
+          from:
+            - log.userIdentity.principalId
+          to: log.userIdentityPrincipalId
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.attributes.creationDate
+          to: log.userIdentitySessionContextAttributesCreationDate
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.attributes.mfaAuthenticated
+          to: log.userIdentitySessionContextAttributesMfaAuthenticated
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.sessionIssuer.accountId
+          to: log.userIdentitySessionContextSessionIssuerAccountId
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.sessionIssuer.arn
+          to: log.userIdentitySessionContextSessionIssuerArn
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.sessionIssuer.principalId
+          to: log.userIdentitySessionContextSessionIssuerPrincipalId
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.sessionIssuer.type
+          to: log.userIdentitySessionContextSessionIssuerType
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.sessionIssuer.userName
+          to: log.userIdentitySessionContextSessionIssuerUserName
+
+      - rename:
+          from:
+            - log.userIdentity.sessionContext.webIdFederationData
+          to: log.userIdentitySessionContextWebIdFederationData
+
+      - rename:
+          from:
+            - log.userIdentity.type
+          to: log.userIdentityType
+
+      - rename:
+          from:
+            - log.requestParameters.durationSeconds
+          to: log.requestParametersDurationSeconds
+
+      - rename:
+          from:
+            - log.requestParameters.roleArn
+          to: log.requestParametersRoleArn
+
+      - rename:
+          from:
+            - log.requestParameters.roleSessionName
+          to: log.requestParametersRoleSessionName
+
+      - rename:
+          from:
+            - log.responseElements.assumedRoleUser.arn
+          to: log.responseElementsAssumedRoleUserArn
+
+      - rename:
+          from:
+            - log.responseElements.assumedRoleUser.assumedRoleId
+          to: log.responseElementsAssumedRoleUserAssumedRoleId
+
+      - rename:
+          from:
+            - log.responseElements.credentials.accessKeyId
+          to: log.responseElementsCredentialsAccessKeyId
+
+      - rename:
+          from:
+            - log.responseElements.credentials.expiration
+          to: log.responseElementsCredentialsExpiration
+
+      - rename:
+          from:
+            - log.responseElements.credentials.sessionToken
+          to: log.responseElementsCredentialsSessionToken
+
+      - rename:
+          from:
+            - log.requestParameters.Host
+          to: log.requestParametersHost
+
+      - rename:
+          from:
+            - log.requestParameters.acl
+          to: log.requestParametersAcl
+
+      - rename:
+          from:
+            - log.requestParameters.bucketName
+          to: log.userIdentityAccesrequestParametersBucketNamesKeyId
+
+      - rename:
+          from:
+            - log.additionalEventData.SignatureVersion
+          to: log.additionalEventDataSignatureVersion
+
+      - rename:
+          from:
+            - log.additionalEventData.AuthenticationMethod
+          to: log.additionalEventDataAuthenticationMethod
+
+      - rename:
+          from:
+            - log.additionalEventData.CipherSuite
+          to: log.additionalEventDataCipherSuite
+
+      - rename:
+          from:
+            - log.additionalEventData.bytesTransferredIn
+          to: log.additionalEventDataBytesTransferredIn
+
+      - rename:
+          from:
+            - log.additionalEventData.bytesTransferredOut
+          to: log.additionalEventDataBytesTransferredOut
+
+      - rename:
+          from:
+            - log.additionalEventData.x-amz-id-2
+          to: log.additionalEventDataXamzId2
+
+      - rename:
+          from:
+            - log.additionalEventData.SSEApplied
+          to: log.additionalEventDataSSEApplied
+
+      - rename:
+          from:
+            - log.requestParameters.key
+          to: log.requestParametersKey
+
+      - rename:
+          from:
+            - log.requestParameters.x-amz-acl
+          to: log.requestParametersXAmzAcl
+
+      - rename:
+          from:
+            - log.requestParameters.x-amz-server-side-encryption
+          to: log.requestParametersXAmzServerSideEncryption
+
+      - rename:
+          from:
+            - log.responseElements.x-amz-expiration
+          to: log.responseElementsXAmzExpiration
+
+      - rename:
+          from:
+            - log.responseElements.x-amz-server-side-encryption
+          to: log.responseElementsXAmzServerSideEncryption
+
+      - rename:
+          from:
+            - log.responseElements.assumedRoleUser
+          to: log.responseElementsAssumedRoleUser
+
+      - rename:
+          from:
+            - log.responseElements.credentials
+          to: log.responseElementsCredentials
