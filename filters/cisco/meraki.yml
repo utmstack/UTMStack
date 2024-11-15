@@ -424,8 +424,56 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("src") && gp=="flows"
+      # ........................................
+      # Event: ids-alerts, ids signature matched in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'signature(\s)?='
+            - fieldName: log.signature
+              pattern: '{{.data}}priority'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.priority
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'timestamp(\s)?='
+            - fieldName: log.msgEventTimeIn
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'direction(\s)?='
+            - fieldName: log.direction
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("signature") && gp=="ids-alerts"
+      - trim:
+          function: suffix
+          substring: 'priority='
+          fields:
+            - log.signature
       # ............................................................................
-      # Cleaning fields
+      # Cleaning common fields
       - trim:
           function: suffix
           substring: ':'
