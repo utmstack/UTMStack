@@ -1,0 +1,87 @@
+# Azure Envent-Hub filter, version 2.0.0
+# 
+# Documentations
+# 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
+# 2- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
+pipeline:
+  - dataTypes:
+      - azure
+    steps:
+      - json:
+          source: raw
+    
+      # .......................................................................#
+      # Renaming fields
+      # .......................................................................#
+      - rename:
+          from:
+            - log.ResponseBodySize
+          to: remote.bytesSent
+
+      - rename:
+          from:
+            - log.ResponseHeaderSize
+          to: remote.bytesReceived
+
+      - rename:
+          from:
+            - log.Uri
+          to: to.url
+
+      - rename:
+          from:
+            - log.AccountName
+          to: from.host
+
+      - rename:
+          from:
+            - log.StatusCode
+          to: statusCode
+
+      - rename:
+          from:
+            - log.Protocol
+          to: protocol
+
+      - rename:
+          from:
+            - log.StatusText
+          to: connectionStatus
+
+      - rename:
+          from:
+            - log.Location
+          to: remote.geolocation.country
+          
+
+      # .......................................................................#
+      # Using grok to parse IP and port of the CallerIpAddress
+      # .......................................................................#
+      - grok:
+          patterns:
+            - fieldName: remote.ip
+              pattern: '{{.ipv4}}(:)'
+            - fieldName: remote.port
+              pattern: '{{.integer}}'
+          source: log.CallerIpAddress
+          where:
+            variables:
+              - get: log.CallerIpAddress
+                as: ip
+                ofType: string
+            expression: ip.contains(":")
+
+      # .......................................................................#
+      # Fields conversions
+      # .......................................................................#
+      - cast:
+          fields:
+            - remote.port
+            - statusCode
+          to: int
+
+      - cast:
+          fields:
+            - remote.bytesSent
+            - remote.bytesReceived
+          to: float64

@@ -33,7 +33,7 @@ pipeline:
       - rename:
           from:
             - log.httpRequest.remoteIp
-          to: log.httpRequestRemoteIp
+          to: remote.ip
       
       - rename:
           from:
@@ -48,7 +48,7 @@ pipeline:
       - rename:
           from:
             - log.httpRequest.requestUrl
-          to: log.httpRequestUrl
+          to: remote.url
 
       - rename:
           from:
