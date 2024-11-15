@@ -1,4 +1,12 @@
 # ESET filter version 3.0.0
+# Based in docs
+# 
+# Documentations
+# 1- https://help.eset.com/esmc_admin/70/en-US/events-exported-to-json-format.html#custom_keys
+# 
+# Implementation
+# 1. Parsing headers of syslog the message
+# 2. Parsing RAW field log
 pipeline:
   - dataTypes:
       - antivirus-esmc-eset
