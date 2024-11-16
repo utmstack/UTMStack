@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.11.11
+	github.com/threatwinds/go-sdk v0.11.12
 	github.com/threatwinds/logger v1.1.12
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2

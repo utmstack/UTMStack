@@ -80,8 +80,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/threatwinds/go-sdk v0.11.11 h1:J/xas72YdIP88asKBUE6tEW0B8BHm6xo6T96KQrRsQw=
-github.com/threatwinds/go-sdk v0.11.11/go.mod h1:5dhRr62m6o7onRRu4KMQytgfLHN0pD5zC5O25eL6rtM=
+github.com/threatwinds/go-sdk v0.11.12 h1:zZPS0itTPqnipnGHICTY8bzVvxIM46M64YBDpg2cfP4=
+github.com/threatwinds/go-sdk v0.11.12/go.mod h1:5dhRr62m6o7onRRu4KMQytgfLHN0pD5zC5O25eL6rtM=
 github.com/threatwinds/logger v1.1.12 h1:3TzwO2+m5XwSHDc3QOYvg0nUnsj/U2yJppULndRzL/4=
 github.com/threatwinds/logger v1.1.12/go.mod h1:eevkhjP9wSpRekRIgi4ZAq7DMdlUMy+Shwx/QNDvOHg=
 github.com/tidwall/gjson v1.18.0 h1:FIDeeyB800efLX89e5a8Y0BNH+LOngJyGrIWxG2FKQY=

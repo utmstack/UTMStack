@@ -6,7 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/shirou/gopsutil/v3 v3.24.5
-	github.com/threatwinds/go-sdk v0.11.11
+	github.com/threatwinds/go-sdk v0.11.12
 	github.com/threatwinds/logger v1.1.12
 	github.com/tidwall/gjson v1.18.0
 	google.golang.org/grpc v1.68.0

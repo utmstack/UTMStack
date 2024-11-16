@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
-	github.com/threatwinds/go-sdk v0.11.11
+	github.com/threatwinds/go-sdk v0.11.12
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/grpc v1.68.0
 )
