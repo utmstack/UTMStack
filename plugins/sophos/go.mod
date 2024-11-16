@@ -6,7 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.11.12
+	github.com/threatwinds/go-sdk v0.11.13
 	github.com/threatwinds/logger v1.1.12
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/grpc v1.68.0

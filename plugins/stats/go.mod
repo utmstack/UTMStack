@@ -6,7 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.11.12
+	github.com/threatwinds/go-sdk v0.11.13
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
 )
