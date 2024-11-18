@@ -177,6 +177,13 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 				"filter": filter,
 			},
 		},
+		"sort": []map[string]interface{}{
+			{
+				"@timestamp": map[string]interface{}{
+					"order": "desc",
+				},
+			},
+		},
 	}
 
 	requestBytes, err := json.Marshal(request)
