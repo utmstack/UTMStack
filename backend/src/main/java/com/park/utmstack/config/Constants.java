@@ -120,6 +120,11 @@ public final class Constants {
     public static final String FRONT_BASE_URL = "https://10.21.199.3";
     public static final String PDF_SERVICE_URL = "http://web-pdf:8080/generate-pdf";
 
+    // ----------------------------------------------------------------------------------
+    // Defines the index pattern for querying Elasticsearch statistics indexes.
+    // ----------------------------------------------------------------------------------
+    public static final String STATISTICS_INDEX_PATTERN = "statistics-*";
+
     private Constants() {
     }
 }
