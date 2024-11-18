@@ -66,11 +66,11 @@ public class OverviewResource {
     public ResponseEntity<List<CardType>> countAlertsByStatus(@RequestParam String from, @RequestParam String to) {
         final String ctx = CLASS_NAME + ".countAlertsByStatus";
         try {
-            FilterType timestampFilter = new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, Arrays.asList(from, to));
-            FilterType statusFilter = new FilterType(Constants.alertStatus, OperatorType.IS_NOT, 1);
             List<FilterType> filters = new ArrayList<>();
-            filters.add(timestampFilter);
-            filters.add(statusFilter);
+            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, Arrays.asList(from, to)));
+            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, 1));
+            filters.add(new FilterType(Constants.alertTags, OperatorType.IS_NOT, Constants.FALSE_POSITIVE_TAG));
+
             return ResponseEntity.ok(alertService.countAlertsByStatus(filters));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

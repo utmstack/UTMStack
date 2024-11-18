@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {Subject} from 'rxjs';
+import {merge, Subject} from 'rxjs';
+import {filter, map, takeUntil} from "rxjs/operators";
 import {ALERT_STATUS_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ALL_STATUS, AUTOMATIC_REVIEW, CLOSED, IGNORED, OPEN, REVIEW} from '../../../../../../shared/constants/alert/alert-status.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
@@ -11,7 +12,6 @@ import {AlertFiltersBehavior} from '../../../behavior/alert-filters.behavior';
 import {AlertStatusBehavior} from '../../../behavior/alert-status.behavior';
 import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
 import {getCurrentAlertStatus} from '../../../util/alert-util-function';
-import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-status-filter',
@@ -48,29 +48,26 @@ export class StatusFilterComponent implements OnInit, OnDestroy {
     if (typeof this.statusFilter === 'string') {
       this.statusFilter = Number(this.statusFilter);
     }
-    this.getValuesOfStatus();
-    /**
-     * Update amount on alert status change
-     */
-    this.updateStatusServiceBehavior.$updateStatus
+
+    merge(
+      this.updateStatusServiceBehavior.$updateStatus.pipe(
+        filter(value => !!value),
+        map(() => ({source: 'updateStatus', filters: null}))
+      ),
+      this.alertFiltersBehavior.$filters.pipe(
+        filter(value => !!value),
+        map((filters) => ({source: 'filters', filters}))
+      )
+    )
       .pipe(takeUntil(this.destroy$))
-      .subscribe((update) => {
-      if (update) {
+      .subscribe((event) => {
+        if (event.source === 'filters') {
+          this.filters = event.filters;
+          this.statusFilter = getCurrentAlertStatus(this.filters);
+        }
         this.getValuesOfStatus();
-      }
-    });
-    /**
-     * Update amount on filter change
-     */
-    this.alertFiltersBehavior.$filters
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(value => {
-      if (value) {
-        this.filters = value;
-        this.statusFilter = getCurrentAlertStatus(this.filters);
-        this.getValuesOfStatus();
-      }
-    });
+      });
+
   }
 
   getValuesOfStatus() {

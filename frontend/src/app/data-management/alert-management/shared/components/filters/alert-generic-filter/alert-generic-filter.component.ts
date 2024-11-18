@@ -1,4 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {ALERT_TAGS_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticDataTypesEnum} from '../../../../../../shared/enums/elastic-data-types.enum';
@@ -8,8 +10,6 @@ import {ElasticFilterType} from '../../../../../../shared/types/filter/elastic-f
 import {UtmFieldType} from '../../../../../../shared/types/table/utm-field.type';
 import {AlertFiltersBehavior} from '../../../behavior/alert-filters.behavior';
 import {AlertUpdateTagBehavior} from '../../../behavior/alert-update-tag.behavior';
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-alert-generic-filter',
@@ -101,7 +101,6 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   }
 
   getFieldValues() {
-    console.log('load values');
     const field = this.setFieldKeyword();
     const filters = this.activeFilters
       .filter(value => !value.field.includes(field));

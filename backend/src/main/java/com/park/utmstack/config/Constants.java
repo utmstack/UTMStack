@@ -70,12 +70,15 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     public static final String alertIdKeyword = "id.keyword";
     public static final String alertStatus = "status";
+    public static final String alertTags = "tags";
     public static final String alertIsIncident = "isIncident";
     public static final String alertNameKeyword = "name.keyword";
     public static final String alertSeverityLabel = "severityLabel.keyword";
     public static final String alertCategoryKeyword = "category.keyword";
     public static final String alertDataSourceKeyword = "dataSource.keyword";
     public static final int LOG_ANALYZER_TOTAL_RESULTS = 10000;
+
+    public static final String FALSE_POSITIVE_TAG = "False positive";
 
     /**
      * Environment variables

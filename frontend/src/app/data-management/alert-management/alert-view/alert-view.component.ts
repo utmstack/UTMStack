@@ -425,14 +425,14 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       this.filters = filters;
       this.page = 1;
       this.getAlert('on generic filter change');
-      this.updateStatusServiceBehavior.$updateStatus.next(true);
+      // this.updateStatusServiceBehavior.$updateStatus.next(true);
       this.alertFiltersBehavior.$filters.next(this.filters);
     });
   }
 
   processFilters(filter: ElasticFilterType): Promise<ElasticFilterType[]> {
     return new Promise<ElasticFilterType[]>(resolve => {
-      const indexFilters = this.filters.findIndex(value => filter.field.includes(value.field));
+      const indexFilters = this.filters.findIndex(value => filter.field === value.field && value.value !== FALSE_POSITIVE_OBJECT.tagName);
       if (indexFilters === -1) {
         this.filters.push(filter);
       } else {
