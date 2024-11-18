@@ -193,8 +193,14 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 	if hits, ok := response["hits"].(map[string]interface{}); ok {
 		if total, ok := hits["total"].(map[string]interface{}); ok {
 			if val, ok := total["value"].(float64); ok {
-				if val > 0 && val <= 25 {
+				if val > 0 {
 					updated = true
+
+					if logs, ok := response["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["logs"]; !ok {
+						if len(logs.([]string)) > 25 {
+							return false
+						}
+					}
 
 					body := map[string]interface{}{
 						"script": map[string]interface{}{
