@@ -34,7 +34,7 @@ pipeline:
       - rename:
           from:
             - log.event.dataset
-          to: action
+          to: log.action
 
       - rename:
           from:
@@ -60,7 +60,7 @@ pipeline:
       - rename:
           from:
             - log.json.action
-          to: actionResult
+          to: action
 
       - rename:
           from:

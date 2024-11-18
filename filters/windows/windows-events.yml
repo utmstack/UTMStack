@@ -152,11 +152,6 @@ pipeline:
 
       - rename:
           from:
-            - log.winlog.event_data.Resource
-          to: log.winlogEventDataResource
-
-      - rename:
-          from:
             - log.winlog.event_data.AuthenticationPackageName
           to: log.winlogEventDataAuthenticationPackageName
 
@@ -358,7 +353,7 @@ pipeline:
       - rename:
           from:
             - log.log.level
-          to: log.logLevel
+          to: log.severityLabel
 
       - rename:
           from:
@@ -5576,1302 +5571,1302 @@ pipeline:
 
       # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'read'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x1" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'read'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x1" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x1" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x1" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'write'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x2" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'write'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x2" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x2" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x2" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'append'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x4" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'append'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x4" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x4" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x4" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'read_extended_attributes'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x8" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'read_extended_attributes'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x8" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x8" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x8" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'write_extended_attributes'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x10" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'write_extended_attributes'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x10" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to write extended file attributes.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x10" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to write extended file attributes.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x10" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'execute'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x20" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'execute'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x20" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x20" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x20" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'delete_child'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x40" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'delete_child'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x40" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'For a directory, the right to delete a directory and all the files it contains, including read-only files.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x40" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'For a directory, the right to delete a directory and all the files it contains, including read-only files.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x40" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'read_attributes'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x80" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'read_attributes'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x80" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to read file attributes.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x80" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to read file attributes.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x80" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'write_attributes'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x100" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'write_attributes'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x100" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to write file attributes.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x100" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to write file attributes.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x100" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'delete'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x10000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'delete'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x10000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to delete the object.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x10000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to delete the object.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x10000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'read_control'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x20000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'read_control'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x20000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to read information in the security descriptor object, without including the information in the system access control list (SACL).'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x20000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to read information in the security descriptor object, without including the information in the system access control list (SACL).'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x20000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'write_dac'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x40000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'write_dac'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x40000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to modify the discretionary access control list (DACL) in the security descriptor object.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x40000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to modify the discretionary access control list (DACL) in the security descriptor object.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x40000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'write_owner'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x80000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'write_owner'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x80000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to change the owner in the security descriptor object'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x80000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to change the owner in the security descriptor object'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x80000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'synchronize'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x100000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'synchronize'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x100000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x100000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x100000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessType
-          value: 'access_sys_sec'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x1000000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessType
+            value: 'access_sys_sec'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x1000000" && code=="4663"
 
       - add:
-        function: 'string'
-        params:
-          key: log.accessDescription
-          value: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEeventDataAccessMask
-              as: acces
-              oftype: string
-          expression: acces=="0x1000000" && code=="4663"
+          function: 'string'
+          params:
+            key: log.accessDescription
+            value: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEeventDataAccessMask
+                as: acces
+                oftype: string
+            expression: acces=="0x1000000" && code=="4663"
 
       # Decoding the "eventStatus" field
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Account locked out'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000234"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Account locked out'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000234"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Account expired'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000193"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Account expired'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000193"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Clocks out of sync'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000133"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Clocks out of sync'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000133"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Password change required'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000224"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Password change required'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000224"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'User does not have logon right'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xc000015b"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'User does not have logon right'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xc000015b"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Logon failure'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xc000006d"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Logon failure'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xc000006d"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Account restriction'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xc000006e"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Account restriction'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xc000006e"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'An error occurred during logon'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xc00002ee"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'An error occurred during logon'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xc00002ee"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Password expired'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000071"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Password expired'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000071"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Account disabled'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000072"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Account disabled'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000072"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Authentication firewall prohibits logon'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC0000413"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Authentication firewall prohibits logon'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC0000413"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Incorrect password'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xc000006a"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Incorrect password'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xc000006a"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Account does not exist'
-        where:
-          variables:
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xc0000064"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Account does not exist'
+          where:
+            variables:
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xc0000064"
 
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Customer database entry has expired'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x1" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Customer database entry has expired'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x1" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'The server database entry has expired'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x2" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'The server database entry has expired'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x2" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Requested protocol version not supported'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x3" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Requested protocol version not supported'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x3" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Customer key encrypted in old master key'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x4" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Customer key encrypted in old master key'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x4" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Server key encrypted with old master key'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x5" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Server key encrypted with old master key'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x5" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Client not found in Kerberos database'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x6" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Client not found in Kerberos database'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x6" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Server not found in Kerberos database'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x7" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Server not found in Kerberos database'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x7" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Multiple principal entries in database'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x8" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Multiple principal entries in database'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x8" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'The client or server has a null key'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x9" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'The client or server has a null key'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x9" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Ticket not eligible for postdating'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xA" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Ticket not eligible for postdating'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xA" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Requested start time is later than end time'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xB" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Requested start time is later than end time'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xB" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'KDC policy rejects request'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xC" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'KDC policy rejects request'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xC" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'KDC cannot accommodate requested option'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xD" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'KDC cannot accommodate requested option'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xD" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'KDC has no support for encryption type'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xE" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'KDC has no support for encryption type'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xE" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'KDC has no support for checksum type'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0xF" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'KDC has no support for checksum type'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0xF" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'KDC has no support for padata type'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x10" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'KDC has no support for padata type'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x10" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'KDC has no support for transited type'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x11" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'KDC has no support for transited type'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x11" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Clients credentials have been revoked'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x12" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Clients credentials have been revoked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x12" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Credentials for server have been revoked'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x13" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Credentials for server have been revoked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x13" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'TGT has been revoked'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x14" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'TGT has been revoked'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x14" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Client not yet valid - try again later'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x15" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Client not yet valid - try again later'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x15" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Server not yet valid - try again later'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x16" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Server not yet valid - try again later'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x16" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Password has expired'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x17" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Password has expired'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x17" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Pre-authentication information was invalid'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x18" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Pre-authentication information was invalid'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x18" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Additional pre-authentication required'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x19" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Additional pre-authentication required'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x19" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Integrity check on decrypted field failed'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x1F" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Integrity check on decrypted field failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x1F" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Ticket expired'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x20" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Ticket expired'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x20" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Ticket not yet valid'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x21" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Ticket not yet valid'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x21" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Request is a replay'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x22" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Request is a replay'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x22" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'The ticket is not for us'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x23" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'The ticket is not for us'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x23" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Ticket and authenticator is not match'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x24" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Ticket and authenticator is not match'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x24" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Clock skew too great'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x25" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Clock skew too great'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x25" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Incorrect net address'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x26" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Incorrect net address'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x26" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Protocol version mismatch'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x27" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Protocol version mismatch'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x27" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Invalid msg type'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x28" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Invalid msg type'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x28" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Message stream modified'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x29" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Message stream modified'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x29" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Message out of order'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x2A" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Message out of order'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x2A" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Specified version of key is not available'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x2C" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Specified version of key is not available'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x2C" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Service key not available'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x2D" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Service key not available'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x2D" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Mutual authentication failed'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x2E" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Mutual authentication failed'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x2E" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Incorrect message direction'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x2F" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Incorrect message direction'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x2F" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Alternative authentication method required'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x30" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Alternative authentication method required'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x30" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Incorrect sequence number in message'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x31" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Incorrect sequence number in message'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x31" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Inappropriate type of checksum in message'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x32" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Inappropriate type of checksum in message'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x32" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Generic error (description in e-text)'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x3C" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Generic error (description in e-text)'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x3C" && code=="4771"
 
       - add:
-        function: 'string'
-        params:
-          key: log.statusDescription
-          value: 'Field is too long for this implementation'
-        where:
-          variables:
-            - get: log.eventCode
-              as: code
-              oftype: string
-            - get: log.winlogEventDataStatus
-              as: status
-              oftype: string
-          expression: status=="0x3D" && code=="4771"
+          function: 'string'
+          params:
+            key: log.statusDescription
+            value: 'Field is too long for this implementation'
+          where:
+            variables:
+              - get: log.eventCode
+                as: code
+                oftype: string
+              - get: log.winlogEventDataStatus
+                as: status
+                oftype: string
+            expression: status=="0x3D" && code=="4771"
 
       - delete:
           fields:

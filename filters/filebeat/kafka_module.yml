@@ -72,7 +72,7 @@ pipeline:
           patterns:
             - fieldName: log.deviceTime
               pattern: '\[{{.data}}\]'
-            - fieldName: log.logLevel
+            - fieldName: log.severityLabel
               pattern: '{{.word}}'
             - fieldName: log.restData
               pattern: '{{.greedy}}'
@@ -82,16 +82,20 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.msg
-              pattern: '{{.greedy}}'
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.class
+              pattern: '\({{.greedy}}\)'
           source: log.restData
 
       # Logs Controller Kafka parsing
       - grok:
           patterns:
             - fieldName: log.component
-              pattern: '\[{{.data}}\]'
+              pattern: '\[{{.data}}\](\:|\,)?'
             - fieldName: log.msg
-              pattern: '{{.greedy}}'
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.class
+              pattern: '\({{.greedy}}\)'
           source: log.restData
       
       # Removing unused caracters
@@ -107,6 +111,16 @@ pipeline:
           fields:
             - log.deviceTime
             - log.component
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
+            - log.class
+      - trim:
+          function: suffix
+          substring: ')'
+          fields:
+            - log.class
       
       # Removing unused fields
       - delete:
@@ -119,4 +133,5 @@ pipeline:
             - log.event
             - log.ecs
             - log.log.file
+            - log.log
             - log.restData

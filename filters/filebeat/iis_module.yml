@@ -78,7 +78,7 @@ pipeline:
               pattern: '\/[^ ]*|(-)'
             - fieldName: log.userIdent
               pattern: '{{.integer}}|(-)'
-            - fieldName: log.remotePort
+            - fieldName: remote.port
               pattern: '\b([0-9]{1,5})\b'
             - fieldName: remote.user
               pattern: '{{.word}}|(-)'
@@ -88,7 +88,7 @@ pipeline:
               pattern: 'Mozilla(.*?)\s'
             - fieldName: log.referrer
               pattern: 'https?:\/\/[^\s]+|(-)'
-            - fieldName: log.statusCode
+            - fieldName: statusCode
               pattern: '{{.integer}}'
             - fieldName: log.subStatusCode
               pattern: '{{.integer}}'
@@ -104,7 +104,7 @@ pipeline:
             - log.statusCode
             - log.subStatusCode
             - log.win32Status
-            - log.timeTaken
+            - log.timeSpent
           to: int
 
       # Removing unused fields

@@ -23,10 +23,7 @@ import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,11 +57,8 @@ public class OverviewService {
                 return result;
             }
 
-            List<FilterType> filters = new ArrayList<>();
-            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
-
             SearchRequest sr = SearchRequest.of(s -> s.index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
-                .query(SearchUtil.toQuery(filters)).aggregations(AGG_NAME, Aggregation.of(agg -> agg
+                .query(SearchUtil.toQuery(this.getDefaultFilters(Collections.emptyList()))).aggregations(AGG_NAME, Aggregation.of(agg -> agg
                     .dateRange(dr -> dr.field(Constants.timestamp)
                         .keyed(true).timeZone("UTC")
                         .ranges(r -> r.key(TODAY_KEY).from(f -> f.expr("now/d")).to(t -> t.expr("now")))
@@ -90,11 +84,7 @@ public class OverviewService {
             if (!elasticsearchService.indexExist(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS)))
                 return new TableType();
 
-            List<FilterType> filters = new ArrayList<>();
-            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
-            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
-
-            SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
+            SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(this.getDefaultFilters(List.of(from, to))))
                 .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
                 .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.alertNameKeyword)
                     .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
@@ -124,11 +114,7 @@ public class OverviewService {
             if (!elasticsearchService.indexExist(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS)))
                 return new PieType();
 
-            List<FilterType> filters = new ArrayList<>();
-            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
-            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
-
-            SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
+            SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(this.getDefaultFilters(List.of(from, to))))
                 .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
                 .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.alertSeverityLabel)
                     .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
@@ -160,11 +146,7 @@ public class OverviewService {
             if (!elasticsearchService.indexExist(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS)))
                 return new BarType();
 
-            List<FilterType> filters = new ArrayList<>();
-            filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
-            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
-
-            SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
+            SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(this.getDefaultFilters(List.of(from, to))))
                 .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
                 .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.alertCategoryKeyword)
                     .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
@@ -307,5 +289,17 @@ public class OverviewService {
         } catch (Exception e) {
             throw new DashboardOverviewException(ctx + ": " + e.getMessage());
         }
+    }
+
+    private List<FilterType> getDefaultFilters(List<String> dateRange){
+        List<FilterType> filters = new ArrayList<>();
+        filters.add(new FilterType(Constants.alertStatus, OperatorType.IS_NOT, AlertStatus.AUTOMATIC_REVIEW.getCode()));
+        filters.add(new FilterType(Constants.alertTags, OperatorType.IS_NOT, Constants.FALSE_POSITIVE_TAG));
+
+        if(!CollectionUtils.isEmpty(dateRange)){
+            filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, dateRange));
+        }
+
+        return  filters;
     }
 }

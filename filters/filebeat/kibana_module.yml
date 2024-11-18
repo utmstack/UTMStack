@@ -60,7 +60,7 @@ pipeline:
       - rename:
           from:
             - log.kibana._audit_temp.event.action
-          to: actionResult
+          to: log.action
 
       - rename:
           from:
@@ -85,12 +85,12 @@ pipeline:
       - rename:
           from:
             - log.kibana._audit_temp.type
-          to: log.logLevel
+          to: log.severityLabel
 
       - rename:
           from:
             - log.kibana._audit_temp.event.outcome
-          to: log.outcome
+          to: actionResult
 
       - rename:
           from:
@@ -112,7 +112,7 @@ pipeline:
           patterns:
             - fieldName: log.deviceTime
               pattern: '\[{{.data}}\]'
-            - fieldName: log.logLevel
+            - fieldName: log.severityLabel
               pattern: '\[{{.data}}\]'
             - fieldName: log.component
               pattern: '\[{{.data}}\]'
@@ -125,7 +125,7 @@ pipeline:
           substring: '['
           fields:
             - log.deviceTime
-            - log.logLevel
+            - log.severityLabel
             - log.component
 
       - trim:
@@ -133,7 +133,7 @@ pipeline:
           substring: ']'
           fields:
             - log.deviceTime
-            - log.logLevel
+            - log.severityLabel
             - log.component
 
       # Reformatting timestamps Kibana Log field

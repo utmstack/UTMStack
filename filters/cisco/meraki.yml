@@ -1,0 +1,507 @@
+# CISCO Meraki filter, version 3.0.0
+# Based on https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
+# https://documentation.cysiv.com/articles/#!data-source-onboarding-device-configuration-reference/cisco-meraki-reference-information-and-cim-mapping
+#
+# Filter Input requirements -> Syslog
+#
+# 1. Parsing the message field
+pipeline:
+  - dataTypes:
+      - firewall-meraki
+    steps:
+      # Header fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: log.serverIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      - grok:
+          patterns:
+            - fieldName: log.ciscoTime
+              pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: log.serverIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+      # Adding control flag field (Used to know if the message don't contains the header INT.INT mx_type mx_group)
+      - add:
+          function: 'string'
+          params:
+            key: log.controlFlag
+            value: 'Init'
+      # Begin message parsing
+      # First extract the generic message, then parse it
+      - grok:
+          patterns:
+            - fieldName: log.controlFlag
+              pattern: '{{.data}}(events|flows|urls|ids-alerts|security_event)'
+            - fieldName: log.genericEvent
+              pattern: '{{.greedy}}'
+          source: log.msg
+      # Parsing variant INT.INT mx_type mx_group
+      # Parsing from controlFlag (Format: Date? IP PORT INT.INT mx_type mx_group)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}{{.time}}'
+            - fieldName: local.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: local.port
+              pattern: '{{.integer}}'
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiType
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '{{.greedy}}'
+          source: log.controlFlag
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+            expression: flag!="Init"
+      - grok:
+          patterns:
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiType
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroup
+              pattern: '{{.greedy}}'
+          source: log.controlFlag
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+            expression: flag!="Init"
+      # ........................................
+      # event vpn connectivity change
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'vpn_type(\s)?='
+            - fieldName: log.vpnType
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: 'peer_contact(\s)?='
+            - fieldName: from.ip
+              pattern: '''{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'''
+            - fieldName: log.irrelevant
+              pattern: 'peer_ident(\s)?='
+            - fieldName: log.peerIdent
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: 'connectivity(\s)?='
+            - fieldName: log.connectivity
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+            expression: flag!="Init"
+      # ........................................
+      # event uplink connectivity change
+      - rename:
+          from:
+            - log.genericEvent
+          to: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("failover to")
+      # ........................................
+      # event uplink connectivity change
+      # Event: urls, HTTP GET requests in MR Access Points
+      - rename:
+          from:
+            - log.genericEvent
+          to: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("Cellular connection")
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Cellular connection'
+            - fieldName: log.connectionState
+              pattern: '(up|Up|down|Down)'
+            - fieldName: log.msgEventTime
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.merakiTypeIn
+              pattern: '{{.data}}\s'
+            - fieldName: log.merakiGroupIn
+              pattern: '(events|flows|urls|ids-alerts|security_event)'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.data}}\:'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: from.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'request(\s)?\:'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: to.url
+              pattern: '{{.greedy}}'
+          source: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: action
+                as: act
+                ofType: string
+            expression: flag!="Init" && act.contains("Cellular connection")
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: 'Cellular connection'
+            - fieldName: log.connectionState
+              pattern: '(up|Up|down|Down)'
+          source: action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: action
+                as: act
+                ofType: string
+            expression: flag!="Init" && act.contains("Cellular connection")
+      # ........................................
+      # Event: event, dhcp no offers
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}for\smac'
+            - fieldName: from.mac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'host(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp no offers")
+      - trim:
+          function: suffix
+          substring: 'for mac'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp no offers")
+      # ........................................
+      # Event: event, dhcp lease
+      - grok:
+          patterns:
+            - fieldName: action
+              pattern: '{{.data}}of\sip'
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'from server mac'
+            - fieldName: log.serverMac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'for client mac'
+            - fieldName: from.mac
+              pattern: '{{.data}}\s'
+            - fieldName: log.irrelevant
+              pattern: 'from router'
+            - fieldName: log.routerIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'on subnet'
+            - fieldName: log.subnet
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'with dns'
+            - fieldName: log.dns
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+            - fieldName: log.dns1
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp lease")
+      - trim:
+          function: suffix
+          substring: 'of ip'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: flag!="Init" && gevt.contains("dhcp lease")
+      # ........................................
+      # Event: event, HTTP GET requests in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.data}}\:'
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: from.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'request(\s)?\:'
+            - fieldName: log.method
+              pattern: '{{.word}}'
+            - fieldName: to.url
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="urls"
+      # ........................................
+      # Event: flows, IP session initiated in Meraki MX Security Appliance
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: from.mac
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'sport(\s)?='
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'pattern(\s)?\:'
+            - fieldName: log.pattern
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="flows"
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: to.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'sport(\s)?='
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: to.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'pattern(\s)?\:'
+            - fieldName: log.pattern
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="flows"
+      # ........................................
+      # Event: ids-alerts, ids signature matched in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'signature(\s)?='
+            - fieldName: log.signature
+              pattern: '{{.data}}priority'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}='
+            - fieldName: log.priority
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'timestamp(\s)?='
+            - fieldName: log.msgEventTimeIn
+              pattern: '{{.integer}}\.{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'direction(\s)?='
+            - fieldName: log.direction
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'protocol(\s)?='
+            - fieldName: protocol
+              pattern: '{{.data}}(\s)'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: from.ip
+              pattern: '{{.data}}\:'
+            - fieldName: from.port
+              pattern: '{{.integer}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("signature") && gp=="ids-alerts"
+      - trim:
+          function: suffix
+          substring: 'priority'
+          fields:
+            - log.signature
+      # ............................................................................
+      # Cleaning common fields
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - local.ip
+            - from.ip
+            - to.ip
+            - log.serverIp
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - from.ip
+            - log.peerIdent
+            - log.connectivity
+            - log.vpnType
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - from.port
+            - log.peerIdent
+            - log.connectivity
+            - log.vpnType
+      #......................................................................#
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.controlFlag
+            - log.irrelevant
+            - log.genericEvent

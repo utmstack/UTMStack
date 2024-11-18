@@ -1,0 +1,242 @@
+# Bitdefender GravityZone filter
+# Based on https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+# and the previous version of the same filter
+
+pipeline:
+  - dataTypes:
+      - antivirus-bitdefender-gz
+    steps:
+      # Using grok to parse header of the message
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
+            - fieldName: log.notDefined
+              pattern: '{{.integer}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.hostId
+              pattern: '{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}'
+            - fieldName: log.processPid
+              pattern: '\[{{.integer}}\]'
+            - fieldName: log.1trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.hostId
+              pattern: '{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}'
+            - fieldName: log.processPid
+              pattern: '\[{{.integer}}\]'
+            - fieldName: log.1trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.syslogHostIP
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.syslogDeviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.0trash
+              pattern: '{{.word}}\:{{.integer}}'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+
+      # Using grok to parse components of the cef_message
+      - grok:
+          patterns:
+            - fieldName: log.productVendor
+              pattern: '\|{{.data}}\|'
+            - fieldName: log.product
+              pattern: '{{.data}}\|'
+            - fieldName: log.productVersion
+              pattern: '{{.data}}\|'
+            - fieldName: log.signatureID
+              pattern: '{{.data}}\|'
+            - fieldName: log.eventType
+              pattern: '{{.data}}\|'
+            - fieldName: log.severity
+              pattern: '{{.data}}\|'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Using grok to parse kv issued fields with space
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}dvc='
+            - fieldName: log.dvcToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}request='
+            - fieldName: log.requestToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      # Applying grok to remove unnecessary data
+      - grok:
+          patterns:
+            - fieldName: log.deviceIps
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.dvcToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.requested
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.requestToParse
+
+      # Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+
+      # Renaming useful fields
+      - rename:
+          from:
+            - log.spt
+          to: local.port
+
+      - rename:
+          from:
+            - log.src
+          to: local.ip
+
+      - rename:
+          from:
+            - log.sproc
+          to: local.path
+
+      - rename:
+          from:
+            - log.filePath
+          to: local.path
+
+      # Removing unnecessary characters
+      - trim:
+          function: prefix
+          substring: '|'
+          fields:
+            - log.productVendor
+
+      - trim:
+          function: suffix
+          substring: '|'
+          fields:
+            - log.productVendor
+            - log.product
+            - log.productVersion
+            - log.signatureID
+            - log.eventType
+            - log.severityLabel
+
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.syslogPriority
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.processPid
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            log.processPid
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.0trash
+            - log.1trash
+            - log.restData
+            - log.irrelevant
+            - log.spt
+            - log.src
+            - log.sproc
+            - log.filePath
+            - log.dvc
+            - log.request

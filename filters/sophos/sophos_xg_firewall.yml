@@ -217,7 +217,7 @@ pipeline:
       - rename:
           from:
             - log.uploadfilename
-          to: log.uploadFileName
+          to: to.file
 
       - rename:
           from:
@@ -227,7 +227,7 @@ pipeline:
       - rename:
           from:
             - log.downloadfilename
-          to: log.downloadFileName
+          to: from.file
 
       - rename:
           from:
@@ -302,7 +302,7 @@ pipeline:
       - rename:
           from:
             - log.sentbytes
-          to: local.bytesSent
+          to: to.bytesSent
 
       - rename:
           from:
@@ -317,7 +317,7 @@ pipeline:
       - rename:
           from:
             - log.statuscode
-          to: log.statusCode
+          to: statusCode
 
       - rename:
           from:
@@ -337,7 +337,7 @@ pipeline:
       - rename:
           from:
             - log.username
-          to: log.userName
+          to: local.user
 
       - rename:
           from:
@@ -427,7 +427,7 @@ pipeline:
       - rename:
           from:
             - log.FTPurl
-          to: remote.url
+          to: log.FTPurl
 
       - rename:
           from:
@@ -467,17 +467,17 @@ pipeline:
       - rename:
           from:
             - log.clienthostname
-          to: log.clientHostName
+          to: from.user
 
       - rename:
           from:
             - log.ipaddress
-          to: local.ip
+          to: from.ip
 
       - rename:
           from:
             - log.clientphysicaladdress
-          to: log.clientPhysicalAddress
+          to: from.mac
 
       - rename:
           from:
@@ -546,7 +546,7 @@ pipeline:
             - log.vLanId
             - log.deviceType
             - remote.command
-            - log.clientHostName
+            - from.user
             - log.ipAddress
             - log.clientPhysicalAddress
             - log.authMechanism
@@ -561,20 +561,20 @@ pipeline:
             - remote.path
             - log.ftpDirection
             - remote.url
-            - log.downloadFileName
+            - from.file
             - log.downloadFileType
-            - log.uploadFileName
+            - to.file
             - log.uploadFileType
             - protocol
             - log.reason
             - log.referer
             - log.status
-            - log.statusCode
+            - statusCode
             - log.url
             - log.virus
             - log.userAgent
             - log.userGroup
-            - log.userName
+            - local.user
             - log.bridgeName
             - log.bridgeDisplayName
             - log.timeZone
@@ -604,7 +604,7 @@ pipeline:
             - log.vLanId
             - log.deviceType
             - remote.command
-            - log.clientHostName
+            - from.user
             - log.ipAddress
             - log.clientPhysicalAddress
             - log.authMechanism
@@ -619,20 +619,20 @@ pipeline:
             - remote.path
             - log.ftpDirection
             - remote.url
-            - log.downloadFileName
+            - from.file
             - log.downloadFileType
-            - log.uploadFileName
+            - to.file
             - log.uploadFileType
             - protocol
             - log.reason
             - log.referer
             - log.status
-            - log.statusCode
+            - statusCode
             - log.url
             - log.virus
             - log.userAgent
             - log.userGroup
-            - log.userName
+            - local.user
             - log.bridgeName
             - log.bridgeDisplayName
             - log.timeZone
@@ -656,7 +656,7 @@ pipeline:
       # Field conversions
       - cast:
           fields:
-            - log.statusCode
+            - statusCode
             - remote.port
           to: int
 
