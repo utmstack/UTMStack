@@ -67,12 +67,14 @@ func StackUP(c *types.Config, stack *types.StackConfig) error {
 	if err != nil {
 		return err
 	}
-
+	
+	fmt.Println("  Downloading images:")
 	for _, service := range compose.Services {
-		fmt.Println("Downloading ", *service.Image)
+		fmt.Print("    Downloading ", *service.Image)
 		if err := utils.RunCmd("docker", "pull", *service.Image); err != nil {
 			return err
 		}
+		fmt.Println(" [OK]")
 	}
 
 	if err := utils.RunCmd("docker", "stack", "deploy", "-c", "compose.yml", "utmstack"); err != nil {
@@ -85,7 +87,7 @@ func StackUP(c *types.Config, stack *types.StackConfig) error {
 func PostInstallation() error {
 	time.Sleep(3 * time.Minute)
 
-	fmt.Println("Securing ports 9200, 5432 and 10000")
+	fmt.Print("  Securing ports 9200, 5432 and 10000")
 
 	if err := utils.RunCmd("docker", "service", "update", "--publish-rm", "9200", "utmstack_node1"); err != nil {
 		return err
@@ -95,9 +97,9 @@ func PostInstallation() error {
 		return err
 	}
 
-	fmt.Println("Securing ports 9200, 5432 and 10000 [OK]")
+	fmt.Println(" [OK]")
 
-	fmt.Println("Restarting Stack")
+	fmt.Print("  Restarting Stack")
 
 	time.Sleep(60 * time.Second)
 
@@ -109,15 +111,15 @@ func PostInstallation() error {
 		return err
 	}
 
-	fmt.Println("Restarting Stack [OK]")
+	fmt.Println(" [OK]")
 
-	fmt.Println("Cleaning up Docker system")
+	fmt.Print("  Cleaning up Docker system")
 
 	if err := utils.RunCmd("docker", "system", "prune", "-f"); err != nil {
 		return err
 	}
 
-	fmt.Println("Cleaning up Docker system [OK]")
+	fmt.Println(" [OK]")
 
 	return nil
 }

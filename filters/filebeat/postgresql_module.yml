@@ -71,20 +71,23 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.deviceTime
-              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}} | 
+                        {{.year}}(-){{.monthNumber}}(-){{.monthDay}}{{.space}}{{.time}}{{.space}}((UTC)?)'
             - fieldName: from.host
               pattern: '{{.hostname}}'
-            - fieldName: from.process
+            - fieldName: from.irrelevant
               pattern: '{{.word}}'
             - fieldName: log.processId
               pattern: '((\[{{.data}}\]:)?)'
-            - fieldName: log.messageNumber
+            - fieldName: log.groupId
               pattern: '(\[{{.data}}\])'
-            - fieldName: log.error
-              pattern: '((\d+)?)'
+            - fieldName: log.errorCode
+              pattern: '{{.integer}}'
             - fieldName: log.sessionId
               pattern: '(([0-9a-f]{8}\.[0-9a-f]{4})?)'
-            - fieldName: log.actionResult
+            - fieldName: log.messageType
+              pattern: '{{.word}}(\:)?'
+            - fieldName: log.msg
               pattern: '{{.greedy}}' 
           source: log.message
 
@@ -94,10 +97,13 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.deviceTime
-              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}{{.space}}{{.time}}{{.space}}((UTC)?)'
-            - fieldName: log.processId
-              pattern: '((\[{{.data}}\])?)'
-            - fieldName: log.actionResult
+              pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}{{.space}}{{.time}}{{.space}}((UTC)?) |
+                        {{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.groupId
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.messageType
+              pattern: '{{.word}}(\:)?'
+            - fieldName: log.msg
               pattern: '{{.greedy}}' 
           source: log.message
 
@@ -106,19 +112,20 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.messageNumber
             - log.processId
+            - log.groupId
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.processId
+            - log.messageType
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.messageNumber
             - log.processId
+            - log.groupId
             
       # Removing unused fields
       - delete:

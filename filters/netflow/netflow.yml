@@ -19,6 +19,31 @@ pipeline:
           fieldSplit: " "
           valueSplit: "="
 
+      # Remove fields that have issues with kv filter
+      - delete:
+          fields:
+            - log.msg
+      
+      # Using grok to parse kv issued fields
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(msg=)'
+            - fieldName: log.msg
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.kvMessage
+
+      # Using grok to remove irrelevant data
+      - grok:
+          patterns:
+            - fieldName: log.msg
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.word}}(=)'
+          source: log.msg
+
       # Rename filds
       - rename:
           from:

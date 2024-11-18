@@ -1,6 +1,6 @@
 # Palo Alto Firewall, version 3.0.0
 # Based in docs and samples log provided
-# Support Syslog CEF format
+# Support Syslog CEF && LEEF format && CSV format && KV format
 #
 # Documentations
 # 1- https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/monitoring/use-syslog-for-monitoring/syslog-field-descriptions
@@ -8,6 +8,9 @@
 #
 # Implementation
 # 1. Parsing the RAW field containing the Palo Alto Firewall
+# 2. Parsing headers of syslog the message 
+# 3. Parsing the KV field containing the Palo Alto Firewall
+# 4. Parsing the CSV field containing the Palo Alto Firewall
 
 pipeline:
   - dataTypes:
@@ -80,7 +83,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -107,7 +110,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -135,7 +138,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -165,7 +168,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -193,7 +196,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -220,7 +223,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -247,7 +250,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -274,7 +277,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -301,7 +304,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -328,7 +331,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -355,7 +358,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -382,7 +385,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -410,7 +413,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -437,7 +440,7 @@ pipeline:
               pattern: '{{.data}}\|'
             - fieldName: log.paType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: log.severityLabel
               pattern: '{{.data}}\|'
             - fieldName: log.cefOrLeefMsg
               pattern: '{{.greedy}}'
@@ -540,7 +543,7 @@ pipeline:
             - log.paSenderSwVersion
             - log.paType
             - log.paSubtype
-            - log.severity
+            - log.severityLabel
 
       # .......................................................................#
       # Using grok to parse kv indiduals fields
@@ -5900,3 +5903,1140 @@ pipeline:
             - log.cefOrLeefMsgAll
             - log.cefOrLeefMsg
             - log.irrelevant
+
+      #......................................................................#
+      # If CSV formatted log do the parsing of the message
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.futureUse
+              pattern: '{{.integer}}'
+            - fieldName: log.csvMsgAll
+              pattern: '{{.greedy}}'
+          source: raw
+
+      #......................................................................#
+      # Cleaning fields
+      #......................................................................#
+      - trim:
+          function: prefix
+          substring: '<'
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: '>'
+          fields:
+            - log.priority
+
+      #......................................................................#
+      # Detect if its a TRAFFIC log
+      #......................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time 
+            - log.serial 
+            - log.pa_type 
+            - log.pa_subtype 
+            - log.future_use 
+            - log.time_generated 
+            - log.src            
+            - log.dst 
+            - log.natsrc 
+            - log.natdst 
+            - log.rule 
+            - log.srcuser 
+            - log.dstuser 
+            - log.app 
+            - log.vsys 
+            - log.from 
+            - log.to 
+            - log.inbound_if                        
+            - log.outbound_if 
+            - log.logset 
+            - log.future_use 
+            - log.sessionid 
+            - log.repeatcnt 
+            - log.spt 
+            - log.dpt 
+            - log.natspt 
+            - log.natdpt                           
+            - log.flags 
+            - log.proto 
+            - log.act 
+            - log.bytes 
+            - log.bytes_sent 
+            - log.bytes_received 
+            - log.packets 
+            - log.start 
+            - log.elapsed                          
+            - log.category 
+            - log.future_use 
+            - log.seqno 
+            - log.actionflags 
+            - log.srcloc 
+            - log.dstloc 
+            - log.future_use 
+            - log.pkts_sent                       
+            - log.pkts_received 
+            - log.session_end_reason 
+            - log.dg_hier_level_1 
+            - log.dg_hier_level_2 
+            - log.dg_hier_level_3                         
+            - log.dg_hier_level_4vsys_name 
+            - log.device_name 
+            - log.action_source 
+            - log.src_uuid 
+            - log.dst_uuid 
+            - log.tunnelid_imsi                        
+            - log.monitortag_imei 
+            - log.parent_session_id 
+            - log.parent_start_time 
+            - log.tunnel 
+            - log.assoc_id 
+            - log.chunks 
+            - log.chunks_sent                       
+            - log.chunks_received 
+            - log.rule_uuid 
+            - log.http2_connection 
+            - log.link_change_count 
+            - log.policy_id 
+            - log.link_switches                      
+            - log.sdwan_cluster 
+            - log.sdwan_device_type 
+            - log.sdwan_cluster_type 
+            - log.sdwan_site 
+            - log.dynusergroup_name 
+            - log.xff_ip                      
+            - log.src_category 
+            - log.src_profile 
+            - log.src_model 
+            - log.src_vendor 
+            - log.src_osfamily 
+            - log.src_osversion 
+            - log.src_host                       
+            - log.src_mac 
+            - log.dst_category 
+            - log.dst_profile 
+            - log.dst_model 
+            - log.dst_vendor 
+            - log.dst_osfamily 
+            - log.dst_osversion                         
+            - log.dst_host 
+            - log.dst_mac 
+            - log.container_id 
+            - log.pod_namespace 
+            - log.pod_name 
+            - log.src_edl 
+            - log.dst_edl 
+            - log.hostid                    
+            - log.serialnumber 
+            - log.src_dag 
+            - log.dst_dag 
+            - log.session_owner 
+            - log.high_res_timestamp 
+            - log.nsdsai_sst 
+            - log.nsdsai_sd                        
+            - log.subcategory_of_app 
+            - log.category_of_app 
+            - log.technology_of_app 
+            - log.risk_of_app 
+            - log.characteristic_of_app                         
+            - log.container_of_app 
+            - log.tunneled_app 
+            - log.is_saas_of_app 
+            - log.sanctioned_state_of_app 
+            - log.offloaded
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string
+            expression: csvMsgAll.matches("(.+),(\\s)?(TRAFFIC)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
+      
+      #......................................................................#
+      # Detect if its a THREAT log in csvMsgAll
+      #......................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.src
+            - log.dst
+            - log.natsrc
+            - log.natdst
+            - log.rule
+            - log.srcuser
+            - log.dstuser
+            - log.app
+            - log.vsys
+            - log.from
+            - log.to
+            - log.inbound_if
+            - log.outbound_if
+            - log.logset
+            - log.future_use
+            - log.sessionid
+            - log.repeatcnt
+            - log.spt
+            - log.dpt
+            - log.natspt
+            - log.natdpt
+            - log.flags
+            - log.proto
+            - log.act
+            - log.misc
+            - log.pa_threatid
+            - log.category
+            - log.severityLabel
+            - log.direction
+            - log.seqno
+            - log.actionflags
+            - log.srcloc
+            - log.dstloc
+            - log.future_use
+            - log.contenttype
+            - log.pcap_id
+            - log.filedigest
+            - log.cloud
+            - log.url_idx
+            - log.user_agent
+            - log.filetype
+            - log.xff
+            - log.referer
+            - log.sender
+            - log.subject
+            - log.recipient
+            - log.reportid
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.future_use
+            - log.src_uuid
+            - log.dst_uuid
+            - log.http_method
+            - log.tunnelid_imsi
+            - log.monitortag_imei
+            - log.parent_session_id
+            - log.parent_start_time
+            - log.tunnel
+            - log.thr_category
+            - log.contentver
+            - log.future_use
+            - log.assoc_id
+            - log.ppid
+            - log.http_headers
+            - log.url_category_list
+            - log.rule_uuid
+            - log.http2_connection
+            - log.dynusergroup_name
+            - log.xff_ip  
+            - log.src_category
+            - log.src_profile
+            - log.src_model
+            - log.src_vendor
+            - log.src_osfamily
+            - log.src_osversion
+            - log.src_host            
+            - log.src_mac 
+            - log.dst_category
+            - log.dst_profile
+            - log.dst_model
+            - log.dst_vendor
+            - log.dst_osfamily
+            - log.dst_osversion
+            - log.dst_host
+            - log.dst_mac
+            - log.container_id
+            - log.pod_namespace
+            - log.pod_name
+            - log.src_edl
+            - log.dst_edl
+            - log.hostid
+            - log.serialnumber
+            - log.domain_edl
+            - log.src_dag
+            - log.dst_dag
+            - log.partial_hash
+            - log.high_res_timestamp
+            - log.reason
+            - log.justification
+            - log.nssai_sst
+            - log.subcategory_of_app
+            - log.category_of_app
+            - log.technology_of_app
+            - log.risk_of_app
+            - log.characteristic_of_app
+            - log.container_of_app
+            - log.tunneled_app
+            - log.is_saas_of_app
+            - log.sanctioned_state_of_app
+            - log.cloud_reportid
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(THREAT)(\\s)?,(\\s)?(data|DLP|DLP-NON-FILE|FILE|file|flood|packet|scan|spyware|URL|ml-virus|virus|vulnerability|wildfire|wildfire-virus)(\\s)?,(.+)")
+
+      #......................................................................#
+      # Detect if its a HIP-MATCH log in csvMsgAll
+      #......................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.srcuser
+            - log.vsys
+            - log.machinename
+            - log.os
+            - log.src
+            - log.matchname
+            - log.repeatcnt
+            - log.matchtype
+            - log.future_use
+            - log.future_use
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+            - log.srcipv6
+            - log.hostid
+            - log.serialnumber
+            - log.mac
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(HIP-MATCH)(\\s)?,(.+)")
+      
+      # ..........................................................................#
+      # Detect if its a GLOBALPROTECT log
+      # ..........................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ','
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.vsys
+            - log.eventid
+            - log.stage
+            - log.auth_method
+            - log.tunnel_type
+            - log.srcuser
+            - log.srcregion
+            - log.machinename
+            - log.public_ip
+            - log.public_ipv6
+            - log.private_ip
+            - log.private_ipv6
+            - log.hostid
+            - log.serialnumber
+            - log.client_ver
+            - log.client_os
+            - log.client_os_ver
+            - log.repeatcnt
+            - log.reason
+            - log.error
+            - log.opaque
+            - log.status
+            - log.location
+            - log.PanOSLoginDuration
+            - log.connect_method
+            - log.error_code
+            - log.portal
+            - log.seqno
+            - log.actionflags
+            - log.high_res_timestamp
+            - log.selection_type
+            - log.response_time
+            - log.priority
+            - log.attempted_gateways
+            - log.gateway
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(GLOBALPROTECT)(\\s)?,(\\s)?(data|file|flood|packet|scan|spyware|URL|virus|vulnerability|wildfire|wildfire-virus)(\\s)?,(.+)")
+
+      # ..........................................................................#
+      # Detect if its a IPTAG log
+      # ..........................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ','
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.vsys
+            - log.src
+            - log.tag_name
+            - log.eventid
+            - log.repeatcnt
+            - log.timeout
+            - log.datasourcename
+            - log.datasource_type
+            - log.datasource_subtype
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(IPTAG)(\\s)?,(.+)")
+
+      # ..........................................................................#
+      # Detect if its a USERID log
+      # ..........................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ','
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.vsys
+            - log.src
+            - log.user
+            - log.datasourcename
+            - log.eventid
+            - log.repeatcnt
+            - log.timeout
+            - log.beginport
+            - log.endport
+            - log.datasource
+            - log.datasource_type
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+            - log.factortype
+            - log.factorcompletiontime
+            - log.factorno
+            - log.future_use
+            - log.future_use
+            - log.ugflags
+            - log.userbysource
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(USERID)(\\s)?,(\\s)?(login|logout|register-tag|unregister-tag)(\\s)?,(.+)")
+
+      # ..........................................................................#
+      # Detect if its a DECRYPTION log
+      # ..........................................................................#
+      - csv:
+          source: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.config_ver
+            - log.time_generated
+            - log.src
+            - log.dst
+            - log.natsrc
+            - log.natdst
+            - log.rule
+            - log.srcuser
+            - log.dstuser
+            - log.app
+            - log.vsys  
+            - log.from
+            - log.to
+            - log.inbound_if
+            - log.outbound_if
+            - log.logset
+            - log.time_received
+            - log.sessionid
+            - log.repeatcnt
+            - log.spt
+            - log.dpt
+            - log.natspt
+            - log.natdpt
+            - log.flags
+            - log.proto
+            - log.act
+            - log.tunnel
+            - log.future_use
+            - log.future_use
+            - log.src_uuid
+            - log.dst_uuid
+            - log.rule_uuid
+            - log.hs_stage_c2f
+            - log.hs_stage_f2s
+            - log.tls_version
+            - log.tls_keyxchg
+            - log.tls_enc
+            - log.tls_auth
+            - log.policy_name
+            - log.ec_curve
+            - log.err_index
+            - log.root_status
+            - log.chain_status
+            - log.proxy_type
+            - log.cert_serial
+            - log.fingerprint
+            - log.notbefore
+            - log.notafter
+            - log.cert_ver
+            - log.cert_size
+            - log.cn_len
+            - log.issuer_len
+            - log.rootcn_len
+            - log.sni_len
+            - log.cert_flags
+            - log.cn
+            - log.issuer_cn
+            - log.root_cn
+            - log.sni
+            - log.error
+            - log.container_id
+            - log.pod_namespace
+            - log.pod_name
+            - log.src_edl
+            - log.dst_edl
+            - log.src_dag
+            - log.dst_dag
+            - log.high_res_timestamp
+            - log.src_category
+            - log.src_profile
+            - log.src_model
+            - log.src_vendor
+            - log.src_osfamily
+            - log.src_osversion
+            - log.src_host
+            - log.src_mac
+            - log.dst_category
+            - log.dst_profile
+            - log.dst_model
+            - log.dst_vendor
+            - log.dst_osfamily
+            - log.dst_osversion
+            - log.dst_host
+            - log.dst_mac
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+            - log.subcategory_of_app
+            - log.category_of_app
+            - log.technology_of_app
+            - log.risk_of_app
+            - log.characteristic_of_app
+            - log.container_of_app
+            - log.is_saas_of_app
+            - log.sanctioned_state_of_app
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string 
+            expression: csvMsgAll.matches("(.+),(\\s)?(DECRYPTION)(\\s)?,(.+),(\\s)?(allow|deny|drop|drop ICMP|reset both|reset client|reset server)(\\s)?,(.+)")
+
+      # ..........................................................................#
+      # Detect if its a TUNNEL INSPECTION log
+      # ..........................................................................#
+      - csv:
+          from: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.src
+            - log.dst
+            - log.natsrc
+            - log.natdst
+            - log.rule
+            - log.srcuser
+            - log.dstuser
+            - log.app
+            - log.vsys
+            - log.from
+            - log.to
+            - log.inbound_if
+            - log.outbound_if
+            - log.logset
+            - log.future_use
+            - log.sessionid
+            - log.repeatcnt
+            - log.spt
+            - log.dpt
+            - log.natspt
+            - log.natdpt
+            - log.flags
+            - log.proto
+            - log.act
+            - log.severityLabel
+            - log.seqno
+            - log.actionflags
+            - log.srcloc
+            - log.dstloc
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name 
+            - log.tunnelid
+            - log.monitortag
+            - log.parent_session_id
+            - log.parent_start_time
+            - log.tunnel
+            - log.bytes
+            - log.bytes_sent
+            - log.bytes_received
+            - log.packets
+            - log.pkts_sent
+            - log.pkts_received 
+            - log.max_encap
+            - log.unknown_proto
+            - log.strict_check
+            - log.tunnel_fragment
+            - log.sessions_created
+            - log.sessions_closed
+            - log.session_end_reason
+            - log.action_source
+            - log.start
+            - log.elapsed
+            - log.tunnel_insp_rule  
+            - log.remote_user_ip
+            - log.remote_user_id
+            - log.rule_uuid
+            - log.pcap_id
+            - log.dynusergroup_name
+            - log.src_edl
+            - log.dst_edl
+            - log.high_res_timestamp
+            - log.nssai_sd
+            - log.nssai_sd
+            - log.pdu_session_id
+            - log.subcategory_of_app
+            - log.category_of_app
+            - log.technology_of_app
+            - log.risk_of_app
+            - log.characteristic_of_app
+            - log.container_of_app
+            - log.is_saas_of_app
+            - log.sanctioned_state_of_app
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string 
+            expression: csvMsgAll.matches("(.+),(\\s)?(START|END)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
+
+      # ..........................................................................#
+      # Detect if its a SCTP log
+      # ..........................................................................#
+      - csv:
+          from: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.future_use
+            - log.future_use
+            - log.time_generated
+            - log.src
+            - log.dst
+            - log.future_use
+            - log.future_use
+            - log.rule
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.vsys
+            - log.from
+            - log.to
+            - log.inbound_if
+            - log.outbound_if
+            - log.logset
+            - log.future_use
+            - log.sessionid
+            - log.repeatcnt
+            - log.spt
+            - log.dpt
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.proto
+            - log.act
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.seqno
+            - log.future_use
+            - log.assoc_id
+            - log.ppid
+            - log.severityLabel
+            - log.sctp_chunk_type
+            - log.future_use
+            - log.verif_tag_1
+            - log.verif_tag_2
+            - log.sctp_cause_code
+            - log.diam_app_id
+            - log.diam_cmd_code
+            - log.diam_avp_code
+            - log.stream_id
+            - log.assoc_end_reason
+            - log.op_code
+            - log.sccp_calling_ssn
+            - log.sccp_calling_gt
+            - log.sctp_filter
+            - log.chunks
+            - log.chunks_sent
+            - log.chunks_received
+            - log.packets
+            - log.pkts_sent
+            - log.pkts_received
+            - log.rule_uuid
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string 
+            expression: csvMsgAll.matches("(.+),(\\s)?(SCTP)(\\s)?,(.+),(\\s)?(allow|deny)(\\s)?,(.+)")
+
+      #......................................................................#
+      # Detect if its a CONFIG log
+      #......................................................................#
+      - csv:
+          from: log.csvMsgAll
+          separator: ','
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.host
+            - log.vsys
+            - log.cmd
+            - log.admin
+            - log.client
+            - log.result
+            - log.path
+            - log.before_change_detail
+            - log.after_change_detail
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.dg_id
+            - log.comment
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string 
+            expression: csvMsgAll.matches("(.+),(\\s)?(CONFIG)(\\s)?,(.+),(\\s)?(add|clone|commit|delete|edit|move|rename|set)(\\s)?,(.+)")
+
+      #......................................................................#      
+      # Detect if its a AUTHENTICATION log
+      #......................................................................#
+      - csv:
+          from: log.csvMsgAll
+          separator: ','
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype            
+            - log.future_use
+            - log.time_generated
+            - log.vsys
+            - log.src
+            - log.user
+            - log.normalize_user
+            - log.object
+            - log.authpolicy
+            - log.repeatcnt
+            - log.authid
+            - log.vendor
+            - log.logset
+            - log.serverprofile
+            - log.desc
+            - log.clienttype
+            - log.event
+            - log.factorno
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+            - log.authproto
+            - log.rule_uuid
+            - log.high_res_timestamp
+            - log.src_category
+            - log.src_profile
+            - log.src_model
+            - log.src_vendor
+            - log.src_osfamily
+            - log.src_osversion
+            - log.src_host
+            - log.src_mac
+            - log.region
+            - log.user_agent
+            - log.sessionid
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string 
+            expression: csvMsgAll.matches("(.+),(\\s)?(AUTHENTICATION)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
+
+      #......................................................................#      
+      # Detect if its a SYSTEM log
+      #......................................................................#
+      - csv:  
+          from: log.csvMsgAll
+          separator: ','
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.vsys
+            - log.eventid
+            - log.object
+            - log.future_use
+            - log.future_use
+            - log.module
+            - log.severityLabel
+            - log.opaque
+            - log.seqno
+            - log.actionflags
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.future_use
+            - log.future_use
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string 
+            expression: csvMsgAll.matches("(.+),(\\s)?(SYSTEM)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
+
+      #......................................................................#      
+      # Detect if its a CORRELATED EVENTS log
+      #......................................................................#
+      - csv:
+          from: log.csvMsgAll 
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.src
+            - log.srcuser
+            - log.vsys
+            - log.category
+            - log.severityLabel
+            - log.dg_hier_level_1
+            - log.dg_hier_level_2
+            - log.dg_hier_level_3
+            - log.dg_hier_level_4
+            - log.vsys_name
+            - log.device_name
+            - log.vsys_id
+            - log.objectname
+            - log.object_id
+            - log.evidence
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(CORRELATION)(\\s)?,(\\s)?(crypto|dhcp|dnsproxy|dos|general|global-protect|ha|hw|nat|ntpd|pbf|port|pppoe|ras|routing|satd|sslmgr|sslvpn|userid|url-filtering|vpn)(\\s)?,(.+)")
+
+      #......................................................................#
+      # Detect if its a GTP log
+      #......................................................................#
+      - csv:
+          from: log.csvMsgAll
+          separator: ","
+          headers:
+            - log.receive_time
+            - log.serial
+            - log.pa_type
+            - log.pa_subtype
+            - log.future_use
+            - log.time_generated
+            - log.src
+            - log.dst
+            - log.future_use
+            - log.future_use
+            - log.rule
+            - log.future_use
+            - log.future_use
+            - log.app
+            - log.vsys            
+            - log.from
+            - log.to
+            - log.inbound_if
+            - log.outbound_if
+            - log.logset
+            - log.future_use
+            - log.sessionid
+            - log.repeatcnt
+            - log.spt
+            - log.dpt
+            - log.future_use
+            - log.future_use
+            - log.proto
+            - log.act
+            - log.event_type
+            - log.msisdn
+            - log.apn
+            - log.rat
+            - log.msg_type
+            - log.end_ip_adr
+            - log.teid1
+            - log.teid2
+            - log.gtp_interface
+            - log.cause_code
+            - log.severityLabel
+            - log.mcc
+            - log.mnc
+            - log.area_code
+            - log.cell_id
+            - log.event_code
+            - log.future_use
+            - log.future_use
+            - log.srcloc
+            - log.dstloc
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.imsi
+            - log.imei
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.future_use
+            - log.high_res_timestamp
+          where:
+            variables:
+              - get: log.csvMsgAll
+                as: csvMsgAll
+                ofType: string  
+            expression: csvMsgAll.matches("(.+),(\\s)?(GTP)(\\s)?,(\\s)?(start|end|drop|deny)(\\s)?,(.+)")
+
+      # ................................................#
+      # Rename fields
+       # ................................................#
+      - rename:
+          from:
+            - log.src
+          to: from.ip
+          
+      - rename:
+          from:
+            - log.dst
+          to: to.ip
+          
+      - rename:
+          from:
+            - log.dpt
+          to: to.port
+          
+      - rename:
+          from:
+            - log.spt
+          to: from.port
+          
+      - rename:
+          from:
+            - log.srcuser
+          to: from.user
+          
+      - rename:
+          from:
+            - log.dstuser
+          to: to.user
+
+      - rename:
+          from:
+            - log.proto
+          to: protocol
+
+      - rename:
+          from:
+            - log.act
+          to: action
+
+      - rename:
+          from:
+            - log.bytessent
+          to: to.bytesSent
+
+      - rename:
+          from:
+            - log.bytesreceived
+          to: to.bytesReceived
+
+      - rename:
+          from:
+            - log.pktssent
+          to: to.packagesSent
+
+      - rename:
+          from:
+            - log.pktsreceived
+          to: to.packagesReceived
+
+      - rename:
+          from:
+            - log.srchost
+          to: from.host
+
+      - rename:
+          from:
+            - log.srcmac
+          to: from.mac
+
+      - rename:
+          from:
+            - log.dsthost
+          to: to.host
+
+      - rename:
+          from:
+            - log.dstmac
+          to: to.mac 
+
+      # ................................................#
+      # Fileds conversions
+      # ................................................#
+      - cast:
+          fields:
+            - to.bytessent
+            - to.bytesreceived
+          to: float64
+      
+      - cast:
+          fields:
+            - to.pktssent
+            - to.packagesReceived
+          to: int64
+
+      - cast:
+          fields:
+            - to.port
+            - from.port
+          to: int
+
+      # ..........................................................................#
+      # Remove issues fileds
+      # ..........................................................................#
+      - delete:
+          fields:
+            - log.csvMsgAll

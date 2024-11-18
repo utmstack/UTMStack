@@ -1,0 +1,12 @@
+# IBM AS 400 filter version 3.0.0
+# Support Java Collector Syslog messsages
+
+pipeline:
+  - dataTypes:
+      - ibm-as400
+    steps:
+      - grok:
+          patterns:
+            - field_name: log.message
+              pattern: '(.*)'
+          source: raw

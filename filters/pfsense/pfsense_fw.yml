@@ -1,0 +1,356 @@
+# PfSense Firewall filter, version 3.0.0
+# Based on docs and samples log provided
+# Support CSV format  format
+#
+# Documentations
+# 1- https://docs.netgate.com/pfsense/en/latest/monitoring/logs/raw-filter-format.html
+#
+# Implementation
+# 1. Parsing the RAW field containing the PfSense
+# 2. Parsing headers of syslog the message 
+# 3. Parsing the CSV field containing the PfSense
+
+pipeline:
+  - dataTypes:
+      - firewall-pfsense
+    steps:
+      #......................................................................#
+      #......................................................................#
+      # Using grok to parse syslogHeader of the message
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.syslogVersion
+              pattern: '{{.integer}}'
+            - fieldName: log.deviceTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}{{.iso8601Timezone}}'
+            - fieldName: log.syslogHost
+              pattern: '{{.hostname}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+
+      #......................................................................#
+      # Removing unnecessary characters of the syslogHeader
+      #......................................................................#
+      - trim:
+          function: prefix
+          substring: "<"
+          fields:
+            - log.priority
+      - trim:
+          function: suffix
+          substring: ">"
+          fields:
+            - log.priority
+
+      #......................................................................#
+      # Checking that the msgAll field exists
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.eventType
+              pattern: '{{.word}}'
+            - fieldName: log.pid
+              pattern: '(\[)?({{.integer}}?)(\])?(- -|:)'
+            - fieldName: log.csvMsg
+              pattern: '{{.greedy}}'
+          source: log.msgAll
+
+      #......................................................................#
+      # Removing unnecessary characters
+      #......................................................................#
+      - trim:
+          function: prefix
+          substring: "["
+          fields:
+            - log.pid
+      - trim:
+          function: suffix
+          substring: "]:"
+          fields:
+            - log.pid
+
+      # ..........................................................................#
+      # Remove issues fileds
+      # ..........................................................................#
+      - delete:
+          fields:
+            - log.msgAll
+      
+      #......................................................................#
+      # Using csv to parse the message
+      #......................................................................#      
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+            - log.tcpFlags
+            - log.sequenceNumber
+            - log.ackNumber
+            - log.tcpWindow
+            - log.urg
+            - log.tcpOptions
+          where:
+            variables:
+              - get: log.csvMsg
+                as: msg
+                ofType: string
+            expression: msg.matches("(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(tcp|TCP|Tcp)")
+
+      # .......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+          where:
+            variables:
+              - get: log.csvMsg
+                as: msg
+                ofType: string
+            expression: msg.matches("(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(udp|UDP|Udp)")
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          columns:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.icmpType
+            - log.icmpData1
+            - log.icmpData2
+            - log.icmpData3
+            - log.icmpData4
+            - log.icmpData5
+          where:
+            variables:
+              - get: log.csvMsg
+                as: msg
+                ofType: string
+            expression: msg.matches("(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(icmp|ICMP|Icmp)")
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          columns:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+            - log.tcpFlags
+            - log.sequenceNumber
+            - log.ackNumber
+            - log.tcpWindow
+            - log.urg
+            - log.tcpOptions
+          where:
+            variables:
+              - get: log.csvMsg
+                as: msg
+                ofType: string
+            expression: msg.matches("(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(6|17),(.+)(tcp|TCP|Tcp)")
+      
+      #......................................................................#
+      - csv:
+          source: csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.srcPort
+            - log.dstPort
+            - log.dataLength
+          where:
+            variables:
+              - get: log.csvMsg
+                as: msg
+                ofType: string
+            expression: msg.matches("(.+),(match|\\w+),(block|pass),(in|out),6,(.+)(udp|UDP|Udp)") 
+
+      #......................................................................#
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+            - log.icmpType
+            - log.icmpData1
+            - log.icmpData2
+            - log.icmpData3
+            - log.icmpData4
+            - log.icmpData5
+          where:
+            variables:
+              - get: log.csvMsg
+                as: msg
+                ofType: string
+            expression: msg.matches("(.+),(match|\\w+),(block|pass),(in|out),(6|17),(.+)(icmp|ICMP|Icmp)")
+
+      # ................................................#
+      # Rename fields
+      # ................................................#
+      - rename:
+          from:
+            - log.action
+          to: action
+
+      - rename:
+          from:
+            - log.proto
+          to: protocol
+
+      - rename:
+          from:
+            - log.srcIp
+          to: from.ip
+
+      - rename:
+          from:
+            - log.destIp
+          to: to.ip
+
+      - rename:
+          from:
+            - log.srcPort
+          to: from.port
+
+      - rename:
+          from:
+            - log.destPort
+          to: to.port
+
+      - rename:
+          from:
+            - log.destPort
+          to: to.port
+
+      # ................................................#
+      # Fileds conversions
+      # ................................................#
+      - cast:
+          fields:
+            - from.port
+            - to.port
+          to: int
+
+      # ..........................................................................#
+      # Remove issues fileds
+      # ..........................................................................#
+      - delete:
+          fields:
+            - log.csvMsg
