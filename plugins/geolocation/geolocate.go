@@ -58,10 +58,6 @@ func getCity(a string) cityBlock {
 
 	var city cityBlock
 
-	if IsLocal(ip) {
-		return city
-	}
-
 	for _, e := range cityBlocks {
 		if e.network.Contains(ip) {
 			city = e
@@ -74,10 +70,6 @@ func getASN(a string) asnBlock {
 	ip := net.ParseIP(a)
 
 	var asn asnBlock
-
-	if IsLocal(ip) {
-		return asn
-	}
 
 	for _, e := range asnBlocks {
 		if e.network.Contains(ip) {
