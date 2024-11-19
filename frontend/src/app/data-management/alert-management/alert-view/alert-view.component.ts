@@ -53,8 +53,9 @@ import {AlertStatusBehavior} from '../shared/behavior/alert-status.behavior';
 import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/row-to-filters.component';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
-import {OpenAlertsService} from '../shared/services/open-alerts.service';
+import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {LocalStorageService} from "ngx-webstorage";
 
 
 @Component({
@@ -106,6 +107,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   tags: AlertTags[];
   showRefresh = false;
   destroy$ = new Subject<void>();
+  openAlerts = 0;
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
@@ -119,11 +121,13 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
               private spinner: NgxSpinnerService,
-              private checkEmailConfigService: CheckEmailConfigService) {
+              private checkEmailConfigService: CheckEmailConfigService,
+              private localStorage: LocalStorageService,) {
     // this.tableWidth = this.pageWidth - 300;
   }
 
   ngOnInit() {
+    this.openAlerts = this.localStorage.retrieve(OPEN_ALERTS_KEY);
     this.checkEmailConfigService.check(ParamShortType.Alert);
     this.setInitialWidth();
     this.getTags();
@@ -167,7 +171,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.incomingAlert$ = this.openAlertsService.openAlerts$
       .pipe(
         takeUntil(this.destroy$),
-        tap(() => this.showRefresh = true));
+        tap(() => this.showRefresh = true),
+        filter( incomingAlerts => this.openAlerts === null || this.openAlerts < incomingAlerts));
   }
 
   refreshAlerts() {
@@ -278,7 +283,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     }
     this.getCurrentStatus();
     this.getAlert('on set default params');
-    this.updateStatusServiceBehavior.$updateStatus.next(true);
+    // this.updateStatusServiceBehavior.$updateStatus.next(true);
     this.alertFiltersBehavior.$filters.next(this.filters);
   }
 
