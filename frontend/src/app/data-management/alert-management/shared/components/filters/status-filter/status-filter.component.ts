@@ -1,4 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {merge, Subject} from 'rxjs';
+import {filter, map, takeUntil} from "rxjs/operators";
 import {ALERT_STATUS_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ALL_STATUS, AUTOMATIC_REVIEW, CLOSED, IGNORED, OPEN, REVIEW} from '../../../../../../shared/constants/alert/alert-status.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
@@ -16,7 +18,7 @@ import {getCurrentAlertStatus} from '../../../util/alert-util-function';
   templateUrl: './status-filter.component.html',
   styleUrls: ['./status-filter.component.scss']
 })
-export class StatusFilterComponent implements OnInit {
+export class StatusFilterComponent implements OnInit, OnDestroy {
   @Input() dataNature: DataNatureTypeEnum;
   @Input() filters: ElasticFilterType[];
   @Input() dataType: EventDataTypeEnum;
@@ -35,6 +37,7 @@ export class StatusFilterComponent implements OnInit {
   ];
   allStatusValue = ALL_STATUS;
   autoReview = AUTOMATIC_REVIEW;
+  destroy$: Subject<void> = new Subject();
 
   constructor(private elasticSearchIndexService: ElasticSearchIndexService,
               private alertFiltersBehavior: AlertFiltersBehavior,
@@ -45,25 +48,26 @@ export class StatusFilterComponent implements OnInit {
     if (typeof this.statusFilter === 'string') {
       this.statusFilter = Number(this.statusFilter);
     }
-    this.getValuesOfStatus();
-    /**
-     * Update amount on alert status change
-     */
-    this.updateStatusServiceBehavior.$updateStatus.subscribe((update) => {
-      if (update) {
+
+    merge(
+      this.updateStatusServiceBehavior.$updateStatus.pipe(
+        filter(value => !!value),
+        map(() => ({source: 'updateStatus', filters: null}))
+      ),
+      this.alertFiltersBehavior.$filters.pipe(
+        filter(value => !!value),
+        map((filters) => ({source: 'filters', filters}))
+      )
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        if (event.source === 'filters') {
+          this.filters = event.filters;
+          this.statusFilter = getCurrentAlertStatus(this.filters);
+        }
         this.getValuesOfStatus();
-      }
-    });
-    /**
-     * Update amount on filter change
-     */
-    this.alertFiltersBehavior.$filters.subscribe(value => {
-      if (value) {
-        this.filters = value;
-        this.statusFilter = getCurrentAlertStatus(this.filters);
-        this.getValuesOfStatus();
-      }
-    });
+      });
+
   }
 
   getValuesOfStatus() {
@@ -136,5 +140,10 @@ export class StatusFilterComponent implements OnInit {
     } else {
       return true;
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
