@@ -203,7 +203,7 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 				if val > 0 {
 					updated = true
 
-					if logs, ok := response["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["logs"]; !ok {
+					if logs, ok := response["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["logs"]; ok {
 						if len(logs.([]string)) > 25 {
 							return false
 						}
