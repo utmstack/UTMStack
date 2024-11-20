@@ -21,11 +21,23 @@ import {ComplianceSharedModule} from './shared/compliance-shared.module';
 import {ComplianceScheduleComponent} from "./compliance-schedule/compliance-schedule.component";
 import {
   DashboardFilterCreateComponent
-} from "../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component";
-import {DashboardBuilderModule} from "../graphic-builder/dashboard-builder/dashboard-builder.module";
-import {AlertManagementSharedModule} from "../data-management/alert-management/shared/alert-management-shared.module";
+} from '../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component';
+import {DashboardBuilderModule} from '../graphic-builder/dashboard-builder/dashboard-builder.module';
+import {AlertManagementSharedModule} from '../data-management/alert-management/shared/alert-management-shared.module';
 import { ComplianceReportViewerComponent } from './compliance-report-viewer/compliance-report-viewer.component';
-import {UtmCpStandardComponent} from "./shared/components/utm-cp-standard/utm-cp-standard.component";
+import {UtmCpStandardComponent} from './shared/components/utm-cp-standard/utm-cp-standard.component';
+import { ComplianceReportsViewComponent } from './compliance-reports-view/compliance-reports-view.component';
+import {
+  ComplianceStatusComponent
+} from './compliance-reports-view/components/compliance-status/compliance-status.component';
+import {
+  ComplianceReportDetailComponent
+} from './compliance-reports-view/components/compliance-report-detail/compliance-report-detail.component';
+import {
+  ComplianceTimeWindowsComponent
+} from './compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
+import {TimeWindowsService} from "./shared/components/utm-cp-section/time-windows.service";
+import {NgxJsonViewerModule} from "ngx-json-viewer";
 
 @NgModule({
   declarations: [
@@ -35,7 +47,11 @@ import {UtmCpStandardComponent} from "./shared/components/utm-cp-standard/utm-cp
     ComplianceCustomViewComponent,
     ComplianceScheduleComponent,
     ComplianceReportViewerComponent,
-    UtmCpStandardComponent
+    UtmCpStandardComponent,
+    ComplianceReportsViewComponent,
+    ComplianceStatusComponent,
+    ComplianceReportDetailComponent,
+    ComplianceTimeWindowsComponent
   ],
   imports: [
     CommonModule,
@@ -55,14 +71,18 @@ import {UtmCpStandardComponent} from "./shared/components/utm-cp-standard/utm-cp
     DashboardBuilderModule,
     NgbCollapseModule,
     AlertManagementSharedModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgxJsonViewerModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [
     ComplianceResultParamsComponent,
     DashboardFilterCreateComponent,
     UtmCpStandardComponent],
-  exports: []
+  exports: [],
+  providers: [
+    TimeWindowsService
+  ]
 })
 export class ComplianceModule {
 }

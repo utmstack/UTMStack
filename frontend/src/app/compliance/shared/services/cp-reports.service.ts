@@ -8,7 +8,7 @@ import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceReportType} from '../type/compliance-report.type';
 
 export interface ReportParams  {
-  template: number;
+  template: ComplianceReportType;
   sectionId: number;
   standardId: number;
 }
@@ -17,7 +17,7 @@ export interface ReportParams  {
   providedIn: 'root'
 })
 // GET /api/compliance/report
-export class CpReportsService extends RefreshDataService<{ sectionId: number, loading: boolean }, HttpResponse<ComplianceReportType[]>> {
+export class CpReportsService extends RefreshDataService<{ sectionId: number, loading: boolean, reportSelected: number }, HttpResponse<ComplianceReportType[]>> {
   private resourceUrl = SERVER_API_URL + 'api/compliance/report-config';
   private loadReportSubject = new BehaviorSubject<ReportParams>(null);
   readonly onLoadReport$ = this.loadReportSubject.asObservable();

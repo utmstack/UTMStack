@@ -10,7 +10,7 @@ import {RefreshDataService} from '../../../shared/services/util/refresh-data.ser
   providedIn: 'root'
 })
 // GET /api/compliance/section
-export class CpStandardSectionService extends RefreshDataService<boolean, HttpResponse<ComplianceStandardSectionType[]>> {
+export class CpStandardSectionService extends RefreshDataService<{loading: boolean, activeSection: number}, HttpResponse<ComplianceStandardSectionType[]>> {
   private resourceUrl = SERVER_API_URL + 'api/compliance/standard-section';
 
   constructor(private http: HttpClient) {

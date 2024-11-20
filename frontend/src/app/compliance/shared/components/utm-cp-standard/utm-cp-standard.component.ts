@@ -1,7 +1,8 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {EMPTY, Observable} from "rxjs";
+import {LocalStorageService} from 'ngx-webstorage';
+import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {CpStandardService} from '../../services/cp-standard.service';
@@ -19,11 +20,12 @@ export class UtmCpStandardComponent implements OnInit {
   @Output() standardSelect = new EventEmitter<number>();
   standards$: Observable<ComplianceStandardType[]>;
   selectedStandard: ComplianceStandardType;
-  title = 'Select Standard';
+  title = 'Select framework';
 
   constructor(private standardService: CpStandardService,
               private toastService: UtmToastService,
-              public activeModal: NgbActiveModal) {
+              public activeModal: NgbActiveModal,
+              private $localStorage: LocalStorageService) {
   }
 
   ngOnInit() {
@@ -37,6 +39,7 @@ export class UtmCpStandardComponent implements OnInit {
           return EMPTY;
         }));
 
+    this.selectedStandard = this.$localStorage.retrieve('selectedStandard');
     this.standardService.notifyRefresh(true);
   }
 
@@ -51,6 +54,7 @@ export class UtmCpStandardComponent implements OnInit {
   }
 
   confirmSelection() {
+    this.$localStorage.store('selectedStandard', this.selectedStandard);
     this.activeModal.close(this.selectedStandard);
   }
 }

@@ -1,0 +1,5 @@
+<td style="width: 10%; padding: 0 !important;">
+  <div *ngIf="time$ | async as time">
+    {{ time | timePeriod }}
+  </div>
+</td>

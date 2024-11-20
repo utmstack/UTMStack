@@ -25,4 +25,6 @@ export class ComplianceReportType {
   configType?: ComplianceTypeEnum;
   configUrl?: string;
   associatedDashboard?: UtmDashboardType;
+  selected?: boolean;
+  status?: boolean;
 }

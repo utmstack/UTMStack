@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridType} from 'angular-gridster2';
@@ -20,7 +20,7 @@ import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
-import {filter, takeUntil, tap} from 'rxjs/operators';
+import {filter, map, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-compliance-result-view',
@@ -28,6 +28,7 @@ import {filter, takeUntil, tap} from 'rxjs/operators';
   styleUrls: ['./compliance-result-view.component.scss']
 })
 export class ComplianceResultViewComponent implements OnInit, OnDestroy {
+  @Input() showExport = true;
   reportId: number;
   report: ComplianceReportType;
   signatures: HippaSignaturesType[] = [];
@@ -66,6 +67,7 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   configSolution: string;
   filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject<void>();
+  showBack = false;
 
   constructor(private activeRoute: ActivatedRoute,
               private cpReportsService: CpReportsService,
@@ -79,15 +81,23 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.activeRoute.queryParams
-      .pipe( tap(() => this.loadingVisualizations = true))
+      .pipe(filter((params) => Object.keys(params).length > 0),
+          tap(() => {
+            this.loadingVisualizations = true;
+            this.showBack = true;
+          }))
       .subscribe((params) => {
-      this.initializeReportParams(params);
+        this.initializeReportParams(params);
     });
 
     this.cpReportsService.onLoadReport$
       .pipe(takeUntil(this.destroy$),
+            filter(params => !!params),
             tap(() => this.loadingVisualizations = true),
-            filter(params => !!params))
+            map(params => ({
+              ...params,
+              template: params.template.id
+            })))
       .subscribe(params => {
         this.initializeReportParams(params);
       });
@@ -140,6 +150,7 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   }
   exportToPdf() {
     filtersToStringParam(this.filtersValues).then(queryParams => {
+      console.log('click');
       this.spinner.show('buildPrintPDF');
       const params = queryParams !== '' ? '?' + queryParams : '';
       const url = '/dashboard/export-compliance/' + this.reportId +  params;

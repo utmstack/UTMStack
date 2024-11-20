@@ -1,0 +1,9 @@
+<div *ngIf="compliance$ | async as compliance">
+    <span [ngClass]="compliance.status ? 'text-success' : 'text-danger'"
+          class="span-small-icon d-flex justify-content-start align-items-center">
+         <!-- <i
+            [ngClass]="'icon-circle2'"
+            class="mr-2"></i>-->
+      {{compliance.status ? 'Compliant' : 'Non compliant'}}
+    </span>
+</div>

@@ -35,6 +35,7 @@ import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
 import {AccountService} from "./core/auth/account.service";
+import {AlertManagementSharedModule} from "./data-management/alert-management/shared/alert-management-shared.module";
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import {AccountService} from "./core/auth/account.service";
     Ng2TelInputModule,
     NgxFlagIconCssModule,
     Ng2Webstorage.forRoot(),
+    AlertManagementSharedModule,
   ],
   providers: [
     LocalStorageService,
