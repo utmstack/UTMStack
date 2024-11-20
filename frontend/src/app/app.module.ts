@@ -69,7 +69,6 @@ import {UtmSharedModule} from './shared/utm-shared.module';
     Ng2TelInputModule,
     NgxFlagIconCssModule,
     Ng2Webstorage.forRoot(),
-    AlertManagementSharedModule,
   ],
   providers: [
     LocalStorageService,
