@@ -1,4 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {ALERT_TAGS_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticDataTypesEnum} from '../../../../../../shared/enums/elastic-data-types.enum';
@@ -14,7 +16,7 @@ import {AlertUpdateTagBehavior} from '../../../behavior/alert-update-tag.behavio
   templateUrl: './alert-generic-filter.component.html',
   styleUrls: ['./alert-generic-filter.component.scss']
 })
-export class AlertGenericFilterComponent implements OnInit {
+export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   @Output() filterGenericChange = new EventEmitter<ElasticFilterType>();
   @Input() fieldFilter: UtmFieldType;
   activeFilters: ElasticFilterType[] = [];
@@ -27,6 +29,7 @@ export class AlertGenericFilterComponent implements OnInit {
   top = 6;
   filter: ElasticFilterType;
   sort: { orderByCount: boolean, sortAsc: boolean } = {orderByCount: true, sortAsc: false};
+  destroy$: Subject<void> = new Subject<void>();
 
   constructor(private elasticSearchIndexService: ElasticSearchIndexService,
               private alertFiltersBehavior: AlertFiltersBehavior,
@@ -39,7 +42,9 @@ export class AlertGenericFilterComponent implements OnInit {
      * If filter is tags subscribe to changes to reload data on add new tag on alert
      */
     if (this.fieldFilter.field === ALERT_TAGS_FIELD) {
-      this.alertUpdateTagBehavior.$tagRefresh.subscribe(tagUpdate => {
+      this.alertUpdateTagBehavior.$tagRefresh
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(tagUpdate => {
         if (tagUpdate) {
           this.getFieldValues();
         }
@@ -48,12 +53,16 @@ export class AlertGenericFilterComponent implements OnInit {
     /**
      * Reset all values of selected filter
      */
-    this.alertFiltersBehavior.$resetFilter.subscribe(reset => {
+    this.alertFiltersBehavior.$resetFilter
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(reset => {
       if (reset) {
         this.selected = [];
       }
     });
-    this.alertFiltersBehavior.$deleteFilterValue.subscribe(deleteFilter => {
+    this.alertFiltersBehavior.$deleteFilterValue
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(deleteFilter => {
       if (deleteFilter) {
         const deleteField = deleteFilter.field.replace('.keyword', '');
         if (this.fieldFilter.field === deleteField) {
@@ -64,7 +73,9 @@ export class AlertGenericFilterComponent implements OnInit {
         }
       }
     });
-    this.alertFiltersBehavior.$filters.subscribe((filters: ElasticFilterType[]) => {
+    this.alertFiltersBehavior.$filters
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((filters: ElasticFilterType[]) => {
       if (filters) {
         this.activeFilters = filters;
         this.getFieldValues();
@@ -159,5 +170,10 @@ export class AlertGenericFilterComponent implements OnInit {
   onSortValuesChange($event: { orderByCount: boolean; sortAsc: boolean }) {
     this.sort = $event;
     this.getFieldValues();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

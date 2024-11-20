@@ -1,3 +1,4 @@
-# UTMStack 10.5.13 Release Notes
+# UTMStack 10.5.16 Release Notes
 ## Bugfix
-- Error on server when sorting by severity column in threat Management/Alerts view.
+- False positive alerts displayed in Dashboard Overview
+- Correct query parsing for filterType conditions with special characters
