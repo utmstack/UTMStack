@@ -1,0 +1,60 @@
+<div class="container-fluid p-2"> <!-- Reducido el padding general -->
+  <div class="d-flex justify-content-between align-items-center mb-2 row no-gutters"> <!-- Añadido no-gutters -->
+    <div class="col-md-6">
+      <h5 class="card-title mb-0 text-uppercase label-header">Reports Templates {{ standard ? ': ' + standard.standardName : '' }}</h5>
+    </div>
+    <div class="col-md-6">
+      <div *appHasAnyAuthority="admin" class="d-flex justify-content-end">
+        <button (click)="manageStandards()" class="btn utm-button utm-button-primary">
+          <i class="icon-cog3 mr-1"></i> Change framework
+        </button>
+        <a *ngIf="action == 'reports'" (click)="exportToPdf()" class="btn utm-button utm-button-primary ml-2">
+          <i [ngClass]="pdfExport ? 'icon-download10' : 'icon-file-pdf'" class="mr-1"></i>
+          {{ pdfExport ? 'Generating...' : 'Save to PDF' }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row m-0">
+    <div style="max-width: 300px" class="col-lg-3 col-md-3 col-sm-12 pl-0 pr-0 full-height mr-2"> <!-- Asegúrate de que aquí no haya padding o margen no deseado -->
+      <div class="h-100 card m-0">
+        <div class="card-header header-elements-sm-inline p-0 bg-white card-header-title">
+          <div class="d-flex justify-content-between w-100">
+            <div class="section-icon d-flex flex-column align-items-center cursor-pointer pt-2"
+                 [ngClass]="{'active-section': action === 'compliance'}"
+                 (click)="selectAction('compliance')">
+              <img src="assets/icons/compliance/regulatory-compliance.png" alt="compliance">
+              <span class="section-label">Compliance</span>
+            </div>
+
+            <div class="section-icon d-flex flex-column align-items-center cursor-pointer pt-2"
+                 [ngClass]="{'active-section': action === 'reports'}"
+                 (click)="selectAction('reports')">
+              <img src="assets/icons/compliance/analysis.png" alt="reports">
+              <span class="section-label">Reports</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0 m-0">
+          <div *ngFor="let section of sections$ | async; let index = index; trackBy: trackFn" class="d-flex flex-column">
+            <app-utm-cp-section [section]="section"
+                                [loadFirst]="index === activeIndexSection"
+                                [index]="index"
+                                (isActive)="onChangeSectionActive($event)"
+                                [expandable]="action==='reports'">
+            </app-utm-cp-section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-grow-1">
+      <div class="h-100 card m-0">
+        <app-compliance-reports-view [section]="activeSection" *ngIf="action === 'compliance'"></app-compliance-reports-view>
+        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" ></app-compliance-result-view>
+      </div>
+    </div>
+  </div>
+</div>
