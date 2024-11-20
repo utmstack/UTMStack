@@ -28,8 +28,8 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   destroy$: Subject<void> = new Subject();
   report: ComplianceReportType;
   pdfExport = false;
-  action: 'reports' | 'compliance';
-  activeSection: ComplianceStandardSectionType;
+  action: 'reports' | 'compliance' = 'compliance';
+  activeSection: ComplianceStandardSectionType = null;
 
   constructor(private standardSectionService: CpStandardSectionService,
               private toastService: UtmToastService,
@@ -37,7 +37,9 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
               private $localStorage: LocalStorageService,
               private spinner: NgxSpinnerService,
               private reportsService: CpReportsService,
-              private exportPdfService: ExportPdfService) { }
+              private exportPdfService: ExportPdfService) {
+    this.standard = this.$localStorage.retrieve('selectedStandard');
+  }
 
   ngOnInit() {
     this.sections$ = this.standardSectionService.onRefresh$
@@ -61,7 +63,6 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
               this.activeSection = {
                 ...sections[this.activeIndexSection]
               };
-              this.action = 'compliance';
             }),
             catchError((err: HttpErrorResponse) => {
               this.toastService.showError('Error',
@@ -76,7 +77,6 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   }
 
   ngAfterViewInit(): void {
-    this.standard = this.$localStorage.retrieve('selectedStandard');
     if (!this.standard) {
       this.manageStandards();
     } else {

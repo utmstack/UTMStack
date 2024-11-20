@@ -36,7 +36,6 @@ export class ComplianceStatusComponent implements OnInit {
         filter((refresh) => !!refresh),
         concatMap(() => this.utmRenderVisualization.query(this.request)
           .pipe(
-            tap(response => console.log('Response:', response)),
             map(response => response.body.filter(vis =>
               vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART
             )),

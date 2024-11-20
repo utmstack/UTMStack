@@ -1,5 +1,5 @@
 <div class="w-100" *ngIf="compliance$ | async as compliance">
-  <div [ngClass]="compliance.rows.length > 0 ? 'border-left-success' : 'border-left-danger'">
+  <div [ngClass]="compliance && compliance.rows.length > 0 ? 'border-left-success' : 'border-left-danger'">
     <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
       <div style="padding-left: 10px" class="w-100">
         <span class="text-blue-800 font-weight-light mr-2">Status:</span>&nbsp;
