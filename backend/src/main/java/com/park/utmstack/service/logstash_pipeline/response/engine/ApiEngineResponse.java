@@ -1,5 +1,10 @@
 package com.park.utmstack.service.logstash_pipeline.response.engine;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ApiEngineResponse {
     String version;
     String status;
@@ -11,22 +16,6 @@ public class ApiEngineResponse {
     public ApiEngineResponse(String host, String version,
                              String status) {
         this.version = version;
-        this.status = status;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
         this.status = status;
     }
 

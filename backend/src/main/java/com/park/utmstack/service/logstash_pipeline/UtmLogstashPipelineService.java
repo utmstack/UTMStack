@@ -1,5 +1,6 @@
 package com.park.utmstack.service.logstash_pipeline;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import com.park.utmstack.domain.logstash_pipeline.UtmGroupLogstashPipelineFilters;
 import com.park.utmstack.domain.logstash_pipeline.UtmLogstashPipeline;
@@ -9,14 +10,28 @@ import com.park.utmstack.repository.logstash_filter.UtmLogstashFilterRepository;
 import com.park.utmstack.repository.logstash_pipeline.UtmGroupLogstashPipelineFiltersRepository;
 import com.park.utmstack.repository.logstash_pipeline.UtmLogstashPipelineRepository;
 import com.park.utmstack.service.dto.logstash_pipeline.UtmLogstashPipelineDTO;
+import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.elasticsearch.OpensearchClientBuilder;
 import com.park.utmstack.service.logstash_pipeline.enums.PipelineStatus;
 import com.park.utmstack.service.logstash_pipeline.response.ApiPipelineResponse;
 import com.park.utmstack.service.logstash_pipeline.response.ApiStatsResponse;
 import com.park.utmstack.service.logstash_pipeline.response.engine.ApiEngineResponse;
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineData;
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineStats;
+import com.park.utmstack.service.logstash_pipeline.response.statistic.StatisticDocument;
 import com.park.utmstack.service.web_clients.rest_template.RestTemplateService;
 import com.park.utmstack.web.rest.vm.UtmLogstashPipelineVM;
+import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
+import com.utmstack.opensearch_connector.types.BucketAggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.aggregations.Aggregate;
+import org.opensearch.client.opensearch._types.aggregations.Aggregation;
+import org.opensearch.client.opensearch._types.aggregations.TermsAggregation;
+import org.opensearch.client.opensearch._types.aggregations.TopHitsAggregate;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.support.PagedListHolder;
@@ -28,6 +43,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -49,13 +67,16 @@ public class UtmLogstashPipelineService {
     private final UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository;
     private final UtmLogstashFilterRepository utmLogstashFilterRepository;
 
-    private final List<String> logshtashPipelines = Arrays.asList("AZURE","GCP");
+    private final ElasticsearchService elasticsearchService;
 
-    public UtmLogstashPipelineService(UtmLogstashPipelineRepository utmLogstashPipelineRepository, RestTemplateService restTemplateService, UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository, UtmLogstashFilterRepository utmLogstashFilterRepository) {
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public UtmLogstashPipelineService(UtmLogstashPipelineRepository utmLogstashPipelineRepository, RestTemplateService restTemplateService, UtmGroupLogstashPipelineFiltersRepository utmGroupLogstashPipelineFiltersRepository, UtmLogstashFilterRepository utmLogstashFilterRepository, OpensearchClientBuilder client, ElasticsearchService elasticsearchService) {
         this.utmLogstashPipelineRepository = utmLogstashPipelineRepository;
         this.restTemplateService = restTemplateService;
         this.utmGroupLogstashPipelineFiltersRepository = utmGroupLogstashPipelineFiltersRepository;
         this.utmLogstashFilterRepository = utmLogstashFilterRepository;
+        this.elasticsearchService = elasticsearchService;
     }
 
     /**
@@ -265,15 +286,15 @@ public class UtmLogstashPipelineService {
 
                 // Calculating stats for pipelines
                 // Setting stats for non-logstash pipelines (correlation engine)
-                    if (isCorrelationUp) {
-                        activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
-                        if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
-                            upPipelinesCount.getAndIncrement();
-                        }
-                    } else {
-                        activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
+                if (isCorrelationUp) {
+                    activePipelinesCount.getAndIncrement(); // Total pipelines that have to be active
+                    if (activePip.getPipelineStatus().equals(PipelineStatus.PIPELINE_STATUS_UP.get())) {
+                        upPipelinesCount.getAndIncrement();
                     }
-               // }
+                } else {
+                    activePip.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
+                }
+                // }
                 // Mapping stats from DB pipeline
                 return PipelineStats.getPipelineStats(activePip);
             }).collect(Collectors.toList());
@@ -299,51 +320,37 @@ public class UtmLogstashPipelineService {
      * Method to set the DB pipelines status
      */
     @Scheduled(fixedDelay = 20000, initialDelay = 30000)
-    public List<UtmLogstashPipeline> pipelineStatus() {
+    public void pipelineStatus() {
         final String ctx = CLASSNAME + ".pipelineStatus";
-        // Only logstash pipelines get updated for the moment
-        // We will add correlation pipelines status update when we know how to get the status or metrics
         List<UtmLogstashPipeline> activeByServer = utmLogstashPipelineRepository.allActivePipelinesByServer();
 
-            try {
+        try {
+            activeByServer.forEach((p) -> {
+                StatisticDocument pipeLine = this.getStatisticsDataType(Constants.STATISTICS_INDEX_PATTERN, p.getPipelineName());
 
-                ApiPipelineResponse response = pipelineApiResponse();
-                Map<String, Long> mapInit = activeByServer.stream()
-                        .collect(Collectors.toMap(UtmLogstashPipeline::getPipelineId, myId -> (
-                                getFailures(myId, response)
-                        )));
+                if (!Objects.isNull(pipeLine)) {
+                    p.setEventsOut(pipeLine.getCount());
 
-                Thread.sleep(2000);
+                    Instant timestampDate = Instant.parse(pipeLine.getTimestamp());
 
-                ApiPipelineResponse responseLast = pipelineApiResponse();
-                Map<String, PipelineData> pipelineInfo = responseLast.getPipelines();
+                    Duration duration = Duration.between(timestampDate, Instant.now());
+                    long hoursDifference = duration.toHours();
 
-                activeByServer.stream().forEach((p) -> {
-                    // Getting stats and updating DB pipeline
-                    PipelineData data = pipelineInfo.get(p.getPipelineId());
-                    if (data != null) {
-                        p.setEventsOut(data.getEvents().getOut());
-                    }
-                    Long firstFailuresCount = mapInit.get(p.getPipelineId());
-                    Long lastFailuresCount = getFailures(p, responseLast);
-                    if ((firstFailuresCount != -1 && lastFailuresCount != -1) && lastFailuresCount <= firstFailuresCount) {
-                        p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_UP.get());
-                    } else {
+                    if (hoursDifference > 6) {
                         p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
+                    } else {
+                        p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_UP.get());
                     }
-                });
-                utmLogstashPipelineRepository.saveAll(activeByServer);
-
-            } catch (Exception connectException) {
-                String msg = ctx + ": " + connectException.getMessage();
-                log.error(msg);
-                activeByServer.stream().forEach((p) -> {
+                } else {
                     p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
-                });
-                utmLogstashPipelineRepository.saveAll(activeByServer);
-            }
-        //}
-        return activeByServer;
+                }
+            });
+            utmLogstashPipelineRepository.saveAll(activeByServer);
+
+        } catch (Exception connectException) {
+            String msg = ctx + ": " + connectException.getMessage();
+            log.error(msg);
+        }
     }
 
     // Method to count the failures by pipeline
@@ -432,5 +439,18 @@ public class UtmLogstashPipelineService {
      */
     private boolean isEngineUp() {
         return true;
+    }
+
+    public StatisticDocument getStatisticsDataType(String indexName, String dataTypeValue) {
+        SearchRequest sr = SearchRequest.of(s -> s
+                .index(indexName)
+                .query(q -> q.match(m -> m.field("dataType").query(FieldValue.of(dataTypeValue))))
+                .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
+                .size(1)
+        );
+
+        SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
+
+        return response.hits().hits().isEmpty() ? null : response.hits().hits().get(0).source();
     }
 }

@@ -70,12 +70,15 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     public static final String alertIdKeyword = "id.keyword";
     public static final String alertStatus = "status";
+    public static final String alertTags = "tags";
     public static final String alertIsIncident = "isIncident";
     public static final String alertNameKeyword = "name.keyword";
     public static final String alertSeverityLabel = "severityLabel.keyword";
     public static final String alertCategoryKeyword = "category.keyword";
     public static final String alertDataSourceKeyword = "dataSource.keyword";
     public static final int LOG_ANALYZER_TOTAL_RESULTS = 10000;
+
+    public static final String FALSE_POSITIVE_TAG = "False positive";
 
     /**
      * Environment variables
@@ -119,6 +122,11 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     public static final String FRONT_BASE_URL = "https://10.21.199.3";
     public static final String PDF_SERVICE_URL = "http://web-pdf:8080/generate-pdf";
+
+    // ----------------------------------------------------------------------------------
+    // Defines the index pattern for querying Elasticsearch statistics indexes.
+    // ----------------------------------------------------------------------------------
+    public static final String STATISTICS_INDEX_PATTERN = "statistics-*";
 
     private Constants() {
     }

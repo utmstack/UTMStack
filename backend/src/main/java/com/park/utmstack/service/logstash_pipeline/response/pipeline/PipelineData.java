@@ -1,30 +1,14 @@
 package com.park.utmstack.service.logstash_pipeline.response.pipeline;
 
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@RequiredArgsConstructor
 public class PipelineData {
     PipelineEvents events;
     Long errors = 0L;
-
-    public PipelineData(){}
-
-    public PipelineData(PipelineEvents events, Long errors) {
-        this.events = events;
-        this.errors = errors;
-    }
-
-    public PipelineEvents getEvents() {
-        return events;
-    }
-
-    public void setEvents(PipelineEvents events) {
-        this.events = events;
-    }
-
-    public Long getErrors() {
-        return errors;
-    }
-
-    public void setErrors(Long errors) {
-        this.errors = errors;
-    }
 }

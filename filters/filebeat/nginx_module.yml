@@ -34,7 +34,7 @@ pipeline:
       - rename:
           from:
             - log.event.dataset
-          to: action
+          to: log.action
 
       - rename:
           from:
@@ -79,7 +79,7 @@ pipeline:
               pattern: '\[(.*?)\]'
             - fieldName: log.request
               pattern: '\"{{.data}}\"'
-            - fieldName: log.statusCode
+            - fieldName: statusCode
               pattern: '{{.integer}}'
             - fieldName: local.bytesReceived
               pattern: '{{.integer}}|(-)'
@@ -134,7 +134,7 @@ pipeline:
           patterns:
             - fieldName: log.deviceTime
               pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.logLevel
+            - fieldName: log.severityLabel
               pattern: '\[{{.data}}\]'
             - fieldName: log.processPidThreadId
               pattern: '{{.integer}}\#{{.integer}}'
@@ -171,13 +171,13 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.logLevel
+            - log.severityLabel
 
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.logLevel
+            - log.severityLabel
 
       - trim:
           function: prefix
@@ -209,7 +209,7 @@ pipeline:
           patterns:
             - fieldName: log.deviceTime
               pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.logLevel
+            - fieldName: log.severityLabel
               pattern: '\[{{.data}}\]'
             - fieldName: log.processPidThreadId
               pattern: '{{.integer}}\#{{.integer}}'
@@ -224,20 +224,20 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.logLevel
+            - log.severityLabel
 
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.logLevel
+            - log.severityLabel
 
       # Parsing the message field for the log "notice" type
       - grok:
           patterns:
             - fieldName: log.deviceTime
               pattern: '{{.year}}\/{{.monthNumber}}\/{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.logLevel
+            - fieldName: log.severityLabel
               pattern: '\[{{.data}}\]'
             - fieldName: log.processPidThreadId
               pattern: '{{.integer}}\#{{.integer}}'
@@ -252,18 +252,18 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.logLevel
+            - log.severityLabel
 
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.logLevel
+            - log.severityLabel
 
       # Reformat and field conversions
       - cast:
           fields:
-            - log.statusCode
+            - statusCode
             - local.bytesReceived
           to: int
 

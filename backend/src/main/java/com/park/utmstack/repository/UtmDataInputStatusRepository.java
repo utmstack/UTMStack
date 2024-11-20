@@ -49,4 +49,6 @@ public interface UtmDataInputStatusRepository extends JpaRepository<UtmDataInput
      */
     @Query("select distinct ds.dataType from UtmDataInputStatus ds where ds.dataType not in (select dt.dataType from UtmDataTypes dt) and ds.dataType != :dataType")
     List<String> findDataSourcesToConfigure(@Param("dataType") String dataType);
+
+    Optional<UtmDataInputStatus> findByDataType(String dataType);
 }

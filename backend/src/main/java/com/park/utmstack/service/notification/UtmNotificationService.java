@@ -5,8 +5,6 @@ import com.park.utmstack.repository.notification.UtmNotificationRepository;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.dto.notification.NotificationDTO;
 import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
-import com.park.utmstack.service.mail_config.MailConfigService;
-import com.park.utmstack.util.AlertUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,11 +28,7 @@ public class UtmNotificationService {
 
     private final UtmNotificationMapper notificationMapper;
 
-    private final AlertUtil alertUtil;
-
     private final MailService mailService;
-
-    private final MailConfigService mailConfigService;
 
     public UtmNotification saveNotification(UtmNotification notification) {
         notification.setCreatedAt(LocalDateTime.now());

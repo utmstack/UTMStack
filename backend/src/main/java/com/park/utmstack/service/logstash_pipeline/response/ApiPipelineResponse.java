@@ -1,10 +1,14 @@
 package com.park.utmstack.service.logstash_pipeline.response;
 
 import com.park.utmstack.service.logstash_pipeline.response.pipeline.PipelineData;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Setter
+@Getter
 public class ApiPipelineResponse {
     String host;
     String version;
@@ -22,27 +26,4 @@ public class ApiPipelineResponse {
         this.pipelines = pipelines;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public Map<String, PipelineData> getPipelines() {
-        return pipelines;
-    }
-
-    public void setPipelines(Map<String, PipelineData> pipelines) {
-        this.pipelines = pipelines;
-    }
 }

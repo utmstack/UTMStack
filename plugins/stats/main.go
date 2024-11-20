@@ -124,7 +124,7 @@ func main() {
 func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*emptypb.Empty, error) {
 	go_sdk.Logger().LogF(100, "%s: %s", msg.Topic, msg.Message)
 
-	switch msg.Topic {
+	switch go_sdk.Topic(msg.Topic) {
 	case go_sdk.TOPIC_ENQUEUE_SUCCESS:
 	case go_sdk.TOPIC_ENQUEUE_FAILURE:
 	case go_sdk.TOPIC_PARSING_FAILURE:
@@ -133,7 +133,7 @@ func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*
 	default:
 		return &emptypb.Empty{}, nil
 	}
-	
+
 	mbytes := []byte(msg.Message)
 
 	var pMsg go_sdk.DataProcessingMessage
@@ -154,7 +154,7 @@ func processStatistics(ctx context.Context) {
 		select {
 		case msg := <-statisticsQueue:
 			for k, v := range msg {
-				switch k {
+				switch go_sdk.Topic(k) {
 				case go_sdk.TOPIC_ENQUEUE_SUCCESS:
 					successLock.Lock()
 					if _, ok := success[v.DataSource]; !ok {
@@ -234,7 +234,7 @@ func extractSuccess() []Statistic {
 				DataSource: dataSource,
 				DataType:   dataType,
 				Count:      count,
-				Type:       go_sdk.TOPIC_ENQUEUE_SUCCESS,
+				Type:       string(go_sdk.TOPIC_ENQUEUE_SUCCESS),
 			})
 		}
 	}
