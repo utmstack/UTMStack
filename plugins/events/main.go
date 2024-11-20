@@ -6,14 +6,18 @@ import (
 	"net"
 	"os"
 	"path"
+	"time"
 
 	go_sdk "github.com/threatwinds/go-sdk"
-	"github.com/utmstack/UTMStack/plugins/events/search"
 	"google.golang.org/grpc"
 )
 
 type analysisServer struct {
 	go_sdk.UnimplementedAnalysisServer
+}
+
+type Config struct {
+	Elasticsearch string `yaml:"elasticsearch"`
 }
 
 func main() {
@@ -53,7 +57,19 @@ func (p *analysisServer) Analyze(event *go_sdk.Event, srv grpc.ServerStreamingSe
 
 	go_sdk.Logger().LogF(100, "received event: %s", *jLog)
 
-	search.AddToQueue(*jLog)
+	addToQueue(*jLog)
 
 	return io.EOF
+}
+
+func indexBuilder(name string, timestamp time.Time) string {
+	fst := timestamp.Format("2006.01.02")
+
+	index := fmt.Sprintf(
+		"%s-%s",
+		name,
+		fst,
+	)
+
+	return index
 }
