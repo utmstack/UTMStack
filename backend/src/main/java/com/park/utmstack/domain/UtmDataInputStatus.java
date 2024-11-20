@@ -2,9 +2,7 @@ package com.park.utmstack.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -20,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "utm_data_input_status")
 public class UtmDataInputStatus implements Serializable {
