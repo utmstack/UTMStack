@@ -806,6 +806,54 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'type(\s)?='
             - fieldName: action
+              pattern: '{{.data}}port'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.port
+              pattern: '{{.data}}identity'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.identity
+              pattern: '''{{.data}}'''
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      # ........................................
+      # Event: event 802.11 disassociation in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
               pattern: '{{.data}}radio'
             - fieldName: log.irrelevant
               pattern: '='
@@ -891,7 +939,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'radio'
@@ -908,7 +956,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'vap'
@@ -925,7 +973,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'channel'
@@ -942,7 +990,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'reason'
@@ -959,7 +1007,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'instigator'
@@ -976,7 +1024,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'duration'
@@ -993,7 +1041,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'auth_neg_dur'
@@ -1010,7 +1058,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'last_auth_ago'
@@ -1027,7 +1075,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'is_wpa'
@@ -1044,7 +1092,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'full_conn'
@@ -1061,7 +1109,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'ip_resp'
@@ -1078,7 +1126,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'ip_src'
@@ -1095,7 +1143,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'arp_resp'
@@ -1112,7 +1160,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'arp_src'
@@ -1129,7 +1177,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'dns_server'
@@ -1146,7 +1194,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'dns_req_rtt'
@@ -1163,7 +1211,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'dns_resp'
@@ -1180,7 +1228,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: 'aid'
@@ -1197,7 +1245,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: prefix
           substring: ''''
@@ -1231,7 +1279,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       - trim:
           function: suffix
           substring: ''''
@@ -1265,7 +1313,7 @@ pipeline:
               - get: log.merakiGroup
                 as: gp
                 ofType: string
-            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       # ............................................................................
       # Cleaning common fields
       - trim:
