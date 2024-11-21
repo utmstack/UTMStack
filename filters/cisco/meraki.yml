@@ -97,9 +97,9 @@ pipeline:
               pattern: '''{{.data}}'''
             - fieldName: log.irrelevant
               pattern: 'peer_contact(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '''{{.data}}\:'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'''
             - fieldName: log.irrelevant
               pattern: 'peer_ident(\s)?='
@@ -161,25 +161,25 @@ pipeline:
               pattern: '(events|flows|urls|ids-alerts|security_event)'
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.data}}\:'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.data}}\:'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'mac(\s)?='
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}(\s)'
             - fieldName: log.irrelevant
               pattern: 'request(\s)?\:'
             - fieldName: log.method
               pattern: '{{.word}}'
-            - fieldName: to.url
+            - fieldName: target.url
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -213,11 +213,11 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.data}}for\smac'
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}\s'
             - fieldName: log.irrelevant
               pattern: 'host(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.genericEvent
           where:
@@ -249,7 +249,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.data}}of\sip'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'from server mac'
@@ -257,7 +257,7 @@ pipeline:
               pattern: '{{.data}}\s'
             - fieldName: log.irrelevant
               pattern: 'for client mac'
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}\s'
             - fieldName: log.irrelevant
               pattern: 'from router'
@@ -305,25 +305,25 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.data}}\:'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.data}}\:'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'mac(\s)?='
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}(\s)'
             - fieldName: log.irrelevant
               pattern: 'request(\s)?\:'
             - fieldName: log.method
               pattern: '{{.word}}'
-            - fieldName: to.url
+            - fieldName: target.url
               pattern: '{{.greedy}}'
           source: log.genericEvent
           where:
@@ -345,15 +345,15 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'mac(\s)?='
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}(\s)'
             - fieldName: log.irrelevant
               pattern: 'protocol(\s)?='
@@ -361,11 +361,11 @@ pipeline:
               pattern: '{{.data}}(\s)'
             - fieldName: log.irrelevant
               pattern: 'sport(\s)?='
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'dport(\s)?='
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'pattern(\s)?\:'
@@ -389,11 +389,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'protocol(\s)?='
@@ -401,11 +401,11 @@ pipeline:
               pattern: '{{.data}}(\s)'
             - fieldName: log.irrelevant
               pattern: 'sport(\s)?='
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'dport(\s)?='
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'pattern(\s)?\:'
@@ -450,9 +450,9 @@ pipeline:
               pattern: '{{.data}}(\s)'
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.data}}\:'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
           source: log.genericEvent
           where:
@@ -479,14 +479,14 @@ pipeline:
           substring: ':'
           fields:
             - local.ip
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.serverIp
       - trim:
           function: prefix
           substring: ''''
           fields:
-            - from.ip
+            - origin.ip
             - log.peerIdent
             - log.connectivity
             - log.vpnType
@@ -494,7 +494,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.port
+            - origin.port
             - log.peerIdent
             - log.connectivity
             - log.vpnType
