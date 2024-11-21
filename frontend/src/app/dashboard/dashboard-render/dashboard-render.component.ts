@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CompactType, GridsterConfig, GridsterItem, GridType} from 'angular-gridster2';
 import {UUID} from 'angular2-uuid';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {IComponent} from '../../graphic-builder/dashboard-builder/shared/services/layout.service';
 import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
@@ -13,14 +14,13 @@ import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard
 import {VisualizationType} from '../../shared/chart/types/visualization.type';
 import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
+import {RefreshService} from '../../shared/services/util/refresh.service';
 import {DashboardFilterType} from '../../shared/types/filter/dashboard-filter.type';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {mergeParams, sanitizeFilters} from '../../shared/util/elastic-filter.util';
 import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
 import {normalizeString} from '../../shared/util/string-util';
 import {RenderLayoutService} from '../shared/services/render-layout.service';
-import {Observable} from "rxjs";
-import {RefreshService} from '../../shared/services/util/refresh.service';
 
 @Component({
   selector: 'app-dashboard-render',
