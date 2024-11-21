@@ -736,6 +736,69 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("Port") && gp=="events"
+      # ........................................
+      # Event: event blocked DHCP server response in Meraki MS Switches
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Blocked'
+            - fieldName: protocol
+              pattern: '{{.data}}server'
+            - fieldName: log.irrelevant
+              pattern: 'response from'
+            - fieldName: origin.mac
+              pattern: '{{.data}}on'
+            - fieldName: log.irrelevant
+              pattern: 'VLAN'
+            - fieldName: log.vlan
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Blocked") && gp=="events"
+      - trim:
+          function: suffix
+          substring: 'server'
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Blocked") && gp=="events"
+      - trim:
+          function: suffix
+          substring: 'on'
+          fields:
+            - origin.mac
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Blocked") && gp=="events"
       # ............................................................................
       # Cleaning common fields
       - trim:
