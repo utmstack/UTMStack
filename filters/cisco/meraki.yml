@@ -832,9 +832,45 @@ pipeline:
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
       - trim:
           function: suffix
-          substring: 'radio'
+          substring: 'port'
           fields:
             - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.port
+            - log.identity
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.port
+            - log.identity
           where:
             variables:
               - get: log.controlFlag
