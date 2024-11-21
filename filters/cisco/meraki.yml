@@ -472,6 +472,18 @@ pipeline:
           substring: 'priority'
           fields:
             - log.signature
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("signature") && gp=="ids-alerts"
       # ........................................
       # Event: event IPsec-SA request queued due to no phase 1 found, phase2 negotiation failed, initiate new phase 1 negotiation, 
       # ISAKMP-SA established, initiate new phase 2 negotiation, IPsec-SA established, ISAKMP-SA established, and ISAKMP-SA deleted 
@@ -631,12 +643,103 @@ pipeline:
           fields:
             - origin.port
             - target.port
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
       - trim:
           function: suffix
           substring: ']'
           fields:
             - origin.port
             - target.port
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      # ........................................
+      # Event: event spanning-tree guard state change in Meraki MS Switches
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Port'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'received an'
+            - fieldName: protocol
+              pattern: '{{.data}}BPDU'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: origin.mac
+              pattern: '{{.data}}so'
+            - fieldName: log.irrelevant
+              pattern: 'the port was'
+            - fieldName: action
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Port") && gp=="events"
+      - trim:
+          function: suffix
+          substring: 'BPDU'
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Port") && gp=="events"
+      - trim:
+          function: suffix
+          substring: 'so'
+          fields:
+            - origin.mac
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Port") && gp=="events"
       # ............................................................................
       # Cleaning common fields
       - trim:
