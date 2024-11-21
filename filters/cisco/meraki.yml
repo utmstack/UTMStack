@@ -472,6 +472,171 @@ pipeline:
           substring: 'priority'
           fields:
             - log.signature
+      # ........................................
+      # Event: event IPsec-SA request queued due to no phase 1 found, phase2 negotiation failed, initiate new phase 1 negotiation, 
+      # ISAKMP-SA established, initiate new phase 2 negotiation, IPsec-SA established, ISAKMP-SA established, and ISAKMP-SA deleted 
+      # in Meraki MX Security Appliance
+      # This type of message mx_type=labs_appliance mx_group=events
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?:(\s)?{{.greedy}}(\s)(deleted|established)'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '-'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: 'spi(\s)?\:'
+            - fieldName: log.spi
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?:(\s)?{{.greedy}}(\s)request(\s)for'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      # Third variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?:(\s)?{{.greedy}}(\s)negotiation(\s)failed'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}ESP'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '-\>'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      # Fourth variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?:(\s)?{{.greedy}}(\s)negotiation(\s)\:'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '\<=\>'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      # Fifth variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'Site-to-site VPN(\s)?:(\s)?{{.greedy}}(\s)established\:(\s)?ESP/Tunnel'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: origin.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: '-\>'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: target.port
+              pattern: '\[(\s)?{{.integer}}(\s)?\]'
+            - fieldName: log.irrelevant
+              pattern: 'spi(\s)?='
+            - fieldName: log.spi
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - origin.port
+            - target.port
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - origin.port
+            - target.port
       # ............................................................................
       # Cleaning common fields
       - trim:
