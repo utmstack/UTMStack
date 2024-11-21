@@ -799,6 +799,473 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("Blocked") && gp=="events"
+      # ........................................
+      # Event: event 802.1X (all events) in Meraki MS Switches
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}radio'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.radio
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}channel'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.channel
+              pattern: '{{.data}}reason'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.reason
+              pattern: '{{.data}}instigator'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.instigator
+              pattern: '{{.data}}duration'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.duration
+              pattern: '{{.data}}auth_neg_dur'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.authNegDur
+              pattern: '{{.data}}last_auth_ago'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.lastAuthAgo
+              pattern: '{{.data}}is_wpa'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.isWpa
+              pattern: '{{.data}}full_conn'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fullConn
+              pattern: '{{.data}}ip_resp'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.ipResp
+              pattern: '{{.data}}ip_src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.ip
+              pattern: '{{.data}}arp_resp'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.arpResp
+              pattern: '{{.data}}arp_src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.arpSrc
+              pattern: '{{.data}}dns_server'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dnsServer
+              pattern: '{{.data}}dns_req_rtt'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dnsReqRtt
+              pattern: '{{.data}}dns_resp'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dnsResp
+              pattern: '{{.data}}aid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.aid
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.radio
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'channel'
+          fields:
+            - log.vap
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'reason'
+          fields:
+            - log.channel
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'instigator'
+          fields:
+            - log.reason
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'duration'
+          fields:
+            - log.instigator
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'auth_neg_dur'
+          fields:
+            - log.duration
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'last_auth_ago'
+          fields:
+            - log.authNegDur
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'is_wpa'
+          fields:
+            - log.lastAuthAgo
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'full_conn'
+          fields:
+            - log.isWpa
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'ip_resp'
+          fields:
+            - log.fullConn
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'ip_src'
+          fields:
+            - log.ipResp
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'arp_resp'
+          fields:
+            - origin.ip
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'arp_src'
+          fields:
+            - log.arpResp
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'dns_server'
+          fields:
+            - log.arpSrc
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'dns_req_rtt'
+          fields:
+            - log.dnsServer
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'dns_resp'
+          fields:
+            - log.dnsReqRtt
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: 'aid'
+          fields:
+            - log.dnsResp
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.channel
+            - log.reason
+            - log.instigator
+            - log.duration
+            - log.authNegDur
+            - log.lastAuthAgo
+            - log.isWpa
+            - log.fullConn
+            - log.ipResp
+            - origin.ip
+            - log.arpResp
+            - log.arpSrc
+            - log.dnsServer
+            - log.dnsReqRtt
+            - log.dnsResp
+            - log.aid
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.channel
+            - log.reason
+            - log.instigator
+            - log.duration
+            - log.authNegDur
+            - log.lastAuthAgo
+            - log.isWpa
+            - log.fullConn
+            - log.ipResp
+            - origin.ip
+            - log.arpResp
+            - log.arpSrc
+            - log.dnsServer
+            - log.dnsReqRtt
+            - log.dnsResp
+            - log.aid
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("identity") && gevt.contains("port")
       # ............................................................................
       # Cleaning common fields
       - trim:
