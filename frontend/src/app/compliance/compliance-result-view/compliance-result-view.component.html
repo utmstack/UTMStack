@@ -1,10 +1,69 @@
-<div class="container-fluid p-3">
-  <!-- Encabezado del Reporte -->
-  <div *ngIf="report" class="d-flex flex-column mb-3">
+<ng-container *ngIf="template === 'default'">
+  <div class="container-fluid pr-3 pl-3 pt-2">
+    <div *ngIf="report"
+         class="d-flex align-items-center justify-content-between">
+      <h5 class="card-title mb-0 text-uppercase label-header">
+                    <span class="small-md-icon"
+                          *ngIf="report.configSolution"
+                          [ngbPopover]="solutionPopover"
+                          popoverClass="popover-solution"
+                          placement="auto" container="body"
+                          triggers="manual"
+                          (click)="viewSolution(report.configSolution); p.open()"
+                          #p="ngbPopover">
+                <i class="icon-question3 mr-2"></i>
+              </span>
+        {{report.associatedDashboard.name}} ({{report.section.standardSectionName}})
+      </h5>
+      <ng-template #solutionPopover>
+        <p [innerHTML]="configSolution | safe:'html'"
+           class="font-size-base text-justify mt-2">
+        </p>
+      </ng-template>
+      <div class="header-elements d-flex justify-content-end align-items-center">
+        <app-elastic-filter-time [invertContent]="true"
+                                 [isEmitter]="true"
+                                 container="body"></app-elastic-filter-time>
 
-    <!-- Título del Reporte -->
-    <div class="d-flex justify-content-between align-items-center">
-      <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
+        <button class="btn utm-button utm-button-primary ml-2 mr-2"
+                [queryParams]="{'standardId':standardId,'sectionId':sectionId}"
+                routerLink="/compliance/templates">
+          <i class="icon-arrow-left8 mr-2"></i> Back
+        </button>
+
+        <a (click)="exportToPdf()" [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
+           class="btn utm-button utm-button-primary">
+          <i [ngClass]="pdfExport?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
+          {{pdfExport ? 'Generating...' : 'Save to PDF'}}
+        </a>
+      </div>
+    </div>
+
+  </div>
+  <div [id]="UUID" class="w-100">
+    <app-utm-dashboard-grid *ngIf="visualizationRender" [UUID]="'complianceId'"
+                            [loading]="loadingVisualizations"
+                            [options]="options"
+                            [visualization]="visualizationRender"></app-utm-dashboard-grid>
+
+  </div>
+  <div *ngIf="!visualizationRender"
+       class="dashboard-loader d-flex justify-content-start align-content-center w-100 h-100">
+    <app-utm-spinner [height]="'110px'" [loading]="!visualizationRender" [width]="'110px'"
+                     label="Loading dashboard"
+                     style="width: 100%;margin-top: 15%">
+    </app-utm-spinner>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="template === 'compliance'">
+  <div class="container-fluid p-3">
+    <!-- Encabezado del Reporte -->
+    <div *ngIf="report" class="d-flex flex-column mb-3">
+
+      <!-- Título del Reporte -->
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
         <span *ngIf="report.configSolution"
               [ngbPopover]="solutionPopover"
               popoverClass="popover-solution"
@@ -16,59 +75,60 @@
               class="small-md-icon mr-2 cursor-pointer">
           <i class="icon-question3"></i>
         </span>
-        {{ report.associatedDashboard.name }} ({{ report.section.standardSectionName }})
-      </h5>
+          {{ report.associatedDashboard.name }} ({{ report.section.standardSectionName }})
+        </h5>
 
-      <!-- Controles de Acción -->
-      <div class="d-flex align-items-center mt-2">
-        <button *ngIf="showBack"
-                class="btn utm-button utm-button-primary ml-2"
-                [queryParams]="{'standardId': standardId, 'sectionId': sectionId}"
-                routerLink="/compliance/templates">
-          <i class="icon-arrow-left8 mr-2"></i> Back
-        </button>
+        <!-- Controles de Acción -->
+        <div class="d-flex align-items-center mt-2">
+          <button *ngIf="showBack"
+                  class="btn utm-button utm-button-primary ml-2"
+                  [queryParams]="{'standardId': standardId, 'sectionId': sectionId}"
+                  routerLink="/compliance/templates">
+            <i class="icon-arrow-left8 mr-2"></i> Back
+          </button>
 
-        <a *ngIf="showExport"
-           (click)="exportToPdf()"
-           [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
-           class="btn utm-button utm-button-primary ml-2">
-          <i [ngClass]="pdfExport ? 'icon-download10' : 'icon-file-pdf'" class="mr-1"></i>
-          {{ pdfExport ? 'Generating...' : 'Save to PDF' }}
-        </a>
+          <a *ngIf="showExport"
+             (click)="exportToPdf()"
+             [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
+             class="btn utm-button utm-button-primary ml-2">
+            <i [ngClass]="pdfExport ? 'icon-download10' : 'icon-file-pdf'" class="mr-1"></i>
+            {{ pdfExport ? 'Generating...' : 'Save to PDF' }}
+          </a>
 
-        <app-elastic-filter-time *ngIf="true"
-                                 [invertContent]="true"
-                                 [isEmitter]="true"
-                                 container="body"
-                                 class="ml-2"></app-elastic-filter-time>
+          <app-elastic-filter-time *ngIf="true"
+                                   [invertContent]="true"
+                                   [isEmitter]="true"
+                                   container="body"
+                                   class="ml-2"></app-elastic-filter-time>
+        </div>
       </div>
+
+      <!-- Popover para soluciones -->
+      <ng-template #solutionPopover>
+        <p [innerHTML]="configSolution | safe:'html'" class="font-size-base text-justify"></p>
+      </ng-template>
     </div>
 
-    <!-- Popover para soluciones -->
-    <ng-template #solutionPopover>
-      <p [innerHTML]="configSolution | safe:'html'" class="font-size-base text-justify"></p>
-    </ng-template>
-  </div>
+    <!-- Contenedor del Dashboard -->
+    <div [id]="UUID" class="w-100">
+      <app-utm-dashboard-grid *ngIf="visualizationRender"
+                              [UUID]="'complianceId'"
+                              [loading]="loadingVisualizations"
+                              [options]="options"
+                              [visualization]="visualizationRender">
+      </app-utm-dashboard-grid>
+    </div>
 
-  <!-- Contenedor del Dashboard -->
-  <div [id]="UUID" class="w-100">
-    <app-utm-dashboard-grid *ngIf="visualizationRender"
-                            [UUID]="'complianceId'"
-                            [loading]="loadingVisualizations"
-                            [options]="options"
-                            [visualization]="visualizationRender">
-    </app-utm-dashboard-grid>
+    <!-- Loader de Visualización -->
+    <div *ngIf="!visualizationRender" class="dashboard-loader d-flex justify-content-center align-items-center w-100 h-100">
+      <app-utm-spinner [height]="'110px'"
+                       [loading]="!visualizationRender"
+                       [width]="'110px'"
+                       label="Loading dashboard"
+                       style="width: 100%; margin-top: 15%">
+      </app-utm-spinner>
+    </div>
   </div>
-
-  <!-- Loader de Visualización -->
-  <div *ngIf="!visualizationRender" class="dashboard-loader d-flex justify-content-center align-items-center w-100 h-100">
-    <app-utm-spinner [height]="'110px'"
-                     [loading]="!visualizationRender"
-                     [width]="'110px'"
-                     label="Loading dashboard"
-                     style="width: 100%; margin-top: 15%">
-    </app-utm-spinner>
-  </div>
-</div>
+</ng-container>
 
 

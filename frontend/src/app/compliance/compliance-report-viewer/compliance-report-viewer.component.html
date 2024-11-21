@@ -53,7 +53,7 @@
     <div class="flex-grow-1">
       <div class="h-100 card m-0">
         <app-compliance-reports-view [section]="activeSection" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
-        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" ></app-compliance-result-view>
+        <app-compliance-result-view *ngIf="action === 'reports'" [template]="'compliance'" [showExport]="false" ></app-compliance-result-view>
       </div>
     </div>
   </div>
