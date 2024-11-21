@@ -814,8 +814,6 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '='
             - fieldName: log.identity
-              pattern: '''{{.data}}'''
-            - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.genericEvent
           where:
