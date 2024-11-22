@@ -16,7 +16,7 @@ type asnBlock struct {
 	aso     string
 }
 
-var asnBlocks map[string][]*asnBlock
+var asnBlocks = make(map[string][]*asnBlock)
 
 type cityBlock struct {
 	network        *net.IPNet
@@ -26,7 +26,7 @@ type cityBlock struct {
 	accuracyRadius int32
 }
 
-var cityBlocks map[string][]*cityBlock
+var cityBlocks =  make(map[string][]*cityBlock)
 
 type cityLocation struct {
 	geonameID      int
