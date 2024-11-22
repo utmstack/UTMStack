@@ -2,6 +2,7 @@ package main
 
 import (
 	"net"
+	"strings"
 	"sync"
 
 	go_sdk "github.com/threatwinds/go-sdk"
@@ -15,7 +16,7 @@ type asnBlock struct {
 	aso     string
 }
 
-var asnBlocks []asnBlock
+var asnBlocks map[string][]*asnBlock
 
 type cityBlock struct {
 	network        *net.IPNet
@@ -25,7 +26,7 @@ type cityBlock struct {
 	accuracyRadius int32
 }
 
-var cityBlocks []cityBlock
+var cityBlocks map[string][]*cityBlock
 
 type cityLocation struct {
 	geonameID      int
@@ -34,7 +35,7 @@ type cityLocation struct {
 	cityName       string
 }
 
-var cityLocations []cityLocation
+var cityLocations []*cityLocation
 
 func IsLocal(a net.IP) bool {
 	_, r127, _ := net.ParseCIDR("127.0.0.0/8")
@@ -53,12 +54,14 @@ func IsLocal(a net.IP) bool {
 	return false
 }
 
-func getCity(a string) cityBlock {
+func getCity(a string) *cityBlock {
 	ip := net.ParseIP(a)
 
-	var city cityBlock
+	var city = new(cityBlock)
 
-	for _, e := range cityBlocks {
+	start := getStart(ip.String())
+
+	for _, e := range cityBlocks[start] {
 		if e.network.Contains(ip) {
 			city = e
 		}
@@ -66,12 +69,14 @@ func getCity(a string) cityBlock {
 	return city
 }
 
-func getASN(a string) asnBlock {
+func getASN(a string) *asnBlock {
 	ip := net.ParseIP(a)
 
-	var asn asnBlock
+	var asn = new(asnBlock)
 
-	for _, e := range asnBlocks {
+	start := getStart(ip.String())
+
+	for _, e := range asnBlocks[start] {
 		if e.network.Contains(ip) {
 			asn = e
 		}
@@ -79,8 +84,8 @@ func getASN(a string) asnBlock {
 	return asn
 }
 
-func getLocation(geonameID int) cityLocation {
-	var location cityLocation
+func getLocation(geonameID int) *cityLocation {
+	var location = new(cityLocation)
 	for _, e := range cityLocations {
 		if geonameID == e.geonameID {
 			location = e
@@ -89,22 +94,38 @@ func getLocation(geonameID int) cityLocation {
 	return location
 }
 
-func geolocate(ip string) go_sdk.Geolocation {
+func geolocate(ip string) *go_sdk.Geolocation {
 	mu.RLock()
 	defer mu.RUnlock()
-	
+
+	var geo = new(go_sdk.Geolocation)
+
 	asn := getASN(ip)
 	city := getCity(ip)
-	location := getLocation(city.geonameID)
 
-	return go_sdk.Geolocation{
-		Country:     location.countryName,
-		CountryCode: location.countryISOCode,
-		City:        location.cityName,
-		Latitude:    city.latitude,
-		Longitude:   city.longitude,
-		Accuracy:    city.accuracyRadius,
-		Asn:         asn.asn,
-		Aso:         asn.aso,
+	if asn != nil {
+		geo.Asn = asn.asn
+		geo.Aso = asn.aso
 	}
+
+	if city != nil {
+		location := getLocation(city.geonameID)
+		geo.City = location.cityName
+		geo.Country = location.countryName
+		geo.CountryCode = location.countryISOCode
+		geo.Latitude = city.latitude
+		geo.Longitude = city.longitude
+	}
+
+	return geo
+}
+
+func getStart(cidr string) string {
+	if strings.Contains(cidr, ":") {
+		parts := strings.Split(cidr, ":")
+		return strings.Join([]string{parts[0], parts[1]}, "-")
+	}
+
+	parts := strings.Split(cidr, ".")
+	return strings.Join([]string{parts[0], parts[1]}, "-")
 }
