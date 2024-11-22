@@ -130,12 +130,12 @@ func populateCityBlocks(csv [][]string) {
 			continue
 		}
 
-		geonameID, err := strconv.Atoi(func() string {
+		geonameID, err := strconv.ParseInt(func() string {
 			if line := line[1]; line != "" {
 				return line
 			}
 			return "0"
-		}())
+		}(), 10, 64)
 		if err != nil {
 			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityBlocks: %s", err.Error())
 			continue
@@ -194,7 +194,7 @@ func populateCityLocations(csv [][]string) {
 			continue
 		}
 
-		geonameID, err := strconv.Atoi(line[0])
+		geonameID, err := strconv.ParseInt(line[0], 10, 64)
 		if err != nil {
 			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityLocations: %s", err.Error())
 			continue
@@ -207,6 +207,6 @@ func populateCityLocations(csv [][]string) {
 			cityName:       line[10],
 		}
 
-		cityLocations = append(cityLocations, t)
+		cityLocations[geonameID] = t
 	}
 }
