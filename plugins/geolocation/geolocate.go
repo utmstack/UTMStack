@@ -20,7 +20,7 @@ var asnBlocks = make(map[string][]*asnBlock)
 
 type cityBlock struct {
 	network        *net.IPNet
-	geonameID      int
+	geonameID      int64
 	latitude       float64
 	longitude      float64
 	accuracyRadius int32
@@ -29,13 +29,13 @@ type cityBlock struct {
 var cityBlocks =  make(map[string][]*cityBlock)
 
 type cityLocation struct {
-	geonameID      int
+	geonameID      int64
 	countryISOCode string
 	countryName    string
 	cityName       string
 }
 
-var cityLocations []*cityLocation
+var cityLocations = make(map[int64]*cityLocation)
 
 func IsLocal(a net.IP) bool {
 	_, r127, _ := net.ParseCIDR("127.0.0.0/8")
@@ -84,19 +84,29 @@ func getASN(a string) *asnBlock {
 	return asn
 }
 
-func getLocation(geonameID int) *cityLocation {
-	var location = new(cityLocation)
-	for _, e := range cityLocations {
-		if geonameID == e.geonameID {
-			location = e
-		}
+func getLocation(geonameID int64) *cityLocation {
+	location, ok := cityLocations[geonameID]
+	if !ok {
+		return nil
 	}
+	
 	return location
 }
 
 func geolocate(ip string) *go_sdk.Geolocation {
 	mu.RLock()
 	defer mu.RUnlock()
+
+	parsedIp := net.ParseIP(ip)
+	if parsedIp == nil {
+		go_sdk.Logger().LogF(100, "source field is not a valid IP")
+		return nil
+	}
+
+	if IsLocal(parsedIp) {
+		go_sdk.Logger().LogF(100, "cannot geolocate local IP")
+		return nil
+	}
 
 	var geo = new(go_sdk.Geolocation)
 
