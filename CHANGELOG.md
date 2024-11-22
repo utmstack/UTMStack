@@ -1,4 +1,4 @@
-# UTMStack 10.5.16 Release Notes
+# UTMStack 10.5.17 Release Notes
 ## Bugfix
-- False positive alerts displayed in Dashboard Overview
-- Correct query parsing for filterType conditions with special characters
+-Fixed an issue preventing incident status updates when entering long solutions.
+-Resolved a problem blocking incident creation from the Alerts panel.
