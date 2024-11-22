@@ -687,7 +687,7 @@ pipeline:
               pattern: '{{.data}}so'
             - fieldName: log.irrelevant
               pattern: 'the port was'
-            - fieldName: action
+            - fieldName: actionResult
               pattern: '{{.greedy}}'
           source: log.genericEvent
           where:
@@ -1668,7 +1668,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'type(\s)?='
             - fieldName: action
-              pattern: '{{.data}}packet'
+              pattern: '{{.data}}(\s)packet'
             - fieldName: log.irrelevant
               pattern: '='
             - fieldName: log.packet
@@ -1875,6 +1875,83 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      # ........................................
+      # Event: flows, flow allowed by Layer 3 firewall in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: actionResult
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: 'src(\s)?='
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: log.irrelevant
+              pattern: 'mac(\s)?='
+            - fieldName: origin.mac
+              pattern: '{{.data}}protocol'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: protocol
+              pattern: '{{.data}}sport'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dport(\s)?='
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && (gevt.startsWith("allow") || gevt.startsWith("deny")) && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
+      - trim:
+          function: suffix
+          substring: 'sport'
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && (gevt.startsWith("allow") || gevt.startsWith("deny")) && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
+      - trim:
+          function: suffix
+          substring: 'protocol'
+          fields:
+            - origin.mac
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && (gevt.startsWith("allow") || gevt.startsWith("deny")) && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
       # ............................................................................
       # Cleaning common fields
       - trim:
