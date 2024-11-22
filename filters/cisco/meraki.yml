@@ -1962,9 +1962,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'airmarshal_events(\s)type(\s)?='
             - fieldName: action
-              pattern: '{{.data}}ssid'
-            - fieldName: log.irrelevant
-              pattern: '='
+              pattern: '{{.data}}ssid(\s)?='
             - fieldName: log.ssid
               pattern: '{{.data}}bssid'
             - fieldName: log.irrelevant
@@ -2019,9 +2017,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'airmarshal_events(\s)type(\s)?='
             - fieldName: action
-              pattern: '{{.data}}ssid'
-            - fieldName: log.irrelevant
-              pattern: '='
+              pattern: '{{.data}}ssid(\s)?='
             - fieldName: log.ssid
               pattern: '{{.data}}vap'
             - fieldName: log.irrelevant
@@ -2057,6 +2053,20 @@ pipeline:
             - fieldName: log.fcSubType
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: '='
+          fields:
+            - action
           where:
             variables:
               - get: log.msg
@@ -2298,6 +2308,128 @@ pipeline:
                 as: gp
                 ofType: string
             expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      # ........................................
+      # Event: security_event ids_alerted, ids signature matched in Meraki MX Security Appliance
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'signature(\s)?='
+            - fieldName: log.signature
+              pattern: '{{.data}}priority'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.priority
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'timestamp(\s)?='
+            - fieldName: log.msgEventTime
+              pattern: '{{.data}}dhost'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}direction'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.direction
+              pattern: '{{.data}}protocol'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: protocol
+              pattern: '{{.data}}src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}\:'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: 'dst(\s)?='
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}\:'
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
+      - trim:
+          function: suffix
+          substring: 'priority'
+          fields:
+            - log.signature
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
+      - trim:
+          function: suffix
+          substring: 'dhost'
+          fields:
+            - log.msgEventTime
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
+      - trim:
+          function: suffix
+          substring: 'direction'
+          fields:
+            - origin.mac
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
+      - trim:
+          function: suffix
+          substring: 'protocol'
+          fields:
+            - log.direction
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
+      - trim:
+          function: suffix
+          substring: 'src'
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
       # ............................................................................
       # Cleaning common fields
       - trim:
