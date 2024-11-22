@@ -101,7 +101,7 @@ func populateASNBlocks(csv [][]string) {
 			continue
 		}
 
-		t := asnBlock{
+		t := &asnBlock{
 			network: n,
 			asn:     int64(asn),
 			aso: func() string {
@@ -112,7 +112,9 @@ func populateASNBlocks(csv [][]string) {
 			}(),
 		}
 
-		asnBlocks = append(asnBlocks, t)
+		start := getStart(n.IP.String())
+
+		asnBlocks[start] = append(asnBlocks[start], t)
 	}
 }
 
@@ -172,7 +174,7 @@ func populateCityBlocks(csv [][]string) {
 			continue
 		}
 
-		t := cityBlock{
+		t := &cityBlock{
 			network:        n,
 			geonameID:      geonameID,
 			latitude:       latitude,
@@ -180,7 +182,9 @@ func populateCityBlocks(csv [][]string) {
 			accuracyRadius: int32(accuracyRadius),
 		}
 
-		cityBlocks = append(cityBlocks, t)
+		start := getStart(n.IP.String())
+
+		cityBlocks[start] = append(cityBlocks[start], t)
 	}
 }
 
@@ -196,7 +200,7 @@ func populateCityLocations(csv [][]string) {
 			continue
 		}
 
-		t := cityLocation{
+		t := &cityLocation{
 			geonameID:      geonameID,
 			countryISOCode: line[4],
 			countryName:    line[5],
