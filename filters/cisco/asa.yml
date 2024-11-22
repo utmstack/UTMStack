@@ -1341,9 +1341,9 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: log.remote.user
+            - fieldName: log.remoteUser
               pattern: '(''{{.data}}''|{{.data}})(\s)?at'
-            - fieldName: log.remote.ip
+            - fieldName: log.remoteIp
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: actionResult
               pattern: '{{.word}}'
@@ -1395,7 +1395,7 @@ pipeline:
           function: suffix
           substring: 'at'
           fields:
-            - log.remote.user
+            - log.remoteUser
           where:
             variables:
               - get: log.messageId
