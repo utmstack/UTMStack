@@ -50,11 +50,11 @@ pipeline:
       - rename:
           from:
             - log.ipv4
-          to: local.ip
+          to: target.ip
       - rename:
           from:
             - log.hostname
-          to: local.host
+          to: target.host
       - rename:
           from:
             - log.action
@@ -66,11 +66,37 @@ pipeline:
       - rename:
           from:
             - log.sourceaddress
-          to: from.ip
+          to: origin.ip
       - rename:
           from:
             - log.protocol
           to: protocol
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # Removing unused fields
       - delete:
