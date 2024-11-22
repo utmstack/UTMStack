@@ -57,7 +57,7 @@ export class UtmIncidentService {
     incidentModalRef.componentInstance.message = msg;
     incidentModalRef.componentInstance.confirmBtnText = 'Go to Incidents';
     incidentModalRef.componentInstance.confirmBtnIcon = 'icon-folder';
-    incidentModalRef.componentInstance.confirmBtnType = 'go-to-incidents';
+    incidentModalRef.componentInstance.confirmBtnType = 'default';
     incidentModalRef.result.then(() => {
       this.modalService.close();
       this.router.navigate(['/incident/view']);
