@@ -1493,6 +1493,174 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      # ........................................
+      # Event: event splash authentication in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}ip'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.ip
+              pattern: '{{.data}}duration'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.duration
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}download'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.download
+              pattern: '{{.data}}upload'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.upload
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: suffix
+          substring: 'ip'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: suffix
+          substring: 'duration'
+          fields:
+            - origin.ip
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.duration
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: suffix
+          substring: 'download'
+          fields:
+            - log.vap
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: suffix
+          substring: 'upload'
+          fields:
+            - log.download
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.vap
+            - log.duration
+            - log.download
+            - log.upload
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.vap
+            - log.duration
+            - log.download
+            - log.upload
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
       # ............................................................................
       # Cleaning common fields
       - trim:
