@@ -4,6 +4,9 @@ import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {UtmIncidentType} from '../../types/incident/utm-incident.type';
 import {createRequestOption} from '../../util/request-util';
+import {ModalConfirmationComponent} from "../../components/utm/util/modal-confirmation/modal-confirmation.component";
+import {ModalService} from "../../../core/modal/modal.service";
+import {Router} from "@angular/router";
 
 
 @Injectable({
@@ -12,7 +15,9 @@ import {createRequestOption} from '../../util/request-util';
 export class UtmIncidentService {
   public resourceUrl = SERVER_API_URL + 'api/utm-incidents';
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private modalService: ModalService,
+              private router: Router) {
   }
 
 
@@ -43,6 +48,20 @@ export class UtmIncidentService {
 
   find(id: number): Observable<HttpResponse<UtmIncidentType>> {
     return this.http.get<UtmIncidentType>(`${this.resourceUrl}/${id}`, {observe: 'response'});
+  }
+
+  showDialog(msg: string) {
+    const incidentModalRef = this.modalService.open(ModalConfirmationComponent, {centered: true});
+
+    incidentModalRef.componentInstance.header = 'Alerts Associated with Another Incident';
+    incidentModalRef.componentInstance.message = msg;
+    incidentModalRef.componentInstance.confirmBtnText = 'Go to Incidents';
+    incidentModalRef.componentInstance.confirmBtnIcon = 'icon-folder';
+    incidentModalRef.componentInstance.confirmBtnType = 'go-to-incidents';
+    incidentModalRef.result.then(() => {
+      this.modalService.close();
+      this.router.navigate(['/incident/view']);
+    });
   }
 
 }
