@@ -33,7 +33,7 @@ pipeline:
       - rename:
           from:
             - log.httpRequest.remoteIp
-          to: remote.ip
+          to: origin.ip
       
       - rename:
           from:
@@ -48,7 +48,7 @@ pipeline:
       - rename:
           from:
             - log.httpRequest.requestUrl
-          to: remote.url
+          to: origin.url
 
       - rename:
           from:
@@ -214,3 +214,16 @@ pipeline:
             - log.httpRequest
             - log.jsonPayload
             - log.resource
+
+      # Adding geolocation to remote.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
