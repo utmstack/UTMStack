@@ -34,7 +34,7 @@ export class OpenAlertsService implements OnDestroy {
         tap((response) => {
           this.openAlerts = response.body;
           this.localStorage.store(OPEN_ALERTS_KEY, this.openAlerts);
-          if (this.openAlerts > 0 && this.openAlerts !== this.openAlerts) {
+          if (this.openAlerts >= 0 && this.openAlerts !== this.openAlerts) {
             this.openAlertsBehaviorSubject.next(this.openAlerts);
           }
         }),
