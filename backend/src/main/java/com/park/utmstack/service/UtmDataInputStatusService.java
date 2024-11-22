@@ -204,7 +204,7 @@ public class UtmDataInputStatusService {
                                         .dataType(statisticDoc.getDataType())
                                         .source(statisticDoc.getDataSource())
                                         .timestamp(Instant.parse(statisticDoc.getTimestamp()).getEpochSecond())
-                                        .median(10800L)
+                                        .median(86400L)
                                         .id(statisticDoc.getDataType().concat(statisticDoc.getDataSource()))
                                 .build());
                     }

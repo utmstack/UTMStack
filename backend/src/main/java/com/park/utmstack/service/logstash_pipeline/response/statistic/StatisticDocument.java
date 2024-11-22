@@ -11,6 +11,7 @@ public class StatisticDocument {
     private String dataType;
     private Long count;
     private String type;
+    private String cause;
 
     @JsonProperty("@timestamp")
     private String timestamp;

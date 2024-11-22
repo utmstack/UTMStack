@@ -1,26 +1,23 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridType} from 'angular-gridster2';
 import {UUID} from 'angular2-uuid';
-import {UtmRenderVisualization} from '../../dashboard/shared/services/utm-render-visualization.service';
-import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {UtmDashboardVisualizationType} from '../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
-import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard.type';
-import {ComplianceParamsEnum} from '../shared/enums/compliance-params.enum';
-import {ComplianceEndpointService} from '../shared/services/compliance-endpoint.service';
-import {ComplianceTemplateService} from '../shared/services/compliance-template.service';
-import {CpReportsService} from '../shared/services/cp-reports.service';
-import {ComplianceReportType} from '../shared/type/compliance-report.type';
-import {HippaSignaturesType} from '../shared/type/hippa-signatures.type';
-import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
-import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
-import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
-import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
-import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
 import {filter, map, takeUntil, tap} from 'rxjs/operators';
+import {UtmRenderVisualization} from '../../dashboard/shared/services/utm-render-visualization.service';
+import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
+import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
+import {UtmDashboardVisualizationType} from '../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
+import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard.type';
+import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
+import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
+import {ComplianceParamsEnum} from '../shared/enums/compliance-params.enum';
+import {CpReportsService} from '../shared/services/cp-reports.service';
+import {ComplianceReportType} from '../shared/type/compliance-report.type';
+import {HippaSignaturesType} from '../shared/type/hippa-signatures.type';
 
 @Component({
   selector: 'app-compliance-result-view',
@@ -29,6 +26,7 @@ import {filter, map, takeUntil, tap} from 'rxjs/operators';
 })
 export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   @Input() showExport = true;
+  @Input() template: 'default' | 'compliance' = 'default';
   reportId: number;
   report: ComplianceReportType;
   signatures: HippaSignaturesType[] = [];
