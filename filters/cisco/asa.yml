@@ -14,7 +14,7 @@ pipeline:
               pattern: '(\<{{.integer}}\>)'
             - fieldName: log.ciscoTime
               pattern: '({{.day}}\s)?{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
-            - fieldName: local.ip
+            - fieldName: log.localIp
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.asaHeader
               pattern: '{{.data}}ASA-'
@@ -31,7 +31,7 @@ pipeline:
           patterns:
             - fieldName: log.ciscoTime
               pattern: '({{.day}}\s)?{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
-            - fieldName: local.ip
+            - fieldName: log.localIp
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.asaHeader
               pattern: '{{.data}}ASA-'
@@ -70,15 +70,15 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '/{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '/{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'flags'
@@ -100,8 +100,8 @@ pipeline:
           function: prefix
           substring: '/'
           fields:
-            - from.port
-            - to.port
+            - origin.port
+            - target.port
           where:
             variables:
               - get: log.messageId
@@ -119,11 +119,11 @@ pipeline:
               pattern: 'IP\sdue\sto'
             - fieldName: action
               pattern: '{{.greedy}}from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
           source: log.msg
           where:
@@ -151,11 +151,11 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: action
               pattern: '{{.greedy}}from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
             - fieldName: log.irrelevant
               pattern: 'on\sinterface'
@@ -253,19 +253,19 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}})\s'
             - fieldName: log.srcInterface
               pattern: '{{.data}}/'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.dstInterface
               pattern: '{{.data}}/'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'hit-cnt'
@@ -293,21 +293,21 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}})\s'
             - fieldName: log.srcInterface
               pattern: '{{.data}}/'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '\({{.data}}\)'
             - fieldName: log.irrelevant
               pattern: '-\>'
             - fieldName: log.dstInterface
               pattern: '{{.data}}/'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '\({{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'hit-cnt'
@@ -338,7 +338,7 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -349,7 +349,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -360,8 +360,8 @@ pipeline:
           function: prefix
           substring: '('
           fields:
-            - from.port
-            - to.port
+            - origin.port
+            - target.port
           where:
             variables:
               - get: log.messageId
@@ -372,8 +372,8 @@ pipeline:
           function: suffix
           substring: ')'
           fields:
-            - from.port
-            - to.port
+            - origin.port
+            - target.port
           where:
             variables:
               - get: log.messageId
@@ -386,7 +386,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'User at'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}})'
             - fieldName: log.irrelevant
               pattern: 'exceeded auth proxy connection limit'
@@ -431,11 +431,11 @@ pipeline:
               pattern: 'Received CoA disconnect request'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}}),'
             - fieldName: log.irrelevant
               pattern: 'with\saudit-session-id:'
@@ -468,7 +468,7 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -483,7 +483,7 @@ pipeline:
               pattern: 'Received CoA {{.word}}'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: ', but cannot find named session'
@@ -518,11 +518,11 @@ pipeline:
               pattern: 'CoA {{.word}}'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: 'failed for user'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}}),'
             - fieldName: log.irrelevant
               pattern: 'with session ID:'
@@ -553,7 +553,7 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -570,11 +570,11 @@ pipeline:
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'User(\s|=)'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'Assigned IP(\s|=)'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: ','
@@ -592,7 +592,7 @@ pipeline:
           substring: ','
           fields:
             - log.session
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -609,11 +609,11 @@ pipeline:
               pattern: '\:'
             - fieldName: log.irrelevant
               pattern: 'server(\s)?=(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -640,7 +640,7 @@ pipeline:
           function: suffix
           substring: ':'
           fields:
-            - to.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -651,7 +651,7 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - to.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -670,15 +670,15 @@ pipeline:
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(server|Server)(\s)?=(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}(\:|,)'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser IP(\s)?=(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -706,8 +706,8 @@ pipeline:
           substring: ':'
           fields:
             - log.reason
-            - to.ip
-            - from.user
+            - target.ip
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -722,7 +722,7 @@ pipeline:
               pattern: 'AAA transaction status ACCEPT(\s)?'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?(u|U)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -742,7 +742,7 @@ pipeline:
               pattern: '\({{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'for (u|U)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -782,7 +782,7 @@ pipeline:
               pattern: '{{.data}}\sfor'
             - fieldName: log.irrelevant
               pattern: '(u|U)ser(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -808,9 +808,9 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: 'AAA challenge received for user'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}}) from server'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -823,7 +823,7 @@ pipeline:
           function: suffix
           substring: 'from server'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -841,7 +841,7 @@ pipeline:
               pattern: '\({{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'for (u|U)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -881,7 +881,7 @@ pipeline:
               pattern: '{{.data}}\sfor'
             - fieldName: log.irrelevant
               pattern: '(u|U)ser(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -909,7 +909,7 @@ pipeline:
               pattern: 'AAA user authentication Successful(\s)?'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?local database(\s)?:(\s)?user(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -944,7 +944,7 @@ pipeline:
               pattern: '{{.data}}\:'
             - fieldName: log.irrelevant
               pattern: 'user(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -972,11 +972,11 @@ pipeline:
               pattern: 'AAA authentication server not accessible(\s)?'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?server(\s)?=(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?(U|u)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -997,11 +997,11 @@ pipeline:
               pattern: '{{.data}}(\s)?\:'
             - fieldName: log.irrelevant
               pattern: 'local database(\s)?:(\s)?(U|u)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}})(\s)?:'
             - fieldName: log.irrelevant
               pattern: 'user IP(\s)?=(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -1015,7 +1015,7 @@ pipeline:
           substring: ':'
           fields:
             - log.reason
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -1048,15 +1048,15 @@ pipeline:
               pattern: '{{.data}}(\s)?\:'
             - fieldName: log.irrelevant
               pattern: 'server(\s)?=(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.data}}(\s)?\:'
             - fieldName: log.irrelevant
               pattern: '(U|u)ser(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}})(\s)?:'
             - fieldName: log.irrelevant
               pattern: 'user IP(\s)?=(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -1070,8 +1070,8 @@ pipeline:
           substring: ':'
           fields:
             - log.reason
-            - to.ip
-            - from.user
+            - target.ip
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -1098,15 +1098,15 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?=(\s)?'
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}}(\s)?,'
             - fieldName: log.irrelevant
               pattern: '(U|u)sername(\s)?=(\s)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}})(\s)?,'
             - fieldName: log.irrelevant
               pattern: 'IP(\s)?=(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.data}},'
             - fieldName: action
               pattern: '(\s)?Session disconnected\.'
@@ -1120,11 +1120,11 @@ pipeline:
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: '(\s)?Bytes xmt:(\s)?'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: '(\s)?Bytes rcv:(\s)?'
-            - fieldName: from.bytesReceived
+            - fieldName: origin.bytesReceived
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: '(\s)?Reason:(\s)?'
@@ -1141,13 +1141,13 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
             - log.sessionType
             - log.duration
-            - from.bytesSent
-            - from.bytesReceived
+            - origin.bytesSent
+            - origin.bytesReceived
           where:
             variables:
               - get: log.messageId
@@ -1156,8 +1156,8 @@ pipeline:
             expression: msgId==113019
       - cast:
           fields:
-            - from.bytesSent
-            - from.bytesReceived
+            - origin.bytesSent
+            - origin.bytesReceived
           to: int
           where:
             variables:
@@ -1172,11 +1172,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?'
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}}\sUser'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|{{.data}})(\s)?IP'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
@@ -1191,7 +1191,7 @@ pipeline:
           function: suffix
           substring: 'User'
           fields:
-            - from.group
+            - origin.group
           where:
             variables:
               - get: log.messageId
@@ -1202,7 +1202,7 @@ pipeline:
           function: suffix
           substring: 'IP'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -1255,11 +1255,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?'
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '(\<)?{{.data}}(\>)?\sUser'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '(''{{.data}}''|(\<)?{{.data}}(\>)?)(\s)?IP'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '(\<)?({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\>)?'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
@@ -1275,7 +1275,7 @@ pipeline:
           function: suffix
           substring: 'User'
           fields:
-            - from.group
+            - origin.group
           where:
             variables:
               - get: log.messageId
@@ -1286,7 +1286,7 @@ pipeline:
           function: suffix
           substring: 'IP'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -1297,9 +1297,9 @@ pipeline:
           function: prefix
           substring: '<'
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -1310,9 +1310,9 @@ pipeline:
           function: suffix
           substring: '>'
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -1327,23 +1327,23 @@ pipeline:
               pattern: 'CoA: Non-HTTP connection from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: remote.user
+            - fieldName: log.remote.user
               pattern: '(''{{.data}}''|{{.data}})(\s)?at'
-            - fieldName: remote.ip
+            - fieldName: log.remote.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: actionResult
               pattern: '{{.word}}'
@@ -1383,8 +1383,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -1395,7 +1395,7 @@ pipeline:
           function: suffix
           substring: 'at'
           fields:
-            - remote.user
+            - log.remote.user
           where:
             variables:
               - get: log.messageId
@@ -1416,19 +1416,19 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'for'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '/(\s)?'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.globalIp
               pattern: '\({{.data}}\)'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '/(\s)?'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'on interface'
@@ -1473,11 +1473,11 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'exceeded:(\s)?src(\s)?=(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'dest(\s)?=(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'proto(\s)?=(\s)?'
@@ -1498,8 +1498,8 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - protocol
           where:
             variables:
@@ -1525,7 +1525,7 @@ pipeline:
               pattern: 'Denied new tunnel'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
@@ -1566,7 +1566,7 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: ',(\s)?dst'
@@ -1574,7 +1574,7 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -1656,9 +1656,9 @@ pipeline:
       # Parsing from/to ip and port
       - grok:
           patterns:
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.greedy}}'      
           source: log.tmpToip
           where:
@@ -1669,7 +1669,7 @@ pipeline:
             expression: msgId==302003 || msgId==302004
       - grok:
           patterns:
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'        
           source: log.tmpToip
           where:
@@ -1680,9 +1680,9 @@ pipeline:
             expression: msgId==302003 || msgId==302004
       - grok:
           patterns:
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.greedy}}'         
           source: log.tmpFromip
           where:
@@ -1693,7 +1693,7 @@ pipeline:
             expression: msgId==302003 || msgId==302004
       - grok:
           patterns:
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'        
           source: log.tmpFromip
           where:
@@ -1706,8 +1706,8 @@ pipeline:
           function: prefix
           substring: '/'
           fields:
-            - from.port
-            - to.port
+            - origin.port
+            - target.port
           where:
             variables:
               - get: log.messageId
@@ -1733,13 +1733,13 @@ pipeline:
               pattern: 'Pre-allocate H225 Call Signalling Connection'
             - fieldName: log.irrelevant
               pattern: 'for faddr'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '/(\s)?{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to laddr'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -1752,7 +1752,7 @@ pipeline:
           function: prefix
           substring: '/'
           fields:
-            - from.port
+            - origin.port
           where:
             variables:
               - get: log.messageId
@@ -1771,9 +1771,9 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -1787,9 +1787,9 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -1849,7 +1849,7 @@ pipeline:
               pattern: '{{.data}}\)'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'  
           source: log.rest
           where:
@@ -1881,7 +1881,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -1917,8 +1917,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
           where:
@@ -1952,17 +1952,17 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserTo
               pattern: '({{.data}})?duration'
@@ -1970,7 +1970,7 @@ pipeline:
               pattern: '{{.time}}'
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
@@ -2018,7 +2018,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '{{.data}}\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.rest
           where:
@@ -2034,7 +2034,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -2070,8 +2070,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -2103,9 +2103,9 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -2119,9 +2119,9 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -2179,7 +2179,7 @@ pipeline:
               pattern: '{{.data}}\)'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'  
           source: log.rest
           where:
@@ -2211,7 +2211,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -2247,8 +2247,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
           where:
@@ -2282,17 +2282,17 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserTo
               pattern: '({{.data}})?duration'
@@ -2344,7 +2344,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'  
           source: log.rest
           where:
@@ -2358,11 +2358,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.rest
           where:
@@ -2378,7 +2378,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -2414,8 +2414,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -2447,7 +2447,7 @@ pipeline:
               pattern: '({{.data}})from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -2459,7 +2459,7 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.realCid
               pattern: '{{.data}}\('
@@ -2520,7 +2520,7 @@ pipeline:
           patterns:
             - fieldName: log.tmpFwUserTo
               pattern: '\({{.data}}\)'
-            - fieldName: to.user
+            - fieldName: target.user
               pattern: '\({{.data}}\)'
           source: log.tmpUserInfo
           where:
@@ -2562,7 +2562,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - to.user
+            - target.user
             - log.translatedCid
           where:
             variables:
@@ -2575,7 +2575,7 @@ pipeline:
           substring: '('
           fields:
             - log.realCid
-            - to.user
+            - target.user
           where:
             variables:
               - get: log.messageId
@@ -2612,7 +2612,7 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - to.ip
+            - target.ip
             - log.translatedIpTo
           where:
             variables:
@@ -2641,7 +2641,7 @@ pipeline:
               pattern: '({{.data}})from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -2653,7 +2653,7 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.realCid
               pattern: '{{.data}}\('
@@ -2711,7 +2711,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'  
           source: log.rest
           where:
@@ -2725,11 +2725,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.rest
           where:
@@ -2745,7 +2745,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
             - log.translatedCid
           where:
             variables:
@@ -2792,7 +2792,7 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - to.ip
+            - target.ip
             - log.translatedIpTo
           where:
             variables:
@@ -2871,9 +2871,9 @@ pipeline:
       # For parsing faddr and fwuser from (Begin with ip/port), or icmpSeqNum
       - grok:
           patterns:
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '{{.greedy}}'
@@ -2886,7 +2886,7 @@ pipeline:
             expression: msgId==302020 || msgId==302021
       - grok:
           patterns:
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.tmpFwUserFrom
               pattern: '{{.greedy}}'
@@ -3054,9 +3054,9 @@ pipeline:
       # For parsing laddr and fwuser to (Begin with ip/port)
       - grok:
           patterns:
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
@@ -3069,7 +3069,7 @@ pipeline:
             expression: msgId==302020 || msgId==302021
       - grok:
           patterns:
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
@@ -3101,8 +3101,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - to.ip
-            - from.ip
+            - target.ip
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -3151,9 +3151,9 @@ pipeline:
               pattern: 'connection for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpMappedIpPortFrom
               pattern: '\({{.data}}\)'
@@ -3161,9 +3161,9 @@ pipeline:
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpMappedIpPortTo
               pattern: '\({{.data}}\)'
@@ -3272,8 +3272,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
           where:
@@ -3305,17 +3305,17 @@ pipeline:
               pattern: 'connection for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'duration'
@@ -3323,7 +3323,7 @@ pipeline:
               pattern: '{{.time}}'
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.reason
               pattern: '{{.greedy}}'
@@ -3351,8 +3351,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -3369,7 +3369,7 @@ pipeline:
               pattern: 'for faddr'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.tmpPortFrom
               pattern: '{{.data}}to laddr'
@@ -3387,7 +3387,7 @@ pipeline:
       # Parsing optional ports from y to
       - grok:
           patterns:
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -3400,9 +3400,9 @@ pipeline:
             expression: msgId==302033 || msgId==302034
       - grok:
           patterns:
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.greedy}}'
           source: log.tmpIpPortTo
           where:
@@ -3413,7 +3413,7 @@ pipeline:
             expression: msgId==302033 || msgId==302034
       - grok:
           patterns:
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
           source: log.tmpIpPortTo
           where:
@@ -3439,8 +3439,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -3468,9 +3468,9 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -3484,9 +3484,9 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -3566,7 +3566,7 @@ pipeline:
                 ofType: int
             expression: msgId==302035
       # Parsing firewall user to
-      # With from.user
+      # With origin.user
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -3575,7 +3575,7 @@ pipeline:
               pattern: '{{.data}}\)'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.tmpFwUserTo
           where:
@@ -3584,7 +3584,7 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302035
-      # Without from.user
+      # Without origin.user
       - grok:
           patterns:
             - fieldName: log.irrelevant
@@ -3632,7 +3632,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
             - log.insideSgInfo
             - log.outsideSgInfo
           where:
@@ -3671,8 +3671,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
           where:
@@ -3714,17 +3714,17 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserTo
               pattern: '({{.data}})?duration'
@@ -3732,7 +3732,7 @@ pipeline:
               pattern: '{{.time}}'
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.reason
               pattern: '{{.greedy}}'
@@ -3826,12 +3826,12 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302036
-      # Parsing from.user from log.reason field
+      # Parsing origin.user from log.reason field
       - grok:
           patterns:
             - fieldName: log.irrelevant
               pattern: '{{.data}}\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
           source: log.reason
           where:
@@ -3846,7 +3846,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -3881,8 +3881,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -3922,9 +3922,9 @@ pipeline:
               pattern: '({{.data}})from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -3938,9 +3938,9 @@ pipeline:
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -3990,8 +3990,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
           where:
@@ -4021,23 +4021,23 @@ pipeline:
               pattern: '({{.data}})from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.duration
               pattern: '{{.time}}'
             - fieldName: log.irrelevant
               pattern: ','
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: ','
@@ -4083,8 +4083,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -4112,9 +4112,9 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -4128,9 +4128,9 @@ pipeline:
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -4255,7 +4255,7 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
-            - from.user
+            - origin.user
             - log.insideSgInfo
             - log.outsideSgInfo
           where:
@@ -4293,8 +4293,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
           where:
@@ -4336,17 +4336,17 @@ pipeline:
               pattern: '({{.data}})for'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserTo
               pattern: '({{.data}})?duration'
@@ -4354,7 +4354,7 @@ pipeline:
               pattern: '{{.time}}'
             - fieldName: log.irrelevant
               pattern: 'bytes'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.reason
               pattern: '{{.greedy}}' 
@@ -4482,8 +4482,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -4523,7 +4523,7 @@ pipeline:
               pattern: 'from'
             - fieldName: log.tmpAclSrcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
@@ -4634,13 +4634,13 @@ pipeline:
               pattern: 'from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'duration'
@@ -4707,17 +4707,17 @@ pipeline:
               pattern: 'from'
             - fieldName: log.srcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
           source: log.msg
           where:
@@ -4798,8 +4798,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -4816,17 +4816,17 @@ pipeline:
               pattern: 'from'
             - fieldName: log.tmpAclSrcInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.tmpFwUserFrom
               pattern: '({{.data}})?to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'duration'
@@ -4967,8 +4967,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -5047,7 +5047,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'received\sfrom\shost'
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}on'
             - fieldName: log.irrelevant
               pattern: 'interface'
@@ -5059,7 +5059,7 @@ pipeline:
               pattern: '{{.data}}for'
             - fieldName: log.irrelevant
               pattern: 'IP\sAddress'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.data}}Address'
@@ -5091,7 +5091,7 @@ pipeline:
           function: suffix
           substring: 'on'
           fields:
-            - from.mac
+            - origin.mac
           where:
             variables:
               - get: log.messageId
@@ -5134,7 +5134,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'received\sfrom\shost'
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}on'
             - fieldName: log.irrelevant
               pattern: 'interface'
@@ -5146,7 +5146,7 @@ pipeline:
               pattern: '{{.data}}for'
             - fieldName: log.irrelevant
               pattern: 'IP\sAddress'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -5176,7 +5176,7 @@ pipeline:
           function: suffix
           substring: 'on'
           fields:
-            - from.mac
+            - origin.mac
           where:
             variables:
               - get: log.messageId
@@ -5215,11 +5215,11 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: action
               pattern: '{{.data}}from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'on\sinterface'
@@ -5290,11 +5290,11 @@ pipeline:
               pattern: '{{.integer}}(\s)?\)'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -5354,11 +5354,11 @@ pipeline:
               pattern: 'Received\sa\spacket'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'containing'
@@ -5395,15 +5395,15 @@ pipeline:
               pattern: '{{.integer}}(\s)?\)'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.data}}as'
@@ -5477,7 +5477,7 @@ pipeline:
           substring: ')'
           fields:
             - log.seqNum
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -5506,7 +5506,7 @@ pipeline:
           substring: ')'
           fields:
             - log.seqNum
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -5534,11 +5534,11 @@ pipeline:
               pattern: 'Received a non-IPsec \((\s)?{{.word}}(\s)?\) packet'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -5581,19 +5581,19 @@ pipeline:
               pattern: '{{.integer}}(\s)?\)'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.data}}length'
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'with offset'
@@ -5628,7 +5628,7 @@ pipeline:
           substring: ')'
           fields:
             - log.seqNum
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -5664,15 +5664,15 @@ pipeline:
               pattern: '{{.integer}}(\s)?\)'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\)'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -5705,7 +5705,7 @@ pipeline:
           substring: ')'
           fields:
             - log.seqNum
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -5756,9 +5756,9 @@ pipeline:
               pattern: 'Received ARP (request|response) collision'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}on'
             - fieldName: log.irrelevant
               pattern: 'interface'
@@ -5766,9 +5766,9 @@ pipeline:
               pattern: '{{.data}}with'
             - fieldName: log.irrelevant
               pattern: 'existing ARP entry'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.mac
+            - fieldName: target.mac
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -5794,8 +5794,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -5806,7 +5806,7 @@ pipeline:
           function: suffix
           substring: 'on'
           fields:
-            - from.mac
+            - origin.mac
           where:
             variables:
               - get: log.messageId
@@ -5832,9 +5832,9 @@ pipeline:
               pattern: 'Received mac mismatch collision'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.mac
+            - fieldName: origin.mac
               pattern: '{{.data}}for'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -5850,7 +5850,7 @@ pipeline:
           function: suffix
           substring: 'for'
           fields:
-            - from.mac
+            - origin.mac
           where:
             variables:
               - get: log.messageId
@@ -5861,7 +5861,7 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -5874,13 +5874,13 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: 'FTP port command low port(\s)?\:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
             - fieldName: log.irrelevant
               pattern: 'on interface'
@@ -5921,7 +5921,7 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -5934,7 +5934,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: 'FTP port command different address(\s)?\:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
             - fieldName: log.irrelevant
               pattern: '\('
@@ -5944,7 +5944,7 @@ pipeline:
               pattern: '(\s)?\)'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'on interface'
@@ -5989,9 +5989,9 @@ pipeline:
               pattern: 'Embryonic limit {{.data}} for through connections exceeded'
             - fieldName: log.irrelevant
               pattern: '{{.data}}\.'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
@@ -5999,11 +5999,11 @@ pipeline:
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
             - fieldName: log.irrelevant
               pattern: '\('
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '(\s)?\)(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'on interface'
@@ -6041,8 +6041,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -6065,7 +6065,7 @@ pipeline:
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'remote-peer(\s)?=(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -6111,21 +6111,21 @@ pipeline:
               pattern: 'Login\s{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}\:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.service
               pattern: '{{.data}}for'
             - fieldName: log.irrelevant
               pattern: 'user'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -6153,8 +6153,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -6187,7 +6187,7 @@ pipeline:
           function: prefix
           substring: '"'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6198,7 +6198,7 @@ pipeline:
           function: suffix
           substring: '"'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6213,7 +6213,7 @@ pipeline:
               pattern: 'Teardown {{.integer}} connection(\s)?(\(s\))?'
             - fieldName: log.irrelevant
               pattern: 'for user'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -6258,11 +6258,11 @@ pipeline:
               pattern: 'list'
             - fieldName: log.accessList
               pattern: '{{.data}}src'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'dest'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -6303,7 +6303,7 @@ pipeline:
               pattern: 'Deny IP teardrop fragment'
             - fieldName: log.irrelevant
               pattern: '\((\s)?size(\s)?='
-            - fieldName: from.bytesSent
+            - fieldName: origin.bytesSent
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: ',(\s)?offset(\s)?='
@@ -6311,11 +6311,11 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: '\)(\s)?from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'to'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -6381,11 +6381,11 @@ pipeline:
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.data}}works\:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.netmaskFrom
               pattern: '{{.data}}\s'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.netmaskTo
               pattern: '{{.greedy}}'
@@ -6413,8 +6413,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -6431,11 +6431,11 @@ pipeline:
               pattern: 'NAT exemption configured for Network Extension Mode with split tunneling'
             - fieldName: log.irrelevant
               pattern: '{{.data}}works\:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.netmaskFrom
               pattern: '{{.data}}\s'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
             - fieldName: log.netmaskTo
               pattern: '{{.greedy}}'
@@ -6463,8 +6463,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -6477,7 +6477,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'VPNClient\:(\s)?Head end\:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
           where:
@@ -6519,7 +6519,7 @@ pipeline:
               pattern: 'Disconnecting from head end and uninstalling previously downloaded policy'
             - fieldName: log.irrelevant
               pattern: '{{.data}}End\:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
           where:
@@ -6540,7 +6540,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?Peer(\s)?\:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
           where:
@@ -6555,11 +6555,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'VPNClient\:(\s)?Load Balancing Cluster with Virtual IP\:(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.data}}server'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
           where:
@@ -6586,7 +6586,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'VPNClient\:(\s)?Disconnecting from Load Balancing Cluster member(\:)?(\s)?'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
           where:
@@ -6642,17 +6642,17 @@ pipeline:
               pattern: '(TCP|UDP) access denied by ACL'
             - fieldName: log.irrelevant
               pattern: 'from'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'to'
             - fieldName: log.dstInterface
               pattern: '{{.data}}(\s)?:'
-            - fieldName: to.ip
+            - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?/'
-            - fieldName: to.port
+            - fieldName: target.port
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -6684,8 +6684,8 @@ pipeline:
           function: suffix
           substring: '/'
           fields:
-            - from.ip
-            - to.ip
+            - origin.ip
+            - target.ip
           where:
             variables:
               - get: log.messageId
@@ -6709,15 +6709,15 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?='
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'Username(\s)?='
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'IP(\s)?='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: '{{.data}}available(\.)?'
@@ -6735,9 +6735,9 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -6748,7 +6748,7 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6759,7 +6759,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6772,11 +6772,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?'
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}}User'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}IP'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '(\<)?({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\>)?'
             - fieldName: action
               pattern: '{{.greedy}}'
@@ -6792,7 +6792,7 @@ pipeline:
           function: suffix
           substring: 'User'
           fields:
-            - from.group
+            - origin.group
           where:
             variables:
               - get: log.messageId
@@ -6803,7 +6803,7 @@ pipeline:
           function: suffix
           substring: 'IP'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6814,9 +6814,9 @@ pipeline:
           function: prefix
           substring: '<'
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -6827,9 +6827,9 @@ pipeline:
           function: suffix
           substring: '>'
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -6840,7 +6840,7 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6851,7 +6851,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6864,9 +6864,9 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?'
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}}User'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\s'
             - fieldName: action
               pattern: '{{.greedy}}'
@@ -6882,7 +6882,7 @@ pipeline:
           function: suffix
           substring: 'User'
           fields:
-            - from.group
+            - origin.group
           where:
             variables:
               - get: log.messageId
@@ -6893,8 +6893,8 @@ pipeline:
           function: prefix
           substring: '<'
           fields:
-            - from.group
-            - from.user
+            - origin.group
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6905,8 +6905,8 @@ pipeline:
           function: suffix
           substring: '>'
           fields:
-            - from.group
-            - from.user
+            - origin.group
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6917,7 +6917,7 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6928,7 +6928,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6941,11 +6941,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Group(\s)?'
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}}User'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}IP'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '(\<)?({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\>)?'
             - fieldName: action
               pattern: '{{.data}},'
@@ -6975,7 +6975,7 @@ pipeline:
           function: suffix
           substring: 'User'
           fields:
-            - from.group
+            - origin.group
           where:
             variables:
               - get: log.messageId
@@ -6986,7 +6986,7 @@ pipeline:
           function: suffix
           substring: 'IP'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -6997,9 +6997,9 @@ pipeline:
           function: prefix
           substring: '<'
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -7010,9 +7010,9 @@ pipeline:
           function: suffix
           substring: '>'
           fields:
-            - from.group
-            - from.user
-            - from.ip
+            - origin.group
+            - origin.user
+            - origin.ip
           where:
             variables:
               - get: log.messageId
@@ -7023,7 +7023,7 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7034,7 +7034,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7060,11 +7060,11 @@ pipeline:
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: 'group(\s)?='
-            - fieldName: from.group
+            - fieldName: origin.group
               pattern: '{{.data}}user'
             - fieldName: log.irrelevant
               pattern: '='
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}},'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -7093,7 +7093,7 @@ pipeline:
           substring: ','
           fields:
             - action
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7104,7 +7104,7 @@ pipeline:
           function: suffix
           substring: 'user'
           fields:
-            - from.group
+            - origin.group
           where:
             variables:
               - get: log.messageId
@@ -7117,7 +7117,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'WebVPN user(\:)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\s'
             - fieldName: action
               pattern: '{{.greedy}}'
@@ -7200,7 +7200,7 @@ pipeline:
           function: prefix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7211,7 +7211,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7224,7 +7224,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'WebVPN user(\:)?'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}\s'
             - fieldName: log.irrelevant
               pattern: 'ACL ID'
@@ -7244,7 +7244,7 @@ pipeline:
           function: suffix
           substring: ''''
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7274,11 +7274,11 @@ pipeline:
               pattern: '{{.data}}user'
             - fieldName: log.irrelevant
               pattern: '='
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}addr'
             - fieldName: log.irrelevant
               pattern: '='
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.greedy}}'
           source: log.msg
           where:
@@ -7303,7 +7303,7 @@ pipeline:
           function: suffix
           substring: 'addr'
           fields:
-            - from.user
+            - origin.user
           where:
             variables:
               - get: log.messageId
@@ -7320,7 +7320,7 @@ pipeline:
               pattern: '{{.data}}/'
             - fieldName: log.irrelevant
               pattern: '{{.data}}\:'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'duration'
@@ -7538,7 +7538,7 @@ pipeline:
       - rename:
           from:
             - log.tmpIp
-          to: from.ip
+          to: origin.ip
           where:
             variables:
               - get: log.messageId
@@ -7551,7 +7551,7 @@ pipeline:
       - rename:
           from:
             - log.tmpIp
-          to: to.ip
+          to: target.ip
           where:
             variables:
               - get: log.messageId
@@ -7567,7 +7567,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '{{.data}}host'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -7690,8 +7690,8 @@ pipeline:
       # Common field conversions
       - cast:
           fields:
-            - from.port
-            - to.port
+            - origin.port
+            - target.port
           to: int
       # Removing unused fields
       - delete:
