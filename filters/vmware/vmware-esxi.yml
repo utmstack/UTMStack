@@ -19,7 +19,7 @@ pipeline:
               pattern: '\<{{.data}}\>'
             - fieldName: log.deviceTime
               pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
-            - fieldName: log.hostname
+            - fieldName: origin.hostname
               pattern: '{{.hostname}}'
             - fieldName: log.process
               pattern: '{{.hostname}}(\:)'
@@ -40,7 +40,7 @@ pipeline:
               pattern: '\<{{.data}}\>'
             - fieldName: log.deviceTime
               pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
-            - fieldName: log.hostname
+            - fieldName: origin.hostname
               pattern: '{{.hostname}}'
             - fieldName: log.process
               pattern: '{{.hostname}}'
