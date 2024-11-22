@@ -134,15 +134,23 @@ pipeline:
       - rename:
           from:
             - log.srcIp
-          to: from.ip
+          to: origin.ip
       - rename:
           from:
             - log.dstIp
-          to: to.ip
+          to: target.ip
       - rename:
           from:
             - log.srcMac
-          to: from.mac
+          to: origin.mac
+      - rename:
+          from:
+            - log.srcPort
+          to: origin.port
+      - rename:
+          from:
+            - log.dstPort
+          to: target.port
       - rename:
           from:
             - log.proto
@@ -158,14 +166,14 @@ pipeline:
           function: prefix
           substring: ':'
           fields:
-            - log.dstPort
-            - log.srcPort
+            - target.port
+            - origin.port
       - trim:
           function: prefix
           substring: ','
           fields:
             - log.chain
-            - from.ip
+            - origin.ip
       - trim:
           function: suffix
           substring: '>'
@@ -178,8 +186,34 @@ pipeline:
           fields:
             - log.priority
             - log.len
-            - log.srcPort
-            - log.dstPort
+            - origin.port
+            - target.port
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # Removing unused fields
       - delete:
