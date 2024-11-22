@@ -26,7 +26,7 @@ type cityBlock struct {
 	accuracyRadius int32
 }
 
-var cityBlocks =  make(map[string][]*cityBlock)
+var cityBlocks = make(map[string][]*cityBlock)
 
 type cityLocation struct {
 	geonameID      int64
@@ -89,7 +89,7 @@ func getLocation(geonameID int64) *cityLocation {
 	if !ok {
 		return nil
 	}
-	
+
 	return location
 }
 
@@ -113,9 +113,12 @@ func geolocate(ip string) *go_sdk.Geolocation {
 	asn := getASN(ip)
 	city := getCity(ip)
 
+	var some bool
+
 	if asn != nil {
 		geo.Asn = asn.asn
 		geo.Aso = asn.aso
+		some = true
 	}
 
 	if city != nil {
@@ -125,6 +128,11 @@ func geolocate(ip string) *go_sdk.Geolocation {
 		geo.CountryCode = location.countryISOCode
 		geo.Latitude = city.latitude
 		geo.Longitude = city.longitude
+		some = true
+	}
+
+	if !some {
+		return nil
 	}
 
 	return geo
