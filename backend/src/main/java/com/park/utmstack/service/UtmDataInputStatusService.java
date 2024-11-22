@@ -4,6 +4,8 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.UtmDataInputStatus;
 import com.park.utmstack.domain.UtmServerModule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
+import com.park.utmstack.domain.chart_builder.types.query.FilterType;
+import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
@@ -14,6 +16,7 @@ import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.service.logstash_pipeline.response.statistic.StatisticDocument;
 import com.park.utmstack.service.network_scan.DataSourceConstants;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
@@ -410,7 +413,10 @@ public class UtmDataInputStatusService {
     }
 
     private Map<String, StatisticDocument> getLatestStatisticsByDataType() {
+        ArrayList<FilterType> filters = new ArrayList<>();
+        filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
         SearchRequest sr = SearchRequest.of(s -> s
+                .query(SearchUtil.toQuery(filters))
                 .index(Constants.STATISTICS_INDEX_PATTERN)
                 .aggregations("by_dataType", agg -> agg
                         .terms(t -> t.field("dataType.keyword")
