@@ -48,19 +48,53 @@ pipeline:
       - rename:
           from:
             - log.srcIp
-          to: from.ip
+          to: origin.ip
       - rename:
           from:
             - log.dstIp
-          to: to.ip
+          to: target.ip
       - rename:
           from:
             - log.proto
           to: protocol
+      - rename:
+          from:
+            - log.srcPort
+          to: origin.port
+      - rename:
+          from:
+            - log.dstPort
+          to: taget.port
 
       # Fields conversions
       - cast:
           to: 'int64'
           fields:
-            - log.srcPort
-            - log.dstPort
+            - origin.port
+            - target.port
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
