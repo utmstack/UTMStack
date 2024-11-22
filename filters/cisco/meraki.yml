@@ -41,7 +41,7 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.controlFlag
-              pattern: '{{.data}}(events|flows|urls|ids-alerts|security_event)'
+              pattern: '{{.data}}(\s)(events|flows|urls|ids-alerts|security_event)'
             - fieldName: log.genericEvent
               pattern: '{{.greedy}}'
           source: log.msg
@@ -1834,6 +1834,7 @@ pipeline:
           substring: ''''
           fields:
             - origin.ip
+            - origin.mac
             - log.radio
             - log.packet
             - log.dosCount
@@ -1857,6 +1858,7 @@ pipeline:
           substring: ''''
           fields:
             - origin.ip
+            - origin.mac
             - log.radio
             - log.packet
             - log.dosCount
@@ -1952,6 +1954,350 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && (gevt.startsWith("allow") || gevt.startsWith("deny")) && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
+      # ........................................
+      # Event: event rogue SSID detected and SSID spoofing detected in Meraki MR Access Points
+      # First variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'airmarshal_events(\s)type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}ssid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.ssid
+              pattern: '{{.data}}bssid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.bssid
+              pattern: '{{.data}}src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}dst'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: target.mac
+              pattern: '{{.data}}wired_mac'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.wiredMac
+              pattern: '{{.data}}vlan_id'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vlanId
+              pattern: '{{.data}}channel'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.channel
+              pattern: '{{.data}}rssi'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.rssi
+              pattern: '{{.data}}fc_type'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcType
+              pattern: '{{.data}}fc_subtype'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcSubType
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      # Second variant
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'airmarshal_events(\s)type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}ssid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.ssid
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}bssid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.bssid
+              pattern: '{{.data}}src'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}dst'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: target.mac
+              pattern: '{{.data}}channel'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.channel
+              pattern: '{{.data}}rssi'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.rssi
+              pattern: '{{.data}}fc_type'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcType
+              pattern: '{{.data}}fc_subtype'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.fcSubType
+              pattern: '{{.greedy}}'
+          source: log.msg
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'ssid'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'bssid'
+          fields:
+            - log.ssid
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.ssid
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'bssid'
+          fields:
+            - log.vap
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'src'
+          fields:
+            - log.bssid
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'dst'
+          fields:
+            - origin.mac
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'wired_mac'
+          fields:
+            - target.mac
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'channel'
+          fields:
+            - target.mac
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'vlan_id'
+          fields:
+            - log.wiredMac
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'channel'
+          fields:
+            - log.vlanId
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'rssi'
+          fields:
+            - log.channel
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'fc_type'
+          fields:
+            - log.rssi
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: 'fc_subtype'
+          fields:
+            - log.fcType
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - action
+            - log.ssid
+            - log.bssid
+            - origin.mac
+            - target.mac
+            - log.wiredMac
+            - log.vlanId
+            - log.channel
+            - log.rssi
+            - log.fcType
+            - log.fcSubType
+            - log.vap
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - action
+            - log.ssid
+            - log.bssid
+            - origin.mac
+            - target.mac
+            - log.wiredMac
+            - log.vlanId
+            - log.channel
+            - log.rssi
+            - log.fcType
+            - log.fcSubType
+            - log.vap
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
       # ............................................................................
       # Cleaning common fields
       - trim:
