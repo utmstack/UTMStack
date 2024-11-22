@@ -9,23 +9,23 @@ pipeline:
       - rename:
           from:
             - log.url
-          to: local.url
+          to: origin.url
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.local.ips
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.local.macs
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
       - rename:
           from:
             - log.event.dataset
@@ -49,11 +49,11 @@ pipeline:
       - cast:
           to: '[]string'
           fields:
-            - local.ips
+            - log.local.ips
       - cast:
           to: '[]string'
           fields:
-            - local.macs
+            - log.local.macs
       - delete:
           fields:
             - log.service
