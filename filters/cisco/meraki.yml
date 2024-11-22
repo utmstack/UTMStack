@@ -1661,6 +1661,220 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      # ........................................
+      # Event: event wireless packet flood detected in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}packet'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.packet
+              pattern: '{{.data}}device'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: origin.mac
+              pattern: '{{.data}}radio'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.radio
+              pattern: '{{.data}}state'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.state
+              pattern: '{{.data}}alarm_id'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.alarmId
+              pattern: '{{.data}}dos_count'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.dosCount
+              pattern: '{{.data}}inter_arrival'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.interArrival
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'packet'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'device'
+          fields:
+            - log.packet
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - origin.mac
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'state'
+          fields:
+            - log.radio
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'alarm_id'
+          fields:
+            - log.state
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'dos_count'
+          fields:
+            - log.alarmId
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: 'inter_arrival'
+          fields:
+            - log.dosCount
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.radio
+            - log.packet
+            - log.dosCount
+            - log.alarmId
+            - log.state
+            - log.interArrival
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - origin.ip
+            - log.radio
+            - log.packet
+            - log.dosCount
+            - log.alarmId
+            - log.state
+            - log.interArrival
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("packet") && gevt.contains("device") && gevt.contains("state") && gevt.contains("alarm_id") && gevt.contains("dos_count")
       # ............................................................................
       # Cleaning common fields
       - trim:
