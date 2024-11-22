@@ -1348,6 +1348,151 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
+      # ........................................
+      # Event: event 802.1X (all events) in Meraki MR Access Points
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'type(\s)?='
+            - fieldName: action
+              pattern: '{{.data}}radio'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.radio
+              pattern: '{{.data}}vap'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.vap
+              pattern: '{{.data}}identity'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.identity
+              pattern: '{{.data}}aid'
+            - fieldName: log.irrelevant
+              pattern: '='
+            - fieldName: log.aid
+              pattern: '{{.greedy}}'
+          source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      - trim:
+          function: suffix
+          substring: 'radio'
+          fields:
+            - action
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      - trim:
+          function: suffix
+          substring: 'vap'
+          fields:
+            - log.radio
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      - trim:
+          function: suffix
+          substring: 'identity'
+          fields:
+            - log.vap
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      - trim:
+          function: suffix
+          substring: 'aid'
+          fields:
+            - log.identity
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      - trim:
+          function: prefix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.identity
+            - log.aid
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
+      - trim:
+          function: suffix
+          substring: ''''
+          fields:
+            - log.radio
+            - log.vap
+            - log.identity
+            - log.aid
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("vap") && gevt.contains("identity") && gevt.contains("aid")
       # ............................................................................
       # Cleaning common fields
       - trim:
