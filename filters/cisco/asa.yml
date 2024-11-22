@@ -4981,7 +4981,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.word}}\sMAC\saddress'
-            - fieldName: local.mac
+            - fieldName: log.localMac
               pattern: '{{.data}}(\s)?,'
             - fieldName: log.reason
               pattern: '{{.data}}on'
@@ -5015,7 +5015,7 @@ pipeline:
           function: suffix
           substring: ','
           fields:
-            - local.mac
+            - log.localMac
           where:
             variables:
               - get: log.messageId
