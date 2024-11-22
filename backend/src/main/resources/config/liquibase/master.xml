@@ -65,5 +65,6 @@
 
     <include file="/config/liquibase/changelog/20240517001_add_collectors_source_menu.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20241122001_alter_action_detail_length.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
