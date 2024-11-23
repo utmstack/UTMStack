@@ -74,7 +74,7 @@ pipeline:
           patterns:
             - fieldName: log.commandType
               pattern: '{{.data}}(\:)'
-            - fieldName: local.user
+            - fieldName: origin.user
               pattern: '{{.data}}(\s)?(\:)'
             - fieldName: log.msgWithTTY
               pattern: '{{.greedy}}'
@@ -93,7 +93,7 @@ pipeline:
           substring: ":"
           fields:
             - log.commandType
-            - local.user
+            - origin.user
       # ......................................................................#
       # Using grok to parse msgWithTTY individual fields
       # If "TTY=" in [msgWithTTY]
@@ -142,7 +142,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '(USER=)'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.data}}(\;)'
             - fieldName: log.msgWithTTY
               pattern: '{{.greedy}}'
@@ -162,7 +162,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '(COMMAND=)'
-            - fieldName: from.command
+            - fieldName: origin.command
               pattern: '{{.greedy}}'
           source: log.msgWithTTY
           where:
@@ -180,11 +180,11 @@ pipeline:
           patterns:
             - fieldName: log.commandType
               pattern: '{{.data}}(\:)'
-            - fieldName: local.user
+            - fieldName: origin.user
               pattern: '{{.data}}(\s)?(\:)'
             - fieldName: log.irrelevant
               pattern: '{{.data}}\)'
-            - fieldName: from.command
+            - fieldName: origin.command
               pattern: '{{.greedy}}'
           source: log.msgAll
           where:
@@ -203,13 +203,13 @@ pipeline:
           fields:
             - log.tty
             - log.pwd
-            - from.user
+            - origin.user
       - trim:
           function: suffix
           substring: ":"
           fields:
             - log.commandType
-            - local.user
+            - origin.user
 
       # ......................................................................#
       # if message.matches("\\w+\\[[0-9]+\\]\\:") to parse msgAll 
@@ -414,7 +414,7 @@ pipeline:
               pattern: '(ACTION:)'
             - fieldName: log.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.action
+            - fieldName: action
               pattern: '\"{{.data}}\"'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
@@ -560,11 +560,11 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}from(\s)'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}'
             - fieldName: log.irrelevant
               pattern: '(port)'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.restMsg
               pattern: '{{.greedy}}'
@@ -580,13 +580,13 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}from(\s)user(\s)'
-            - fieldName: from.user
+            - fieldName: origin.user
               pattern: '{{.word}}'
-            - fieldName: from.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}'
             - fieldName: log.irrelevant
               pattern: '(port)'
-            - fieldName: from.port
+            - fieldName: origin.port
               pattern: '{{.greedy}}'
           source: log.msg
           where: 
@@ -607,7 +607,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.data}}(\:)'
-            - fieldName: from.sha256
+            - fieldName: origin.sha256
               pattern: '{{.greedy}}'
           source: log.restMsg
           where: 
@@ -622,7 +622,7 @@ pipeline:
       # ......................................................................#
       - cast:
           fields:
-            - from.port
+            - origin.port
           to: int
 
       # ......................................................................#
@@ -696,7 +696,7 @@ pipeline:
             - log.statement
             - log.userID
             - log.userHost
-            - log.action
+            - action
             - log.returnCode
             - log.objCreator
             - log.objName
@@ -712,11 +712,37 @@ pipeline:
             - log.statement
             - log.userID
             - log.userHost
-            - log.action
+            - action
             - log.returnCode
             - log.objCreator
             - log.objName
             - log.osUserID
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # ..........................................................................#
       # Remove issues fileds

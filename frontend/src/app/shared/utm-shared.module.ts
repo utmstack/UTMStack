@@ -224,6 +224,7 @@ import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
+import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {UtmNotifier} from './websocket/utm-notifier';
 
 
@@ -371,7 +372,9 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmNotificationComponent,
     BadgeTypeDirective,
     AppFilterComponent,
-    TemplateSelectorDirective
+    TemplateSelectorDirective,
+    TimezoneOffsetPipe,
+    TimePeriodPipe
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -470,7 +473,9 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmNotificationComponent,
     BadgeTypeDirective,
     AppFilterComponent,
-    TemplateSelectorDirective
+    TemplateSelectorDirective,
+    TimezoneOffsetPipe,
+    TimePeriodPipe
   ],
   entryComponents: [
     LoginComponent,

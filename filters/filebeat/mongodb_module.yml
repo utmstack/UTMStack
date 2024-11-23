@@ -16,19 +16,19 @@ pipeline:
       - rename:
           from:
             - log.url
-          to: local.url
+          to: origin.url
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.local.ips
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.local.macs
       - rename:
           from:
             - log.host.hostname
@@ -56,11 +56,11 @@ pipeline:
       - cast:
           to: '[]string'
           fields:
-            - local.ips
+            - log.local.ips
       - cast:
           to: '[]string'
           fields:
-            - local.macs
+            - log.local.macs
       # Parsing json log
       - json:
           source: log.message
@@ -76,11 +76,11 @@ pipeline:
       - rename:
           from:
             - log.attr.host
-          to: local.host
+          to: origin.host
       - rename:
           from:
             - log.attr.port
-          to: local.port
+          to: origin.port
       - rename:
           from:
             - log.attr.pid
@@ -92,7 +92,7 @@ pipeline:
       - rename:
           from:
             - log.attr.dbPath
-          to: local.path
+          to: origin.path
       - reformat:
           fields:
             - log.time

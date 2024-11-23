@@ -1,26 +1,23 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridType} from 'angular-gridster2';
 import {UUID} from 'angular2-uuid';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {Subject} from 'rxjs';
+import {filter, map, takeUntil, tap} from 'rxjs/operators';
 import {UtmRenderVisualization} from '../../dashboard/shared/services/utm-render-visualization.service';
+import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
+import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {UtmDashboardVisualizationType} from '../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard.type';
+import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
+import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
 import {ComplianceParamsEnum} from '../shared/enums/compliance-params.enum';
-import {ComplianceEndpointService} from '../shared/services/compliance-endpoint.service';
-import {ComplianceTemplateService} from '../shared/services/compliance-template.service';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {HippaSignaturesType} from '../shared/type/hippa-signatures.type';
-import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
-import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
-import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
-import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
-import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-compliance-result-view',
@@ -28,13 +25,15 @@ import {takeUntil} from 'rxjs/operators';
   styleUrls: ['./compliance-result-view.component.scss']
 })
 export class ComplianceResultViewComponent implements OnInit, OnDestroy {
+  @Input() showExport = true;
+  @Input() template: 'default' | 'compliance' = 'default';
   reportId: number;
   report: ComplianceReportType;
   signatures: HippaSignaturesType[] = [];
   dashboardId: number;
   UUID = UUID.UUID();
   visualizationRender: UtmDashboardVisualizationType[];
-  loadingVisualizations = true;
+  loadingVisualizations = false;
   interval: any;
   dashboard: UtmDashboardType;
   pdfExport = false;
@@ -66,27 +65,40 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   configSolution: string;
   filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject<void>();
+  showBack = false;
 
   constructor(private activeRoute: ActivatedRoute,
               private cpReportsService: CpReportsService,
-              private complianceEndpointService: ComplianceEndpointService,
               private utmToastService: UtmToastService,
-              private modalService: NgbModal,
-              private complianceTemplateService: ComplianceTemplateService,
               private utmRenderVisualization: UtmRenderVisualization,
               private timeFilterBehavior: TimeFilterBehavior,
               private spinner: NgxSpinnerService,
               private exportPdfService: ExportPdfService) {
-
-    this.activeRoute.queryParams.subscribe((params) => {
-      this.reportId = params[ComplianceParamsEnum.TEMPLATE];
-      this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
-      this.sectionId = params[ComplianceParamsEnum.SECTION_ID];
-    });
   }
 
   ngOnInit() {
-    this.getTemplate();
+
+    this.activeRoute.queryParams
+      .pipe(filter((params) => Object.keys(params).length > 0),
+          tap(() => {
+            this.loadingVisualizations = true;
+            this.showBack = true;
+          }))
+      .subscribe((params) => {
+        this.initializeReportParams(params);
+    });
+
+    this.cpReportsService.onLoadReport$
+      .pipe(takeUntil(this.destroy$),
+            filter(params => !!params),
+            tap(() => this.loadingVisualizations = true),
+            map(params => ({
+              ...params,
+              template: params.template.id
+            })))
+      .subscribe(params => {
+        this.initializeReportParams(params);
+      });
 
     this.timeFilterBehavior.$time
       .pipe(takeUntil(this.destroy$))
@@ -97,6 +109,14 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
           });
         }
       });
+  }
+
+  initializeReportParams(params) {
+    this.reportId = params[ComplianceParamsEnum.TEMPLATE];
+    this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
+    this.sectionId = params[ComplianceParamsEnum.SECTION_ID];
+
+    this.getTemplate();
   }
 
   /**
@@ -128,6 +148,7 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   }
   exportToPdf() {
     filtersToStringParam(this.filtersValues).then(queryParams => {
+      console.log('click');
       this.spinner.show('buildPrintPDF');
       const params = queryParams !== '' ? '?' + queryParams : '';
       const url = '/dashboard/export-compliance/' + this.reportId +  params;

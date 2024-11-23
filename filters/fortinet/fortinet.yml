@@ -59,19 +59,19 @@ pipeline:
       - rename:
           from:
             - log.dstip
-          to: to.ip
+          to: target.ip
       - rename:
           from:
             - log.dstport
-          to: to.port
+          to: target.port
       - rename:
           from:
             - log.srcip
-          to: from.ip
+          to: origin.ip
       - rename:
           from:
             - log.srcport
-          to: from.port
+          to: origin.port
 
       # Removing unused caracters
       - trim:
@@ -84,6 +84,32 @@ pipeline:
           substring: '>'
           fields:
             - log.priority
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # Removing unused fields
       - delete:

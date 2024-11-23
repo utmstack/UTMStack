@@ -6,16 +6,64 @@ import (
 	"net"
 	"os"
 	"path"
+	"time"
 
+	"github.com/google/uuid"
 	go_sdk "github.com/threatwinds/go-sdk"
-	
-	"github.com/utmstack/UTMStack/plugins/alerts/correlation"
+	go_sdk_os "github.com/threatwinds/go-sdk/opensearch"
+
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type correlationServer struct {
 	go_sdk.UnimplementedCorrelationServer
+}
+
+type Config struct {
+	Elasticsearch string `yaml:"elasticsearch"`
+}
+
+type IncidentDetail struct {
+	CreatedBy    string `json:"createdBy"`
+	Observation  string `json:"observation"`
+	CreationDate string `json:"creationDate"`
+	Source       string `json:"source"`
+}
+
+type AlertFields struct {
+	Timestamp         string         `json:"@timestamp"`
+	ID                string         `json:"id"`
+	Status            int            `json:"status"`
+	StatusLabel       string         `json:"statusLabel"`
+	StatusObservation string         `json:"statusObservation"`
+	IsIncident        bool           `json:"isIncident"`
+	IncidentDetail    IncidentDetail `json:"incidentDetail"`
+	Name              string         `json:"name"`
+	Category          string         `json:"category"`
+	Severity          int            `json:"severity"`
+	SeverityLabel     string         `json:"severityLabel"`
+	Description       string         `json:"description"`
+	Solution          string         `json:"solution"`
+	Technique         string         `json:"technique"`
+	Reference         []string       `json:"reference"`
+	DataType          string         `json:"dataType"`
+	DataSource        string         `json:"dataSource"`
+	Adversary         *go_sdk.Side   `json:"adversary"`
+	Target            *go_sdk.Side   `json:"target"`
+	Logs              []string       `json:"logs"`
+	Tags              []string       `json:"tags"`
+	Notes             string         `json:"notes"`
+	TagRulesApplied   []int          `json:"tagRulesApplied"`
+}
+
+func init() {
+	pCfg, e := go_sdk.PluginCfg[Config]("com.utmstack")
+	if e != nil {
+		os.Exit(1)
+	}
+
+	go_sdk_os.Connect([]string{pCfg.Elasticsearch})
 }
 
 func main() {
@@ -49,65 +97,61 @@ func main() {
 func (p *correlationServer) Correlate(ctx context.Context,
 	alert *go_sdk.Alert) (*emptypb.Empty, error) {
 
-	correlation.Alert(
-		alert.Id,
-		alert.Name,
-		alert.Severity,
-		alert.Description,
-		"",
-		alert.Category,
-		alert.Technique,
-		alert.References,
-		alert.DataType,
-		alert.DataSource,
-		getDetails(alert),
-	)
+	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
 
-	return nil, nil
+	var severityN int
+	var severityLabel string
+	switch alert.Severity {
+	case "low":
+		severityN = 1
+		severityLabel = "Low"
+	case "medium":
+		severityN = 2
+		severityLabel = "Medium"
+	case "high":
+		severityN = 3
+		severityLabel = "High"
+	default:
+		severityN = 1
+		severityLabel = "Low"
+	}
+
+	a := AlertFields{
+		Timestamp:     timestamp,
+		ID:            alert.Id,
+		Status:        1,
+		StatusLabel:   "Automatic review",
+		Name:          alert.Name,
+		Category:      alert.Category,
+		Severity:      severityN,
+		SeverityLabel: severityLabel,
+		Description:   alert.Description,
+		Technique:     alert.Technique,
+		Reference:     alert.References,
+		DataType:      alert.DataType,
+		DataSource:    alert.DataSource,
+		Adversary:     alert.Adversary,
+		Target:        alert.Target,
+		Logs:          alert.Events,
+	}
+
+	cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	defer cancel()
+
+	err := go_sdk_os.IndexDoc(cancelableContext, a, indexBuilder("v11-alert", time.Now().UTC()), uuid.NewString())
+
+	return nil, err
 }
 
-func getDetails(alert *go_sdk.Alert) map[string]string {
-	var details = make(map[string]string, 10)
-	if len(alert.Events) != 0 {
-		details["id"] = alert.Events[0].Id
-		details["Protocol"] = alert.Events[0].Protocol
-	}
+func indexBuilder(name string, timestamp time.Time) string {
+	fst := timestamp.Format("2006.01.02")
 
-	if alert.Target != nil {
-		details["DestinationUser"] = alert.Target.User
-		details["DestinationHost"] = alert.Target.Host
-		details["DestinationIP"] = alert.Target.Ip
-		details["DestinationPort"] = fmt.Sprintf("%d", alert.Target.Port)
+	index := fmt.Sprintf(
+		"%s-%s",
+		name,
+		fst,
+	)
 
-		if alert.Target.Geolocation != nil {
-			details["DestinationASN"] = fmt.Sprintf("%d", alert.Target.Geolocation.Asn)
-			details["DestinationASO"] = alert.Target.Geolocation.Aso
-			details["DestinationLat"] = fmt.Sprintf("%f", alert.Target.Geolocation.Latitude)
-			details["DestinationLon"] = fmt.Sprintf("%f", alert.Target.Geolocation.Longitude)
-			details["DestinationCity"] = alert.Target.Geolocation.City
-			details["DestinationCountry"] = alert.Target.Geolocation.Country
-			details["DestinationCountryCode"] = alert.Target.Geolocation.CountryCode
-			details["DestinationAccuracyRadius"] = fmt.Sprintf("%d", alert.Target.Geolocation.Accuracy)
-		}
-	}
-
-	if alert.Adversary != nil {
-		details["SourceUser"] = alert.Adversary.User
-		details["SourceHost"] = alert.Adversary.Host
-		details["SourceIP"] = alert.Adversary.Ip
-		details["SourcePort"] = fmt.Sprintf("%d", alert.Adversary.Port)
-
-		if alert.Adversary.Geolocation != nil {
-			details["SourceASN"] = fmt.Sprintf("%d", alert.Adversary.Geolocation.Asn)
-			details["SourceASO"] = alert.Adversary.Geolocation.Aso
-			details["SourceLat"] = fmt.Sprintf("%f", alert.Adversary.Geolocation.Latitude)
-			details["SourceLon"] = fmt.Sprintf("%f", alert.Adversary.Geolocation.Longitude)
-			details["SourceCity"] = alert.Adversary.Geolocation.City
-			details["SourceCountry"] = alert.Adversary.Geolocation.Country
-			details["SourceCountryCode"] = alert.Adversary.Geolocation.CountryCode
-			details["SourceAccuracyRadius"] = fmt.Sprintf("%d", alert.Adversary.Geolocation.Accuracy)
-		}
-	}
-
-	return details
+	return index
 }

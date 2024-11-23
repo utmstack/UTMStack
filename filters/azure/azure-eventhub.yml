@@ -16,22 +16,22 @@ pipeline:
       - rename:
           from:
             - log.ResponseBodySize
-          to: remote.bytesSent
+          to: origin.bytesSent
 
       - rename:
           from:
             - log.ResponseHeaderSize
-          to: remote.bytesReceived
+          to: origin.bytesReceived
 
       - rename:
           from:
             - log.Uri
-          to: to.url
+          to: target.url
 
       - rename:
           from:
             - log.AccountName
-          to: from.host
+          to: origin.host
 
       - rename:
           from:
@@ -51,7 +51,7 @@ pipeline:
       - rename:
           from:
             - log.Location
-          to: remote.geolocation.country
+          to: origin.geolocation.country
           
 
       # .......................................................................#
@@ -59,9 +59,9 @@ pipeline:
       # .......................................................................#
       - grok:
           patterns:
-            - fieldName: remote.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}(:)'
-            - fieldName: remote.port
+            - fieldName: origin.port
               pattern: '{{.integer}}'
           source: log.CallerIpAddress
           where:
@@ -72,16 +72,40 @@ pipeline:
             expression: ip.contains(":")
 
       # .......................................................................#
+      # Remove caracters unnecessary to remote.ip
+      # .......................................................................#
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - origin.ip
+
+      # .......................................................................#
+      # Add geolocation to remote.ip
+      # .......................................................................#
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+
+      # .......................................................................#
       # Fields conversions
       # .......................................................................#
       - cast:
           fields:
-            - remote.port
+            - origin.port
             - statusCode
           to: int
 
       - cast:
           fields:
-            - remote.bytesSent
-            - remote.bytesReceived
+            - origin.bytesSent
+            - origin.bytesReceived
           to: float64

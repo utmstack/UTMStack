@@ -1,47 +1,69 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, interval, Subscription} from 'rxjs';
-import {map, switchMap, tap} from 'rxjs/operators';
-import {AlertOpenStatusService} from '../../../../shared/webflux/alert-open-status.service';
+import { Injectable, OnDestroy } from '@angular/core';
+import {LocalStorageService} from 'ngx-webstorage';
+import { BehaviorSubject, interval, Subject } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { AlertOpenStatusService } from '../../../../shared/webflux/alert-open-status.service';
+
+export const OPEN_ALERTS_KEY = 'open-alerts';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class OpenAlertsService {
-  private openAlertsBehaviorSubject = new BehaviorSubject<number>(0);
+export class OpenAlertsService implements OnDestroy {
+  private openAlertsBehaviorSubject = new BehaviorSubject<number | null>(null);
   openAlerts$ = this.openAlertsBehaviorSubject.asObservable();
-  private interval$ = interval(30000);
-  private subscription: Subscription;
-  private readonly timeOutId: number;
+  private destroy$ = new Subject<void>();
+  _openAlerts = 0;
 
-  constructor(private alertOpenStatusService: AlertOpenStatusService) {
-    this.timeOutId = setTimeout(() => {
-      this.fetchOpenAlerts();
-    }, 30000);
-  }
+  constructor(private alertOpenStatusService: AlertOpenStatusService,
+              private localStorage: LocalStorageService) {
 
-  fetchOpenAlerts() {
-    this.subscription = this.interval$.pipe(
-      switchMap( () => this.alertOpenStatusService.getOpenAlert()),
-      map((response) => response.body),
-      tap((openAlerts) => {
-        if (openAlerts > 0 && openAlerts !== this.openAlertsBehaviorSubject.value) {
-          this.openAlertsBehaviorSubject.next(openAlerts);
-        }
-      })
-    ).subscribe();
-  }
-
-  stopInterval(){
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    const openAlerts = this.localStorage.retrieve(OPEN_ALERTS_KEY);
+    if (!!openAlerts) {
+      this._openAlerts = openAlerts;
+      this.openAlertsBehaviorSubject.next(openAlerts);
     }
-
-    if (this.timeOutId) {
-      clearTimeout(this.timeOutId);
-    }
+    this.startInterval();
   }
 
-  reset(){
+  private startInterval() {
+    interval(3000)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.alertOpenStatusService.getOpenAlert()),
+        tap((response) => {
+          this.openAlerts = response.body;
+          this.localStorage.store(OPEN_ALERTS_KEY, this.openAlerts);
+          if (this.openAlerts > 0 && this.openAlerts !== this.openAlerts) {
+            this.openAlertsBehaviorSubject.next(this.openAlerts);
+          }
+        }),
+        catchError((err) => {
+          console.error('Error fetching alerts:', err);
+          return [];
+        })
+      )
+      .subscribe();
+  }
+
+  stopInterval() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  reset() {
     this.openAlertsBehaviorSubject.next(0);
+  }
+
+  get openAlerts(){
+    return this._openAlerts;
+  }
+
+  set openAlerts(openAlerts) {
+    this._openAlerts = openAlerts;
+  }
+
+  ngOnDestroy() {
+    this.stopInterval();
   }
 }

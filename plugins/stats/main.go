@@ -294,7 +294,7 @@ func saveToOpensearch[Data any](data Data) {
 	oCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	err := opensearch.IndexDoc(oCtx, &data, fmt.Sprintf("statistics-%s", time.Now().UTC().Format("2006.01")), uuid.NewString())
+	err := opensearch.IndexDoc(oCtx, &data, fmt.Sprintf("v11-statistics-%s", time.Now().UTC().Format("2006.01")), uuid.NewString())
 	if err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
 	}

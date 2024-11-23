@@ -50,10 +50,6 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 		return transform.Jlog, fmt.Errorf("'source' parameter required")
 	}
 
-	if IsLocal(net.IP(source.GetStringValue())) {
-		return transform.Jlog, nil
-	}
-
 	destination, ok := transform.Step.Dynamic.Params["destination"]
 	if !ok {
 		go_sdk.Logger().ErrorF("'destination' parameter required")
@@ -67,6 +63,11 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 	}
 
 	geo := geolocate(value)
+
+	if geo == nil {
+		go_sdk.Logger().LogF(100, "geolocation not found")
+		return transform.Jlog, nil
+	}
 
 	var err error
 	transform.Jlog.Log, err = sjson.Set(transform.Jlog.Log, destination.GetStringValue(), geo)
