@@ -74,7 +74,7 @@ func update() {
 			first = false
 		}
 
-		time.Sleep(48 * time.Hour)
+		time.Sleep(168 * time.Hour)
 	}
 }
 
