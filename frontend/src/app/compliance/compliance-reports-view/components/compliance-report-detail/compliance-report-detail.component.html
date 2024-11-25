@@ -2,7 +2,7 @@
   <div [ngClass]="compliance && compliance.rows.length > 0 ? 'border-left-success' : 'border-left-danger'">
     <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
       <div style="padding-left: 10px" class="w-100">
-        <span class="text-blue-800 font-weight-light mr-2">Status:</span>&nbsp;
+        <span class="text-blue-800 font-weight-light mr-2">Status:</span>
         <span [ngClass]="compliance.rows.length > 0 ? 'text-success' : 'text-danger'"
               class="span-small-icon d-flex justify-content-start align-items-center">
             {{ compliance.rows.length > 0 ? 'Compliant' : 'Non compliant' }}
@@ -10,22 +10,22 @@
       </div>
 
       <div class="w-100" style="border-left: 1px solid #ccc; padding-left: 10px;">
-        <span class="text-blue-800 font-weight-light mr-2">Time window:</span>&nbsp;
+        <span class="text-blue-800 font-weight-light mr-2">Time window:</span>
         <app-compliance-time [report]="report"></app-compliance-time>
       </div>
     </div>
   </div>
   <div class="p-3">
     <div class="d-flex justify-content-around align-content-center">
-        <div class="alert-details w-100 d-flex justify-content-start align-items-center">
-          <span class="text-blue-800 font-weight-light mr-2">Description:</span>&nbsp;
-        </div>
-        <button (click)="exportToCsv(compliance)"
-                [disabled]="!report.associatedDashboard.description && !compliance"
-                class="btn utm-button utm-button-primary mb-2 mr-2">
-          <i class="mr-1 icon-table2"></i>
-          {{csvExport ? 'Generating...' : 'Export to CSV'}}
-        </button>
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center">
+        <span class="text-blue-800 font-weight-light mr-2">Description:</span>
+      </div>
+      <button *ngIf="compliance.rows.length > 0" (click)="exportToCsv(compliance)"
+              [disabled]="!report.associatedDashboard.description && !compliance"
+              class="btn utm-button utm-button-primary mb-2 mr-2">
+        <i class="mr-1 icon-table2"></i>
+        {{csvExport ? 'Generating...' : 'Export to CSV'}}
+      </button>
       <button (click)="exportToPdf()"
               class="btn utm-button utm-button-primary mb-2">
         <i [ngClass]="printFormat?'icon-download10':'icon-file-pdf'" class="mr-1"></i>
@@ -36,14 +36,13 @@
       <p class="font-size-base">{{ report.associatedDashboard.description }}</p>
     </div>
 
-    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
-      <span class="text-blue-800 font-weight-light mr-2">Evidence:</span>&nbsp;
+    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <span class="text-blue-800 font-weight-light mr-2">Evidence:</span>
     </div>
 
-    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
       <ngx-json-viewer [expanded]="false" [json]="compliance" class="col-12"></ngx-json-viewer>
       <p class="font-size-base"></p>
     </div>
   </div>
 </div>
-
