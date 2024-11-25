@@ -98,6 +98,19 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.message
 
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: tIp
+                oftype: string
+            expression: tIp_ok==true
+
       - cast:
           fields:
             - log.remotePort

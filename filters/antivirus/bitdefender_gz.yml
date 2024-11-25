@@ -227,6 +227,19 @@ pipeline:
           fields:
             log.processPid
 
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: oIp
+                oftype: string
+            expression: oIp_ok==true
+
       # Removing unused fields
       - delete:
           fields:

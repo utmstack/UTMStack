@@ -653,6 +653,32 @@ pipeline:
           fields:
             - log.syslogPriority
 
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: tIp
+                oftype: string
+            expression: tIp_ok==true
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: oIp
+                oftype: string
+            expression: oIp_ok==true
+
       # Field conversions
       - cast:
           fields:
