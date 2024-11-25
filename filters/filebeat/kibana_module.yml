@@ -14,22 +14,22 @@ pipeline:
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
 
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.origin.ips
 
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.origin.macs
 
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
@@ -80,7 +80,7 @@ pipeline:
       - rename:
           from:
             - log.kibana._audit_temp.user.name
-          to: local.user
+          to: origin.user
 
       - rename:
           from:
@@ -100,12 +100,12 @@ pipeline:
       - cast:
           to: "[]string"
           fields:
-            - local.ips
+            - log.origin.ips
 
       - cast:
           to: "[]string"
           fields:
-            - local.macs
+            - log.origin.macs
 
       # Parsing the message field
       - grok:

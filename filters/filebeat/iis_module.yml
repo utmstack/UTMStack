@@ -13,22 +13,22 @@ pipeline:
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
 
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.origin.ips
 
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.origin.macs
 
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
@@ -58,12 +58,12 @@ pipeline:
       - cast:
           to: "[]string"
           fields:
-            - local.ips
+            - log.origin.ips
 
       - cast:
           to: "[]string"
           fields:
-            - local.macs
+            - log.origin.macs
 
       # Parsing the message field
       - grok:
@@ -74,27 +74,27 @@ pipeline:
               pattern: '{{.ipv6}}'
             - fieldName: log.method
               pattern: '{{.word}}'
-            - fieldName: remote.path
+            - fieldName: target.path
               pattern: '\/[^ ]*|(-)'
             - fieldName: log.userIdent
               pattern: '{{.integer}}|(-)'
-            - fieldName: remote.port
+            - fieldName: log.remotePort
               pattern: '\b([0-9]{1,5})\b'
-            - fieldName: remote.user
+            - fieldName: target.user
               pattern: '{{.word}}|(-)'
-            - fieldName: remote.ip
+            - fieldName: target.ip
               pattern: '{{.ipv4}}'
             - fieldName: log.userAgent
               pattern: 'Mozilla(.*?)\s'
             - fieldName: log.referrer
               pattern: 'https?:\/\/[^\s]+|(-)'
-            - fieldName: statusCode
+            - fieldName: log.statusCode
               pattern: '{{.integer}}'
             - fieldName: log.subStatusCode
               pattern: '{{.integer}}'
             - fieldName: log.win32Status
               pattern: '{{.integer}}'
-            - fieldName: log.timeSpent
+            - fieldName: log.responseTime
               pattern: '{{.greedy}}'
           source: log.message
 
@@ -104,7 +104,8 @@ pipeline:
             - log.statusCode
             - log.subStatusCode
             - log.win32Status
-            - log.timeSpent
+            - log.timeTaken
+            - log.responseTime
           to: int
 
       # Removing unused fields

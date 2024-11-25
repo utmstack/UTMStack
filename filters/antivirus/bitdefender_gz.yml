@@ -168,22 +168,22 @@ pipeline:
       - rename:
           from:
             - log.spt
-          to: local.port
+          to: origin.port
 
       - rename:
           from:
             - log.src
-          to: local.ip
+          to: origin.ip
 
       - rename:
           from:
             - log.sproc
-          to: local.path
+          to: origin.path
 
       - rename:
           from:
             - log.filePath
-          to: local.path
+          to: origin.path
 
       # Removing unnecessary characters
       - trim:

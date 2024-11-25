@@ -14,27 +14,27 @@ pipeline:
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
 
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.origin.ips
 
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.origin.macs
 
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
             - log.event.dataset
-          to: log.action
+          to: action
 
       - rename:
           from:
@@ -60,7 +60,7 @@ pipeline:
       - rename:
           from:
             - log.json.action
-          to: action
+          to: actionResult
 
       - rename:
           from:
@@ -75,7 +75,7 @@ pipeline:
       - rename:
           from:
             - log.json.columns.hostname
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
@@ -95,7 +95,7 @@ pipeline:
       - rename:
           from:
             - log.json.hostIdentifier
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
@@ -105,12 +105,12 @@ pipeline:
       - rename:
           from:
             - log.json.columns.username
-          to: local.user
+          to: origin.user
 
       - rename:
           from:
             - log.json.columns.directory
-          to: local.path
+          to: origin.path
 
       - rename:
           from:
@@ -120,12 +120,12 @@ pipeline:
       - cast:
           to: "[]string"
           fields:
-            - local.ips
+            - log.origin.ips
 
       - cast:
           to: "[]string"
           fields:
-            - local.macs
+            - log.origin.macs
 
       # Removing unused fields
       - delete:
