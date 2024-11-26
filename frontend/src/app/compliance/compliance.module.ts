@@ -12,8 +12,6 @@ import {LogAnalyzerModule} from '../log-analyzer/log-analyzer.module';
 import {UtmSharedModule} from '../shared/utm-shared.module';
 import {ComplianceCustomViewComponent} from './compliance-custom-view/compliance-custom-view.component';
 import {ComplianceManagementModule} from './compliance-management/compliance-management.module';
-
-import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {AlertManagementSharedModule} from '../data-management/alert-management/shared/alert-management-shared.module';
 import {DashboardBuilderModule} from '../graphic-builder/dashboard-builder/dashboard-builder.module';
 import {
@@ -27,14 +25,9 @@ import {
 import {
   ComplianceTimeWindowsComponent
 } from './compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
-import {ComplianceResultViewComponent} from './compliance-result-view/compliance-result-view.component';
-import {ComplianceRoutingModule} from './compliance-routing.module';
-import {ComplianceScheduleComponent} from './compliance-schedule/compliance-schedule.component';
-import {ComplianceResultParamsComponent} from './compliance-templates/compliance-result-params/compliance-result-params.component';
-import {ComplianceTemplatesComponent} from './compliance-templates/compliance-templates.component';
-import {ComplianceSharedModule} from './shared/compliance-shared.module';
-import {TimeWindowsService} from './shared/components/utm-cp-section/time-windows.service';
-import {UtmCpStandardComponent} from './shared/components/utm-cp-standard/utm-cp-standard.component';
+import {TimeWindowsService} from "./shared/components/utm-cp-section/time-windows.service";
+import {NgxJsonViewerModule} from "ngx-json-viewer";
+import { CompliancePrintViewComponent } from './compliance-reports-view/components/compliance-print-view/compliance-print-view.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +37,12 @@ import {UtmCpStandardComponent} from './shared/components/utm-cp-standard/utm-cp
     ComplianceCustomViewComponent,
     ComplianceScheduleComponent,
     ComplianceReportViewerComponent,
-    UtmCpStandardComponent
+    UtmCpStandardComponent,
+    ComplianceReportsViewComponent,
+    ComplianceStatusComponent,
+    ComplianceReportDetailComponent,
+    ComplianceTimeWindowsComponent,
+    CompliancePrintViewComponent
   ],
   imports: [
     CommonModule,

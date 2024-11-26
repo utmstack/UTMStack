@@ -105,7 +105,6 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   }
 
   onChangeSectionActive(index: number) {
-    console.log('Active Section Index:', index);
     this.activeIndexSection = index;
     this.standardSectionService.notifyRefresh({
       loading: true,
@@ -115,7 +114,7 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
 
   exportToPdf() {
     this.spinner.show('buildPrintPDF');
-    const url = '/dashboard/export-compliance/' + this.report.id;
+    const url = this.getUrl();
     const fileName = this.report.associatedDashboard.name.replace(/ /g, '_');
     this.exportPdfService.getPdf(url, fileName, 'PDF_TYPE_TOKEN').subscribe(response => {
       this.spinner.hide('buildPrintPDF').then(() =>
@@ -132,6 +131,18 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
 
   trackFn(index: number, section: ComplianceStandardSectionType) {
     return section.id;
+  }
+
+  getUrl(){
+    return this.action === 'reports' ? '/dashboard/export-compliance/' + this.report.id :
+     `/compliance/print-view/?section=${this.getActiveSectionParams()}`;
+  }
+
+  getActiveSectionParams(){
+   return encodeURIComponent(JSON.stringify({
+    standardId: this.activeSection.standardId,
+    id: this.activeSection.id
+   }));
   }
 
   ngOnDestroy(): void {

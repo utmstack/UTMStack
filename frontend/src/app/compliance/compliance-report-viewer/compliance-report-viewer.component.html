@@ -8,7 +8,7 @@
         <button (click)="manageStandards()" class="btn utm-button utm-button-primary">
           <i class="icon-cog3 mr-1"></i> Change framework
         </button>
-        <a *ngIf="action == 'reports'" (click)="exportToPdf()" class="btn utm-button utm-button-primary ml-2">
+        <a (click)="exportToPdf()" class="btn utm-button utm-button-primary ml-2">
           <i [ngClass]="pdfExport ? 'icon-download10' : 'icon-file-pdf'" class="mr-1"></i>
           {{ pdfExport ? 'Generating...' : 'Save to PDF' }}
         </a>

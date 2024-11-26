@@ -32,6 +32,7 @@ export class ComplianceStatusComponent implements OnInit {
   @Output() isCompliant = new EventEmitter<boolean>();
   changing: any;
   status: ComplianceStatus = 'complaint';
+  @Output() visualization = new EventEmitter<any>();
 
   constructor(private utmRenderVisualization: UtmRenderVisualization,
               private runVisualization: RunVisualizationService,
@@ -50,9 +51,12 @@ export class ComplianceStatusComponent implements OnInit {
               vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART
             )),
             filter(vis => vis.length > 0),
-            map(vis => vis[0].visualization),
-            tap(vis => {
-              const time = vis.filterType.find(filterType => filterType.field === '@timestamp');
+            map(vis => {
+              this.visualization.emit(vis);
+              return vis[0].visualization;
+            }),
+            tap( vis => {
+              const time = vis.filterType.find( filterType => filterType.field === '@timestamp');
               if (time) {
                 this.timeWindowsService.changeTimeWindows({
                   reportId: this.report.id,

@@ -44,7 +44,6 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges {
           sectionId: this.section.id
         })),
         map((res) => {
-          console.log(res.body);
           return res.body.map((r, index) => {
             return {
               ...r,
@@ -54,7 +53,6 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges {
         }),
         tap((reports) => {
           /*if (this.loadFirst) {
-            console.log('load first', this.loadFirst);
             this.loadReport(reports[0]);
             this.loadFirst = false;
           }*/

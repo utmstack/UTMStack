@@ -18,10 +18,10 @@
   <div class="p-3">
     <div class="d-flex justify-content-around align-content-center">
       <div class="alert-details w-100 d-flex justify-content-start align-items-center">
-        <span class="text-blue-800 font-weight-light mr-2">Description:</span>
+        <span class="text-blue-800 font-weight-light mr-2">Compliance report scope:</span>
       </div>
       <button *ngIf="compliance.rows.length > 0" (click)="exportToCsv(compliance)"
-              [disabled]="!report.associatedDashboard.description && !compliance"
+              [disabled]="!report.configSolution && !compliance"
               class="btn utm-button utm-button-primary mb-2 mr-2">
         <i class="mr-1 icon-table2"></i>
         {{csvExport ? 'Generating...' : 'Export to CSV'}}
@@ -32,11 +32,33 @@
         {{printFormat ? 'Generating...' : 'Save to PDF'}}
       </button>
     </div>
+
     <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
-      <p class="font-size-base">{{ report.associatedDashboard.description }}</p>
+      <p class="font-size-base">{{ report.section.standard.standardName }}</p>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.section.standard.standardDescription"></app-utm-collapsible-text>
     </div>
 
-    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+      <span class="text-blue-800 font-weight-light mr-2">Compliance section:</span>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <p class="font-size-base">{{ report.section.standardSectionName }}</p>
+    </div>
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.section.standardSectionDescription"></app-utm-collapsible-text>
+    </div>
+
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+      <span class="text-blue-800 font-weight-light mr-2">Compliance report:</span>
+    </div>
+
+    <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+      <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configSolution"></app-utm-collapsible-text>
+    </div>
+
+    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2 mt-3">
       <span class="text-blue-800 font-weight-light mr-2">Evidence:</span>
     </div>
 

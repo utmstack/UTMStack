@@ -220,6 +220,7 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
+import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
 
 
 @NgModule({
@@ -362,7 +363,9 @@ import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-
     EmailSettingNotificactionComponent,
     TimezoneOffsetPipe,
     TimePeriodPipe,
-    ModalAddNoteComponent
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -458,7 +461,9 @@ import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-
     EmailSettingNotificactionComponent,
     TimezoneOffsetPipe,
     TimePeriodPipe,
-    ModalAddNoteComponent
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent
   ],
   entryComponents: [
     LoginComponent,

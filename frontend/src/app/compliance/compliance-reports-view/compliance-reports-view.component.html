@@ -2,7 +2,7 @@
   <div class="d-flex flex-column mb-3">
     <div class="d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
-        tabla title
+        Compliance assesment
       </h5>
     </div>
   </div>
@@ -16,9 +16,9 @@
               <th></th>
               <th><span>Status</span>
               </th>
-              <th><span>Report name</span>
+              <th><span>Security Control Name</span>
               </th>
-              <th><span>Time window</span>
+              <th><span>Time Window</span>
               </th>
               <th><span>Description</span>
               </th>
@@ -49,7 +49,7 @@
 
               <td style="width: 35%; position: relative; z-index: 0;" *ngIf="report.associatedDashboard">
                 <div style="max-width: 350px" class="text-truncate">
-                  {{ report.associatedDashboard.description }}
+                  {{ report.configSolution }}
                 </div>
               </td>
             </tr>
