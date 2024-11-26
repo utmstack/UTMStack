@@ -127,6 +127,31 @@ pipeline:
             - fieldName: protocol
               pattern: '{{.greedy}}'
           source: log.request
+      # Extracting protocol version
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.data}}/'
+            - fieldName: log.protoVersion
+              pattern: '{{.greedy}}'
+          source: protocol
+          where:
+            variables:
+              - get: protocol
+                as: proto
+                ofType: string
+            expression: proto_ok == true
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: protocol
+                as: proto
+                ofType: string
+            expression: proto_ok == true
       # Adding geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
