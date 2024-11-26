@@ -127,6 +127,84 @@ pipeline:
             - fieldName: protocol
               pattern: '{{.greedy}}'
           source: log.request
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true 
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "GET"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "POST"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'PUT'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "PUT"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "DELETE"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "REQUEST"
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where:
+            variables:
+              - get: action
+                as: act
+                ofType: string
+            expression: act_ok == true
       # Reformat and field conversions
       - cast:
           fields:
