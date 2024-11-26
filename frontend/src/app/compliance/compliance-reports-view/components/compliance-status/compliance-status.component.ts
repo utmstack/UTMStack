@@ -9,7 +9,7 @@ import { ChartTypeEnum } from '../../../../shared/enums/chart-type.enum';
 import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
 import {CpReportsService} from '../../../shared/services/cp-reports.service';
 import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
-import {ModalAddNoteComponent} from "../../../../shared/components/utm/util/modal-add-note/modal-add-note.component";
+import {ModalAddNoteComponent} from '../../../../shared/components/utm/util/modal-add-note/modal-add-note.component';
 
 
 export type ComplianceStatus = 'complaint' | 'in_progress' | 'non_complaint';
@@ -20,6 +20,7 @@ export type ComplianceStatus = 'complaint' | 'in_progress' | 'non_complaint';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ComplianceStatusComponent implements OnInit {
+  @Input() template: 'default' | 'dropdown' = 'default';
   private _report: ComplianceReportType;
   compliance$!: Observable<{ status: boolean }>;
   request = {

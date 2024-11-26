@@ -1,14 +1,11 @@
 import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {EMPTY, Observable, Subject} from 'rxjs';
+import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map, takeUntil, tap} from 'rxjs/operators';
 import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
-import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { CpReportsService } from 'src/app/compliance/shared/services/cp-reports.service';
 import { ComplianceStandardSectionType } from 'src/app/compliance/shared/type/compliance-standard-section.type';
 import { UtmToastService } from 'src/app/shared/alert/utm-toast.service';
-import { ExportPdfService } from 'src/app/shared/services/util/export-pdf.service';
 import { SortByType } from 'src/app/shared/types/sort-by.type';
 import { ActivatedRoute } from '@angular/router';
 
@@ -27,10 +24,9 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   fields: SortByType[];
 
   reportDetail: ComplianceReportType;
+  preparingPrint = true;
 
   constructor(private reportsService: CpReportsService,
-              private spinner: NgxSpinnerService,
-              private exportPdfService: ExportPdfService,
               private toastService: UtmToastService,
               private route: ActivatedRoute) { }
 
@@ -70,7 +66,7 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   }
 
   onVisualizationLoaded(){
-
+    this.preparingPrint = false;
   }
 
 

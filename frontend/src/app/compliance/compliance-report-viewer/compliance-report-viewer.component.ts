@@ -115,7 +115,7 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   exportToPdf() {
     this.spinner.show('buildPrintPDF');
     const url = this.getUrl();
-    const fileName = this.report.associatedDashboard.name.replace(/ /g, '_');
+    const fileName = this.report ? this.report.associatedDashboard.name.replace(/ /g, '_') : 'Reports';
     this.exportPdfService.getPdf(url, fileName, 'PDF_TYPE_TOKEN').subscribe(response => {
       this.spinner.hide('buildPrintPDF').then(() =>
         this.exportPdfService.handlePdfResponse(response));

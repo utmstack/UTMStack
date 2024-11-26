@@ -32,7 +32,9 @@ import {UtmCpStandardSectionCreateComponent} from './components/utm-cp-standard-
 import {UtmCpStandardSelectComponent} from './components/utm-cp-standard-select/utm-cp-standard-select.component';
 import {UtmReportInfoViewComponent} from './components/utm-report-info-view/utm-report-info-view.component';
 import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/utm-save-as-compliance.component';
-import {ModalAddNoteComponent} from "../../shared/components/utm/util/modal-add-note/modal-add-note.component";
+import {
+  CompliancePrintViewComponent
+} from "../compliance-reports-view/components/compliance-print-view/compliance-print-view.component";
 
 
 @NgModule({
@@ -53,7 +55,8 @@ import {ModalAddNoteComponent} from "../../shared/components/utm/util/modal-add-
     ComplianceStatusComponent,
     ComplianceReportsViewComponent,
     ComplianceReportDetailComponent,
-    ComplianceTimeWindowsComponent
+    ComplianceTimeWindowsComponent,
+    CompliancePrintViewComponent
   ],
   imports: [
     CommonModule,
@@ -89,7 +92,8 @@ import {ModalAddNoteComponent} from "../../shared/components/utm/util/modal-add-
         ComplianceStatusComponent,
         ComplianceReportsViewComponent,
         ComplianceReportDetailComponent,
-        ComplianceTimeWindowsComponent
+        ComplianceTimeWindowsComponent,
+        CompliancePrintViewComponent
     ]
 })
 export class ComplianceSharedModule {

@@ -12,22 +12,22 @@ import {LogAnalyzerModule} from '../log-analyzer/log-analyzer.module';
 import {UtmSharedModule} from '../shared/utm-shared.module';
 import {ComplianceCustomViewComponent} from './compliance-custom-view/compliance-custom-view.component';
 import {ComplianceManagementModule} from './compliance-management/compliance-management.module';
+
+import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {AlertManagementSharedModule} from '../data-management/alert-management/shared/alert-management-shared.module';
 import {DashboardBuilderModule} from '../graphic-builder/dashboard-builder/dashboard-builder.module';
 import {
   DashboardFilterCreateComponent
 } from '../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component';
 import { ComplianceReportViewerComponent } from './compliance-report-viewer/compliance-report-viewer.component';
-import { ComplianceReportsViewComponent } from './compliance-reports-view/compliance-reports-view.component';
-import {
-  ComplianceReportDetailComponent
-} from './compliance-reports-view/components/compliance-report-detail/compliance-report-detail.component';
-import {
-  ComplianceTimeWindowsComponent
-} from './compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
-import {TimeWindowsService} from "./shared/components/utm-cp-section/time-windows.service";
-import {NgxJsonViewerModule} from "ngx-json-viewer";
-import { CompliancePrintViewComponent } from './compliance-reports-view/components/compliance-print-view/compliance-print-view.component';
+import {ComplianceResultViewComponent} from './compliance-result-view/compliance-result-view.component';
+import {ComplianceRoutingModule} from './compliance-routing.module';
+import {ComplianceScheduleComponent} from './compliance-schedule/compliance-schedule.component';
+import {ComplianceResultParamsComponent} from './compliance-templates/compliance-result-params/compliance-result-params.component';
+import {ComplianceTemplatesComponent} from './compliance-templates/compliance-templates.component';
+import {ComplianceSharedModule} from './shared/compliance-shared.module';
+import {TimeWindowsService} from './shared/components/utm-cp-section/time-windows.service';
+import {UtmCpStandardComponent} from './shared/components/utm-cp-standard/utm-cp-standard.component';
 
 @NgModule({
   declarations: [
@@ -37,12 +37,7 @@ import { CompliancePrintViewComponent } from './compliance-reports-view/componen
     ComplianceCustomViewComponent,
     ComplianceScheduleComponent,
     ComplianceReportViewerComponent,
-    UtmCpStandardComponent,
-    ComplianceReportsViewComponent,
-    ComplianceStatusComponent,
-    ComplianceReportDetailComponent,
-    ComplianceTimeWindowsComponent,
-    CompliancePrintViewComponent
+    UtmCpStandardComponent
   ],
   imports: [
     CommonModule,
