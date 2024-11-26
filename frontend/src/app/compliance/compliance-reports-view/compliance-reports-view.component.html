@@ -2,7 +2,7 @@
   <div class="d-flex flex-column mb-3">
     <div class="d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
-        tabla title
+        Compliance assesment
       </h5>
     </div>
   </div>
@@ -16,9 +16,9 @@
               <th></th>
               <th><span>Status</span>
               </th>
-              <th><span>Report name</span>
+              <th><span>Security Control Name</span>
               </th>
-              <th><span>Time window</span>
+              <th><span>Time Window</span>
               </th>
               <th><span>Description</span>
               </th>
@@ -33,7 +33,7 @@
                 <app-report-apply-note [report]="report" [showNote]="false"></app-report-apply-note>
               </td>
               <td style="width: 15%; position: relative; z-index: 0;">
-                <app-compliance-status [report]="report"></app-compliance-status>
+                <app-compliance-status [report]="report" [template]="'dropdown'"></app-compliance-status>
               </td>
 
               <td style="width: 35%; position: relative; z-index: 0;">
@@ -49,7 +49,7 @@
 
               <td style="width: 35%; position: relative; z-index: 0;" *ngIf="report.associatedDashboard">
                 <div style="max-width: 350px" class="text-truncate">
-                  {{ report.associatedDashboard.description }}
+                  {{ report.configSolution }}
                 </div>
               </td>
             </tr>
@@ -64,7 +64,7 @@
 <div *ngIf="reportDetail" class="utm-right-container">
   <div (click)="reportDetail= undefined" class="overlay overlay-lg col-md-7"></div>
   <div class="card utm-right-action utm-right-action-lg ml-0">
-    <div [ngClass]="reportDetail.status ? 'border-left-success' : 'border-left-danger'"
+    <div [ngClass]="(reportDetail.note && reportDetail.note !== '') || reportDetail.status === 'complaint' ? 'border-left-success' : 'border-left-danger'"
          class="title d-flex justify-content-between  align-items-center border-bottom-1
             border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">

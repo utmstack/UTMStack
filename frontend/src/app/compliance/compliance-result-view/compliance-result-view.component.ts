@@ -148,7 +148,6 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   }
   exportToPdf() {
     filtersToStringParam(this.filtersValues).then(queryParams => {
-      console.log('click');
       this.spinner.show('buildPrintPDF');
       const params = queryParams !== '' ? '?' + queryParams : '';
       const url = '/dashboard/export-compliance/' + this.reportId +  params;

@@ -77,9 +77,7 @@
 
     <include file="/config/liquibase/changelog/20240820001_add_notification.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20241120001_add_new_compliance_menu.xml" relativeToChangelogFile="false"/>
-
-
+    <include file="/config/liquibase/changelog/20241120001_update_compliance_menu.xml" relativeToChangelogFile="false"/>
 
 
 </databaseChangeLog>

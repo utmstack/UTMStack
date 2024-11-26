@@ -9,7 +9,7 @@ import { ChartTypeEnum } from '../../../../shared/enums/chart-type.enum';
 import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
 import {CpReportsService} from '../../../shared/services/cp-reports.service';
 import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
-import {ModalAddNoteComponent} from "../../../../shared/components/utm/util/modal-add-note/modal-add-note.component";
+import {ModalAddNoteComponent} from '../../../../shared/components/utm/util/modal-add-note/modal-add-note.component';
 
 
 export type ComplianceStatus = 'complaint' | 'in_progress' | 'non_complaint';
@@ -20,6 +20,7 @@ export type ComplianceStatus = 'complaint' | 'in_progress' | 'non_complaint';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ComplianceStatusComponent implements OnInit {
+  @Input() template: 'default' | 'dropdown' = 'default';
   private _report: ComplianceReportType;
   compliance$!: Observable<{ status: boolean }>;
   request = {
@@ -32,6 +33,7 @@ export class ComplianceStatusComponent implements OnInit {
   @Output() isCompliant = new EventEmitter<boolean>();
   changing: any;
   status: ComplianceStatus = 'complaint';
+  @Output() visualization = new EventEmitter<any>();
 
   constructor(private utmRenderVisualization: UtmRenderVisualization,
               private runVisualization: RunVisualizationService,
@@ -50,9 +52,12 @@ export class ComplianceStatusComponent implements OnInit {
               vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART
             )),
             filter(vis => vis.length > 0),
-            map(vis => vis[0].visualization),
-            tap(vis => {
-              const time = vis.filterType.find(filterType => filterType.field === '@timestamp');
+            map(vis => {
+              this.visualization.emit(vis);
+              return vis[0].visualization;
+            }),
+            tap( vis => {
+              const time = vis.filterType.find( filterType => filterType.field === '@timestamp');
               if (time) {
                 this.timeWindowsService.changeTimeWindows({
                   reportId: this.report.id,

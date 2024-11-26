@@ -1,14 +1,17 @@
-<!--<div *ngIf="compliance$ | async as compliance">
+<ng-container *ngIf="template === 'default'">
+  <div *ngIf="compliance$ | async as compliance">
     <span [ngClass]="compliance.status ? 'text-success' : 'text-danger'"
           class="span-small-icon d-flex justify-content-start align-items-center">
-         &lt;!&ndash; <i
+         <!-- <i
             [ngClass]="'icon-circle2'"
-            class="mr-2"></i>&ndash;&gt;
+            class="mr-2"></i>-->
       {{compliance.status ? 'Compliant' : 'Non compliant'}}
     </span>
-</div>-->
+  </div>
+</ng-container>
 
-<div (click)="onClick($event)" *ngIf="compliance$ | async as compliance" ngbDropdown container="body" #drop="ngbDropdown">
+<ng-container *ngIf="template === 'dropdown'">
+  <div (click)="onClick($event)" *ngIf="compliance$ | async as compliance" ngbDropdown container="body" #drop="ngbDropdown">
   <a class="btn btn-light btn-sm"
      [ngClass]="(report.note && report.note !== '') || compliance.status ? 'text-success' : 'text-danger'" ngbDropdownToggle>
     <span class="indicator-progress" *ngIf="changing">
@@ -32,6 +35,7 @@
     </div>
   </div>
 </div>
+</ng-container>
 
 
 

@@ -1,7 +1,7 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {EMPTY, Observable} from "rxjs";
+import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
@@ -44,7 +44,6 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges {
           sectionId: this.section.id
         })),
         map((res) => {
-          console.log(res.body);
           return res.body.map((r, index) => {
             return {
               ...r,
@@ -54,7 +53,6 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges {
         }),
         tap((reports) => {
           /*if (this.loadFirst) {
-            console.log('load first', this.loadFirst);
             this.loadReport(reports[0]);
             this.loadFirst = false;
           }*/

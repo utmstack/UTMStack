@@ -20,13 +20,6 @@ import {
   DashboardFilterCreateComponent
 } from '../graphic-builder/dashboard-builder/dashboard-filter-create/dashboard-filter-create.component';
 import { ComplianceReportViewerComponent } from './compliance-report-viewer/compliance-report-viewer.component';
-import { ComplianceReportsViewComponent } from './compliance-reports-view/compliance-reports-view.component';
-import {
-  ComplianceReportDetailComponent
-} from './compliance-reports-view/components/compliance-report-detail/compliance-report-detail.component';
-import {
-  ComplianceTimeWindowsComponent
-} from './compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
 import {ComplianceResultViewComponent} from './compliance-result-view/compliance-result-view.component';
 import {ComplianceRoutingModule} from './compliance-routing.module';
 import {ComplianceScheduleComponent} from './compliance-schedule/compliance-schedule.component';
