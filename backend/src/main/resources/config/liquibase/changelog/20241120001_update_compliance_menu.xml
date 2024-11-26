@@ -6,15 +6,14 @@
 
     <changeSet id="20241120001" author="Manuel">
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
-            INSERT INTO utm_menu (id, "name", url, parent_id, "type", dashboard_id, "position", menu_active, menu_action, menu_icon, module_name_short)
-            VALUES(507, 'Report Viewer', 'compliance/report-viewer', 500, 1, NULL, 6, true, false, NULL, NULL);
-
             UPDATE utm_menu
             SET
                 name = 'Overview',
                 url = 'compliance/report-viewer'
             WHERE id = 505;
 
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN note TEXT;
 
         </sql>
     </changeSet>
