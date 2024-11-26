@@ -13,6 +13,7 @@
           <table class="table mb-0">
             <thead>
             <tr>
+              <th></th>
               <th><span>Status</span>
               </th>
               <th><span>Report name</span>
@@ -26,11 +27,13 @@
             <tbody *ngIf="reports$ | async as reports;">
             <tr class="cursor-pointer" (click)="reportDetail=report" *ngFor="let report of reports  let index = index"
                 style="position: relative; z-index: 1;">
-              <td style="width: 15%; position: relative; z-index: 0;"
-                  [ngClass]="report.status ? 'border-left-success' : 'border-left-danger'"
-                  [ngStyle]="report.status ? {'border-left': '5px solid green !important;'} : {'border-left': '5px solid red !important;'}">
-                <app-compliance-status [report]="report"
-                                       (isCompliant)="onStatusChange($event, report)"></app-compliance-status>
+              <td style="width: 5%; position: relative; z-index: 0;"
+                  [ngClass]="(report.note && report.note !== '') || report.status === 'complaint' ? 'border-left-success' : 'border-left-danger'"
+                  [ngStyle]="(report.note && report.note !== '') || report.status === 'complaint' ? {'border-left': '5px solid green !important;'} : {'border-left': '5px solid red !important;'}">
+                <app-report-apply-note [report]="report" [showNote]="false"></app-report-apply-note>
+              </td>
+              <td style="width: 15%; position: relative; z-index: 0;">
+                <app-compliance-status [report]="report"></app-compliance-status>
               </td>
 
               <td style="width: 35%; position: relative; z-index: 0;">
@@ -61,7 +64,7 @@
 <div *ngIf="reportDetail" class="utm-right-container">
   <div (click)="reportDetail= undefined" class="overlay overlay-lg col-md-7"></div>
   <div class="card utm-right-action utm-right-action-lg ml-0">
-    <div [ngClass]="reportDetail.status ? 'border-left-success' : 'border-left-danger'"
+    <div [ngClass]="(reportDetail.note && reportDetail.note !== '') || reportDetail.status === 'complaint' ? 'border-left-success' : 'border-left-danger'"
          class="title d-flex justify-content-between  align-items-center border-bottom-1
             border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">

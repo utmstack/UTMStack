@@ -219,6 +219,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {TimePeriodPipe} from "./pipes/time-period.pipe";
+import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
 
 
 @NgModule({
@@ -360,7 +361,8 @@ import {TimePeriodPipe} from "./pipes/time-period.pipe";
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
     TimezoneOffsetPipe,
-    TimePeriodPipe
+    TimePeriodPipe,
+    ModalAddNoteComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -455,7 +457,8 @@ import {TimePeriodPipe} from "./pipes/time-period.pipe";
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
     TimezoneOffsetPipe,
-    TimePeriodPipe
+    TimePeriodPipe,
+    ModalAddNoteComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -499,7 +502,8 @@ import {TimePeriodPipe} from "./pipes/time-period.pipe";
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
-    EmailSettingNotificactionComponent],
+    EmailSettingNotificactionComponent,
+    ModalAddNoteComponent],
   providers: [
     UtmToastService,
     MenuBehavior,

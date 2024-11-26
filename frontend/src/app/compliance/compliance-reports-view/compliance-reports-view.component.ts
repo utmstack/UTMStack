@@ -1,14 +1,14 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {EMPTY, Observable} from "rxjs";
+import {NgxSpinnerService} from 'ngx-spinner';
+import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map, tap} from 'rxjs/operators';
+import {UtmToastService} from '../../shared/alert/utm-toast.service';
+import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {SortByType} from '../../shared/types/sort-by.type';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
-import {NgxSpinnerService} from "ngx-spinner";
-import {ExportPdfService} from "../../shared/services/util/export-pdf.service";
-import {UtmToastService} from "../../shared/alert/utm-toast.service";
 
 @Component({
   selector: 'app-compliance-reports-view',
@@ -76,8 +76,8 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges {
     }
   }
 
-  onStatusChange(status: boolean, report: ComplianceReportType) {
-    report.status = status;
+  onStatusChange(status: string, report: ComplianceReportType) {
+    // report.status = status;
   }
 
   exportToPdf() {

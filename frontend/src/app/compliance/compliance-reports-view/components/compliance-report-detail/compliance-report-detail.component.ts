@@ -58,7 +58,9 @@ export class ComplianceReportDetailComponent implements OnInit {
             }),
             concatMap((vis: VisualizationType) => this.runVisualization.run(vis)),
             map(run => {
-              return  run[0] && run[0] ? run[0] : null;
+              return  run[0] && run[0] ? run[0] : {
+                rows: []
+              };
             })
           ))
       );
