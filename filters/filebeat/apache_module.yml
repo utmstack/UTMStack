@@ -217,6 +217,27 @@ pipeline:
           function: time
           fromFormat: '14/Feb/2022:15:40:53 -0500'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.statusCode
+                as: cod
+                ofType: int
+              - get: origin.bytesReceived
+                as: rec
+                ofType: int
+            expression: cod_ok == true && (cod >= 200 && cod <= 299 || (rec_ok == true && cod >= 300 && cod <= 399 && rec > 0))
       # Removing unused fields
       - delete:
           fields:
