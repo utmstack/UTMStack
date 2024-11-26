@@ -1,0 +1,20 @@
+<app-utm-modal-header [name]="header"></app-utm-modal-header>
+<div class="container-fluid p-3">
+  <div class="alert alert-styled-right mb-3"
+       *ngIf="textDisplay" [ngClass]="textType==='warning'?'alert-warning':'alert-danger'">
+    {{textDisplay}}
+  </div>
+
+
+  <label [innerHTML]="message" class="font-weight-light modal-message"></label>
+  <div class="d-flex justify-content-end mt-3">
+    <button [hidden]="hideBtnCancel" (click)="cancel()" class="btn utm-button utm-button-grey mr-3">
+      <i class="icon-cancel-circle2"></i>
+      Cancel
+    </button>
+    <button (click)="confirm()" [ngClass]="confirmBtnType" class="btn utm-button utm-button-primary">
+      <i [ngClass]="confirmBtnIcon" class="icon-database-remove"></i>
+      {{confirmBtnText}}
+    </button>
+  </div>
+</div>
