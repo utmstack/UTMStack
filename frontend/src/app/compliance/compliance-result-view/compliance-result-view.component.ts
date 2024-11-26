@@ -29,6 +29,7 @@ import {filter, map, takeUntil, tap} from 'rxjs/operators';
 })
 export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   @Input() showExport = true;
+  @Input() template: 'default' | 'compliance' = 'default';
   reportId: number;
   report: ComplianceReportType;
   signatures: HippaSignaturesType[] = [];
