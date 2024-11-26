@@ -134,6 +134,158 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.messageWithTrash
 
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.processId
+              pattern: '\,{{.integer}}'
+            - fieldName: log.trheadId
+              pattern: '(\,{{.word}})|(\,\-)'
+            - fieldName: log.eventType
+              pattern: '\,{{.integer}}'
+            - fieldName: log.eventSource
+              pattern: '\,{{.word}}'
+            - fieldName: log.processName
+              pattern: '\,{{.integer}}'
+            - fieldName: log.processPath
+              pattern: '\,{{.word}}'
+            - fieldName: log.platform
+              pattern: '\,{{.data}}\,'
+            - fieldName: origin.path
+              pattern: '{{.data}}\,'
+            - fieldName: origin.command
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.processId
+              pattern: '\,{{.integer}}'
+            - fieldName: log.trheadId
+              pattern: '(\,{{.word}})|(\,\-)'
+            - fieldName: log.eventType
+              pattern: '\,{{.integer}}'
+            - fieldName: log.eventSource
+              pattern: '(\,{{.word}})|(\,\-)'
+            - fieldName: log.processName
+              pattern: '\,{{.word}}\.{{.word}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.processId
+              pattern: '\,{{.integer}}'
+            - fieldName: log.trheadId
+              pattern: '(\,{{.word}})|(\,\-)'
+            - fieldName: log.eventType
+              pattern: '\,{{.integer}}'
+            - fieldName: log.eventSource
+              pattern: '(\,{{.word}}\,)|(\,\-\,)'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '{{.word}}'
+            - fieldName: log.trheadId
+              pattern: '{{.word}}\,'
+            - fieldName: log.eventSource
+              pattern: '{{.integer}}'
+            - fieldName: log.component
+              pattern: '{{.word}}\,'
+            - fieldName: log.errorCode
+              pattern: '{{.integer}}\]'
+            - fieldName: log.restDataMessage
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '{{.word}}'
+            - fieldName: log.trheadId
+              pattern: '{{.word}}\,'
+            - fieldName: log.eventSource
+              pattern: '{{.integer}}'
+            - fieldName: log.component
+              pattern: '{{.word}}\,'
+            - fieldName: log.errorCode
+              pattern: '{{.integer}}\]'
+            - fieldName: log.path
+              pattern: '(?:[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]*|\/(?:[^\/\n]+\/)*[^\/\n]*)'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '{{.word}}'
+            - fieldName: log.processId
+              pattern: '{{.integer}}\,'
+            - fieldName: log.trheadId
+              pattern: '{{.word}}'
+            - fieldName: log.methodName
+              pattern: '({{.word}}\:\:{{.word}}\,)|(\:\:{{.word}}\,)'
+            - fieldName: log.returnCode
+              pattern: '{{.integer}}\]'
+            - fieldName: log.detailedMessage
+              pattern: '\({{.data}}\)'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '{{.monthDay}}-{{.monthNumber}}{{.space}}{{.time}}'
+            - fieldName: log.severityLabel
+              pattern: '\[{{.word}}\]'
+            - fieldName: log.processId
+              pattern: '\[{{.integer}}\/'
+            - fieldName: log.trheadId
+              pattern: '{{.word}}\]:'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.severityLabel
+              pattern: '\[{{.word}}\]'
+            - fieldName: log.processId
+              pattern: '\[{{.integer}}\/'
+            - fieldName: log.trheadId
+              pattern: '{{.word}}\]'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: raw
+
       # Using kv for the rest of the trash in the message
       - kv:
           fieldSplit: " "
@@ -159,11 +311,29 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.restData
 
-      # Using the kv filter with default config, usefull in key-value logs
-      - kv:
-          fieldSplit: " "
-          valueSplit: "="
-          source: log.restData
+      - grok:
+          patterns:
+            - fieldName: log.pidStatusToKv
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.restDataMessage
+
+      - grok:
+          patterns:
+            - fieldName: log.0trash
+              pattern: '{{.data}}PID='
+            - fieldName: log.pid
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: raw
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severityLabel
+                oftype: string
+            expression: severityLabel.contains("W")
 
       # Removing unnecessary characters
       - trim:
@@ -184,6 +354,18 @@ pipeline:
             - log.severity
 
       - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.trheadId
+
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - log.processId
+
+      - trim:
           function: prefix
           substring: '<'
           fields:
@@ -195,13 +377,82 @@ pipeline:
           fields:
             - log.syslogPriority
 
+      - trim:
+          function: prefix
+          substring: ','
+          fields:
+            - log.trheadId
+            - log.processId
+            - log.eventType
+            - log.eventSource
+            - log.processName
+            - log.processPath
+            - log.platform
+            - origin.path
+
+      - trim:
+          function: suffix
+          substring: ','
+          fields:
+            - log.trheadId
+            - log.component
+            - log.platform
+            - origin.path
+            - log.eventSource
+            - log.processId
+            - log.methodName
+
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - origin.command
+
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - origin.command
+
+      - trim:
+          function: prefix
+          substring: '['
+          fields:
+            - log.eventTime
+            - log.processId
+            - log.severityLabel
+
+      - trim:
+          function: suffix
+          substring: ']'
+          fields:
+            - log.status
+            - log.errorCode
+            - log.returnCode
+            - log.severityLabel
+            - log.trheadId
+
+      # Using the kv filter with default config, usefull in key-value logs
+      - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+
+      # Using the kv filter with other config, usefull in key-value logs
+      - kv:
+          fieldSplit: ", "
+          valueSplit: "="
+          source: log.pidStatusToKv
+
       # Removing unused fields
       - delete:
           fields:
             - log.0trash
             - log.1trash
             - log.restData
+            - log.restDataMessage
             - log.irrelevant
             - log.messageWithTrash
             - log.restMessageToKv
+            - log.pidStatusToKv
             - log.userWithTrash

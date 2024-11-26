@@ -13,12 +13,12 @@ pipeline:
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.origin.ips
 
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.origin.macs
 
       - rename:
           from:
@@ -33,7 +33,7 @@ pipeline:
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
@@ -383,12 +383,12 @@ pipeline:
       - cast:
           to: "[]string"
           fields:
-            - local.ips
+            - log.origin.ips
     
       - cast:
           to: "[]string"
           fields:
-            - local.macs
+            - log.origin.macs
 
       - trim:
           function: prefix
@@ -5477,7 +5477,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2305" && code=="4625"
+            expression: reason_ok==true && reason=="%%2305" && code=="4625"
 
       - add:
           function: 'string'
@@ -5492,7 +5492,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2309" && code=="4625"
+            expression: reason_ok==true && reason=="%%2309" && code=="4625"
 
       - add:
           function: 'string'
@@ -5507,7 +5507,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2310" && code=="4625"
+            expression: reason_ok==true && reason=="%%2310" && code=="4625"
 
       - add:
           function: 'string'
@@ -5522,7 +5522,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2311" && code=="4625"
+            expression: reason_ok==true && reason=="%%2311" && code=="4625"
 
       - add:
           function: 'string'
@@ -5537,7 +5537,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2312" && code=="4625"
+            expression: reason_ok==true && reason=="%%2312" && code=="4625"
 
       - add:
           function: 'string'
@@ -5552,7 +5552,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2313" && code=="4625"
+            expression: reason_ok==true && reason=="%%2313" && code=="4625"
 
       - add:
           function: 'string'
@@ -5567,7 +5567,7 @@ pipeline:
               - get: log.winlogEventDataFailureReason
                 as: reason
                 oftype: string
-            expression: reason=="%%2304" && code=="4625"
+            expression: reason_ok==true && reason=="%%2304" && code=="4625"
 
       # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
       - add:
@@ -5583,7 +5583,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x1" && code=="4663"
+            expression: acces_ok==true && acces=="0x1" && code=="4663"
 
       - add:
           function: 'string'
@@ -5598,7 +5598,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x1" && code=="4663"
+            expression: acces_ok==true && acces=="0x1" && code=="4663"
 
       - add:
           function: 'string'
@@ -5613,7 +5613,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x2" && code=="4663"
+            expression: acces_ok==true && acces=="0x2" && code=="4663"
 
       - add:
           function: 'string'
@@ -5628,7 +5628,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x2" && code=="4663"
+            expression: acces_ok==true && acces=="0x2" && code=="4663"
 
       - add:
           function: 'string'
@@ -5643,7 +5643,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x4" && code=="4663"
+            expression: acces_ok==true && acces=="0x4" && code=="4663"
 
       - add:
           function: 'string'
@@ -5658,7 +5658,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x4" && code=="4663"
+            expression: acces_ok==true && acces=="0x4" && code=="4663"
 
       - add:
           function: 'string'
@@ -5673,7 +5673,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x8" && code=="4663"
+            expression: acces_ok==true && acces=="0x8" && code=="4663"
 
       - add:
           function: 'string'
@@ -5688,7 +5688,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x8" && code=="4663"
+            expression: acces_ok==true && acces=="0x8" && code=="4663"
 
       - add:
           function: 'string'
@@ -5703,7 +5703,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x10" && code=="4663"
+            expression: acces_ok==true && acces=="0x10" && code=="4663"
 
       - add:
           function: 'string'
@@ -5718,7 +5718,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x10" && code=="4663"
+            expression: acces_ok==true && acces=="0x10" && code=="4663"
 
       - add:
           function: 'string'
@@ -5733,7 +5733,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x20" && code=="4663"
+            expression: acces_ok==true && acces=="0x20" && code=="4663"
 
       - add:
           function: 'string'
@@ -5748,7 +5748,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x20" && code=="4663"
+            expression: acces_ok==true && acces=="0x20" && code=="4663"
 
       - add:
           function: 'string'
@@ -5763,7 +5763,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x40" && code=="4663"
+            expression: acces_ok==true && acces=="0x40" && code=="4663"
 
       - add:
           function: 'string'
@@ -5778,7 +5778,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x40" && code=="4663"
+            expression: acces_ok==true && acces=="0x40" && code=="4663"
 
       - add:
           function: 'string'
@@ -5793,7 +5793,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x80" && code=="4663"
+            expression: acces_ok==true && acces=="0x80" && code=="4663"
 
       - add:
           function: 'string'
@@ -5808,7 +5808,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x80" && code=="4663"
+            expression: acces_ok==true && acces=="0x80" && code=="4663"
 
       - add:
           function: 'string'
@@ -5823,7 +5823,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x100" && code=="4663"
+            expression: acces_ok==true && acces=="0x100" && code=="4663"
 
       - add:
           function: 'string'
@@ -5838,7 +5838,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x100" && code=="4663"
+            expression: acces_ok==true && acces=="0x100" && code=="4663"
 
       - add:
           function: 'string'
@@ -5853,7 +5853,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x10000" && code=="4663"
+            expression: acces_ok==true && acces=="0x10000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5868,7 +5868,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x10000" && code=="4663"
+            expression: acces_ok==true && acces=="0x10000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5883,7 +5883,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x20000" && code=="4663"
+            expression: acces_ok==true && acces=="0x20000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5898,7 +5898,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x20000" && code=="4663"
+            expression: acces_ok==true && acces=="0x20000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5913,7 +5913,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x40000" && code=="4663"
+            expression: acces_ok==true && acces=="0x40000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5928,7 +5928,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x40000" && code=="4663"
+            expression: acces_ok==true && acces=="0x40000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5943,7 +5943,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x80000" && code=="4663"
+            expression: acces_ok==true && acces=="0x80000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5958,7 +5958,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x80000" && code=="4663"
+            expression: acces_ok==true && acces=="0x80000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5973,7 +5973,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x100000" && code=="4663"
+            expression: acces_ok==true && acces=="0x100000" && code=="4663"
 
       - add:
           function: 'string'
@@ -5988,7 +5988,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x100000" && code=="4663"
+            expression: acces_ok==true && acces=="0x100000" && code=="4663"
 
       - add:
           function: 'string'
@@ -6003,7 +6003,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x1000000" && code=="4663"
+            expression: acces_ok==true && acces=="0x1000000" && code=="4663"
 
       - add:
           function: 'string'
@@ -6018,7 +6018,7 @@ pipeline:
               - get: log.winlogEeventDataAccessMask
                 as: acces
                 oftype: string
-            expression: acces=="0x1000000" && code=="4663"
+            expression: acces_ok==true && acces=="0x1000000" && code=="4663"
 
       # Decoding the "eventStatus" field
       - add:
@@ -6031,7 +6031,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000234"
+            expression: status_ok==true && status=="0xC0000234"
 
       - add:
           function: 'string'
@@ -6043,7 +6043,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000193"
+            expression: status_ok==true && status=="0xC0000193"
 
       - add:
           function: 'string'
@@ -6055,7 +6055,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000133"
+            expression: status_ok==true && status=="0xC0000133"
 
       - add:
           function: 'string'
@@ -6067,7 +6067,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000224"
+            expression: status_ok==true && status=="0xC0000224"
 
       - add:
           function: 'string'
@@ -6079,7 +6079,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xc000015b"
+            expression: status_ok==true && status=="0xc000015b"
 
       - add:
           function: 'string'
@@ -6091,7 +6091,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xc000006d"
+            expression: status_ok==true && status=="0xc000006d"
 
       - add:
           function: 'string'
@@ -6103,7 +6103,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xc000006e"
+            expression: status_ok==true && status=="0xc000006e"
 
       - add:
           function: 'string'
@@ -6115,7 +6115,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xc00002ee"
+            expression: status_ok==true && status=="0xc00002ee"
 
       - add:
           function: 'string'
@@ -6127,7 +6127,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000071"
+            expression: status_ok==true && status=="0xC0000071"
 
       - add:
           function: 'string'
@@ -6139,7 +6139,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000072"
+            expression: status_ok==true && status=="0xC0000072"
 
       - add:
           function: 'string'
@@ -6151,7 +6151,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC0000413"
+            expression: status_ok==true && status=="0xC0000413"
 
       - add:
           function: 'string'
@@ -6163,7 +6163,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xc000006a"
+            expression: status_ok==true && status=="0xc000006a"
 
       - add:
           function: 'string'
@@ -6175,7 +6175,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xc0000064"
+            expression: status_ok==true && status=="0xc0000064"
 
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
@@ -6191,7 +6191,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x1" && code=="4771"
+            expression: status_ok==true && status=="0x1" && code=="4771"
 
       - add:
           function: 'string'
@@ -6206,7 +6206,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x2" && code=="4771"
+            expression: status_ok==true && status=="0x2" && code=="4771"
 
       - add:
           function: 'string'
@@ -6221,7 +6221,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x3" && code=="4771"
+            expression: status_ok==true && status=="0x3" && code=="4771"
 
       - add:
           function: 'string'
@@ -6236,7 +6236,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x4" && code=="4771"
+            expression: status_ok==true && status=="0x4" && code=="4771"
 
       - add:
           function: 'string'
@@ -6251,7 +6251,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x5" && code=="4771"
+            expression: status_ok==true && status=="0x5" && code=="4771"
 
       - add:
           function: 'string'
@@ -6266,7 +6266,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x6" && code=="4771"
+            expression: status_ok==true && status=="0x6" && code=="4771"
 
       - add:
           function: 'string'
@@ -6281,7 +6281,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x7" && code=="4771"
+            expression: status_ok==true && status=="0x7" && code=="4771"
 
       - add:
           function: 'string'
@@ -6296,7 +6296,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x8" && code=="4771"
+            expression: status_ok==true && status=="0x8" && code=="4771"
 
       - add:
           function: 'string'
@@ -6311,7 +6311,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x9" && code=="4771"
+            expression: status_ok==true && status=="0x9" && code=="4771"
 
       - add:
           function: 'string'
@@ -6326,7 +6326,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xA" && code=="4771"
+            expression: status_ok==true && status=="0xA" && code=="4771"
 
       - add:
           function: 'string'
@@ -6341,7 +6341,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xB" && code=="4771"
+            expression: status_ok==true && status=="0xB" && code=="4771"
 
       - add:
           function: 'string'
@@ -6356,7 +6356,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xC" && code=="4771"
+            expression: status_ok==true && status=="0xC" && code=="4771"
 
       - add:
           function: 'string'
@@ -6371,7 +6371,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xD" && code=="4771"
+            expression: status_ok==true && status=="0xD" && code=="4771"
 
       - add:
           function: 'string'
@@ -6386,7 +6386,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xE" && code=="4771"
+            expression: status_ok==true && status=="0xE" && code=="4771"
 
       - add:
           function: 'string'
@@ -6401,7 +6401,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0xF" && code=="4771"
+            expression: status_ok==true && status=="0xF" && code=="4771"
 
       - add:
           function: 'string'
@@ -6416,7 +6416,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x10" && code=="4771"
+            expression: status_ok==true && status=="0x10" && code=="4771"
 
       - add:
           function: 'string'
@@ -6431,7 +6431,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x11" && code=="4771"
+            expression: status_ok==true && status=="0x11" && code=="4771"
 
       - add:
           function: 'string'
@@ -6446,7 +6446,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x12" && code=="4771"
+            expression: status_ok==true && status=="0x12" && code=="4771"
 
       - add:
           function: 'string'
@@ -6461,7 +6461,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x13" && code=="4771"
+            expression: status_ok==true && status=="0x13" && code=="4771"
 
       - add:
           function: 'string'
@@ -6476,7 +6476,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x14" && code=="4771"
+            expression: status_ok==true && status=="0x14" && code=="4771"
 
       - add:
           function: 'string'
@@ -6491,7 +6491,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x15" && code=="4771"
+            expression: status_ok==true && status=="0x15" && code=="4771"
 
       - add:
           function: 'string'
@@ -6506,7 +6506,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x16" && code=="4771"
+            expression: status_ok==true && status=="0x16" && code=="4771"
 
       - add:
           function: 'string'
@@ -6521,7 +6521,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x17" && code=="4771"
+            expression: status_ok==true && status=="0x17" && code=="4771"
 
       - add:
           function: 'string'
@@ -6536,7 +6536,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x18" && code=="4771"
+            expression: status_ok==true && status=="0x18" && code=="4771"
 
       - add:
           function: 'string'
@@ -6551,7 +6551,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x19" && code=="4771"
+            expression: status_ok==true && status=="0x19" && code=="4771"
 
       - add:
           function: 'string'
@@ -6566,7 +6566,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x1F" && code=="4771"
+            expression: status_ok==true && status=="0x1F" && code=="4771"
 
       - add:
           function: 'string'
@@ -6581,7 +6581,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x20" && code=="4771"
+            expression: status_ok==true && status=="0x20" && code=="4771"
 
       - add:
           function: 'string'
@@ -6596,7 +6596,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x21" && code=="4771"
+            expression: status_ok==true && status=="0x21" && code=="4771"
 
       - add:
           function: 'string'
@@ -6611,7 +6611,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x22" && code=="4771"
+            expression: status_ok==true && status=="0x22" && code=="4771"
 
       - add:
           function: 'string'
@@ -6626,7 +6626,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x23" && code=="4771"
+            expression: status_ok==true && status=="0x23" && code=="4771"
 
       - add:
           function: 'string'
@@ -6641,7 +6641,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x24" && code=="4771"
+            expression: status_ok==true && status=="0x24" && code=="4771"
 
       - add:
           function: 'string'
@@ -6656,7 +6656,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x25" && code=="4771"
+            expression: status_ok==true && status=="0x25" && code=="4771"
 
       - add:
           function: 'string'
@@ -6671,7 +6671,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x26" && code=="4771"
+            expression: status_ok==true && status=="0x26" && code=="4771"
 
       - add:
           function: 'string'
@@ -6686,7 +6686,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x27" && code=="4771"
+            expression: status_ok==true && status=="0x27" && code=="4771"
 
       - add:
           function: 'string'
@@ -6701,7 +6701,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x28" && code=="4771"
+            expression: status_ok==true && status=="0x28" && code=="4771"
 
       - add:
           function: 'string'
@@ -6716,7 +6716,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x29" && code=="4771"
+            expression: status_ok==true && status=="0x29" && code=="4771"
 
       - add:
           function: 'string'
@@ -6731,7 +6731,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x2A" && code=="4771"
+            expression: status_ok==true && status=="0x2A" && code=="4771"
 
       - add:
           function: 'string'
@@ -6746,7 +6746,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x2C" && code=="4771"
+            expression: status_ok==true && status=="0x2C" && code=="4771"
 
       - add:
           function: 'string'
@@ -6761,7 +6761,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x2D" && code=="4771"
+            expression: status_ok==true && status=="0x2D" && code=="4771"
 
       - add:
           function: 'string'
@@ -6776,7 +6776,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x2E" && code=="4771"
+            expression: status_ok==true && status=="0x2E" && code=="4771"
 
       - add:
           function: 'string'
@@ -6791,7 +6791,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x2F" && code=="4771"
+            expression: status_ok==true && status=="0x2F" && code=="4771"
 
       - add:
           function: 'string'
@@ -6806,7 +6806,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x30" && code=="4771"
+            expression: status_ok==true && status=="0x30" && code=="4771"
 
       - add:
           function: 'string'
@@ -6821,7 +6821,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x31" && code=="4771"
+            expression: status_ok==true && status=="0x31" && code=="4771"
 
       - add:
           function: 'string'
@@ -6836,7 +6836,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x32" && code=="4771"
+            expression: status_ok==true && status=="0x32" && code=="4771"
 
       - add:
           function: 'string'
@@ -6851,7 +6851,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x3C" && code=="4771"
+            expression: status_ok==true && status=="0x3C" && code=="4771"
 
       - add:
           function: 'string'
@@ -6866,7 +6866,7 @@ pipeline:
               - get: log.winlogEventDataStatus
                 as: status
                 oftype: string
-            expression: status=="0x3D" && code=="4771"
+            expression: status_ok==true && status=="0x3D" && code=="4771"
 
       - delete:
           fields:

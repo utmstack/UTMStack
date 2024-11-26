@@ -217,7 +217,7 @@ pipeline:
       - rename:
           from:
             - log.uploadfilename
-          to: to.file
+          to: log.uploadFileName
 
       - rename:
           from:
@@ -227,7 +227,7 @@ pipeline:
       - rename:
           from:
             - log.downloadfilename
-          to: from.file
+          to: log.downloadFileName
 
       - rename:
           from:
@@ -252,17 +252,17 @@ pipeline:
       - rename:
           from:
             - log.domain
-          to: remote.domain
+          to: target.domain
 
       - rename:
           from:
             - log.dstip
-          to: remote.ip
+          to: target.ip
 
       - rename:
           from:
             - log.dstport
-          to: remote.port
+          to: target.port
 
       - rename:
           from:
@@ -297,22 +297,22 @@ pipeline:
       - rename:
           from:
             - log.recvbytes
-          to: local.bytesReceived
+          to: origin.bytesReceived
 
       - rename:
           from:
             - log.sentbytes
-          to: to.bytesSent
+          to: origin.bytesSent
 
       - rename:
           from:
             - log.srcip
-          to: local.ip
+          to: origin.ip
 
       - rename:
           from:
             - log.srcport
-          to: local.port
+          to: origin.port
 
       - rename:
           from:
@@ -337,7 +337,7 @@ pipeline:
       - rename:
           from:
             - log.username
-          to: local.user
+          to: origin.user
 
       - rename:
           from:
@@ -387,12 +387,12 @@ pipeline:
       - rename:
           from:
             - log.filename
-          to: remote.file
+          to: target.file
 
       - rename:
           from:
             - log.filepath
-          to: remote.path
+          to: target.path
 
       - rename:
           from:
@@ -422,12 +422,12 @@ pipeline:
       - rename:
           from:
             - log.ftpcommand
-          to: remote.command
+          to: target.command
 
       - rename:
           from:
             - log.FTPurl
-          to: log.FTPurl
+          to: target.url
 
       - rename:
           from:
@@ -452,7 +452,7 @@ pipeline:
       - rename:
           from:
             - log.srcmac
-          to: local.mac
+          to: origin.mac
 
       - rename:
           from:
@@ -467,17 +467,17 @@ pipeline:
       - rename:
           from:
             - log.clienthostname
-          to: from.user
+          to: log.clientHostName
 
       - rename:
           from:
             - log.ipaddress
-          to: from.ip
+          to: origin.ip
 
       - rename:
           from:
             - log.clientphysicaladdress
-          to: from.mac
+          to: log.clientPhysicalAddress
 
       - rename:
           from:
@@ -517,12 +517,12 @@ pipeline:
       - rename:
           from:
             - log.dstmac
-          to: remote.mac
+          to: target.mac
 
       - rename:
           from:
             - log.dstdomain
-          to: remote.domain
+          to: target.domain
 
       # Removing unnecessary characters
       - trim:
@@ -538,15 +538,15 @@ pipeline:
             - log.contentType
             - log.deviceName
             - log.domainName
-            - remote.domain
+            - target.domain
             - log.inDisplayInterface
             - log.inInterface
             - log.outDisplayInterface
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - remote.command
-            - from.user
+            - target.command
+            - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
             - log.authMechanism
@@ -557,24 +557,24 @@ pipeline:
             - log.rawData
             - log.userGroupName
             - log.authClient
-            - remote.file
-            - remote.path
+            - target.file
+            - target.path
             - log.ftpDirection
-            - remote.url
-            - from.file
+            - target.url
+            - log.downloadFileName
             - log.downloadFileType
-            - to.file
+            - log.uploadFileName
             - log.uploadFileType
             - protocol
             - log.reason
             - log.referer
             - log.status
-            - statusCode
+            - log.statusCode
             - log.url
             - log.virus
             - log.userAgent
             - log.userGroup
-            - local.user
+            - origin.user
             - log.bridgeName
             - log.bridgeDisplayName
             - log.timeZone
@@ -596,15 +596,15 @@ pipeline:
             - log.contentType
             - log.deviceName
             - log.domainName
-            - remote.domain
+            - target.domain
             - log.inDisplayInterface
             - log.inInterface
             - log.outDisplayInterface
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - remote.command
-            - from.user
+            - target.command
+            - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
             - log.authMechanism
@@ -615,24 +615,24 @@ pipeline:
             - log.rawData
             - log.userGroupName
             - log.authClient
-            - remote.file
-            - remote.path
+            - target.file
+            - target.path
             - log.ftpDirection
-            - remote.url
-            - from.file
+            - target.url
+            - log.downloadFileName
             - log.downloadFileType
-            - to.file
+            - log.uploadFileName
             - log.uploadFileType
             - protocol
             - log.reason
             - log.referer
             - log.status
-            - statusCode
+            - log.statusCode
             - log.url
             - log.virus
             - log.userAgent
             - log.userGroup
-            - local.user
+            - origin.user
             - log.bridgeName
             - log.bridgeDisplayName
             - log.timeZone
@@ -653,17 +653,43 @@ pipeline:
           fields:
             - log.syslogPriority
 
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: tIp
+                oftype: string
+            expression: tIp_ok==true
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: oIp
+                oftype: string
+            expression: oIp_ok==true
+
       # Field conversions
       - cast:
           fields:
-            - statusCode
-            - remote.port
+            - log.statusCode
+            - target.port
           to: int
 
       - cast:
           fields:
-            - local.bytesReceived
-            - local.bytesSent
+            - origin.bytesReceived
+            - origin.bytesSent
           to: float
 
       # Removing unused fields

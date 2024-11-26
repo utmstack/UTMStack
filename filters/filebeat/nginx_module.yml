@@ -14,27 +14,27 @@ pipeline:
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
 
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.origin.ips
 
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.origin.macs
 
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
             - log.event.dataset
-          to: log.action
+          to: action
 
       - rename:
           from:
@@ -59,21 +59,21 @@ pipeline:
       - cast:
           to: "[]string"
           fields:
-            - local.ips
+            - log.origin.ips
 
       - cast:
           to: "[]string"
           fields:
-            - local.macs
+            - log.origin.macs
 
       # Parsing the message field for the log "access" type
       - grok:
           patterns:
-            - fieldName: local.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}'
             - fieldName: log.userIdent
               pattern: '{{.word}}|(-)'
-            - fieldName: local.user
+            - fieldName: origin.user
               pattern: '{{.word}}\.{{.word}}|(-)'
             - fieldName: log.deviceTime
               pattern: '\[(.*?)\]'
@@ -81,7 +81,7 @@ pipeline:
               pattern: '\"{{.data}}\"'
             - fieldName: statusCode
               pattern: '{{.integer}}'
-            - fieldName: local.bytesReceived
+            - fieldName: origin.bytesReceived
               pattern: '{{.integer}}|(-)'
             - fieldName: log.referrer
               pattern: '\"{{.data}}\"'
@@ -123,7 +123,7 @@ pipeline:
           patterns:
             - fieldName: log.method
               pattern: '{{.word}}'
-            - fieldName: local.path
+            - fieldName: origin.path
               pattern: '\/[^ ]*'
             - fieldName: protocol
               pattern: '{{.greedy}}'
@@ -142,9 +142,9 @@ pipeline:
               pattern: '(\:\s\*{{.integer}}\s)|(\:{{.space}})'
             - fieldName: log.message
               pattern: '{{.data}}\,'
-            - fieldName: local.ip
+            - fieldName: origin.ip
               pattern: '{{.data}}\,'
-            - fieldName: remote.ip
+            - fieldName: target.ip
               pattern: '{{.data}}\,'
             - fieldName: log.quest
               pattern: '{{.word}}\:'
@@ -190,15 +190,15 @@ pipeline:
           substring: ','
           fields:
             - log.message
-            - local.ip
-            - remote.ip
+            - origin.ip
+            - target.ip
 
       # Parsing the request for the log "error" type
       - grok:
           patterns:
             - fieldName: log.method
               pattern: '{{.word}}'
-            - fieldName: local.path
+            - fieldName: origin.path
               pattern: '\/[^ ]*'
             - fieldName: protocol
               pattern: '{{.greedy}}'
@@ -260,11 +260,37 @@ pipeline:
           fields:
             - log.severityLabel
 
+      # Adding geolocation to target ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: tIp
+                oftype: string
+            expression: tIp_ok==true
+
+      # Adding geolocation to origin ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: oIp
+                oftype: string
+            expression: oIp_ok==true
+
       # Reformat and field conversions
       - cast:
           fields:
             - statusCode
-            - local.bytesReceived
+            - origin.bytesReceived
           to: int
 
       - reformat:
