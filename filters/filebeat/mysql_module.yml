@@ -1,7 +1,8 @@
 # MySQL filter, version 3.0.0
-# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-logstash.html
+# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-mysql.html
 # https://dev.mysql.com/doc/refman/8.0/en/error-log-format.html
 # https://docs.oracle.com/en-us/iaas/Content/Logging/Reference/top_level_logging_format.htm
+# https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-application-log.html#mysql-shell-log-levels
 # and filebeat fields.yml version 7.13.4 oss
 # Support logs from MySQL 8.0 ++
 # Filter Input requirements -> fileset: datatype
@@ -98,6 +99,40 @@ pipeline:
           function: time
           fromFormat: '2020-08-06T14:25:03.109022Z'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Adding severity based on log.level
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.level
+                as: lvl
+                ofType: string
+            expression: lvl_ok == true && (lvl == "Internal" || lvl == "internal" || lvl == "INTERNAL" || lvl == "Error" || lvl == "error" || lvl == "ERROR")
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.level
+                as: lvl
+                ofType: string
+            expression: lvl_ok == true && (lvl == "Warning" || lvl == "warning" || lvl == "WARNING")
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.level
+                as: lvl
+                ofType: string
+            expression: lvl_ok == true && lvl != "Internal" && lvl != "internal" && lvl != "INTERNAL" && lvl != "Error" && lvl != "error" && lvl != "ERROR" && lvl != "Warning" && lvl != "warning" && lvl != "WARNING"
       # Removing unused fields
       - delete:
           fields:
