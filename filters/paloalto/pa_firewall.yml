@@ -6936,32 +6936,32 @@ pipeline:
       - rename:
           from:
             - log.src
-          to: from.ip
+          to: origin.ip
           
       - rename:
           from:
             - log.dst
-          to: to.ip
+          to: target.ip
           
       - rename:
           from:
             - log.dpt
-          to: to.port
+          to: target.port
           
       - rename:
           from:
             - log.spt
-          to: from.port
+          to: origin.port
           
       - rename:
           from:
             - log.srcuser
-          to: from.user
+          to: origin.user
           
       - rename:
           from:
             - log.dstuser
-          to: to.user
+          to: target.user
 
       - rename:
           from:
@@ -6976,63 +6976,89 @@ pipeline:
       - rename:
           from:
             - log.bytessent
-          to: to.bytesSent
+          to: target.bytesSent
 
       - rename:
           from:
             - log.bytesreceived
-          to: to.bytesReceived
+          to: target.bytesReceived
 
       - rename:
           from:
             - log.pktssent
-          to: to.packagesSent
+          to: target.packagesSent
 
       - rename:
           from:
             - log.pktsreceived
-          to: to.packagesReceived
+          to: target.packagesReceived
 
       - rename:
           from:
             - log.srchost
-          to: from.host
+          to: origin.host
 
       - rename:
           from:
             - log.srcmac
-          to: from.mac
+          to: origin.mac
 
       - rename:
           from:
             - log.dsthost
-          to: to.host
+          to: target.host
 
       - rename:
           from:
             - log.dstmac
-          to: to.mac 
+          to: target.mac 
 
       # ................................................#
       # Fileds conversions
       # ................................................#
       - cast:
           fields:
-            - to.bytessent
-            - to.bytesreceived
+            - target.bytessent
+            - target.bytesreceived
           to: float64
       
       - cast:
           fields:
-            - to.pktssent
-            - to.packagesReceived
+            - target.pktssent
+            - target.packagesReceived
           to: int64
 
       - cast:
           fields:
-            - to.port
-            - from.port
+            - target.port
+            - origin.port
           to: int
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # ..........................................................................#
       # Remove issues fileds

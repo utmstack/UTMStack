@@ -44,9 +44,9 @@ func update() {
 
 		mu.Lock()
 
-		asnBlocks = nil
-		cityBlocks = nil
-		cityLocations = nil
+		asnBlocks = make(map[string][]*asnBlock)
+		cityBlocks = make(map[string][]*cityBlock)
+		cityLocations = make(map[int64]*cityLocation)
 
 		for file := range files {
 			csv, err := go_sdk.ReadCSV(file)
@@ -74,7 +74,7 @@ func update() {
 			first = false
 		}
 
-		time.Sleep(48 * time.Hour)
+		time.Sleep(168 * time.Hour)
 	}
 }
 
@@ -101,7 +101,7 @@ func populateASNBlocks(csv [][]string) {
 			continue
 		}
 
-		t := asnBlock{
+		t := &asnBlock{
 			network: n,
 			asn:     int64(asn),
 			aso: func() string {
@@ -112,7 +112,9 @@ func populateASNBlocks(csv [][]string) {
 			}(),
 		}
 
-		asnBlocks = append(asnBlocks, t)
+		start := getStart(n.IP.String())
+
+		asnBlocks[start] = append(asnBlocks[start], t)
 	}
 }
 
@@ -128,12 +130,12 @@ func populateCityBlocks(csv [][]string) {
 			continue
 		}
 
-		geonameID, err := strconv.Atoi(func() string {
+		geonameID, err := strconv.ParseInt(func() string {
 			if line := line[1]; line != "" {
 				return line
 			}
 			return "0"
-		}())
+		}(), 10, 64)
 		if err != nil {
 			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityBlocks: %s", err.Error())
 			continue
@@ -172,7 +174,7 @@ func populateCityBlocks(csv [][]string) {
 			continue
 		}
 
-		t := cityBlock{
+		t := &cityBlock{
 			network:        n,
 			geonameID:      geonameID,
 			latitude:       latitude,
@@ -180,7 +182,9 @@ func populateCityBlocks(csv [][]string) {
 			accuracyRadius: int32(accuracyRadius),
 		}
 
-		cityBlocks = append(cityBlocks, t)
+		start := getStart(n.IP.String())
+
+		cityBlocks[start] = append(cityBlocks[start], t)
 	}
 }
 
@@ -190,19 +194,19 @@ func populateCityLocations(csv [][]string) {
 			continue
 		}
 
-		geonameID, err := strconv.Atoi(line[0])
+		geonameID, err := strconv.ParseInt(line[0], 10, 64)
 		if err != nil {
 			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityLocations: %s", err.Error())
 			continue
 		}
 
-		t := cityLocation{
+		t := &cityLocation{
 			geonameID:      geonameID,
 			countryISOCode: line[4],
 			countryName:    line[5],
 			cityName:       line[10],
 		}
 
-		cityLocations = append(cityLocations, t)
+		cityLocations[geonameID] = t
 	}
 }

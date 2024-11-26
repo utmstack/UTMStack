@@ -13,23 +13,23 @@ pipeline:
       - rename:
           from:
             - log.url
-          to: local.url
+          to: origin.url
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.local.ips
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.local.macs
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
       - rename:
           from:
             - log.event.dataset
@@ -53,19 +53,19 @@ pipeline:
       - cast:
           to: '[]string'
           fields:
-            - local.ips
+            - log.local.ips
       - cast:
           to: '[]string'
           fields:
-            - local.macs
+            - log.local.macs
       # Common apache log parsing
       - grok:
           patterns:
-            - fieldName: local.ip
+            - fieldName: origin.ip
               pattern: '{{.ipv4}}|{{.ipv6}}'
             - fieldName: log.userIdent
               pattern: '{{.word}}|(-)'
-            - fieldName: local.user
+            - fieldName: origin.user
               pattern: '{{.word}}|(-)'
             - fieldName: deviceTime
               pattern: '\[{{.data}}\]'
@@ -80,13 +80,13 @@ pipeline:
       # Common
       - grok:
           patterns:
-            - fieldName: local.bytesReceived
+            - fieldName: origin.bytesReceived
               pattern: '{{.integer}}|(-)'
           source: log.rest
       # Combined
       - grok:
           patterns:
-            - fieldName: local.bytesReceived
+            - fieldName: origin.bytesReceived
               pattern: '{{.integer}}|(-)'
             - fieldName: log.referer
               pattern: '\"{{.data}}\"'
@@ -122,7 +122,7 @@ pipeline:
           patterns:
             - fieldName: log.method
               pattern: '{{.word}}'
-            - fieldName: "local.path"
+            - fieldName: "origin.path"
               pattern: '(.*)\s+'
             - fieldName: protocol
               pattern: '{{.greedy}}'
@@ -131,7 +131,7 @@ pipeline:
       - cast:
           fields:
             - log.statusCode
-            - local.bytesReceived
+            - origin.bytesReceived
           to: int
       - reformat:
           fields:

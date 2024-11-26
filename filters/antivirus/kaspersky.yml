@@ -1026,12 +1026,12 @@ pipeline:
       - rename:
           from:
             - log.src
-          to: from.ips
+          to: origin.ip
           
       - rename:
           from:
             - log.dst
-          to: to.ips
+          to: target.ip
 
       - rename:
           from:
@@ -1041,52 +1041,37 @@ pipeline:
       - rename:
           from:
             - log.agt
-          to: from.ips
+          to: origin.ip
 
       - rename:
           from:
             - log.ahost
-          to: from.host
+          to: target.host
 
       - rename:
           from:
             - log.amac
-          to: from.mac
+          to: origin.mac
 
       - rename:
           from:
             - log.dhost
-          to: to.host
+          to: target.host
 
       - rename:
           from:
             - log.originalAgentAddress
-          to: from.ips
+          to: origin.ip
 
       - rename:
           from:
             - log.syslogHost
-          to: local.host
+          to: origin.host
 
       - rename:
           from:
             - log.syslogIpHost
-          to: local.ip
-
-      # .......................................................................#
-      # Casting the ips field to string
-      # .......................................................................#
-      - cast:
-          to: "[]string"
-          fields:
-            - from.ips
-            - to.ips
-
-      # Casting the macs field to string
-      - cast:
-          to: "[]string"
-          fields:
-            - from.macs
+          to: origin.ip
 
       # .......................................................................#
       # Removing unnecessary characters of the restData
@@ -1100,6 +1085,32 @@ pipeline:
             - log.customerID
             - log.destinationZoneID
             - log.originalAgentId
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # .......................................................................#
       # Removing unused fields

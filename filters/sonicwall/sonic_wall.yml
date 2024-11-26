@@ -1815,11 +1815,11 @@ pipeline:
       - rename:
           from:
             - log.dst
-          to: to.ip
+          to: target.ip
       - rename:
           from:
             - log.dstname
-          to: to.host
+          to: target.host
       - rename:
           from:
             - log.proto
@@ -1827,11 +1827,11 @@ pipeline:
       - rename:
           from:
             - log.src
-          to: from.ip
+          to: origin.ip
       - rename:
           from:
             - log.src
-          to: from.ip
+          to: origin.ip
       - rename:
           from:
             - log.afaction
@@ -1839,23 +1839,49 @@ pipeline:
       - rename:
           from:
             - log.dstMac
-          to: to.mac
+          to: target.mac
       - rename:
           from:
             - log.srcMac
-          to: from.mac
+          to: origin.mac
       - rename:
           from:
             - log.dmac
-          to: to.mac
+          to: target.mac
       - rename:
           from:
             - log.smac
-          to: from.mac
+          to: origin.mac
       - rename:
           from:
             - log.susr
-          to: from.user
+          to: origin.user
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
 
       # ..........................................................................#
       # Removing unnuse fields

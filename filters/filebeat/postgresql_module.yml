@@ -21,19 +21,19 @@ pipeline:
       - rename:
           from:
             - log.log.file.path
-          to: local.file
+          to: origin.file
       - rename:
           from:
             - log.host.ip
-          to: local.ips
+          to: log.origin.ips
       - rename:
           from:
             - log.host.mac
-          to: local.macs
+          to: log.origin.macs
       - rename:
           from:
             - log.host.hostname
-          to: local.host
+          to: origin.host
       - rename:
           from:
             - log.event.dataset
@@ -59,11 +59,11 @@ pipeline:
       - cast:
           to: '[]string'
           fields:
-            - local.ips
+            - log.origin.ips
       - cast:
           to: '[]string'
           fields:
-            - local.macs
+            - log.origin.macs
 
       # Common postgresql log parsing
       # Example Log 
@@ -73,9 +73,9 @@ pipeline:
             - fieldName: log.deviceTime
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}} | 
                         {{.year}}(-){{.monthNumber}}(-){{.monthDay}}{{.space}}{{.time}}{{.space}}((UTC)?)'
-            - fieldName: from.host
+            - fieldName: target.host
               pattern: '{{.hostname}}'
-            - fieldName: from.irrelevant
+            - fieldName: log.irrelevant
               pattern: '{{.word}}'
             - fieldName: log.processId
               pattern: '((\[{{.data}}\]:)?)'
@@ -126,6 +126,32 @@ pipeline:
           fields:
             - log.processId
             - log.groupId
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.origin.ips
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: log.origin.ips
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
+      
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.target.ips
+            destination: target.geolocation
+          where:
+            variables:
+              - get: log.target.ips
+                as: ip
+                ofType: string
+            expression: "ip_ok == true"
             
       # Removing unused fields
       - delete:
@@ -137,3 +163,4 @@ pipeline:
             - log.event
             - log.ecs
             - log.log
+            - log.irrelevant

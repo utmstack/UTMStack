@@ -126,7 +126,7 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     // Defines the index pattern for querying Elasticsearch statistics indexes.
     // ----------------------------------------------------------------------------------
-    public static final String STATISTICS_INDEX_PATTERN = "statistics-*";
+    public static final String STATISTICS_INDEX_PATTERN = "v11-statistics-*";
 
     private Constants() {
     }

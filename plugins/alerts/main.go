@@ -48,6 +48,8 @@ type AlertFields struct {
 	Technique         string         `json:"technique"`
 	Reference         []string       `json:"reference"`
 	DataType          string         `json:"dataType"`
+	Impact            *go_sdk.Impact `json:"impact"`
+	ImpactScore       int32          `json:"impactScore"`
 	DataSource        string         `json:"dataSource"`
 	Adversary         *go_sdk.Side   `json:"adversary"`
 	Target            *go_sdk.Side   `json:"target"`
@@ -133,6 +135,8 @@ func (p *correlationServer) Correlate(ctx context.Context,
 		Adversary:     alert.Adversary,
 		Target:        alert.Target,
 		Logs:          alert.Events,
+		Impact:        alert.Impact,
+		ImpactScore:   alert.ImpactScore,
 	}
 
 	cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
