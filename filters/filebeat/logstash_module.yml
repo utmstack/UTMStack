@@ -108,6 +108,40 @@ pipeline:
           function: time
           fromFormat: '2024-07-31T17:02:07,154'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Adding severity based on log.level
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.level
+                as: lvl
+                ofType: string
+            expression: lvl_ok == true && (lvl == "CRITICAL" || lvl == "FATAL" || lvl == "ERROR")
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.level
+                as: lvl
+                ofType: string
+            expression: lvl_ok == true && lvl == "WARN"
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.level
+                as: lvl
+                ofType: string
+            expression: lvl_ok == true && (lvl == "INFO" || lvl == "DEBUG" || lvl == "TRACE")
       # Removing unused fields
       - delete:
           fields:
