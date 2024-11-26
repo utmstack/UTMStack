@@ -226,6 +226,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {UtmNotifier} from './websocket/utm-notifier';
+import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
 
 
 @NgModule({
@@ -374,7 +375,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AppFilterComponent,
     TemplateSelectorDirective,
     TimezoneOffsetPipe,
-    TimePeriodPipe
+    TimePeriodPipe,
+    ModalAddNoteComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -475,7 +477,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AppFilterComponent,
     TemplateSelectorDirective,
     TimezoneOffsetPipe,
-    TimePeriodPipe
+    TimePeriodPipe,
+    ModalAddNoteComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -519,7 +522,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
-    EmailSettingNotificactionComponent],
+    EmailSettingNotificactionComponent,
+    ModalAddNoteComponent],
   providers: [
     UtmToastService,
     MenuBehavior,

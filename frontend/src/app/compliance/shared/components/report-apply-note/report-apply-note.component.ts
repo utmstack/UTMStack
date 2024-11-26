@@ -1,30 +1,32 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {UtmToastService} from '../../../../../../shared/alert/utm-toast.service';
-import {ALERT_NOTE_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
-import {getValueFromPropertyPath} from '../../../../../../shared/util/get-value-object-from-property-path.util';
-import {AlertUpdateHistoryBehavior} from '../../../behavior/alert-update-history.behavior';
-import {AlertManagementService} from '../../../services/alert-management.service';
-import {getID, setAlertPropertyValue} from '../../../util/alert-util-function';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
+import {CpReportsService} from '../../services/cp-reports.service';
+import {ComplianceReportType} from '../../type/compliance-report.type';
+import {filter} from "rxjs/operators";
+import {NgbPopover} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-alert-apply-note',
-  templateUrl: './alert-apply-note.component.html',
-  styleUrls: ['./alert-apply-note.component.scss']
+  selector: 'app-report-apply-note',
+  templateUrl: './report-apply-note.component.html',
+  styleUrls: ['./report-apply-note.component.scss']
 })
-export class AlertApplyNoteComponent implements OnInit, OnChanges {
-  @Input() alert: any;
+export class ReportApplyNoteComponent implements OnInit, OnChanges {
+  @Input() report: ComplianceReportType;
   @Input() showNote: boolean;
+  @ViewChild('notePopover') notePopover!: NgbPopover;
   @Output() applyNote = new EventEmitter<string>();
   note: string;
   creating = false;
 
-  constructor(private alertServiceManagement: AlertManagementService,
-              private utmToastService: UtmToastService,
-              private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior) {
+  constructor(private reportsService: CpReportsService,
+              private toastService: UtmToastService) {
   }
 
   ngOnInit() {
-    this.getNoteValue();
+    this.reportsService.onLoadNote$
+      .pipe(
+        filter( report => !!report && this.report.id === report.id ))
+      .subscribe(() => this.notePopover.open());
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -32,24 +34,33 @@ export class AlertApplyNoteComponent implements OnInit, OnChanges {
   }
 
   getNoteValue() {
-    if (this.alert) {
-      const note = getValueFromPropertyPath(this.alert, ALERT_NOTE_FIELD, null);
-      this.note = note ? note : '';
+    if (this.report) {
+      this.note = this.report.note && this.report.note !== '' ? this.report.note : '';
     }
   }
 
   addNote() {
     this.creating = true;
-    this.alertServiceManagement.updateNotes(getID(this.alert), this.note).subscribe(response => {
-      this.utmToastService.showSuccessBottom('Comment added successfully');
+    this.reportsService.update({
+      ...this.report,
+      note: this.note
+    }).subscribe(response => {
+      this.toastService.showSuccessBottom('Comment added successfully');
       this.applyNote.emit('success');
       this.creating = false;
-      this.alert = setAlertPropertyValue(ALERT_NOTE_FIELD, this.note, this.alert);
-      this.alertUpdateHistoryBehavior.$refreshHistory.next(true);
+      this.reportsService.notifyRefresh({
+        loading: true,
+        sectionId: this.report.section.id,
+        reportSelected: 0
+      });
     }, error => {
-      this.utmToastService.showError('Error adding note',
+      this.toastService.showError('Error adding note',
         'Error adding comment, please try again');
       this.creating = false;
     });
+  }
+
+  onClick(event: Event) {
+    event.stopPropagation();
   }
 }

@@ -26,5 +26,6 @@ export class ComplianceReportType {
   configUrl?: string;
   associatedDashboard?: UtmDashboardType;
   selected?: boolean;
-  status?: boolean;
+  status?: string;
+  note?: string;
 }

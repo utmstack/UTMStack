@@ -159,7 +159,8 @@ export class AlertViewDetailComponent implements OnInit {
       this.elasticDataService.search(1, 1,
         1, LOG_INDEX_PATTERN, filter).subscribe(
         (res: HttpResponse<any>) => {
-          this.log = res.body[0];
+          console.log('Response:', res.body);
+          this.log = res.body[0] ? res.body[0] : {};
           this.getLastLog = false;
         },
         (res: HttpResponse<any>) => {
