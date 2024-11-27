@@ -42,7 +42,7 @@ func getTemplateSetPush(config types.ModuleGroup) schema.TemplateConfigSetPush {
 			Status:      1,
 			ServiceType: "cef",
 			Servicesettings: schema.ServiceSettings{
-				Url:                        "https://" + config.Configurations[2].ConfValue + ":" + GetConfig().BdgzPort + "/api",
+				Url:                        "https://" + config.Configurations[2].ConfValue + ":" + BdgzPort + "/api",
 				Authorization:              utils.GenerateAuthCode(config.Configurations[0].ConfValue),
 				RequireValidSslCertificate: false,
 			},

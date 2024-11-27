@@ -49,7 +49,6 @@ type PluginConfig struct {
 	InternalKey string `yaml:"internalKey"`
 	Backend     string `yaml:"backend"`
 	CertsFolder string `yaml:"certsFolder"`
-	BdgzPort    string `yaml:"bdgzPort"`
 }
 
 type ModuleConfig struct {
