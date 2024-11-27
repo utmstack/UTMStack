@@ -191,7 +191,7 @@ pipeline:
           function: 'string'
           params:
             key: action
-            value: 'PUT'
+            value: 'put'
           where:
             variables:
               - get: log.method
@@ -209,6 +209,17 @@ pipeline:
                 as: met
                 ofType: string
             expression: met_ok == true && met == "DELETE"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'patch'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "PATCH"
       - add:
           function: 'string'
           params:
