@@ -79,7 +79,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'connection'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'from'
@@ -125,7 +125,7 @@ pipeline:
       # FTD-2-106017
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'IP\sdue\sto'
@@ -159,7 +159,7 @@ pipeline:
       # FTD-1-106021
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: action
               pattern: '{{.greedy}}from'
@@ -210,7 +210,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Number of cached'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -420,7 +420,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Received CoA'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -468,7 +468,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Received CoA'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -507,7 +507,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'CoA'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -594,7 +594,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA user {{.word}}'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -659,7 +659,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA user authentication'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -890,7 +890,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA user authentication'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -994,7 +994,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '(AAA user authentication|AAA credentials)\s'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -1050,7 +1050,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA credentials'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -1312,7 +1312,7 @@ pipeline:
               pattern: '(''{{.data}}''|{{.data}})(\s)?at'
             - fieldName: log.remoteIp
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
@@ -1506,7 +1506,7 @@ pipeline:
       # Action result
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -4101,7 +4101,7 @@ pipeline:
       # Action result
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -4141,7 +4141,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.word}}\sinspection\scheck'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for\sarp'
@@ -4228,7 +4228,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.word}}\sinspection\scheck'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for\sarp'
@@ -4766,7 +4766,7 @@ pipeline:
               pattern: 'CRYPTO\:(\s)?'
             - fieldName: action
               pattern: 'An attempt to allocate a large memory block'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.data}}\:'
@@ -5120,7 +5120,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Login'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
           source: action
           where:
@@ -5196,7 +5196,7 @@ pipeline:
               pattern: 'type'
             - fieldName: log.icmpType
               pattern: '{{.data}}\s'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: 'denied'
             - fieldName: log.irrelevant
               pattern: 'by'
@@ -5272,11 +5272,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106020
-      # Adding actionResult
+      # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Denied'
           where:
             variables:
@@ -5434,7 +5434,7 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==611307
-      # Adding action and actionResult
+      # Adding action and log.ciscoResult
       - add:
           function: 'string'
           params:
@@ -5449,7 +5449,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Success'
           where:
             variables:
@@ -5484,7 +5484,7 @@ pipeline:
               pattern: 'VPNClient\:'
             - fieldName: action
               pattern: 'XAUTH'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?Peer(\s)?\:'
@@ -5609,14 +5609,14 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==710003
-      # Protocol and actionResult
+      # Protocol and log.ciscoResult
       - grok:
           patterns:
             - fieldName: protocol
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.word}}'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -5906,11 +5906,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716038
-      # Adding actionResult
+      # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Success'
           where:
             variables:
@@ -6023,11 +6023,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716039
-      # Adding actionResult
+      # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Denied'
           where:
             variables:
@@ -6076,11 +6076,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
-      # Adding actionResult and modifying some actions
+      # Adding log.ciscoResult and modifying some actions
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Failed'
           where:
             variables:
@@ -6091,7 +6091,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Success'
           where:
             variables:
@@ -6102,7 +6102,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Denied'
           where:
             variables:
