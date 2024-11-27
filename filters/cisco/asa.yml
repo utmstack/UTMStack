@@ -7679,6 +7679,186 @@ pipeline:
                 as: ip
                 ofType: string
             expression: ip_ok == true
+      # Adding log.mappedIpFrom geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.mappedIpFrom
+            destination: log.mappedIpFrom.geolocation
+          where:
+            variables:
+              - get: log.mappedIpFrom
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.mappedIpTo geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.mappedIpTo
+            destination: log.mappedIpTo.geolocation
+          where:
+            variables:
+              - get: log.mappedIpTo
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.translatedIpFrom geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.translatedIpFrom
+            destination: log.translatedIpFrom.geolocation
+          where:
+            variables:
+              - get: log.translatedIpFrom
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.translatedIpTo geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.translatedIpTo
+            destination: log.translatedIpTo.geolocation
+          where:
+            variables:
+              - get: log.translatedIpTo
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.globalIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.globalIp
+            destination: log.globalIp.geolocation
+          where:
+            variables:
+              - get: log.globalIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.remoteIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.remoteIp
+            destination: log.remoteIp.geolocation
+          where:
+            variables:
+              - get: log.remoteIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.mappedIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.mappedIp
+            destination: log.mappedIp.geolocation
+          where:
+            variables:
+              - get: log.mappedIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.decapsulatedPktDestAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.decapsulatedPktDestAddr
+            destination: log.decapsulatedPktDestAddr.geolocation
+          where:
+            variables:
+              - get: log.decapsulatedPktDestAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.decapsulatedPktSrcAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.decapsulatedPktSrcAddr
+            destination: log.decapsulatedPktSrcAddr.geolocation
+          where:
+            variables:
+              - get: log.decapsulatedPktSrcAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.localProxyIpAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.localProxyIpAddr
+            destination: log.localProxyIpAddr.geolocation
+          where:
+            variables:
+              - get: log.localProxyIpAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.remoteProxyIpAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.remoteProxyIpAddr
+            destination: log.remoteProxyIpAddr.geolocation
+          where:
+            variables:
+              - get: log.remoteProxyIpAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.primaryDns geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.primaryDns
+            destination: log.primaryDns.geolocation
+          where:
+            variables:
+              - get: log.primaryDns
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.secondaryDns geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.secondaryDns
+            destination: log.secondaryDns.geolocation
+          where:
+            variables:
+              - get: log.secondaryDns
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.primaryWins geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.primaryWins
+            destination: log.primaryWins.geolocation
+          where:
+            variables:
+              - get: log.primaryWins
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.secondaryWins geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.secondaryWins
+            destination: log.secondaryWins.geolocation
+          where:
+            variables:
+              - get: log.secondaryWins
+                as: ip
+                ofType: string
+            expression: ip_ok == true
       #......................................................................#
       # Common field conversions
       - cast:
