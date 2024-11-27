@@ -111,6 +111,7 @@ public class UtmComplianceReportConfig implements Serializable {
     @JsonDeserialize
     private List<RequestParamFilter> requestParamFilters;
 
+    private String note;
 
     public Long getId() {
         return id;
@@ -302,5 +303,13 @@ public class UtmComplianceReportConfig implements Serializable {
 
     public void setAssociatedDashboard(UtmDashboard associatedDashboard) {
         this.associatedDashboard = associatedDashboard;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }
