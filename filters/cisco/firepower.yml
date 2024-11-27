@@ -44,6 +44,19 @@ pipeline:
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: raw
+      #......................................................................#
+      # Adding log.localIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.localIp
+            destination: log.localIp.geolocation
+          where:
+            variables:
+              - get: log.localIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
       # Removing unwanted prefixes
       - trim:
           function: prefix
