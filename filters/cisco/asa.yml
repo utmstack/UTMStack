@@ -7687,6 +7687,30 @@ pipeline:
                 ofType: string
             expression: sev=="7"
       #......................................................................#
+      # Adding common geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      #......................................................................#
       # Common field conversions
       - cast:
           fields:
