@@ -2,8 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -30,56 +30,42 @@ import (
 //   - int: The HTTP status code of the response.
 //   - error: An error if any occurred during the request or response
 //     processing, otherwise nil.
-func DoReq[response any](url string,
-	data []byte, method string,
-	headers map[string]string) (response, int, error) {
-
-	var result response
-
+func DoReq[response any](url string, data []byte, method string, headers map[string]string, config *tls.Config) (response, int, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
-		return result,
-			http.StatusInternalServerError,
-			err
+		return *new(response), http.StatusInternalServerError, err
 	}
 
 	for k, v := range headers {
 		req.Header.Add(k, v)
 	}
 
-	client := &http.Client{}
+	transp := &http.Transport{
+		TLSClientConfig: config,
+	}
+
+	client := &http.Client{Transport: transp}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return result,
-			http.StatusInternalServerError,
-			err
+		return *new(response), http.StatusInternalServerError, err
 	}
-
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return result,
-			http.StatusInternalServerError,
-			err
+		return *new(response), http.StatusInternalServerError, err
 	}
 
-	if resp.StatusCode >= 400 {
-		return result,
-			resp.StatusCode,
-			fmt.Errorf("received status code %d", resp.StatusCode)
-	}
-
-	if resp.StatusCode == http.StatusNoContent {
-		return result, resp.StatusCode, nil
-	}
+	var result response
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return result,
-			http.StatusInternalServerError,
-			err
+		return *new(response), http.StatusInternalServerError, err
+	}
+
+	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
+		return *new(response), http.StatusInternalServerError, err
 	}
 
 	return result, resp.StatusCode, nil

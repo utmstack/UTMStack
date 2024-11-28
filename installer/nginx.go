@@ -3,6 +3,7 @@ package main
 import (
 	"path"
 
+	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/templates"
 	"github.com/utmstack/UTMStack/installer/types"
 	"github.com/utmstack/UTMStack/installer/utils"
@@ -22,7 +23,7 @@ func InstallNginx() error {
 	return nil
 }
 
-func ConfigureNginx(conf *types.Config, stack *types.StackConfig) error {
+func ConfigureNginx(conf *config.Config, stack *config.StackConfig) error {
 	c := types.NginxConfig{
 		SharedKey: conf.InternalKey,
 	}

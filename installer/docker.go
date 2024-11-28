@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/types"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
@@ -51,7 +52,7 @@ func InitSwarm(mainIP string) error {
 	return nil
 }
 
-func StackUP(c *types.Config, stack *types.StackConfig) error {
+func StackUP(c *config.Config, stack *config.StackConfig) error {
 	var compose = new(types.Compose)
 	err := compose.Populate(c, stack)
 	if err != nil {
@@ -67,7 +68,7 @@ func StackUP(c *types.Config, stack *types.StackConfig) error {
 	if err != nil {
 		return err
 	}
-	
+
 	fmt.Println("  Downloading images:")
 	for _, service := range compose.Services {
 		fmt.Print("    Downloading ", *service.Image)

@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"github.com/utmstack/UTMStack/installer/types"
+	"github.com/utmstack/UTMStack/installer/config"
 )
 
-func InitPgUtmstack(c *types.Config) error {
+func InitPgUtmstack(c *config.Config) error {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
 		c.Password)
@@ -83,7 +83,7 @@ CONSTRAINT utm_client_pkey PRIMARY KEY (id)
 	return nil
 }
 
-func InitPgUserAuditor(c *types.Config) error {
+func InitPgUserAuditor(c *config.Config) error {
 	// Connecting to PostgreSQL
 	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=%s sslmode=disable",
 		c.Password)

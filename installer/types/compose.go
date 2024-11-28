@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/updater"
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
 )
@@ -83,7 +85,7 @@ func (c *Compose) Encode() ([]byte, error) {
 	return b, nil
 }
 
-func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
+func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error {
 	var pluginsConfig PluginsConfig
 	err := pluginsConfig.Set(conf, stack)
 	if err != nil {
@@ -106,10 +108,9 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	agentManagerMem := stack.ServiceResources["agentmanager"].AssignedMemory
 	c.Services["agentmanager"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/agent-manager:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/agent-manager:" + updater.GetVersions()["agent-manager"] + "-" + conf.Branch),
 		Volumes: []string{
 			stack.Cert + ":/cert",
-			stack.AgentManager + ":/data",
 		},
 		Ports: []string{
 			"9000:50051",
@@ -172,7 +173,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	frontEndMem := stack.ServiceResources["frontend"].AssignedMemory
 	c.Services["frontend"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/frontend:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/frontend:" + updater.GetVersions()["frontend"] + "-" + conf.Branch),
 		DependsOn: []string{
 			"backend",
 			"filebrowser",
@@ -198,7 +199,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	backendMin := stack.ServiceResources["backend"].MinMemory
 	c.Services["backend"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:" + updater.GetVersions()["backend"] + "-" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -379,7 +380,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	socAIMem := stack.ServiceResources["socai"].AssignedMemory
 	c.Services["socai"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/soc-ai/soc-ai:" + updater.GetVersions()["soc-ai"] + "-" + conf.Branch),
 		DependsOn: []string{
 			"node1",
 			"backend",
@@ -404,7 +405,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:" + updater.GetVersions()["user-auditor"] + "-" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -433,7 +434,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 
 	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
 	c.Services["web-pdf"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:" + updater.GetVersions()["web-pdf"] + "-" + conf.Branch),
 		Volumes: []string{
 			stack.ShmFolder + ":/dev/shm",
 		},

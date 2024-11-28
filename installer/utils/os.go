@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -88,5 +89,51 @@ func WriteYAML(url string, data interface{}) error {
 		return err
 	}
 
+	return nil
+}
+
+func ReadYAML(path string, result interface{}) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	d := yaml.NewDecoder(file)
+	if err := d.Decode(result); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckIfPathExist(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func WriteJSON(path string, data interface{}) error {
+	jsonData, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	err = writeToFile(path, string(jsonData[:]))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ReadJson(fileName string, data interface{}) error {
+	content, err := os.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(content, data)
+	if err != nil {
+		return err
+	}
 	return nil
 }

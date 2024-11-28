@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/utmstack/UTMStack/installer/config"
 	"gopkg.in/yaml.v3"
 )
 
@@ -33,7 +34,7 @@ type PostgreConfig struct {
 	Database string `yaml:"database"`
 }
 
-func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
+func (c *PluginsConfig) Set(conf *config.Config, stack *config.StackConfig) error {
 	c.Plugins = make(map[string]PluginConfig)
 
 	c.Plugins["com.utmstack"] = PluginConfig{
@@ -51,9 +52,7 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		InternalKey:  conf.InternalKey,
 		AgentManager: "10.21.199.3:9000",
 		Backend:      "http://backend:8080",
-		Logstash:     "logstash",
 		CertsFolder:  "/cert",
-		BdgzPort:     "8000",
 	}
 
 	config, err := yaml.Marshal(c)
