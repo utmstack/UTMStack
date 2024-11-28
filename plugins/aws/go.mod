@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.12.1
+	github.com/threatwinds/go-sdk v0.12.4
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/grpc v1.68.0
 )
