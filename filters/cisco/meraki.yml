@@ -116,6 +116,18 @@ pipeline:
                 as: flag
                 ofType: string
             expression: flag!="Init"
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.connectivity
+                as: cxn
+                ofType: string
+            expression: cxn_ok == true && cxn == "true"
       # ........................................
       # event uplink connectivity change
       - rename:
@@ -207,6 +219,18 @@ pipeline:
                 as: act
                 ofType: string
             expression: flag!="Init" && act.contains("Cellular connection")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.connectionState
+                as: cxn
+                ofType: string
+            expression: cxn_ok == true && (cxn == "up" || cxn == "Up")
       # ........................................
       # Event: event, dhcp no offers
       - grok:
@@ -299,6 +323,18 @@ pipeline:
                 as: gevt
                 ofType: string
             expression: flag!="Init" && gevt.contains("dhcp lease")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+            expression: gevt.contains("dhcp lease")
       # ........................................
       # Event: event, HTTP GET requests in Meraki MX Security Appliance
       - grok:
@@ -326,6 +362,24 @@ pipeline:
             - fieldName: target.url
               pattern: '{{.greedy}}'
           source: log.genericEvent
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="urls"
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.controlFlag
@@ -424,6 +478,47 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("src") && gp=="flows"
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+              - get: log.pattern
+                as: pt
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="flows" && (pt.startsWith("0") || pt.startsWith("allow") || pt.startsWith("Allow"))
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+              - get: log.pattern
+                as: pt
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("src") && gp=="flows" && (pt.startsWith("deny") || pt.startsWith("Deny"))
       # ........................................
       # Event: ids-alerts, ids signature matched in Meraki MX Security Appliance
       - grok:
@@ -669,6 +764,24 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("Site") && gp=="events"
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Site") && gp=="events" && (gevt.contains("queued due to no phase 1") || gevt.contains("queued due to no phase1") || || gevt.contains("established"))
       # ........................................
       # Event: event spanning-tree guard state change in Meraki MS Switches
       - grok:
@@ -736,6 +849,24 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("Port") && gp=="events"
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("Port") && gp=="events" && gevt.contains("blocked")
       # ........................................
       # Event: event blocked DHCP server response in Meraki MS Switches
       - grok:
@@ -1348,6 +1479,24 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("radio") && gevt.contains("channel") && gevt.contains("auth_neg_dur") && gevt.contains("last_auth_ago")
       # ........................................
       # Event: event 802.1X (all events) in Meraki MR Access Points
       - grok:
@@ -1661,6 +1810,24 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("type") && gp=="events" && gevt.contains("ip") && gevt.contains("vap") && gevt.contains("duration") && gevt.contains("download") && gevt.contains("upload")
       # ........................................
       # Event: event wireless packet flood detected in Meraki MR Access Points
       - grok:
@@ -1954,6 +2121,42 @@ pipeline:
                 as: gp
                 ofType: string
             expression: flag!="Init" && (gevt.startsWith("allow") || gevt.startsWith("deny")) && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("allow") && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.controlFlag
+                as: flag
+                ofType: string
+              - get: log.genericEvent
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: flag!="Init" && gevt.startsWith("deny") && gp=="flows" && gevt.contains("src") && gevt.contains("dst") && gevt.contains("sport") && gevt.contains("dport") && gevt.contains("mac")
       # ........................................
       # Event: event rogue SSID detected and SSID spoofing detected in Meraki MR Access Points
       # First variant
@@ -2308,6 +2511,21 @@ pipeline:
                 as: gp
                 ofType: string
             expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("airmarshal_events") && gevt.contains("type") && gevt.contains("ssid") && gevt.contains("bssid")
       # ........................................
       # Event: security_event ids_alerted, ids signature matched in Meraki MX Security Appliance
       - grok:
@@ -2421,6 +2639,21 @@ pipeline:
           substring: 'src'
           fields:
             - protocol
+          where:
+            variables:
+              - get: log.msg
+                as: gevt
+                ofType: string
+              - get: log.merakiGroup
+                as: gp
+                ofType: string
+            expression: gevt.startsWith("signature") && gevt.contains("priority") && gevt.contains("timestamp") && gevt.contains("direction") && gevt.contains("dhost")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.msg
