@@ -51,7 +51,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '{{.data}}{{.time}}'
-            - fieldName: log.local.ip
+            - fieldName: log.localIp
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
             - fieldName: log.local.port
               pattern: '{{.integer}}'
@@ -2436,7 +2436,7 @@ pipeline:
           function: suffix
           substring: ':'
           fields:
-            - log.local.ip
+            - log.localIp
             - origin.ip
             - target.ip
             - log.serverIp
@@ -2456,6 +2456,63 @@ pipeline:
             - log.peerIdent
             - log.connectivity
             - log.vpnType
+      #......................................................................#
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where:
+            variables:
+              - get: target.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.serverIp
+            destination: log.serverIp.geolocation
+          where:
+            variables:
+              - get: log.serverIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.localIp
+            destination: log.localIp.geolocation
+          where:
+            variables:
+              - get: log.localIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.ipResp
+            destination: log.ipResp.geolocation
+          where:
+            variables:
+              - get: log.ipResp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
       #......................................................................#
       # Common field conversions
       - cast:
