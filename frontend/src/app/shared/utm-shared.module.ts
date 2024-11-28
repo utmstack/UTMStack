@@ -226,6 +226,8 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {UtmNotifier} from './websocket/utm-notifier';
+import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
+import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
 
 
 @NgModule({
@@ -374,7 +376,10 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AppFilterComponent,
     TemplateSelectorDirective,
     TimezoneOffsetPipe,
-    TimePeriodPipe
+    TimePeriodPipe,
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -475,7 +480,10 @@ import {UtmNotifier} from './websocket/utm-notifier';
     AppFilterComponent,
     TemplateSelectorDirective,
     TimezoneOffsetPipe,
-    TimePeriodPipe
+    TimePeriodPipe,
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -519,7 +527,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
-    EmailSettingNotificactionComponent],
+    EmailSettingNotificactionComponent,
+    ModalAddNoteComponent],
   providers: [
     UtmToastService,
     MenuBehavior,

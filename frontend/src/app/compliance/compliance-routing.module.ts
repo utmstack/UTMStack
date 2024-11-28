@@ -8,6 +8,7 @@ import {ComplianceResultViewComponent} from './compliance-result-view/compliance
 import {ComplianceScheduleComponent} from './compliance-schedule/compliance-schedule.component';
 import {ComplianceTemplatesComponent} from './compliance-templates/compliance-templates.component';
 import {ComplianceReportViewerComponent} from "./compliance-report-viewer/compliance-report-viewer.component";
+import { CompliancePrintViewComponent } from './compliance-reports-view/components/compliance-print-view/compliance-print-view.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'templates'},
@@ -42,7 +43,12 @@ const routes: Routes = [
   {
     path: 'report-viewer',
     component: ComplianceReportViewerComponent,
-    data: {authorities: [ADMIN_ROLE]}
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]}
+  },
+  {
+    path: 'print-view',
+    component: CompliancePrintViewComponent,
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
 ];
 

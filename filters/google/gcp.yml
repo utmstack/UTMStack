@@ -43,17 +43,17 @@ pipeline:
       - rename:
           from:
             - log.httpRequest.requestSize
-          to: log.httpRequestSize
+          to: origin.bytesSent
       
       - rename:
           from:
             - log.httpRequest.requestUrl
-          to: origin.url
+          to: target.url
 
       - rename:
           from:
             - log.httpRequest.responseSize
-          to: log.httpResponseSize
+          to: target.bytesSent
       
       - rename:
           from:
@@ -156,11 +156,6 @@ pipeline:
             - log.resource.type
           to: log.resourceType
 
-      - rename:
-          from:
-            - log.severity
-          to: log.severityLabel
-
       # .......................................................................#
       # Renaming operation field
       # .......................................................................#
@@ -208,12 +203,140 @@ pipeline:
           fields:
             - log.jsonPayloadCacheDecision
 
-      # Removing unused fields
-      - delete:
-          fields:
-            - log.httpRequest
-            - log.jsonPayload
-            - log.resource
+      # Adding action field based on log.httpRequestMethod
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where:
+            variables:
+              - get: log.httpRequestMethod
+                as: action
+                ofType: string
+            expression: action_ok==true && action=="GET"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where:
+            variables:
+              - get: log.httpRequestMethod
+                as: action
+                ofType: string
+            expression: action_ok==true && action=="POST"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where:
+            variables:
+              - get: log.httpRequestMethod
+                as: action
+                ofType: string
+            expression: action_ok==true && action=="PUT"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'patch'
+          where:
+            variables: 
+              - get: log.httpRequestMethod
+                as: action
+                ofType: string
+            expression: action_ok==true && action=="PATCH"
+            
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where:
+            variables:
+              - get: log.httpRequestMethod
+                as: action
+                ofType: string
+            expression: action_ok==true && action=="REQUEST"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where:
+            variables:
+              - get: log.httpRequestMethod
+                as: action
+                ofType: string
+            expression: action_ok==true && action=="DELETE"
+
+      # Adding actionResult field based on log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+                as: actionResult
+                ofType: string
+            expression: actionResult_ok==true && actionResult=="ACCEPT"
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+                as: actionResult
+                ofType: string
+            expression: actionResult_ok==true && actionResult=="DENY"
+
+      # Adding severity field based on log.severity
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && severity=="INFO"
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && severity=="WARNING"
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && severity=="ERROR"
 
       # Adding geolocation to remote.ip
       - dynamic:
@@ -226,4 +349,14 @@ pipeline:
               - get: origin.ip
                 as: ip
                 ofType: string
-            expression: "ip_ok == true"
+            expression: ip_ok == true
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.httpRequest
+            - log.jsonPayload
+            - log.resource
+            - log.httpRequestMethod
+            - log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+            - log.severity

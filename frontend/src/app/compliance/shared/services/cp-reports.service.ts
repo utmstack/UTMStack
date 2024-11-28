@@ -20,6 +20,8 @@ export interface ReportParams  {
 export class CpReportsService extends RefreshDataService<{ sectionId: number, loading: boolean, reportSelected: number }, HttpResponse<ComplianceReportType[]>> {
   private resourceUrl = SERVER_API_URL + 'api/compliance/report-config';
   private loadReportSubject = new BehaviorSubject<ReportParams>(null);
+  private onLoadReportNoteSubject = new BehaviorSubject<ComplianceReportType>(null);
+  readonly onLoadNote$ = this.onLoadReportNoteSubject.asObservable();
   readonly onLoadReport$ = this.loadReportSubject.asObservable();
 
   constructor(private http: HttpClient) {
@@ -77,5 +79,9 @@ export class CpReportsService extends RefreshDataService<{ sectionId: number, lo
 
   loadReport(params: ReportParams){
     this.loadReportSubject.next(params);
+  }
+
+  loadReportNote(report: ComplianceReportType){
+    this.onLoadReportNoteSubject.next(report);
   }
 }

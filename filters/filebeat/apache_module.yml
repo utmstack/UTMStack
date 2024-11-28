@@ -127,6 +127,120 @@ pipeline:
             - fieldName: protocol
               pattern: '{{.greedy}}'
           source: log.request
+      # Extracting protocol version
+      - grok:
+          patterns:
+            - fieldName: protocol
+              pattern: '{{.data}}/'
+            - fieldName: log.protoVersion
+              pattern: '{{.greedy}}'
+          source: protocol
+          where:
+            variables:
+              - get: protocol
+                as: proto
+                ofType: string
+            expression: proto_ok == true
+      - trim:
+          function: suffix
+          substring: '/'
+          fields:
+            - protocol
+          where:
+            variables:
+              - get: protocol
+                as: proto
+                ofType: string
+            expression: proto_ok == true
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true 
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "GET"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "POST"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "PUT"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "DELETE"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'patch'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "PATCH"
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "REQUEST"
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where:
+            variables:
+              - get: action
+                as: act
+                ofType: string
+            expression: act_ok == true
       # Reformat and field conversions
       - cast:
           fields:
@@ -139,6 +253,27 @@ pipeline:
           function: time
           fromFormat: '14/Feb/2022:15:40:53 -0500'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.statusCode
+                as: cod
+                ofType: int
+              - get: origin.bytesReceived
+                as: rec
+                ofType: int
+            expression: cod_ok == true && (cod >= 200 && cod <= 299 || (rec_ok == true && cod >= 300 && cod <= 399 && rec > 0))
       # Removing unused fields
       - delete:
           fields:

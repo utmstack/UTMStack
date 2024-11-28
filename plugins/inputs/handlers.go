@@ -48,8 +48,9 @@ func Log(c *gin.Context) {
 
 	var l = new(go_sdk.Log)
 
-	e := go_sdk.ToObject(&body, l)
-	if e != nil {
+	err = go_sdk.ToObject(&body, l)
+	if err != nil {
+		e := go_sdk.Logger().ErrorF(err.Error())
 		e.GinError(c)
 		return
 	}

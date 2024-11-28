@@ -10,7 +10,6 @@ import (
 
 	_ "github.com/lib/pq"
 	go_sdk "github.com/threatwinds/go-sdk"
-	"github.com/threatwinds/logger"
 	"github.com/tidwall/gjson"
 	"gopkg.in/yaml.v3"
 )
@@ -163,23 +162,23 @@ func main() {
 	if mode != "manager" {
 		os.Exit(0)
 	}
-	
-	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
+
+	pCfg, err := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
+	if err != nil {
 		os.Exit(1)
 	}
 
 	gCfg := go_sdk.GetCfg()
 
-	db, e := connect(pCfg.PostgreSQL.Password)
-	if e != nil {
+	db, err := connect(pCfg.PostgreSQL.Password)
+	if err != nil {
 		os.Exit(1)
 	}
 
 	go_sdk.Logger().Info("connected to database")
 
-	e = createFolderStructure(gCfg)
-	if e != nil {
+	err = createFolderStructure(gCfg)
+	if err != nil {
 		os.Exit(1)
 	}
 
@@ -244,27 +243,27 @@ func main() {
 }
 
 // connect to postgres database
-func connect(password string) (*sql.DB, *logger.Error) {
+func connect(password string) (*sql.DB, error) {
 	// Replace the connection details with your own
 	connStr := fmt.Sprintf("user=postgres password=%s dbname=utmstack host=postgres port=5432 sslmode=disable", password)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to connect to database: %v", err)
+		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to ping database: %v", err)
+		return nil, fmt.Errorf("failed to ping database: %v", err)
 	}
 
 	return db, nil
 }
 
-func getPatterns(db *sql.DB) (map[string]string, *logger.Error) {
+func getPatterns(db *sql.DB) (map[string]string, error) {
 	rows, err := db.Query("SELECT pattern_id, pattern_definition FROM utm_regex_pattern")
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to get patterns: %v", err)
+		return nil, fmt.Errorf("failed to get patterns: %v", err)
 	}
 
 	defer rows.Close()
@@ -277,7 +276,7 @@ func getPatterns(db *sql.DB) (map[string]string, *logger.Error) {
 
 		err = rows.Scan(&name, &pattern)
 		if err != nil {
-			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
 		patterns[name] = pattern
@@ -286,10 +285,10 @@ func getPatterns(db *sql.DB) (map[string]string, *logger.Error) {
 	return patterns, nil
 }
 
-func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
+func getFilters(db *sql.DB) ([]Filter, error) {
 	rows, err := db.Query("SELECT id, filter_name, logstash_filter FROM utm_logstash_filter WHERE is_active = true")
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to get filters: %v", err)
+		return nil, fmt.Errorf("failed to get filters: %v", err)
 	}
 
 	defer rows.Close()
@@ -305,7 +304,7 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 
 		err = rows.Scan(&id, &name, &body)
 		if err != nil {
-			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
 		filter := Filter{}
@@ -320,10 +319,10 @@ func getFilters(db *sql.DB) ([]Filter, *logger.Error) {
 	return filters, nil
 }
 
-func getAssets(db *sql.DB) ([]Asset, *logger.Error) {
+func getAssets(db *sql.DB) ([]Asset, error) {
 	rows, err := db.Query("SELECT * FROM utm_tenant_config")
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to get assets: %v", err)
+		return nil, fmt.Errorf("failed to get assets: %v", err)
 	}
 
 	defer rows.Close()
@@ -345,7 +344,7 @@ func getAssets(db *sql.DB) ([]Asset, *logger.Error) {
 		err = rows.Scan(&id, &name, &hostnames, &ips, &confidentiality,
 			&integrity, &availability, &lastUpdate)
 		if err != nil {
-			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
 		asset := Asset{}
@@ -358,10 +357,10 @@ func getAssets(db *sql.DB) ([]Asset, *logger.Error) {
 	return assets, nil
 }
 
-func getRules(db *sql.DB) ([]Rule, *logger.Error) {
+func getRules(db *sql.DB) ([]Rule, error) {
 	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to get rules: %v", err)
+		return nil, fmt.Errorf("failed to get rules: %v", err)
 	}
 
 	defer rows.Close()
@@ -385,14 +384,14 @@ func getRules(db *sql.DB) ([]Rule, *logger.Error) {
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
 			&category, &technique, &description, &references, &where)
 		if err != nil {
-			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
 		rule := Rule{}
 
-		dataTypes, e := getRuleDataTypes(db, id)
-		if e != nil {
-			return nil, e
+		dataTypes, err := getRuleDataTypes(db, id)
+		if err != nil {
+			return nil, err
 		}
 
 		rule.FromVar(id, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, dataTypes)
@@ -403,10 +402,10 @@ func getRules(db *sql.DB) ([]Rule, *logger.Error) {
 	return rules, nil
 }
 
-func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, *logger.Error) {
+func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, error) {
 	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type WHERE rule_id = $1", ruleId)
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to get data types: %v", err)
+		return nil, fmt.Errorf("failed to get data types: %v", err)
 	}
 
 	defer rows.Close()
@@ -421,14 +420,14 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, *logger.Error) {
 
 		err = rows.Scan(&dataTypeId)
 		if err != nil {
-			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
 		row := db.QueryRow("SELECT data_type FROM utm_data_types WHERE id = $1", dataTypeId)
 
 		err := row.Scan(&dataType)
 		if err != nil {
-			return nil, go_sdk.Logger().ErrorF("failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
 		dataTypes = append(dataTypes, dataType)
@@ -437,7 +436,7 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, *logger.Error) {
 	return dataTypes, nil
 }
 
-func listFiles(folder string) ([]string, *logger.Error) {
+func listFiles(folder string) ([]string, error) {
 	var files []string
 
 	err := filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
@@ -453,13 +452,13 @@ func listFiles(folder string) ([]string, *logger.Error) {
 	})
 
 	if err != nil {
-		return nil, go_sdk.Logger().ErrorF("failed to list files: %v", err)
+		return nil, fmt.Errorf("failed to list files: %v", err)
 	}
 
 	return files, nil
 }
 
-func cleanUpFilters(gCfg *go_sdk.Config, filters []Filter) *logger.Error {
+func cleanUpFilters(gCfg *go_sdk.Config, filters []Filter) error {
 	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"))
 	if e != nil {
 		os.Exit(1)
@@ -477,7 +476,7 @@ func cleanUpFilters(gCfg *go_sdk.Config, filters []Filter) *logger.Error {
 		if !keep {
 			err := os.Remove(file)
 			if err != nil {
-				return go_sdk.Logger().ErrorF("failed to remove file: %v", err)
+				return fmt.Errorf("failed to remove file: %v", err)
 			}
 		}
 	}
@@ -485,7 +484,7 @@ func cleanUpFilters(gCfg *go_sdk.Config, filters []Filter) *logger.Error {
 	return nil
 }
 
-func cleanUpRules(gCfg *go_sdk.Config, rules []Rule) *logger.Error {
+func cleanUpRules(gCfg *go_sdk.Config, rules []Rule) error {
 	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
 	if e != nil {
 		os.Exit(1)
@@ -503,7 +502,7 @@ func cleanUpRules(gCfg *go_sdk.Config, rules []Rule) *logger.Error {
 		if !keep {
 			err := os.Remove(file)
 			if err != nil {
-				return go_sdk.Logger().ErrorF("failed to remove file: %v", err)
+				return fmt.Errorf("failed to remove file: %v", err)
 			}
 		}
 	}
@@ -511,87 +510,87 @@ func cleanUpRules(gCfg *go_sdk.Config, rules []Rule) *logger.Error {
 	return nil
 }
 
-func writeFilters(pCfg *go_sdk.Config, filters []Filter) *logger.Error {
+func writeFilters(pCfg *go_sdk.Config, filters []Filter) error {
 	for _, filter := range filters {
 		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)))
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to create file: %v", err)
+			return fmt.Errorf("failed to create file: %v", err)
 		}
 
 		_, err = file.WriteString(filter.Filter)
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to write to file: %v", err)
+			return fmt.Errorf("failed to write to file: %v", err)
 		}
 
 		err = file.Close()
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to close file: %v", err)
+			return fmt.Errorf("failed to close file: %v", err)
 		}
 	}
 
 	return nil
 }
 
-func writeTenant(pCfg *go_sdk.Config, tenant Tenant) *logger.Error {
+func writeTenant(pCfg *go_sdk.Config, tenant Tenant) error {
 	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "tenant.yaml"))
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to create file: %v", err)
+		return fmt.Errorf("failed to create file: %v", err)
 	}
 
 	sdkTenant := go_sdk.Tenant(tenant)
-	
-	tenants := go_sdk.Config{	
+
+	tenants := go_sdk.Config{
 		Tenants: []*go_sdk.Tenant{&sdkTenant},
 	}
 
 	bTenants, err := yaml.Marshal(tenants)
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to marshal tenant: %v", err)
+		return fmt.Errorf("failed to marshal tenant: %v", err)
 	}
 
 	_, err = file.Write(bTenants)
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to write to file: %v", err)
+		return fmt.Errorf("failed to write to file: %v", err)
 	}
 
 	err = file.Close()
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to close file: %v", err)
+		return fmt.Errorf("failed to close file: %v", err)
 	}
 
 	return nil
 }
 
-func writeRules(pCfg *go_sdk.Config, rules []Rule) *logger.Error {
+func writeRules(pCfg *go_sdk.Config, rules []Rule) error {
 	for _, rule := range rules {
 		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)))
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to create file: %v", err)
+			return fmt.Errorf("failed to create file: %v", err)
 		}
 
 		bRule, err := yaml.Marshal([]Rule{rule})
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to marshal rule: %v", err)
+			return fmt.Errorf("failed to marshal rule: %v", err)
 		}
 
 		_, err = file.Write(bRule)
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to write to file: %v", err)
+			return fmt.Errorf("failed to write to file: %v", err)
 		}
 
 		err = file.Close()
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to close file: %v", err)
+			return fmt.Errorf("failed to close file: %v", err)
 		}
 	}
 
 	return nil
 }
 
-func writePatterns(pCfg *go_sdk.Config, patterns map[string]string) *logger.Error {
+func writePatterns(pCfg *go_sdk.Config, patterns map[string]string) error {
 	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "patterns.yaml"))
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to create file: %v", err)
+		return fmt.Errorf("failed to create file: %v", err)
 	}
 
 	config := go_sdk.Config{
@@ -600,23 +599,23 @@ func writePatterns(pCfg *go_sdk.Config, patterns map[string]string) *logger.Erro
 
 	bPatterns, err := yaml.Marshal(config)
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to marshal patterns: %v", err)
+		return fmt.Errorf("failed to marshal patterns: %v", err)
 	}
 
 	_, err = file.Write(bPatterns)
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to write to file: %v", err)
+		return fmt.Errorf("failed to write to file: %v", err)
 	}
 
 	err = file.Close()
 	if err != nil {
-		return go_sdk.Logger().ErrorF("failed to close file: %v", err)
+		return fmt.Errorf("failed to close file: %v", err)
 	}
 
 	return nil
 }
 
-func createFolderStructure(gCfg *go_sdk.Config) *logger.Error {
+func createFolderStructure(gCfg *go_sdk.Config) error {
 	folders := []string{
 		filepath.Join(gCfg.Env.Workdir, "rules"),
 		filepath.Join(gCfg.Env.Workdir, "pipeline"),
@@ -630,7 +629,7 @@ func createFolderStructure(gCfg *go_sdk.Config) *logger.Error {
 
 		err := os.MkdirAll(folder, os.ModePerm)
 		if err != nil {
-			return go_sdk.Logger().ErrorF("failed to create folder: %v", err)
+			return fmt.Errorf("failed to create folder: %v", err)
 		}
 	}
 

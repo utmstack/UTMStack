@@ -44,6 +44,19 @@ pipeline:
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: raw
+      #......................................................................#
+      # Adding log.localIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.localIp
+            destination: log.localIp.geolocation
+          where:
+            variables:
+              - get: log.localIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
       # Removing unwanted prefixes
       - trim:
           function: prefix
@@ -66,7 +79,7 @@ pipeline:
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'connection'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'from'
@@ -113,7 +126,7 @@ pipeline:
       #ASA-2-106017
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'IP\sdue\sto'
@@ -147,7 +160,7 @@ pipeline:
       # ASA-1-106021
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: action
               pattern: '{{.greedy}}from'
@@ -199,7 +212,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Number of cached'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -453,7 +466,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Received CoA'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -501,7 +514,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Received CoA'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -540,7 +553,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'CoA'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -627,7 +640,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA user {{.word}}'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -692,7 +705,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA user authentication'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -923,7 +936,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA user authentication'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -1027,7 +1040,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: '(AAA user authentication|AAA credentials)\s'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -1083,7 +1096,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'AAA credentials'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
           where:
@@ -1345,7 +1358,7 @@ pipeline:
               pattern: '(''{{.data}}''|{{.data}})(\s)?at'
             - fieldName: log.remoteIp
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.rest
               pattern: '{{.greedy}}'
@@ -1539,7 +1552,7 @@ pipeline:
       # Action result
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -4999,7 +5012,7 @@ pipeline:
       # Action result
       - grok:
           patterns:
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -5039,7 +5052,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.word}}\sinspection\scheck'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for\sarp'
@@ -5126,7 +5139,7 @@ pipeline:
           patterns:
             - fieldName: action
               pattern: '{{.word}}\sinspection\scheck'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: 'for\sarp'
@@ -5731,7 +5744,7 @@ pipeline:
               pattern: 'CRYPTO\:(\s)?'
             - fieldName: action
               pattern: 'An attempt to allocate a large memory block'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.data}}\:'
@@ -6139,7 +6152,7 @@ pipeline:
           patterns:
             - fieldName: log.irrelevant
               pattern: 'Login'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
           source: action
           where:
@@ -6248,7 +6261,7 @@ pipeline:
               pattern: 'type'
             - fieldName: log.icmpType
               pattern: '{{.data}}\s'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: 'denied'
             - fieldName: log.irrelevant
               pattern: 'by'
@@ -6324,11 +6337,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106020
-      # Adding actionResult
+      # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Denied'
           where:
             variables:
@@ -6486,7 +6499,7 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==611307
-      # Adding action and actionResult
+      # Adding action and log.ciscoResult
       - add:
           function: 'string'
           params:
@@ -6501,7 +6514,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Success'
           where:
             variables:
@@ -6536,7 +6549,7 @@ pipeline:
               pattern: 'VPNClient\:'
             - fieldName: action
               pattern: 'XAUTH'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '\:(\s)?Peer(\s)?\:'
@@ -6661,14 +6674,14 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==710003
-      # Protocol and actionResult
+      # Protocol and log.ciscoResult
       - grok:
           patterns:
             - fieldName: protocol
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.word}}'
-            - fieldName: actionResult
+            - fieldName: log.ciscoResult
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
@@ -6958,11 +6971,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716038
-      # Adding actionResult
+      # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Success'
           where:
             variables:
@@ -7075,11 +7088,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716039
-      # Adding actionResult
+      # Adding log.ciscoResult
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Denied'
           where:
             variables:
@@ -7128,11 +7141,11 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
-      # Adding actionResult and modifying some actions
+      # Adding log.ciscoResult and modifying some actions
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Failed'
           where:
             variables:
@@ -7143,7 +7156,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Success'
           where:
             variables:
@@ -7154,7 +7167,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: actionResult
+            key: log.ciscoResult
             value: 'Denied'
           where:
             variables:
@@ -7612,41 +7625,19 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
-            value: 'Alert'
+            key: severity
+            value: 'high'
           where:
             variables:
               - get: log.severity
                 as: sev
                 ofType: string
-            expression: sev=="1"
+            expression: sev=="1" || sev=="2" || sev=="3"
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
-            value: 'Critical'
-          where:
-            variables:
-              - get: log.severity
-                as: sev
-                ofType: string
-            expression: sev=="2"
-      - add:
-          function: 'string'
-          params:
-            key: log.severityLabel
-            value: 'Error'
-          where:
-            variables:
-              - get: log.severity
-                as: sev
-                ofType: string
-            expression: sev=="3"
-      - add:
-          function: 'string'
-          params:
-            key: log.severityLabel
-            value: 'Warning'
+            key: severity
+            value: 'medium'
           where:
             variables:
               - get: log.severity
@@ -7656,36 +7647,218 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
-            value: 'Notification'
+            key: severity
+            value: 'low'
           where:
             variables:
               - get: log.severity
                 as: sev
                 ofType: string
-            expression: sev=="5"
-      - add:
-          function: 'string'
+            expression: sev=="5" || sev=="6" || sev=="7"
+      #......................................................................#
+      # Adding common geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
           params:
-            key: log.severityLabel
-            value: 'Informational'
+            source: origin.ip
+            destination: origin.geolocation
           where:
             variables:
-              - get: log.severity
-                as: sev
+              - get: origin.ip
+                as: ip
                 ofType: string
-            expression: sev=="6"
-      - add:
-          function: 'string'
+            expression: ip_ok == true
+      - dynamic:
+          plugin: com.utmstack.geolocation
           params:
-            key: log.severityLabel
-            value: 'Debugging'
+            source: target.ip
+            destination: target.geolocation
           where:
             variables:
-              - get: log.severity
-                as: sev
+              - get: target.ip
+                as: ip
                 ofType: string
-            expression: sev=="7"
+            expression: ip_ok == true
+      # Adding log.mappedIpFrom geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.mappedIpFrom
+            destination: log.mappedIpFrom.geolocation
+          where:
+            variables:
+              - get: log.mappedIpFrom
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.mappedIpTo geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.mappedIpTo
+            destination: log.mappedIpTo.geolocation
+          where:
+            variables:
+              - get: log.mappedIpTo
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.translatedIpFrom geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.translatedIpFrom
+            destination: log.translatedIpFrom.geolocation
+          where:
+            variables:
+              - get: log.translatedIpFrom
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.translatedIpTo geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.translatedIpTo
+            destination: log.translatedIpTo.geolocation
+          where:
+            variables:
+              - get: log.translatedIpTo
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.globalIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.globalIp
+            destination: log.globalIp.geolocation
+          where:
+            variables:
+              - get: log.globalIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.remoteIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.remoteIp
+            destination: log.remoteIp.geolocation
+          where:
+            variables:
+              - get: log.remoteIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.mappedIp geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.mappedIp
+            destination: log.mappedIp.geolocation
+          where:
+            variables:
+              - get: log.mappedIp
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.decapsulatedPktDestAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.decapsulatedPktDestAddr
+            destination: log.decapsulatedPktDestAddr.geolocation
+          where:
+            variables:
+              - get: log.decapsulatedPktDestAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.decapsulatedPktSrcAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.decapsulatedPktSrcAddr
+            destination: log.decapsulatedPktSrcAddr.geolocation
+          where:
+            variables:
+              - get: log.decapsulatedPktSrcAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.localProxyIpAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.localProxyIpAddr
+            destination: log.localProxyIpAddr.geolocation
+          where:
+            variables:
+              - get: log.localProxyIpAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.remoteProxyIpAddr geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.remoteProxyIpAddr
+            destination: log.remoteProxyIpAddr.geolocation
+          where:
+            variables:
+              - get: log.remoteProxyIpAddr
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.primaryDns geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.primaryDns
+            destination: log.primaryDns.geolocation
+          where:
+            variables:
+              - get: log.primaryDns
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.secondaryDns geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.secondaryDns
+            destination: log.secondaryDns.geolocation
+          where:
+            variables:
+              - get: log.secondaryDns
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.primaryWins geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.primaryWins
+            destination: log.primaryWins.geolocation
+          where:
+            variables:
+              - get: log.primaryWins
+                as: ip
+                ofType: string
+            expression: ip_ok == true
+      # Adding log.secondaryWins geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: log.secondaryWins
+            destination: log.secondaryWins.geolocation
+          where:
+            variables:
+              - get: log.secondaryWins
+                as: ip
+                ofType: string
+            expression: ip_ok == true
       #......................................................................#
       # Common field conversions
       - cast:

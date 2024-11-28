@@ -123,9 +123,12 @@ func geolocate(ip string) *go_sdk.Geolocation {
 
 	if city != nil {
 		location := getLocation(city.geonameID)
-		geo.City = location.cityName
-		geo.Country = location.countryName
-		geo.CountryCode = location.countryISOCode
+		if location != nil {
+			geo.City = location.cityName
+			geo.Country = location.countryName
+			geo.CountryCode = location.countryISOCode
+		}
+		
 		geo.Latitude = city.latitude
 		geo.Longitude = city.longitude
 		some = true

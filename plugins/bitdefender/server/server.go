@@ -70,7 +70,7 @@ func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
 	}).Methods("GET")
 
 	server := &http.Server{
-		Addr:           ":" + configuration.GetConfig().BdgzPort,
+		Addr:           ":" + configuration.BdgzPort,
 		Handler:        r,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -78,7 +78,7 @@ func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
 	}
 
 	go func() {
-		go_sdk.Logger().Info("Listening in port %s...\n", configuration.GetConfig().BdgzPort)
+		go_sdk.Logger().Info("Listening in port %s...\n", configuration.BdgzPort)
 		err := server.ListenAndServeTLS(cert, key)
 		if err != nil {
 			go_sdk.Logger().ErrorF("error creating server: %v", err)

@@ -44,9 +44,9 @@ func update() {
 
 		mu.Lock()
 
-		asnBlocks = nil
-		cityBlocks = nil
-		cityLocations = nil
+		asnBlocks = make(map[string][]*asnBlock)
+		cityBlocks = make(map[string][]*cityBlock)
+		cityLocations = make(map[int64]*cityLocation)
 
 		for file := range files {
 			csv, err := go_sdk.ReadCSV(file)
@@ -74,7 +74,7 @@ func update() {
 			first = false
 		}
 
-		time.Sleep(48 * time.Hour)
+		time.Sleep(168 * time.Hour)
 	}
 }
 

@@ -103,30 +103,19 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
-            value: 'Fatal'
+            key: severity
+            value: 'high'
           where:
             variables:
               - get: log.s
                 as: sev
                 ofType: string
-            expression: sev=="F"
+            expression: sev=="F" || sev=="E"
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
-            value: 'Error'
-          where:
-            variables:
-              - get: log.s
-                as: sev
-                ofType: string
-            expression: sev=="E"
-      - add:
-          function: 'string'
-          params:
-            key: log.severityLabel
-            value: 'Warning'
+            key: severity
+            value: 'medium'
           where:
             variables:
               - get: log.s
@@ -136,25 +125,14 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
-            value: 'Informational'
+            key: severity
+            value: 'low'
           where:
             variables:
               - get: log.s
                 as: sev
                 ofType: string
-            expression: sev=="I"
-      - add:
-          function: 'string'
-          params:
-            key: log.severityLabel
-            value: 'Debug'
-          where:
-            variables:
-              - get: log.s
-                as: sev
-                ofType: string
-            expression: sev!="F" && sev!="E" && sev!="W" && sev!="I"
+            expression: sev!="F" && sev!="E" && sev!="W"
       # Removing unused fields
       - delete:
           fields:

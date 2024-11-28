@@ -5,6 +5,17 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {UtmDashboardSharedModule} from '../../dashboard/shared/utm-dashboard-shared.module';
 import {UtmSharedModule} from '../../shared/utm-shared.module';
+import {ComplianceReportsViewComponent} from '../compliance-reports-view/compliance-reports-view.component';
+import {
+  ComplianceReportDetailComponent
+} from '../compliance-reports-view/components/compliance-report-detail/compliance-report-detail.component';
+import {
+  ComplianceStatusComponent
+} from '../compliance-reports-view/components/compliance-status/compliance-status.component';
+import {
+  ComplianceTimeWindowsComponent
+} from '../compliance-reports-view/components/compliance-time-window/compliance-time-windows.component';
+import {ReportApplyNoteComponent} from './components/report-apply-note/report-apply-note.component';
 import {UtmComplianceCreateComponent} from './components/utm-compliance-create/utm-compliance-create.component';
 import {
   UtmComplianceScheduleCreateComponent
@@ -21,6 +32,9 @@ import {UtmCpStandardSectionCreateComponent} from './components/utm-cp-standard-
 import {UtmCpStandardSelectComponent} from './components/utm-cp-standard-select/utm-cp-standard-select.component';
 import {UtmReportInfoViewComponent} from './components/utm-report-info-view/utm-report-info-view.component';
 import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/utm-save-as-compliance.component';
+import {
+  CompliancePrintViewComponent
+} from "../compliance-reports-view/components/compliance-print-view/compliance-print-view.component";
 
 
 @NgModule({
@@ -36,7 +50,13 @@ import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/
     UtmCpCronEditorComponent,
     UtmComplianceSelectComponent,
     UtmComplianceScheduleDeleteComponent,
-    UtmCpSectionComponent
+    UtmCpSectionComponent,
+    ReportApplyNoteComponent,
+    ComplianceStatusComponent,
+    ComplianceReportsViewComponent,
+    ComplianceReportDetailComponent,
+    ComplianceTimeWindowsComponent,
+    CompliancePrintViewComponent
   ],
   imports: [
     CommonModule,
@@ -67,7 +87,13 @@ import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/
         UtmReportInfoViewComponent,
         UtmComplianceScheduleCreateComponent,
         UtmComplianceScheduleDeleteComponent,
-        UtmCpSectionComponent
+        UtmCpSectionComponent,
+        ReportApplyNoteComponent,
+        ComplianceStatusComponent,
+        ComplianceReportsViewComponent,
+        ComplianceReportDetailComponent,
+        ComplianceTimeWindowsComponent,
+        CompliancePrintViewComponent
     ]
 })
 export class ComplianceSharedModule {

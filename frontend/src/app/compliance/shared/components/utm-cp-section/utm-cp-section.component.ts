@@ -58,7 +58,6 @@ export class UtmCpSectionComponent implements OnInit {
         }),
         tap((reports) => {
           if (this.loadFirst) {
-            console.log('load first', this.loadFirst);
             this.loadReport(reports[0]);
             this.loadFirst = false;
           }

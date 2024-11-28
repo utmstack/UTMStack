@@ -43,38 +43,38 @@ func main() {
 	}
 }
 
-func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transform) (*go_sdk.JLog, error) {
+func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transform) (*go_sdk.Draft, error) {
 	source, ok := transform.Step.Dynamic.Params["source"]
 	if !ok {
 		go_sdk.Logger().ErrorF("'source' parameter required")
-		return transform.Jlog, fmt.Errorf("'source' parameter required")
+		return transform.Draft, fmt.Errorf("'source' parameter required")
 	}
 
 	destination, ok := transform.Step.Dynamic.Params["destination"]
 	if !ok {
 		go_sdk.Logger().ErrorF("'destination' parameter required")
-		return transform.Jlog, fmt.Errorf("'destination' parameter required")
+		return transform.Draft, fmt.Errorf("'destination' parameter required")
 	}
 
-	value := gjson.Get(transform.Jlog.Log, source.GetStringValue()).String()
+	value := gjson.Get(transform.Draft.Log, source.GetStringValue()).String()
 	if value == "" {
 		go_sdk.Logger().LogF(100, "source field not found")
-		return transform.Jlog, nil
+		return transform.Draft, nil
 	}
 
 	geo := geolocate(value)
 
 	if geo == nil {
 		go_sdk.Logger().LogF(100, "geolocation not found")
-		return transform.Jlog, nil
+		return transform.Draft, nil
 	}
 
 	var err error
-	transform.Jlog.Log, err = sjson.Set(transform.Jlog.Log, destination.GetStringValue(), geo)
+	transform.Draft.Log, err = sjson.Set(transform.Draft.Log, destination.GetStringValue(), geo)
 	if err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
-		return transform.Jlog, err
+		return transform.Draft, err
 	}
 
-	return transform.Jlog, nil
+	return transform.Draft, nil
 }

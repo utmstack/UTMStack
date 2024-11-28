@@ -1,0 +1,19 @@
+.collapsible-text {
+    position: relative;
+  }
+  
+.text-content {
+    overflow: hidden;
+    display: inline;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    color: #0277bd;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    font-size: .7rem !important;
+    margin-left: 5px;
+}

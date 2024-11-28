@@ -12,6 +12,7 @@ const EndpointPush = "/v1.0/jsonrpc/push"
 
 const UtmCertFileName = "utm.crt"
 const UtmCertFileKey = "utm.key"
+const BdgzPort = "8000"
 
 func GetConfig() *schema.PluginConfig {
 
