@@ -79,7 +79,7 @@ pipeline:
               pattern: '\[(.*?)\]'
             - fieldName: log.request
               pattern: '\"{{.data}}\"'
-            - fieldName: statusCode
+            - fieldName: log.statusCode
               pattern: '{{.integer}}'
             - fieldName: origin.bytesReceived
               pattern: '{{.integer}}|(-)'
@@ -289,9 +289,13 @@ pipeline:
       # Reformat and field conversions
       - cast:
           fields:
-            - statusCode
-            - origin.bytesReceived
+            - log.statusCode
           to: int
+
+      - cast:
+          fields:
+            - origin.bytesReceived
+          to: float
 
       - reformat:
           fields:
