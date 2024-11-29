@@ -317,7 +317,7 @@ pipeline:
       - rename:
           from:
             - log.statuscode
-          to: statusCode
+          to: log.statusCode
 
       - rename:
           from:
@@ -422,7 +422,7 @@ pipeline:
       - rename:
           from:
             - log.ftpcommand
-          to: target.command
+          to: command
 
       - rename:
           from:
@@ -545,7 +545,7 @@ pipeline:
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - target.command
+            - command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
@@ -603,7 +603,7 @@ pipeline:
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - target.command
+            - command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
