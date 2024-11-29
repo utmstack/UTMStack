@@ -144,6 +144,43 @@ pipeline:
           fromFormat: '2022-01-01T00:05:07.292-05:00'
           toFormat: '2024-09-23T15:57:40.338364445Z'
 
+      # Adding severity based on log.severityLabel
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "critical" || severity == "alert" || severity == "error")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && severity == "warning"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "debug" || severity == "verbose" || severity == "notice" || severity == "information" || severity == "trace")
+
       # Removing unused fields
       - delete:
           fields:
