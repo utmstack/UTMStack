@@ -7,8 +7,7 @@ toolchain go1.23.1
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.12.1
-	github.com/threatwinds/logger v1.1.12
+	github.com/threatwinds/go-sdk v0.12.5
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
 )
@@ -35,6 +34,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
+	github.com/threatwinds/logger v1.1.12 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
