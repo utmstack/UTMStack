@@ -32,31 +32,31 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
-	Timestamp         string         `json:"@timestamp"`
-	ID                string         `json:"id"`
-	Status            int            `json:"status"`
-	StatusLabel       string         `json:"statusLabel"`
-	StatusObservation string         `json:"statusObservation"`
-	IsIncident        bool           `json:"isIncident"`
-	IncidentDetail    IncidentDetail `json:"incidentDetail"`
-	Name              string         `json:"name"`
-	Category          string         `json:"category"`
-	Severity          int            `json:"severity"`
-	SeverityLabel     string         `json:"severityLabel"`
-	Description       string         `json:"description"`
-	Solution          string         `json:"solution"`
-	Technique         string         `json:"technique"`
-	Reference         []string       `json:"reference"`
-	DataType          string         `json:"dataType"`
-	Impact            *go_sdk.Impact `json:"impact"`
-	ImpactScore       int32          `json:"impactScore"`
-	DataSource        string         `json:"dataSource"`
-	Adversary         *go_sdk.Side   `json:"adversary"`
-	Target            *go_sdk.Side   `json:"target"`
-	Logs              []string       `json:"logs"`
-	Tags              []string       `json:"tags"`
-	Notes             string         `json:"notes"`
-	TagRulesApplied   []int          `json:"tagRulesApplied"`
+	Timestamp         string          `json:"@timestamp"`
+	ID                string          `json:"id"`
+	Status            int             `json:"status"`
+	StatusLabel       string          `json:"statusLabel"`
+	StatusObservation string          `json:"statusObservation"`
+	IsIncident        bool            `json:"isIncident"`
+	IncidentDetail    IncidentDetail  `json:"incidentDetail"`
+	Name              string          `json:"name"`
+	Category          string          `json:"category"`
+	Severity          int             `json:"severity"`
+	SeverityLabel     string          `json:"severityLabel"`
+	Description       string          `json:"description"`
+	Solution          string          `json:"solution"`
+	Technique         string          `json:"technique"`
+	Reference         []string        `json:"reference"`
+	DataType          string          `json:"dataType"`
+	Impact            *go_sdk.Impact  `json:"impact"`
+	ImpactScore       int32           `json:"impactScore"`
+	DataSource        string          `json:"dataSource"`
+	Adversary         *go_sdk.Side    `json:"adversary"`
+	Target            *go_sdk.Side    `json:"target"`
+	Events            []*go_sdk.Event `json:"events"`
+	Tags              []string        `json:"tags"`
+	Notes             string          `json:"notes"`
+	TagRulesApplied   []int           `json:"tagRulesApplied"`
 }
 
 func init() {
@@ -134,7 +134,7 @@ func (p *correlationServer) Correlate(ctx context.Context,
 		DataSource:    alert.DataSource,
 		Adversary:     alert.Adversary,
 		Target:        alert.Target,
-		Logs:          alert.Events,
+		Events:        alert.Events,
 		Impact:        alert.Impact,
 		ImpactScore:   alert.ImpactScore,
 	}
