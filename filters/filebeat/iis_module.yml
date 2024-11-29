@@ -78,7 +78,7 @@ pipeline:
               pattern: '\/[^ ]*|(-)'
             - fieldName: log.userIdent
               pattern: '{{.integer}}|(-)'
-            - fieldName: log.remotePort
+            - fieldName: target.port
               pattern: '\b([0-9]{1,5})\b'
             - fieldName: target.user
               pattern: '{{.word}}|(-)'
@@ -113,13 +113,19 @@ pipeline:
 
       - cast:
           fields:
-            - log.remotePort
+            - target.port
             - log.statusCode
             - log.subStatusCode
             - log.win32Status
             - log.timeTaken
             - log.responseTime
           to: int
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
 
       # Removing unused fields
       - delete:
