@@ -338,7 +338,17 @@ pipeline:
                 ofType: string
             expression: severity_ok==true && severity=="ERROR"
 
-      # Adding geolocation to remote.ip
+      - expand:
+          source: log.jsonPayloadCacheDecision
+          to: log.cacheDecision
+          where:
+            variables:
+              - get: log.jsonPayloadCacheDecision
+                as: "decision"
+                ofType: '[]string'
+            expression: decision_ok==true
+
+      # Adding geolocation to origin.ip
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
@@ -349,7 +359,7 @@ pipeline:
               - get: origin.ip
                 as: ip
                 ofType: string
-            expression: ip_ok == true
+            expression: ip_ok==true
 
       # Removing unused fields
       - delete:
