@@ -450,6 +450,43 @@ pipeline:
           valueSplit: "="
           source: log.pidStatusToKv
 
+      # Adding severity based on log.severityLabelCharacter
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severityLabelCharacter
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "C" || severity == "A" || severity == "E")
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severityLabelCharacter
+                as: severity
+                ofType: string
+            expression: severity_ok == true && severity == "W"
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severityLabelCharacter
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "D" || severity == "V" || severity == "N" || severity == "I" || severity == "T")
+
       # Removing unused fields
       - delete:
           fields:
