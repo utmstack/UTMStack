@@ -371,6 +371,43 @@ pipeline:
                 ofType: string
             expression: met_ok == true && met == "REQUEST"
 
+      # Adding severity based on log.severityLabel
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "critical" || severity == "alert" || severity == "error")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && severity == "warning"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "debug" || severity == "verbose" || severity == "notice" || severity == "information" || severity == "trace")
+
       # Removing log.method if action was set
       - delete:
           fields:
