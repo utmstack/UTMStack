@@ -371,6 +371,29 @@ pipeline:
                 ofType: string
             expression: met_ok == true && met == "REQUEST"
 
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: statusCode
+                as: code
+                ofType: int
+              - get: origin.bytesReceived
+                as: bytesrec
+                ofType: int
+            expression: code_ok == true && (code >= 200 && code <= 299 || (bytesrec_ok == true && code >= 300 && code <= 399 && bytesrec > 0))
+
       # Adding severity based on log.severityLabel
       - add:
           function: 'string'
