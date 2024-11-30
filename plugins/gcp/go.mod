@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	cloud.google.com/go/pubsub v1.45.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.12.5
+	github.com/threatwinds/go-sdk v0.12.7
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/api v0.209.0
 	google.golang.org/grpc v1.68.0
@@ -35,7 +35,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.23.0 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
-	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/google/cel-go v0.22.1 // indirect
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
