@@ -3,10 +3,8 @@ package com.park.utmstack.web.rest.incident;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.dto.incident.AddToIncidentDTO;
-import com.park.utmstack.service.dto.incident.IncidentUserAssignedDTO;
-import com.park.utmstack.service.dto.incident.NewIncidentDTO;
-import com.park.utmstack.service.dto.incident.UtmIncidentCriteria;
+import com.park.utmstack.service.dto.incident.*;
+import com.park.utmstack.service.incident.UtmIncidentAlertService;
 import com.park.utmstack.service.incident.UtmIncidentQueryService;
 import com.park.utmstack.service.incident.UtmIncidentService;
 import com.park.utmstack.util.UtilResponse;
@@ -29,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing UtmIncident.
@@ -43,20 +42,37 @@ public class UtmIncidentResource {
 
     private final UtmIncidentService utmIncidentService;
 
+    private final UtmIncidentAlertService utmIncidentAlertService;
+
     private final UtmIncidentQueryService utmIncidentQueryService;
     private final ApplicationEventService applicationEventService;
 
-    public UtmIncidentResource(UtmIncidentService utmIncidentService, UtmIncidentQueryService utmIncidentQueryService, ApplicationEventService applicationEventService) {
+    public UtmIncidentResource(UtmIncidentService utmIncidentService,
+                               UtmIncidentAlertService utmIncidentAlertService,
+                               UtmIncidentQueryService utmIncidentQueryService,
+                               ApplicationEventService applicationEventService) {
         this.utmIncidentService = utmIncidentService;
+        this.utmIncidentAlertService = utmIncidentAlertService;
         this.utmIncidentQueryService = utmIncidentQueryService;
         this.applicationEventService = applicationEventService;
     }
 
     /**
-     * POST  /utm-incidents : Create a new utmIncident.
+     * Creates a new incident based on the provided details.
      *
-     * @param newIncidentDTO the utmIncident to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new utmIncident, or with status 400 (Bad Request) if the utmIncident has already an ID
+     * This endpoint accepts a {@link NewIncidentDTO} object, validates the data,
+     * and attempts to create a new incident. The process includes:
+     * - Verifying that the alert list is not empty.
+     * - Checking if any of the provided alerts are already associated with another incident.
+     * - Creating the incident if all validations pass.
+     *
+     * @param newIncidentDTO the DTO containing the details of the incident to create, including associated alerts.
+     * @return a {@link ResponseEntity} containing:
+     *         - HTTP 201 (Created) if the incident is successfully created.
+     *         - HTTP 400 (Bad Request) if the alert list is empty.
+     *         - HTTP 409 (Conflict) if one or more alerts are already associated with another incident.
+     *         - HTTP 500 (Internal Server Error) if an unexpected error occurs during processing.
+     * @throws IllegalArgumentException if the input data is invalid.
      */
     @PostMapping("/utm-incidents")
     public ResponseEntity<UtmIncident> createUtmIncident(@Valid @RequestBody NewIncidentDTO newIncidentDTO) {
@@ -68,6 +84,22 @@ public class UtmIncidentResource {
                 applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
                 return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
+
+            List<String> alertIds = newIncidentDTO.getAlertList().stream()
+                    .map(RelatedIncidentAlertsDTO::getAlertId)
+                    .collect(Collectors.toList());
+
+            List<String> alertsFound = utmIncidentAlertService.existsAnyAlert(alertIds);
+
+            if (!alertsFound.isEmpty()) {
+                String alertIdsList = String.join(", ", alertIds);
+                String msg = "Some alerts are already linked to another incident. Alert IDs: " + alertIdsList + ". Check the related incidents for more details.";
+                log.error(msg);
+                applicationEventService.createEvent(ctx + ": " + msg , ApplicationEventType.ERROR);
+                return UtilResponse.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
+            }
+
+
             return ResponseEntity.ok(utmIncidentService.createIncident(newIncidentDTO));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -78,10 +110,17 @@ public class UtmIncidentResource {
     }
 
     /**
-     * POST  /utm-incidents : Create a new utmIncident.
+     * POST /utm-incidents/add-alerts : Add alerts to an existing utmIncident.
      *
-     * @param addToIncidentDTO the utmIncident to add alerts to
-     * @return the ResponseEntity with status 201 (Created) and with body the new utmIncident, or with status 400 (Bad Request) if the utmIncident has already an ID
+     * This endpoint allows users to associate a list of alerts with an existing utmIncident.
+     * If any of the provided alerts are already linked to another incident, a conflict response is returned.
+     *
+     * @param addToIncidentDTO the DTO containing the details of the utmIncident and the list of alerts to add
+     * @return the ResponseEntity with:
+     *         - status 201 (Created) and the updated utmIncident if successful,
+     *         - status 400 (Bad Request) if the alert list is empty,
+     *         - status 409 (Conflict) if some alerts are already associated with another incident,
+     *         - status 500 (Internal Server Error) if an unexpected error occurs.
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/utm-incidents/add-alerts")
@@ -91,6 +130,19 @@ public class UtmIncidentResource {
             log.debug("REST request to save UtmIncident : {}", addToIncidentDTO);
             if (CollectionUtils.isEmpty(addToIncidentDTO.getAlertList())) {
                 throw new BadRequestAlertException("Add utmIncident cannot already have an empty related alerts", ENTITY_NAME, "alertList");
+            }
+            List<String> alertIds = addToIncidentDTO.getAlertList().stream()
+                    .map(RelatedIncidentAlertsDTO::getAlertId)
+                    .collect(Collectors.toList());
+
+            List<String> alertsFound = utmIncidentAlertService.existsAnyAlert(alertIds);
+
+            if (!alertsFound.isEmpty()) {
+                String alertIdsList = String.join(", ", alertIds);
+                String msg = "Some alerts are already linked to another incident. Alert IDs: " + alertIdsList + ". Check the related incidents for more details.";
+                log.error(msg);
+                applicationEventService.createEvent(ctx + ": " + msg , ApplicationEventType.ERROR);
+                return UtilResponse.buildErrorResponse(HttpStatus.CONFLICT, utmIncidentAlertService.formatAlertMessage(alertsFound));
             }
             UtmIncident result = utmIncidentService.addAlertsIncident(addToIncidentDTO);
             return ResponseEntity.created(new URI("/api/utm-incidents/add-alerts" + result.getId()))

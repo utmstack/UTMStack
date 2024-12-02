@@ -176,6 +176,11 @@
             </span>
           </div>
         </ng-template>
+        <ng-container *ngIf="isEmptyResponse()">
+          <div class="d-flex has-fixed-height w-100 justify-content-center align-items-center">
+            <app-no-data-found></app-no-data-found>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>

@@ -16,6 +16,11 @@ import {NewIncidentAlert} from '../../../../shared/types/incident/new-incident.t
 import {UtmIncidentType} from '../../../../shared/types/incident/utm-incident.type';
 import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
+import {
+  ModalConfirmationComponent
+} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
+import {ModalService} from "../../../../core/modal/modal.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-add-alert-to-incident',
@@ -122,10 +127,14 @@ export class AddAlertToIncidentComponent implements OnInit {
     this.incidentService.addAlerts(this.formIncident.value).subscribe((res) => {
       this.addAsIncident(res.body);
       this.utmToastService.showSuccessBottom('Alerts added to Incident successfully');
-    }, () => {
-      this.creating = false;
-      this.utmToastService.showError('Error creating incident',
-        'Han error occurred while creating incident, please contact your administrator');
+    }, error => {
+      if (error.status === 409) {
+        this.creating = false;
+        this.incidentService.showDialog(error.headers.get('x-utmstack-error'));
+      } else {
+        this.utmToastService.showError('Error creating incident',
+          'Han error occurred while creating incident, please contact your administrator');
+      }
     });
   }
 }

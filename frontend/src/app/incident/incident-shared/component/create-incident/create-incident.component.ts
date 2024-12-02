@@ -20,6 +20,13 @@ import {UtmIncidentType} from '../../../../shared/types/incident/utm-incident.ty
 import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 import {createElementPrefix} from '../../../../shared/util/string-util';
+import {HttpErrorResponse} from "@angular/common/http";
+import {AssetGroupType} from "../../../../assets-discover/asset-groups/shared/type/asset-group.type";
+import {
+  ModalConfirmationComponent
+} from "../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component";
+import {ModalService} from "../../../../core/modal/modal.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-create-incident',
@@ -49,7 +56,9 @@ export class CreateIncidentComponent implements OnInit {
               private alertManagementService: AlertManagementService,
               private utmToastService: UtmToastService,
               private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior,
-              private fb: FormBuilder) {
+              private fb: FormBuilder,
+              private modalService: ModalService,
+              private router: Router) {
 
   }
 
@@ -107,12 +116,17 @@ export class CreateIncidentComponent implements OnInit {
     this.incidentService.create(this.formIncident.value).subscribe((res) => {
       this.addAsIncident(res.body);
       this.utmToastService.showSuccessBottom('Incident created successfully');
-    }, () => {
+    }, (error: HttpErrorResponse) => {
+      let message = 'Han error occurred while creating incident, please contact your administrator';
       this.creating = false;
       const ruleName: string = this.formIncident.get('incidentName').value;
       this.formIncident.get('incidentName').setValue(ruleName.replace(this.irPrefix, ''));
-      this.utmToastService.showError('Error creating incident',
-        'Han error occurred while creating incident, please contact your administrator');
+      if (error.status === 409) {
+        message = error.headers.get('x-utmstack-error');
+        this.incidentService.showDialog(message);
+      } else {
+        this.utmToastService.showError('Error creating incident', message);
+      }
     });
 
   }

@@ -23,4 +23,6 @@ public interface UtmIncidentAlertRepository extends JpaRepository<UtmIncidentAle
     void updateAlertStatusByAlertIdIn(@Param("alertIds") List<String> alertIds, @Param("status") Integer status);
 
     List<UtmIncidentAlert> findAllByIncidentId(Long incidentId);
+
+    List<UtmIncidentAlert> findByAlertIdIn(List<String> alertIds);
 }
