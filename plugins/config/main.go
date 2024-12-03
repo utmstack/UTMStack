@@ -151,10 +151,7 @@ func main() {
 			panic(err)
 		}
 
-		pCfg := go_sdk.PluginCfg("com.utmstack", false)
-		password := pCfg.Get("password").String()
-
-		db, err := connect(password)
+		db, err := connect()
 		if err != nil {
 			panic(err)
 		}
@@ -219,8 +216,10 @@ func main() {
 }
 
 // connect to postgres database
-func connect(password string) (*sql.DB, error) {
-	// Replace the connection details with your own
+func connect() (*sql.DB, error) {
+	pCfg := go_sdk.PluginCfg("com.utmstack", false)
+	password := pCfg.Get("postgresql.password").String()
+
 	connStr := fmt.Sprintf("user=postgres password=%s dbname=utmstack host=postgres port=5432 sslmode=disable", password)
 
 	db, err := sql.Open("postgres", connStr)

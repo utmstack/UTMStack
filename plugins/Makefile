@@ -24,6 +24,6 @@ build:
 	cd sophos && go build -o com.utmstack.sophos.plugin
 	cd o365 && go build -o com.utmstack.o365.plugin
 	cd config && go build -o com.utmstack.config.plugin
-	cd bitdefender && go build -o com.utmstack.config.plugin
+	cd bitdefender && go build -o com.utmstack.bitdefender.plugin
 
 update-build: update build

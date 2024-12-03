@@ -44,7 +44,7 @@ func main() {
 
 func loadCerts() (string, string, error) {
 	utmConfig := go_sdk.PluginCfg("com.utmstack", false)
-	certsFolder := utmConfig.Get("certsFoldeer").String()
+	certsFolder := utmConfig.Get("certsFolder").String()
 
 	certPath := filepath.Join(certsFolder, configuration.UtmCertFileName)
 	keyPath := filepath.Join(certsFolder, configuration.UtmCertFileKey)
