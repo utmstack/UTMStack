@@ -9,132 +9,57 @@ on:
     types: [submitted]
 
 jobs:
-  setup_environment:
-    name: Setup Environment
-    runs-on: ubuntu-latest
-    outputs:
-      env_tag: ${{ steps.set-env.outputs.env_tag }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Determine Build Environment
-        id: set-env
-        run: |
-          export GITHUB_EVENT_NAME=${{ github.event_name }}
-          export GITHUB_REF=${{ github.ref }}
-          export GITHUB_REVIEW_STATE=${{ github.event.review.state }}
-          export GITHUB_BASE_REF=${{ github.event.pull_request.base.ref }}
-          export GITHUB_HEAD_REF=${{ github.event.pull_request.head.ref }}
-
-          chmod +x ${{ github.workspace }}/.github/scripts/determine_environment.sh
-          ${{ github.workspace }}/.github/scripts/determine_environment.sh
-      
-  setup_services:
-    name: Setup Changed Services
-    needs: setup_environment
-    if: ${{ needs.setup_environment.outputs.env_tag != '' }}
-    runs-on: ubuntu-latest
-    outputs:
-      script_services: ${{ steps.compare_versions.outputs.script_services }}
-      image_services: ${{ steps.compare_versions.outputs.image_services }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Compare Versions
-        id: compare_versions
-        env:
-          CM_API_DEV: ${{ secrets.CM_API_DEV }}
-          CM_API_QA: ${{ secrets.CM_API_QA }}
-          CM_API_PROD: ${{ secrets.CM_API_PROD }}
-          CM_PUB_AUTH_DEV: ${{ secrets.CM_PUB_AUTH_DEV }}
-          CM_PUB_AUTH_QA: ${{ secrets.CM_PUB_AUTH_QA }}
-          CM_PUB_AUTH_PROD: ${{ secrets.CM_PUB_AUTH_PROD }}
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-          ENV_TAG: ${{ needs.setup_environment.outputs.env_tag }}
-        run: |
-          UPPER_ENV_TAG=$(echo "$ENV_TAG" | tr 'a-z' 'A-Z')
-          if [ "$UPPER_ENV_TAG" = "DEV" ]; then
-            export CM_API="$CM_API_DEV"
-            export CM_PUB_AUTH="$CM_PUB_AUTH_DEV"
-          elif [ "$UPPER_ENV_TAG" = "QA" ]; then
-            export CM_API="$CM_API_QA"
-            export CM_PUB_AUTH="$CM_PUB_AUTH_QA"
-          elif [ "$UPPER_ENV_TAG" = "PROD" ]; then
-            export CM_API="$CM_API_PROD"
-            export CM_PUB_AUTH="$CM_PUB_AUTH_PROD"
-          else
-            echo "Unknown environment tag: $ENV_TAG"
-            exit 1
-          fi
-
-          chmod +x $GITHUB_WORKSPACE/.github/scripts/upload_image.sh
-          chmod +x $GITHUB_WORKSPACE/.github/scripts/compare_versions.sh
-          $GITHUB_WORKSPACE/.github/scripts/compare_versions.sh
-  
-  build_scripts:
-    name: Build Scripts
-    needs: 
-      - setup_services
-      - setup_environment
-    if: needs.setup_services.outputs.script_services != ''
+  deploy:
+    name: Deploy
     runs-on: signing
+    outputs:
+      env_tag: ${{ steps.deploy.outputs.env_tag }}
+      image_based_services: ${{ steps.deploy.outputs.image_based_services }}
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
         with:
           go-version: ^1.20
         id: go
 
-      - name: Build and sign services
+      - name: Deploy to Customer Manager
+        id: deploy
         env:
-          CM_API_DEV: ${{ secrets.CM_API_DEV }}
-          CM_API_QA: ${{ secrets.CM_API_QA }}
-          CM_API_PROD: ${{ secrets.CM_API_PROD }}
-          CM_PUB_AUTH_DEV: ${{ secrets.CM_PUB_AUTH_DEV }}
-          CM_PUB_AUTH_QA: ${{ secrets.CM_PUB_AUTH_QA }}
-          CM_PUB_AUTH_PROD: ${{ secrets.CM_PUB_AUTH_PROD }}
-          AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
-          SIGN_CERT: ${{ vars.SIGN_CERT }}
-          SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-          ENV_TAG: ${{ needs.setup_environment.outputs.env_tag }}
-          SCRIPT_SERVICES: ${{ needs.setup_services.outputs.script_services }}
+            GITHUB_EVENT_NAME: ${{ github.event_name }}
+            GITHUB_REF: ${{ github.ref }}
+            GITHUB_REVIEW_STATE: ${{ github.event.review.state }}
+            GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
+            GITHUB_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+            CM_API_DEV: ${{ secrets.CM_API_DEV }}
+            CM_API_QA: ${{ secrets.CM_API_QA }}
+            CM_API_RC: ${{ secrets.CM_API_RC }}
+            CM_API_PROD: ${{ secrets.CM_API_PROD }}
+            CM_PUB_AUTH_DEV: ${{ secrets.CM_PUB_AUTH_DEV }}
+            CM_PUB_AUTH_QA: ${{ secrets.CM_PUB_AUTH_QA }}
+            CM_PUB_AUTH_RC: ${{ secrets.CM_PUB_AUTH_RC }}
+            CM_PUB_AUTH_PROD: ${{ secrets.CM_PUB_AUTH_PROD }}
+            GITHUB_WORKSPACE: ${{ github.workspace }}
+            AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
+            SIGN_CERT: ${{ vars.SIGN_CERT }}
+            SIGN_KEY: ${{ secrets.SIGN_KEY }}
+            SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
+
         run: |
-          $env:UPPER_ENV_TAG = $env:ENV_TAG.ToUpper()
-
-          if ($env:UPPER_ENV_TAG -eq "DEV") {
-            $env:CM_API = $env:CM_API_DEV
-            $env:CM_PUB_AUTH = $env:CM_PUB_AUTH_DEV
-          }
-          elseif ($env:UPPER_ENV_TAG -eq "QA") {
-            $env:CM_API = $env:CM_API_QA
-            $env:CM_PUB_AUTH = $env:CM_PUB_AUTH_QA
-          }
-          elseif ($env:UPPER_ENV_TAG -eq "PROD") {
-            $env:CM_API = $env:CM_API_PROD
-            $env:CM_PUB_AUTH = $env:CM_PUB_AUTH_PROD
-          }
-          else {
-            Write-Host "Unknown environment tag: $env:ENV_TAG"
-            exit 1
-          }
-
-          & "C:\Program Files\Python312\python.exe" "$env:GITHUB_WORKSPACE/.github/scripts/build_and_sign_scripts.py"
-
+          & "C:\Program Files\Python312\python.exe" "$env:GITHUB_WORKSPACE/.github/scripts/deploy.py"
+          
   build_images:
-    name: Build Images
+    name: Build Docker Images
     needs: 
-      - setup_services
-      - setup_environment
-    if: ${{ needs.setup_services.outputs.image_services != '[]' }}
+      - deploy
+    if: ${{ needs.deploy.outputs.image_based_services != '[]' }}
     strategy:
       fail-fast: false
       matrix:
-        service: ${{ fromJson(needs.setup_services.outputs.image_services) }}
+        service: ${{ fromJson(needs.deploy.outputs.image_based_services) }}
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}
-      environment: ${{ needs.setup_environment.outputs.env_tag }}
+      environment: ${{ needs.deploy.outputs.env_tag }}
     secrets: inherit

@@ -1,0 +1,4 @@
+[
+    "docker service update --image ghcr.io/utmstack/utmstack/frontend:imagetagreplace utmstack_frontend",
+    "docker image prune"
+]

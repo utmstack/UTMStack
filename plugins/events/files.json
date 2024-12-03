@@ -2,7 +2,7 @@
     {
         "name": "com.utmstack.events.plugin",
         "is_binary": true,
-        "destination_path": "/plugins/",
+        "destination_path": "/utmstack/events-engine-workdir/plugins/",
         "os": "linux",
         "arch": "amd64",
         "replace_previous": true

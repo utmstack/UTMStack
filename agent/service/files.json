@@ -1,16 +1,16 @@
 [
     {
         "name": "utmstack_agent_service",
-        "is_binary": false,
-        "destination_path": "/agent_dependencies/",
+        "is_binary": true,
+        "destination_path": "/utmstack/updater/dependencies/",
         "os": "linux",
         "arch": "amd64",
         "replace_previous": true
     },
     {
         "name": "utmstack_agent_service.exe",
-        "is_binary": false,
-        "destination_path": "/agent_dependencies/",
+        "is_binary": true,
+        "destination_path": "/utmstack/updater/dependencies/",
         "os": "windows",
         "arch": "amd64",
         "replace_previous": true
