@@ -79,7 +79,7 @@ pipeline:
               pattern: '\[(.*?)\]'
             - fieldName: log.request
               pattern: '\"{{.data}}\"'
-            - fieldName: statusCode
+            - fieldName: log.statusCode
               pattern: '{{.integer}}'
             - fieldName: origin.bytesReceived
               pattern: '{{.integer}}|(-)'
@@ -289,9 +289,13 @@ pipeline:
       # Reformat and field conversions
       - cast:
           fields:
-            - statusCode
-            - origin.bytesReceived
+            - log.statusCode
           to: int
+
+      - cast:
+          fields:
+            - origin.bytesReceived
+          to: float
 
       - reformat:
           fields:
@@ -299,6 +303,144 @@ pipeline:
           function: time
           fromFormat: '01/Feb/2022:08:01:18 -0500'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "GET"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "POST"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "PUT"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "DELETE"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "REQUEST"
+
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: statusCode
+                as: code
+                ofType: int
+              - get: origin.bytesReceived
+                as: bytesrec
+                ofType: int
+            expression: code_ok == true && (code >= 200 && code <= 299 || (bytesrec_ok == true && code >= 300 && code <= 399 && bytesrec > 0))
+
+      # Adding severity based on log.severityLabel
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "critical" || severity == "alert" || severity == "error")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && severity == "warning"
+
+      - add:
+          function: 'string'
+          params:
+            key: log.severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severityLabel
+                as: severity
+                ofType: string
+            expression: severity_ok == true && (severity == "debug" || severity == "verbose" || severity == "notice" || severity == "information" || severity == "trace")
+
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where:
+            variables:
+              - get: action
+                as: act
+                ofType: string
+            expression: act_ok == true
 
       # Removing unused fields
       - delete:

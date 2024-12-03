@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"strings"
 	"sync"
@@ -9,7 +8,6 @@ import (
 
 	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/aws/processor"
-	"github.com/utmstack/UTMStack/plugins/aws/schema"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -18,22 +16,26 @@ import (
 const delayCheck = 300
 
 func main() {
-	mode := os.Getenv("MODE")
+	mode := go_sdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
-	
-	pCfg, e := go_sdk.PluginCfg[schema.PluginConfig]("com.utmstack")
-	if e != nil {
-		log.Fatalf("failed to load plugin config: %v", e)
-	}
-
-	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
 	st := time.Now().Add(-600 * time.Second)
 	go processor.ProcessLogs()
 
 	for {
+		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		internalKey := utmConfig.Get("internalKey").String()
+		backendUrl := utmConfig.Get("backend").String()
+		if internalKey == "" || backendUrl == "" {
+			go_sdk.Logger().ErrorF("internalKey or backendUrl is empty")
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		client := utmconf.NewUTMClient(internalKey, backendUrl)
+
 		et := st.Add(299 * time.Second)
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {

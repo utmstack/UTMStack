@@ -9,19 +9,18 @@ import (
 )
 
 func createPanelRequest(method string, endpoint string) (*http.Request, error) {
-	pCfg, err := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if err != nil {
-		return nil, err
-	}
+	pConfig := go_sdk.PluginCfg("com.utmstack", false)
+	backend := pConfig.Get("backend").String()
+	internalKey := pConfig.Get("internalKey").String()
 
-	url := fmt.Sprintf(endpoint, pCfg.Backend)
+	url := fmt.Sprintf(endpoint, backend)
 
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add(panelAPIKeyHeader, pCfg.InternalKey)
+	req.Header.Add(panelAPIKeyHeader, internalKey)
 
 	return req, nil
 }

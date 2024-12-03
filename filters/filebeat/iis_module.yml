@@ -78,7 +78,7 @@ pipeline:
               pattern: '\/[^ ]*|(-)'
             - fieldName: log.userIdent
               pattern: '{{.integer}}|(-)'
-            - fieldName: log.remotePort
+            - fieldName: target.port
               pattern: '\b([0-9]{1,5})\b'
             - fieldName: target.user
               pattern: '{{.word}}|(-)'
@@ -113,13 +113,91 @@ pipeline:
 
       - cast:
           fields:
-            - log.remotePort
+            - target.port
             - log.statusCode
             - log.subStatusCode
             - log.win32Status
             - log.timeTaken
             - log.responseTime
           to: int
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # Normalizing request method and renaming to action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "GET"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'post'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "POST"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'put'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "PUT"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'delete'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "DELETE"
+
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'request'
+          where:
+            variables:
+              - get: log.method
+                as: met
+                ofType: string
+            expression: met_ok == true && met == "REQUEST"
+
+      # Removing log.method if action was set
+      - delete:
+          fields:
+            - log.method
+          where:
+            variables:
+              - get: action
+                as: act
+                ofType: string
+            expression: act_ok == true
 
       # Removing unused fields
       - delete:

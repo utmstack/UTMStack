@@ -24,19 +24,6 @@ type notificationServer struct {
 	go_sdk.UnimplementedNotificationServer
 }
 
-type Config struct {
-	RulesFolder   string `yaml:"rules_folder"`
-	GeoIPFolder   string `yaml:"geoip_folder"`
-	Elasticsearch string `yaml:"elasticsearch"`
-	PostgreSQL    struct {
-		Server   string `yaml:"server"`
-		Port     string `yaml:"port"`
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		Database string `yaml:"database"`
-	} `yaml:"postgresql"`
-}
-
 var statisticsQueue chan map[string]go_sdk.DataProcessingMessage
 var fails map[string]map[string]map[string]map[string]int64
 var failsLock sync.Mutex
@@ -71,12 +58,10 @@ func main() {
 	grpcServer := grpc.NewServer()
 	go_sdk.RegisterNotificationServer(grpcServer, &notificationServer{})
 
-	pCfg, e := go_sdk.PluginCfg[Config]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
-	}
+	pCfg := go_sdk.PluginCfg("com.utmstack", false)
+	elasticUrl := pCfg.Get("elasticsearch").String()
 
-	if err := opensearch.Connect([]string{pCfg.Elasticsearch}); err != nil {
+	if err := opensearch.Connect([]string{elasticUrl}); err != nil {
 		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}

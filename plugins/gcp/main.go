@@ -12,6 +12,11 @@ var localNotificationsChannel chan *go_sdk.Message
 var logsQueue = make(chan *go_sdk.Log)
 
 func main() {
+	mode := go_sdk.GetCfg().Env.Mode
+	if mode != "worker" {
+		os.Exit(0)
+	}
+
 	go_sdk.Logger().Info("Starting GCP plugin...")
 
 	localNotificationsChannel = make(chan *go_sdk.Message)

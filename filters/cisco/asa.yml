@@ -192,7 +192,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106021
-      
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106021
       #......................................................................#
       # ASA-2-106101
       - grok:
@@ -260,7 +270,7 @@ pipeline:
               pattern: 'access-list'
             - fieldName: log.accessList
               pattern: '{{.data}}\s'
-            - fieldName: action
+            - fieldName: actionResult
               pattern: '{{.word}}'
             - fieldName: protocol
               pattern: '{{.word}}'
@@ -300,7 +310,7 @@ pipeline:
               pattern: 'access-list'
             - fieldName: log.accessList
               pattern: '{{.data}}\s'
-            - fieldName: action
+            - fieldName: actionResult
               pattern: '{{.word}}'
             - fieldName: protocol
               pattern: '{{.word}}'
@@ -393,6 +403,36 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106102 || msgId==106103
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: actionResult
+                as: act
+                ofType: string
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: act_ok == true && (msgId==106102 || msgId==106103) && (act == "Permitted" || act == "permitted")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: actionResult
+                as: act
+                ofType: string
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: act_ok == true && (msgId==106102 || msgId==106103) && (act != "Permitted" && act != "permitted")
       #......................................................................#
       # ASA-4-109017
       - grok:
@@ -488,6 +528,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==109101
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109101
       #......................................................................#
       # ASA-4-109102
       - grok:
@@ -517,6 +568,17 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109102
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -573,6 +635,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==109103
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==109103
       #......................................................................#
       # ASA-109201 to 109213
       - grok:
@@ -606,6 +679,18 @@ pipeline:
           fields:
             - log.session
             - origin.user
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId>=109201 && msgId<=109213
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -671,6 +756,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==113004
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113004
       #......................................................................#
       # ASA-6-113005
       - grok:
@@ -727,6 +823,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==113005
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113005
       #......................................................................#
       # ASA-6-113008
       - grok:
@@ -738,6 +845,18 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113008
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -809,6 +928,18 @@ pipeline:
           substring: 'for'
           fields:
             - log.policy
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113009
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -945,6 +1076,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==113012
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113012
       #......................................................................#
       # ASA-6-113013
       - grok:
@@ -1049,6 +1191,17 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==113015 || msgId==113017
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113015 || msgId==113017
       #......................................................................#
       # ASA-6-113016
       - grok:
@@ -1099,6 +1252,17 @@ pipeline:
             - fieldName: log.ciscoResult
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113016
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where:
             variables:
               - get: log.messageId
@@ -1172,6 +1336,18 @@ pipeline:
             - origin.bytesSent
             - origin.bytesReceived
           to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113019
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -1262,6 +1438,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==113031 || msgId==113032 || msgId==113033
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113031 || msgId==113032 || msgId==113033
       #......................................................................#
       # ASA-113034,113035,113036,113038,113039
       - grok:
@@ -1332,6 +1520,30 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==113034 || msgId==113035 || msgId==113036 || msgId==113038 || msgId==113039
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113039
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==113035 || msgId==113038
       #......................................................................#
       # ASA-4-113042
       - grok:
@@ -1476,6 +1688,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==201003
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==201003
       #......................................................................#
       # ASA-4-209003
       - grok:
@@ -1530,6 +1754,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==209003
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==209003
       #......................................................................#
       # ASA-3-316001
       - grok:
@@ -1557,6 +1793,18 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316001
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where:
             variables:
               - get: log.messageId
@@ -1612,6 +1860,18 @@ pipeline:
             - log.inIfNum
             - log.outIfNum
           to: int
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==316002
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where:
             variables:
               - get: log.messageId
@@ -1738,6 +1998,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302003 || msgId==302004
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302003 || msgId==302004
       #......................................................................#
       # ASA-6-302012
       - grok:
@@ -1766,6 +2038,18 @@ pipeline:
           substring: '/'
           fields:
             - origin.port
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302012
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -1951,6 +2235,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302013
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302013
       #......................................................................#
       # ASA-6-302014
       - grok:
@@ -2096,6 +2392,18 @@ pipeline:
           substring: 'for'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302014
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -2281,6 +2589,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302015
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302015
       #......................................................................#
       # ASA-6-302016
       - grok:
@@ -2440,6 +2760,18 @@ pipeline:
           substring: 'for'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302016
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -2644,6 +2976,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302017
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302017
       #......................................................................#
       # ASA-6-302018
       - grok:
@@ -2818,6 +3162,18 @@ pipeline:
           substring: 'from'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302018
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -3150,6 +3506,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302020 || msgId==302021
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302020 || msgId==302021
       #......................................................................#
       # ASA-6-302022, 302024, 302026
       - grok:
@@ -3306,6 +3674,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302022 || msgId==302024 || msgId==302026
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302022 || msgId==302024 || msgId==302026
       #......................................................................#
       # ASA-6-302023, 302025, 302027
       - grok:
@@ -3366,6 +3746,18 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302023 || msgId==302025 || msgId==302027
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -3471,6 +3863,29 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302033 || msgId==302034
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302033
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302034
       #......................................................................#
       #ASA-6-302035
       - grok:
@@ -3717,6 +4132,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302035
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302035
       #......................................................................#
       # ASA-6-302036
       - grok:
@@ -3925,6 +4352,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302036
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302036
       #......................................................................#
       # ASA-6-302303
       - grok:
@@ -4024,6 +4463,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302303
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302303
       #......................................................................#
       # ASA-6-302304
       - grok:
@@ -4109,6 +4560,18 @@ pipeline:
           substring: 'from'
           fields:
             - log.connectionId
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302304
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -4339,6 +4802,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==302305
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302305
       #......................................................................#
       # ASA-6-302306
       - grok:
@@ -4520,6 +4995,18 @@ pipeline:
           fields:
             - log.firewallUserFrom
             - log.firewallUserTo
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==302306
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -5357,6 +5844,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==402114
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402114
       #......................................................................#
       # ASA-4-402115
       - grok:
@@ -5384,6 +5883,18 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402115
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -5537,6 +6048,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==402116
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402116
       #......................................................................#
       # ASA-4-402117
       - grok:
@@ -5570,6 +6093,18 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402117
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -5659,6 +6194,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==402118
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402118
       #......................................................................#
       # ASA-4-402119, 402120
       - grok:
@@ -5730,6 +6277,18 @@ pipeline:
           substring: ','
           fields:
             - log.spi
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==402119 || msgId==402120
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -6116,6 +6675,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==603109
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==603109
       #......................................................................#
       # ASA-6-605004
       - grok:
@@ -6161,6 +6732,17 @@ pipeline:
                   as: msgId
                   ofType: int
               expression: msgId==605004
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==605004
       # Cleaning fields
       - trim:
           function: suffix
@@ -6251,6 +6833,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==617100
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==617100
       #......................................................................#
       # ASA-2-106018
       - grok:
@@ -6308,6 +6902,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==106018
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106018
       #......................................................................#
       # ASA-2-106020
       - grok:
@@ -6343,6 +6949,18 @@ pipeline:
           params:
             key: log.ciscoResult
             value: 'Denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==106020
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where:
             variables:
               - get: log.messageId
@@ -6511,11 +7129,12 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==611307
+      # Adding action result
       - add:
           function: 'string'
           params:
-            key: log.ciscoResult
-            value: 'Success'
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -6535,6 +7154,18 @@ pipeline:
             - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611309
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -6562,6 +7193,29 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==611310 || msgId==611311
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611310
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611311
       #......................................................................#
       # ASA-6-611314
       - grok:
@@ -6593,6 +7247,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==611314
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611314
       #......................................................................#
       # ASA-6-611315
       - grok:
@@ -6614,6 +7280,18 @@ pipeline:
           params:
             key: action
             value: 'Disconnecting from Load Balancing Cluster'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==611315
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -6716,6 +7394,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==710003
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==710003
       #......................................................................#
       # ASA-5-713252,713253
       - grok:
@@ -6779,6 +7469,29 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==713252 || msgId==713253
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==713252
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==713253
       #......................................................................#
       # ASA-6-716001,716002,716003
       - grok:
@@ -6871,6 +7584,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716001 || msgId==716002 || msgId==716003
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716001 || msgId==716002
       #......................................................................#
       # ASA-6-716004,716005,716006,716007,716009
       - grok:
@@ -6948,6 +7673,29 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716004 || msgId==716005 || msgId==716006 || msgId==716007 || msgId==716009
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716004 || msgId==716007 || msgId==716009
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==716006
       #......................................................................#
       # ASA-6-716038
       - grok:
@@ -6971,12 +7719,12 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716038
-      # Adding log.ciscoResult
+      # Adding action result
       - add:
           function: 'string'
           params:
-            key: log.ciscoResult
-            value: 'Success'
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -7088,12 +7836,12 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==716039
-      # Adding log.ciscoResult
+      # Adding action result
       - add:
           function: 'string'
           params:
-            key: log.ciscoResult
-            value: 'Denied'
+            key: actionResult
+            value: 'denied'
           where:
             variables:
               - get: log.messageId
@@ -7142,39 +7890,29 @@ pipeline:
                 ofType: int
             expression: msgId==719017 || (msgId>=719019 && msgId<=719023)
       # Adding log.ciscoResult and modifying some actions
+      # Adding action result
       - add:
           function: 'string'
           params:
-            key: log.ciscoResult
-            value: 'Failed'
+            key: actionResult
+            value: 'denied'
           where:
             variables:
               - get: log.messageId
                 as: msgId
                 ofType: int
-            expression: msgId==719019
+            expression: msgId==719019 || msgId==719023
       - add:
           function: 'string'
           params:
-            key: log.ciscoResult
-            value: 'Success'
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
                 as: msgId
                 ofType: int
             expression: msgId==719020 || msgId==719022
-      - add:
-          function: 'string'
-          params:
-            key: log.ciscoResult
-            value: 'Denied'
-          where:
-            variables:
-              - get: log.messageId
-                as: msgId
-                ofType: int
-            expression: msgId==719023
       - add:
           function: 'string'
           params:
@@ -7323,6 +8061,18 @@ pipeline:
                 as: msgId
                 ofType: int
             expression: msgId==719024
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==719024
       #......................................................................#
       # ASA-7-609002
       - grok:
@@ -7352,6 +8102,18 @@ pipeline:
           substring: '/'
           fields:
             - log.zoneName
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==609002
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
           where:
             variables:
               - get: log.messageId
@@ -7574,6 +8336,18 @@ pipeline:
                 as: act
                 ofType: string
             expression: msgId==733101 && act.contains("targeted")
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: log.messageId
+                as: msgId
+                ofType: int
+            expression: msgId==733101
       #......................................................................#
       # ASA-4-733102, 733103
       - grok:

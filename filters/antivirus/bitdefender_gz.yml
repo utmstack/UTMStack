@@ -225,7 +225,7 @@ pipeline:
           function: suffix
           substring: ']'
           fields:
-            log.processPid
+            - log.processPid
 
       # Adding geolocation to origin ip
       - dynamic:
@@ -239,6 +239,12 @@ pipeline:
                 as: oIp
                 oftype: string
             expression: oIp_ok==true
+
+      # Reformat and field conversions
+      - cast:
+          fields:
+            - origin.port
+          to: int
 
       # Removing unused fields
       - delete:

@@ -270,6 +270,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 			"LOG_LEVEL=100",
 			"GIN_MODE=release",
 			"MODE=worker",
+			"NODE_NAME=worker",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -315,6 +316,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 			"LOG_LEVEL=100",
 			"GIN_MODE=release",
 			"MODE=manager",
+			"NODE_NAME=manager",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

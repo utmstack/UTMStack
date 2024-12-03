@@ -6873,4 +6873,6 @@ pipeline:
             - log.agent
             - log.host
             - log.winlog.computer_name
+            - log.winlog.event_data
+            - log.winlog.process
             - log.metadata

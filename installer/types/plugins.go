@@ -21,7 +21,6 @@ type PluginConfig struct {
 	InternalKey   string        `yaml:"internalKey"`
 	AgentManager  string        `yaml:"agentManager"`
 	Backend       string        `yaml:"backend"`
-	Logstash      string        `yaml:"logstash"`
 	CertsFolder   string        `yaml:"certsFolder"`
 	BdgzPort      string        `yaml:"bdgzPort"`
 }

@@ -7,8 +7,3 @@ type AWSConfig struct {
 	LogGroupName    string
 	LogStreamName   string
 }
-
-type PluginConfig struct {
-	InternalKey string `yaml:"internalKey"`
-	Backend     string `yaml:"backend"`
-}

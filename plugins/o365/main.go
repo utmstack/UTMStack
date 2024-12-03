@@ -16,18 +16,22 @@ import (
 const delayCheck = 300
 
 func main() {
-	pCfg, e := go_sdk.PluginCfg[processor.PluginConfig]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
+	mode := go_sdk.GetCfg().Env.Mode
+	if mode != "worker" {
+		os.Exit(0)
 	}
-
-	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
 	go processor.ProcessLogs()
 
 	st := time.Now().Add(-delayCheck * time.Second)
 
 	for {
+		pConfig := go_sdk.PluginCfg("com.utmstack", false)
+		backend := pConfig.Get("backend").String()
+		internalKey := pConfig.Get("internalKey").String()
+
+		client := utmconf.NewUTMClient(internalKey, backend)
+
 		et := st.Add(299 * time.Second)
 		startTime := st.UTC().Format("2006-01-02T15:04:05")
 		endTime := et.UTC().Format("2006-01-02T15:04:05")

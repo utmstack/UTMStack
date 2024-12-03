@@ -29,10 +29,12 @@ const delayCheckConfig = 30 * time.Second
 var configsSent = make(map[string]ModuleConfig)
 
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
-	intKey := GetConfig().InternalKey
-	panelServ := GetConfig().Backend
-	client := UTMStackConfigurationClient.NewUTMClient(intKey, "http://"+panelServ)
 	for {
+		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		internalKey := utmConfig.Get("internalKey").String()
+		backendUrl := utmConfig.Get("backend").String()
+		client := UTMStackConfigurationClient.NewUTMClient(internalKey, backendUrl)
+
 		time.Sleep(delayCheckConfig)
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)

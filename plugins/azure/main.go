@@ -20,21 +20,25 @@ type PluginConfig struct {
 const delayCheck = 300
 
 func main() {
-	mode := os.Getenv("MODE")
+	mode := go_sdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
-	
-	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
-	}
-
-	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
 
 	go processLogs()
 
 	for {
+		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		internalKey := utmConfig.Get("internalKey").String()
+		backendUrl := utmConfig.Get("backend").String()
+		if internalKey == "" || backendUrl == "" {
+			go_sdk.Logger().ErrorF("internalKey or backendUrl is empty")
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		client := utmconf.NewUTMClient(internalKey, backendUrl)
+
 		moduleConfig, err := client.GetUTMConfig(enum.AZURE)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {

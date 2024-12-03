@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"os"
 	"time"
 
 	go_sdk "github.com/threatwinds/go-sdk"
@@ -14,32 +13,29 @@ import (
 )
 
 func CheckAgentManagerHealth() {
-	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		go_sdk.Logger().ErrorF("failed to get the PluginConfig: %v", e)
-		os.Exit(1)
-	}
-
-	serverAddress := pCfg.AgentManager
-	if serverAddress == "" {
-		go_sdk.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
-		os.Exit(1)
-	}
-
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: true,
 	}
 	tlsCredentials := credentials.NewTLS(tlsConfig)
 
 	for {
-		conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+		pConfig := go_sdk.PluginCfg("com.utmstack", false)
+		agentManager := pConfig.Get("agentManager").String()
+		internalKey := pConfig.Get("internalKey").String()
+
+		if agentManager == "" {
+			panic("agentManager config is empty")
+		}
+
+		conn, err := grpc.NewClient(agentManager, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 		if err != nil {
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
 		ctx, cancel := context.WithCancel(context.Background())
-		ctx = metadata.AppendToOutgoingContext(ctx, "internal-key", pCfg.InternalKey)
+
+		ctx = metadata.AppendToOutgoingContext(ctx, "internal-key", internalKey)
 
 		client := grpc_health_v1.NewHealthClient(conn)
 

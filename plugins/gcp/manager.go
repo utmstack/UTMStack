@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 	"time"
 
@@ -24,13 +23,18 @@ func StartGroupModuleManager() {
 }
 
 func (m *GroupModuleManager) SyncConfigs() {
-	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
-	}
-	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
-
 	for {
+		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		internalKey := utmConfig.Get("internalKey").String()
+		backendUrl := utmConfig.Get("backend").String()
+		if internalKey == "" || backendUrl == "" {
+			go_sdk.Logger().ErrorF("internalKey or backendUrl is empty")
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		client := utmconf.NewUTMClient(internalKey, backendUrl)
+
 		time.Sleep(delayCheckConfig)
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.GCP)

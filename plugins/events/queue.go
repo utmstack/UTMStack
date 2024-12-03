@@ -18,13 +18,10 @@ func addToQueue(l string) {
 	logs <- l
 }
 
-func init() {
-	pCfg, e := go_sdk.PluginCfg[Config]("com.utmstack")
-	if e != nil {
-		return
-	}
+func startQueue() {
+	elasticUrl := go_sdk.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
 
-	go_sdk_os.Connect([]string{pCfg.Elasticsearch})
+	go_sdk_os.Connect([]string{elasticUrl})
 
 	numCPU := runtime.NumCPU() * 2
 	for i := 0; i < numCPU; i++ {

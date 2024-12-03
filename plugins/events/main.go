@@ -16,10 +16,6 @@ type analysisServer struct {
 	go_sdk.UnimplementedAnalysisServer
 }
 
-type Config struct {
-	Elasticsearch string `yaml:"elasticsearch"`
-}
-
 func main() {
 	os.Remove(path.Join(
 		go_sdk.GetCfg().Env.Workdir,
@@ -33,6 +29,8 @@ func main() {
 		go_sdk.Logger().ErrorF(err.Error())
 		os.Exit(1)
 	}
+
+	startQueue()
 
 	listener, err := net.ListenUnix("unix", laddr)
 	if err != nil {

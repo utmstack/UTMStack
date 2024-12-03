@@ -317,7 +317,7 @@ pipeline:
       - rename:
           from:
             - log.statuscode
-          to: statusCode
+          to: log.statusCode
 
       - rename:
           from:
@@ -422,7 +422,7 @@ pipeline:
       - rename:
           from:
             - log.ftpcommand
-          to: target.command
+          to: command
 
       - rename:
           from:
@@ -545,7 +545,7 @@ pipeline:
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - target.command
+            - command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
@@ -603,7 +603,7 @@ pipeline:
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - target.command
+            - command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
@@ -691,6 +691,35 @@ pipeline:
             - origin.bytesReceived
             - origin.bytesSent
           to: float
+
+      # Renaming "log.statusCode" to "statusCode" to add it to the event structure
+      - rename:
+          from:
+            - log.statusCode
+          to: statusCode
+
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: statusCode
+                as: code
+                ofType: int
+              - get: origin.bytesReceived
+                as: bytesrec
+                ofType: int
+            expression: code_ok == true && (code >= 200 && code <= 299 || (bytesrec_ok == true && code >= 300 && code <= 399 && bytesrec > 0))
 
       # Removing unused fields
       - delete:
