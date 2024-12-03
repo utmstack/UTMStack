@@ -14,27 +14,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type PluginConfig struct {
-	RulesFolder   string        `yaml:"rulesFolder"`
-	GeoIPFolder   string        `yaml:"geoipFolder"`
-	Elasticsearch string        `yaml:"elasticsearch"`
-	PostgreSQL    PostgreConfig `yaml:"postgresql"`
-	ServerName    string        `yaml:"serverName"`
-	InternalKey   string        `yaml:"internalKey"`
-	AgentManager  string        `yaml:"agentManager"`
-	Backend       string        `yaml:"backend"`
-	Logstash      string        `yaml:"logstash"`
-	CertsFolder   string        `yaml:"certsFolder"`
-}
-
-type PostgreConfig struct {
-	Server   string `yaml:"server"`
-	Port     string `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Database string `yaml:"database"`
-}
-
 type Filter struct {
 	Id     int
 	Name   string
@@ -158,85 +137,82 @@ func (f *Filter) FromVar(id int, name interface{}, filter interface{}) {
 }
 
 func main() {
-	mode := os.Getenv("MODE")
+	mode := go_sdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
-	}
-
-	pCfg, err := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if err != nil {
-		os.Exit(1)
-	}
-
-	gCfg := go_sdk.GetCfg()
-
-	db, err := connect(pCfg.PostgreSQL.Password)
-	if err != nil {
-		os.Exit(1)
-	}
-
-	go_sdk.Logger().Info("connected to database")
-
-	err = createFolderStructure(gCfg)
-	if err != nil {
-		os.Exit(1)
 	}
 
 	go_sdk.Logger().Info("created folder structure")
 
 	for {
-		filters, e := getFilters(db)
-		if e != nil {
-			os.Exit(1)
+		gCfg := go_sdk.GetCfg()
+		err := createFolderStructure(gCfg)
+		if err != nil {
+			panic(err)
 		}
 
-		assets, e := getAssets(db)
-		if e != nil {
-			os.Exit(1)
+		pCfg := go_sdk.PluginCfg("com.utmstack", false)
+		password := pCfg.Get("password").String()
+
+		db, err := connect(password)
+		if err != nil {
+			panic(err)
 		}
 
-		rules, e := getRules(db)
-		if e != nil {
-			os.Exit(1)
+		filters, err := getFilters(db)
+		if err != nil {
+			panic(err)
 		}
 
-		patterns, e := getPatterns(db)
-		if e != nil {
-			os.Exit(1)
+		assets, err := getAssets(db)
+		if err != nil {
+			panic(err)
+		}
+
+		rules, err := getRules(db)
+		if err != nil {
+			panic(err)
+		}
+
+		patterns, err := getPatterns(db)
+		if err != nil {
+			panic(err)
 		}
 
 		tenant := Tenant{}
 		tenant.FromVar([]int64{}, assets)
 
-		e = cleanUpFilters(gCfg, filters)
-		if e != nil {
-			os.Exit(1)
+		err = cleanUpFilters(gCfg, filters)
+		if err != nil {
+			panic(err)
 		}
 
-		e = writeFilters(gCfg, filters)
-		if e != nil {
-			os.Exit(1)
+		err = writeFilters(gCfg, filters)
+		if err != nil {
+			panic(err)
 		}
 
-		e = cleanUpRules(gCfg, rules)
-		if e != nil {
-			os.Exit(1)
+		err = cleanUpRules(gCfg, rules)
+		if err != nil {
+			panic(err)
 		}
 
-		e = writeRules(gCfg, rules)
-		if e != nil {
-			os.Exit(1)
+		err = writeRules(gCfg, rules)
+		if err != nil {
+			panic(err)
 		}
 
-		e = writeTenant(gCfg, tenant)
-		if e != nil {
-			os.Exit(1)
+		err = writeTenant(gCfg, tenant)
+		if err != nil {
+			panic(err)
 		}
 
-		e = writePatterns(gCfg, patterns)
-		if e != nil {
-			os.Exit(1)
+		err = writePatterns(gCfg, patterns)
+		if err != nil {
+			panic(err)
 		}
+
+		db.Close()
 
 		time.Sleep(5 * time.Minute)
 	}

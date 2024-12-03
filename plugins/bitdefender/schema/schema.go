@@ -45,12 +45,6 @@ type TemplateTestPush struct {
 	ID      string     `json:"id"`
 }
 
-type PluginConfig struct {
-	InternalKey string `yaml:"internalKey"`
-	Backend     string `yaml:"backend"`
-	CertsFolder string `yaml:"certsFolder"`
-}
-
 type ModuleConfig struct {
 	CompaniesIDs  string
 	ConnectionKey string

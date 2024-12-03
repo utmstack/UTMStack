@@ -51,13 +51,11 @@ func (auth *LogAuthService) SyncAuth() {
 }
 
 func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
-	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		return
-	}
+	pConfig := go_sdk.PluginCfg("com.utmstack", false)
+	agentManager := pConfig.Get("agentManager").String()
+	internalKey := pConfig.Get("internalKey").String()
 
-	serverAddress := pCfg.AgentManager
-	if serverAddress == "" {
+	if agentManager == "" {
 		go_sdk.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
 		os.Exit(1)
 	}
@@ -67,7 +65,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	}
 
 	tlsCredentials := credentials.NewTLS(tlsConfig)
-	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+	conn, err := grpc.NewClient(agentManager, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
 		go_sdk.Logger().ErrorF("failed to connect to gRPC server: %v", err)
 		return
@@ -76,7 +74,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ctx = metadata.AppendToOutgoingContext(ctx, "internal-key", pCfg.InternalKey)
+	ctx = metadata.AppendToOutgoingContext(ctx, "internal-key", internalKey)
 
 	switch typ {
 	case agent.ConnectorType_COLLECTOR:

@@ -23,8 +23,8 @@ type PluginConfig struct {
 }
 
 func main() {
-	mode := os.Getenv("MODE")
-	if mode == "manager" {
+	mode := go_sdk.GetCfg().Env.Mode
+	if mode != "worker" {
 		os.Exit(0)
 	}
 
@@ -54,13 +54,10 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	cnf, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
-	}
+	certsFolder := go_sdk.PluginCfg("com.utmstack", false).Get("certsFolder").String()
 
-	certPath := filepath.Join(cnf.CertsFolder, utmCertFileName)
-	keyPath := filepath.Join(cnf.CertsFolder, utmCertFileKey)
+	certPath := filepath.Join(certsFolder, utmCertFileName)
+	keyPath := filepath.Join(certsFolder, utmCertFileKey)
 
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("certificate file does not exist: %s", certPath)

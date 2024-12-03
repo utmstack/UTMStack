@@ -59,15 +59,6 @@ type AlertFields struct {
 	TagRulesApplied   []int           `json:"tagRulesApplied"`
 }
 
-func init() {
-	pCfg, e := go_sdk.PluginCfg[Config]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
-	}
-
-	go_sdk_os.Connect([]string{pCfg.Elasticsearch})
-}
-
 func main() {
 	os.Remove(path.Join(go_sdk.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.alerts_correlation.sock"))
@@ -89,6 +80,9 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	go_sdk.RegisterCorrelationServer(grpcServer, &correlationServer{})
+
+	elasticUrl := go_sdk.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
+	go_sdk_os.Connect([]string{elasticUrl})
 
 	if err := grpcServer.Serve(listener); err != nil {
 		go_sdk.Logger().ErrorF(err.Error())

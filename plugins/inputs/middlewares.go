@@ -90,11 +90,6 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 }
 
 func (m *Middlewares) authFromContext(ctx context.Context) error {
-	cnf, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		return status.Error(codes.Internal, "failed to get config")
-	}
-
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return status.Error(codes.Internal, "metadata is not provided")
@@ -134,7 +129,8 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	case "internal-key":
-		if cnf.InternalKey != authInternalKey[0] {
+		internalKey := go_sdk.PluginCfg("com.utmstack", false).Get("internalKey").String()
+		if internalKey != authInternalKey[0] {
 			return status.Error(codes.PermissionDenied, "internal key does not match")
 		}
 	}

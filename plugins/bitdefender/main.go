@@ -21,11 +21,11 @@ var (
 )
 
 func main() {
-	mode := os.Getenv("MODE")
+	mode := go_sdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
-	
+
 	cert, key, err := loadCerts()
 	if err != nil {
 		go_sdk.Logger().ErrorF("failed to load certificates: %v", err)
@@ -43,9 +43,11 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
+	utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+	certsFolder := utmConfig.Get("certsFoldeer").String()
 
-	certPath := filepath.Join(configuration.GetConfig().CertsFolder, configuration.UtmCertFileName)
-	keyPath := filepath.Join(configuration.GetConfig().CertsFolder, configuration.UtmCertFileKey)
+	certPath := filepath.Join(certsFolder, configuration.UtmCertFileName)
+	keyPath := filepath.Join(certsFolder, configuration.UtmCertFileKey)
 
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("certificate file does not exist: %s", certPath)

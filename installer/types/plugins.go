@@ -20,7 +20,6 @@ type PluginConfig struct {
 	InternalKey   string        `yaml:"internalKey"`
 	AgentManager  string        `yaml:"agentManager"`
 	Backend       string        `yaml:"backend"`
-	Logstash      string        `yaml:"logstash"`
 	CertsFolder   string        `yaml:"certsFolder"`
 	BdgzPort      string        `yaml:"bdgzPort"`
 }
@@ -51,7 +50,6 @@ func (c *PluginsConfig) Set(conf *Config, stack *StackConfig) error {
 		InternalKey:  conf.InternalKey,
 		AgentManager: "10.21.199.3:9000",
 		Backend:      "http://backend:8080",
-		Logstash:     "logstash",
 		CertsFolder:  "/cert",
 		BdgzPort:     "8000",
 	}

@@ -15,23 +15,17 @@ import (
 
 const delayCheck = 300
 
-type PluginConfig struct {
-	InternalKey string `yaml:"internalKey"`
-	Backend     string `yaml:"backend"`
-}
-
 func main() {
-	mode := os.Getenv("MODE")
+	mode := go_sdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
-	
-	pCfg, e := go_sdk.PluginCfg[PluginConfig]("com.utmstack")
-	if e != nil {
-		os.Exit(1)
-	}
 
-	client := utmconf.NewUTMClient(pCfg.InternalKey, pCfg.Backend)
+	pCfg := go_sdk.PluginCfg("com.utmstack", false)
+	internalKey := pCfg.Get("internalKey").String()
+	backend := pCfg.Get("backend").String()
+
+	client := utmconf.NewUTMClient(internalKey, backend)
 
 	go processor.ProcessLogs()
 
