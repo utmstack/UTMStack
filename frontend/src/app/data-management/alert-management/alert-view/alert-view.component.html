@@ -60,7 +60,7 @@
                                        [defaultTime]="defaultTime"
                                        [invertContent]="true">
               </app-elastic-filter-time>
-              <div *ngIf="alertSelected.length>0"
+              <div *ngIf="alertSelected.length > 0"
                    [ngClass]="alertSelected.length>0?'fadeIn':'fadeOut'"
                    class="alert-actions d-flex justify-content-end align-items-center animated">
                 <app-alert-apply-status (statusChange)="onApplyStatusChange($event)"
@@ -156,7 +156,6 @@
                   </div>
 
                 </div>
-
               </td>
               <ng-container *ngFor="let td of fields">
                 <td (click)="viewDetailAlert(alert,td)"
