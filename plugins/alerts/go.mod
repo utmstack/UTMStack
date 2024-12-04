@@ -4,7 +4,7 @@ go 1.23.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.12.13
+	github.com/threatwinds/go-sdk v0.12.17
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
 )

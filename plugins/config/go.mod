@@ -4,7 +4,7 @@ go 1.23.1
 
 require (
 	github.com/lib/pq v1.10.9
-	github.com/threatwinds/go-sdk v0.12.13
+	github.com/threatwinds/go-sdk v0.12.17
 	github.com/tidwall/gjson v1.18.0
 	gopkg.in/yaml.v3 v3.0.1
 )
