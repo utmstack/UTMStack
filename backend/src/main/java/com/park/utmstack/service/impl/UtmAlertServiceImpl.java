@@ -21,6 +21,7 @@ import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.service.soc_ai.SocAIService;
+import com.park.utmstack.util.UnicodeReplacer;
 import com.park.utmstack.util.enums.AlertStatus;
 import com.park.utmstack.util.events.RulesEvaluationEndEvent;
 import com.park.utmstack.util.exceptions.DashboardOverviewException;
@@ -186,6 +187,8 @@ public class UtmAlertServiceImpl implements UtmAlertService {
 
             String script = String.format(ruleScript, status,
                     AlertStatus.getByCode(status).getName(), StringEscapeUtils.escapeJava(statusObservation));
+
+            script = UnicodeReplacer.replaceUnicode(script);
 
             elasticsearchService.updateByQuery(SearchUtil.toQuery(filters),
                     Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS), script);
