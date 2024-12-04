@@ -199,9 +199,14 @@ pipeline:
 
       # Fields conversions
       - cast:
-          to: "[]string"
           fields:
             - log.jsonPayloadCacheDecision
+          to: '[]string'
+
+      - cast:
+          fields:
+            - statusCode
+          to: int
 
       # Adding action field based on log.httpRequestMethod
       - add:
@@ -337,16 +342,6 @@ pipeline:
                 as: severity
                 ofType: string
             expression: severity_ok==true && severity=="ERROR"
-
-      - expand:
-          source: log.jsonPayloadCacheDecision
-          to: log.cacheDecision
-          where:
-            variables:
-              - get: log.jsonPayloadCacheDecision
-                as: "decision"
-                ofType: '[]string'
-            expression: decision_ok==true
 
       # Adding geolocation to origin.ip
       - dynamic:
