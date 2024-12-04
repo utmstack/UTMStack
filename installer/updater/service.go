@@ -30,7 +30,6 @@ func (p *program) Stop(s service.Service) error {
 
 func (p *program) run() {
 	utils.InitLogger(config.ServiceLogPath)
-	go GetUpdaterClient().ExposeProcess()
 	GetUpdaterClient().UpdateProcess()
 }
 

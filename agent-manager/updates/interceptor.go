@@ -23,7 +23,7 @@ func HTTPAuthInterceptor() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "authentication is not provided"})
 			return
 		} else if connectionKey != "" {
-			isValid := utils.IsConnectionKeyValid(fmt.Sprintf(config.PanelConnectionKeyUrl, config.GetUTMHost()), connectionKey)
+			isValid := utils.IsConnectionKeyValid(fmt.Sprintf(config.PanelConnectionKeyUrl, config.UTMHost), connectionKey)
 			if !isValid {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid connection key"})
 				return

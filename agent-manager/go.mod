@@ -6,6 +6,7 @@ toolchain go1.22.9
 
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
+	github.com/gin-contrib/gzip v1.0.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/logger v1.1.12

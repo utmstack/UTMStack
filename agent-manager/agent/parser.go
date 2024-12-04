@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"github.com/utmstack/config-client-go/types"
@@ -98,7 +99,7 @@ func replaceSecretValues(input string) string {
 			return match
 		}
 		encryptedValue := matches[2]
-		decryptedValue, _ := utils.DecryptValue(encryptedValue)
+		decryptedValue, _ := utils.DecryptValue(config.EncryptionKey, encryptedValue)
 		return decryptedValue
 	})
 }

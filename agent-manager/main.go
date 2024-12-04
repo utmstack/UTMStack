@@ -16,6 +16,6 @@ func main() {
 		utils.ALogger.Fatal("failed to migrate database: %v", err)
 	}
 
-	updates.ManageUpdates()
+	updates.InitUpdatesManager()
 	agent.InitGrpcServer()
 }

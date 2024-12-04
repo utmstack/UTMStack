@@ -27,5 +27,6 @@ var (
 	CertFilePath      = filepath.Join(GetStackConfig().Cert, "utm.crt")
 	WindowConfigPath  = filepath.Join(GetConfig().UpdatesFolder, "window.yml")
 	UpdatesInfoPath   = filepath.Join(GetConfig().UpdatesFolder, "updates_info.json")
+	EditionFile       = filepath.Join(GetConfig().UpdatesFolder, "edition.yml")
 	CheckUpdatesEvery = 5 * time.Minute
 )

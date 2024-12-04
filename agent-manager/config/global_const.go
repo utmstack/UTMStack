@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -43,61 +44,22 @@ func InternalKeyRoutes() []string {
 	}
 }
 
-const (
-	PanelConnectionKeyUrl = "%s/api/authenticateFederationServiceManager"
-	MASTERVERSIONENDPOINT = "/management/info"
-	Bucket                = "https://cdn.utmstack.com/"
-	VOLPATH               = "/data"
-	VersionsFile          = "version.json"
-	CHECK_EVERY           = 5 * time.Minute
-	DependInstallerLabel  = "installer"
-	DependServiceLabel    = "service"
-	DependZipLabel        = "depend_zip"
-	CertPath              = "/cert/utm.crt"
-	CertKeyPath           = "/cert/utm.key"
-)
-
 var (
-	DependOsAllows = []string{"windows", "linux"}
-	DependTypes    = []string{DependInstallerLabel, DependServiceLabel, DependZipLabel}
+	PanelConnectionKeyUrl     = "%s/api/authenticateFederationServiceManager"
+	CheckEvery                = 5 * time.Minute
+	CertPath                  = "/cert/utm.crt"
+	CertKeyPath               = "/cert/utm.key"
+	UpdatesFolder             = "/updates"
+	UpdatesVersionsPath       = filepath.Join(UpdatesFolder, "updates_info.json")
+	UpdatesDependenciesFolder = filepath.Join(UpdatesFolder, "dependencies")
+	InternalKey               = os.Getenv("INTERNAL_KEY")
+	PanelServiceName          = os.Getenv("PANEL_SERV_NAME")
+	LogLevel                  = os.Getenv("LOG_LEVEL")
+	EncryptionKey             = os.Getenv("ENCRYPTION_KEY")
+	UTMHost                   = os.Getenv("UTM_HOST")
+	DBHost                    = os.Getenv("DB_HOST")
+	DBPort                    = os.Getenv("DB_PORT")
+	DBUser                    = os.Getenv("DB_USER")
+	DBPassword                = os.Getenv("DB_PASSWORD")
+	DBName                    = os.Getenv("DB_NAME")
 )
-
-func GetInternalKey() string {
-	return os.Getenv("INTERNAL_KEY")
-}
-
-func GetPanelServiceName() string {
-	return os.Getenv("PANEL_SERV_NAME")
-}
-
-func GetLogLevel() string {
-	return os.Getenv("LOG_LEVEL")
-}
-
-func GetEncryptionKey() string {
-	return os.Getenv("ENCRYPTION_KEY")
-}
-
-func GetUTMHost() string {
-	return os.Getenv("UTM_HOST")
-}
-
-func GetDBHost() string {
-	return os.Getenv("DB_HOST")
-}
-
-func GetDBPort() string {
-	return os.Getenv("DB_PORT")
-}
-
-func GetDBUser() string {
-	return os.Getenv("DB_USER")
-}
-
-func GetDBPassword() string {
-	return os.Getenv("DB_PASSWORD")
-}
-
-func GetDBName() string {
-	return os.Getenv("DB_NAME")
-}

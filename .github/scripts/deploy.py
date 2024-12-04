@@ -82,7 +82,7 @@ def fetch_api_versions(url, headers):
     Gets component versions from the CM API.
     """
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, verify=False)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -152,6 +152,7 @@ def upsert_master_version(url, headers, master_version, workspace):
             f"{url}/master-version",
             headers=headers,
             json=master_version_data,
+            verify=False,
             timeout=300
         )
         response.raise_for_status()
@@ -179,6 +180,7 @@ def upload_component_version(url, headers, service_path, master_version_id, serv
             f"{url}/component-version",
             headers=headers,
             json=component_version_data,
+            verify=False,
             timeout=300
         )
         response.raise_for_status()
@@ -264,6 +266,7 @@ def upload_files(url, headers, service_path, component_version_id, sign_cert, si
                     f"{url}/upload-file",
                     headers=headers,
                     files=files,
+                    verify=False,
                     timeout=300
                 )
                 response.raise_for_status()
@@ -295,6 +298,7 @@ def upload_scripts(url, headers, service_path, component_version_id, version, en
                 f"{url}/script",
                 headers=headers,
                 json=script_data,
+                verify=False,
                 timeout=300
             )
             response.raise_for_status()

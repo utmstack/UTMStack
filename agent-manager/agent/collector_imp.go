@@ -71,7 +71,7 @@ func InitCollectorService() error {
 
 		go CollectorServ.ProcessPendingConfigs()
 
-		client := utmconf.NewUTMClient(config.GetInternalKey(), config.GetPanelServiceName())
+		client := utmconf.NewUTMClient(config.InternalKey, config.PanelServiceName)
 		for _, moduleType := range CollectorServ.CollectorTypes {
 			moduleConfig := &types.ConfigurationSection{}
 			moduleConfig, err = client.GetUTMConfig(moduleType)

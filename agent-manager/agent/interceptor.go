@@ -90,7 +90,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 			return status.Error(codes.PermissionDenied, "invalid type")
 		}
 	case "connection-key":
-		if !utils.IsConnectionKeyValid(fmt.Sprintf(config.PanelConnectionKeyUrl, config.GetUTMHost()), authConnectionKey[0]) {
+		if !utils.IsConnectionKeyValid(fmt.Sprintf(config.PanelConnectionKeyUrl, config.UTMHost), authConnectionKey[0]) {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	case "internal-key":
@@ -102,7 +102,7 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 }
 
 func isInternalKeyValid(token string) bool {
-	return token == config.GetInternalKey()
+	return token == config.InternalKey
 }
 
 func isInRoute(route string, list []string) bool {

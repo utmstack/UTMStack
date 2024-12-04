@@ -23,6 +23,7 @@ func InitGrpcServer() {
 	}
 
 	InitLastSeenService()
+	InitModulesService()
 
 	StartGrpcServer()
 }
@@ -48,6 +49,7 @@ func StartGrpcServer() {
 	RegisterCollectorServiceServer(grpcServer, CollectorServ)
 	RegisterPanelCollectorServiceServer(grpcServer, CollectorServ)
 	RegisterPingServiceServer(grpcServer, LastSeenServ)
+	RegisterModuleConfigServiceServer(grpcServer, ModulesServ)
 
 	healthServer := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)

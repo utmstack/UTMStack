@@ -13,19 +13,24 @@ type MasterVersion struct {
 }
 
 type ComponentVersion struct {
-	ID           string    `json:"id"`
-	VersionName  string    `json:"version_name"`
-	Changelog    string    `json:"changelog,omitempty"`
-	Edition      string    `json:"edition"`
-	Component    Component `json:"component"`
-	PostCommands []string  `json:"post_commands,omitempty"`
-	Files        []File    `json:"files,omitempty"`
+	ID          string    `json:"id"`
+	VersionName string    `json:"version_name"`
+	Changelog   string    `json:"changelog,omitempty"`
+	Edition     string    `json:"edition"`
+	Component   Component `json:"component"`
+	Scripts     []Script  `json:"scripts,omitempty"`
+	Files       []File    `json:"files,omitempty"`
 }
 
 type Component struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+}
+
+type Script struct {
+	ID     string `json:"id"`
+	Script string `json:"script"`
 }
 
 type File struct {

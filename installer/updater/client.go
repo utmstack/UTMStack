@@ -7,8 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gin-contrib/gzip"
-	"github.com/gin-gonic/gin"
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
@@ -79,6 +77,11 @@ func (c *UpdaterClient) RegisterClient() error {
 func (c *UpdaterClient) UpdateProcess() {
 	for {
 		time.Sleep(config.CheckUpdatesEvery)
+		err := c.UpdateEdition()
+		if err != nil {
+			utils.Logger.ErrorF("error updating edition: %v", err)
+		}
+
 		if config.IsInMaintenanceWindow() {
 			err := c.CheckUpdate(true, true)
 			if err != nil {
@@ -133,8 +136,8 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 
 			if runCmds {
 				utils.Logger.Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
-				for _, cmd := range cv.PostCommands {
-					parts := strings.Split(cmd, " ")
+				for _, cmd := range cv.Scripts {
+					parts := strings.Split(cmd.Script, " ")
 					cmd := parts[0]
 					args := parts[1:]
 					err = utils.RunCmd(cmd, args...)
@@ -149,19 +152,27 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 	return nil
 }
 
-func (c *UpdaterClient) ExposeProcess() {
-	r := gin.New()
-	r.Use(
-		gin.Recovery(),
-		gzip.Gzip(gzip.DefaultCompression),
+func (c *UpdaterClient) UpdateEdition() error {
+	tlsConfig, err := utils.LoadTLSCredentials(config.CertFilePath)
+	if err != nil {
+		return fmt.Errorf("error loading tls credentials: %v", err)
+	}
+
+	resp, status, err := utils.DoReq[string](
+		GetUpdaterClient().Server+config.GetEditionEndpoint,
+		nil,
+		http.MethodGet, map[string]string{"instance-id": GetUpdaterClient().InstanceID, "instance-key": GetUpdaterClient().InstanceKey},
+		tlsConfig,
 	)
+	if err != nil {
+		return fmt.Errorf("error getting edition: %v", err)
+	} else if status != http.StatusOK {
+		return fmt.Errorf("error getting edition: %v", resp)
+	}
 
-	r.NoRoute(notFound)
+	edition := config.Edition{
+		Edition: resp,
+	}
 
-	v1 := r.Group("/api/updater/v1")
-	v1.GET("/edition", AuthInternalKey(), getEdition)
-	v1.POST("/update-window", AuthInternalKey(), changeUpdateWindow)
-	v1.GET("/versions", AuthInternalKey(), getVersions)
-
-	r.Run(fmt.Sprintf(":%s", config.ExposerPort))
+	return config.SaveEdition(&edition)
 }

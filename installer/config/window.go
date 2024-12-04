@@ -3,15 +3,9 @@ package config
 import (
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/utils"
-)
-
-var (
-	windowConfig     *MaintenanceWindow
-	windowConfigOnce sync.Once
 )
 
 // MaintenanceWindow struct
@@ -19,14 +13,14 @@ var (
 // StartTime: start time in 24 hour format(HH:MM)
 // EndTime: end time in 24 hour format(HH:MM)
 type MaintenanceWindow struct {
-	Frequency string `yaml:"frequency" json:"frequency"`
-	StartTime string `yaml:"start_time" json:"start_time"`
-	EndTime   string `yaml:"end_time" json:"end_time"`
+	Frequency string `yaml:"frequency"`
+	StartTime string `yaml:"start_time"`
+	EndTime   string `yaml:"end_time"`
 }
 
 func GetWindowConfig() (*MaintenanceWindow, bool) {
 	if !utils.CheckIfPathExist(WindowConfigPath) {
-		windowConfig = &MaintenanceWindow{
+		windowConfig := &MaintenanceWindow{
 			Frequency: "daily",
 			StartTime: "00:00",
 			EndTime:   "02:00",
@@ -35,20 +29,13 @@ func GetWindowConfig() (*MaintenanceWindow, bool) {
 		return windowConfig, false
 	}
 
-	windowConfigOnce.Do(func() {
-		windowConfig = &MaintenanceWindow{}
-		err := utils.ReadYAML(WindowConfigPath, windowConfig)
-		if err != nil {
-			fmt.Printf("error reading window config file: %v", err)
-		}
-	})
+	windowConfig := &MaintenanceWindow{}
+	err := utils.ReadYAML(WindowConfigPath, windowConfig)
+	if err != nil {
+		fmt.Printf("error reading window config file: %v", err)
+	}
 
 	return windowConfig, true
-}
-
-func SaveWindowsConfig(cnf MaintenanceWindow) error {
-	windowConfig = &cnf
-	return utils.WriteYAML(WindowConfigPath, windowConfig)
 }
 
 func IsInMaintenanceWindow() bool {

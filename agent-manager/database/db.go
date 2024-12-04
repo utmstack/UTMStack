@@ -117,7 +117,7 @@ func (d *DB) Delete(data interface{}, query string, hardDelete bool, args ...int
 func GetDB() *DB {
 	dbOnce.Do(func() {
 		dbInstance = &DB{}
-		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", config.GetDBHost(), config.GetDBPort(), config.GetDBUser(), config.GetDBPassword(), config.GetDBName())
+		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName)
 		var err error
 		dbInstance.conn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Silent),
