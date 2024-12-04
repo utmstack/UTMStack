@@ -104,7 +104,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     type: ElasticDataTypesEnum.STRING,
     visible: true,
   },
-  {
+  /*{
     label: 'Target',
     field: ALERT_SOURCE_FIELD,
     type: ElasticDataTypesEnum.OBJECT,
@@ -115,8 +115,8 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     field: ALERT_DESTINATION_FIELD,
     type: ElasticDataTypesEnum.OBJECT,
     visible: true,
-  },
-  /*{
+  },*/
+  {
     label: 'Source IP',
     field: ALERT_SOURCE_IP_FIELD,
     type: ElasticDataTypesEnum.STRING,
@@ -139,7 +139,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     field: ALERT_DESTINATION_USER_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: true,
-  },*/
+  },
   {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
