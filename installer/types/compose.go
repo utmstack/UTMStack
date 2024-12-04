@@ -266,7 +266,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
-			"LOG_LEVEL=100",
+			"LOG_LEVEL=200",
 			"GIN_MODE=release",
 			"MODE=worker",
 			"NODE_NAME=worker",
@@ -312,7 +312,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) error {
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
-			"LOG_LEVEL=100",
+			"LOG_LEVEL=200",
 			"GIN_MODE=release",
 			"MODE=manager",
 			"NODE_NAME=manager",

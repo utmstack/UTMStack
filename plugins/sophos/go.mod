@@ -4,7 +4,7 @@ go 1.23.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.12.17
+	github.com/threatwinds/go-sdk v0.12.18
 	github.com/threatwinds/logger v1.1.12
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/grpc v1.68.0
@@ -42,7 +42,7 @@ require (
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241202173237-19429a94021a // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
