@@ -13,7 +13,7 @@ import (
 
 func main() {
 	path := utils.GetMyPath()
-	utils.InitBeautyLogger("UTMStack Agent Installer", filepath.Join(utils.GetMyPath(), "logs", config.INSTALLER_LOG_FILE))
+	utils.InitBeautyLogger("UTMStack Agent Installer", filepath.Join(utils.GetMyPath(), "logs", config.InstallerLogFile))
 	utils.Logger.PrintBanner()
 
 	if len(os.Args) > 1 {

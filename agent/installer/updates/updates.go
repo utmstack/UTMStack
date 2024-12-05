@@ -3,31 +3,43 @@ package updates
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/utmstack/UTMStack/agent/installer/config"
-	"github.com/utmstack/UTMStack/agent/installer/models"
 	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
 func DownloadDependencies(address, authKey, skip string) error {
-	version := models.Version{}
-	var err error
+	versions := map[string]string{}
 	headers := map[string]string{"connection-key": authKey}
 
-	if version.ServiceVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, address, "0", runtime.GOOS, config.DependServiceLabel), headers, config.GetDownloadFilePath(config.DependServiceLabel), skip == "yes"); err != nil {
-		return fmt.Errorf("error downloading service: %v", err)
+	agentVersion, _, err := utils.DoReq[string](fmt.Sprintf(config.VersionUrl, address, "agent-service"), nil, "GET", headers, skip == "yes")
+	if err != nil {
+		return fmt.Errorf("error getting agent version: %v", err)
 	}
 
-	if version.DependenciesVersion, err = utils.DownloadFileByChunks(fmt.Sprintf(config.DEPEND_URL, address, "0", runtime.GOOS, config.DependZipLabel), headers, config.GetDownloadFilePath(config.DependZipLabel), skip == "yes"); err != nil {
-		return fmt.Errorf("error downloading dependencies: %v", err)
+	installerVersion, _, err := utils.DoReq[string](fmt.Sprintf(config.VersionUrl, address, "agent-installer"), nil, "GET", headers, skip == "yes")
+	if err != nil {
+		return fmt.Errorf("error getting installer version: %v", err)
 	}
 
-	if err := utils.WriteJSON(config.GetVersionPath(), &version); err != nil {
+	versions["agent-service"] = agentVersion
+	versions["agent-installer"] = installerVersion
+
+	dependFiles := config.GetDependFiles()
+	for _, file := range dependFiles {
+		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, file), headers, file, utils.GetMyPath(), skip == "yes"); err != nil {
+			return fmt.Errorf("error downloading file %s: %v", file, err)
+		}
+	}
+
+	if err := utils.WriteJSON(config.VersionPath, &versions); err != nil {
 		return fmt.Errorf("error writing version file: %v", err)
 	}
 
-	if err := handleDependenciesPostDownload(); err != nil {
+	if err := handleDependenciesPostDownload(dependFiles); err != nil {
 		return err
 	}
 
@@ -35,19 +47,27 @@ func DownloadDependencies(address, authKey, skip string) error {
 
 }
 
-func handleDependenciesPostDownload() error {
-	if err := utils.Unzip(config.GetDownloadFilePath(config.DependZipLabel), utils.GetMyPath()); err != nil {
-		return fmt.Errorf("error unzipping dependencies: %v", err)
-	}
+func handleDependenciesPostDownload(dependencies []string) error {
+	for _, file := range dependencies {
+		if strings.HasSuffix(file, ".zip") {
+			if err := utils.Unzip(filepath.Join(utils.GetMyPath(), file), utils.GetMyPath()); err != nil {
+				return fmt.Errorf("error unzipping dependencies: %v", err)
+			}
 
-	if runtime.GOOS == "linux" {
-		if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", config.UpdaterSelfLinux); err != nil {
-			utils.Logger.WriteError("error executing chmod: %v", err)
+			if runtime.GOOS == "linux" {
+				if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", config.UpdaterSelfLinux); err != nil {
+					utils.Logger.WriteError("error executing chmod: %v", err)
+				}
+			}
+
+			if err := os.Remove(filepath.Join(utils.GetMyPath(), file)); err != nil {
+				utils.Logger.WriteError("error deleting dependencies file", err)
+			}
+		} else if runtime.GOOS == "linux" {
+			if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", file); err != nil {
+				utils.Logger.WriteError("error executing chmod: %v", err)
+			}
 		}
-	}
-
-	if err := os.Remove(config.GetDownloadFilePath(config.DependZipLabel)); err != nil {
-		utils.Logger.WriteError("error deleting dependencies file", err)
 	}
 
 	return nil

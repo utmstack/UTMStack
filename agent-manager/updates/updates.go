@@ -58,7 +58,7 @@ func (u *UpdatesManager) ServeDependencies() {
 
 	group := r.Group("/private", HTTPAuthInterceptor())
 	group.StaticFS("/dependencies", http.Dir(config.UpdatesDependenciesFolder))
-	group.GET("/versions", u.getVersions)
+	group.GET("/version", u.getVersion)
 
 	utils.ALogger.Info("Starting HTTP server on port 8080")
 	if err := r.RunTLS(":8080", config.CertPath, config.CertKeyPath); err != nil {
@@ -71,8 +71,14 @@ func notFound(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 }
 
-func (u *UpdatesManager) getVersions(c *gin.Context) {
+func (u *UpdatesManager) getVersion(c *gin.Context) {
+	service := c.Query("service")
 	mutex.Lock()
-	defer mutex.Unlock()
-	c.JSON(http.StatusOK, u.versionsCache)
+	version, ok := u.versionsCache[service]
+	mutex.Unlock()
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "service not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"version": version})
 }

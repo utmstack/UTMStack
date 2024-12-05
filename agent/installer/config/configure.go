@@ -11,7 +11,7 @@ import (
 )
 
 func ConfigureService(ip, utmKey, skip, config string) error {
-	bin := GetServiceBin()
+	bin := GetDependFiles()[0]
 	err := execBin(bin, config, ip, utmKey, skip)
 	if err != nil {
 		if strings.Contains(err.Error(), "exit status 1") {
