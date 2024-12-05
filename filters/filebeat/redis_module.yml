@@ -22,13 +22,13 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.pid
-              pattern: '{{.integer}}\:'
+              pattern: '{{.data}}\:'
             - fieldName: log.roleEnc
               pattern: '{{.word}}'
             - fieldName: log.deviceTime
               pattern: '{{.monthDay}}{{.space}}{{.monthName}}{{.space}}{{.year}}{{.space}}{{.time}}'
             - fieldName: log.levelEnc
-              pattern: '(.)|(-)(\*)(#)'
+              pattern: '(\.)|(-)|(\*)|(#)'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: log.message
@@ -49,7 +49,7 @@ pipeline:
             - fieldName: log.deviceTime
               pattern: '{{.monthDay}}{{.space}}{{.monthName}}{{.space}}{{.time}}'
             - fieldName: log.levelEnc
-              pattern: '(\.)|(-)(\*)(#)'
+              pattern: '(\.)|(-)|(\*)|(#)'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: log.message
@@ -137,7 +137,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
+            key: severity
             value: 'debug'
           where:
             variables:
@@ -149,7 +149,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
+            key: severity
             value: 'verbose'
           where:
             variables:
@@ -161,7 +161,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
+            key: severity
             value: 'notice'
           where:
             variables:
@@ -173,7 +173,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: log.severityLabel
+            key: severity
             value: 'warning'
           where:
             variables:
@@ -185,36 +185,49 @@ pipeline:
       # Parse beats field
       - rename:
           from:
+            - log.url
+          to: origin.url
+
+      - rename:
+          from:
             - log.log.file.path
           to: origin.file
+
       - rename:
           from:
             - log.host.ip
           to: log.origin.ips
+
       - rename:
           from:
             - log.host.mac
           to: log.origin.macs
+
       - rename:
           from:
             - log.host.hostname
           to: origin.host
+
       - rename:
           from:
             - log.event.dataset
           to: action
+
       - rename:
           from:
             - log.agent.version
           to: log.agentVersion
+
       - rename:
           from:
             - log.host.os.kernel
           to: log.osVersion
+
       - rename:
           from:
             - log.host.os.type
           to: log.osType
+
       - rename:
           from:
             - log.host.architecture
@@ -222,39 +235,13 @@ pipeline:
 
       # Fields conversions
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - log.origin.ips
       - cast:
-          to: "[]string"
+          to: '[]string'
           fields:
             - log.origin.macs
-
-      # Adding geolocation to origin.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: log.origin.ips
-            destination: origin.geolocation
-          where:
-            variables:
-              - get: log.origin.ips
-                as: ip
-                ofType: string
-            expression: "ip_ok == true"
-      
-      # Adding geolocation to target.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: log.target.ips
-            destination: target.geolocation
-          where:
-            variables:
-              - get: log.target.ips
-                as: ip
-                ofType: string
-            expression: "ip_ok == true"
 
       # Removing unused fields
       - delete:
