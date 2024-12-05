@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20241122001" author="manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            ALTER TABLE utm_incident_history
+            ALTER COLUMN action_detail TYPE VARCHAR(1000);
+        </sql>
+    </changeSet>
+</databaseChangeLog>
