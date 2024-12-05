@@ -26,23 +26,11 @@ type CollectorConfiguration struct {
 
 func ReadCollectorConfig() (CollectorConfiguration, error) {
 	cnf := CollectorConfiguration{}
-	if !utils.CheckIfPathExist(config.GetCollectorConfigPath()) {
-		err := utils.ReadJson(config.GetCollectorConfigPathOld(), &cnf)
-		if err != nil {
-			return CollectorConfiguration{}, err
-		}
-		cnf = MigrateOldConfig(cnf)
-		err = WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
-		if err != nil {
-			return CollectorConfiguration{}, err
-		}
-		os.Remove(config.GetCollectorConfigPathOld())
-	} else {
-		err := utils.ReadJson(config.GetCollectorConfigPath(), &cnf)
-		if err != nil {
-			return cnf, err
-		}
+	err := utils.ReadJson(config.CollectorFileName, &cnf)
+	if err != nil {
+		return cnf, err
 	}
+
 	return cnf, nil
 }
 
@@ -56,7 +44,7 @@ func ConfigureCollectorFirstTime() error {
 		newIntegration.UDP.Port = ports.UDP
 		integrations[string(logTyp)] = newIntegration
 	}
-	return WriteCollectorConfig(integrations, config.GetCollectorConfigPath())
+	return WriteCollectorConfig(integrations, config.CollectorFileName)
 }
 
 func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (string, error) {
@@ -84,7 +72,7 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	}
 
 	cnf.Integrations[logTyp] = integration
-	return port, WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
+	return port, WriteCollectorConfig(cnf.Integrations, config.CollectorFileName)
 }
 
 func ChangePort(logTyp string, proto string, port string) (string, error) {
@@ -118,7 +106,7 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 	}
 
 	cnf.Integrations[logTyp] = integration
-	return old, WriteCollectorConfig(cnf.Integrations, config.GetCollectorConfigPath())
+	return old, WriteCollectorConfig(cnf.Integrations, config.CollectorFileName)
 }
 
 func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, currentIntegration string) bool {
@@ -137,34 +125,6 @@ func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, cur
 	ln.Close()
 
 	return true
-}
-
-func MigrateOldConfig(old CollectorConfiguration) CollectorConfiguration {
-	integrations := make(map[string]Integration)
-	for logTyp, integ := range old.Integrations {
-		integrations[GetLegacyConfigName(logTyp)] = integ
-	}
-
-	return CollectorConfiguration{Integrations: integrations}
-}
-
-func GetLegacyConfigName(logTyp string) string {
-	switch logTyp {
-	case "vmware":
-		return "vmware-esxi"
-	case "antivirus_eset":
-		return "antivirus-esmc-eset"
-	case "firewall_fortinet":
-		return "firewall-fortigate-traffic"
-	case "firewall_sophos":
-		return "firewall-sophos-xg"
-	case "antivirus_deceptivebytes":
-		return "deceptive-bytes"
-	case "macos_logs":
-		return "macos"
-	default:
-		return strings.Replace(logTyp, "_", "-", -1)
-	}
 }
 
 func WriteCollectorConfig(integrations map[string]Integration, filename string) error {

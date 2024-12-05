@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strconv"
 	"syscall"
 
@@ -12,7 +11,6 @@ import (
 	pb "github.com/utmstack/UTMStack/agent/service/agent"
 	"github.com/utmstack/UTMStack/agent/service/beats"
 	"github.com/utmstack/UTMStack/agent/service/config"
-	"github.com/utmstack/UTMStack/agent/service/conn"
 	"github.com/utmstack/UTMStack/agent/service/database"
 	"github.com/utmstack/UTMStack/agent/service/logservice"
 	"github.com/utmstack/UTMStack/agent/service/models"
@@ -34,8 +32,7 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func (p *program) run() {
-	path := utils.GetMyPath()
-	utils.InitLogger(filepath.Join(path, "logs", config.SERV_LOG))
+	utils.InitLogger(config.ServiceLogFile)
 	cnf, err := config.GetCurrentConfig()
 	if err != nil {
 		utils.Logger.Fatal("error getting config: %v", err)
@@ -45,11 +42,6 @@ func (p *program) run() {
 	err = db.Migrate(models.Log{})
 	if err != nil {
 		utils.Logger.ErrorF("error migrating logs table: %v", err)
-	}
-
-	err = conn.EstablishConnectionsFistTime(cnf)
-	if err != nil {
-		utils.Logger.ErrorF("error establishing connections: %v", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

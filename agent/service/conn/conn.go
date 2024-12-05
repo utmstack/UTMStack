@@ -3,6 +3,7 @@ package conn
 import (
 	"crypto/tls"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/service/config"
@@ -20,43 +21,28 @@ const (
 )
 
 var (
-	correlationConn     *grpc.ClientConn
-	agentManagerConn    *grpc.ClientConn
-	isConnectedFistTime bool
+	correlationConn      *grpc.ClientConn
+	correlationConnOnce  sync.Once
+	agentManagerConn     *grpc.ClientConn
+	agentManagerConnOnce sync.Once
 )
 
-func EstablishConnectionsFistTime(cnf *config.Config) error {
-	var err error
-	agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
-	if err != nil {
-		return fmt.Errorf("error connecting to Agent Manager: %v", err)
-	}
-
-	correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT, cnf.SkipCertValidation)
-	if err != nil {
-		return fmt.Errorf("error connecting to Correlation: %v", err)
-	}
-
-	isConnectedFistTime = true
-	utils.Logger.Info("Server connections established successfully")
-	return nil
-}
-
 func GetAgentManagerConnection(cnf *config.Config) (*grpc.ClientConn, error) {
-	if !isConnectedFistTime {
-		for {
-			if isConnectedFistTime {
-				return agentManagerConn, nil
-			}
-			time.Sleep(5 * time.Second)
+	var err error
+	agentManagerConnOnce.Do(func() {
+		agentManagerConn, err = connectToServer(cnf.Server, config.AgentManagerPort, cnf.SkipCertValidation)
+		if err != nil {
+			err = fmt.Errorf("error connecting to Agent Manager: %v", err)
 		}
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	state := agentManagerConn.GetState()
 	if state == connectivity.Shutdown || state == connectivity.TransientFailure {
 		agentManagerConn.Close()
-		var err error
-		agentManagerConn, err = connectToServer(cnf.Server, config.AGENTMANAGERPORT, cnf.SkipCertValidation)
+		agentManagerConn, err = connectToServer(cnf.Server, config.AgentManagerPort, cnf.SkipCertValidation)
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to Agent Manager: %v", err)
 		}
@@ -66,21 +52,21 @@ func GetAgentManagerConnection(cnf *config.Config) (*grpc.ClientConn, error) {
 }
 
 func GetCorrelationConnection(cnf *config.Config) (*grpc.ClientConn, error) {
-	if !isConnectedFistTime {
-		for {
-			if isConnectedFistTime {
-				return correlationConn, nil
-			}
-			time.Sleep(5 * time.Second)
+	var err error
+	correlationConnOnce.Do(func() {
+		correlationConn, err = connectToServer(cnf.Server, config.LogAuthProxyPort, cnf.SkipCertValidation)
+		if err != nil {
+			err = fmt.Errorf("error connecting to Correlation: %v", err)
 		}
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	state := correlationConn.GetState()
 	if state == connectivity.Shutdown || state == connectivity.TransientFailure {
 		correlationConn.Close()
-
-		var err error
-		correlationConn, err = connectToServer(cnf.Server, config.CORRELATIONLOGSPORT, cnf.SkipCertValidation)
+		correlationConn, err = connectToServer(cnf.Server, config.LogAuthProxyPort, cnf.SkipCertValidation)
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to Correlation: %v", err)
 		}
@@ -110,7 +96,7 @@ func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 			}
 			tlsCredentials = credentials.NewTLS(tlsConfig)
 		} else {
-			tlsCredentials, err = utils.LoadTLSCredentials(config.GetCertPath())
+			tlsCredentials, err = utils.LoadTLSCredentials(config.CertPath)
 			if err != nil {
 				return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
 			}

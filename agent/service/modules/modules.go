@@ -92,7 +92,7 @@ func ModulesUp() {
 					}
 				} else {
 					utils.Logger.Info("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, intType, config.PortRangeMin, config.PortRangeMax)
-					err := WriteCollectorConfigFromModules(moCache, config.GetCollectorConfigPath())
+					err := WriteCollectorConfigFromModules(moCache, config.CollectorFileName)
 					if err != nil {
 						utils.Logger.ErrorF("error fixing collector config: %v", err)
 						continue

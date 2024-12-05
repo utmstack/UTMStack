@@ -8,7 +8,6 @@ import (
 	pb "github.com/utmstack/UTMStack/agent/service/agent"
 	"github.com/utmstack/UTMStack/agent/service/beats"
 	"github.com/utmstack/UTMStack/agent/service/config"
-	"github.com/utmstack/UTMStack/agent/service/conn"
 	"github.com/utmstack/UTMStack/agent/service/database"
 	"github.com/utmstack/UTMStack/agent/service/logservice"
 	"github.com/utmstack/UTMStack/agent/service/models"
@@ -19,7 +18,7 @@ import (
 
 func main() {
 	path := utils.GetMyPath()
-	utils.InitLogger(filepath.Join(path, "logs", config.SERV_LOG))
+	utils.InitLogger(config.ServiceLogFile)
 
 	if len(os.Args) > 1 {
 		arg := os.Args[1]
@@ -31,12 +30,8 @@ func main() {
 
 			cnf, utmKey := config.GetInitialConfig()
 
-			err := conn.EstablishConnectionsFistTime(cnf)
+			err := pb.RegisterAgent(cnf, utmKey)
 			if err != nil {
-				utils.Logger.Fatal("error establishing connections: %v", err)
-			}
-
-			if err = pb.RegisterAgent(cnf, utmKey); err != nil {
 				utils.Logger.Fatal("%v", err)
 			}
 
@@ -112,11 +107,6 @@ func main() {
 			cnf, err := config.GetCurrentConfig()
 			if err != nil {
 				utils.Logger.Fatal("error getting config: %v", err)
-			}
-
-			err = conn.EstablishConnectionsFistTime(cnf)
-			if err != nil {
-				utils.Logger.Fatal("error establishing connections: %v", err)
 			}
 
 			if err = pb.DeleteAgent(cnf); err != nil {

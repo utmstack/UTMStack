@@ -97,7 +97,7 @@ func GetDB() *Database {
 		if err != nil {
 			log.Fatalf("error creating database path: %v", err)
 		}
-		path = filepath.Join(path, config.LogsDBFile)
+		path = config.LogsDBFile
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			file, err := os.Create(path)
 			if err != nil {

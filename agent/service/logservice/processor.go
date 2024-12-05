@@ -4,7 +4,6 @@ import (
 	context "context"
 	"errors"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -248,14 +247,12 @@ func SetDataRetention(retention string) error {
 		return errors.New("retention must be greater than 0")
 	}
 
-	path := utils.GetMyPath()
-	return utils.WriteJSON(filepath.Join(path, config.RetentionConfigFile), models.DataRetention{Retention: retentionInt})
+	return utils.WriteJSON(config.RetentionConfigFile, models.DataRetention{Retention: retentionInt})
 }
 
 func GetDataRetention() (int, error) {
-	path := utils.GetMyPath()
 	retention := models.DataRetention{}
-	err := utils.ReadJson(filepath.Join(path, config.RetentionConfigFile), &retention)
+	err := utils.ReadJson(config.RetentionConfigFile, &retention)
 	if err != nil {
 		return 0, err
 	}

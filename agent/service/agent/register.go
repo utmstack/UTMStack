@@ -32,12 +32,20 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 		return fmt.Errorf("error getting os info: %v", err)
 	}
 
+	versions := map[string]string{}
+	if utils.CheckIfPathExist(config.VersionPath) {
+		err := utils.ReadJson(config.VersionPath, &versions)
+		if err != nil {
+			return fmt.Errorf("error reading version file: %v", err)
+		}
+	}
+
 	request := &AgentRequest{
 		Ip:             ip,
 		Hostname:       osInfo.Hostname,
 		Os:             osInfo.OsType,
 		Platform:       osInfo.Platform,
-		Version:        config.AgentVersion,
+		Version:        versions["agent-service"],
 		RegisterBy:     osInfo.CurrentUser,
 		Mac:            osInfo.Mac,
 		OsMajorVersion: osInfo.OsMajorVersion,

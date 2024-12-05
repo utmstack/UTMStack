@@ -1,46 +1,39 @@
 package config
 
 import (
-	"fmt"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/utmstack/UTMStack/agent/service/utils"
 )
 
 const REPLACE_KEY string = ""
 
-const (
-	AgentVersion                 = "10.6.0"
-	DEPEND_URL                   = "https://%s/dependencies/agent?version=%s&os=%s&type=%s"
-	AGENTMANAGERPORT      string = "9000"
-	CORRELATIONLOGSPORT   string = "50051"
-	MaxConnectionTime            = 120 * time.Second
-	InitialReconnectDelay        = 10 * time.Second
-	MaxReconnectDelay            = 120 * time.Second
-
-	SERV_NAME            = "UTMStackAgent"
-	SERV_LOG             = "utmstack_agent.log"
-	ModulesServName      = "UTMStackModulesLogsCollector"
-	WinServName          = "UTMStackWindowsLogsCollector"
-	ModulesLockName      = "utmstack_modules_collector.lock"
-	WinLockName          = "utmstack_windows_collector.lock"
-	CollectorFileNameOld = "log-collector-configuration.json"
-	CollectorFileName    = "log-collector-config.json"
-	UUIDFileName         = "uuid.yml"
-	DEPEND_ZIP_LABEL     = "depend_zip"
-	DEPEND_SERVICE_LABEL = "service"
-	BatchToSend          = 5
-	PortRangeMin         = "7000"
-	PortRangeMax         = "9000"
-	RetentionConfigFile  = "retention.json"
-	LogsDBFile           = "logs.db"
-)
-
 type DataType string
 
+type ProtoPort struct {
+	UDP string
+	TCP string
+}
+
 var (
+	DependUrl        = "https://%s/private/dependencies/%s"
+	VersionUrl       = "https://%s/private/version?service=%s"
+	AgentManagerPort = "9000"
+	LogAuthProxyPort = "50051"
+
+	ServiceLogFile      = filepath.Join(utils.GetMyPath(), "logs", "utmstack_agent.log")
+	ModulesServName     = "UTMStackModulesLogsCollector"
+	WinServName         = "UTMStackWindowsLogsCollector"
+	CollectorFileName   = filepath.Join(utils.GetMyPath(), "log-collector-config.json")
+	UUIDFileName        = filepath.Join(utils.GetMyPath(), "uuid.yml")
+	PortRangeMin        = "7000"
+	PortRangeMax        = "9000"
+	RetentionConfigFile = filepath.Join(utils.GetMyPath(), "retention.json")
+	LogsDBFile          = filepath.Join(utils.GetMyPath(), "logs_process", "logs.db")
+	CertPath            = filepath.Join(utils.GetMyPath(), "certs", "utm.crt")
+	VersionPath         = filepath.Join(utils.GetMyPath(), "version.json")
+
 	DataTypeWindowsAgent        DataType = "wineventlog"
 	DataTypeSyslog              DataType = "syslog"
 	DataTypeVmware              DataType = "vmware-esxi"
@@ -81,14 +74,7 @@ var (
 	DataTypeAix                 DataType = "ibm-aix"
 	DataTypePfsense             DataType = "firewall-pfsense"
 	DataTypeFortiweb            DataType = "firewall-fortiweb"
-)
 
-type ProtoPort struct {
-	UDP string
-	TCP string
-}
-
-var (
 	ProtoPorts = map[DataType]ProtoPort{
 		DataTypeSyslog:         {UDP: "7014", TCP: "7014"},
 		DataTypeVmware:         {UDP: "7002", TCP: "7002"},
@@ -112,38 +98,21 @@ var (
 	ProhibitedPortsChange = []DataType{DataTypeCiscoGeneric, DataTypeNetflow}
 )
 
-func GetCertPath() string {
+func GetSelfUpdaterPath() string {
 	path := utils.GetMyPath()
-	return filepath.Join(path, "certs", "utm.crt")
+	if runtime.GOOS == "windows" {
+		return filepath.Join(path, "utmstack_updater_self.exe")
+	}
+	return filepath.Join(path, "utmstack_updater_self")
 }
 
-func GetKeyPath() string {
-	path := utils.GetMyPath()
-	return filepath.Join(path, "certs", "utm.key")
-}
-
-func GetCaPath() string {
-	path := utils.GetMyPath()
-	return filepath.Join(path, "certs", "ca.crt")
-}
-
-func GetCollectorConfigPath() string {
-	path := utils.GetMyPath()
-	return filepath.Join(path, CollectorFileName)
-}
-
-func GetCollectorConfigPathOld() string {
-	path := utils.GetMyPath()
-	return filepath.Join(path, CollectorFileNameOld)
-}
-
-func GetAgentBin() string {
-	var bin string
-	switch runtime.GOOS {
-	case "windows":
-		bin = "utmstack_agent_service.exe"
-	case "linux":
-		bin = "utmstack_agent_service"
+func GetAgentBin(label string) string {
+	bin := "utmstack_agent_service"
+	if label != "" {
+		bin = "utmstack_agent_service_" + label
+	}
+	if runtime.GOOS == "windows" {
+		bin += ".exe"
 	}
 	return bin
 }
@@ -163,59 +132,4 @@ func ValidateModuleType(typ string) string {
 	default:
 		return "nil"
 	}
-}
-
-func GetDependenPaths() []string {
-	path := utils.GetMyPath()
-	self := "utmstack_updater_self"
-	if runtime.GOOS == "windows" {
-		self += ".exe"
-	}
-	return []string{
-		filepath.Join(path, "beats"),
-		filepath.Join(path, "templates"),
-		filepath.Join(path, self),
-	}
-}
-
-func GetDownloadFilePath(typ string, subfix string) string {
-	path := utils.GetMyPath()
-	switch typ {
-	case DEPEND_SERVICE_LABEL:
-		switch runtime.GOOS {
-		case "windows":
-			return filepath.Join(path, fmt.Sprintf("utmstack_agent_service%s.exe", subfix))
-		case "linux":
-			return filepath.Join(path, fmt.Sprintf("utmstack_agent_service%s", subfix))
-		}
-	case DEPEND_ZIP_LABEL:
-		return filepath.Join(path, "dependencies.zip")
-	}
-	return ""
-}
-
-func GetVersionPath() string {
-	path := utils.GetMyPath()
-	return filepath.Join(path, "version.json")
-}
-
-func GetVersionOldPath() string {
-	path := utils.GetMyPath()
-	return filepath.Join(path, "versions.json")
-}
-
-func GetSelfUpdaterPath() string {
-	path := utils.GetMyPath()
-	if runtime.GOOS == "windows" {
-		return filepath.Join(path, "utmstack_updater_self.exe")
-	}
-	return filepath.Join(path, "utmstack_updater_self")
-}
-
-func GetDependenciesServices() []string {
-	services := []string{"UTMStackModulesLogsCollector"}
-	if runtime.GOOS == "windows" {
-		services = append(services, "UTMStackWindowsLogsCollector")
-	}
-	return services
 }
