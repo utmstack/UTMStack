@@ -1,0 +1,9 @@
+span {
+  word-break: keep-all !important;
+}
+
+.menu-hover:hover {
+  background-color: rgba(0, 128, 0, 0.1); /* Fondo verde claro en hover */
+  border-radius: 4px; /* Bordes redondeados */
+  transition: background-color 0.3s ease; /* Animación suave */
+}
