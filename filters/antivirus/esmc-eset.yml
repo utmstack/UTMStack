@@ -71,6 +71,55 @@ pipeline:
           from:
             - log.protocol
           to: protocol
+      - rename:
+          from:
+            - log.sourceport
+          to: origin.ip
+      - rename:
+          from:
+            - log.targetaddress
+          to: target.ip
+      - rename:
+          from:
+            - log.targetport
+          to: target.port
+      
+      # Adding severity field based on log.severity
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && ( severity=="INFO" || severity=="Info" )
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && (severity=="WARNING" || severity=="Warning")
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && (severity=="ERROR" || severity=="Error")
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -102,3 +151,4 @@ pipeline:
       - delete:
           fields:
             - log.jsonMessage
+            - log.severity
