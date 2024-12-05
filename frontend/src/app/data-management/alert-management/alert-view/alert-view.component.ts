@@ -1,6 +1,6 @@
 import {HttpResponse} from '@angular/common/http';
 import { Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -11,7 +11,6 @@ import {
   IrCreateRuleComponent
 } from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {NewAlertBehavior} from '../../../shared/behaviors/new-alert.behavior';
 import {
   ElasticFilterDefaultTime
 } from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
@@ -551,6 +550,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   openIncidentResponseAutomationModal(alert: UtmAlertType) {
     const modal = this.modalService.open(IrCreateRuleComponent, {size: 'lg', centered: true});
     modal.componentInstance.alert = alert;
+  }
+
+  getFilterTime(){
+    return this.filters.find(f => f.field === ALERT_TIMESTAMP_FIELD);
   }
 
   ngOnDestroy(): void {

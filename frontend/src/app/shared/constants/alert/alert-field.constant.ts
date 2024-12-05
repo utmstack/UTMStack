@@ -27,6 +27,8 @@ export const ALERT_PROTOCOL_FIELD = 'protocol';
 export const LOG_RELATED_ID_EVENT_FIELD = 'logs';
 export const ALERT_REFERENCE_FIELD = 'reference';
 export const ALERT_RELATED_RULES_FIELD = 'TagRulesApplied';
+export const ALERT_SOURCE_FIELD = 'source';
+export const ALERT_DESTINATION_FIELD = 'destination';
 
 // SOURCE
 export const ALERT_SOURCE_HOSTNAME_FIELD = 'source.host';
@@ -102,6 +104,18 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     type: ElasticDataTypesEnum.STRING,
     visible: true,
   },
+  /*{
+    label: 'Target',
+    field: ALERT_SOURCE_FIELD,
+    type: ElasticDataTypesEnum.OBJECT,
+    visible: true,
+  },
+  {
+    label: 'Adversary',
+    field: ALERT_DESTINATION_FIELD,
+    type: ElasticDataTypesEnum.OBJECT,
+    visible: true,
+  },*/
   {
     label: 'Source IP',
     field: ALERT_SOURCE_IP_FIELD,

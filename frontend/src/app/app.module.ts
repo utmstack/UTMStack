@@ -1,5 +1,5 @@
 import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from '@angular/common/http';
-import {CUSTOM_ELEMENTS_SCHEMA, Injector, NgModule} from '@angular/core';
+import {APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, Injector, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -35,6 +35,10 @@ import {NavBehavior} from './shared/behaviors/nav.behavior';
 import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
+
+export function initTimezoneFormat(timezoneService: TimezoneFormatService) {
+  return () => timezoneService.loadTimezoneAndFormat();
+}
 
 @NgModule({
   declarations: [
@@ -105,11 +109,16 @@ import {UtmSharedModule} from './shared/utm-shared.module';
       useClass: ManageHttpInterceptor,
       multi: true,
     },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initTimezoneFormat,
+      deps: [TimezoneFormatService],
+      multi: true
+    },
     NewAlertBehavior,
     NavBehavior,
     AlertIncidentStatusChangeBehavior,
-    GettingStartedBehavior,
-    TimezoneFormatService
+    GettingStartedBehavior
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -118,6 +127,5 @@ export class AppModule {
   constructor(private dpConfig: NgbDatepickerConfig, private config: NgbModalConfig) {
     this.dpConfig.minDate = {year: moment().year() - 100, month: 1, day: 1};
     config.backdrop = 'static';
-    //timezoneFormatService.loadTimezoneAndFormat();
   }
 }

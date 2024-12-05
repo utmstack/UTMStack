@@ -3,9 +3,9 @@ module github.com/utmstack/UTMStack/plugins/gcp
 go 1.23.1
 
 require (
-	cloud.google.com/go/pubsub v1.45.1
+	cloud.google.com/go/pubsub v1.45.2
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v0.12.13
+	github.com/threatwinds/go-sdk v0.12.18
 	github.com/utmstack/config-client-go v1.2.6
 	google.golang.org/api v0.209.0
 	google.golang.org/grpc v1.68.0
@@ -63,8 +63,8 @@ require (
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/oauth2 v0.24.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 	google.golang.org/genproto v0.0.0-20241202173237-19429a94021a // indirect

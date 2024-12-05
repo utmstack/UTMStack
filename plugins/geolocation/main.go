@@ -44,6 +44,9 @@ func main() {
 }
 
 func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transform) (*go_sdk.Draft, error) {
+	m := go_sdk.NewMetter("ParseLog")
+	defer m.Elapsed("finished")
+	
 	source, ok := transform.Step.Dynamic.Params["source"]
 	if !ok {
 		go_sdk.Logger().ErrorF("'source' parameter required")
