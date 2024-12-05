@@ -5,7 +5,7 @@
         <span class="text-blue-800 font-weight-light mr-2">Status:</span>
         <span [ngClass]="compliance.rows.length > 0 ? 'text-success' : 'text-danger'"
               class="span-small-icon d-flex justify-content-start align-items-center">
-            {{ report.status === 'complaint' ? 'Compliant' : report.status === 'in_progress' ? 'In progress' : 'Non compliant' }}
+            {{ report.status === 'complaint' ? 'Compliant' : 'Non compliant' }}
         </span>
       </div>
 

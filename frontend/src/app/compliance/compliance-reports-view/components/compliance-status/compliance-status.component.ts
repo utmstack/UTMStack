@@ -5,14 +5,14 @@ import {ModalService} from '../../../../core/modal/modal.service';
 import { UtmRenderVisualization } from '../../../../dashboard/shared/services/utm-render-visualization.service';
 import { RunVisualizationService } from '../../../../graphic-builder/shared/services/run-visualization.service';
 import { VisualizationType } from '../../../../shared/chart/types/visualization.type';
+import {ModalAddNoteComponent} from '../../../../shared/components/utm/util/modal-add-note/modal-add-note.component';
 import { ChartTypeEnum } from '../../../../shared/enums/chart-type.enum';
 import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
 import {CpReportsService} from '../../../shared/services/cp-reports.service';
 import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
-import {ModalAddNoteComponent} from '../../../../shared/components/utm/util/modal-add-note/modal-add-note.component';
 
 
-export type ComplianceStatus = 'complaint' | 'in_progress' | 'non_complaint';
+export type ComplianceStatus = 'complaint' | 'non_complaint';
 @Component({
   selector: 'app-compliance-status',
   templateUrl: './compliance-status.component.html',
@@ -38,7 +38,6 @@ export class ComplianceStatusComponent implements OnInit {
   constructor(private utmRenderVisualization: UtmRenderVisualization,
               private runVisualization: RunVisualizationService,
               private timeWindowsService: TimeWindowsService,
-              private reportService: CpReportsService,
               private modalService: ModalService) {
   }
 
@@ -68,8 +67,8 @@ export class ComplianceStatusComponent implements OnInit {
             concatMap((vis: VisualizationType) => this.runVisualization.run(vis)),
             map(run => {
               const isCompliant = run[0] && run[0].rows.length > 0;
-              this.report.status = isCompliant ? 'complaint'
-                : this.report.note && this.report.note !== '' ? 'in_progress' : 'non_complaint';
+              this.report.status = isCompliant || this.report.note && this.report.note !== '' ? 'complaint'
+                 : 'non_complaint';
               this.isCompliant.emit(isCompliant);
               return {
                 status: isCompliant
@@ -113,8 +112,8 @@ export class ComplianceStatusComponent implements OnInit {
   }
 
   getModalMessage(status: ComplianceStatus) {
-    return status === 'in_progress'
-      ? `You are about to change the compliance status to <b>In Progress (External Tool)</b>.
+    return status === 'complaint'
+      ? `You are about to change the compliance status to <b>Complaint (External Tool)</b>.
        <br><br>
        Please note that you must provide a detailed note explaining where and how this compliance
        is being fulfilled using the external tool.
