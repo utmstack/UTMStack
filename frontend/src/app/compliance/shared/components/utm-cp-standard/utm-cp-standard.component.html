@@ -1,0 +1,48 @@
+<app-utm-modal-header [name]="title"
+                      [showCloseButton]="false"
+                      class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-4">
+
+  <div class="card no-border p-3 mb-4">
+    <h6 class="card-title font-weight-semibold">Available frameworks</h6>
+    <ul class="list-group border-0">
+      <li
+        class="list-group-item d-flex align-items-center justify-content-between border-0"
+        *ngFor="let standard of standards$ | async"
+      >
+        <div class="d-flex align-items-center">
+          <input
+            (change)="onSelectChange($event, standard)"
+            [attr.id]="'g-check-box-'+ standard.id"
+            [checked]="selectedStandard && selectedStandard.id === standard.id"
+            [value]="standard.id"
+            class="form-check-input me-3 cursor-pointer"
+            type="checkbox"
+          />
+          <label
+            [for]="'g-check-box-'+ standard.id"
+            class="form-check-label mb-0"
+            placement="bottom"
+          >
+            {{ standard.standardName }}
+          </label>
+        </div>
+      </li>
+    </ul>
+    <!-- Selected Standard Details -->
+    <ng-container *ngIf="selectedStandard">
+      <h6 class="font-weight-semibold mt-1 mb-2">{{ selectedStandard.standardName }}</h6>
+      <p>{{ selectedStandard.standardDescription }}</p>
+    </ng-container>
+  </div>
+
+  <!-- Button Container -->
+  <div class="d-flex justify-content-end mt-4">
+
+    <button [disabled]="!selectedStandard"
+      class="btn utm-button utm-button-primary"
+      (click)="confirmSelection()">
+      Confirm Selection
+    </button>
+  </div>
+</div>

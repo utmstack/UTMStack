@@ -1,0 +1,9 @@
+<div class="collapsible-text">
+  <p [innerHTML]="getDisplayText(text)" class="text-content">
+  </p>
+
+  <button *ngIf="text.length > maxLength" class="toggle-button" (click)="toggleCollapse()">
+    {{ isCollapsed ? 'Read more' : 'Read less' }}
+  </button>
+</div>
+
