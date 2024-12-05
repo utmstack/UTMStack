@@ -8,7 +8,6 @@ import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
 import {ADMIN_ROLE, USER_ROLE} from './shared/constants/global.constant';
 import {AppThemeLocationEnum} from './shared/enums/app-theme-location.enum';
 import {UtmAppThemeService} from './shared/services/theme/utm-app-theme.service';
-import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 
 @Component({
   selector: 'app-root',
@@ -32,8 +31,7 @@ export class AppComponent implements OnInit {
     private themeChangeBehavior: ThemeChangeBehavior,
     private utmAppThemeService: UtmAppThemeService,
     private router: Router, private renderer: Renderer2,
-    private apiServiceCheckerService: ApiServiceCheckerService,
-    private timezoneFormatService: TimezoneFormatService) {
+    private apiServiceCheckerService: ApiServiceCheckerService) {
 
     this.translate.setDefaultLang('en');
 
@@ -130,7 +128,6 @@ export class AppComponent implements OnInit {
   }
 
    init() {
-    this.timezoneFormatService.loadTimezoneAndFormat();
     this.getReportLogo();
   }
 }

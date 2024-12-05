@@ -552,6 +552,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     modal.componentInstance.alert = alert;
   }
 
+  getFilterTime(){
+    return this.filters.find(f => f.field === ALERT_TIMESTAMP_FIELD);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
