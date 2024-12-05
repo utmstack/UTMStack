@@ -23,7 +23,7 @@ pipeline:
               pattern: '{{.hostname}}'
             - fieldName: log.process
               pattern: '{{.hostname}}(\:)'
-            - fieldName: log.severityLabel
+            - fieldName: severity
               pattern: '{{.word}}'
             - fieldName: log.processName
               pattern: '{{.hostname}}'
