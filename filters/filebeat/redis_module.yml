@@ -137,7 +137,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: severity
+            key: log.severity
             value: 'debug'
           where:
             variables:
@@ -149,7 +149,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: severity
+            key: log.severity
             value: 'verbose'
           where:
             variables:
@@ -161,7 +161,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: severity
+            key: log.severity
             value: 'notice'
           where:
             variables:
@@ -173,7 +173,7 @@ pipeline:
       - add:
           function: 'string'
           params:
-            key: severity
+            key: log.severity
             value: 'warning'
           where:
             variables:
@@ -181,6 +181,43 @@ pipeline:
                 as: severity
                 ofType: string
             expression: severity=="#"
+
+      # Adding severity field based on log.severity
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && (severity=="debug" || severity=="verbose")
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && (severity=="notice" || severity=="warning")
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && severity=="error"
 
       # Parse beats field
       - rename:
