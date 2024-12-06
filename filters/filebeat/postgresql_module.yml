@@ -20,36 +20,49 @@ pipeline:
       # Parse beats field    
       - rename:
           from:
+            - log.url
+          to: origin.url
+
+      - rename:
+          from:
             - log.log.file.path
           to: origin.file
+
       - rename:
           from:
             - log.host.ip
           to: log.origin.ips
+
       - rename:
           from:
             - log.host.mac
           to: log.origin.macs
+
       - rename:
           from:
             - log.host.hostname
           to: origin.host
+
       - rename:
           from:
             - log.event.dataset
           to: action
+
       - rename:
           from:
             - log.agent.version
           to: log.agentVersion
+
       - rename:
           from:
             - log.host.os.kernel
           to: log.osVersion
+
       - rename:
           from:
             - log.host.os.type
           to: log.osType
+
       - rename:
           from:
             - log.host.architecture
@@ -78,13 +91,13 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.word}}'
             - fieldName: log.processId
-              pattern: '((\[{{.data}}\]:)?)'
+              pattern: '\[{{.data}}\](\:)?'
             - fieldName: log.groupId
-              pattern: '(\[{{.data}}\])'
+              pattern: '\[{{.data}}\]'
             - fieldName: log.errorCode
               pattern: '{{.integer}}'
             - fieldName: log.sessionId
-              pattern: '(([0-9a-f]{8}\.[0-9a-f]{4})?)'
+              pattern: '([0-9a-f]{8}\.[0-9a-f]{4})'
             - fieldName: log.messageType
               pattern: '{{.word}}(\:)?'
             - fieldName: log.msg
@@ -126,33 +139,7 @@ pipeline:
           fields:
             - log.processId
             - log.groupId
-
-      # Adding geolocation to origin.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: log.origin.ips
-            destination: origin.geolocation
-          where:
-            variables:
-              - get: log.origin.ips
-                as: ip
-                ofType: string
-            expression: "ip_ok == true"
-      
-      # Adding geolocation to target.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: log.target.ips
-            destination: target.geolocation
-          where:
-            variables:
-              - get: log.target.ips
-                as: ip
-                ofType: string
-            expression: "ip_ok == true"
-            
+  
       # Removing unused fields
       - delete:
           fields:

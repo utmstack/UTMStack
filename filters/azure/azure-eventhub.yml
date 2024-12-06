@@ -52,6 +52,101 @@ pipeline:
           from:
             - log.Location
           to: origin.geolocation.country
+
+      - rename:
+          from:
+            - log.ResponseCode
+          to: statusCode
+
+      - rename:
+          from:
+            - log.AADClientId
+          to: log.aadClientId
+
+      - rename:
+          from:
+            - log.AADObjectId
+          to: log.aadObjectId
+
+      - rename:
+          from:
+            - log.AADTenantId
+          to: log.aadTenantId
+
+      - rename:
+          from:
+            - log.CorrelationId
+          to: log.correlationId
+
+      - rename:
+          from:
+            - log.IsBillableQuery
+          to: log.isBillableQuery
+
+      - rename:
+          from:
+            - log.QueryText
+          to: log.queryText
+
+      - rename:
+          from:
+            - log.RequestContext
+          to: log.requestContext
+
+      - rename:
+          from:
+            - log.RequestTarget
+          to: log.requestTarget
+
+      - rename:
+          from:
+            - log.ResponseDurationMs
+          to: log.responseDurationMs
+
+      - rename:
+          from:
+            - log.ResponseRowCount
+          to: log.responseRowCount
+
+      - rename:
+          from:
+            - log.StatsCPUTimeMs
+          to: log.statsCPUTimeMs
+
+      - rename:
+          from:
+            - log.StatsRegionCount
+          to: log.statsRegionCount
+
+      - rename:
+          from:
+            - log.StatsWorkspaceCount
+          to: log.statsWorkspaceCount
+
+      - rename:
+          from:
+            - log.TenantId
+          to: log.tenantId
+
+      - rename:
+          from:
+            - log.TimeGenerated
+          to: log.timeGenerated
+
+      - rename:
+          from:
+            - log.Type
+          to: log.type
+
+      - rename:
+          from:
+            - log.WorkspaceId
+          to: log.workspaceId
+
+      - rename:
+          from:
+            - log.ResourceId
+          to: log.resourceId
           
 
       # .......................................................................#
@@ -109,3 +204,25 @@ pipeline:
             - origin.bytesSent
             - origin.bytesReceived
           to: float64
+
+      # Adding actionResult
+      # denied by default
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'accepted'
+          where:
+            variables:
+              - get: statusCode
+                as: cod
+                ofType: int
+              - get: origin.bytesReceived
+                as: rec
+                ofType: int
+            expression: cod_ok == true && (cod >= 200 && cod <= 299 || (rec_ok == true && cod >= 300 && cod <= 399 && rec > 0))
