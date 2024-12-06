@@ -134,8 +134,12 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   }
 
   getUrl(){
-    return this.action === 'reports' ? '/dashboard/export-compliance/' + this.report.id :
-     `/compliance/print-view/?section=${this.getActiveSectionParams()}`;
+    if (this.action === 'reports') {
+        return '/dashboard/export-compliance/' + this.report.id;
+    } else {
+      const section = this.getActiveSectionParams();
+      return  encodeURIComponent('/compliance/print-view?section=' + section);
+    }
   }
 
   getActiveSectionParams(){
