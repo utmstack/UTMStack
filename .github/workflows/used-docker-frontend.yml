@@ -17,6 +17,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
     
+    
+      - name: Load Version
+        id: set-version
+        run: |
+          versions=$(cat "${{ github.workspace }}/versions.json")
+          service_version=$(echo "${versions}" | jq -r --arg s "${{inputs.image_name}}" '.[$s]')
+          echo "version=${service_version}" >> "$GITHUB_OUTPUT"
+
+
       - name: Load Version
         id: set-version
         run: |
@@ -52,9 +61,16 @@ jobs:
           username: utmstack
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push the Image
+      - name: Build and Push the Image for Components v11
         uses: docker/build-push-action@v2
         with:
           context: ./${{inputs.image_name}}
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{ steps.set-version.outputs.version }}-${{inputs.environment}}
+      
+      - name: Build and Push the Image for v10
+        uses: docker/build-push-action@v2
+        with:
+          context: ./${{inputs.image_name}}
+          push: true
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}

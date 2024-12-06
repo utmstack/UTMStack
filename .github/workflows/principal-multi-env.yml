@@ -1,0 +1,46 @@
+name: Multi Environment Build
+
+on:
+  push:
+    branches: [ 'feature/**' ]
+
+jobs:
+  setup_deployment:
+    name: Setup Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      env_version: ${{ steps.set-env.outputs.env_version }}
+      microservices: ${{ steps.filter.outputs.changes }}
+    steps:
+      - name: Determine Build Environment
+        id: set-env
+        run: |
+          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') }}; then
+            echo "DEV environment"
+            echo "env_version=v10-dev" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend: frontend/**
+            user-auditor: user-auditor/**
+            web-pdf: web-pdf/**
+  
+  runner:
+    name: Deployment
+    needs: setup_deployment
+    if: ${{ needs.setup_deployment.outputs.microservices != '[]' && needs.setup_deployment.outputs.env_version != ''}}
+    strategy:
+      fail-fast: false
+      matrix: 
+        service: ${{ fromJson(needs.setup_deployment.outputs.microservices) }} 
+    uses: ./.github/workflows/used-runner.yml
+    with:
+      microservice: ${{ matrix.service }}
+      environment: ${{ needs.setup_deployment.outputs.env_version }}
+    secrets: inherit
