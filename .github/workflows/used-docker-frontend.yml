@@ -17,15 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
     
-    
-      - name: Load Version
-        id: set-version
-        run: |
-          versions=$(cat "${{ github.workspace }}/versions.json")
-          service_version=$(echo "${versions}" | jq -r --arg s "${{inputs.image_name}}" '.[$s]')
-          echo "version=${service_version}" >> "$GITHUB_OUTPUT"
-
-
       - name: Load Version
         id: set-version
         run: |
