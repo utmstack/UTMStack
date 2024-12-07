@@ -1,1 +1,1 @@
-# UTMStack Frontend 10.6.0 Release Notes
+# UTMStack Frontend 11.0.0 Release Notes
