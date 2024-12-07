@@ -74,7 +74,7 @@ pipeline:
       - rename:
           from:
             - log.sourceport
-          to: origin.ip
+          to: origin.port
       - rename:
           from:
             - log.targetaddress

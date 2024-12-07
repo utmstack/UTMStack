@@ -199,3 +199,9 @@ pipeline:
           from:
             - log.responseElements.credentials
           to: log.responseElementsCredentials
+
+      - delete:
+          fields:
+            - log.requestParameters
+            - log.esponseElements
+            - log.userIdentity

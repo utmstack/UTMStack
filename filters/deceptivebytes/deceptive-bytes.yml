@@ -134,16 +134,44 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.messageWithTrash
 
+      # Parsing the common fields
       - grok:
           patterns:
             - fieldName: log.syslogPriority
               pattern: '\<{{.data}}\>'
             - fieldName: log.eventTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
+            - fieldName: log.restMessage
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
+            - fieldName: log.restMessage
+              pattern: '{{.greedy}}'
+          source: raw
+
+      - grok:
+          patterns:
+            - fieldName: log.syslogPriority
+              pattern: '\<{{.data}}\>'
+            - fieldName: log.eventTime
+              pattern: '{{.monthDay}}-{{.monthNumber}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
+            - fieldName: log.restMessage
+              pattern: '{{.greedy}}'
+          source: raw
+
+      # Parse the restMessage field from the rest of the common fields
+      - grok:
+          patterns:
             - fieldName: log.processId
               pattern: '\,{{.integer}}'
             - fieldName: log.trheadId
-              pattern: '(\,{{.data}})|(\,\-)'
+              pattern: '\,\-'
             - fieldName: log.eventType
               pattern: '\,{{.integer}}'
             - fieldName: log.eventSource
@@ -155,84 +183,90 @@ pipeline:
             - fieldName: log.platform
               pattern: '\,{{.data}}\,'
             - fieldName: origin.path
-              pattern: '{{.data}}\,'
+              pattern: '{{.greedy}}\,'
             - fieldName: command
               pattern: '{{.greedy}}'
-          source: raw
+          source: log.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
             - fieldName: log.processId
               pattern: '\,{{.integer}}'
             - fieldName: log.trheadId
-              pattern: '(\,{{.data}})|(\,\-)'
+              pattern: '\,{{.data}}\,'
             - fieldName: log.eventType
-              pattern: '\,{{.integer}}'
+              pattern: '{{.integer}}'
             - fieldName: log.eventSource
-              pattern: '(\,{{.word}})|(\,\-)'
+              pattern: '\,\-'
             - fieldName: log.processName
               pattern: '\,{{.word}}\.{{.word}}'
-          source: raw
+          source: log.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
             - fieldName: log.processId
               pattern: '\,{{.integer}}'
             - fieldName: log.trheadId
-              pattern: '(\,{{.data}})|(\,\-)'
+              pattern: '\,{{.data}}\,'
             - fieldName: log.eventType
-              pattern: '\,{{.integer}}'
+              pattern: '{{.integer}}'
             - fieldName: log.eventSource
-              pattern: '(\,{{.word}}\,)|(\,\-\,)'
-          source: raw
+              pattern: '\,\-\,'
+          source: log.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
             - fieldName: log.severityLabelCharacter
-              pattern: '{{.word}}'
+              pattern: '{{.word}}\s'
             - fieldName: log.trheadId
-              pattern: '{{.data}}\,'
+              pattern: '{{.integer}}\,'
             - fieldName: log.eventSource
-              pattern: '{{.integer}}'
+              pattern: '{{.integer}}\s'
             - fieldName: log.component
               pattern: '{{.word}}\,'
             - fieldName: log.errorCode
               pattern: '{{.integer}}\]'
             - fieldName: log.restDataMessage
               pattern: '{{.greedy}}'
-          source: raw
+          source: log.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
             - fieldName: log.severityLabelCharacter
-              pattern: '{{.word}}'
+              pattern: '{{.word}}\s'
             - fieldName: log.trheadId
-              pattern: '{{.data}}\,'
+              pattern: '{{.integer}}\,'
             - fieldName: log.eventSource
-              pattern: '{{.integer}}'
+              pattern: '{{.integer}}\s'
             - fieldName: log.component
               pattern: '{{.word}}\,'
             - fieldName: log.errorCode
               pattern: '{{.integer}}\]'
-            - fieldName: log.path
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.restMessage
+          where:
+            variables:
+              - get: log.restMessage
+                as: rest
+                oftype: string
+            expression: rest.contains("file")
+
+      - grok:
+          patterns:
+            - fieldName: log.severityLabelCharacter
+              pattern: '{{.word}}\s'
+            - fieldName: log.trheadId
+              pattern: '{{.integer}}\,'
+            - fieldName: log.eventSource
+              pattern: '{{.integer}}\s'
+            - fieldName: log.component
+              pattern: '{{.word}}\,'
+            - fieldName: log.errorCode
+              pattern: '{{.integer}}\]\s'
+            - fieldName: origin.path
               pattern: '(?:[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]*|\/(?:[^\/\n]+\/)*[^\/\n]*)'
-          source: raw
+          source: log.restMessage
           where:
             variables:
               - get: log.severityLabelCharacter
@@ -242,55 +276,47 @@ pipeline:
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
             - fieldName: log.severityLabelCharacter
-              pattern: '{{.word}}'
+              pattern: '{{.word}}\s'
             - fieldName: log.processId
               pattern: '{{.integer}}\,'
             - fieldName: log.trheadId
-              pattern: '{{.integer}}'
+              pattern: '{{.integer}}\s'
             - fieldName: log.methodName
               pattern: '\:\:{{.data}}\,'
             - fieldName: log.returnCode
-              pattern: '{{.integer}}\]'
+              pattern: '{{.integer}}\]\s'
             - fieldName: log.detailedMessage
               pattern: '\({{.data}}\)'
-          source: raw
+          source: log.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '{{.monthDay}}-{{.monthNumber}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
+            - fieldName: log.severityLabelCharacter
+              pattern: '{{.word}}\s'
+            - fieldName: log.processId
+              pattern: '{{.integer}}\,'
+            - fieldName: log.trheadId
+              pattern: '{{.integer}}\s'
+            - fieldName: log.methodName
+              pattern: '{{.data}}\:\:{{.data}}\,'
+            - fieldName: log.returnCode
+              pattern: '{{.integer}}\]\s'
+            - fieldName: log.message
+              pattern: '{{.greedy}}'
+          source: log.restMessage
+
+      - grok:
+          patterns:
             - fieldName: log.severityLabelCharacter
               pattern: '\[{{.data}}\]'
             - fieldName: log.processId
               pattern: '\[{{.integer}}\/'
             - fieldName: log.trheadId
-              pattern: '{{.data}}\]:'
+              pattern: '{{.data}}\]:?\s'
             - fieldName: log.message
               pattern: '{{.greedy}}'
-          source: raw
-
-      - grok:
-          patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
-              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.hour}}\:{{.minute}}\:{{.seconds}}\w'
-            - fieldName: log.severityLabelCharacter
-              pattern: '\[{{.data}}\]'
-            - fieldName: log.processId
-              pattern: '\[{{.integer}}\/'
-            - fieldName: log.trheadId
-              pattern: '{{.data}}\]'
-            - fieldName: log.message
-              pattern: '{{.greedy}}'
-          source: raw
+          source: log.restMessage
 
       # Using kv for the rest of the trash in the message
       - kv:
@@ -493,6 +519,7 @@ pipeline:
             - log.0trash
             - log.1trash
             - log.restData
+            - log.restMessage
             - log.restDataMessage
             - log.irrelevant
             - log.messageWithTrash

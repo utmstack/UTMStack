@@ -86,7 +86,7 @@ pipeline:
           patterns:
             - fieldName: log.deviceTime
               pattern: '\[{{.data}}\]'
-            - fieldName: log.severityLabel
+            - fieldName: log.severity
               pattern: '{{.word}}'
             - fieldName: log.restData
               pattern: '{{.greedy}}'
@@ -135,6 +135,43 @@ pipeline:
           substring: ')'
           fields:
             - log.class
+
+      # Adding severity field based on log.severity
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'low'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && (severity=="INFO" || severity=="TRACE" || severity=="DEBUG")
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && (severity=="WARNING" || severity=="WARN")
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'high'
+          where:
+            variables:
+              - get: log.severity
+                as: severity
+                ofType: string
+            expression: severity_ok==true && severity=="ERROR"
       
       # Removing unused fields
       - delete:
