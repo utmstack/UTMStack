@@ -65,7 +65,6 @@ func GetStackConfig() *StackConfig {
 			{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
-			{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 1024},
 		}
 
 		total := int(mem.Total/1024/1024) - utils.SYSTEM_RESERVED_MEMORY

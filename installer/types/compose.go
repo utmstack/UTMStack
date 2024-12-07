@@ -217,7 +217,6 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 			"ELASTICSEARCH_PORT=9200",
 			"INTERNAL_KEY=" + conf.InternalKey,
 			"ENCRYPTION_KEY=" + conf.InternalKey,
-			"SOC_AI_BASE_URL=http://socai:8080/process",
 			"GRPC_AGENT_MANAGER_HOST=agentmanager",
 			"GRPC_AGENT_MANAGER_PORT=50051",
 		},
@@ -384,31 +383,6 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 				},
 			},
 		}
-	}
-
-	socAIMem := stack.ServiceResources["socai"].AssignedMemory
-	c.Services["socai"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/soc-ai/soc-ai:v" + updater.GetVersions()["soc-ai"] + "-" + conf.Branch),
-		DependsOn: []string{
-			"node1",
-			"backend",
-		},
-		Environment: []string{
-			"GPT_MODEL=gpt-3.5-turbo-1106",
-			"PANEL_SERV_NAME=http://backend:8080",
-			"OPENSEARCH_HOST=node1",
-			"OPENSEARCH_PORT=9200",
-			"INTERNAL_KEY=" + conf.InternalKey,
-			"ENCRYPTION_KEY=" + conf.InternalKey,
-		},
-		Deploy: &Deploy{
-			Placement: &pManager,
-			Resources: &Resources{
-				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", socAIMem)),
-				},
-			},
-		},
 	}
 
 	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
