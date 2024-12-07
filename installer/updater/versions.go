@@ -18,12 +18,12 @@ func GetVersions() map[string]string {
 		if !utils.CheckIfPathExist(config.UpdaterConfigPath) {
 			err := utils.WriteJSON(config.UpdaterConfigPath, versions)
 			if err != nil {
-				utils.Logger.ErrorF("error writing versions file: %v", err)
+				config.Logger().ErrorF("error writing versions file: %v", err)
 			}
 		} else {
 			err := utils.ReadYAML(config.UpdaterConfigPath, &versions)
 			if err != nil {
-				utils.Logger.ErrorF("error reading versions file: %v", err)
+				config.Logger().ErrorF("error reading versions file: %v", err)
 			}
 		}
 	})

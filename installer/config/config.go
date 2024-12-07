@@ -27,9 +27,12 @@ var (
 func GetConfig() *Config {
 	configOnce.Do(func() {
 		config = &Config{}
-		err := utils.ReadYAML(ConfigPath, config)
-		if err != nil {
-			fmt.Printf("error reading config file: %v", err)
+		if utils.CheckIfPathExist(ConfigPath) {
+			err := utils.ReadYAML(ConfigPath, config)
+			if err != nil {
+				fmt.Printf("error reading config file: %v", err)
+				os.Exit(1)
+			}
 		}
 
 		mainIP, err := utils.GetMainIP()

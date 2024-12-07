@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
@@ -52,7 +53,7 @@ func DownloadFile(file File, url string, headers map[string]string, tlsConfig *t
 				return fmt.Errorf("error removing previous file: %v", err)
 			}
 		} else {
-			utils.Logger.Info("File already exists: %s\n", file.Name)
+			config.Logger().Info("File already exists: %s\n", file.Name)
 			return nil
 		}
 	}
@@ -82,7 +83,7 @@ func DownloadFile(file File, url string, headers map[string]string, tlsConfig *t
 		return fmt.Errorf("hash mismatch: expected %s, got %s", file.Hash, hash)
 	}
 
-	utils.Logger.Info("File downloaded successfully: %s\n", destPath)
+	config.Logger().Info("File downloaded successfully: %s\n", destPath)
 
 	return nil
 }

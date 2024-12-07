@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path"
 	"strings"
@@ -50,13 +49,11 @@ func ConfigureVLAN(mainIface string) error {
 		Iface:    mainIface,
 	}
 
-	log.Println("Generating vlan config")
 	err = utils.GenerateConfig(c, templates.Vlan, path.Join("/etc", "netplan", "99-vlan.yaml"))
 	if err != nil {
 		return err
 	}
 
-	log.Println("Applying vlan config")
 	if err := utils.RunCmd("netplan", "apply"); err != nil {
 		return err
 	}

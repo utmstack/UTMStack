@@ -42,7 +42,8 @@ func GetUpdaterClient() *UpdaterClient {
 
 			err := updaterClient.RegisterClient()
 			if err != nil {
-				utils.Logger.Fatal("error registering instance: %v", err)
+				fmt.Printf("error registering instance: %v", err)
+				config.Logger().Fatal("error registering instance: %v", err)
 			}
 		}
 	})
@@ -79,13 +80,13 @@ func (c *UpdaterClient) UpdateProcess() {
 		time.Sleep(config.CheckUpdatesEvery)
 		err := c.UpdateEdition()
 		if err != nil {
-			utils.Logger.ErrorF("error updating edition: %v", err)
+			config.Logger().ErrorF("error updating edition: %v", err)
 		}
 
 		if config.IsInMaintenanceWindow() {
 			err := c.CheckUpdate(true, true)
 			if err != nil {
-				utils.Logger.ErrorF("error checking update: %v", err)
+				config.Logger().ErrorF("error checking update: %v", err)
 			}
 		}
 	}
@@ -111,7 +112,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 	}
 
 	for _, master := range resp {
-		utils.Logger.Info("Updating UTMStack to version %s", master.VersionName)
+		config.Logger().Info("Updating UTMStack to version %s", master.VersionName)
 		versions := GetVersionsFromMaster(master)
 		err := SaveVersions(versions)
 		if err != nil {
@@ -120,7 +121,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 
 		for _, cv := range master.ComponentVersions {
 			if download {
-				utils.Logger.Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
+				config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 				for _, f := range cv.Files {
 					err = DownloadFile(
 						f,
@@ -135,7 +136,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 			}
 
 			if runCmds {
-				utils.Logger.Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
+				config.Logger().Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
 				for _, cmd := range cv.Scripts {
 					parts := strings.Split(cmd.Script, " ")
 					cmd := parts[0]
