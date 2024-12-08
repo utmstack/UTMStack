@@ -2,9 +2,9 @@
     "master-version": "11.0.0",
     "agent-service": "11.0.0",
     "agent-installer": "11.0.0",
-    "agent-manager": "11.0.0",
-    "backend": "11.0.0",
-    "frontend": "11.0.0",
+    "agent-manager": "11.0.1",
+    "backend": "11.0.1",
+    "frontend": "11.0.1",
     "pipelines": "11.0.0",
     "plugins-alerts": "11.0.0",
     "plugins-aws": "11.0.0",
@@ -18,6 +18,6 @@
     "plugins-o365": "11.0.0",
     "plugins-sophos": "11.0.0",
     "plugins-stats": "11.0.0",
-    "user-auditor": "11.0.0",
-    "web-pdf": "11.0.0"
+    "user-auditor": "11.0.1",
+    "web-pdf": "11.0.1"
 }
