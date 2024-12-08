@@ -8,20 +8,19 @@ import (
 )
 
 var (
-	versions     map[string]string
+	versions     = map[string]string{}
 	versionsOnce sync.Once
 )
 
 func GetVersions() map[string]string {
 	versionsOnce.Do(func() {
-		versions = make(map[string]string)
-		if !utils.CheckIfPathExist(config.UpdaterConfigPath) {
-			err := utils.WriteJSON(config.UpdaterConfigPath, versions)
+		if !utils.CheckIfPathExist(config.UpdatesInfoPath) {
+			err := utils.WriteJSON(config.UpdatesInfoPath, versions)
 			if err != nil {
 				config.Logger().ErrorF("error writing versions file: %v", err)
 			}
 		} else {
-			err := utils.ReadYAML(config.UpdaterConfigPath, &versions)
+			err := utils.ReadYAML(config.UpdatesInfoPath, &versions)
 			if err != nil {
 				config.Logger().ErrorF("error reading versions file: %v", err)
 			}
@@ -36,5 +35,5 @@ func SaveVersions(vers map[string]string) error {
 		versions[k] = v
 	}
 
-	return utils.WriteJSON(config.UpdaterConfigPath, versions)
+	return utils.WriteJSON(config.UpdatesInfoPath, versions)
 }

@@ -2,7 +2,7 @@
     {
         "name": "utmstack_agent_dependencies_linux.zip",
         "is_binary": false,
-        "destination_path": "/utmstack/updater/dependencies/",
+        "destination_path": "/utmstack/updates/dependencies/",
         "os": "linux",
         "arch": "amd64",
         "replace_previous": true
@@ -10,7 +10,7 @@
     {
         "name": "utmstack_agent_dependencies_windows.zip",
         "is_binary": false,
-        "destination_path": "/utmstack/updater/dependencies/",
+        "destination_path": "/utmstack/updates/dependencies/",
         "os": "windows",
         "arch": "amd64",
         "replace_previous": true
@@ -18,7 +18,7 @@
     {
         "name": "utmstack_agent_installer",
         "is_binary": true,
-        "destination_path": "/utmstack/updater/dependencies/",
+        "destination_path": "/utmstack/updates/dependencies/",
         "os": "linux",
         "arch": "amd64",
         "replace_previous": true
@@ -26,7 +26,7 @@
     {
         "name": "utmstack_agent_installer.exe",
         "is_binary": true,
-        "destination_path": "/utmstack/updater/dependencies/",
+        "destination_path": "/utmstack/updates/dependencies/",
         "os": "windows",
         "arch": "amd64",
         "replace_previous": true

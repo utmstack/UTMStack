@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -60,6 +61,8 @@ func (c *PluginsConfig) Set(conf *config.Config, stack *config.StackConfig) erro
 	}
 
 	pipelineDir := filepath.Join(stack.EventsEngineWorkdir, "pipeline")
+
+	utils.CreatePathIfNotExist(pipelineDir)
 
 	err = os.WriteFile(filepath.Join(pipelineDir, "utmstack_plugins.yaml"), config, 0644)
 	if err != nil {

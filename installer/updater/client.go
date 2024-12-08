@@ -52,12 +52,7 @@ func GetUpdaterClient() *UpdaterClient {
 }
 
 func (c *UpdaterClient) RegisterClient() error {
-	tlsConfig, err := utils.LoadTLSCredentials(config.CertFilePath)
-	if err != nil {
-		return fmt.Errorf("error loading tls credentials: %v", err)
-	}
-
-	resp, status, err := utils.DoReq[Auth](c.Server+config.RegisterInstanceEndpoint, nil, http.MethodGet, nil, tlsConfig)
+	resp, status, err := utils.DoReq[Auth](c.Server+config.RegisterInstanceEndpoint, nil, http.MethodPost, nil)
 	if err != nil {
 		return fmt.Errorf("error doing request: %v", err)
 	} else if status != http.StatusOK {
@@ -93,17 +88,11 @@ func (c *UpdaterClient) UpdateProcess() {
 }
 
 func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
-	tlsConfig, err := utils.LoadTLSCredentials(config.CertFilePath)
-	if err != nil {
-		return fmt.Errorf("error loading tls credentials: %v", err)
-	}
-
 	resp, status, err := utils.DoReq[[]MasterVersion](
 		c.Server+config.GetUpdatesInfoEndpoint,
 		nil,
 		http.MethodGet,
 		map[string]string{"instance-id": c.InstanceID, "instance-key": c.InstanceKey},
-		tlsConfig,
 	)
 	if err != nil {
 		return fmt.Errorf("error doing request: %v", err)
@@ -112,6 +101,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 	}
 
 	for _, master := range resp {
+		fmt.Printf("Updating UTMStack to version %s\n", master.VersionName)
 		config.Logger().Info("Updating UTMStack to version %s", master.VersionName)
 		versions := GetVersionsFromMaster(master)
 		err := SaveVersions(versions)
@@ -121,13 +111,13 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 
 		for _, cv := range master.ComponentVersions {
 			if download {
+				fmt.Printf("Downloading files for component %s version %s\n", cv.Component.Name, cv.VersionName)
 				config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 				for _, f := range cv.Files {
 					err = DownloadFile(
 						f,
 						fmt.Sprintf("%s%s?file-id=%s", c.Server, config.GetFileEndpoint, f.ID),
 						map[string]string{"instance-id": c.InstanceID, "instance-key": c.InstanceKey},
-						tlsConfig,
 					)
 					if err != nil {
 						return fmt.Errorf("error downloading file: %v", err)
@@ -154,16 +144,10 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 }
 
 func (c *UpdaterClient) UpdateEdition() error {
-	tlsConfig, err := utils.LoadTLSCredentials(config.CertFilePath)
-	if err != nil {
-		return fmt.Errorf("error loading tls credentials: %v", err)
-	}
-
 	resp, status, err := utils.DoReq[string](
 		GetUpdaterClient().Server+config.GetEditionEndpoint,
 		nil,
 		http.MethodGet, map[string]string{"instance-id": GetUpdaterClient().InstanceID, "instance-key": GetUpdaterClient().InstanceKey},
-		tlsConfig,
 	)
 	if err != nil {
 		return fmt.Errorf("error getting edition: %v", err)

@@ -50,4 +50,4 @@ jobs:
         with:
           context: ./${{inputs.image_name}}
           push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{ steps.set-version.outputs.version }}-${{inputs.environment}}
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:v${{ steps.set-version.outputs.version }}-${{inputs.environment}}

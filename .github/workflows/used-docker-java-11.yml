@@ -49,13 +49,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push the Image for Components v11
+        if: ${{ inputs.environment != 'v10-dev' }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{inputs.image_name}}
           push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{ steps.set-version.outputs.version }}-${{inputs.environment}}
+          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:v${{ steps.set-version.outputs.version }}-${{inputs.environment}}
       
       - name: Build and Push the Image for v10
+        if : ${{ inputs.environment == 'v10-dev' }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{inputs.image_name}}

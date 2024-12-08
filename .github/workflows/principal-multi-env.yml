@@ -25,8 +25,7 @@ jobs:
         id: filter
         with:
           filters: |
-            backend:
-              - 'backend/**'
+            backend: 'backend/**'
             frontend: frontend/**
             user-auditor: user-auditor/**
             web-pdf: web-pdf/**

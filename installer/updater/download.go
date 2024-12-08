@@ -2,7 +2,6 @@ package updater
 
 import (
 	"crypto/sha256"
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,7 +12,7 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func DownloadFile(file File, url string, headers map[string]string, tlsConfig *tls.Config) error {
+func DownloadFile(file File, url string, headers map[string]string) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("error creating request: %v", err)
@@ -23,10 +22,7 @@ func DownloadFile(file File, url string, headers map[string]string, tlsConfig *t
 		req.Header.Add(k, v)
 	}
 
-	transp := &http.Transport{
-		TLSClientConfig: tlsConfig,
-	}
-	client := &http.Client{Transport: transp}
+	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
