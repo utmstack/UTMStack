@@ -100,7 +100,11 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   addRule() {
-    const modalRef = this.modalService.open(AddRuleComponent, {size: 'lg', centered: true});
+    const modalRef = this.modalService.open(AddRuleComponent, {
+      size: 'lg',
+      centered: true,
+      windowClass: 'add-rule-modal',
+    });
     this.handleResponse(modalRef);
   }
 
