@@ -81,7 +81,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.NUMBER,
+    type: ElasticDataTypesEnum.STRING,
     visible: true,
   },
   {

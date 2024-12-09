@@ -4,21 +4,15 @@ import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceStandardType} from '../type/compliance-standard.type';
-import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 // GET /api/compliance/standard
-export class CpStandardService extends RefreshDataService<boolean, HttpResponse<ComplianceStandardType[]>> {
+export class CpStandardService {
   private resourceUrl = SERVER_API_URL + 'api/compliance/standard';
 
   constructor(private http: HttpClient) {
-    super();
-  }
-
-  fetchData(request: any): Observable<HttpResponse<ComplianceStandardType[]>> {
-   return this.query(request);
   }
 
   create(standard: ComplianceStandardType): Observable<HttpResponse<any>> {

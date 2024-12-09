@@ -35,7 +35,6 @@ import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
 import {AccountService} from "./core/auth/account.service";
-import {AlertManagementSharedModule} from "./data-management/alert-management/shared/alert-management-shared.module";
 
 export function initTimezoneFormat(timezoneService: TimezoneFormatService) {
   return () => timezoneService.loadTimezoneAndFormat();
@@ -74,7 +73,6 @@ export function initTimezoneFormat(timezoneService: TimezoneFormatService) {
     Ng2TelInputModule,
     NgxFlagIconCssModule,
     Ng2Webstorage.forRoot(),
-    AlertManagementSharedModule,
   ],
   providers: [
     LocalStorageService,
