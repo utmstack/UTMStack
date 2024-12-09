@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -14,6 +14,7 @@ import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
 import {extractQueryParamsForNavigation, stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
+import {StateStorageService} from "../../../../core/auth/state-storage.service";
 
 @Component({
   selector: 'app-login',
@@ -48,7 +49,8 @@ export class LoginComponent implements OnInit {
     private modalService: NgbModal,
     private themeChangeBehavior: ThemeChangeBehavior,
     private spinner: NgxSpinnerService,
-    private apiServiceCheckerService: ApiServiceCheckerService
+    private apiServiceCheckerService: ApiServiceCheckerService,
+    private stateStorageService: StateStorageService
   ) {
     this.credentials = {};
     this.isInDemo = window.location.href.includes(DEMO_URL);
@@ -167,8 +169,9 @@ export class LoginComponent implements OnInit {
   startNavigation() {
     this.accountService.identity(true).then(account => {
       if (account) {
+        const url = this.stateStorageService.getUrl();
         const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
-          ? '/getting-started' : '/dashboard/overview';
+          ? '/getting-started' : !!url ? url : '/dashboard/overview';
         this.router.navigate([redirectTo])
           .then(() => this.spinner.hide());
       } else {
