@@ -9,7 +9,7 @@ export enum NatureDataPrefixEnum {
 }
 
 export enum DataNatureTypeEnum {
-  ALERT = 'alert-*',
+  ALERT = 'v11-alert-*',
   EVENT = 'log-*',
   VULNERABILITY = 'VULNERABILITY'
 }

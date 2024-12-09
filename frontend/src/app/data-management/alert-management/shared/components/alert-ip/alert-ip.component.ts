@@ -38,5 +38,4 @@ export class AlertIpComponent implements OnInit {
     }
     this.ip = this.ip ? this.ip : '-';
   }
-
 }

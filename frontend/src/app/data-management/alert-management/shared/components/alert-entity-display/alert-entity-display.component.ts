@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {
-  ALERT_DESTINATION_IP_FIELD,
+  ALERT_DESTINATION_IP_FIELD, ALERT_SOURCE_FIELD,
   ALERT_SOURCE_IP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
@@ -23,4 +23,6 @@ export class AlertEntityDisplayComponent implements OnInit {
     console.log('key', this.key);
     this.fields = Object.keys(this.alert[this.key]);
   }
+
+  protected readonly ALERT_SOURCE_FIELD = ALERT_SOURCE_FIELD;
 }

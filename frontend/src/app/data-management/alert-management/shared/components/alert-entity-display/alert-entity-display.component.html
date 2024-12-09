@@ -1,5 +1,5 @@
 <ng-container *ngFor="let field of fields">
   <div [ngSwitch]="field">
-    <app-alert-ip *ngSwitchCase="'ip'" [alert]="alert" [type]="key === SOURCE_IP_FIELD ? 'source' : 'destination'"></app-alert-ip>
+    <app-alert-ip *ngSwitchCase="'geolocation'" [alert]="alert" [type]="key === ALERT_SOURCE_FIELD ? 'source' : 'destination'"></app-alert-ip>
   </div>
 </ng-container>
