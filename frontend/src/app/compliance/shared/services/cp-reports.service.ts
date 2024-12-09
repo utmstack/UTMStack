@@ -1,31 +1,19 @@
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {TableBuilderResponseType} from '../../../shared/chart/types/response/table-builder-response.type';
-import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceReportType} from '../type/compliance-report.type';
-
-export interface ReportParams  {
-  template: ComplianceReportType;
-  sectionId: number;
-  standardId: number;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 // GET /api/compliance/report
-export class CpReportsService extends RefreshDataService<{ sectionId: number, loading: boolean, reportSelected: number }, HttpResponse<ComplianceReportType[]>> {
+export class CpReportsService {
   private resourceUrl = SERVER_API_URL + 'api/compliance/report-config';
-  private loadReportSubject = new BehaviorSubject<ReportParams>(null);
-  private onLoadReportNoteSubject = new BehaviorSubject<ComplianceReportType>(null);
-  readonly onLoadNote$ = this.onLoadReportNoteSubject.asObservable();
-  readonly onLoadReport$ = this.loadReportSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    super();
   }
 
   create(report: ComplianceReportType): Observable<HttpResponse<any>> {
@@ -73,15 +61,5 @@ export class CpReportsService extends RefreshDataService<{ sectionId: number, lo
       observe: 'response'
     });
   }
-  fetchData(request: any): Observable<HttpResponse<ComplianceReportType[]>> {
-    return this.queryByStandard(request);
-  }
 
-  loadReport(params: ReportParams){
-    this.loadReportSubject.next(params);
-  }
-
-  loadReportNote(report: ComplianceReportType){
-    this.onLoadReportNoteSubject.next(report);
-  }
 }
