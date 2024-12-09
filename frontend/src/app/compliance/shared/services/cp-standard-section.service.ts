@@ -4,21 +4,15 @@ import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../app.constants';
 import {createRequestOption} from '../../../shared/util/request-util';
 import {ComplianceStandardSectionType} from '../type/compliance-standard-section.type';
-import {RefreshDataService} from '../../../shared/services/util/refresh-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 // GET /api/compliance/section
-export class CpStandardSectionService extends RefreshDataService<{loading: boolean, activeSection: number}, HttpResponse<ComplianceStandardSectionType[]>> {
+export class CpStandardSectionService {
   private resourceUrl = SERVER_API_URL + 'api/compliance/standard-section';
 
   constructor(private http: HttpClient) {
-    super();
-  }
-
-  fetchData(request: any): Observable<HttpResponse<ComplianceStandardSectionType[]>> {
-    return this.query(request);
   }
 
   create(section: ComplianceStandardSectionType): Observable<HttpResponse<any>> {
