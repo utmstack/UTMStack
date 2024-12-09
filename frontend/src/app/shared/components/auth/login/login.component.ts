@@ -12,7 +12,7 @@ import {UtmToastService} from '../../../alert/utm-toast.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
-import {extractQueryParamsForNavigation, stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
+import {stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
 import {StateStorageService} from "../../../../core/auth/state-storage.service";
 
@@ -102,8 +102,7 @@ export class LoginComponent implements OnInit {
                 });
               });
             } else {
-              const { path, queryParams } = extractQueryParamsForNavigation(url);
-              this.router.navigate([path], {queryParams});
+              this.router.navigate([route]);
             }
           }
         } else {
