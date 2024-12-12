@@ -200,7 +200,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	backendMin := stack.ServiceResources["backend"].MinMemory
 	c.Services["backend"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backendv:" + updater.GetVersions()["backend"] + "-" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:v" + updater.GetVersions()["backend"] + "-" + conf.Branch),
 		DependsOn: []string{
 			"postgres",
 			"node1",

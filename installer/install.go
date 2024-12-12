@@ -12,7 +12,7 @@ import (
 func Install() error {
 	cnf := config.GetConfig()
 
-	fmt.Println("Checking system requirements")
+	fmt.Print("Checking system requirements")
 	if err := utils.CheckDistro(config.RequiredDistro); err != nil {
 		return err
 	}
@@ -248,7 +248,7 @@ func Install() error {
 	if utils.GetLock(10, stack.LocksDir) {
 		fmt.Print("Sending sample logs")
 		if err := SendSampleData(); err != nil {
-			return err
+			fmt.Printf("error sending sample data: %v", err)
 		}
 
 		if err := utils.SetLock(10, stack.LocksDir); err != nil {
