@@ -48,7 +48,7 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
     const queryParams = {};
     queryParams[ALERT_GLOBAL_FIELD] = 'ALERT';
     if (type !== 'today') {
-      queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now-7d/d,now';
+      queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now-7d,now';
     } else {
       queryParams[ALERT_TIMESTAMP_FIELD] = ElasticOperatorsEnum.IS_BETWEEN + '->now/d,now';
     }

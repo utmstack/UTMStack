@@ -11,19 +11,21 @@
          {{top.value}}
       </span>
         <span>
-        <i (click)="toggleFilter(top.value)" [openDelay]="500"
-           class="icon-zoomin3 mr-2 cursor-pointer"
-           ngbTooltip="Add to filter"
-           placement="bottom"
-           style="font-size: 11px"
-           tooltipClass="utm-tooltip-bottom"></i>
-        <i (click)="toggleFilter(top.value)" [openDelay]="500"
-           class="icon-zoomout3 cursor-pointer"
-           ngbTooltip="Remove from filter"
-           placement="bottom"
-           style="font-size: 11px"
-           tooltipClass="utm-tooltip-bottom"></i>
-      </span>
+          <i (click)="toggleFilter(top.value)" [openDelay]="500"
+             container="body"
+             class="icon-zoomin3 mr-2 cursor-pointer"
+             ngbTooltip="Add to filter"
+             placement="bottom"
+             style="font-size: 11px"
+             tooltipClass="utm-tooltip-bottom"></i>
+          <i (click)="removeFilter(top.value)" [openDelay]="500"
+             container="body"
+             class="icon-zoomout3 cursor-pointer"
+             ngbTooltip="Remove from filter"
+             placement="bottom"
+             style="font-size: 11px"
+             tooltipClass="utm-tooltip-bottom"></i>
+        </span>
       </div>
       <div>
         <ngb-progressbar

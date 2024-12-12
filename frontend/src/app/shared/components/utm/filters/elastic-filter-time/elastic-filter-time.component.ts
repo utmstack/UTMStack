@@ -126,7 +126,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     this.dateTo = 'now';
     this.dateFrom = common.label;
     if (!this.formatInstant) {
-      const timeFrom = ElasticTimeEnum.NOW + '-' + common.last + common.time + '/d' ;
+      const timeFrom = ElasticTimeEnum.NOW + '-' + common.last + common.time;
       const timeTo = ElasticTimeEnum.NOW;
       this.emitElasticDate(timeFrom, timeTo);
     } else {

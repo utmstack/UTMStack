@@ -46,10 +46,6 @@ export class LogAnalyzerFieldDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
-
   getFieldTopValue() {
     this.logAnalyzerService.getFieldTopValues(this.pattern,
       (((this.field.type === ElasticDataTypesEnum.TEXT ||
@@ -69,5 +65,18 @@ export class LogAnalyzerFieldDetailComponent implements OnInit, OnDestroy {
       value,
       status: 'ACTIVE'
     });
+  }
+
+  removeFilter(value: string) {
+    this.utmFilterBehavior.$filterChange.next({
+      operator: ElasticOperatorsEnum.IS,
+      field: this.field.name,
+      value,
+      status: 'INACTIVE'
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

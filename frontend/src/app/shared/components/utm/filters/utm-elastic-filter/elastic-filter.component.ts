@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {NgbActiveModal, NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
 import {FILTER_OPERATORS} from '../../../../constants/filter-operators.const';
 import {ElasticOperatorsEnum} from '../../../../enums/elastic-operators.enum';
@@ -8,13 +8,15 @@ import {OperatorsType} from '../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../types/time-filter.type';
 import {ElasticFilterDefaultTime} from '../elastic-filter-time/elastic-filter-time.component';
 import {UtmFilterBehavior} from './shared/behavior/utm-filter.behavior';
+import {Subject} from "rxjs";
+import {filter, takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-utm-elastic-filter',
   templateUrl: './elastic-filter.component.html',
   styleUrls: ['./elastic-filter.component.scss']
 })
-export class ElasticFilterComponent implements OnInit {
+export class ElasticFilterComponent implements OnInit, OnDestroy {
   @Output() filterChange = new EventEmitter<ElasticFilterType[]>();
   @Input() pattern: string;
   @Input() filters: ElasticFilterType[] = [];
@@ -25,6 +27,7 @@ export class ElasticFilterComponent implements OnInit {
   filterSelected: ElasticFilterType;
   indexEdit: number;
   editMode: boolean;
+  destroy$: Subject<void> = new Subject<void>();
 
   constructor(public modalService: NgbModal,
               private activeModal: NgbActiveModal,
@@ -33,11 +36,18 @@ export class ElasticFilterComponent implements OnInit {
 
   ngOnInit() {
     this.filters = this.filters ? this.filters : [];
-    this.utmFilterBehavior.$filterChange.subscribe(filter => {
-      if (filter) {
-        this.filters.push(filter);
-        this.filterChange.emit(this.filters);
+
+    this.utmFilterBehavior.$filterChange
+      .pipe(takeUntil(this.destroy$),
+            filter(filterType => !!filterType))
+      .subscribe(filterType => {
+      if (filterType.status === 'ACTIVE') {
+        this.filters.push(filterType);
+      } else {
+        this.filters = this.filters.filter(f => f.value !== filterType.value);
       }
+
+      this.filterChange.emit(this.filters);
     });
   }
 
@@ -104,5 +114,10 @@ export class ElasticFilterComponent implements OnInit {
 
   resolveFilters(): ElasticFilterType[] {
     return this.filters.filter(value => value.operator !== ElasticOperatorsEnum.IS_IN_FIELD);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
