@@ -27,8 +27,8 @@ export const ALERT_PROTOCOL_FIELD = 'protocol';
 export const LOG_RELATED_ID_EVENT_FIELD = 'logs';
 export const ALERT_REFERENCE_FIELD = 'reference';
 export const ALERT_RELATED_RULES_FIELD = 'TagRulesApplied';
-export const ALERT_SOURCE_FIELD = 'target';
-export const ALERT_DESTINATION_FIELD = 'adversary';
+export const ALERT_TARGET_FIELD = 'target';
+export const ALERT_ADVERSARY_FIELD = 'adversary';
 
 // SOURCE
 export const ALERT_SOURCE_HOSTNAME_FIELD = 'source.host';
@@ -44,6 +44,7 @@ export const ALERT_SOURCE_IS_SATELLITE_FIELD = 'source.isSatelliteProvider';
 export const ALERT_SOURCE_IS_AN_PROXY_FIELD = 'source.isAnonymousProxy';
 export const ALERT_SOURCE_ACCURACY_FIELD = 'source.accuracyRadius';
 export const ALERT_SOURCE_USER_FIELD = 'source.user';
+
 // DESTINATION
 export const ALERT_DESTINATION_HOSTNAME_FIELD = 'destination.host';
 export const ALERT_DESTINATION_IP_FIELD = 'destination.ip';
@@ -58,6 +59,27 @@ export const ALERT_DESTINATION_IS_SATELLITE_FIELD = 'destination.isSatelliteProv
 export const ALERT_DESTINATION_IS_AN_PROXY_FIELD = 'destination.isAnonymousProxy';
 export const ALERT_DESTINATION_ACCURACY_FIELD = 'destination.accuracyRadius';
 export const ALERT_DESTINATION_USER_FIELD = 'destination.user';
+
+// TARGET
+export const ALERT_TARGET_IP_FIELD = 'target.ip';
+export const ALERT_TARGET_GEOLOCATION_ASN_FIELD = 'target.geolocation.asn';
+export const ALERT_TARGET_GEOLOCATION_ASO_FIELD = 'target.geolocation.aso';
+export const ALERT_TARGET_GEOLOCATION_CITY_FIELD = 'target.geolocation.city';
+export const ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD = 'target.geolocation.country';
+export const ALERT_TARGET_GEOLOCATION_COUNTRY_CODE_FIELD = 'target.geolocation.countryCode';
+export const ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD = 'target.geolocation.latitude';
+export const ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD = 'target.geolocation.longitude';
+
+// ADVERSARY
+export const ALERT_ADVERSARY_IP_FIELD = 'adversary.ip';
+export const ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD = 'adversary.geolocation.asn';
+export const ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD = 'adversary.geolocation.aso';
+export const ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD = 'adversary.geolocation.city';
+export const ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD = 'adversary.geolocation.country';
+export const ALERT_ADVERSARY_GEOLOCATION_COUNTRY_CODE_FIELD = 'adversary.geolocation.countryCode';
+export const ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD = 'adversary.geolocation.latitude';
+export const ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD = 'adversary.geolocation.longitude';
+
 
 export const ALERT_GENERATED_BY_FIELD = 'dataType';
 
@@ -106,13 +128,21 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   },
   {
     label: 'Target',
-    field: ALERT_SOURCE_FIELD,
+    field: ALERT_TARGET_FIELD,
     type: ElasticDataTypesEnum.OBJECT,
     visible: true,
+    fields: [
+      {
+        label: 'Target IP',
+        field: ALERT_SOURCE_IP_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      }
+    ]
   },
   {
     label: 'Adversary',
-    field: ALERT_DESTINATION_FIELD,
+    field: ALERT_ADVERSARY_FIELD,
     type: ElasticDataTypesEnum.OBJECT,
     visible: true,
   },

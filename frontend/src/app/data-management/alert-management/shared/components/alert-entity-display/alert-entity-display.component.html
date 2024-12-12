@@ -1,5 +1,63 @@
-<ng-container *ngFor="let field of fields">
-  <div [ngSwitch]="field">
-    <app-alert-ip *ngSwitchCase="'geolocation'" [alert]="alert" [type]="key === ALERT_SOURCE_FIELD ? 'source' : 'destination'"></app-alert-ip>
-  </div>
-</ng-container>
+<div class="d-flex flex-wrap">
+  <ng-container *ngFor="let field of fields">
+    <div [ngSwitch]="field" class="me-3">
+      <app-alert-ip *ngSwitchCase="'ip'" [alert]="alert" [type]="type"></app-alert-ip>
+      <div *ngSwitchCase="'bytesSent'">
+        <div class="d-flex align-items-center mr-1 mb-1">
+          <span [ngbTooltip]="'Bytes sent'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+            <i class="icon-arrow-up-right2 mr-1 font-size-sm"></i>
+            {{ alert[type][field] }}
+          </span>
+        </div>
+      </div>
+      <div *ngSwitchCase="'url'">
+        <div class="d-flex align-items-center mr-1">
+          <span [ngbTooltip]="'Url'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+            <i class="icon-link mr-1 font-size-sm"></i>
+            {{ alert[type][field] }}
+          </span>
+        </div>
+      </div>
+      <!--<div *ngSwitchCase="'geolocation'">
+        <div class="d-flex flex-wrap">
+          <ng-container *ngFor="let geoField of geolocationFields">
+          <div [ngSwitch]="geoField" class="me-3">
+            <div *ngSwitchCase="'asn'">
+              <div class="d-flex align-items-center ml-1 mr-1">
+              <span [ngbTooltip]="'ASN'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+                <i class="icon-server mr-1 font-size-sm"></i>
+                {{ alert[type]['geolocation'][geoField] }}
+              </span>
+              </div>
+            </div>
+            <div *ngSwitchCase="'aso'">
+              <div class="d-flex align-items-center ml-1 mr-1">
+              <span [ngbTooltip]="'ASO'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+                <i class="icon-briefcase mr-1 font-size-sm"></i>
+                {{ alert[type]['geolocation'][geoField] }}
+              </span>
+              </div>
+            </div>
+            <div *ngSwitchCase="'latitude'">
+              <div class="d-flex align-items-center ml-1 mr-1">
+              <span [ngbTooltip]="'Latitude'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+                <i class="icon-location3 mr-1 font-size-sm"></i>
+                {{ alert[type]['geolocation'][geoField] }}
+              </span>
+              </div>
+            </div>
+            <div *ngSwitchCase="'longitude'">
+              <div class="d-flex align-items-center ml-1 mr-1">
+              <span [ngbTooltip]="'Longitude'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+                <i class="icon-location3 mr-1 font-size-sm"></i>
+                {{ alert[type]['geolocation'][geoField] }}
+              </span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        </div>
+      </div>-->
+    </div>
+  </ng-container>
+</div>

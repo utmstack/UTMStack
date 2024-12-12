@@ -1,28 +1,35 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {
-  ALERT_DESTINATION_IP_FIELD, ALERT_SOURCE_FIELD,
-  ALERT_SOURCE_IP_FIELD
+  ALERT_ADVERSARY_FIELD,
+  ALERT_TARGET_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
+import * as console from "console";
 
 @Component({
   selector: 'app-alert-entity-display',
   templateUrl: './alert-entity-display.component.html',
-  styleUrls: ['./alert-entity-display.component.css',],
+  styleUrls: ['./alert-entity-display.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AlertEntityDisplayComponent implements OnInit {
-   readonly DESTINATION_IP_FIELD = ALERT_DESTINATION_IP_FIELD;
-   readonly SOURCE_IP_FIELD = ALERT_SOURCE_IP_FIELD;
+export class AlertEntityDisplayComponent implements OnInit, OnChanges {
+  ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
+  ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
    @Input() alert: UtmAlertType;
    @Input() key: string;
    fields = [];
-  constructor() { }
+   geolocationFields = [];
+   type: 'target' | 'adversary';
 
-  ngOnInit() {
-    console.log('key', this.key);
-    this.fields = Object.keys(this.alert[this.key]);
+   constructor() { }
+
+  ngOnChanges(changes: SimpleChanges): void {
+     this.type = this.key === ALERT_TARGET_FIELD ? 'target' : 'adversary';
   }
 
-  protected readonly ALERT_SOURCE_FIELD = ALERT_SOURCE_FIELD;
+  ngOnInit() {
+    this.fields = Object.keys(this.alert[this.key]);
+    this.geolocationFields = Object.keys(this.alert[this.key].geolocation);
+  }
+
 }

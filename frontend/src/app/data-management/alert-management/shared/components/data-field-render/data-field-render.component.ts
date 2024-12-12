@@ -1,14 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {
-  ALERT_DESTINATION_FIELD,
+  ALERT_ADVERSARY_FIELD,
   ALERT_DESTINATION_IP_FIELD,
   ALERT_NOTE_FIELD,
-  ALERT_SEVERITY_FIELD,
-  ALERT_SEVERITY_FIELD_LABEL, ALERT_SOURCE_FIELD,
+  ALERT_SEVERITY_FIELD_LABEL,
   ALERT_SOURCE_IP_FIELD,
   ALERT_STATUS_FIELD,
   ALERT_TAGS_FIELD,
-  ALERT_TIMESTAMP_FIELD
+  ALERT_TARGET_FIELD,
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {UtmDateFormatEnum} from '../../../../../shared/enums/utm-date-format.enum';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
@@ -28,15 +27,13 @@ export class DataFieldRenderComponent implements OnInit {
   @Input() dataType: EventDataTypeEnum;
   @Output() refreshData = new EventEmitter<boolean>();
   STATUS_FIELD = ALERT_STATUS_FIELD;
-  SEVERITY_FIELD = ALERT_SEVERITY_FIELD;
   SEVERITY_LABEL_FIELD = ALERT_SEVERITY_FIELD_LABEL;
   NOTE_FIELD = ALERT_NOTE_FIELD;
   TAGS_FIELD = ALERT_TAGS_FIELD;
-  TIMESTAMP_FIELD = ALERT_TIMESTAMP_FIELD;
   SOURCE_IP_FIELD = ALERT_SOURCE_IP_FIELD;
   DESTINATION_IP_FIELD = ALERT_DESTINATION_IP_FIELD;
-  ALERT_SOURCE_FIELD = ALERT_SOURCE_FIELD;
-  ALERT_DESTINATION_FIELD = ALERT_DESTINATION_FIELD;
+  ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
+  ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   utmFormatDate = UtmDateFormatEnum.UTM_SHORT_UTC;
 
   constructor() {

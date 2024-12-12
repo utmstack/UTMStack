@@ -9,4 +9,5 @@ export class UtmFieldType {
   customStyle?: string;
   filter?: boolean;
   width?: string;
+  fields?: UtmFieldType[];
 }

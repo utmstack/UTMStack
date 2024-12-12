@@ -1,6 +1,8 @@
 <div *ngIf="alert" class="d-flex justify-content-start align-items-center">
-  <app-utm-country-flag *ngIf="countryCode"
-                        [countryCode]="countryCode"
-                        [country]="country"></app-utm-country-flag>
-  <span class="ml-2">{{ip}}</span>
+  <span [ngbTooltip]="'ip'" class="badge bg-primary-300 d-flex align-items-center justify-content-center py-1 px-2">
+    <app-utm-country-flag *ngIf="countryCode"
+                          [countryCode]="countryCode"
+                          [country]="country"></app-utm-country-flag>
+    <span class="ml-2">{{ip}}</span>
+  </span>
 </div>
