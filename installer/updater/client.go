@@ -111,7 +111,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 
 		for _, cv := range master.ComponentVersions {
 			if download {
-				fmt.Printf("Downloading files for component %s version %s\n", cv.Component.Name, cv.VersionName)
+				fmt.Printf("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 				config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 				for _, f := range cv.Files {
 					err = DownloadFile(
@@ -123,6 +123,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 						return fmt.Errorf("error downloading file: %v", err)
 					}
 				}
+				fmt.Println(" [OK]")
 			}
 
 			if runCmds {

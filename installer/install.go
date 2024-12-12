@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
@@ -10,6 +11,16 @@ import (
 )
 
 func Install() error {
+	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackUpdater")
+	if err != nil {
+		return err
+	}
+
+	if isInstalledAlready {
+		fmt.Println("UTMStack is already installed. If you want to re-install it, please remove the service first.")
+		return nil
+	}
+
 	cnf := config.GetConfig()
 
 	fmt.Print("Checking system requirements")
@@ -126,12 +137,13 @@ func Install() error {
 		fmt.Println(" [OK]")
 	}
 
-	fmt.Println("Downloading Dependencies and Base Configurations:")
-	if err := updater.GetUpdaterClient().CheckUpdate(true, false); err != nil {
-		return err
+	if !utils.CheckIfPathExist(filepath.Join(cnf.UpdatesFolder, "download_done.txt")) {
+		if err := updater.GetUpdaterClient().CheckUpdate(true, false); err != nil {
+			return err
+		}
 	}
 
-	fmt.Println("Installing Stack. This may take a while.")
+	fmt.Println("\nInstalling Stack. This may take a while.")
 
 	if err := StackUP(cnf, stack); err != nil {
 		return err
@@ -245,17 +257,17 @@ func Install() error {
 		fmt.Println(" [OK]")
 	}
 
-	if utils.GetLock(10, stack.LocksDir) {
-		fmt.Print("Sending sample logs")
-		if err := SendSampleData(); err != nil {
-			fmt.Printf("error sending sample data: %v", err)
-		}
+	// if utils.GetLock(10, stack.LocksDir) {
+	// 	fmt.Print("Sending sample logs")
+	// 	if err := SendSampleData(); err != nil {
+	// 		fmt.Printf("error sending sample data: %v", err)
+	// 	}
 
-		if err := utils.SetLock(10, stack.LocksDir); err != nil {
-			return err
-		}
-		fmt.Println(" [OK]")
-	}
+	// 	if err := utils.SetLock(10, stack.LocksDir); err != nil {
+	// 		return err
+	// 	}
+	// 	fmt.Println(" [OK]")
+	// }
 
 	fmt.Println("Running post installation scripts. This may take a while.")
 

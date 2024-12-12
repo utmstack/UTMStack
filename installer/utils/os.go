@@ -66,6 +66,11 @@ func CreatePathIfNotExist(path string) error {
 }
 
 func writeToFile(fileName string, body string) error {
+	dir := filepath.Dir(fileName)
+	if err := CreatePathIfNotExist(dir); err != nil {
+		return err
+	}
+
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
 
 	if err != nil {

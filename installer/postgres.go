@@ -28,13 +28,13 @@ func InitPgUtmstack(c *config.Config) error {
 
 	// Creating utmstack
 	_, err = srv.Exec("CREATE DATABASE utmstack")
-	if err != nil {
+	if err != nil && err.Error() != "pq: database \"utmstack\" already exists" {
 		return err
 	}
 
 	// Creating agentmanager
 	_, err = srv.Exec("CREATE DATABASE agentmanager")
-	if err != nil {
+	if err != nil && err.Error() != "pq: database \"agentmanager\" already exists" {
 		return err
 	}
 
@@ -70,13 +70,13 @@ client_licence_id varchar(100) NULL,
 client_licence_verified bool NOT NULL,
 CONSTRAINT utm_client_pkey PRIMARY KEY (id)
 );`)
-	if err != nil {
+	if err != nil && err.Error() != "pq: relation \"utm_client\" already exists" {
 		return err
 	}
 
 	// Insert client data
 	_, err = db.Exec(`INSERT INTO public.utm_client (client_licence_verified) VALUES (false);`)
-	if err != nil {
+	if err != nil && err.Error() != "pq: duplicate key value violates unique constraint \"utm_client_pkey\"" {
 		return err
 	}
 
@@ -103,7 +103,7 @@ func InitPgUserAuditor(c *config.Config) error {
 
 	// Creating user-auditor
 	_, err = srv.Exec("CREATE DATABASE userauditor")
-	if err != nil {
+	if err != nil && err.Error() != "pq: database \"userauditor\" already exists" {
 		return err
 	}
 

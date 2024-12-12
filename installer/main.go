@@ -9,7 +9,7 @@ import (
 
 func main() {
 	fmt.Println("### UTMStack Installer ###")
-	if len(os.Args) < 1 {
+	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "updater":
 			updater.RunService()
