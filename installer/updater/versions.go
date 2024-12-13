@@ -20,7 +20,7 @@ func GetVersions() map[string]string {
 				config.Logger().ErrorF("error writing versions file: %v", err)
 			}
 		} else {
-			err := utils.ReadYAML(config.UpdatesInfoPath, &versions)
+			err := utils.ReadJson(config.UpdatesInfoPath, &versions)
 			if err != nil {
 				config.Logger().ErrorF("error reading versions file: %v", err)
 			}

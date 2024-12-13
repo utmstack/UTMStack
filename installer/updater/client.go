@@ -105,11 +105,6 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 	for _, master := range resp {
 		fmt.Printf("Updating UTMStack to version %s\n", master.VersionName)
 		config.Logger().Info("Updating UTMStack to version %s", master.VersionName)
-		versions := GetVersionsFromMaster(master)
-		err := SaveVersions(versions)
-		if err != nil {
-			return fmt.Errorf("error saving versions: %v", err)
-		}
 
 		for _, cv := range master.ComponentVersions {
 			cVersion, ok := currentVersions[cv.Component.Name]
@@ -144,6 +139,11 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 					}
 				}
 			}
+		}
+
+		err := SaveVersions(GetVersionsFromMaster(master))
+		if err != nil {
+			return fmt.Errorf("error saving versions: %v", err)
 		}
 	}
 
