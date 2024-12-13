@@ -113,7 +113,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 
 		for _, cv := range master.ComponentVersions {
 			cVersion, ok := currentVersions[cv.Component.Name]
-
+			config.Logger().Info("Checking component %s - current version: %s - new version: %s", cv.Component.Name, cVersion, cv.VersionName)
 			if !ok || cVersion != cv.VersionName {
 				if download {
 					fmt.Printf("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
