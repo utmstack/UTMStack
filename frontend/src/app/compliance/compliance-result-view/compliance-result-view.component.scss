@@ -15,35 +15,3 @@
     min-width: 400px;
   }
 }
-
-
-.container-fluid {
-  background-color: #f8f9fa; /* Color de fondo suave para el contenedor */
-}
-
-.card-title {
-  font-weight: bold; /* Hacer el título más destacado */
-}
-
-.btn {
-  background-color: #ffffff; /* Botones con fondo blanco */
-  border: 1px solid #ced4da; /* Bordes gris claro */
-  color: #333; /* Color de texto oscuro */
-}
-
-.btn:hover {
-  background-color: #e9ecef; /* Efecto hover en botones */
-}
-
-.dashboard-loader {
-  height: 100vh; /* Asegurarse de que el loader ocupe toda la altura */
-}
-
-.label-header {
-  font-size: 12px;
-}
-
-.popover-solution {
-  max-width: 300px; /* Ancho máximo del popover */
-}
-
