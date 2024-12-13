@@ -100,6 +100,8 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 		return fmt.Errorf("status code %d: %v", status, resp)
 	}
 
+	currentVersions := GetVersions()
+
 	for _, master := range resp {
 		fmt.Printf("Updating UTMStack to version %s\n", master.VersionName)
 		config.Logger().Info("Updating UTMStack to version %s", master.VersionName)
@@ -110,31 +112,35 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 		}
 
 		for _, cv := range master.ComponentVersions {
-			if download {
-				fmt.Printf("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
-				config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
-				for _, f := range cv.Files {
-					err = DownloadFile(
-						f,
-						fmt.Sprintf("%s%s?file-id=%s", c.Server, config.GetFileEndpoint, f.ID),
-						map[string]string{"instance-id": c.InstanceID, "instance-key": c.InstanceKey},
-					)
-					if err != nil {
-						return fmt.Errorf("error downloading file: %v", err)
-					}
-				}
-				fmt.Println(" [OK]")
-			}
+			cVersion, ok := currentVersions[cv.Component.Name]
 
-			if runCmds {
-				config.Logger().Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
-				for _, cmd := range cv.Scripts {
-					parts := strings.Split(cmd.Script, " ")
-					cmd := parts[0]
-					args := parts[1:]
-					err = utils.RunCmd(cmd, args...)
-					if err != nil {
-						return fmt.Errorf("error running command: %v", err)
+			if !ok || cVersion != cv.VersionName {
+				if download {
+					fmt.Printf("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
+					config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
+					for _, f := range cv.Files {
+						err = DownloadFile(
+							f,
+							fmt.Sprintf("%s%s?file-id=%s", c.Server, config.GetFileEndpoint, f.ID),
+							map[string]string{"instance-id": c.InstanceID, "instance-key": c.InstanceKey},
+						)
+						if err != nil {
+							return fmt.Errorf("error downloading file: %v", err)
+						}
+					}
+					fmt.Println(" [OK]")
+				}
+
+				if runCmds {
+					config.Logger().Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
+					for _, cmd := range cv.Scripts {
+						parts := strings.Split(cmd.Script, " ")
+						cmd := parts[0]
+						args := parts[1:]
+						err = utils.RunCmd(cmd, args...)
+						if err != nil {
+							return fmt.Errorf("error running command: %v", err)
+						}
 					}
 				}
 			}
