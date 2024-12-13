@@ -79,7 +79,7 @@ func (c *UpdaterClient) UpdateProcess() {
 		}
 
 		if config.IsInMaintenanceWindow() {
-			err := c.CheckUpdate(true, true)
+			err := c.CheckUpdate(true, true, 0)
 			if err != nil {
 				config.Logger().ErrorF("error checking update: %v", err)
 			}
@@ -87,7 +87,7 @@ func (c *UpdaterClient) UpdateProcess() {
 	}
 }
 
-func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
+func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error {
 	resp, status, err := utils.DoReq[[]MasterVersion](
 		c.Server+config.GetUpdatesInfoEndpoint,
 		nil,
@@ -100,8 +100,10 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool) error {
 		return fmt.Errorf("status code %d: %v", status, resp)
 	}
 
+	if wait > 0 {
+		time.Sleep(time.Duration(wait) * time.Minute)
+	}
 	currentVersions := GetVersions()
-
 	for _, master := range resp {
 		fmt.Printf("Updating UTMStack to version %s\n", master.VersionName)
 		config.Logger().Info("Updating UTMStack to version %s", master.VersionName)

@@ -138,7 +138,7 @@ func Install() error {
 	}
 
 	if !utils.CheckIfPathExist(filepath.Join(cnf.UpdatesFolder, "download_done.txt")) {
-		if err := updater.GetUpdaterClient().CheckUpdate(true, false); err != nil {
+		if err := updater.GetUpdaterClient().CheckUpdate(true, false, 3); err != nil {
 			return err
 		}
 	}
@@ -257,6 +257,10 @@ func Install() error {
 		fmt.Println(" [OK]")
 	}
 
+	fmt.Print("Installing Updater Service")
+	updater.InstallService()
+	fmt.Println(" [OK]")
+
 	// if utils.GetLock(10, stack.LocksDir) {
 	// 	fmt.Print("Sending sample logs")
 	// 	if err := SendSampleData(); err != nil {
@@ -274,9 +278,6 @@ func Install() error {
 	if err := PostInstallation(); err != nil {
 		return err
 	}
-
-	fmt.Println("Installing Updater Service")
-	updater.InstallService()
 
 	fmt.Println("Installation fisnished successfully. We have generated a configuration file for you, please do not modify or remove it. You can find it at /root/utmstack.yml.")
 	fmt.Println("You can also use it to re-install your stack in case of a disaster or changes in your hardware. Just run the installer again.")
