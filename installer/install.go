@@ -11,7 +11,7 @@ import (
 )
 
 func Install() error {
-	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackUpdater")
+	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
 	if err != nil {
 		return err
 	}
