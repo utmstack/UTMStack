@@ -59,7 +59,7 @@ public class SocAIService {
         }
     }
 
-    @Scheduled(fixedDelay = 30000)
+    /*@Scheduled(fixedDelay = 30000)*/
     public void sendRequests() {
         final String ctx = CLASSNAME + ".sendRequests";
         try {
