@@ -198,7 +198,9 @@ export class UtmAgentConsoleComponent implements OnInit, OnDestroy {
 
   checkPassword() {
     const uuid = UUID.UUID();
-    this.accountService.checkPassword(this.pass, uuid).subscribe(response => {
+    const encodedPassword = encodeURIComponent(this.pass);
+    const encodedUUID = encodeURIComponent(uuid);
+    this.accountService.checkPassword(encodedPassword, encodedUUID).subscribe(response => {
       if (response.body !== uuid) {
         this.toast.showError('Invalid check UUID', 'UUID to check your password does not match');
       } else {
