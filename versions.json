@@ -4,7 +4,7 @@
     "agent-installer": "11.0.0",
     "agent-manager": "11.0.0",
     "backend": "11.0.1",
-    "frontend": "11.0.0",
+    "frontend": "11.0.1",
     "pipelines": "11.0.0",
     "plugins-alerts": "11.0.0",
     "plugins-aws": "11.0.0",
