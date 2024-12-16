@@ -1,6 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IndexFieldController} from '../../../../../../log-analyzer/shared/behaviors/index-field-controller.behavior';
 import {UtmFieldType} from '../../../../../types/table/utm-field.type';
+import {
+  AlertFieldService
+} from "../../../../../../data-management/alert-management/shared/services/alert-field.service";
 
 @Component({
   selector: 'app-utm-dtable-columns',
@@ -29,21 +32,52 @@ export class UtmDtableColumnsComponent implements OnInit {
   activeSelected: UtmFieldType;
 
   innerFields: UtmFieldType[];
-  constructor(private indexFieldController: IndexFieldController) {
+  constructor(private indexFieldController: IndexFieldController,
+              private alertFieldService: AlertFieldService) {
   }
 
   ngOnInit() {
     this.innerFields = this.fields.slice();
   }
 
-  public removeItem(item: UtmFieldType): void {
+/*  public removeItem(item: UtmFieldType): void {
     if (this.showInactive) {
       this.fields[this.fields.indexOf(item)].visible = false;
     } else {
       this.fields.splice(this.fields.indexOf(item), 1);
       this.indexFieldController.$field.next(item.field);
     }
+  }*/
+
+  removeItem(item: UtmFieldType): void {
+    const findAndUpdateItem = (fields: UtmFieldType[], itemToRemove: UtmFieldType): boolean => {
+      for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+        if (field === itemToRemove) {
+            if (this.showInactive) {
+              field.visible = false;
+              this.alertFieldService.update(field);
+            } else {
+              fields.splice(i, 1);
+              this.indexFieldController.$field.next(field.field);
+            }
+            return true;
+        }
+        if (field.fields) {
+          const found = findAndUpdateItem(field.fields, itemToRemove);
+          if (found) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    if (findAndUpdateItem(this.fields, item)) {
+      console.log(this.fields);
+    }
   }
+
+
 
   setVisibleItem(item: UtmFieldType) {
     this.fields[this.fields.indexOf(item)].visible = true;

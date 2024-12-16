@@ -62,6 +62,9 @@ export const ALERT_DESTINATION_USER_FIELD = 'destination.user';
 
 // TARGET
 export const ALERT_TARGET_IP_FIELD = 'target.ip';
+export const ALERT_TARGET_BYTES_SENT_FIELD = 'target.bytesSent';
+export const ALERT_TARGET_URL_FIELD = 'target.url';
+export const ALERT_TARGET_DOMAIN_FIELD = 'target.domain';
 export const ALERT_TARGET_GEOLOCATION_ASN_FIELD = 'target.geolocation.asn';
 export const ALERT_TARGET_GEOLOCATION_ASO_FIELD = 'target.geolocation.aso';
 export const ALERT_TARGET_GEOLOCATION_CITY_FIELD = 'target.geolocation.city';
@@ -72,6 +75,9 @@ export const ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD = 'target.geolocation.long
 
 // ADVERSARY
 export const ALERT_ADVERSARY_IP_FIELD = 'adversary.ip';
+export const ALERT_ADVERSARY_BYTES_SENT_FIELD = 'adversary.bytesSent';
+export const ALERT_ADVERSARY_URL_FIELD = 'adversary.url';
+export const ALERT_ADVERSARY_DOMAIN_FIELD = 'adversary.domain';
 export const ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD = 'adversary.geolocation.asn';
 export const ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD = 'adversary.geolocation.aso';
 export const ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD = 'adversary.geolocation.city';
@@ -134,7 +140,49 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     fields: [
       {
         label: 'Target IP',
-        field: ALERT_SOURCE_IP_FIELD,
+        field: ALERT_TARGET_IP_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target URL',
+        field: ALERT_TARGET_URL_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Bytes Sent',
+        field: ALERT_TARGET_BYTES_SENT_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Domain',
+        field: ALERT_TARGET_DOMAIN_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target ASN',
+        field: ALERT_TARGET_GEOLOCATION_ASN_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target ASO',
+        field: ALERT_TARGET_GEOLOCATION_ASO_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Latitude',
+        field: ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Longitude',
+        field: ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
         type: ElasticDataTypesEnum.STRING,
         visible: true,
       }
@@ -145,31 +193,57 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     field: ALERT_ADVERSARY_FIELD,
     type: ElasticDataTypesEnum.OBJECT,
     visible: true,
+    fields: [
+      {
+        label: 'Target IP',
+        field: ALERT_ADVERSARY_IP_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target URL',
+        field: ALERT_ADVERSARY_URL_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Bytes Sent',
+        field: ALERT_ADVERSARY_BYTES_SENT_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Domain',
+        field: ALERT_ADVERSARY_DOMAIN_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target ASN',
+        field: ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target ASO',
+        field: ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Latitude',
+        field: ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Target Longitude',
+        field: ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      }
+    ]
   },
-  /*{
-    label: 'Source IP',
-    field: ALERT_SOURCE_IP_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Source user',
-    field: ALERT_SOURCE_USER_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Destination IP',
-    field: ALERT_DESTINATION_IP_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },
-  {
-    label: 'Destination user',
-    field: ALERT_DESTINATION_USER_FIELD,
-    type: ElasticDataTypesEnum.STRING,
-    visible: true,
-  },*/
   {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
@@ -200,7 +274,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     type: ElasticDataTypesEnum.STRING,
     visible: false,
   },
-  {
+  /*{
     label: 'Source hostname',
     field: ALERT_SOURCE_HOSTNAME_FIELD,
     type: ElasticDataTypesEnum.STRING,
@@ -295,7 +369,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     field: ALERT_DESTINATION_ASN_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: false,
-  },
+  },*/
   {
     label: 'Category',
     field: ALERT_CATEGORY_FIELD,

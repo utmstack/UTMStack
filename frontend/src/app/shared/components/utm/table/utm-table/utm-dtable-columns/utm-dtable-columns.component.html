@@ -48,16 +48,26 @@
     <ngx-sortable [items]="fields"
                   [name]="'Visible '+(label ? label : 'columns')">
       <ng-template let-item>
-        <div (click)="activeSelected = item"
-             *ngIf="item.visible"
-             class="sortable-list-item p-1 d-flex justify-content-between align-items-center">
+        <div *ngIf="item.visible" class="sortable-list-item p-1 d-flex justify-content-between align-items-center">
           <label class="field-name">{{item.label ? item.label : item.field}}</label>
-          <i (click)="removeItem(item)"
-             [ngbTooltip]="'Inactive ' +(item.label ? item.label : 'column')"
+          <i *ngIf="!item.fields" (click)="removeItem(item)"
+             [ngbTooltip]="'Inactive ' + (item.label ? item.label : 'column')"
              class="icon-eye-blocked cursor-pointer"
-             placement="auto"
-          ></i>
+             placement="auto">
+          </i>
         </div>
+        <ng-container *ngIf="item.fields">
+          <div *ngFor="let child of item.fields">
+            <div class="d-flex justify-content-between align-items-center p-1 pl-2">
+              <label class="field-name">{{child.label ? child.label : child.field}}</label>
+              <i *ngIf="item.fields" (click)="removeItem(child)"
+                 [ngbTooltip]="'Inactive ' + (child.label ? child.label : 'column')"
+                 class="icon-eye-blocked cursor-pointer"
+                 placement="auto">
+              </i>
+            </div>
+          </div>
+        </ng-container>
       </ng-template>
     </ngx-sortable>
   </div>

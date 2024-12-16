@@ -24,10 +24,12 @@ import {AlertTagsApplyComponent} from './components/alert-actions/alert-apply-ta
 import {
   AlertSeverityDescriptionComponent
 } from './components/alert-actions/alert-severity-description/alert-severity-description.component';
+import {AlertBadgeFieldComponent} from './components/alert-badge-field/alert-badge-field.component';
 import {AlertCategoryComponent} from './components/alert-category/alert-category.component';
 import {AlertCompleteComponent} from './components/alert-complete/alert-complete.component';
 import {AlertDescriptionComponent} from './components/alert-description/alert-description.component';
 import {AlertDocUpdateInProgressComponent} from './components/alert-doc-update-in-progress/alert-doc-update-in-progress.component';
+import { AlertEntityDisplayComponent } from './components/alert-entity-display/alert-entity-display.component';
 import {AlertFullLogComponent} from './components/alert-full-log/alert-full-log.component';
 import {AlertHistoryComponent} from './components/alert-history/alert-history.component';
 import {AlertHostDetailComponent} from './components/alert-host-detail/alert-host-detail.component';
@@ -52,7 +54,6 @@ import {AlertGenericFilterComponent} from './components/filters/alert-generic-fi
 import {FilterAppliedComponent} from './components/filters/filter-applied/filter-applied.component';
 import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-filters.component';
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
-import { AlertEntityDisplayComponent } from './components/alert-entity-display/alert-entity-display.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +96,8 @@ import { AlertEntityDisplayComponent } from './components/alert-entity-display/a
     AlertStatusViewComponent,
     AlertIncidentDetailComponent,
     AlertSocAiComponent,
-    AlertEntityDisplayComponent
+    AlertEntityDisplayComponent,
+    AlertBadgeFieldComponent
   ],
   entryComponents: [
     AlertStatusComponent,
@@ -145,7 +147,8 @@ import { AlertEntityDisplayComponent } from './components/alert-entity-display/a
     AlertStatusViewComponent,
     AlertIncidentDetailComponent,
     AlertSocAiComponent,
-    AlertEntityDisplayComponent
+    AlertEntityDisplayComponent,
+    AlertBadgeFieldComponent
   ],
   imports: [
     CommonModule,

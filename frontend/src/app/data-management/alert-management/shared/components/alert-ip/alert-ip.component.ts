@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {
-  ALERT_ADVERSARY_GEOLOCATION_COUNTRY, ALERT_ADVERSARY_GEOLOCATION_COUNTRY_CODE,
+  ALERT_ADVERSARY_GEOLOCATION_COUNTRY_CODE_FIELD,
+  ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD,
   ALERT_ADVERSARY_IP_FIELD,
   ALERT_DESTINATION_COUNTRY_CODE_FIELD,
   ALERT_DESTINATION_COUNTRY_FIELD,
@@ -8,8 +9,8 @@ import {
   ALERT_SOURCE_COUNTRY_CODE_FIELD,
   ALERT_SOURCE_COUNTRY_FIELD,
   ALERT_SOURCE_IP_FIELD,
-  ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD,
   ALERT_TARGET_GEOLOCATION_COUNTRY_CODE_FIELD,
+  ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD,
   ALERT_TARGET_IP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
@@ -64,12 +65,11 @@ export class AlertIpComponent implements OnInit, OnChanges {
         break;
       case 'adversary':
         this.ipField = ALERT_ADVERSARY_IP_FIELD;
-        this.countryField = ALERT_ADVERSARY_GEOLOCATION_COUNTRY;
-        this.countryCodeField = ALERT_ADVERSARY_GEOLOCATION_COUNTRY_CODE;
+        this.countryField = ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD;
+        this.countryCodeField = ALERT_ADVERSARY_GEOLOCATION_COUNTRY_CODE_FIELD;
         break;
       default:
         break;
     }
   }
-
 }

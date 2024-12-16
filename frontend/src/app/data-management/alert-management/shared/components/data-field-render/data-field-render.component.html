@@ -14,8 +14,8 @@
                         [alert]="data"
                         [showTagsLabel]="true"></app-alert-tags-apply>
   <app-alert-apply-note *ngSwitchCase="NOTE_FIELD" [alert]="data" [showNote]="true"></app-alert-apply-note>
-  <app-alert-entity-display [key]="ALERT_TARGET_FIELD" [alert]="data" *ngSwitchCase="ALERT_TARGET_FIELD"></app-alert-entity-display>
-  <app-alert-entity-display [key]="ALERT_ADVERSARY_FIELD" [alert]="data" *ngSwitchCase="ALERT_ADVERSARY_FIELD"></app-alert-entity-display>
+  <app-alert-entity-display [field]="field" [key]="ALERT_TARGET_FIELD" [alert]="data" *ngSwitchCase="ALERT_TARGET_FIELD"></app-alert-entity-display>
+  <app-alert-entity-display [field]="field" [key]="ALERT_ADVERSARY_FIELD" [alert]="data" *ngSwitchCase="ALERT_ADVERSARY_FIELD"></app-alert-entity-display>
   <span *ngSwitchDefault [ngClass]="field.customStyle">
     <span *ngIf="field.type!=='date';else dateValue"
           [openDelay]="3000" ngbTooltip="{{resolveValue(data, field)}}">
