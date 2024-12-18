@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {NgbActiveModal, NgbDate, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {TimeFilterBehavior} from '../../../../behaviors/time-filter.behavior';
 import {ElasticTimeEnum} from '../../../../enums/elastic-time.enum';
 import {ElasticFilterCommonType} from '../../../../types/filter/elastic-filter-common.type';
@@ -7,9 +9,6 @@ import {TimeFilterType} from '../../../../types/time-filter.type';
 import {ngbDateToDate} from '../../../../util/date.util';
 import {setMaxDateToday} from '../../../../util/datepicker-util';
 import {buildFormatInstantFromDate, resolveInstantDate, resolveUTCDate} from '../../../../util/utm-time.util';
-import {Subject} from "rxjs";
-import {filter, map, takeUntil} from "rxjs/operators";
-import {LogFilterBehavior} from "../../../../../log-analyzer/shared/behaviors/log-filter.behavior";
 
 @Component({
   selector: 'app-elastic-filter-time',
@@ -69,8 +68,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
   destroy$: Subject<void> = new Subject();
 
   constructor(public activeModal: NgbActiveModal,
-              private timeFilterBehavior: TimeFilterBehavior,
-              private logFilterBehavior: LogFilterBehavior,) {
+              private timeFilterBehavior: TimeFilterBehavior) {
   }
 
 
@@ -95,23 +93,15 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
       if (time && !this.isEmitter) {
         this.dateTo = time.to;
         this.dateFrom = time.from;
-        if (!this.formatInstant) {
-          this.timeFilterChange.emit({timeFrom: time.from, timeTo: time.to});
-        } else {
-          this.timeFilterChange.emit(buildFormatInstantFromDate(time));
+        if (time.update) {
+          if (!this.formatInstant) {
+            this.timeFilterChange.emit({timeFrom: time.from, timeTo: time.to});
+          } else {
+            this.timeFilterChange.emit(buildFormatInstantFromDate(time));
+          }
         }
       }
     });
-
-    this.logFilterBehavior.$logFilter
-      .pipe(takeUntil(this.destroy$),
-            map(logFilter =>
-                logFilter.filter.filter( f => f.field === '@timestamp')[0]),
-            filter( filterTime => !!filterTime))
-      .subscribe(filterTime => {
-        this.dateTo = filterTime.value[1];
-        this.dateFrom = filterTime.value[0];
-      });
 
     if (this.changeOnInit !== 'NO') {
       if (this.timeDefault) {

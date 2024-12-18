@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {NgbActiveModal, NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from "rxjs";
+import {filter, takeUntil} from 'rxjs/operators';
 import {FILTER_OPERATORS} from '../../../../constants/filter-operators.const';
 import {ElasticOperatorsEnum} from '../../../../enums/elastic-operators.enum';
 import {NatureDataPrefixEnum} from '../../../../enums/nature-data.enum';
@@ -8,8 +10,7 @@ import {OperatorsType} from '../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../types/time-filter.type';
 import {ElasticFilterDefaultTime} from '../elastic-filter-time/elastic-filter-time.component';
 import {UtmFilterBehavior} from './shared/behavior/utm-filter.behavior';
-import {Subject} from "rxjs";
-import {filter, takeUntil} from "rxjs/operators";
+import {TimeFilterBehavior} from "../../../../behaviors/time-filter.behavior";
 
 @Component({
   selector: 'app-utm-elastic-filter',
@@ -30,8 +31,8 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
   destroy$: Subject<void> = new Subject<void>();
 
   constructor(public modalService: NgbModal,
-              private activeModal: NgbActiveModal,
-              private utmFilterBehavior: UtmFilterBehavior) {
+              private utmFilterBehavior: UtmFilterBehavior,
+              private timeFilterBehavior: TimeFilterBehavior) {
   }
 
   ngOnInit() {
@@ -51,6 +52,7 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
   }
 
   addFilter($event: ElasticFilterType) {
+    console.log('Update', $event);
     this.popoverFilter.close();
     if (!this.editMode) {
       this.filters.push($event);
@@ -60,6 +62,12 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
     this.editMode = false;
     this.filterSelected = null;
     this.filterChange.emit(this.filters);
+
+    this.timeFilterBehavior.$time.next({
+      to: $event.value[1],
+      from: $event.value[0],
+      update: true
+    });
   }
 
   onTimeFilterChange($event: TimeFilterType) {
