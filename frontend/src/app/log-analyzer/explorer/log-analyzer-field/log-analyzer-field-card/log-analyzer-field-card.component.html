@@ -12,11 +12,13 @@
       {{processField(field.name)}}
     </span>
   </span>
-  <span (click)="addToColumns(field)" [hidden]="!viewAddButton"
-        [ngClass]="isInColumns(field) ? 'bg-danger-600' : 'bg-blue-800'"
-        class="badge cursor-pointer font-weight-light">
+  <ng-container *ngIf="field.name !== '@timestamp'">
+    <span (click)="addToColumns(field)" [hidden]="!viewAddButton"
+          [ngClass]="isInColumns(field) ? 'bg-danger-600' : 'bg-blue-800'"
+          class="badge cursor-pointer font-weight-light">
    {{isInColumns(field) ? 'remove' : 'add'}}
   </span>
+  </ng-container>
 </div>
 <div *ngIf="isCollapsed" id="collapseFieldProperty">
   <div class="card">

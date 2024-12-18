@@ -1,14 +1,21 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit, Type} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
 import {Observable, Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {ElasticFilterDefaultTime} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
-import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
-import {UtmTableDetailComponent} from '../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
+import {
+  ElasticFilterDefaultTime
+} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {
+  UtmFilterBehavior
+} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
+import {
+  UtmTableDetailComponent
+} from '../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
@@ -24,13 +31,15 @@ import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.typ
 import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pattern';
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {parseQueryParamsToFilter} from '../../../shared/util/query-params-to-filter.util';
-import {LogAnalyzerQueryCreateComponent} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
+import {
+  LogAnalyzerQueryCreateComponent
+} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
 import {IndexFieldController} from '../../shared/behaviors/index-field-controller.behavior';
 import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavior';
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
 import {QueryRunBehavior} from '../../shared/behaviors/query-run.behavior';
+import {TabService} from '../../shared/services/tab.service';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
-import {filter, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-log-analyzer-view',
@@ -46,9 +55,13 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   itemsPerPage = ITEMS_PER_PAGE;
   totalItems = LOG_ANALYZER_TOTAL_ITEMS;
   view: 'table' | 'chart' = 'table';
-  filters: ElasticFilterType[] = [{field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-24h', 'now']}];
+  filters: ElasticFilterType[] = [{
+    field: '@timestamp',
+    operator: ElasticOperatorsEnum.IS_BETWEEN,
+    value: ['now-24h', 'now']
+  }];
   selectedFields: ElasticSearchFieldInfoType[] = [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
-  dataNature: DataNatureTypeEnum = DataNatureTypeEnum.EVENT;
+  dataNature: string = DataNatureTypeEnum.EVENT;
   queryParams: any;
   counter: any;
   runningQuery: boolean;
@@ -80,35 +93,41 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
               private utmFilterBehavior: UtmFilterBehavior,
               private elasticDataExportService: ElasticDataExportService,
               private timezoneFormatService: TimezoneFormatService,
-              private logFilterBehavior: LogFilterBehavior) {
+              private logFilterBehavior: LogFilterBehavior,
+              private router: Router,
+              private tabService: TabService) {
+
     this.detailWidth = (this.pageWidth - 310);
   }
 
   ngOnInit() {
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.queryParams = Object.entries(params).length > 0 ? params : null;
-      if (this.queryParams) {
-        if (this.queryParams['@timestamp']) {
-          const range = this.queryParams['@timestamp'].split('->')[1].split(',');
-          this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
-          this.filters[0] = {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: [range[0], range[1]]};
-        }
-        this.dataNature = params.indexPattern;
-        if (params.patternId) {
-          this.pattern = new UtmIndexPattern(params.patternId, params.indexPattern, true);
-          this.indexPatternBehavior.$pattern.next({pattern: this.pattern, tabUUID: this.uuid});
-        }
-      }
-    });
+    this.activatedRoute.queryParams
+      .subscribe(params => {
+          this.queryParams = Object.entries(params).length > 0 ? params : null;
+          if (this.queryParams) {
+            if (this.queryParams['@timestamp']) {
+              const range = this.queryParams['@timestamp'].split('->')[1].split(',');
+              this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
+              this.filters[0] = {
+                field: '@timestamp',
+                operator: ElasticOperatorsEnum.IS_BETWEEN,
+                value: [range[0], range[1]]
+              };
+            }
+          }
+      });
     this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
     this.initExplorer();
   }
 
   initExplorer() {
-
+    this.dataNature = this.data.pattern.pattern;
+    this.pattern = this.data.pattern;
+    this.indexPatternBehavior.changePattern({pattern: this.pattern, tabUUID: this.uuid});
     this.logFilterBehavior.$logFilter.next({filter: this.filters, sort: this.sortBy});
+
     this.resolveParams().then((dataNature) => {
-      this.indexPatternBehavior.$pattern
+      this.indexPatternBehavior.pattern$
         .pipe(
           takeUntil(this.destroy$),
           filter((nature) => !!nature && this.uuid === nature.tabUUID)
@@ -124,7 +143,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.getData();
           }, 1000);
-      });
+        });
     });
   }
 
@@ -140,12 +159,14 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
         origin = this.dataNature;
         // get filters from url and add to current filter
         parseQueryParamsToFilter(this.queryParams).then((filters) => {
-          filters.forEach(filter => {
-            const indexFilter = this.filters.findIndex(value => value.field === filter.field);
+          filters.forEach(filterType => {
+            const indexFilter = this.filters.findIndex(value => value.field === filterType.field);
             if (indexFilter !== -1) {
-              this.filters[indexFilter] = filter;
+              this.filters[indexFilter] = filterType;
             } else {
-              this.filters.push(filter);
+              if (filterType.field !== 'refreshRoute') {
+                this.filters.push(filterType);
+              }
             }
           });
           // this.filters = this.filters.concat(filters);
@@ -159,7 +180,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       if (this.data) {
         this.selectedFields = [];
         this.fields = this.data.columnsType;
-        this.filters = this.data.filtersType ? this.data.filtersType : [];
+        this.filters = this.data.filtersType ? this.data.filtersType : this.filters;
         origin = this.data.pattern.pattern;
         this.pattern = this.data.pattern;
         if (this.fields) {
@@ -245,16 +266,24 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   changeFields(pattern: UtmIndexPattern) {
-
-    this.utmFilterBehavior.$filterChange.next(null);
+    /*this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.filters = this.filters.filter(value => value.operator === ElasticOperatorsEnum.IS_IN_FIELD || value.field === '@timestamp');
-    this.indexPatternBehavior.$pattern.next({pattern, tabUUID: this.uuid});
+    //this.indexPatternBehavior.changePattern({pattern: this.pattern, tabUUID: this.uuid});
     this.selectedFields = [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
     this.sortBy = NatureDataPrefixEnum.TIMESTAMP + ',' + 'desc';
     this.pattern = pattern;
-    this.fields = [{field: '@timestamp', type: ElasticDataTypesEnum.DATE, visible: true, label: '@timestamp'}];
+    this.fields = [{field: '@timestamp', type: ElasticDataTypesEnum.DATE, visible: true, label: '@timestamp'}];*/
 
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        patternId: pattern.id,
+        indexPattern: pattern.pattern,
+        refreshRoute: true
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   saveQuery() {

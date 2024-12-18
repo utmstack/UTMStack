@@ -1,4 +1,4 @@
-<ng-container *ngIf="tabs$ | async as tabs">
+<ng-container *ngIf="tabs$ | async as tabs;">
   <div class="log-analyzer-container container-fluid pr-2 pl-2 pt-2">
     <div class="d-flex justify-content-between align-items-center mb-2 tab-header">
       <h5 class="card-title mb-0 text-uppercase label-header">
@@ -36,7 +36,7 @@
         class="text-blue-800 mt-3 cursor-pointer">Add new tab to explore your data</h6>
   </div>
   <div *ngIf="tabs.length > 0">
-    <div *ngFor="let tab of tabs; let tabIndex = index" class="tab-container">
+    <div *ngFor="let tab of tabs; let tabIndex = index;  trackBy: trackByFn" class="tab-container">
       <app-tab-content [hidden]="tab !== tabSelected" [tab]="tab"></app-tab-content>
     </div>
   </div>

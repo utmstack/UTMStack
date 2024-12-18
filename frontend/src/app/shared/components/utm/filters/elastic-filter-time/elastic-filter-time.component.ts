@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {NgbActiveModal, NgbDate, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {TimeFilterBehavior} from '../../../../behaviors/time-filter.behavior';
 import {ElasticTimeEnum} from '../../../../enums/elastic-time.enum';
 import {ElasticFilterCommonType} from '../../../../types/filter/elastic-filter-common.type';
@@ -63,8 +65,10 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
   maxDate = setMaxDateToday();
   public isCollapsed = false;
   isCollapsedCommon = true;
+  destroy$: Subject<void> = new Subject();
 
-  constructor(public activeModal: NgbActiveModal, private timeFilterBehavior: TimeFilterBehavior) {
+  constructor(public activeModal: NgbActiveModal,
+              private timeFilterBehavior: TimeFilterBehavior) {
   }
 
 
@@ -78,17 +82,23 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnDestroy(): void {
     this.timeFilterBehavior.$time.next(null);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit() {
-    this.timeFilterBehavior.$time.subscribe(time => {
+    this.timeFilterBehavior.$time
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(time => {
       if (time && !this.isEmitter) {
         this.dateTo = time.to;
         this.dateFrom = time.from;
-        if (!this.formatInstant) {
-          this.timeFilterChange.emit({timeFrom: time.from, timeTo: time.to});
-        } else {
-          this.timeFilterChange.emit(buildFormatInstantFromDate(time));
+        if (time.update) {
+          if (!this.formatInstant) {
+            this.timeFilterChange.emit({timeFrom: time.from, timeTo: time.to});
+          } else {
+            this.timeFilterChange.emit(buildFormatInstantFromDate(time));
+          }
         }
       }
     });
