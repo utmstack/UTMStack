@@ -36,19 +36,18 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.filters = this.filters ? this.filters : [];
-
     this.utmFilterBehavior.$filterChange
       .pipe(takeUntil(this.destroy$),
-            filter(filterType => !!filterType))
+        filter(filterType => !!filterType))
       .subscribe(filterType => {
-      if (filterType.status === 'ACTIVE') {
-        this.filters.push(filterType);
-      } else {
-        this.filters = this.filters.filter(f => f.value !== filterType.value);
-      }
+        if (filterType.status === 'ACTIVE') {
+          this.filters.push(filterType);
+        } else {
+          this.filters = this.filters.filter(f => f.value !== filterType.value);
+        }
 
-      this.filterChange.emit(this.filters);
-    });
+        this.filterChange.emit(this.filters);
+      });
   }
 
   addFilter($event: ElasticFilterType) {

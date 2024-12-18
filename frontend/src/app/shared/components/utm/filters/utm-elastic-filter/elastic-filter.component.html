@@ -28,7 +28,7 @@
              {{getFilterLabel(filter)}}
              </span>
           </div>
-          <span>
+          <span *ngIf="filter.field !== '@timestamp'">
               <i (click)="deleteFilter(filter)" class="icon-cross2 ml-2 cursor-pointer"></i>
           </span>
         </div>
