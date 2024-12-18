@@ -7,6 +7,9 @@ import {TimeFilterType} from '../../../../types/time-filter.type';
 import {ngbDateToDate} from '../../../../util/date.util';
 import {setMaxDateToday} from '../../../../util/datepicker-util';
 import {buildFormatInstantFromDate, resolveInstantDate, resolveUTCDate} from '../../../../util/utm-time.util';
+import {Subject} from "rxjs";
+import {filter, map, takeUntil} from "rxjs/operators";
+import {LogFilterBehavior} from "../../../../../log-analyzer/shared/behaviors/log-filter.behavior";
 
 @Component({
   selector: 'app-elastic-filter-time',
@@ -63,8 +66,11 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
   maxDate = setMaxDateToday();
   public isCollapsed = false;
   isCollapsedCommon = true;
+  destroy$: Subject<void> = new Subject();
 
-  constructor(public activeModal: NgbActiveModal, private timeFilterBehavior: TimeFilterBehavior) {
+  constructor(public activeModal: NgbActiveModal,
+              private timeFilterBehavior: TimeFilterBehavior,
+              private logFilterBehavior: LogFilterBehavior,) {
   }
 
 
@@ -78,10 +84,14 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnDestroy(): void {
     this.timeFilterBehavior.$time.next(null);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit() {
-    this.timeFilterBehavior.$time.subscribe(time => {
+    this.timeFilterBehavior.$time
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(time => {
       if (time && !this.isEmitter) {
         this.dateTo = time.to;
         this.dateFrom = time.from;
@@ -92,6 +102,16 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
         }
       }
     });
+
+    this.logFilterBehavior.$logFilter
+      .pipe(takeUntil(this.destroy$),
+            map(logFilter =>
+                logFilter.filter.filter( f => f.field === '@timestamp')[0]),
+            filter( filterTime => !!filterTime))
+      .subscribe(filterTime => {
+        this.dateTo = filterTime.value[1];
+        this.dateFrom = filterTime.value[0];
+      });
 
     if (this.changeOnInit !== 'NO') {
       if (this.timeDefault) {
