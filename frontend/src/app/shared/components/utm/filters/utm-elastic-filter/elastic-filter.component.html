@@ -1,14 +1,30 @@
 <div class="d-flex m-0">
   <div class="flex-grow-1">
-    <div class="card w-100 d-flex justify-content-between align-items-center flex-row m-0 p-2">
+    <div class="card w-100 d-flex justify-content-start align-items-center flex-row m-0 p-2">
+      <div class="actions-filters d-flex align-items-center">
+        <span #popoverFilter="ngbPopover"
+              (click)="filterSelected=null;indexEdit=null;editMode=false;"
+              [ngbPopover]="addContent"
+              [popoverTitle]="addTitle"
+              ngbTooltip="Add filter"
+              autoClose="outside"
+              class="setting-filter mr-2 text-blue-800 cursor-pointer"
+              placement="right"
+              popoverClass="utm-popover-bottom">
+                <i class="icon-filter4"></i>
+        </span>
+        <span (click)="resetFilters()" ngbTooltip="Clear filter" class="cursor-pointer mr-2">
+          <i class="icon-eraser2"></i>
+        </span>
+      </div>
       <div class="filters d-flex justify-content-start align-items-center flex-wrap">
-      <span [ngbPopover]="popContent"
+      <!--<span [ngbPopover]="popContent"
             [popoverTitle]="popTitle"
             class="setting-filter mr-3 text-blue-800 cursor-pointer"
             placement="right"
             popoverClass="utm-popover-right">
     <i class="icon-filter4"></i>
-   </span>
+   </span>-->
         <div #popoverField="ngbPopover"
              *ngFor="let filter of resolveFilters(); let index = index;"
              (click)="filterSelected=filter;indexEdit=index"
@@ -32,19 +48,6 @@
               <i (click)="deleteFilter(filter)" class="icon-cross2 ml-2 cursor-pointer"></i>
           </span>
         </div>
-      </div>
-      <div class="actions-filters d-flex align-items-center">
-        <span #popoverFilter="ngbPopover"
-              (click)="filterSelected=null;indexEdit=null;editMode=false;"
-              [ngbPopover]="addContent"
-              [popoverTitle]="addTitle"
-              autoClose="outside"
-              class="setting-filter mr-3 text-blue-800 cursor-pointer font-weight-light text-nowrap span-small-icon"
-              placement="bottom"
-              popoverClass="utm-popover-bottom">
-      <i class="icon-plus3"></i>
-      Add filter
-    </span>
       </div>
     </div>
   </div>

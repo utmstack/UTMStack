@@ -10,7 +10,7 @@ import {OperatorsType} from '../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../types/time-filter.type';
 import {ElasticFilterDefaultTime} from '../elastic-filter-time/elastic-filter-time.component';
 import {UtmFilterBehavior} from './shared/behavior/utm-filter.behavior';
-import {TimeFilterBehavior} from "../../../../behaviors/time-filter.behavior";
+import {TimeFilterBehavior} from '../../../../behaviors/time-filter.behavior';
 
 @Component({
   selector: 'app-utm-elastic-filter',
@@ -126,5 +126,9 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  resetFilters() {
+    this.filters = this.filters.filter( f => f.field === NatureDataPrefixEnum.TIMESTAMP );
   }
 }
