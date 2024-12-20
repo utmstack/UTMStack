@@ -1,6 +1,6 @@
 <ng-container *ngIf="tabs$ | async as tabs;">
   <div class="log-analyzer-container container-fluid pr-2 pl-2 pt-2">
-    <div class="d-flex justify-content-between align-items-center mb-2 tab-header">
+    <!--<div class="d-flex justify-content-between align-items-center mb-2 tab-header">
       <h5 class="card-title mb-0 text-uppercase label-header">
         Log analyzer
       </h5>
@@ -9,7 +9,7 @@
           <i class="icon-zoomin3 mr-1"></i> Queries
         </button>
       </div>
-    </div>
+    </div>-->
     <ul class="nav nav-tabs">
       <li (click)="tabChanged(tab)" *ngFor="let tab of tabs; let tabIndex = index"
           class="nav-item">

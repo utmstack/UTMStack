@@ -10,3 +10,49 @@
     overflow: hidden;
   }
 }
+
+.icon-hover {
+  display: none;
+}
+
+.card-field {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.card-field:hover {
+  transform: translateY(2px);
+}
+
+.card-field .field-name {
+  position: relative;
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.card-field .field-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+
+.card-field:hover {
+  .field-name {
+    text-decoration: underline;
+  }
+  .icon-field {
+    display: none;
+  }
+  .icon-hover {
+    display: inline-block;
+  }
+}
+
+
+

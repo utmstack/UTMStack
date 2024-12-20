@@ -1,7 +1,8 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
-import {Subject} from "rxjs";
+import {Subject} from 'rxjs';
 import {filter, takeUntil} from 'rxjs/operators';
+import {TimeFilterBehavior} from '../../../../behaviors/time-filter.behavior';
 import {FILTER_OPERATORS} from '../../../../constants/filter-operators.const';
 import {ElasticOperatorsEnum} from '../../../../enums/elastic-operators.enum';
 import {NatureDataPrefixEnum} from '../../../../enums/nature-data.enum';
@@ -10,7 +11,6 @@ import {OperatorsType} from '../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../types/time-filter.type';
 import {ElasticFilterDefaultTime} from '../elastic-filter-time/elastic-filter-time.component';
 import {UtmFilterBehavior} from './shared/behavior/utm-filter.behavior';
-import {TimeFilterBehavior} from '../../../../behaviors/time-filter.behavior';
 
 @Component({
   selector: 'app-utm-elastic-filter',
@@ -19,12 +19,15 @@ import {TimeFilterBehavior} from '../../../../behaviors/time-filter.behavior';
 })
 export class ElasticFilterComponent implements OnInit, OnDestroy {
   @Output() filterChange = new EventEmitter<ElasticFilterType[]>();
+  @Output() onSaveQuery = new EventEmitter();
   @Input() pattern: string;
+  @Input() template: 'default' | 'log-explorer' = 'default';
   @Input() filters: ElasticFilterType[] = [];
   @Input() defaultTime: ElasticFilterDefaultTime;
+  @ViewChild('popoverFilter') popoverFilter: NgbPopover;
+  @ViewChild('popoverQuery') popoverQuery: NgbPopover;
   operators: OperatorsType[] = FILTER_OPERATORS;
   operatorEnum = ElasticOperatorsEnum;
-  @ViewChild('popoverFilter') popoverFilter: NgbPopover;
   filterSelected: ElasticFilterType;
   indexEdit: number;
   editMode: boolean;
@@ -52,7 +55,6 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
   }
 
   addFilter($event: ElasticFilterType) {
-    console.log('Update', $event);
     this.popoverFilter.close();
     if (!this.editMode) {
       this.filters.push($event);
@@ -63,11 +65,13 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
     this.filterSelected = null;
     this.filterChange.emit(this.filters);
 
-    this.timeFilterBehavior.$time.next({
-      to: $event.value[1],
-      from: $event.value[0],
-      update: true
-    });
+    if ($event.field === '@timestamp') {
+      this.timeFilterBehavior.$time.next({
+        to: $event.value[1],
+        from: $event.value[0],
+        update: true
+      });
+    }
   }
 
   onTimeFilterChange($event: TimeFilterType) {
@@ -107,6 +111,12 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
   }
 
   getFilterLabel(filter: ElasticFilterType): string {
+    return `<strong>${filter.field}</strong>: ` +
+      `<em>${this.extractOperator(filter.operator)}</em> ` +
+      `<span class="filter-value">${filter.value ? filter.value.toString().replace(',', ' and ') : ''}</span>`;
+  }
+
+  getFilterTooltip(filter: ElasticFilterType): string {
     return filter.field + ' ' +
       this.extractOperator(filter.operator) + ' ' +
       (filter.value ? filter.value.toString().replace(',', ' and ') : '');
@@ -123,12 +133,32 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
     return this.filters.filter(value => value.operator !== ElasticOperatorsEnum.IS_IN_FIELD);
   }
 
+  resetFilters() {
+    this.filters = this.filters.filter( f => f.field === NatureDataPrefixEnum.TIMESTAMP );
+  }
+
+  resetFilterSelection(): void {
+    this.filterSelected = null;
+    this.indexEdit = null;
+    this.editMode = false;
+  }
+
+  openFilterPopover(): void {
+    this.popoverFilter.open();
+    this.editMode = false;
+  }
+
+  selectFilter(filter: any, index: number): void {
+    this.filterSelected = filter;
+    this.indexEdit = index;
+  }
+
+  saveQuery(){
+    this.onSaveQuery.emit(true);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  resetFilters() {
-    this.filters = this.filters.filter( f => f.field === NatureDataPrefixEnum.TIMESTAMP );
   }
 }

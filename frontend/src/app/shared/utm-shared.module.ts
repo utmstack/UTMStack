@@ -226,6 +226,9 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {UtmNotifier} from './websocket/utm-notifier';
+import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
+import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
+import {FilterPipe} from "./pipes/filter.pipe";
 import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
 import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
 
@@ -375,11 +378,12 @@ import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsib
     BadgeTypeDirective,
     AppFilterComponent,
     TemplateSelectorDirective,
-    TimezoneOffsetPipe,
     TimePeriodPipe,
     ModalAddNoteComponent,
     TimePeriodPipe,
-    UtmCollapsibleTextComponent
+    UtmCollapsibleTextComponent,
+    TimezoneOffsetPipe,
+    FilterPipe
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -479,11 +483,11 @@ import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsib
     BadgeTypeDirective,
     AppFilterComponent,
     TemplateSelectorDirective,
-    TimezoneOffsetPipe,
     TimePeriodPipe,
     ModalAddNoteComponent,
     TimePeriodPipe,
-    UtmCollapsibleTextComponent
+    UtmCollapsibleTextComponent,
+    FilterPipe
   ],
   entryComponents: [
     LoginComponent,
