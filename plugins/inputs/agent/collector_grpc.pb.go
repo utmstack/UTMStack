@@ -148,7 +148,7 @@ func RegisterCollectorServiceServer(s grpc.ServiceRegistrar, srv CollectorServic
 	s.RegisterService(&CollectorService_ServiceDesc, srv)
 }
 
-func _CollectorService_RegisterCollector_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectorService_RegisterCollector_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,13 +160,13 @@ func _CollectorService_RegisterCollector_Handler(srv interface{}, ctx context.Co
 		Server:     srv,
 		FullMethod: "/agent.CollectorService/RegisterCollector",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(CollectorServiceServer).RegisterCollector(ctx, req.(*RegisterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectorService_DeleteCollector_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectorService_DeleteCollector_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _CollectorService_DeleteCollector_Handler(srv interface{}, ctx context.Cont
 		Server:     srv,
 		FullMethod: "/agent.CollectorService/DeleteCollector",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(CollectorServiceServer).DeleteCollector(ctx, req.(*DeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectorService_ListCollector_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectorService_ListCollector_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _CollectorService_ListCollector_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: "/agent.CollectorService/ListCollector",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(CollectorServiceServer).ListCollector(ctx, req.(*ListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectorService_CollectorStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _CollectorService_CollectorStream_Handler(srv any, stream grpc.ServerStream) error {
 	return srv.(CollectorServiceServer).CollectorStream(&collectorServiceCollectorStreamServer{stream})
 }
 
@@ -228,7 +228,7 @@ func (x *collectorServiceCollectorStreamServer) Recv() (*CollectorMessages, erro
 	return m, nil
 }
 
-func _CollectorService_GetCollectorConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectorService_GetCollectorConfig_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -240,7 +240,7 @@ func _CollectorService_GetCollectorConfig_Handler(srv interface{}, ctx context.C
 		Server:     srv,
 		FullMethod: "/agent.CollectorService/GetCollectorConfig",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(CollectorServiceServer).GetCollectorConfig(ctx, req.(*ConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -333,7 +333,7 @@ func RegisterPanelCollectorServiceServer(s grpc.ServiceRegistrar, srv PanelColle
 	s.RegisterService(&PanelCollectorService_ServiceDesc, srv)
 }
 
-func _PanelCollectorService_RegisterCollectorConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PanelCollectorService_RegisterCollectorConfig_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CollectorConfig)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -345,7 +345,7 @@ func _PanelCollectorService_RegisterCollectorConfig_Handler(srv interface{}, ctx
 		Server:     srv,
 		FullMethod: "/agent.PanelCollectorService/RegisterCollectorConfig",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PanelCollectorServiceServer).RegisterCollectorConfig(ctx, req.(*CollectorConfig))
 	}
 	return interceptor(ctx, in, info, handler)

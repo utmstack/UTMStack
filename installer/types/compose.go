@@ -10,8 +10,8 @@ import (
 )
 
 type Logging struct {
-	Driver  *string                `yaml:"driver,omitempty"`
-	Options map[string]interface{} `yaml:"options,omitempty"`
+	Driver  *string        `yaml:"driver,omitempty"`
+	Options map[string]any `yaml:"options,omitempty"`
 }
 
 type Placement struct {
@@ -48,9 +48,9 @@ type RestartPolicy struct {
 }
 
 type Res struct {
-	CPUs    *string                  `yaml:"cpus,omitempty"`
-	Memory  *string                  `yaml:"memory,omitempty"`
-	Devices []map[string]interface{} `yaml:"devices,omitempty"`
+	CPUs    *string          `yaml:"cpus,omitempty"`
+	Memory  *string          `yaml:"memory,omitempty"`
+	Devices []map[string]any `yaml:"devices,omitempty"`
 }
 
 type Resources struct {
@@ -69,7 +69,7 @@ type Service struct {
 	Command     []string `yaml:"command,omitempty,flow"`
 }
 
-type Volume map[string]interface{}
+type Volume map[string]any
 
 type Compose struct {
 	Volumes  map[string]Volume  `yaml:"volumes,omitempty"`
@@ -101,7 +101,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	dLogging := Logging{
 		Driver: utils.PointerOf[string]("json-file"),
-		Options: map[string]interface{}{
+		Options: map[string]any{
 			"max-size": "50m",
 		},
 	}
@@ -243,7 +243,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 	epMin := stack.ServiceResources["event-processor"].MinMemory
 	c.Services["event-processor-worker"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
-		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
+		DependsOn: utils.Mode(conf.ServerType, map[string]any{
 			"aio": []string{
 				"postgres",
 				"node1",
@@ -292,7 +292,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 	// TODO: Get eventprocessor version from Customer Manager
 	c.Services["event-processor-manager"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
-		DependsOn: utils.Mode(conf.ServerType, map[string]interface{}{
+		DependsOn: utils.Mode(conf.ServerType, map[string]any{
 			"aio": []string{
 				"postgres",
 				"node1",

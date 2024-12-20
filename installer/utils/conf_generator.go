@@ -9,7 +9,7 @@ import "os"
 // The `output` argument is the path to the output file.
 //
 // The function returns an error if there is any problem generating the configuration file.
-func GenerateConfig(variables interface{}, text, output string) error {
+func GenerateConfig(variables any, text, output string) error {
 	tpl, err := ParseTemplate(text, variables)
 	if err != nil {
 		return err
