@@ -282,7 +282,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
         indexPattern: pattern.pattern,
         refreshRoute: true
       },
-      queryParamsHandling: 'merge',
     });
   }
 

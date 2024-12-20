@@ -17,7 +17,7 @@
   </form>
 
   <div class="mt-3">
-    <app-utm-toggle (toggleChange)="saveAsNew($event)" *ngIf="query" [active]="false"
+    <app-utm-toggle (toggleChange)="saveAsNew($event)" *ngIf="query && query.id" [active]="false"
                     label="Save as new query?">
     </app-utm-toggle>
   </div>

@@ -1,0 +1,42 @@
+.order-buttons-container {
+  display: flex;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  align-items: center;
+  background-color: #fff;
+}
+
+.order-button {
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background-color: #d3dae696;
+  color: #0277bd;
+}
+
+.order-button:hover {
+  background-color: #d3dae6;
+}
+
+.order-button:focus {
+  outline: none;
+}
+
+.btn-left {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 1px solid #d3dae6;
+}
+
+.btn-right {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
