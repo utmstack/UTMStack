@@ -171,6 +171,7 @@ import {GenericFilerSortComponent} from './components/utm/util/generic-filer-sor
 import {IconSelectComponent} from './components/utm/util/icon-select/icon-select.component';
 import {MenuCreateComponent} from './components/utm/util/menu-create/menu-create.component';
 import {MenuIconSelectComponent} from './components/utm/util/menu-icon-select/menu-icon-select.component';
+import {ModalAddNoteComponent} from './components/utm/util/modal-add-note/modal-add-note.component';
 import {ModalConfirmationComponent} from './components/utm/util/modal-confirmation/modal-confirmation.component';
 import {UtmAgentConnectComponent} from './components/utm/util/utm-agent-connect/utm-agent-connect.component';
 import {UtmAgentConsoleComponent} from './components/utm/util/utm-agent-console/utm-agent-console.component';
@@ -181,6 +182,7 @@ import {
 } from './components/utm/util/utm-change-dashboard-time/utm-change-dashboard-time.component';
 import {UtmCodeHighlightComponent} from './components/utm/util/utm-code-highlight/utm-code-highlight.component';
 import {UtmCodeViewComponent} from './components/utm/util/utm-code-view/utm-code-view.component';
+import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 import {UtmColorsOrderComponent} from './components/utm/util/utm-colors-order/utm-colors-order.component';
 import {UtmConsoleCheckComponent} from './components/utm/util/utm-console-check/utm-console-check.component';
@@ -219,18 +221,14 @@ import { TemplateSelectorDirective } from './directives/template-selector/templa
 import {ZoomDirective} from './directives/zoom.directive';
 import {CapitalizePipe} from './pipes/capitalize.pipe';
 import {UtmDatePipe} from './pipes/date.pipe';
+import {FilterPipe} from './pipes/filter.pipe';
 import {ThousandSuffPipe} from './pipes/numbers/thousand-suff.pipe';
 import {KeysPipe} from './pipes/object-keys/keys.pipe';
 import {SafePipe} from './pipes/safe.pipe';
 import {HighlightPipe} from './pipes/text/highlight.pipe';
+import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
-import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {UtmNotifier} from './websocket/utm-notifier';
-import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
-import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
-import {FilterPipe} from "./pipes/filter.pipe";
-import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
-import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
 
 
 @NgModule({
