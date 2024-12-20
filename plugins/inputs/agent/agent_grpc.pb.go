@@ -148,7 +148,7 @@ func RegisterAgentServiceServer(s grpc.ServiceRegistrar, srv AgentServiceServer)
 	s.RegisterService(&AgentService_ServiceDesc, srv)
 }
 
-func _AgentService_RegisterAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentService_RegisterAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,13 +160,13 @@ func _AgentService_RegisterAgent_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: "/agent.AgentService/RegisterAgent",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentServiceServer).RegisterAgent(ctx, req.(*AgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentService_DeleteAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentService_DeleteAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _AgentService_DeleteAgent_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: "/agent.AgentService/DeleteAgent",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentServiceServer).DeleteAgent(ctx, req.(*DeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentService_ListAgents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: "/agent.AgentService/ListAgents",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentServiceServer).ListAgents(ctx, req.(*ListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentService_AgentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _AgentService_AgentStream_Handler(srv any, stream grpc.ServerStream) error {
 	return srv.(AgentServiceServer).AgentStream(&agentServiceAgentStreamServer{stream})
 }
 
@@ -228,7 +228,7 @@ func (x *agentServiceAgentStreamServer) Recv() (*BidirectionalStream, error) {
 	return m, nil
 }
 
-func _AgentService_ListAgentCommands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentService_ListAgentCommands_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -240,7 +240,7 @@ func _AgentService_ListAgentCommands_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: "/agent.AgentService/ListAgentCommands",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentServiceServer).ListAgentCommands(ctx, req.(*ListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -355,7 +355,7 @@ func RegisterPanelServiceServer(s grpc.ServiceRegistrar, srv PanelServiceServer)
 	s.RegisterService(&PanelService_ServiceDesc, srv)
 }
 
-func _PanelService_ProcessCommand_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _PanelService_ProcessCommand_Handler(srv any, stream grpc.ServerStream) error {
 	return srv.(PanelServiceServer).ProcessCommand(&panelServiceProcessCommandServer{stream})
 }
 

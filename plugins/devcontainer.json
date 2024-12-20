@@ -1,0 +1,16 @@
+{
+    "name": "UTMStack Plugins",
+    "image": "golang:latest",
+    "features": {
+      "ghcr.io/devcontainers/features/docker-in-docker:2.12.0": {}
+    },
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "golang.go"
+        ]
+      }
+    },
+    "postCreateCommand": "go mod tidy"
+  }
+  

@@ -83,7 +83,7 @@ func writeToFile(fileName string, body string) error {
 	return err
 }
 
-func WriteYAML(url string, data interface{}) error {
+func WriteYAML(url string, data any) error {
 	config, err := yaml.Marshal(data)
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func WriteYAML(url string, data interface{}) error {
 	return nil
 }
 
-func ReadYAML(path string, result interface{}) error {
+func ReadYAML(path string, result any) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func CheckIfPathExist(path string) bool {
 	return true
 }
 
-func WriteJSON(path string, data interface{}) error {
+func WriteJSON(path string, data any) error {
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		return err
@@ -131,7 +131,7 @@ func WriteJSON(path string, data interface{}) error {
 	return nil
 }
 
-func ReadJson(fileName string, data interface{}) error {
+func ReadJson(fileName string, data any) error {
 	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return err

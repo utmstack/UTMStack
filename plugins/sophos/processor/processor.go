@@ -41,9 +41,9 @@ func GetSophosCentralProcessor(group types.ModuleGroup) SophosCentralProcessor {
 }
 
 type EventAggregate struct {
-	HasMore    bool                     `json:"has_more"`
-	Items      []map[string]interface{} `json:"items"`
-	NextCursor string                   `json:"next_cursor"`
+	HasMore    bool             `json:"has_more"`
+	Items      []map[string]any `json:"items"`
+	NextCursor string           `json:"next_cursor"`
 }
 
 func (p *SophosCentralProcessor) GetLogs(group types.ModuleGroup, fromTime int) ([]string, error) {

@@ -99,12 +99,12 @@ func geolocate(ip string) *go_sdk.Geolocation {
 
 	parsedIp := net.ParseIP(ip)
 	if parsedIp == nil {
-		go_sdk.Logger().LogF(100, "source field is not a valid IP")
+		go_sdk.Logger().LogF(100, "source field is not a valid IP: %s", ip)
 		return nil
 	}
 
 	if IsLocal(parsedIp) {
-		go_sdk.Logger().LogF(100, "cannot geolocate local IP")
+		go_sdk.Logger().LogF(100, "cannot geolocate local IP: %s", ip)
 		return nil
 	}
 
