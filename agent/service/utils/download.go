@@ -23,6 +23,11 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
+	} else {
+		_, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
+		if err != nil {
+			return fmt.Errorf("failed to load TLS credentials: %v", err)
+		}
 	}
 
 	resp, err := client.Do(req)

@@ -11,10 +11,9 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
-var mutex sync.Mutex
-
 type UpdatesManager struct {
 	versionsCache map[string]string
+	mutex         sync.Mutex
 }
 
 func InitUpdatesManager() {
@@ -35,14 +34,14 @@ func (u *UpdatesManager) UpdateVersionCache() {
 			continue
 		}
 
-		mutex.Lock()
+		u.mutex.Lock()
 		for c, v := range versions {
 			if c == "agent-service" || c == "agent-installer" ||
 				c == "collector-installer" || c == "as400-service" {
 				u.versionsCache[c] = v
 			}
 		}
-		mutex.Unlock()
+		u.mutex.Unlock()
 		time.Sleep(config.CheckEvery)
 	}
 }
@@ -73,9 +72,9 @@ func notFound(c *gin.Context) {
 
 func (u *UpdatesManager) getVersion(c *gin.Context) {
 	service := c.Query("service")
-	mutex.Lock()
+	u.mutex.Lock()
 	version, ok := u.versionsCache[service]
-	mutex.Unlock()
+	u.mutex.Unlock()
 	if !ok {
 		c.JSON(http.StatusNotFound, gin.H{"error": "service not found"})
 		return

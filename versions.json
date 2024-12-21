@@ -1,8 +1,8 @@
 {
-    "master-version": "11.0.7",
-    "agent-service": "11.0.1",
+    "master-version": "11.0.8",
+    "agent-service": "11.0.2",
     "agent-installer": "11.0.0",
-    "agent-manager": "11.0.0",
+    "agent-manager": "11.0.1",
     "backend": "11.0.2",
     "frontend": "11.0.4",
     "pipelines": "11.0.0",
