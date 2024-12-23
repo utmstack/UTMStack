@@ -9,19 +9,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	go_sdk "github.com/threatwinds/go-sdk"
-	go_sdk_os "github.com/threatwinds/go-sdk/opensearch"
+	gosdk "github.com/threatwinds/go-sdk"
+	sdkos "github.com/threatwinds/go-sdk/opensearch"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type correlationServer struct {
-	go_sdk.UnimplementedCorrelationServer
-}
-
-type Config struct {
-	Elasticsearch string `yaml:"elasticsearch"`
+	gosdk.UnimplementedCorrelationServer
 }
 
 type IncidentDetail struct {
@@ -32,66 +28,68 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
-	Timestamp         string          `json:"@timestamp"`
-	ID                string          `json:"id"`
-	Status            int             `json:"status"`
-	StatusLabel       string          `json:"statusLabel"`
-	StatusObservation string          `json:"statusObservation"`
-	IsIncident        bool            `json:"isIncident"`
-	IncidentDetail    IncidentDetail  `json:"incidentDetail"`
-	Name              string          `json:"name"`
-	Category          string          `json:"category"`
-	Severity          int             `json:"severity"`
-	SeverityLabel     string          `json:"severityLabel"`
-	Description       string          `json:"description"`
-	Solution          string          `json:"solution"`
-	Technique         string          `json:"technique"`
-	Reference         []string        `json:"reference"`
-	DataType          string          `json:"dataType"`
-	Impact            *go_sdk.Impact  `json:"impact"`
-	ImpactScore       int32           `json:"impactScore"`
-	DataSource        string          `json:"dataSource"`
-	Adversary         *go_sdk.Side    `json:"adversary"`
-	Target            *go_sdk.Side    `json:"target"`
-	Events            []*go_sdk.Event `json:"events"`
-	Tags              []string        `json:"tags"`
-	Notes             string          `json:"notes"`
-	TagRulesApplied   []int           `json:"tagRulesApplied"`
+	Timestamp         string         `json:"@timestamp"`
+	ID                string         `json:"id"`
+	Status            int            `json:"status"`
+	StatusLabel       string         `json:"statusLabel"`
+	StatusObservation string         `json:"statusObservation"`
+	IsIncident        bool           `json:"isIncident"`
+	IncidentDetail    IncidentDetail `json:"incidentDetail"`
+	Name              string         `json:"name"`
+	Category          string         `json:"category"`
+	Severity          int            `json:"severity"`
+	SeverityLabel     string         `json:"severityLabel"`
+	Description       string         `json:"description"`
+	Solution          string         `json:"solution"`
+	Technique         string         `json:"technique"`
+	Reference         []string       `json:"reference"`
+	DataType          string         `json:"dataType"`
+	Impact            *gosdk.Impact  `json:"impact"`
+	ImpactScore       int32          `json:"impactScore"`
+	DataSource        string         `json:"dataSource"`
+	Adversary         *gosdk.Side    `json:"adversary"`
+	Target            *gosdk.Side    `json:"target"`
+	Events            []*gosdk.Event `json:"events"`
+	Tags              []string       `json:"tags"`
+	Notes             string         `json:"notes"`
+	TagRulesApplied   []int          `json:"tagRulesApplied"`
 }
 
 func main() {
-	os.Remove(path.Join(go_sdk.GetCfg().Env.Workdir,
+	_ = os.Remove(path.Join(gosdk.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.alerts_correlation.sock"))
 
-	laddr, err := net.ResolveUnixAddr(
-		"unix", path.Join(go_sdk.GetCfg().Env.Workdir,
-			"sockets", "com.utmstack.alerts_correlation.sock"))
-
+	unixAddress, err := net.ResolveUnixAddr(
+		"unix", path.Join(gosdk.GetCfg().Env.Workdir, "sockets", "com.utmstack.alerts_correlation.sock"))
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = gosdk.Error("cannot resolve unix address", err, nil)
 		os.Exit(1)
 	}
 
-	listener, err := net.ListenUnix("unix", laddr)
+	listener, err := net.ListenUnix("unix", unixAddress)
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = gosdk.Error("cannot listen to unix socket", err, nil)
 		os.Exit(1)
 	}
 
 	grpcServer := grpc.NewServer()
-	go_sdk.RegisterCorrelationServer(grpcServer, &correlationServer{})
+	gosdk.RegisterCorrelationServer(grpcServer, &correlationServer{})
 
-	elasticUrl := go_sdk.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
-	go_sdk_os.Connect([]string{elasticUrl})
+	elasticUrl := gosdk.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
+	err = sdkos.Connect([]string{elasticUrl})
+	if err != nil {
+		_ = gosdk.Error("cannot connect to ElasticSearch/OpenSearch", err, nil)
+		os.Exit(1)
+	}
 
 	if err := grpcServer.Serve(listener); err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = gosdk.Error("cannot serve grpc", err, nil)
 		os.Exit(1)
 	}
 }
 
-func (p *correlationServer) Correlate(ctx context.Context,
-	alert *go_sdk.Alert) (*emptypb.Empty, error) {
+func (p *correlationServer) Correlate(_ context.Context,
+	alert *gosdk.Alert) (*emptypb.Empty, error) {
 
 	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
 
@@ -137,9 +135,14 @@ func (p *correlationServer) Correlate(ctx context.Context,
 
 	defer cancel()
 
-	err := go_sdk_os.IndexDoc(cancelableContext, a, indexBuilder("v11-alert", time.Now().UTC()), uuid.NewString())
+	err := sdkos.IndexDoc(cancelableContext, a, indexBuilder("v11-alert", time.Now().UTC()), uuid.NewString())
+	if err != nil {
+		return nil, gosdk.Error("cannot index document", err, map[string]any{
+			"alert": alert.Name,
+		})
+	}
 
-	return nil, err
+	return nil, nil
 }
 
 func indexBuilder(name string, timestamp time.Time) string {
