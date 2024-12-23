@@ -1,4 +1,3 @@
 [
-    "docker service update --image ghcr.io/utmstack/utmstack/user-auditor:imagetagreplace utmstack_user-auditor",
-    "docker image prune"
+    "docker service update --image ghcr.io/utmstack/utmstack/user-auditor:imagetagreplace utmstack_user-auditor"
 ]

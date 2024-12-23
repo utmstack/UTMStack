@@ -1,15 +1,24 @@
-.popover {
-  min-width: 300px !important;
-  max-width: 400px !important;
-}
-
-.dropdown {
-  min-width: 300px !important;
-  max-width: 400px !important;
-}
-
 .label-time {
   &:hover {
     text-decoration: underline;
   }
+}
+.border-radius-1{
+  border-radius: 4px;
+}
+
+.last-time{
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.last-time-tag {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  font-family: "Poppins", sans-serif;
+  font-size: 13px;
+}
+
+.max-width-300 {
+  max-width: 300px !important;
 }

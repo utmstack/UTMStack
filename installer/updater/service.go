@@ -8,7 +8,7 @@ import (
 
 func GetConfigServ() *service.Config {
 	svcConfig := &service.Config{
-		Name:        "UTMStackUpdater",
+		Name:        "UTMStackComponentsUpdater",
 		DisplayName: "UTMStack Components Updater",
 		Description: "UTMStack Components Updater",
 		Arguments:   []string{"updater"},

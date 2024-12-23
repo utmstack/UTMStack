@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UnicodeReplacer {
-    // Pattern to detect Unicode sequences like \u00E9
     private static final Pattern UNICODE_PATTERN = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
 
     /**
@@ -15,7 +14,7 @@ public class UnicodeReplacer {
      */
     public static String replaceUnicode(String input) {
         Matcher matcher = UNICODE_PATTERN.matcher(input);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         while (matcher.find()) {
             // Converts the Unicode sequence to its equivalent character
@@ -27,6 +26,4 @@ public class UnicodeReplacer {
         matcher.appendTail(result);
         return result.toString();
     }
-
 }
-

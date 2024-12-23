@@ -333,7 +333,7 @@ func file_common_proto_rawDescGZIP() []byte {
 
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_common_proto_goTypes = []interface{}{
+var file_common_proto_goTypes = []any{
 	(Status)(0),           // 0: agent.Status
 	(ConnectorType)(0),    // 1: agent.ConnectorType
 	(*ListRequest)(nil),   // 2: agent.ListRequest
@@ -354,7 +354,7 @@ func file_common_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_common_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_common_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*ListRequest); i {
 			case 0:
 				return &v.state
@@ -366,7 +366,7 @@ func file_common_proto_init() {
 				return nil
 			}
 		}
-		file_common_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_common_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*AuthResponse); i {
 			case 0:
 				return &v.state
@@ -378,7 +378,7 @@ func file_common_proto_init() {
 				return nil
 			}
 		}
-		file_common_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_common_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*DeleteRequest); i {
 			case 0:
 				return &v.state

@@ -1319,5 +1319,20 @@ app-logstash-pipelines{
   }
 }
 
+.background-color-grey-100 {
+  background-color: #d3dae696;
+}
+
+.index-pattern-select .ng-select-container {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: none !important; /* Elimina el borde izquierdo */
+}
+
+.popover.utm-popover-filter-time {
+  min-width: 300px !important;
+  max-width: 350px !important;
+}
+
 
 

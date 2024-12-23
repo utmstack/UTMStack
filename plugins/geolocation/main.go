@@ -61,14 +61,14 @@ func (p *parsingServer) ParseLog(ctx context.Context, transform *go_sdk.Transfor
 
 	value := gjson.Get(transform.Draft.Log, source.GetStringValue()).String()
 	if value == "" {
-		go_sdk.Logger().LogF(100, "source field not found")
+		go_sdk.Logger().LogF(100, "source field not found: %s", source.GetStringValue())
 		return transform.Draft, nil
 	}
 
 	geo := geolocate(value)
 
 	if geo == nil {
-		go_sdk.Logger().LogF(100, "geolocation not found")
+		go_sdk.Logger().LogF(100, "geolocation not found for: %s", value)
 		return transform.Draft, nil
 	}
 

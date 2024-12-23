@@ -48,7 +48,7 @@ func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	}
 }
 
-func (a *Asset) FromVar(name interface{}, hostnames interface{}, ips interface{}, confidentiality, integrity, availability interface{}) {
+func (a *Asset) FromVar(name any, hostnames any, ips any, confidentiality, integrity, availability any) {
 	a.Name = go_sdk.CastString(name)
 
 	hostnamesStr := go_sdk.CastString(hostnames)
@@ -76,9 +76,9 @@ func (a *Asset) FromVar(name interface{}, hostnames interface{}, ips interface{}
 	a.Availability = int32(go_sdk.CastInt64(availability))
 }
 
-func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface{}, integrity interface{},
-	availability interface{}, category interface{}, technique interface{}, description interface{},
-	references interface{}, where interface{}, dataTypes interface{}) {
+func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity any,
+	availability any, category any, technique any, description any,
+	references any, where any, dataTypes any) {
 
 	referencesStr := go_sdk.CastString(references)
 	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
@@ -130,7 +130,7 @@ func (r *Rule) FromVar(id int64, ruleName interface{}, confidentiality interface
 	r.Where = whereObj
 }
 
-func (f *Filter) FromVar(id int, name interface{}, filter interface{}) {
+func (f *Filter) FromVar(id int, name any, filter any) {
 	f.Id = id
 	f.Name = go_sdk.CastString(name)
 	f.Filter = go_sdk.CastString(filter)
@@ -273,8 +273,8 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 	for rows.Next() {
 		var (
 			id   int
-			name interface{}
-			body interface{}
+			name any
+			body any
 		)
 
 		err = rows.Scan(&id, &name, &body)
@@ -307,13 +307,13 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 	for rows.Next() {
 		var (
 			id              int
-			name            interface{}
-			hostnames       interface{}
-			ips             interface{}
-			confidentiality interface{}
-			integrity       interface{}
-			availability    interface{}
-			lastUpdate      interface{}
+			name            any
+			hostnames       any
+			ips             any
+			confidentiality any
+			integrity       any
+			availability    any
+			lastUpdate      any
 		)
 
 		err = rows.Scan(&id, &name, &hostnames, &ips, &confidentiality,
@@ -345,15 +345,15 @@ func getRules(db *sql.DB) ([]Rule, error) {
 	for rows.Next() {
 		var (
 			id              int64
-			ruleName        interface{}
-			confidentiality interface{}
-			integrity       interface{}
-			availability    interface{}
-			category        interface{}
-			technique       interface{}
-			description     interface{}
-			references      interface{}
-			where           interface{}
+			ruleName        any
+			confidentiality any
+			integrity       any
+			availability    any
+			category        any
+			technique       any
+			description     any
+			references      any
+			where           any
 		)
 
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
@@ -377,7 +377,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 	return rules, nil
 }
 
-func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, error) {
+func getRuleDataTypes(db *sql.DB, ruleId int64) ([]any, error) {
 	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type WHERE rule_id = $1", ruleId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get data types: %v", err)
@@ -385,12 +385,12 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]interface{}, error) {
 
 	defer rows.Close()
 
-	dataTypes := make([]interface{}, 0, 10)
+	dataTypes := make([]any, 0, 10)
 
 	for rows.Next() {
 		var (
 			dataTypeId int64
-			dataType   interface{}
+			dataType   any
 		)
 
 		err = rows.Scan(&dataTypeId)

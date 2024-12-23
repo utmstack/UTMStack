@@ -1,30 +1,57 @@
-<div [ngClass]="{'flex-row-reverse':invertContent}"
-     #popover="ngbPopover"
-     [container]="container?container:''"
-     [ngbPopover]="popContent"
-     autoClose="outside"
-     class="d-flex justify-content-start align-items-center cursor-pointer pr-2"
-     placement="auto"
-     popoverClass="utm-popover-xs" style="white-space: nowrap">
+<ng-container *ngIf="template === 'default'">
+  <div [ngClass]="{'flex-row-reverse':invertContent}"
+       #popover="ngbPopover"
+       [container]="container?container:''"
+       [ngbPopover]="popContent"
+       autoClose="outside"
+       class="d-flex justify-content-start align-items-center cursor-pointer pr-2"
+       placement="bottom-left"
+       popoverClass="utm-popover-xs" style="white-space: nowrap">
     <span [ngClass]="invertContent?'ml-2':' p-2 mr-2 border-left-1 '"
           class="setting-filter cursor-pointer text-blue-800 border-grey-100">
     <i class="icon-calendar52"></i>
     <i [ngClass]="popover.isOpen()?'icon-arrow-right32':'icon-arrow-down32'" class="ml-2"></i>
    </span>
-  <div *ngIf="dateFrom && dateTo"
-       class="d-flex justify-content-between align-items-center span-small-icon">
-    <span class="font-weight-semibold">{{dateFrom}}</span>
-    <i class="icon-arrow-right8 mr-2 ml-2 mt-1"></i>
-    <span class="font-weight-semibold">{{dateTo}}</span>
+    <div *ngIf="dateFrom && dateTo"
+         class="d-flex justify-content-between align-items-center span-small-icon">
+      <span class="font-weight-semibold">{{dateFrom}}</span>
+      <i class="icon-arrow-right8 mr-2 ml-2 mt-1"></i>
+      <span class="font-weight-semibold">{{dateTo}}</span>
+    </div>
   </div>
-</div>
+</ng-container>
+<ng-container *ngIf="template === 'log-explorer'">
+  <div [ngClass]="{'flex-row-reverse':invertContent}"
+       #popover="ngbPopover"
+       [container]="container?container:''"
+       [ngbPopover]="popContent"
+       autoClose="outside"
+       class="d-flex justify-content-start align-items-center cursor-pointer pr-2 border-grey-100 border-1 border-radius-1"
+       placement="bottom-right"
+       popoverClass="utm-popover-filter-time" style="white-space: nowrap">
+    <span [ngClass]="invertContent?'ml-2':' p-2 mr-2 border-left-1 '"
+          class="setting-filter cursor-pointer text-blue-800 border-grey-100 background-color-grey-100">
+    <i class="icon-calendar52"></i>
+    <i [ngClass]="popover.isOpen()?'icon-arrow-right32':'icon-arrow-down32'" class="ml-2"></i>
+   </span>
+    <div *ngIf="dateFrom && dateTo"
+         class="d-flex justify-content-between align-items-center span-small-icon">
+      <span class="font-weight-semibold">{{dateFrom}}</span>
+      <i class="icon-arrow-right8 mr-2 ml-2 mt-1"></i>
+      <span class="font-weight-semibold">{{dateTo}}</span>
+    </div>
+  </div>
+</ng-container>
 <ng-template #popContent>
   <div *ngIf="!isCollapsed" class="w-100">
-    <div class="d-flex justify-content-between align-items-center p-2 mb-2
-  border-bottom-1 border-grey-100 pb-3">
-      <input [(ngModel)]="lastTime" class="form-control mr-2 w-50"
-             min="1"
-             placeholder="Last" type="number">
+    <div class="d-flex align-content-center justify-content-between align-items-center p-2 mb-2 border-bottom-1 border-grey-100 pb-3">
+      <div class="d-flex align-items-center cursor-pointer mr-2">
+        <div style="height: 35px;" class="px-2 last-time-tag background-color-grey-100 d-flex align-items-center justify-content-center text-center me-2">
+          Last
+        </div>
+        <input [(ngModel)]="lastTime" class="form-control w-75 last-time cursor-pointer" min="1" type="number">
+      </div>
+
       <ng-select [(ngModel)]="timeUnit" [clearable]="true"
                  [items]="times"
                  [searchable]="false"
@@ -62,11 +89,12 @@
         <label class="pb-1" for="timeFrom">Time from</label>
         <div class="input-group">
           <input #timeFromRange="ngModel" #ttf="ngbDatepicker"
-                 [(ngModel)]="rangeTimeFrom" [maxDate]="maxDate" [ngClass]="{'input-field-has-error':!isValidDate()}"
+                 [(ngModel)]="rangeTimeFrom" [maxDate]="maxDateFrom" [ngClass]="{'input-field-has-error':!isValidDate()}"
                  class="form-control " id="timeFrom"
                  name="d2"
                  ngbDatepicker
-                 placeholder="yyyy-mm-dd">
+                 placeholder="yyyy-mm-dd"
+                 (ngModelChange)="onTimeFromChange()">
           <div class="input-group-append">
             <button (click)="ttf.toggle()" class="btn utm-button utm-button-primary" type="button">
               <i class="icon-calendar22"></i>
@@ -81,12 +109,13 @@
         <label class="pb-1" for="timeTo">Time to</label>
         <div class="input-group">
           <input #timeToRange="ngModel" #ttr="ngbDatepicker"
-                 [(ngModel)]="rangeTimeTo" [maxDate]="maxDate"
+                 [(ngModel)]="rangeTimeTo" [maxDate]="maxDateTo"
                  [ngClass]="{'input-field-has-error':!isValidDate()}"
                  class="form-control" id="timeTo"
                  name="d2"
                  ngbDatepicker
-                 placeholder="yyyy-mm-dd">
+                 placeholder="yyyy-mm-dd"
+                 (ngModelChange)="onTimeToChange()">
           <div class="input-group-append">
             <button (click)="ttr.toggle()" class="btn utm-button utm-button-primary" type="button">
               <i class="icon-calendar22"></i>

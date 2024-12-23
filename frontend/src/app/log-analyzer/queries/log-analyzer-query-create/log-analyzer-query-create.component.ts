@@ -36,7 +36,7 @@ export class LogAnalyzerQueryCreateComponent implements OnInit {
 
   ngOnInit() {
     this.initFormSaveVis();
-    if (this.query) {
+    if (this.query && this.query.id) {
       this.queryForm.patchValue(this.query);
     }
     this.queryForm.get('filtersType').setValue(this.filters);
@@ -70,7 +70,7 @@ export class LogAnalyzerQueryCreateComponent implements OnInit {
 
   saveQuery() {
     this.creating = true;
-    if (this.query && !this.saveMode) {
+    if (this.query && this.query.id && !this.saveMode) {
       this.editQuery();
     } else {
       this.createQuery();

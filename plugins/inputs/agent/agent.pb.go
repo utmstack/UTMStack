@@ -1022,7 +1022,7 @@ func file_agent_proto_rawDescGZIP() []byte {
 
 var file_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_agent_proto_goTypes = []interface{}{
+var file_agent_proto_goTypes = []any{
 	(AgentCommandStatus)(0),            // 0: agent.AgentCommandStatus
 	(*AgentRequest)(nil),               // 1: agent.AgentRequest
 	(*ListAgentsResponse)(nil),         // 2: agent.ListAgentsResponse
@@ -1075,7 +1075,7 @@ func file_agent_proto_init() {
 	}
 	file_common_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_agent_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*AgentRequest); i {
 			case 0:
 				return &v.state
@@ -1087,7 +1087,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAgentsResponse); i {
 			case 0:
 				return &v.state
@@ -1099,7 +1099,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*Agent); i {
 			case 0:
 				return &v.state
@@ -1111,7 +1111,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*BidirectionalStream); i {
 			case 0:
 				return &v.state
@@ -1123,7 +1123,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*UtmCommand); i {
 			case 0:
 				return &v.state
@@ -1135,7 +1135,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*CommandResult); i {
 			case 0:
 				return &v.state
@@ -1147,7 +1147,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAgentsCommandsResponse); i {
 			case 0:
 				return &v.state
@@ -1159,7 +1159,7 @@ func file_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agent_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_agent_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*AgentCommand); i {
 			case 0:
 				return &v.state
@@ -1172,7 +1172,7 @@ func file_agent_proto_init() {
 			}
 		}
 	}
-	file_agent_proto_msgTypes[3].OneofWrappers = []interface{}{
+	file_agent_proto_msgTypes[3].OneofWrappers = []any{
 		(*BidirectionalStream_Command)(nil),
 		(*BidirectionalStream_Result)(nil),
 	}

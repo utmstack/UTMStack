@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/utmstack/UTMStack/installer/utils"
@@ -26,8 +27,10 @@ var (
 
 func GetConfig() *Config {
 	configOnce.Do(func() {
+		var configExists bool
 		config = &Config{}
 		if utils.CheckIfPathExist(ConfigPath) {
+			configExists = true
 			err := utils.ReadYAML(ConfigPath, config)
 			if err != nil {
 				fmt.Printf("error reading config file: %v", err)
@@ -74,6 +77,13 @@ func GetConfig() *Config {
 
 		if config.UpdatesFolder == "" {
 			config.UpdatesFolder = utils.MakeDir(0777, config.DataDir, "updates")
+			if configExists {
+				_, err := os.Create(filepath.Join(config.UpdatesFolder, "migration_to_11.lock"))
+				if err != nil {
+					fmt.Printf("error creating migration lock file: %v", err)
+					os.Exit(1)
+				}
+			}
 		}
 
 		err = config.Set()

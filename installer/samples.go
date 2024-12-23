@@ -13,7 +13,7 @@ func generateSample(severity string, seq int) Log {
 		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 		DataSource: "sample-host",
 		DataType:   "sample-data",
-		Log: map[string]interface{}{
+		Log: map[string]any{
 			"logType":     "Example data",
 			"vendor":      "UTMStack",
 			"severity":    severity,
@@ -87,8 +87,8 @@ func SendSampleData() error {
 }
 
 type Log struct {
-	Timestamp  string                 `json:"@timestamp"`
-	DataSource string                 `json:"dataSource"`
-	DataType   string                 `json:"dataType"`
-	Log        map[string]interface{} `json:"logx"`
+	Timestamp  string         `json:"@timestamp"`
+	DataSource string         `json:"dataSource"`
+	DataType   string         `json:"dataType"`
+	Log        map[string]any `json:"logx"`
 }

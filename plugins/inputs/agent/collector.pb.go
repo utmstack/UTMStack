@@ -865,7 +865,7 @@ func file_collector_proto_rawDescGZIP() []byte {
 
 var file_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_collector_proto_goTypes = []interface{}{
+var file_collector_proto_goTypes = []any{
 	(CollectorModule)(0),                 // 0: agent.CollectorModule
 	(*RegisterRequest)(nil),              // 1: agent.RegisterRequest
 	(*ListCollectorResponse)(nil),        // 2: agent.ListCollectorResponse
@@ -917,7 +917,7 @@ func file_collector_proto_init() {
 	}
 	file_common_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_collector_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*RegisterRequest); i {
 			case 0:
 				return &v.state
@@ -929,7 +929,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ListCollectorResponse); i {
 			case 0:
 				return &v.state
@@ -941,7 +941,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*Collector); i {
 			case 0:
 				return &v.state
@@ -953,7 +953,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*CollectorMessages); i {
 			case 0:
 				return &v.state
@@ -965,7 +965,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*CollectorConfig); i {
 			case 0:
 				return &v.state
@@ -977,7 +977,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*CollectorConfigGroup); i {
 			case 0:
 				return &v.state
@@ -989,7 +989,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*CollectorGroupConfigurations); i {
 			case 0:
 				return &v.state
@@ -1001,7 +1001,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*ConfigKnowledge); i {
 			case 0:
 				return &v.state
@@ -1013,7 +1013,7 @@ func file_collector_proto_init() {
 				return nil
 			}
 		}
-		file_collector_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_collector_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*ConfigRequest); i {
 			case 0:
 				return &v.state
@@ -1026,7 +1026,7 @@ func file_collector_proto_init() {
 			}
 		}
 	}
-	file_collector_proto_msgTypes[3].OneofWrappers = []interface{}{
+	file_collector_proto_msgTypes[3].OneofWrappers = []any{
 		(*CollectorMessages_Config)(nil),
 		(*CollectorMessages_Result)(nil),
 	}

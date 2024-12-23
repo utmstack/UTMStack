@@ -1,4 +1,3 @@
 [
-    "docker service update --image ghcr.io/utmstack/utmstack/web-pdf:imagetagreplace utmstack_web-pdf",
-    "docker image prune"
+    "docker service update --image ghcr.io/utmstack/utmstack/web-pdf:imagetagreplace utmstack_web-pdf"
 ]

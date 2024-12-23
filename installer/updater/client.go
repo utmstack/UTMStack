@@ -110,9 +110,8 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 
 		for _, cv := range master.ComponentVersions {
 			cVersion, ok := currentVersions[cv.Component.Name]
-			config.Logger().Info("Checking component %s - current version: %s - new version: %s", cv.Component.Name, cVersion, cv.VersionName)
 			if !ok || cVersion != cv.VersionName {
-				if download {
+				if download && len(cv.Files) > 0 {
 					fmt.Printf("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 					config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 					for _, f := range cv.Files {
@@ -128,9 +127,10 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 					fmt.Println(" [OK]")
 				}
 
-				if runCmds {
+				if runCmds && len(cv.Scripts) > 0 {
 					config.Logger().Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
 					for _, cmd := range cv.Scripts {
+						config.Logger().Info("Running command: %s", cmd.Script)
 						parts := strings.Split(cmd.Script, " ")
 						cmd := parts[0]
 						args := parts[1:]
@@ -139,6 +139,8 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 							return fmt.Errorf("error running command: %v", err)
 						}
 					}
+					config.Logger().Info("Prunning old images")
+					utils.RunCmd("docker", "image", "prune", "-f")
 				}
 			}
 		}

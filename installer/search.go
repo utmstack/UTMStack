@@ -28,9 +28,9 @@ func InitOpenSearch() error {
 	}
 
 	_, err := grequests.Put(baseURL+"_snapshot/.utm_geoip", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
+		JSON: map[string]any{
 			"type": "fs",
-			"settings": map[string]interface{}{
+			"settings": map[string]any{
 				"location": "/usr/share/opensearch/.utm-geoip/",
 				"readonly": true,
 			},
@@ -41,10 +41,10 @@ func InitOpenSearch() error {
 	}
 
 	_, err = grequests.Put(baseURL+"_index_template/utmstack_indexes", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
+		JSON: map[string]any{
 			"index_patterns": []string{"alert-*", "log-*", ".utm-*", ".utmstack-*"},
-			"template": map[string]interface{}{
-				"settings": map[string]interface{}{
+			"template": map[string]any{
+				"settings": map[string]any{
 					"index.number_of_shards":           1,
 					"index.number_of_replicas":         0,
 					"index.mapping.total_fields.limit": 50000,
@@ -57,7 +57,7 @@ func InitOpenSearch() error {
 	}
 
 	_, err = grequests.Post(baseURL+"_snapshot/.utm_geoip/.utm-geoip/_restore?wait_for_completion=true", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
+		JSON: map[string]any{
 			"indices": ".utm-geoip",
 		},
 	})
