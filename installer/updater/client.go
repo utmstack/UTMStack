@@ -130,6 +130,7 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 				if runCmds && len(cv.Scripts) > 0 {
 					config.Logger().Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
 					for _, cmd := range cv.Scripts {
+						config.Logger().Info("Running command: %s", cmd.Script)
 						parts := strings.Split(cmd.Script, " ")
 						cmd := parts[0]
 						args := parts[1:]
@@ -138,6 +139,8 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 							return fmt.Errorf("error running command: %v", err)
 						}
 					}
+					config.Logger().Info("Prunning old images")
+					utils.RunCmd("docker", "image", "prune", "-f")
 				}
 			}
 		}
