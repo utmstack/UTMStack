@@ -12,7 +12,7 @@ import (
 //
 // Returns: A bytes.Buffer containing the rendered template, or an error if
 // parsing or execution failed.
-func ParseTemplate(text string, data interface{}) (*bytes.Buffer, error) {
+func ParseTemplate(text string, data any) (*bytes.Buffer, error) {
 	var tpl = new(bytes.Buffer)
 
 	t := template.Must(template.New("file").Parse(text))

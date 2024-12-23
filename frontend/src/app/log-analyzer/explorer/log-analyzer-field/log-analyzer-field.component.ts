@@ -40,7 +40,7 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.fieldSelected = this.fieldSelected ? this.fieldSelected : [];
-    this.indexPatternBehavior.$pattern
+    this.indexPatternBehavior.pattern$
       .pipe(
         takeUntil(this.destroy$),
         filter((dataChange: LogAnalyzerDataChangeType) => {

@@ -1,7 +1,8 @@
-<div class="d-flex m-0">
-  <div class="flex-grow-1">
-    <div class="card w-100 d-flex justify-content-between align-items-center flex-row m-0 p-2">
-      <div class="filters d-flex justify-content-start align-items-center flex-wrap">
+<ng-container *ngIf="template === 'default'">
+  <div class="d-flex m-0">
+    <div class="flex-grow-1">
+      <div class="card w-100 d-flex justify-content-between align-items-center flex-row m-0 p-2">
+        <div class="filters d-flex justify-content-start align-items-center flex-wrap">
       <span [ngbPopover]="popContent"
             [popoverTitle]="popTitle"
             class="setting-filter mr-3 text-blue-800 cursor-pointer"
@@ -9,31 +10,31 @@
             popoverClass="utm-popover-right">
     <i class="icon-filter4"></i>
    </span>
-        <div #popoverField="ngbPopover"
-             *ngFor="let filter of resolveFilters(); let index = index;"
-             (click)="filterSelected=filter;indexEdit=index"
-             [ngbPopover]="popField"
-             autoClose="inside:outside"
-             class="dropdown cursor-pointer d-flex"
-             placement="bottom"
-             popoverClass="utm-popover-bottom">
-          <div class="filter-label">
+          <div #popoverField="ngbPopover"
+               *ngFor="let filter of resolveFilters(); let index = index;"
+               (click)="filterSelected=filter;indexEdit=index"
+               [ngbPopover]="popField"
+               autoClose="inside:outside"
+               class="dropdown cursor-pointer d-flex"
+               placement="bottom"
+               popoverClass="utm-popover-bottom">
+            <div class="filter-label">
              <span [ngClass]="!filter.operator.toLocaleLowerCase().includes('not')?
               'border-blue-800 text-blue-800':'border-danger-800 text-danger-800'"
-                   [ngbTooltip]="getFilterLabel(filter)"
+                   [ngbTooltip]="getFilterTooltip(filter)"
                    [openDelay]="1000"
                    class="text-center pt-1 pb-1 m-1 "
                    placement="bottom"
                    tooltipClass="utm-tooltip-bottom">
-             {{getFilterLabel(filter)}}
+             {{ getFilterTooltip(filter) }}
              </span>
-          </div>
-          <span>
+            </div>
+            <span>
               <i (click)="deleteFilter(filter)" class="icon-cross2 ml-2 cursor-pointer"></i>
           </span>
+          </div>
         </div>
-      </div>
-      <div class="actions-filters d-flex align-items-center">
+        <div class="actions-filters d-flex align-items-center">
         <span #popoverFilter="ngbPopover"
               (click)="filterSelected=null;indexEdit=null;editMode=false;"
               [ngbPopover]="addContent"
@@ -45,21 +46,112 @@
       <i class="icon-plus3"></i>
       Add filter
     </span>
+        </div>
+      </div>
+    </div>
+    <div class="filter-time-container">
+      <div class="card p-0 m-0">
+        <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                                 [changeOnInit]="'NO'"
+                                 [container]="'body'"
+                                 [defaultTime]="defaultTime"
+                                 [invertContent]="false">
+        </app-elastic-filter-time>
       </div>
     </div>
   </div>
-  <div class="filter-time-container">
-    <div class="card p-0 m-0">
-      <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
-                               [changeOnInit]="'NO'"
-                               [container]="'body'"
-                               [defaultTime]="defaultTime"
-                               [invertContent]="false">
-      </app-elastic-filter-time>
+</ng-container>
+
+<ng-container *ngIf="template === 'log-explorer'">
+  <div class="d-flex m-0 align-items-stretch">
+    <!-- Main Filters Section -->
+    <div class="flex-grow-1">
+      <div class="card w-100 d-flex justify-content-start align-items-center flex-row m-0 p-2">
+        <!-- Query Menu and Add Filter Buttons -->
+        <div class="d-flex align-items-center justify-content-start mr-2 pl-2">
+          <div class="order-buttons-container">
+            <button
+              type="button"
+              class="order-button btn-left"
+              [ngbTooltip]="'Query menu'"
+              #popoverQuery="ngbPopover"
+              [ngbPopover]="queryContent"
+              ngbTooltip="Add filter"
+              autoClose="true"
+              placement="bottom-left"
+              popoverClass="utm-popover-bottom">
+              <i class="icon-filter4 font-size-sm"></i>
+            </button>
+            <button
+              type="button"
+              class="order-button btn-right"
+              [ngbTooltip]="'Add filter'"
+              #popoverFilter="ngbPopover"
+              (click)="resetFilterSelection()"
+              [ngbPopover]="addContent"
+              [popoverTitle]="addTitle"
+              ngbTooltip="Add filter"
+              autoClose="outside"
+              placement="bottom-left"
+              popoverClass="utm-popover-bottom">
+              <i class="icon-plus-circle2 font-size-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters List -->
+        <div class="filters d-flex justify-content-start align-items-center flex-wrap">
+          <div
+            *ngFor="let filter of resolveFilters(); let index = index"
+            class="dropdown cursor-pointer d-flex justify-content-center align-items-center border-1 mr-2 p-1 border-grey-100 border-radius-1"
+            #popoverField="ngbPopover"
+            (click)="selectFilter(filter, index)"
+            [ngbPopover]="popField"
+            autoClose="true"
+            placement="bottom"
+            popoverClass="utm-popover-bottom">
+            <div class="filter-label">
+              <span
+                class="text-center pt-1 pb-1 m-1"
+                [innerHTML]="getFilterLabel(filter)"
+                [ngClass]="filter.operator.toLocaleLowerCase().includes('not')
+                  ? 'border-danger-800 text-danger-800'
+                  : 'border-blue-800 text-blue-800'"
+                [ngbTooltip]="getFilterTooltip(filter)"
+                [openDelay]="1000"
+                tooltipClass="utm-tooltip-bottom"
+                placement="bottom">
+              </span>
+            </div>
+            <span *ngIf="filter.field !== '@timestamp'" class="d-flex align-items-center justify-content-center pt-1">
+              <i
+                class="icon-cross2 ml-1 cursor-pointer font-size-sm"
+                (click)="deleteFilter(filter)">
+              </i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time Filter Section -->
+    <div class="filter-time-container d-flex">
+      <div class="card px-2 pt-1 m-0 w-100">
+        <app-elastic-filter-time
+          [template]="'log-explorer'"
+          [changeOnInit]="'NO'"
+          [container]="'body'"
+          [defaultTime]="defaultTime"
+          [invertContent]="false"
+          (timeFilterChange)="onTimeFilterChange($event)">
+        </app-elastic-filter-time>
+      </div>
     </div>
   </div>
-</div>
-<!--All filtr options-->
+</ng-container>
+
+
+<!--All filter options-->
 <ng-template #popContent>
   <div (click)="deleteAll()" class="dropdown-item text-danger-800">
     <span>
@@ -86,7 +178,48 @@
   </app-elastic-filter-add>
 </ng-template>
 <ng-template #addTitle>
-  <h6 class="font-weight-light">Add filter</h6>
+  <div class="d-flex justify-content-between align-items-center">
+    <h6 class="font-weight-light m-0">Add filter</h6>
+    <button
+      type="button"
+      class="btn btn-sm btn-link text-danger p-0 ml-2"
+      (click)="popoverFilter.close()">
+      <i class="icon-cross2 font-size-sm"></i>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #queryContent>
+  <div class="context-menu">
+    <!-- Add Filter Item -->
+    <div (click)="openFilterPopover()" class="d-flex justify-content-start align-items-center custom-list-item">
+      <i class="icon-plus3 font-size-sm pt-1"></i>
+      <span class="ml-2">Add filter</span>
+    </div>
+
+    <!-- Clear All Item -->
+    <div (click)="resetFilters()" class="d-flex justify-content-start align-items-center custom-list-item">
+      <i class="icon-cross2 font-size-sm pt-1"></i>
+      <span class="ml-2">Clear all</span>
+    </div>
+
+    <!-- Divider -->
+    <hr class="context-menu-divider">
+
+    <!-- Load Query Item -->
+    <div routerLink="/discover/log-analyzer-queries" class="d-flex justify-content-start align-items-center custom-list-item">
+      <i class="icon-reload-alt font-size-sm"></i>
+      <span class="ml-2">Load query</span>
+      <!--<i class="icon-arrow-right32 font-size-sm ml-auto pt-1"></i>-->
+    </div>
+
+    <!-- Save Query Item -->
+    <div (click)="saveQuery()" class="d-flex justify-content-start align-items-center custom-list-item">
+      <i class="icon-floppy-disk font-size-sm"></i>
+      <span class="ml-2">Save query</span>
+      <!--<i class="icon-arrow-right32 font-size-sm ml-auto pt-1"></i>-->
+    </div>
+  </div>
 </ng-template>
 
 <!--Field popup-->

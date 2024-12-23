@@ -13,9 +13,9 @@ type MicrosoftLoginResponse struct {
 }
 
 type StartSubscriptionResponse struct {
-	ContentType string      `json:"contentType,omitempty"`
-	Status      string      `json:"status,omitempty"`
-	WebHook     interface{} `json:"webhook,omitempty"`
+	ContentType string `json:"contentType,omitempty"`
+	Status      string `json:"status,omitempty"`
+	WebHook     any    `json:"webhook,omitempty"`
 	Error       struct {
 		Message string `json:"message,omitempty"`
 		Code    string `json:"code,omitempty"`
@@ -30,4 +30,4 @@ type ContentList struct {
 	ContentExpiration string `json:"contentExpiration,omitempty"`
 }
 
-type ContentDetailsResponse []map[string]interface{}
+type ContentDetailsResponse []map[string]any

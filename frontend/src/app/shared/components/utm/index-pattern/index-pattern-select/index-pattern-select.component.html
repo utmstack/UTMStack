@@ -1,19 +1,111 @@
-<div class="d-flex justify-content-start align-items-center w-100">
-  <label class="" for="id">Source: </label>
-  <ng-select (change)="onIndexPatternChange($event)"
-             [closeOnSelect]="true"
-             [(ngModel)]="pattern"
-             [clearable]="false"
-             [items]="patterns"
-             [loadingText]="'Loading sources....'"
-             [markFirst]="true"
-             [loading]="!patterns"
-             bindLabel="pattern"
-             class="ml-2 mr-2"
-             id="id"
-             style="min-width: 200px">
-  </ng-select>
-  <span (click)="newIndexPattern()" class="span-small-icon text-blue-800 cursor-pointer">
+<ng-container *ngIf="template === 'default'">
+  <div class="d-flex justify-content-start align-items-center w-100">
+    <label class="" for="id">Source: </label>
+    <ng-select (change)="onIndexPatternChange($event)"
+               [closeOnSelect]="true"
+               [(ngModel)]="pattern"
+               [clearable]="false"
+               [items]="patterns"
+               [loadingText]="'Loading sources....'"
+               [markFirst]="true"
+               [loading]="!patterns"
+               bindLabel="pattern"
+               class="ml-2 mr-2"
+               id="id"
+               style="min-width: 200px">
+    </ng-select>
+    <span (click)="newIndexPattern()" class="span-small-icon text-blue-800 cursor-pointer">
     <i class="icon-plus3"></i> Add source
   </span>
-</div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="template === 'log-explorer'">
+  <div #popover="ngbPopover"
+       [ngbPopover]="popContent"
+       autoClose="outside"
+       placement="bottom"
+       popoverClass="utm-popover-xs"
+       class="d-flex justify-content-start align-items-center w-100 pl-2">
+    <div class="source background-color-grey-100 d-flex align-items-center px-2 cursor-pointer" style="height: 38px;">Source</div>
+    <div class=" source-name setting-filter border-1 cursor-pointer border-grey-100 d-flex align-items-center justify-content-between pl-2">
+      <span>{{ pattern.pattern }}</span>
+      <i class="icon-arrow-down32 ml-2 mr-2"></i>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #popContent>
+  <div class="custom-selectable">
+    <div class="custom-panel custom-panel-transparent custom-panel-padding-small">
+
+      <div class="custom-flex-group custom-flex-group-space-between-center-row m-0 mb-2">
+        <div class="custom-flex-item custom-flex-item-grow-1">
+          <span class="sources-title">Sources</span>
+        </div>
+        <div class="custom-flex-item custom-flex-item-grow-zero">
+          <span (click)="newIndexPattern();popover.close()" class="span-small-icon text-blue-800 cursor-pointer">
+            <i class="icon-plus3"></i> Add source
+          </span>
+        </div>
+      </div>
+
+      <div class="custom-flex-group custom-flex-group-space-between-center-row m-0">
+        <div class="custom-flex-item custom-flex-item-grow-1">
+          <div class="form-group form-group-feedback form-group-feedback-left m-0">
+            <input
+              [(ngModel)]="searchTerm"
+              [placeholder]="'Search source'"
+              class="form-control"
+              style="font-size: 12px !important; border-radius: 4px; padding-right: 30px;"
+              [type]="'search'"
+            />
+            <div class="form-control-feedback">
+              <i class="icon-search4 font-size-sm"></i>
+            </div>
+          </div>
+        </div>
+        <div class="custom-flex-item custom-flex-item-grow-zero ml-1">
+          <div class="order-buttons-container px-1">
+            <button
+              [ngClass]="{'order-button-selected' : order === 'asc', 'order-button-unselected' : order !== 'asc'}"
+              aria-pressed="true"
+              type="button"
+              class="order-button"
+              (click)="setOrder('asc')"
+            >
+              <i class="icon-sort-alpha-asc font-size-sm"></i>
+            </button>
+            <button
+              [ngClass]="{'order-button-selected' : order === 'desc', 'order-button-unselected' : order !== 'desc'}"
+              aria-pressed="false"
+              type="button"
+              class="order-button ml-1"
+              (click)="setOrder('desc')"
+            >
+              <i class="icon-sort-alpha-desc font-size-sm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Listado de patrones de índice -->
+      <div class="custom-list-container" role="listbox" id="indexPatternList">
+        <div
+          *ngFor="let pat of patterns | filter: searchTerm"
+          class="custom-list-item"
+          role="option"
+          [class.selected]="pat.pattern === pattern.pattern"
+          (click)="onIndexPatternChange(pat)"
+        >
+          <span class="custom-item-text">{{ pat.pattern }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+
+
+

@@ -36,8 +36,8 @@ func getPositionValue(arr []string, position int) string {
 	return ""
 }
 
-func buildTrafficLog(awsLog []string) map[string]interface{} {
-	return map[string]interface{}{
+func buildTrafficLog(awsLog []string) map[string]any {
+	return map[string]any{
 		"version":     getPositionValue(awsLog, 0),
 		"accountId":   getPositionValue(awsLog, 1),
 		"interfaceId": getPositionValue(awsLog, 2),
@@ -55,8 +55,8 @@ func buildTrafficLog(awsLog []string) map[string]interface{} {
 	}
 }
 
-func buildTPCLog(awsLog []string) map[string]interface{} {
-	return map[string]interface{}{
+func buildTPCLog(awsLog []string) map[string]any {
+	return map[string]any{
 		"version":       getPositionValue(awsLog, 0),
 		"vpcId":         getPositionValue(awsLog, 1),
 		"subnetId":      getPositionValue(awsLog, 2),
@@ -81,16 +81,16 @@ func buildTPCLog(awsLog []string) map[string]interface{} {
 	}
 }
 
-func ProcessAwsFlowLog(awsLog string) map[string]interface{} {
+func ProcessAwsFlowLog(awsLog string) map[string]any {
 	logArr := strings.Fields(awsLog)
 	if len(logArr) < 14 {
-		return map[string]interface{}{"message": awsLog}
+		return map[string]any{"message": awsLog}
 	}
 	if logArr[3] != "-" && isIP(logArr[3]) && isIP(logArr[4]) {
 		return buildTrafficLog(logArr)
 	}
 	if logArr[3] == "-" {
-		return map[string]interface{}{"message": awsLog}
+		return map[string]any{"message": awsLog}
 	}
 	return buildTPCLog(logArr)
 }
