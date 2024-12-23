@@ -1,0 +1,74 @@
+<div class="custom-selectable">
+  <div class="custom-panel custom-panel-transparent custom-panel-padding-small">
+
+    <!-- Title and Add Item button -->
+    <div class="custom-flex-group custom-flex-group-space-between-center-row m-0 mb-2">
+      <div class="custom-flex-item custom-flex-item-grow-1">
+        <span class="sources-title">{{ label }}</span>
+      </div>
+      <!--<div class="custom-flex-item custom-flex-item-grow-zero">
+        <span (click)="newItem();popover.close()" class="span-small-icon text-blue-800 cursor-pointer">
+          <i class="icon-plus3"></i> Add item
+        </span>
+      </div>-->
+      <ng-content select="[add-item]"></ng-content>
+    </div>
+
+    <!-- Search bar and order buttons -->
+    <div class="custom-flex-group custom-flex-group-space-between-center-row m-0">
+      <div class="custom-flex-item custom-flex-item-grow-1">
+        <div class="form-group form-group-feedback form-group-feedback-left m-0">
+          <input
+            [(ngModel)]="searchTerm"
+            [placeholder]="placeholder"
+            class="form-control"
+            style="font-size: 12px !important; border-radius: 4px; padding-right: 30px;"
+            [type]="'search'"
+          />
+          <div class="form-control-feedback">
+            <i class="icon-search4 font-size-sm"></i>
+          </div>
+        </div>
+      </div>
+      <div class="custom-flex-item custom-flex-item-grow-zero ml-1">
+        <div class="order-buttons-container px-1">
+          <button
+            [ngClass]="{'order-button-selected' : order === 'asc', 'order-button-unselected' : order !== 'asc'}"
+            aria-pressed="true"
+            type="button"
+            class="order-button"
+            (click)="setOrder('asc')"
+          >
+            <i class="icon-sort-alpha-asc font-size-sm"></i>
+          </button>
+          <button
+            [ngClass]="{'order-button-selected' : order === 'desc', 'order-button-unselected' : order !== 'desc'}"
+            aria-pressed="false"
+            type="button"
+            class="order-button ml-1"
+            (click)="setOrder('desc')"
+          >
+            <i class="icon-sort-alpha-desc font-size-sm"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- List of items -->
+    <div class="custom-list-container" role="listbox">
+      <div
+        *ngFor="let item of items | filter: searchTerm"
+        class="custom-list-item"
+        role="option"
+        [class.selected]="item.selected"
+        (click)="onItemSelect(item)"
+      >
+        <span class="custom-item-text">{{ item.name }}</span>
+      </div>
+
+      <div *ngIf="(items | filter: searchTerm).length === 0">
+        <app-no-data-found></app-no-data-found>
+      </div>
+    </div>
+  </div>
+</div>

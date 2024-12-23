@@ -229,6 +229,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+import { SelectableListComponent } from './components/selectable-list/selectable-list.component';
 
 
 @NgModule({
@@ -381,7 +382,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     TimePeriodPipe,
     UtmCollapsibleTextComponent,
     TimezoneOffsetPipe,
-    FilterPipe
+    FilterPipe,
+    SelectableListComponent
   ],
   exports: [
     IndexPatternCreateComponent,

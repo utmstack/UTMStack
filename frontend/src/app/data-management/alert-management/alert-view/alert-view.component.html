@@ -58,7 +58,7 @@
                                        [container]="'body'"
                                        [changeOnInit]="'NO'"
                                        [defaultTime]="defaultTime"
-                                       [invertContent]="true">
+                                       [template]="'log-explorer'">
               </app-elastic-filter-time>
               <div *ngIf="alertSelected.length > 0"
                    [ngClass]="alertSelected.length>0?'fadeIn':'fadeOut'"

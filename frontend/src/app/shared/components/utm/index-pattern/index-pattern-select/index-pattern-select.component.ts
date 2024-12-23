@@ -16,9 +16,9 @@ export class IndexPatternSelectComponent implements OnInit {
   @Input() patterRegex;
   @Output() indexPatternChange = new EventEmitter<UtmIndexPattern>();
   @Input() template: 'default' | 'log-explorer' = 'default';
-  searchTerm: string;
   order: 'asc' | 'desc' = 'asc';
   @ViewChild('popover') popover: NgbPopover;
+  indexPatternList = [];
 
   constructor(public activeModal: NgbActiveModal,
               private modalService: NgbModal,
@@ -66,21 +66,20 @@ export class IndexPatternSelectComponent implements OnInit {
 
   private onSuccess(data, headers, init) {
     this.patterns = data;
+    this.indexPatternList = this.getListPatterns();
     if (init) {
       this.pattern = this.patterns[0];
       this.indexPatternChange.emit(this.pattern);
     }
   }
 
-  setOrder(order: 'asc' | 'desc') {
-    this.order = order;
+  getListPatterns(){
+    return this.patterns.map(pattern => ({ id: pattern.id, name: pattern.pattern, selected: this.pattern.id == pattern.id }));
+  }
 
-    this.patterns = this.patterns.sort((a, b) => {
-      if (order === 'asc') {
-        return a.pattern.localeCompare(b.pattern);
-      } else {
-        return b.pattern.localeCompare(a.pattern);
-      }
-    });
+  selectedPattern($event) {
+    this.pattern = this.patterns.find(p => p.id === $event.id);
+    this.indexPatternList = this.getListPatterns();
+    this.indexPatternChange.emit(this.pattern);
   }
 }

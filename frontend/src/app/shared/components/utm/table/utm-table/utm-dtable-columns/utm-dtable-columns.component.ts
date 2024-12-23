@@ -3,7 +3,7 @@ import {IndexFieldController} from '../../../../../../log-analyzer/shared/behavi
 import {UtmFieldType} from '../../../../../types/table/utm-field.type';
 import {
   AlertFieldService
-} from "../../../../../../data-management/alert-management/shared/services/alert-field.service";
+} from '../../../../../../data-management/alert-management/shared/services/alert-field.service';
 
 @Component({
   selector: 'app-utm-dtable-columns',
