@@ -1,4 +1,4 @@
-<div class="bg-white p-2 w-100 m-0 d-flex align-items-center justify-content-start">
+<div class="bg-white p-2 w-100 m-0 d-flex align-items-center justify-content-between">
   <div class="d-flex align-items-center justify-content-start mr-1">
     <app-index-pattern-select (indexPatternChange)="changeFields($event)"
                               [template]="'log-explorer'"
@@ -7,7 +7,7 @@
   </div>
   <app-utm-search-input (searchFor)="onSearchInAll($event)"
                         [placeholder]="'Search in '+ (pattern?pattern.pattern:'...')"
-                        class="" style="width: 46%"></app-utm-search-input>
+                        style="width: 60%"></app-utm-search-input>
   <div class="log-analyzer-actions d-flex justify-content-end align-items-center ml-5">
     <div class="actions-log span-small-icon">
       <button (click)="getData()" class="btn utm-button utm-button-primary mr-2">

@@ -46,7 +46,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
 
 
   times: { time: ElasticTimeEnum, label: string } [] = [
-    {time: ElasticTimeEnum.YEAR, label: 'year'},
+/*    {time: ElasticTimeEnum.YEAR, label: 'year'},*/
     {time: ElasticTimeEnum.MONTH, label: 'month'},
     {time: ElasticTimeEnum.WEEKS, label: 'weeks'},
     {time: ElasticTimeEnum.DAY, label: 'day'},
