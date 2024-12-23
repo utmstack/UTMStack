@@ -63,3 +63,13 @@ jobs:
       microservice: ${{ matrix.service }}
       environment: ${{ needs.deploy.outputs.env_tag }}
     secrets: inherit
+
+  config_release:
+    name: Configure release
+    runs-on: signing
+    needs: deploy
+    if: ${{ needs.deploy.outputs.env_tag == 'dev' }}
+    steps:
+      - name: Run config_new_release.ps1
+        run: |
+          & 'C:\Users\aimng\actions-runner\scripts\config_new_release.ps1'
