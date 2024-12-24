@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/service/agent"
@@ -17,7 +16,6 @@ import (
 )
 
 func main() {
-	path := utils.GetMyPath()
 	utils.InitLogger(config.ServiceLogFile)
 
 	if len(os.Args) > 1 {
@@ -116,7 +114,7 @@ func main() {
 			if err = beats.UninstallBeats(); err != nil {
 				utils.Logger.Fatal("error uninstalling beats: %v", err)
 			}
-			os.Remove(filepath.Join(path, "config.yml"))
+			os.Remove(config.ConfigFile)
 
 			serv.UninstallService()
 			utils.Logger.Info("UTMStack Agent service uninstalled correctly")
