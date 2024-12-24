@@ -27,15 +27,19 @@ import (
 const delayCheck = 300
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
+var logQueue = make(chan *gosdk.Log, 100*runtime.NumCPU())
+
 func main() {
 	mode := gosdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
-	st := time.Now().Add(-600 * time.Second)
-	go processLogs()
+	for t := 0; t < runtime.NumCPU(); t++ {
+		go processLogs()
+	}
 
+	st := time.Now().Add(-600 * time.Second)
 	for {
 		utmConfig := gosdk.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
@@ -79,7 +83,7 @@ func main() {
 					}
 
 					if !skip {
-						pullLogs(st, et, group)
+						pull(st, et, group)
 					}
 
 					wg.Done()
@@ -239,9 +243,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 	return transformedLogs, nil
 }
 
-var logQueue = make(chan *gosdk.Log, 100*runtime.NumCPU())
-
-func pullLogs(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
+func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 	agent := GetAWSProcessor(group)
 
 	logs, err := agent.GetLogs(startTime, endTime)
@@ -280,6 +282,7 @@ func processLogs() {
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
 		_ = gosdk.Error("cannot create input client", err, nil)
+		// TODO: notify engine about this error before exit
 		os.Exit(1)
 	}
 
@@ -288,11 +291,14 @@ func processLogs() {
 		err := inputClient.Send(log)
 		if err != nil {
 			_ = gosdk.Error("cannot send log", err, nil)
+			// TODO: notify engine about this error before exit
+			os.Exit(1)
 		}
 
 		_, err = inputClient.Recv()
 		if err != nil {
 			_ = gosdk.Error("cannot receive ack", err, nil)
+			// TODO: notify engine about this error before exit
 			os.Exit(1)
 		}
 	}

@@ -1,38 +1,48 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/monitor/azquery"
+	"github.com/google/uuid"
+	gosdk "github.com/threatwinds/go-sdk"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
-type PluginConfig struct {
-	InternalKey string `yaml:"internalKey"`
-	Backend     string `yaml:"backend"`
-}
-
 const delayCheck = 300
+const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+
+var logQueue = make(chan *gosdk.Log, 100*runtime.NumCPU())
 
 func main() {
-	mode := go_sdk.GetCfg().Env.Mode
+	mode := gosdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
-	go processLogs()
+	for t := 0; t < runtime.NumCPU(); t++ {
+		go processLogs()
+	}
 
 	for {
-		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		utmConfig := gosdk.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		if internalKey == "" || backendUrl == "" {
-			go_sdk.Logger().ErrorF("internalKey or backendUrl is empty")
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -46,10 +56,9 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				go_sdk.Logger().ErrorF("error getting configuration of the AZURE module: %v", err)
+				_ = gosdk.Error("cannot obtain module configuration", err, nil)
 			}
 
-			go_sdk.Logger().Info("sync complete waiting %v seconds", delayCheck)
 			time.Sleep(time.Second * delayCheck)
 			continue
 		}
@@ -64,7 +73,6 @@ func main() {
 
 					for _, cnf := range group.Configurations {
 						if cnf.ConfValue == "" || cnf.ConfValue == " " {
-							go_sdk.Logger().Info("program not configured yet for group: %s", group.GroupName)
 							skip = true
 							break
 						}
@@ -72,7 +80,7 @@ func main() {
 
 					if !skip {
 						azureProcessor := getAzureProcessor(group)
-						azureProcessor.pullLogs()
+						azureProcessor.pull()
 					}
 
 					wg.Done()
@@ -80,9 +88,144 @@ func main() {
 			}
 
 			wg.Wait()
-			go_sdk.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		}
 
 		time.Sleep(time.Second * delayCheck)
+	}
+}
+
+type AzureConfig struct {
+	GroupName         string
+	TenantID          string
+	ClientID          string
+	ClientSecretValue string
+	WorkspaceID       string
+}
+
+// Debug Change to real config names
+func getAzureProcessor(group types.ModuleGroup) AzureConfig {
+	azurePro := AzureConfig{}
+	azurePro.GroupName = group.GroupName
+	for _, cnf := range group.Configurations {
+		switch cnf.ConfName {
+		case "Event Hub Shared access policies - Connection string":
+			azurePro.TenantID = cnf.ConfValue
+		case "Consumer Group Name":
+			azurePro.ClientID = cnf.ConfValue
+		case "Storage Container Name":
+			azurePro.ClientSecretValue = cnf.ConfValue
+		case "Storage account connection string with key":
+			azurePro.WorkspaceID = cnf.ConfValue
+		}
+	}
+	return azurePro
+}
+
+func (ap *AzureConfig) pull() {
+	cred, err := azidentity.NewClientSecretCredential(ap.TenantID, ap.ClientID, ap.ClientSecretValue, nil)
+	if err != nil {
+		_ = gosdk.Error("cannot obtain Azure credentials", err, map[string]any{
+			"group": ap.GroupName,
+		})
+		return
+	}
+
+	client, err := azquery.NewLogsClient(cred, nil)
+	if err != nil {
+		_ = gosdk.Error("cannot create Logs client", err, map[string]any{
+			"group": ap.GroupName,
+		})
+		return
+	}
+
+	res, err := client.QueryWorkspace(
+		context.TODO(),
+		ap.WorkspaceID,
+		azquery.Body{
+			Query: to.Ptr("union * | where TimeGenerated >= ago(5m)| order by TimeGenerated desc"),
+		},
+		nil,
+	)
+	if err != nil {
+		_ = gosdk.Error("cannot query Logs", err, map[string]any{
+			"group": ap.GroupName,
+		})
+		return
+	}
+	if res.Error != nil {
+		_ = gosdk.Error("cannot query Logs", err, map[string]any{
+			"group": ap.GroupName,
+		})
+		return
+	}
+
+	var logs []map[string]any
+	for _, table := range res.Tables {
+		for _, row := range table.Rows {
+			rowMap := make(map[string]any)
+			for i, column := range table.Columns {
+				if row[i] != nil {
+					if str, ok := row[i].(string); ok && str == "" {
+						continue
+					}
+					rowMap[*column.Name] = row[i]
+				}
+			}
+			logs = append(logs, rowMap)
+		}
+	}
+
+	if len(logs) > 0 {
+		for _, log := range logs {
+			jsonLog, err := json.Marshal(log)
+			if err != nil {
+				_ = gosdk.Error("cannot encode log to JSON", err, map[string]any{
+					"group": ap.GroupName,
+				})
+				continue
+			}
+			logQueue <- &gosdk.Log{
+				Id:         uuid.New().String(),
+				TenantId:   defaultTenant,
+				DataType:   "azure",
+				DataSource: ap.GroupName,
+				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+				Raw:        string(jsonLog),
+			}
+		}
+	}
+}
+
+func processLogs() {
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(gosdk.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		_ = gosdk.Error("cannot connect to engine server", err, map[string]any{})
+		os.Exit(1)
+	}
+
+	client := gosdk.NewEngineClient(conn)
+
+	inputClient, err := client.Input(context.Background())
+	if err != nil {
+		_ = gosdk.Error("cannot create input client", err, map[string]any{})
+		// TODO: notify engine about this error before exit
+		os.Exit(1)
+	}
+
+	for {
+		log := <-logQueue
+		err := inputClient.Send(log)
+		if err != nil {
+			_ = gosdk.Error("cannot send log", err, map[string]any{})
+			// TODO: notify engine about this error before exit
+			os.Exit(1)
+		}
+
+		_, err = inputClient.Recv()
+		if err != nil {
+			_ = gosdk.Error("cannot receive Ack", err, map[string]any{})
+			// TODO: notify engine about this error before exit
+			os.Exit(1)
+		}
 	}
 }
