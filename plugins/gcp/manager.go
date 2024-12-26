@@ -1,10 +1,9 @@
 package main
 
 import (
-	"strings"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 )
@@ -24,11 +23,11 @@ func StartGroupModuleManager() {
 
 func (m *GroupModuleManager) SyncConfigs() {
 	for {
-		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		utmConfig := gosdk.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		if internalKey == "" || backendUrl == "" {
-			go_sdk.Logger().ErrorF("internalKey or backendUrl is empty")
+			_ = gosdk.Error("internalKey or backendUrl is empty", nil, map[string]any{})
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -39,12 +38,8 @@ func (m *GroupModuleManager) SyncConfigs() {
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.GCP)
 		if err != nil {
-			if strings.Contains(err.Error(), "invalid character '<'") {
-				go_sdk.Logger().LogF(100, "error getting configuration of the GCP module: %v", err)
-				continue
-			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				go_sdk.Logger().ErrorF("error getting configuration of the GCP module: %v", err)
+				_ = gosdk.Error("cannot get GCP configuration", err, map[string]any{})
 			}
 			continue
 		}
@@ -60,12 +55,11 @@ func (m *GroupModuleManager) SyncConfigs() {
 					}
 				}
 				if cnfChangedOrNew {
-					go_sdk.Logger().LogF(100, "Checking GCP group configuration: %s", newConf.GroupName)
 					m.Groups[newConf.ID] = GetModuleConfig(newConf)
 					group := m.Groups[newConf.ID]
 					isValid := group.VerifyCredentials()
 					if !isValid {
-						go_sdk.Logger().ErrorF("Invalid credentials for group %s", newConf.GroupName)
+						_ = gosdk.Error("invalid credentials for group "+newConf.GroupName, nil, map[string]any{})
 						notify("gpc_invalid_credentials", Message{Cause: "Invalid credentials for group " + newConf.GroupName, DataType: "gcp", DataSource: newConf.GroupName})
 						continue
 					}
@@ -73,7 +67,6 @@ func (m *GroupModuleManager) SyncConfigs() {
 				}
 			}
 		} else {
-			go_sdk.Logger().LogF(100, "GCP module is disabled")
 			for _, cnf := range m.Groups {
 				cnf.Cancel()
 			}

@@ -5,22 +5,20 @@ import (
 	"os/signal"
 	"syscall"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 )
 
-var localNotificationsChannel chan *go_sdk.Message
-var logsQueue = make(chan *go_sdk.Log)
+var localNotificationsChannel chan *gosdk.Message
+var logsQueue = make(chan *gosdk.Log)
 
 func main() {
-	mode := go_sdk.GetCfg().Env.Mode
+	mode := gosdk.GetCfg().Env.Mode
 	if mode != "worker" {
 		os.Exit(0)
 	}
 
-	go_sdk.Logger().Info("Starting GCP plugin...")
-
-	localNotificationsChannel = make(chan *go_sdk.Message)
-	logsQueue = make(chan *go_sdk.Log)
+	localNotificationsChannel = make(chan *gosdk.Message)
+	logsQueue = make(chan *gosdk.Log)
 
 	go processLogs()
 	go processNotification()
