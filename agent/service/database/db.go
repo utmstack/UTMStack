@@ -121,8 +121,7 @@ func GetDB() *Database {
 }
 
 func GetDatabaseSizeInMB() (int, error) {
-	path := filepath.Join(utils.GetMyPath(), "logs_process", config.LogsDBFile)
-	fileInfo, err := os.Stat(path)
+	fileInfo, err := os.Stat(config.LogsDBFile)
 	if err != nil {
 		return 0, err
 	}
