@@ -3,21 +3,21 @@ package schema
 import "encoding/json"
 
 type BodyEvents struct {
-	CEF    string   `json:"cef"`
+	Cef    string   `json:"cef"`
 	Events []string `json:"events"`
 }
 
 type TemplateConfigSetPush struct {
-	PARAMS  Params `json:"params"`
-	JSONRPC string `json:"jsonrpc"`
+	Params  Params `json:"params"`
+	JsonRpc string `json:"jsonrpc"`
 	Method  string `json:"method"`
-	ID      string `json:"id"`
+	Id      string `json:"id"`
 }
 
 type Params struct {
 	Status                int             `json:"status"`
 	ServiceType           string          `json:"serviceType"`
-	Servicesettings       ServiceSettings `json:"serviceSettings"`
+	ServiceSettings       ServiceSettings `json:"serviceSettings"`
 	SubscribeToEventTypes json.RawMessage `json:"subscribeToEventTypes"`
 }
 
@@ -32,17 +32,17 @@ type ParamsTest struct {
 }
 
 type TemplateConfigGetPush struct {
-	PARAMS  json.RawMessage `json:"params"`
-	JSONRPC string          `json:"jsonrpc"`
+	Params  json.RawMessage `json:"params"`
+	JsonRpc string          `json:"jsonrpc"`
 	Method  string          `json:"method"`
-	ID      string          `json:"id"`
+	Id      string          `json:"id"`
 }
 
 type TemplateTestPush struct {
-	PARAMS  ParamsTest `json:"params"`
-	JSONRPC string     `json:"jsonrpc"`
+	Params  ParamsTest `json:"params"`
+	JsonRpc string     `json:"jsonrpc"`
 	Method  string     `json:"method"`
-	ID      string     `json:"id"`
+	Id      string     `json:"id"`
 }
 
 type ModuleConfig struct {

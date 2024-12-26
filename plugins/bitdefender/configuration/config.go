@@ -3,14 +3,12 @@ package configuration
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 
@@ -30,7 +28,7 @@ var configsSent = make(map[string]ModuleConfig)
 
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 	for {
-		utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+		utmConfig := gosdk.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		client := UTMStackConfigurationClient.NewUTMClient(internalKey, backendUrl)
@@ -43,7 +41,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				go_sdk.Logger().ErrorF("error getting configuration of the Bitdefender module: %v", err)
+				_ = gosdk.Error("error getting configuration of the Bitdefender module", err, map[string]any{})
 			}
 			continue
 		}
@@ -55,18 +53,17 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 			isNecessaryConfig := compareConfigs(configsSent, group)
 			if isNecessaryConfig {
 				if !araAnyEmpty(group.Configurations[0].ConfValue, group.Configurations[1].ConfValue, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue) {
-					go_sdk.Logger().Info("new configuration found: groupName: %s, master: %s, CompanyIDs: %s", group.GroupName, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue)
-					if err := confBDGZApiPush(group, "sendConf"); err != nil {
-						go_sdk.Logger().ErrorF("error sending configuration")
+					if err := apiPush(group, "sendConf"); err != nil {
+						_ = gosdk.Error("error sending configuration", err, map[string]any{})
 						continue
 					}
 					time.Sleep(15 * time.Second)
-					if err := confBDGZApiPush(group, "getConf"); err != nil {
-						go_sdk.Logger().ErrorF("error getting configuration")
+					if err := apiPush(group, "getConf"); err != nil {
+						_ = gosdk.Error("error getting configuration", err, map[string]any{})
 						continue
 					}
-					if err := confBDGZApiPush(group, "sendTest"); err != nil {
-						go_sdk.Logger().ErrorF("error sending test event")
+					if err := apiPush(group, "sendTest"); err != nil {
+						_ = gosdk.Error("error sending test event", err, map[string]any{})
 						continue
 					}
 
@@ -82,7 +79,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 	}
 }
 
-func confBDGZApiPush(config types.ModuleGroup, operation string) error {
+func apiPush(config types.ModuleGroup, operation string) error {
 	operationFunc := map[string]func(types.ModuleGroup) (*http.Response, error){
 		"sendConf": sendPushEventSettings,
 		"getConf":  getPushEventSettings,
@@ -91,63 +88,48 @@ func confBDGZApiPush(config types.ModuleGroup, operation string) error {
 
 	fn, ok := operationFunc[operation]
 	if !ok {
-		return fmt.Errorf("wrong operation")
+		return gosdk.Error("wrong operation", nil, map[string]any{})
 	}
 
 	for i := 0; i < 5; i++ {
 		response, err := fn(config)
 		if err != nil {
-			go_sdk.Logger().ErrorF("%v", err)
+			_ = gosdk.Error(fmt.Sprintf("%v", err), err, map[string]any{})
 			time.Sleep(1 * time.Minute)
 			continue
 		}
-		defer response.Body.Close()
-		go_sdk.Logger().Info("Status: %s", response.Status)
-		myBody, _ := io.ReadAll(response.Body)
-		go_sdk.Logger().Info(string(myBody))
 
-		if operation == "sendConf" {
-			// Check if config was sent correctly
-			regex := regexp.MustCompile(`result":true`)
-			match := regex.Match([]byte(string(myBody)))
-			if match {
-				go_sdk.Logger().Info("Configuration sent correctly")
-			}
-		}
+		func() { _ = response.Body.Close() }()
+
 		return nil
 	}
-	return fmt.Errorf("error sending configuration")
+
+	return gosdk.Error("error sending configuration after 5 retries", nil, map[string]any{})
 }
 
 func sendPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
-	go_sdk.Logger().Info("Sending configuration...")
 	byteTemplate := getTemplateSetPush(config)
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		go_sdk.Logger().ErrorF("error when marshaling the request body to send the configuration: %v", err)
-		return nil, err
+		return nil, gosdk.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
 	}
 	return sendRequest(body, config)
 }
 
 func getPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
-	go_sdk.Logger().Info("Checking configuration...")
 	byteTemplate := getTemplateGet()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		go_sdk.Logger().ErrorF("error when marshaling the request body to send the configuration: %v", err)
-		return nil, err
+		return nil, gosdk.Error("error when marshaling the request body to get the configuration", err, map[string]any{})
 	}
 	return sendRequest(body, config)
 }
 
 func sendTestPushEvent(config types.ModuleGroup) (*http.Response, error) {
-	go_sdk.Logger().Info("Sending Event Test...")
 	byteTemplate := getTemplateTest()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		go_sdk.Logger().ErrorF("error when marshaling the request body to send the configuration: %v", err)
-		return nil, err
+		return nil, gosdk.Error("error when marshaling the request body to send the test event", err, map[string]any{})
 	}
 	return sendRequest(body, config)
 }

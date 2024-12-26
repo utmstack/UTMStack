@@ -38,41 +38,41 @@ var defaultSubscribeToEventTypes = []byte(`{
 
 func getTemplateSetPush(config types.ModuleGroup) schema.TemplateConfigSetPush {
 	byteTemplate := schema.TemplateConfigSetPush{
-		PARAMS: schema.Params{
+		Params: schema.Params{
 			Status:      1,
 			ServiceType: "cef",
-			Servicesettings: schema.ServiceSettings{
-				Url:                        "https://" + config.Configurations[2].ConfValue + ":" + BdgzPort + "/api",
+			ServiceSettings: schema.ServiceSettings{
+				Url:                        "https://" + config.Configurations[2].ConfValue + ":" + BitdefenderGZPort + "/api",
 				Authorization:              utils.GenerateAuthCode(config.Configurations[0].ConfValue),
 				RequireValidSslCertificate: false,
 			},
 			SubscribeToEventTypes: defaultSubscribeToEventTypes,
 		},
-		JSONRPC: "2.0",
+		JsonRpc: "2.0",
 		Method:  "setPushEventSettings",
-		ID:      "1",
+		Id:      "1",
 	}
 	return byteTemplate
 }
 
 func getTemplateGet() schema.TemplateConfigGetPush {
 	byteTemplate := schema.TemplateConfigGetPush{
-		PARAMS:  []byte(`{}`),
-		JSONRPC: "2.0",
+		Params:  []byte(`{}`),
+		JsonRpc: "2.0",
 		Method:  "getPushEventSettings",
-		ID:      "3",
+		Id:      "3",
 	}
 	return byteTemplate
 }
 
 func getTemplateTest() schema.TemplateTestPush {
 	byteTemplate := schema.TemplateTestPush{
-		PARAMS: schema.ParamsTest{
+		Params: schema.ParamsTest{
 			EventType: "av",
 		},
-		JSONRPC: "2.0",
+		JsonRpc: "2.0",
 		Method:  "sendTestPushEvent",
-		ID:      "4",
+		Id:      "4",
 	}
 	return byteTemplate
 }

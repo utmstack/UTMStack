@@ -8,7 +8,7 @@ import (
 	"sync"
 	"syscall"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/processor"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/server"
@@ -21,14 +21,14 @@ var (
 )
 
 func main() {
-	mode := go_sdk.GetCfg().Env.Mode
+	mode := gosdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
 	cert, key, err := loadCerts()
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to load certificates: %v", err)
+		_ = gosdk.Error("cannot load certificates", err, nil)
 		os.Exit(1)
 	}
 
@@ -43,7 +43,7 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	utmConfig := go_sdk.PluginCfg("com.utmstack", false)
+	utmConfig := gosdk.PluginCfg("com.utmstack", false)
 	certsFolder := utmConfig.Get("certsFolder").String()
 
 	certPath := filepath.Join(certsFolder, configuration.UtmCertFileName)

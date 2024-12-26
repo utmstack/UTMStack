@@ -6,23 +6,25 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/schema"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
-func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
+func GetLogs(config *types.ConfigurationSection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		go_sdk.Logger().Info("New group of events received")
 		if config.ModuleActive {
 			if r.Header.Get("authorization") == "" {
-				messag := "401 Missing Authorization Header"
-				go_sdk.Logger().ErrorF(messag)
-				j, _ := json.Marshal(messag)
+				message := "401 Missing Authorization Header"
+				_ = gosdk.Error("missing authorization header", nil, map[string]any{})
+				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
-				w.Write(j)
+				_, err := w.Write(j)
+				if err != nil {
+					_ = gosdk.Error("cannot write response", err, nil)
+				}
 				return
 			}
 
@@ -33,18 +35,21 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 				}
 			}
 			if !isAuth {
-				messag := "401 Invalid Authentication Credentials"
-				go_sdk.Logger().ErrorF(messag)
-				j, _ := json.Marshal(messag)
+				message := "401 Invalid Authentication Credentials"
+				_ = gosdk.Error("invalid authentication credentials", nil, map[string]any{})
+				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
-				w.Write(j)
+				_, err := w.Write(j)
+				if err != nil {
+					_ = gosdk.Error("cannot write response", err, nil)
+				}
 				return
 			}
 
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				go_sdk.Logger().ErrorF("error to decode body: %v", err)
+				_ = gosdk.Error("error decoding body", err, map[string]any{})
 				return
 			}
 
@@ -53,24 +58,26 @@ func GetBDGZLogs(config *types.ConfigurationSection) http.HandlerFunc {
 
 			j, _ := json.Marshal("HTTP 200 OK")
 			w.WriteHeader(http.StatusOK)
-			w.Write(j)
+			_, err = w.Write(j)
+			if err != nil {
+				_ = gosdk.Error("cannot write response", err, nil)
+			}
 		} else {
-			go_sdk.Logger().ErrorF("Bitdefender module disabled")
+			_ = gosdk.Error("bitdefender module disabled", nil, map[string]any{})
 		}
 	}
 }
 
 func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
-
 	r := mux.NewRouter().StrictSlash(false)
-	r.HandleFunc("/api", (GetBDGZLogs(cnf))).Methods("POST")
+	r.HandleFunc("/api", (GetLogs(cnf))).Methods("POST")
 	r.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("Server is up and running"))
 	}).Methods("GET")
 
 	server := &http.Server{
-		Addr:           ":" + configuration.BdgzPort,
+		Addr:           ":" + configuration.BitdefenderGZPort,
 		Handler:        r,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -78,10 +85,9 @@ func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
 	}
 
 	go func() {
-		go_sdk.Logger().Info("Listening in port %s...\n", configuration.BdgzPort)
 		err := server.ListenAndServeTLS(cert, key)
 		if err != nil {
-			go_sdk.Logger().ErrorF("error creating server: %v", err)
+			_ = gosdk.Error("error creating server", err, map[string]any{})
 		}
 	}()
 }
