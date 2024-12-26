@@ -8,52 +8,46 @@ import (
 	"path"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 )
 
 type analysisServer struct {
-	go_sdk.UnimplementedAnalysisServer
+	gosdk.UnimplementedAnalysisServer
 }
 
 func main() {
-	os.Remove(path.Join(
-		go_sdk.GetCfg().Env.Workdir,
-		"sockets", "com.utmstack.events_analysis.sock"))
+	_ = os.Remove(path.Join(gosdk.GetCfg().Env.Workdir, "sockets", "com.utmstack.events_analysis.sock"))
 
-	laddr, err := net.ResolveUnixAddr("unix",
-		path.Join(go_sdk.GetCfg().Env.Workdir, "sockets",
-			"com.utmstack.events_analysis.sock"))
-
+	unixAddress, err := net.ResolveUnixAddr("unix", path.Join(gosdk.GetCfg().Env.Workdir, "sockets",
+		"com.utmstack.events_analysis.sock"))
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = gosdk.Error("cannot resolve unix address", err, nil)
 		os.Exit(1)
 	}
 
 	startQueue()
 
-	listener, err := net.ListenUnix("unix", laddr)
+	listener, err := net.ListenUnix("unix", unixAddress)
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = gosdk.Error("cannot listen to unix socket", err, nil)
 		os.Exit(1)
 	}
 
 	grpcServer := grpc.NewServer()
-	go_sdk.RegisterAnalysisServer(grpcServer, &analysisServer{})
+	gosdk.RegisterAnalysisServer(grpcServer, &analysisServer{})
 
 	if err := grpcServer.Serve(listener); err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = gosdk.Error("cannot serve grpc", err, nil)
 		os.Exit(1)
 	}
 }
 
-func (p *analysisServer) Analyze(event *go_sdk.Event, srv grpc.ServerStreamingServer[go_sdk.Alert]) error {
-	jLog, e := go_sdk.ToString(event)
-	if e != nil {
-		return fmt.Errorf("error converting to string during analysis")
+func (p *analysisServer) Analyze(event *gosdk.Event, _ grpc.ServerStreamingServer[gosdk.Alert]) error {
+	jLog, err := gosdk.ToString(event)
+	if err != nil {
+		return gosdk.Error("cannot convert event to json", err, nil)
 	}
-
-	go_sdk.Logger().LogF(100, "received event: %s", *jLog)
 
 	addToQueue(*jLog)
 
@@ -61,13 +55,5 @@ func (p *analysisServer) Analyze(event *go_sdk.Event, srv grpc.ServerStreamingSe
 }
 
 func indexBuilder(name string, timestamp time.Time) string {
-	fst := timestamp.Format("2006.01.02")
-
-	index := fmt.Sprintf(
-		"%s-%s",
-		name,
-		fst,
-	)
-
-	return index
+	return fmt.Sprintf("%s-%s", name, timestamp.Format("2006.01.02"))
 }
