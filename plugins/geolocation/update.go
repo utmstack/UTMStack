@@ -8,15 +8,13 @@ import (
 	"strconv"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 )
 
-// Goroutine for update geolocalization databases
 func update() {
 	first := true
 	for {
-		go_sdk.Logger().Info("updating GeoIP databases")
-		workdir := path.Join(go_sdk.GetCfg().Env.Workdir, "geolocation")
+		workdir := path.Join(gosdk.GetCfg().Env.Workdir, "geolocation")
 		var files = map[string]string{
 			filepath.Join(workdir, "asn-blocks-v4.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v4.csv",
 			filepath.Join(workdir, "asn-blocks-v6.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v6.csv",
@@ -26,14 +24,19 @@ func update() {
 		}
 
 		if _, err := os.Stat(workdir); os.IsNotExist(err) {
-			os.MkdirAll(workdir, os.ModeDir)
+			err := os.MkdirAll(workdir, os.ModeDir)
+			if err != nil {
+				_ = gosdk.Error("could not create geolocation directory", err, nil)
+				continue
+			}
 		}
 
 		mode := os.Getenv("MODE")
 		if mode == "manager" {
 			if _, err := os.Stat(filepath.Join(workdir, "locations-en.csv")); os.IsNotExist(err) || !first {
 				for file, url := range files {
-					if err := go_sdk.Download(url, file); err != nil {
+					if err := gosdk.Download(url, file); err != nil {
+						_ = gosdk.Error("could not download geolocation file", err, nil)
 						continue
 					}
 				}
@@ -49,8 +52,9 @@ func update() {
 		cityLocations = make(map[int64]*cityLocation)
 
 		for file := range files {
-			csv, err := go_sdk.ReadCSV(file)
+			csv, err := gosdk.ReadCSV(file)
 			if err != nil {
+				_ = gosdk.Error("could not read geolocation file", err, nil)
 				continue
 			}
 
@@ -86,7 +90,9 @@ func populateASNBlocks(csv [][]string) {
 
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse CIDR in populateASNBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse CIDR", err, map[string]any{
+				"cidr": line[0],
+			})
 			continue
 		}
 
@@ -97,7 +103,9 @@ func populateASNBlocks(csv [][]string) {
 			return "0"
 		}())
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse ASN in populateASNBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse ASN", err, map[string]any{
+				"asn": line[1],
+			})
 			continue
 		}
 
@@ -126,7 +134,9 @@ func populateCityBlocks(csv [][]string) {
 
 		_, n, err := net.ParseCIDR(line[0])
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse CIDR in populateCityBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse CIDR", err, map[string]any{
+				"cidr": line[0],
+			})
 			continue
 		}
 
@@ -137,7 +147,9 @@ func populateCityBlocks(csv [][]string) {
 			return "0"
 		}(), 10, 64)
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse geonameID", err, map[string]any{
+				"geonameID": line[1],
+			})
 			continue
 		}
 
@@ -148,7 +160,9 @@ func populateCityBlocks(csv [][]string) {
 			return "0.0"
 		}(), 64)
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse latitude in populateCityBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse latitude", err, map[string]any{
+				"latitude": line[7],
+			})
 			continue
 		}
 
@@ -159,7 +173,9 @@ func populateCityBlocks(csv [][]string) {
 			return "0.0"
 		}(), 64)
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse longitude in populateCityBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse longitude", err, map[string]any{
+				"longitude": line[8],
+			})
 			continue
 		}
 
@@ -170,7 +186,9 @@ func populateCityBlocks(csv [][]string) {
 			return "0"
 		}())
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse accuracyRadius in populateCityBlocks: %s", err.Error())
+			_ = gosdk.Error("could not parse accuracyRadius", err, map[string]any{
+				"accuracyRadius": line[9],
+			})
 			continue
 		}
 
@@ -196,7 +214,9 @@ func populateCityLocations(csv [][]string) {
 
 		geonameID, err := strconv.ParseInt(line[0], 10, 64)
 		if err != nil {
-			go_sdk.Logger().ErrorF("could not parse geonameID in populateCityLocations: %s", err.Error())
+			_ = gosdk.Error("could not parse geonameID", err, map[string]any{
+				"geonameID": line[0],
+			})
 			continue
 		}
 

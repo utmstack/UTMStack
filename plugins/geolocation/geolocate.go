@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 )
 
 var mu = &sync.RWMutex{}
@@ -93,22 +93,20 @@ func getLocation(geonameID int64) *cityLocation {
 	return location
 }
 
-func geolocate(ip string) *go_sdk.Geolocation {
+func geolocate(ip string) *gosdk.Geolocation {
 	mu.RLock()
 	defer mu.RUnlock()
 
 	parsedIp := net.ParseIP(ip)
 	if parsedIp == nil {
-		go_sdk.Logger().LogF(100, "source field is not a valid IP: %s", ip)
 		return nil
 	}
 
 	if IsLocal(parsedIp) {
-		go_sdk.Logger().LogF(100, "cannot geolocate local IP: %s", ip)
 		return nil
 	}
 
-	var geo = new(go_sdk.Geolocation)
+	var geo = new(gosdk.Geolocation)
 
 	asn := getASN(ip)
 	city := getCity(ip)
@@ -128,7 +126,7 @@ func geolocate(ip string) *go_sdk.Geolocation {
 			geo.Country = location.countryName
 			geo.CountryCode = location.countryISOCode
 		}
-		
+
 		geo.Latitude = city.latitude
 		geo.Longitude = city.longitude
 		some = true
