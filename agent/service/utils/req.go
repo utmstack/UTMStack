@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,11 +22,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	client := &http.Client{}
-	if skipTlsVerification {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	} else {
+	if !skipTlsVerification {
 		_, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
 		if err != nil {
 			return result, http.StatusInternalServerError, fmt.Errorf("failed to load TLS credentials: %v", err)

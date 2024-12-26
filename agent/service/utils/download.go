@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,11 +18,7 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 	}
 
 	client := &http.Client{}
-	if skipTls {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	} else {
+	if !skipTls {
 		_, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
 		if err != nil {
 			return fmt.Errorf("failed to load TLS credentials: %v", err)
@@ -36,9 +31,9 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusPartialContent {
+	if resp.StatusCode != http.StatusOK {
 		resp.Body.Close()
-		return fmt.Errorf("expected status %d; got %d", http.StatusPartialContent, resp.StatusCode)
+		return fmt.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
 	}
 
 	out, err := os.Create(filepath.Join(path, fileName))

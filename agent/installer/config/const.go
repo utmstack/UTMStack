@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	DependUrl        = "https://%s/private/dependencies/%s"
-	VersionUrl       = "https://%s/private/version?service=%s"
+	DependUrl        = "https://%s:9001/private/dependencies/%s"
+	VersionUrl       = "https://%s:9001/private/version?service=%s"
 	InstallerLogFile = "utmstack_agent_installer.log"
 	UpdaterSelfLinux = "utmstack_updater_self"
 	AgentManagerPort = "9000"

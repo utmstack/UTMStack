@@ -69,6 +69,8 @@ func UpdateDependencies(cnf *config.Config) {
 			}
 
 			utils.Execute(config.GetSelfUpdaterPath(), utils.GetMyPath())
+
+			utils.Logger.Info("Agent Service Updated Successfully")
 		}
 	}
 }

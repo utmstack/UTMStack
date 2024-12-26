@@ -190,12 +190,12 @@ public class UtmDataInputStatusService {
     public void syncDataInputStatus() {
         final String ctx = CLASSNAME + ".syncDataInputStatus";
         try {
-            Map<String, StatisticDocument> result = getLatestStatisticsByDataType();
+            Map<String, StatisticDocument> result = getLatestStatisticsByDataSource();
 
             result.forEach((dataType, statisticDoc) -> {
                 try {
                     // Check if the document exists in the database by its unique identifier or datatype
-                    Optional<UtmDataInputStatus> existingDataInput = dataInputStatusRepository.findByDataType(dataType);
+                    Optional<UtmDataInputStatus> existingDataInput = dataInputStatusRepository.findBySource(statisticDoc.getDataSource());
 
                     if (existingDataInput.isPresent()) {
                         UtmDataInputStatus dataInputToUpdate = existingDataInput.get();
@@ -412,14 +412,14 @@ public class UtmDataInputStatusService {
         return alert;
     }
 
-    private Map<String, StatisticDocument> getLatestStatisticsByDataType() {
+    private Map<String, StatisticDocument> getLatestStatisticsByDataSource() {
         ArrayList<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
         SearchRequest sr = SearchRequest.of(s -> s
                 .query(SearchUtil.toQuery(filters))
                 .index(Constants.STATISTICS_INDEX_PATTERN)
-                .aggregations("by_dataType", agg -> agg
-                        .terms(t -> t.field("dataType.keyword")
+                .aggregations("by_dataSource", agg -> agg
+                        .terms(t -> t.field("dataSource.keyword")
                                 .size(100)
                         )
                         .aggregations("latest", latest -> latest
@@ -433,7 +433,7 @@ public class UtmDataInputStatusService {
         SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
         Map<String, StatisticDocument> result = new HashMap<>();
 
-        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataType"));
+        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataSource"));
 
         for (BucketAggregation bucket : dataTypeBuckets) {
             TopHitsAggregate topHitsAgg = bucket.getSubAggregations().get("latest").topHits();

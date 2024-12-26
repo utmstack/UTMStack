@@ -11,22 +11,26 @@ import (
 	"github.com/utmstack/UTMStack/agent/installer/utils"
 )
 
+type Version struct {
+	Version string `json:"name"`
+}
+
 func DownloadDependencies(address, authKey, skip string) error {
 	versions := map[string]string{}
 	headers := map[string]string{"connection-key": authKey}
 
-	agentVersion, _, err := utils.DoReq[string](fmt.Sprintf(config.VersionUrl, address, "agent-service"), nil, "GET", headers, skip == "yes")
+	agentVersion, _, err := utils.DoReq[Version](fmt.Sprintf(config.VersionUrl, address, "agent-service"), nil, "GET", headers, skip == "yes")
 	if err != nil {
 		return fmt.Errorf("error getting agent version: %v", err)
 	}
 
-	installerVersion, _, err := utils.DoReq[string](fmt.Sprintf(config.VersionUrl, address, "agent-installer"), nil, "GET", headers, skip == "yes")
+	installerVersion, _, err := utils.DoReq[Version](fmt.Sprintf(config.VersionUrl, address, "agent-installer"), nil, "GET", headers, skip == "yes")
 	if err != nil {
 		return fmt.Errorf("error getting installer version: %v", err)
 	}
 
-	versions["agent-service"] = agentVersion
-	versions["agent-installer"] = installerVersion
+	versions["agent-service"] = agentVersion.Version
+	versions["agent-installer"] = installerVersion.Version
 
 	dependFiles := config.GetDependFiles()
 	for _, file := range dependFiles {
