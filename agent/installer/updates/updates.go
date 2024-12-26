@@ -12,7 +12,7 @@ import (
 )
 
 type Version struct {
-	Version string `json:"name"`
+	Version string `json:"version"`
 }
 
 func DownloadDependencies(address, authKey, skip string) error {
