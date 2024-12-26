@@ -9,7 +9,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	go_sdk "github.com/threatwinds/go-sdk"
+	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/tidwall/gjson"
 	"gopkg.in/yaml.v3"
 )
@@ -20,74 +20,74 @@ type Filter struct {
 	Filter string
 }
 
-type Tenant go_sdk.Tenant
+type Tenant gosdk.Tenant
 
-type Asset go_sdk.Asset
+type Asset gosdk.Asset
 
 type Rule struct {
-	Id          int64         `yaml:"id"`
-	DataTypes   []string      `yaml:"dataTypes"`
-	Name        string        `yaml:"name"`
-	Impact      go_sdk.Impact `yaml:"impact"`
-	Category    string        `yaml:"category"`
-	Technique   string        `yaml:"technique"`
-	References  []string      `yaml:"references"`
-	Description string        `yaml:"description"`
-	Where       go_sdk.Where  `yaml:"where"`
+	Id          int64        `yaml:"id"`
+	DataTypes   []string     `yaml:"dataTypes"`
+	Name        string       `yaml:"name"`
+	Impact      gosdk.Impact `yaml:"impact"`
+	Category    string       `yaml:"category"`
+	Technique   string       `yaml:"technique"`
+	References  []string     `yaml:"references"`
+	Description string       `yaml:"description"`
+	Where       gosdk.Where  `yaml:"where"`
 }
 
 func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	t.Id = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	t.Name = "Default"
 	t.DisabledRules = disabledRules
-	t.Assets = make([]*go_sdk.Asset, 0, len(assets))
+	t.Assets = make([]*gosdk.Asset, 0, len(assets))
 
 	for _, asset := range assets {
-		sdkAsset := go_sdk.Asset(asset)
+		sdkAsset := gosdk.Asset(asset)
 		t.Assets = append(t.Assets, &sdkAsset)
 	}
 }
 
 func (a *Asset) FromVar(name any, hostnames any, ips any, confidentiality, integrity, availability any) {
-	a.Name = go_sdk.CastString(name)
+	a.Name = gosdk.CastString(name)
 
-	hostnamesStr := go_sdk.CastString(hostnames)
+	hostnamesStr := gosdk.CastString(hostnames)
 	hostnamesStr = strings.ReplaceAll(hostnamesStr, "[", "")
 	hostnamesStr = strings.ReplaceAll(hostnamesStr, "]", "")
 	hostnamesStr = strings.ReplaceAll(hostnamesStr, ",", "")
 	hostnamesStr = strings.ReplaceAll(hostnamesStr, "\"", "")
 
 	for _, hostname := range strings.Fields(hostnamesStr) {
-		a.Hostnames = append(a.Hostnames, go_sdk.CastString(hostname))
+		a.Hostnames = append(a.Hostnames, gosdk.CastString(hostname))
 	}
 
-	ipsStr := go_sdk.CastString(ips)
+	ipsStr := gosdk.CastString(ips)
 	ipsStr = strings.ReplaceAll(ipsStr, "[", "")
 	ipsStr = strings.ReplaceAll(ipsStr, "]", "")
 	ipsStr = strings.ReplaceAll(ipsStr, ",", "")
 	ipsStr = strings.ReplaceAll(ipsStr, "\"", "")
 
 	for _, ip := range strings.Fields(ipsStr) {
-		a.Ips = append(a.Ips, go_sdk.CastString(ip))
+		a.Ips = append(a.Ips, gosdk.CastString(ip))
 	}
 
-	a.Confidentiality = int32(go_sdk.CastInt64(confidentiality))
-	a.Integrity = int32(go_sdk.CastInt64(integrity))
-	a.Availability = int32(go_sdk.CastInt64(availability))
+	a.Confidentiality = int32(gosdk.CastInt64(confidentiality))
+	a.Integrity = int32(gosdk.CastInt64(integrity))
+	a.Availability = int32(gosdk.CastInt64(availability))
 }
 
 func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity any,
 	availability any, category any, technique any, description any,
 	references any, where any, dataTypes any) {
 
-	referencesStr := go_sdk.CastString(references)
+	referencesStr := gosdk.CastString(references)
 	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
 	referencesStr = strings.ReplaceAll(referencesStr, "]", "")
 	referencesStr = strings.ReplaceAll(referencesStr, ",", "")
 	referencesStr = strings.ReplaceAll(referencesStr, "\"", "")
 	referencesList := strings.Fields(referencesStr)
 
-	dataTypesStr := go_sdk.CastString(dataTypes)
+	dataTypesStr := gosdk.CastString(dataTypes)
 	dataTypesStr = strings.ReplaceAll(dataTypesStr, "[", "")
 	dataTypesStr = strings.ReplaceAll(dataTypesStr, "]", "")
 	dataTypesStr = strings.ReplaceAll(dataTypesStr, ",", "")
@@ -96,31 +96,31 @@ func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity an
 
 	r.Id = id
 	r.DataTypes = make([]string, len(dataTypesList))
-	r.Name = go_sdk.CastString(ruleName)
-	r.Impact.Confidentiality = int32(go_sdk.CastInt64(confidentiality))
-	r.Impact.Integrity = int32(go_sdk.CastInt64(integrity))
-	r.Impact.Availability = int32(go_sdk.CastInt64(availability))
-	r.Category = go_sdk.CastString(category)
-	r.Technique = go_sdk.CastString(technique)
+	r.Name = gosdk.CastString(ruleName)
+	r.Impact.Confidentiality = int32(gosdk.CastInt64(confidentiality))
+	r.Impact.Integrity = int32(gosdk.CastInt64(integrity))
+	r.Impact.Availability = int32(gosdk.CastInt64(availability))
+	r.Category = gosdk.CastString(category)
+	r.Technique = gosdk.CastString(technique)
 	r.References = make([]string, len(referencesList))
-	r.Description = go_sdk.CastString(description)
+	r.Description = gosdk.CastString(description)
 
 	for i, dataType := range dataTypesList {
-		r.DataTypes[i] = go_sdk.CastString(dataType)
+		r.DataTypes[i] = gosdk.CastString(dataType)
 	}
 
 	for i, reference := range referencesList {
-		r.References[i] = go_sdk.CastString(reference)
+		r.References[i] = gosdk.CastString(reference)
 	}
 
-	w := go_sdk.CastString(where)
+	w := gosdk.CastString(where)
 
-	whereObj := go_sdk.Where{
+	whereObj := gosdk.Where{
 		Expression: gjson.Get(w, "ruleExpression").String(),
 	}
 
 	for _, variable := range gjson.Get(w, "ruleVariables").Array() {
-		whereObj.Variables = append(whereObj.Variables, &go_sdk.Variable{
+		whereObj.Variables = append(whereObj.Variables, &gosdk.Variable{
 			Get:    gjson.Get(variable.String(), "get").String(),
 			As:     gjson.Get(variable.String(), "as").String(),
 			OfType: gjson.Get(variable.String(), "ofType").String(),
@@ -132,84 +132,94 @@ func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity an
 
 func (f *Filter) FromVar(id int, name any, filter any) {
 	f.Id = id
-	f.Name = go_sdk.CastString(name)
-	f.Filter = go_sdk.CastString(filter)
+	f.Name = gosdk.CastString(name)
+	f.Filter = gosdk.CastString(filter)
 }
 
 func main() {
-	mode := go_sdk.GetCfg().Env.Mode
+	mode := gosdk.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
-	go_sdk.Logger().Info("created folder structure")
-
 	for {
-		gCfg := go_sdk.GetCfg()
+		gCfg := gosdk.GetCfg()
 		err := createFolderStructure(gCfg)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to create folder structure", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		db, err := connect()
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to connect to database", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		filters, err := getFilters(db)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to get filters", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		assets, err := getAssets(db)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to get assets", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		rules, err := getRules(db)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to get rules", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		patterns, err := getPatterns(db)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to get patterns", err, map[string]any{})
+			os.Exit(1)
 		}
+
+		_ = db.Close()
 
 		tenant := Tenant{}
 		tenant.FromVar([]int64{}, assets)
 
 		err = cleanUpFilters(gCfg, filters)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to clean up filters", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		err = writeFilters(gCfg, filters)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to write filters", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		err = cleanUpRules(gCfg, rules)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to clean up rules", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		err = writeRules(gCfg, rules)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to write rules", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		err = writeTenant(gCfg, tenant)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to write tenant", err, map[string]any{})
+			os.Exit(1)
 		}
 
 		err = writePatterns(gCfg, patterns)
 		if err != nil {
-			panic(err)
+			_ = gosdk.Error("failed to write patterns", err, map[string]any{})
+			os.Exit(1)
 		}
-
-		db.Close()
 
 		time.Sleep(5 * time.Minute)
 	}
@@ -217,19 +227,19 @@ func main() {
 
 // connect to postgres database
 func connect() (*sql.DB, error) {
-	pCfg := go_sdk.PluginCfg("com.utmstack", false)
+	pCfg := gosdk.PluginCfg("com.utmstack", false)
 	password := pCfg.Get("postgresql.password").String()
 
 	connStr := fmt.Sprintf("user=postgres password=%s dbname=utmstack host=postgres port=5432 sslmode=disable", password)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %v", err)
+		return nil, gosdk.Error("failed to open database connection", err, map[string]any{"connStr": connStr})
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, fmt.Errorf("failed to ping database: %v", err)
+		return nil, gosdk.Error("failed to ping database", err, map[string]any{})
 	}
 
 	return db, nil
@@ -241,7 +251,7 @@ func getPatterns(db *sql.DB) (map[string]string, error) {
 		return nil, fmt.Errorf("failed to get patterns: %v", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	patterns := make(map[string]string, 10)
 
@@ -266,7 +276,7 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 		return nil, fmt.Errorf("failed to get filters: %v", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	filters := make([]Filter, 0, 10)
 
@@ -300,7 +310,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 		return nil, fmt.Errorf("failed to get assets: %v", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	assets := make([]Asset, 0, 10)
 
@@ -338,7 +348,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 		return nil, fmt.Errorf("failed to get rules: %v", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	rules := make([]Rule, 0, 10)
 
@@ -383,7 +393,7 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]any, error) {
 		return nil, fmt.Errorf("failed to get data types: %v", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	dataTypes := make([]any, 0, 10)
 
@@ -433,7 +443,7 @@ func listFiles(folder string) ([]string, error) {
 	return files, nil
 }
 
-func cleanUpFilters(gCfg *go_sdk.Config, filters []Filter) error {
+func cleanUpFilters(gCfg *gosdk.Config, filters []Filter) error {
 	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"))
 	if e != nil {
 		os.Exit(1)
@@ -459,7 +469,7 @@ func cleanUpFilters(gCfg *go_sdk.Config, filters []Filter) error {
 	return nil
 }
 
-func cleanUpRules(gCfg *go_sdk.Config, rules []Rule) error {
+func cleanUpRules(gCfg *gosdk.Config, rules []Rule) error {
 	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
 	if e != nil {
 		os.Exit(1)
@@ -485,7 +495,7 @@ func cleanUpRules(gCfg *go_sdk.Config, rules []Rule) error {
 	return nil
 }
 
-func writeFilters(pCfg *go_sdk.Config, filters []Filter) error {
+func writeFilters(pCfg *gosdk.Config, filters []Filter) error {
 	for _, filter := range filters {
 		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)))
 		if err != nil {
@@ -506,16 +516,16 @@ func writeFilters(pCfg *go_sdk.Config, filters []Filter) error {
 	return nil
 }
 
-func writeTenant(pCfg *go_sdk.Config, tenant Tenant) error {
+func writeTenant(pCfg *gosdk.Config, tenant Tenant) error {
 	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "tenant.yaml"))
 	if err != nil {
 		return fmt.Errorf("failed to create file: %v", err)
 	}
 
-	sdkTenant := go_sdk.Tenant(tenant)
+	sdkTenant := gosdk.Tenant(tenant)
 
-	tenants := go_sdk.Config{
-		Tenants: []*go_sdk.Tenant{&sdkTenant},
+	tenants := gosdk.Config{
+		Tenants: []*gosdk.Tenant{&sdkTenant},
 	}
 
 	bTenants, err := yaml.Marshal(tenants)
@@ -536,7 +546,7 @@ func writeTenant(pCfg *go_sdk.Config, tenant Tenant) error {
 	return nil
 }
 
-func writeRules(pCfg *go_sdk.Config, rules []Rule) error {
+func writeRules(pCfg *gosdk.Config, rules []Rule) error {
 	for _, rule := range rules {
 		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)))
 		if err != nil {
@@ -562,13 +572,13 @@ func writeRules(pCfg *go_sdk.Config, rules []Rule) error {
 	return nil
 }
 
-func writePatterns(pCfg *go_sdk.Config, patterns map[string]string) error {
+func writePatterns(pCfg *gosdk.Config, patterns map[string]string) error {
 	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "patterns.yaml"))
 	if err != nil {
 		return fmt.Errorf("failed to create file: %v", err)
 	}
 
-	config := go_sdk.Config{
+	config := gosdk.Config{
 		Patterns: patterns,
 	}
 
@@ -590,7 +600,7 @@ func writePatterns(pCfg *go_sdk.Config, patterns map[string]string) error {
 	return nil
 }
 
-func createFolderStructure(gCfg *go_sdk.Config) error {
+func createFolderStructure(gCfg *gosdk.Config) error {
 	folders := []string{
 		filepath.Join(gCfg.Env.Workdir, "rules"),
 		filepath.Join(gCfg.Env.Workdir, "pipeline"),
