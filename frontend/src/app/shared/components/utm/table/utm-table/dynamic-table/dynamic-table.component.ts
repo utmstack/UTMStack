@@ -1,4 +1,14 @@
-import {Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output, SimpleChanges,
+  Type,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 // tslint:disable-next-line:max-line-length
 import {SortEvent} from '../../../../../directives/sortable/type/sort-event';
 import {ElasticDataTypesEnum} from '../../../../../enums/elastic-data-types.enum';
@@ -11,7 +21,7 @@ import {convertObjectToKeyValueArray, extractValueFromObjectByPath} from '../../
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.scss']
 })
-export class UtmDynamicTableComponent implements OnInit {
+export class UtmDynamicTableComponent implements OnInit, OnChanges {
   /**
    * Field to show in header
    */
@@ -133,5 +143,9 @@ export class UtmDynamicTableComponent implements OnInit {
     } else {
       return column.field.includes('.keyword') ? column.field.replace('.keyword', '') : column.field;
     }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('changes', changes);
   }
 }

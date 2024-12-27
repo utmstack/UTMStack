@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import { Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
@@ -16,13 +16,14 @@ import {
   ElasticFilterDefaultTime
 } from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {
+  ALERT_ADVERSARY_FIELD,
   ALERT_CASE_ID_FIELD,
   ALERT_FIELDS,
   ALERT_INCIDENT_FLAG_FIELD,
   ALERT_STATUS_FIELD,
-  ALERT_STATUS_FIELD_AUTO,
   ALERT_STATUS_LABEL_FIELD,
   ALERT_TAGS_FIELD,
+  ALERT_TARGET_FIELD,
   ALERT_TIMESTAMP_FIELD,
   EVENT_FIELDS,
   EVENT_IS_ALERT,
@@ -107,6 +108,9 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   showRefresh = false;
   destroy$ = new Subject<void>();
   openAlerts = 0;
+  ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
+  ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
+
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
@@ -470,7 +474,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     // });
   }
 
-  setInitialWidth() {
+  /*setInitialWidth() {
     if (this.pageWidth > 1980) {
       this.filterWidth = 350;
       this.tableWidth = this.pageWidth - this.filterWidth - 51;
@@ -486,7 +490,28 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       this.filterWidth = 400;
       this.tableWidth = this.pageWidth - this.filterWidth - 51;
     }
+  }*/
+
+  @HostListener('window:resize', ['$event'])
+  onResizeWindows(event: any) {
+    this.pageWidth = event.target.innerWidth;
+    this.setInitialWidth();
   }
+
+  setInitialWidth() {
+    if (this.pageWidth > 4000) {
+      this.filterWidth = 400;
+    } else if (this.pageWidth > 2500) {
+      this.filterWidth = 350;
+    } else if (this.pageWidth > 1980) {
+      this.filterWidth = 350;
+    } else {
+      this.filterWidth = 300;
+    }
+
+    this.tableWidth = this.pageWidth - this.filterWidth - 51;
+  }
+
 
   onFilterAppliedChange($event: { filter: ElasticFilterType, valueDelete: string }) {
     this.processFilters($event.filter).then(filters => {

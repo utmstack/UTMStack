@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, Input, OnDestroy, OnInit, Type} from '@angular/core';
+import {Component, HostListener, Input, OnDestroy, OnInit, Type} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -82,6 +82,8 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
   dateFormat$: Observable<DatePipeDefaultOptions>;
   destroy$ = new Subject<void>();
+  filterWidth: number;
+  tableWidth: number;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
               private logAnalyzerService: ElasticDataService,
@@ -101,6 +103,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.setInitialWidth();
     this.activatedRoute.queryParams
       .subscribe(params => {
           this.queryParams = Object.entries(params).length > 0 ? params : null;
@@ -265,6 +268,21 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     this.indexFieldController.$field.next($event.field);
   }
 
+  setInitialWidth() {
+    if (this.pageWidth > 4000) {
+      this.filterWidth = 400;
+    } else if (this.pageWidth > 2500) {
+      this.filterWidth = 350;
+    } else if (this.pageWidth > 1980) {
+      this.filterWidth = 350;
+    } else {
+      this.filterWidth = 300;
+    }
+
+    this.tableWidth = this.pageWidth - this.filterWidth - 51;
+    console.log('tableWidth', this.tableWidth);
+  }
+
   changeFields(pattern: UtmIndexPattern) {
     /*this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
@@ -352,6 +370,13 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       this.detailWidth = (this.pageWidth - $event.rectangle.width - 10);
       this.fieldWidth = $event.rectangle.width + 'px';
     }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResizeWindows(event: any) {
+    console.log('resize', event);
+    this.pageWidth = event.target.innerWidth;
+    this.setInitialWidth();
   }
 
   ngOnDestroy(): void {
