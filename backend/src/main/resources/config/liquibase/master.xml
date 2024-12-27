@@ -83,4 +83,8 @@
 
     <include file="/config/liquibase/changelog/20241213001_updating_asa_and_firepower_filters.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20241227001_updating-system-index-pattern.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20241227002_updating-menu-index-pattern.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
