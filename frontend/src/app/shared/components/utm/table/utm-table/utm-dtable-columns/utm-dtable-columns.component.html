@@ -12,7 +12,13 @@
       <div class="card-header card-header-inactive">
         {{'Inactive ' + (label ? label : 'columns')}}
       </div>
-      <div class="ul-container">
+      <div class="card-body px-1">
+        <app-utm-selectable-list [items]="inactiveFields"
+                                 [itemTemplate]="columnItem"
+                                 (itemSelected)="setVisibleItem(findField($event))">
+        </app-utm-selectable-list>
+      </div>
+      <!--<div class="ul-container">
         <ul class="list-group list-group-flush list-unstyled available-columns p-0">
           <ng-container *ngFor="let field of fields">
             <li (click)="selectInactive(field)"
@@ -29,7 +35,7 @@
             </li>
           </ng-container>
         </ul>
-      </div>
+      </div>-->
     </div>
     <div *ngIf="showInactive" class="operation d-flex
      justify-content-center mr-2 ml-2
@@ -45,9 +51,91 @@
          class="icon-arrow-left8 cursor-pointer"
          placement="auto"></i>
     </div>
-    <ngx-sortable [items]="fields"
-                  [name]="'Visible '+(label ? label : 'columns')">
-      <ng-template let-item>
+    <div class="custom-selectable position-relative">
+      <div class="custom-panel custom-panel-transparent custom-panel-padding-small">
+
+        <!-- Search bar and order buttons -->
+        <div class="custom-flex-group custom-flex-group-space-between-center-row m-0 px-2  w-100 position-absolute sort-search-container">
+          <div class="custom-flex-item custom-flex-item-grow-1">
+            <div class="form-group form-group-feedback m-0">
+              <input
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="onChange($event)"
+                [placeholder]="'Search'"
+                class="form-control"
+                style="font-size: 12px !important; border-radius: 4px; padding-right: 30px;"
+                [type]="'search'"/>
+              <div class="form-control-feedback">
+                <i class="icon-search4 font-size-sm"></i>
+              </div>
+            </div>
+          </div>
+          <div class="custom-flex-item custom-flex-item-grow-zero ml-1">
+            <div class="order-buttons-container px-1">
+              <button
+                [ngClass]="{'order-button-selected' : order === 'asc', 'order-button-unselected' : order !== 'asc'}"
+                aria-pressed="true"
+                type="button"
+                class="order-button"
+                (click)="setOrder('asc')">
+                <i class="icon-sort-alpha-asc font-size-sm"></i>
+              </button>
+              <button
+                [ngClass]="{'order-button-selected' : order === 'desc', 'order-button-unselected' : order !== 'desc'}"
+                aria-pressed="false"
+                type="button"
+                class="order-button ml-1"
+                (click)="setOrder('desc')">
+                <i class="icon-sort-alpha-desc font-size-sm"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- List of items -->
+          <ngx-sortable [items]="activeFields"
+                        [name]="'Visible '+(label ? label : 'columns')">
+
+            <div class="custom-sort-container" role="listbox">
+              <ng-template let-item>
+                <div *ngIf="isVisible(item)" class="custom-sort-item">
+                  <div class="d-flex justify-content-between"
+                       [ngClass]="{'active':isInactiveSelected(findField(item))}">
+                    <span class="custom-item-text">{{ item.name }}</span>
+                    <i *ngIf="!item.items" (click)="removeItem(findField(item))" class="icon-eye cursor-pointer"
+                       [ngbTooltip]="'Inactive ' + (item.label ? item.label : 'column')"
+                       tooltipClass="custom-tooltip"
+                       placement="auto"
+                       triggers="hover focus">
+                    </i>
+                  </div>
+                </div>
+                <ng-container *ngIf="item.items">
+                  <div *ngFor="let child of item.items">
+                    <div *ngIf="isVisible(child)" class="custom-sort-item">
+                      <div class="d-flex pl-2 justify-content-between"
+                           [ngClass]="{'active':isInactiveSelected(findField(item))}">
+                        <span class="custom-item-text">{{ child.name }}</span>
+                        <i (click)=" removeItem(findField(child))" class="icon-eye cursor-pointer"
+                           [ngbTooltip]="'Inactive ' + (item.label ? item.label : 'column')"
+                           tooltipClass="custom-tooltip"
+                           placement="auto"
+                           triggers="hover focus">
+                        </i>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </ng-template>
+            </div>
+          </ngx-sortable>
+
+          <div *ngIf="(activeFields | filter: searchTerm).length === 0">
+            <app-no-data-found></app-no-data-found>
+          </div>
+        </div>
+    </div>
+      <!--<ng-template let-item>
         <div *ngIf="item.visible" class="sortable-list-item p-1 d-flex justify-content-between align-items-center">
           <label class="field-name">{{item.label ? item.label : item.field}}</label>
           <i *ngIf="!item.fields" (click)="removeItem(item)"
@@ -68,8 +156,7 @@
             </div>
           </div>
         </ng-container>
-      </ng-template>
-    </ngx-sortable>
+      </ng-template>-->
   </div>
   <div class="note mt-2 mb-2">
     <span><i class="icon-drag-left-right text-blue-800 rotate-90-inverse"></i>&nbsp;
@@ -78,5 +165,46 @@
 </ng-template>
 <ng-template #colTitle>
   <h6 class="font-weight-light">Manage {{label ? label : 'columns'}}</h6>
+</ng-template>
+
+<ng-template #columnItem let-item>
+  <div *ngIf="!isVisible(item)" class="d-flex justify-content-between"
+       [ngClass]="{'active':isInactiveSelected(findField(item))}">
+    <span class="custom-item-text">{{ item.name }}</span>
+    <i (click)="!item.visible ? setVisibleItem(findField(item)) : removeItem(findField(item))" class="icon-eye cursor-pointer"
+       [ngbTooltip]="!item.visible ? 'Active ' : 'Inactive ' + (item.label ? item.label : 'column')"
+       tooltipClass="custom-tooltip"
+       placement="auto"
+       triggers="hover focus">
+    </i>
+  </div>
+  <ng-container *ngIf="item.items">
+    <div class="custom-sort-item">
+      <div class="d-flex justify-content-between"
+           [ngClass]="{'active':isInactiveSelected(findField(item))}">
+        <span class="custom-item-text">{{ item.name }}</span>
+        <i (click)="setVisibleItem(findField(item))" class="icon-eye cursor-pointer"
+           [ngbTooltip]="'Active ' + (item.label ? item.label : 'column')"
+           tooltipClass="custom-tooltip"
+           placement="auto"
+           triggers="hover focus">
+        </i>
+      </div>
+    </div>
+    <div *ngFor="let child of item.items" class="item-child">
+      <div *ngIf="!isVisible(child)" class="custom-sort-item">
+        <div class="d-flex pl-2 justify-content-between"
+             [ngClass]="{'active':isInactiveSelected(findField(item))}">
+          <span class="custom-item-text">{{ child.name }}</span>
+          <i (click)=" setVisibleItem(findField(child))" class="icon-eye cursor-pointer"
+             [ngbTooltip]="'Active ' + (item.label ? item.label : 'column')"
+             tooltipClass="custom-tooltip"
+             placement="auto"
+             triggers="hover focus">
+          </i>
+        </div>
+      </div>
+      </div>
+  </ng-container>
 </ng-template>
 

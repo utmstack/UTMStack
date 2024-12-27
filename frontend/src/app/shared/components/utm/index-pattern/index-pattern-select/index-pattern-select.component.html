@@ -36,13 +36,17 @@
 </ng-container>
 
 <ng-template #popContent>
-  <app-utm-selectable-list [label]="'Sources'" [items]="indexPatternList" (itemSelected)="selectedPattern($event)">
+  <app-utm-selectable-list [itemTemplate]="item" [label]="'Sources'" [items]="indexPatternList" (itemSelected)="selectedPattern($event)">
     <div add-item class="custom-flex-item custom-flex-item-grow-zero">
           <span (click)="newIndexPattern();popover.close()" class="span-small-icon text-blue-800 cursor-pointer">
             <i class="icon-plus3"></i> Add source
           </span>
     </div>
   </app-utm-selectable-list>
+</ng-template>
+
+<ng-template #item let-item>
+  <span class="custom-item-text">{{ item.name }}</span>
 </ng-template>
 
 

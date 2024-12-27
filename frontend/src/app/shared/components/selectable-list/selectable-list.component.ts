@@ -5,7 +5,7 @@ import {
   EventEmitter,
   Input, OnChanges,
   OnInit,
-  Output
+  Output, TemplateRef
 } from '@angular/core';
 
 @Component({
@@ -19,12 +19,12 @@ export class SelectableListComponent implements OnChanges {
   @Input() placeholder = 'Search...';
   order: 'asc' | 'desc' = 'asc';
   @Output() itemSelected: EventEmitter<any> = new EventEmitter();
+  @Input() itemTemplate!: TemplateRef<any>;
   searchTerm = '';
 
   constructor() { }
 
   ngOnChanges(): void {
-    console.log('changes:', this.items);
     this.setOrder(this.order);
   }
 

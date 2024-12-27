@@ -148,19 +148,19 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         label: 'Target URL',
         field: ALERT_TARGET_URL_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Target Bytes Sent',
         field: ALERT_TARGET_BYTES_SENT_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Target Domain',
         field: ALERT_TARGET_DOMAIN_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Target ASN',
@@ -178,13 +178,13 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         label: 'Target Latitude',
         field: ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Target Longitude',
         field: ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       }
     ]
   },
@@ -204,19 +204,19 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         label: 'Adversary URL',
         field: ALERT_ADVERSARY_URL_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Adversary Bytes Sent',
         field: ALERT_ADVERSARY_BYTES_SENT_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Adversary Domain',
         field: ALERT_ADVERSARY_DOMAIN_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Adversary ASN',
@@ -234,13 +234,13 @@ export const ALERT_FIELDS: UtmFieldType[] = [
         label: 'Adversary Latitude',
         field: ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       },
       {
         label: 'Adversary Longitude',
         field: ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD,
         type: ElasticDataTypesEnum.STRING,
-        visible: true,
+        visible: false,
       }
     ]
   },
