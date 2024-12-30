@@ -417,10 +417,10 @@ public class UtmDataInputStatusService {
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
 
         SearchRequest sr = SearchRequest.of(s -> s
-                .query(SearchUtil.toQuery(filters)) // Utiliza los filtros ajustados
+                .query(SearchUtil.toQuery(filters))
                 .index(Constants.STATISTICS_INDEX_PATTERN)
-                .aggregations("by_dataType", agg -> agg // Cambiado de by_dataSource a by_dataType
-                        .terms(t -> t.field("dataType.keyword") // Cambiar la agrupación a dataType.keyword
+                .aggregations("by_dataType", agg -> agg
+                        .terms(t -> t.field("dataType.keyword")
                                 .size(100)
                         )
                         .aggregations("latest", latest -> latest
@@ -434,7 +434,6 @@ public class UtmDataInputStatusService {
         SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
         Map<String, StatisticDocument> result = new HashMap<>();
 
-        // Procesa la agregación de by_dataType (ajustada desde by_dataSource)
         List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataType"));
 
         for (BucketAggregation bucket : dataTypeBuckets) {
