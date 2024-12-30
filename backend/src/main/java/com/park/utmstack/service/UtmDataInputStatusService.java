@@ -195,7 +195,7 @@ public class UtmDataInputStatusService {
             result.forEach((dataType, statisticDoc) -> {
                 try {
                     // Check if the document exists in the database by its unique identifier or datatype
-                    Optional<UtmDataInputStatus> existingDataInput = dataInputStatusRepository.findBySource(statisticDoc.getDataSource());
+                    Optional<UtmDataInputStatus> existingDataInput = dataInputStatusRepository.findBySourceAndDataType(statisticDoc.getDataSource(), statisticDoc.getDataType());
 
                     if (existingDataInput.isPresent()) {
                         UtmDataInputStatus dataInputToUpdate = existingDataInput.get();
@@ -415,11 +415,12 @@ public class UtmDataInputStatusService {
     private Map<String, StatisticDocument> getLatestStatisticsByDataSource() {
         ArrayList<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
+
         SearchRequest sr = SearchRequest.of(s -> s
-                .query(SearchUtil.toQuery(filters))
+                .query(SearchUtil.toQuery(filters)) // Utiliza los filtros ajustados
                 .index(Constants.STATISTICS_INDEX_PATTERN)
-                .aggregations("by_dataSource", agg -> agg
-                        .terms(t -> t.field("dataSource.keyword")
+                .aggregations("by_dataType", agg -> agg // Cambiado de by_dataSource a by_dataType
+                        .terms(t -> t.field("dataType.keyword") // Cambiar la agrupación a dataType.keyword
                                 .size(100)
                         )
                         .aggregations("latest", latest -> latest
@@ -433,15 +434,16 @@ public class UtmDataInputStatusService {
         SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
         Map<String, StatisticDocument> result = new HashMap<>();
 
-        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataSource"));
+        // Procesa la agregación de by_dataType (ajustada desde by_dataSource)
+        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataType"));
 
         for (BucketAggregation bucket : dataTypeBuckets) {
             TopHitsAggregate topHitsAgg = bucket.getSubAggregations().get("latest").topHits();
 
             if (topHitsAgg != null && !topHitsAgg.hits().hits().isEmpty()) {
                 JsonData jsonData = topHitsAgg.hits().hits().get(0).source();
-                if(!Objects.isNull(jsonData)){
-                    StatisticDocument doc = jsonData.to(StatisticDocument.class) ;
+                if (!Objects.isNull(jsonData)) {
+                    StatisticDocument doc = jsonData.to(StatisticDocument.class);
                     result.put(bucket.getKey(), doc);
                 }
             }
@@ -449,4 +451,5 @@ public class UtmDataInputStatusService {
 
         return result;
     }
+
 }
