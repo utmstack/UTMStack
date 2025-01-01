@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {
   AlertFieldService
 } from '../../../../../../data-management/alert-management/shared/services/alert-field.service';
@@ -11,7 +11,7 @@ import {UtmFieldType} from '../../../../../types/table/utm-field.type';
   styleUrls: ['./utm-dtable-columns.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UtmDtableColumnsComponent implements OnInit {
+export class UtmDtableColumnsComponent implements OnInit, OnChanges {
   /**
    * UtmTableFieldType Array
    */
@@ -43,6 +43,9 @@ export class UtmDtableColumnsComponent implements OnInit {
 
   ngOnInit() {
     this.innerFields = this.fields.slice();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     this.loadInactiveFields();
     this.loadActiveFields();
   }
@@ -57,7 +60,6 @@ export class UtmDtableColumnsComponent implements OnInit {
   }*/
 
   removeItem(item: UtmFieldType): void {
-    console.log('removeItem', item);
     const findAndUpdateItem = (fields: UtmFieldType[], itemToRemove: UtmFieldType): boolean => {
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];
@@ -120,7 +122,6 @@ export class UtmDtableColumnsComponent implements OnInit {
   loadActiveFields(){
     this.activeFields = this.fields.filter(f => f.visible || (f.fields && f.fields.some(child => child.visible)))
      .map(f => this.mapFieldsToItem(f));
-
     return this.activeFields;
   }
 
@@ -160,12 +161,12 @@ export class UtmDtableColumnsComponent implements OnInit {
     if (!field.fields) {
       return {
         id: field.field,
-        name: field.label
+        name: field.label ? field.label : field.field,
       };
     } else {
       return {
         id: field.field,
-        name: field.label,
+        name: field.label ? field.label : field.field,
         items: field.fields.
           map(childField => this.mapFieldsToItem(childField))
       };

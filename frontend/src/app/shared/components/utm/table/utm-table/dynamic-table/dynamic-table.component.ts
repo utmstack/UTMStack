@@ -2,26 +2,31 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
+  OnDestroy,
   OnInit,
-  Output, SimpleChanges,
-  Type,
+  Output, Type,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-// tslint:disable-next-line:max-line-length
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {IndexPatternBehavior} from '../../../../../../log-analyzer/shared/behaviors/index-pattern.behavior';
 import {SortEvent} from '../../../../../directives/sortable/type/sort-event';
 import {ElasticDataTypesEnum} from '../../../../../enums/elastic-data-types.enum';
 import {UtmDateFormatEnum} from '../../../../../enums/utm-date-format.enum';
 import {UtmFieldType} from '../../../../../types/table/utm-field.type';
-import {convertObjectToKeyValueArray, extractValueFromObjectByPath} from '../../../../../util/get-value-object-from-property-path.util';
+import {
+  convertObjectToKeyValueArray,
+  extractValueFromObjectByPath
+} from '../../../../../util/get-value-object-from-property-path.util';
+import {SUMMARY_COLUMNS} from './summary-fields';
 
 @Component({
   selector: 'app-dynamic-table',
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.scss']
 })
-export class UtmDynamicTableComponent implements OnInit, OnChanges {
+export class UtmDynamicTableComponent implements OnInit, OnDestroy {
   /**
    * Field to show in header
    */
@@ -83,11 +88,20 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges {
   @Input() pageable = true;
   dataTypeEnum = ElasticDataTypesEnum;
   utmDateFormat = UtmDateFormatEnum;
+  destroy$: Subject<void> = new Subject<void>();
 
-  constructor() {
+  summaryColumns = [];
+
+  constructor(private indexPatternBehavior: IndexPatternBehavior) {
   }
 
   ngOnInit(): void {
+    this.indexPatternBehavior.pattern$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((log) => {
+        this.summaryColumns = SUMMARY_COLUMNS.filter( s =>
+          s.pattern.toLowerCase().includes(log.pattern.pattern.toLowerCase()))[0].fields;
+    });
   }
 
   onSort($event: SortEvent) {
@@ -145,7 +159,9 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes', changes);
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 }

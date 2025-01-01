@@ -1,33 +1,39 @@
 <div class="px-3 w-100 m-0 d-flex align-items-center justify-content-between">
   <div style="border-left: 1px #dee2e6 solid" class="d-flex p-2 bg-white w-100">
     <div class="d-flex align-items-center justify-content-start mr-1">
-      <app-index-pattern-select (indexPatternChange)="changeFields($event)"
-                                [template]="'log-explorer'"
-                                [pattern]="pattern">
+      <app-index-pattern-select
+        (indexPatternChange)="changeFields($event)"
+        [template]="'log-explorer'"
+        [pattern]="pattern">
       </app-index-pattern-select>
     </div>
-    <app-utm-search-input (searchFor)="onSearchInAll($event)"
-                          [placeholder]="'Search in '+ (pattern?pattern.pattern:'...')"
-                          style="width: 60%"></app-utm-search-input>
-    <div class="log-analyzer-actions d-flex justify-content-end align-items-center ml-5">
+    <div class="d-flex search-container flex-grow-1 mx-2 align-items-center">
+      <app-utm-search-input
+        (searchFor)="onSearchInAll($event)"
+        [placeholder]="'Search in ' + (pattern ? pattern.pattern : '...')"
+        class="w-100">
+      </app-utm-search-input>
+    </div>
+    <div class="log-analyzer-actions d-flex justify-content-end align-items-center flex-wrap ml-5">
       <div class="actions-log span-small-icon">
-        <button (click)="getData()" class="btn utm-button utm-button-primary mr-2">
+        <button (click)="getData()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
           <i class="icon-reload-alt"></i>&nbsp;Refresh data
         </button>
-
-        <button (click)="saveQuery()" class="btn utm-button utm-button-primary mr-2">
+        <button (click)="saveQuery()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
           <i class="icon-floppy-disk"></i>&nbsp;Save
         </button>
         <button (click)="exportToCsv()"
-                [disabled]="(fields && fields.length===0) || !rows || csvExport"
-                class="btn utm-button utm-button-primary">
-          <i [ngClass]="csvExport?'icon-download10':'icon-table2'" class="mr-1"></i>
+                [disabled]="(fields && fields.length === 0) || !rows || csvExport"
+                class="btn btn-sm utm-button utm-button-primary mb-1">
+          <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'" class="mr-1"></i>
           {{csvExport ? 'Generating...' : 'Export to CSV'}}
         </button>
       </div>
     </div>
+
   </div>
 </div>
+
 
 <!--header-->
 <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
