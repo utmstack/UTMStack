@@ -23,6 +23,10 @@ export class UtmAlertType {
   tags: string[];
   notes: string;
   tagRulesApplied: number[];
+  target: any;
+  adversary: any;
+  events?: any[];
+  technique: string;
 }
 
 export enum AlertStatusLabelEnum {

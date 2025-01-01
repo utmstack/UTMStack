@@ -1,4 +1,6 @@
 import {
+  ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD, ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD,
+  ALERT_ADVERSARY_IP_FIELD,
   ALERT_CASE_ID_FIELD,
   ALERT_DESTINATION_ACCURACY_FIELD,
   ALERT_DESTINATION_COUNTRY_COORDINATES_FIELD,
@@ -11,6 +13,9 @@ import {
   ALERT_SOURCE_IP_FIELD,
   ALERT_STATUS_FIELD,
   ALERT_STATUS_LABEL_FIELD,
+  ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD,
+  ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
+  ALERT_TARGET_IP_FIELD,
   EVENT_FILTERS_FIELDS,
   INCIDENT_FILTERS_FIELDS
 } from '../../../../shared/constants/alert/alert-field.constant';
@@ -124,8 +129,9 @@ export function getLocationFromAlert(alert: object): Promise<AlertLocationType[]
   return new Promise<AlertLocationType[]>(resolve => {
     const locations: AlertLocationType[] = [];
     const sourceLocation: AlertLocationType = {
-      location: getValueFromPropertyPath(alert, ALERT_SOURCE_COUNTRY_COORDINATES_FIELD, null),
-      ip: getValueFromPropertyPath(alert, ALERT_SOURCE_IP_FIELD, null),
+      location: [getValueFromPropertyPath(alert, ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD, null),
+        getValueFromPropertyPath(alert, ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD, null)],
+      ip: getValueFromPropertyPath(alert, ALERT_TARGET_IP_FIELD, null),
       alertName: getValueFromPropertyPath(alert, ALERT_NAME_FIELD, null),
       locationType: 'source',
       accuracy: getValueFromPropertyPath(alert, ALERT_SOURCE_ACCURACY_FIELD, null),
@@ -134,8 +140,9 @@ export function getLocationFromAlert(alert: object): Promise<AlertLocationType[]
       locations.push(sourceLocation);
     }
     const destinationLocation: AlertLocationType = {
-      location: getValueFromPropertyPath(alert, ALERT_DESTINATION_COUNTRY_COORDINATES_FIELD, null),
-      ip: getValueFromPropertyPath(alert, ALERT_DESTINATION_IP_FIELD, null),
+      location: [getValueFromPropertyPath(alert, ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD, null),
+        getValueFromPropertyPath(alert, ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD, null)],
+      ip: getValueFromPropertyPath(alert, ALERT_ADVERSARY_IP_FIELD, null),
       alertName: getValueFromPropertyPath(alert, ALERT_NAME_FIELD, null),
       locationType: 'destination',
       accuracy: getValueFromPropertyPath(alert, ALERT_DESTINATION_ACCURACY_FIELD, null),
