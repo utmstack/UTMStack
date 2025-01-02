@@ -16,7 +16,7 @@ import {
   ALERT_PROTOCOL_FIELD,
   ALERT_SENSOR_FIELD,
   ALERT_SEVERITY_FIELD_LABEL,
-  ALERT_STATUS_FIELD, ALERT_TACTIC_FIELD, ALERT_TIMESTAMP_FIELD
+  ALERT_STATUS_FIELD, ALERT_TACTIC_FIELD, ALERT_TECHNIQUE_FIELD, ALERT_TIMESTAMP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {LOG_ROUTE} from '../../../../../shared/constants/app-routes.constant';
 import {LOG_INDEX_PATTERN, LOG_INDEX_PATTERN_ID} from '../../../../../shared/constants/main-index-pattern.constant';
@@ -32,6 +32,7 @@ import {AlertUpdateHistoryBehavior} from '../../behavior/alert-update-history.be
 import {AlertUpdateTagBehavior} from '../../behavior/alert-update-tag.behavior';
 import {AlertHistoryActionEnum} from '../../enums/alert-history-action.enum';
 import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
+import {AlertFieldService} from "../../services/alert-field.service";
 
 @Component({
   selector: 'app-alert-view-detail',
@@ -44,7 +45,7 @@ export class AlertViewDetailComponent implements OnInit {
   @Input() hideEmptyField = false;
   @Input() dataType: EventDataTypeEnum;
   @Input() tags: AlertTags[];
-  @Input()  timeFilter: ElasticFilterType;
+  @Input() timeFilter: ElasticFilterType;
   @Output() refreshData = new EventEmitter<boolean>();
   ALERT_NAME = ALERT_NAME_FIELD;
   STATUS_FIELD = ALERT_STATUS_FIELD;
@@ -57,12 +58,13 @@ export class AlertViewDetailComponent implements OnInit {
   CASE_ID_FIELD = ALERT_CASE_ID_FIELD;
   GENERATED_BY_FIELD = ALERT_GENERATED_BY_FIELD;
   ALERT_TACTIC_FIELD = ALERT_TACTIC_FIELD;
+  ALERT_TECHNIQUE_FIELD = ALERT_TECHNIQUE_FIELD;
   countRelatedEvents: number;
   viewHistory = false;
   viewLog = false;
   viewOnMap = true;
   alertActionEnum = AlertHistoryActionEnum;
-  logs: string[];
+  logs: any[];
   reference: string[] = [];
   log: any;
   getLastLog: boolean;
@@ -81,12 +83,13 @@ export class AlertViewDetailComponent implements OnInit {
               private elasticDataService: ElasticDataService,
               private moduleService: UtmModulesService,
               private router: Router,
-              private toastService: UtmToastService) {
+              private toastService: UtmToastService,
+              private alertFieldService: AlertFieldService) {
   }
 
   ngOnInit() {
     this.viewLog = this.fullScreen;
-    this.logs = this.alert.logs.reverse();
+    this.logs = this.alert.events;
     this.countRelatedEvents = this.logs.length;
     const ref = this.alert.reference;
     this.reference = (ref && typeof ref !== 'string') ? ref : [];
@@ -102,8 +105,8 @@ export class AlertViewDetailComponent implements OnInit {
     };
   }
 
-  getFieldByName(name): UtmFieldType {
-    return ALERT_FIELDS.find(value => value.field === name);
+  getFieldByName(name: string): UtmFieldType {
+    return this.alertFieldService.findField(ALERT_FIELDS, name);
   }
 
   isIgnoredAlert() {
@@ -136,11 +139,8 @@ export class AlertViewDetailComponent implements OnInit {
   }
 
   showMap(): boolean {
-    const source = this.alert.source.coordinates;
-    const destination = this.alert.destination.coordinates;
-    return source && destination &&
-      source.length > 0 && destination.length > 0
-      && this.areCoordinatesNotZero(source) && this.areCoordinatesNotZero(destination);
+    return (this.alert && this.alert.target && this.alert.target.geolocation && 'latitude' in this.alert.target.geolocation && 'longitude' in this.alert.target.geolocation) &&
+      (this.alert && this.alert.adversary && this.alert.adversary.geolocation && 'latitude' in this.alert.adversary.geolocation && 'longitude' in this.alert.adversary.geolocation);
   }
 
   areCoordinatesNotZero(coordinates: number[]): boolean {
@@ -148,12 +148,12 @@ export class AlertViewDetailComponent implements OnInit {
   }
 
 
-  searchLastLog() {
+  /*searchLastLog() {
     if (!this.log) {
       this.getLastLog = true;
       const filters: ElasticFilterType[] = [
         ...(this.timeFilter ? [this.timeFilter] : []),
-        { field: ALERT_ID_FIELD, operator: ElasticOperatorsEnum.IS, value: this.logs[0] }
+        {field: ALERT_ID_FIELD, operator: ElasticOperatorsEnum.IS, value: this.logs[0]}
       ];
       this.elasticDataService.search(1, 1,
         1, LOG_INDEX_PATTERN, filters).subscribe(
@@ -166,9 +166,14 @@ export class AlertViewDetailComponent implements OnInit {
         }
       );
     }
+  }*/
+
+  searchLastLog() {
+    this.log = this.alert.events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
   }
 
   viewLastLog() {
+    console.log(this.alert.events);
     this.searchLastLog();
   }
 

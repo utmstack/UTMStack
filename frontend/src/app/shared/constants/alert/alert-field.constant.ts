@@ -29,6 +29,7 @@ export const ALERT_REFERENCE_FIELD = 'reference';
 export const ALERT_RELATED_RULES_FIELD = 'TagRulesApplied';
 export const ALERT_TARGET_FIELD = 'target';
 export const ALERT_ADVERSARY_FIELD = 'adversary';
+export const ALERT_TECHNIQUE_FIELD = 'technique';
 
 // SOURCE
 export const ALERT_SOURCE_HOSTNAME_FIELD = 'source.host';
@@ -250,9 +251,15 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     type: ElasticDataTypesEnum.STRING,
     visible: false,
   },
-  {
+  /*{
     label: 'Tactic',
     field: ALERT_TACTIC_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: false,
+  },*/
+  {
+    label: 'Technique',
+    field: ALERT_TECHNIQUE_FIELD,
     type: ElasticDataTypesEnum.STRING,
     visible: false,
   },

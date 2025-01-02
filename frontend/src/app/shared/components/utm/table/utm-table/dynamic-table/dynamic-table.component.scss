@@ -18,3 +18,17 @@ table {
   }
 }
 
+.col-summary {
+  width: 80%;
+}
+
+.col-summary.utm-table-sort-none:before,
+.col-summary.utm-table-sort-none:after {
+  display: none;
+}
+
+.border-1 {
+  border-radius: 4px;
+}
+
+

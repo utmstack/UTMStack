@@ -23,11 +23,13 @@ export class AlertMapLocationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     getLocationFromAlert(this.alert).then(locations => {
+      const targetCord = [this.alert.target.geolocation.latitude, this.alert.target.geolocation.longitude ];
+      const adversaryCord = [this.alert.adversary.geolocation.latitude, this.alert.adversary.geolocation.longitude ];
       this.map = new L.map('mapLocation', {
         minZoom: 1,
       });
-      const midpoint = calculateMidpoint(this.alert.source.coordinates, this.alert.destination.coordinates);
-      const zoomLevel = getZoomLevel(this.alert.source.coordinates, this.alert.destination.coordinates);
+      const midpoint = calculateMidpoint(targetCord, adversaryCord);
+      const zoomLevel = getZoomLevel(targetCord, adversaryCord);
       this.map.setView(midpoint, zoomLevel);
       this.map.panTo(midpoint);
       this.alertLocations = locations;

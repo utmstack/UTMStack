@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20241227001" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+        <![CDATA[
+            UPDATE public.utm_menu
+            SET url = REGEXP_REPLACE(url, '&indexPattern=(log-)', '&indexPattern=v11-\1')
+            WHERE url LIKE '%&indexPattern=log-%';
+
+            ]]>
+    </sql>
+    </changeSet>
+
+</databaseChangeLog>

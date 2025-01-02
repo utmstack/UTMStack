@@ -1,5 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {
+  ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD,
+  ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD, ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD,
+  ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD,
+  ALERT_ADVERSARY_IP_FIELD,
   ALERT_DESTINATION_ASN_FIELD,
   ALERT_DESTINATION_ASO_FIELD,
   ALERT_DESTINATION_CITY_FIELD,
@@ -20,11 +24,16 @@ import {
   ALERT_SOURCE_IS_AN_PROXY_FIELD,
   ALERT_SOURCE_IS_SATELLITE_FIELD,
   ALERT_SOURCE_PORT_FIELD,
-  ALERT_SOURCE_USER_FIELD
+  ALERT_SOURCE_USER_FIELD,
+  ALERT_TARGET_GEOLOCATION_ASN_FIELD,
+  ALERT_TARGET_GEOLOCATION_ASO_FIELD, ALERT_TARGET_GEOLOCATION_CITY_FIELD,
+  ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD,
+  ALERT_TARGET_IP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {IncidentOriginTypeEnum} from '../../../../../shared/enums/incident-response/incident-origin-type.enum';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
+import {AlertFieldService} from '../../services/alert-field.service';
 
 @Component({
   selector: 'app-alert-host-detail',
@@ -33,7 +42,7 @@ import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 })
 export class AlertHostDetailComponent implements OnInit {
   @Input() alert: UtmAlertType;
-  @Input() type: 'source' | 'destination';
+  @Input() type: 'target' | 'adversary';
   @Input() hideEmptyField = false;
 
   SOURCE_HOSTNAME_FIELD = ALERT_SOURCE_HOSTNAME_FIELD;
@@ -57,25 +66,35 @@ export class AlertHostDetailComponent implements OnInit {
   DESTINATION_IS_SATELLITE = ALERT_DESTINATION_IS_SATELLITE_FIELD;
   DESTINATION_IS_AN_PROXY = ALERT_DESTINATION_IS_AN_PROXY_FIELD;
   DESTINATION_USER_FIELD = ALERT_DESTINATION_USER_FIELD;
+  ALERT_TARGET_IP_FIELD = ALERT_TARGET_IP_FIELD;
+  ALERT_ADVERSARY_IP_FIELD = ALERT_ADVERSARY_IP_FIELD;
+  ALERT_TARGET_GEOLOCATION_ASN_FIELD = ALERT_TARGET_GEOLOCATION_ASN_FIELD;
+  ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD = ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD;
+  ALERT_TARGET_GEOLOCATION_ASO_FIELD = ALERT_TARGET_GEOLOCATION_ASO_FIELD;
+  ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD = ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD;
+  ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD = ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD;
+  ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD = ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD;
+  ALERT_TARGET_GEOLOCATION_CITY_FIELD = ALERT_TARGET_GEOLOCATION_CITY_FIELD;
+  ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD = ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD;
 
   module = IncidentOriginTypeEnum.ALERT;
 
-  constructor() {
+  constructor(private alertFieldService: AlertFieldService) {
   }
 
   ngOnInit() {
   }
 
-  getFieldByName(name): UtmFieldType {
-    return ALERT_FIELDS.find(value => value.field === name);
+  getFieldByName(name: string): UtmFieldType {
+    return this.alertFieldService.findField(ALERT_FIELDS, name);
   }
 
   getHost(): string {
-    return this.type === 'source' ? this.alert.source.ip : this.alert.destination.ip;
+    return this.type === 'target' ? this.alert.target.ip : this.alert.adversary.ip;
   }
 
   getHostName(): string {
-    return this.type === 'source' ? this.alert.source.host : this.alert.destination.host;
+    return this.type === 'target' ? this.alert.target.host : this.alert.adversary.host;
   }
 
   getAlertId() {

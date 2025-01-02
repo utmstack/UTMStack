@@ -2,55 +2,75 @@
      <span class="p-1 utm-box-label">
        {{type | titlecase}} detail
      </span>
-  <div *ngIf="!hideEmptyField || !hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.host !== '') || (type==='destination' && alert.destination && alert.destination.host !== '')" class="alert-details w-100 d-flex justify-content-start mb-2">
+  <!--<div *ngIf="!hideEmptyField || !hideEmptyField || hideEmptyField && (type==='target' && alert.target && alert.target.host !== '') || (type==='adversary' && alert.adversary && alert.adversary.host !== '')" class="alert-details w-100 d-flex justify-content-start mb-2">
     <span class="text-blue-800 font-weight-light has-minimum-width">Hostname:</span>&nbsp;
 
     <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_HOSTNAME_FIELD:DESTINATION_HOSTNAME_FIELD)"></app-data-field-render>
-  </div>
-  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.ip !== '') || (type==='destination' && alert.destination && alert.destination.ip !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
-    <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
-    <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_IP_FIELD:DESTINATION_IP_FIELD)"></app-data-field-render>
-  </div>
-  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.port > 0) || (type==='destination' && alert.destination && alert.destination.port > 0)" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+                           [field]="getFieldByName(type==='target'? SOURCE_HOSTNAME_FIELD : DESTINATION_HOSTNAME_FIELD)"></app-data-field-render>
+  </div>-->
+  <!--<div *ngIf="!hideEmptyField || hideEmptyField && (type==='target' && alert.target && alert.target.port > 0) || (type==='adversary' && alert.adversary && alert.adversary.port > 0)" class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">Port:</span>&nbsp;
     <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_PORT_FIELD:DESTINATION_PORT_FIELD)"></app-data-field-render>
+                           [field]="getFieldByName(type==='target'?SOURCE_PORT_FIELD:DESTINATION_PORT_FIELD)"></app-data-field-render>
   </div>
-  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.user !== '') || (type==='destination' && alert.destination && alert.destination.user !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
+  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='target' && alert.target && alert.target.user !== '') || (type==='adversary' && alert.adversary && alert.adversary.user !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">User:</span>&nbsp;
     <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_USER_FIELD:DESTINATION_USER_FIELD)"></app-data-field-render>
-  </div>
-  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.asn > 0) || (type==='destination' && alert.destination && alert.destination.asn > 0)" class="alert-details w-100 d-flex justify-content-start mb-2 ">
-    <span class="text-blue-800 font-weight-light has-minimum-width">ASN:</span>&nbsp;
-    <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_ASN:DESTINATION_ASN)"></app-data-field-render>
-  </div>
-  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.aso !== '') || (type==='destination' && alert.destination && alert.destination.aso !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
-    <span class="text-blue-800 font-weight-light has-minimum-width">ASO:</span>&nbsp;
-    <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_ASO:DESTINATION_ASO)"></app-data-field-render>
-  </div>
-  <div *ngIf="!hideEmptyField || hideEmptyField && (type==='source' && alert.source && alert.source.country !== '') || (type==='destination' && alert.destination && alert.destination.country !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
-    <span class="text-blue-800 font-weight-light has-minimum-width">Country:</span>&nbsp;
-    <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_COUNTRY:DESTINATION_COUNTRY)"></app-data-field-render>
-  </div>
-  <div *ngIf="(type==='source' && alert.source && alert.source.city !== '') || (type==='destination' && alert.destination && alert.destination.city !== '')" class="alert-details w-100 d-flex justify-content-start mb-2 ">
-    <span class="text-blue-800 font-weight-light has-minimum-width">City:</span>&nbsp;
-    <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_CITY:DESTINATION_CITY)"></app-data-field-render>
-  </div>
-  <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
+                           [field]="getFieldByName(type==='target'?SOURCE_USER_FIELD:DESTINATION_USER_FIELD)"></app-data-field-render>
+  </div>-->
+  <!--<div class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">Proxy:</span>&nbsp;
     <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_IS_AN_PROXY:DESTINATION_IS_AN_PROXY)"></app-data-field-render>
+                           [field]="getFieldByName(type==='target'?SOURCE_IS_AN_PROXY:DESTINATION_IS_AN_PROXY)"></app-data-field-render>
   </div>
   <div class="alert-details w-100 d-flex justify-content-start mb-2 ">
     <span class="text-blue-800 font-weight-light has-minimum-width">Satellite provider:</span>&nbsp;
     <app-data-field-render [data]="alert"
-                           [field]="getFieldByName(type==='source'?SOURCE_IS_SATELLITE:DESTINATION_IS_SATELLITE)"></app-data-field-render>
+                           [field]="getFieldByName(type==='target'?SOURCE_IS_SATELLITE:DESTINATION_IS_SATELLITE)"></app-data-field-render>
+  </div>-->
+  <div *ngIf="!hideEmptyField || (hideEmptyField && getFieldByName(type === 'target' ? ALERT_TARGET_IP_FIELD : ALERT_ADVERSARY_IP_FIELD))"
+       class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
+    <app-data-field-render
+      [data]="alert"
+      [field]="getFieldByName(type === 'target' ? ALERT_TARGET_IP_FIELD : ALERT_ADVERSARY_IP_FIELD)">
+    </app-data-field-render>
   </div>
+
+  <div *ngIf="!hideEmptyField || (hideEmptyField && getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_ASN_FIELD : ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD))"
+       class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">ASN:</span>&nbsp;
+    <app-data-field-render
+      [data]="alert"
+      [field]="getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_ASN_FIELD : ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD)">
+    </app-data-field-render>
+  </div>
+
+  <div *ngIf="!hideEmptyField || (hideEmptyField && getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_ASO_FIELD : ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD))"
+       class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">ASO:</span>&nbsp;
+    <app-data-field-render
+      [data]="alert"
+      [field]="getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_ASO_FIELD : ALERT_ADVERSARY_GEOLOCATION_ASO_FIELD)">
+    </app-data-field-render>
+  </div>
+
+  <div *ngIf="!hideEmptyField || (hideEmptyField && getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD : ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD))"
+       class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">Country:</span>&nbsp;
+    <app-data-field-render
+      [data]="alert"
+      [field]="getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_COUNTRY_FIELD : ALERT_ADVERSARY_GEOLOCATION_COUNTRY_FIELD)">
+    </app-data-field-render>
+  </div>
+
+  <div *ngIf="!hideEmptyField || (hideEmptyField && getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_CITY_FIELD : ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD))"
+       class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">City:</span>&nbsp;
+    <app-data-field-render
+      [data]="alert"
+      [field]="getFieldByName(type === 'target' ? ALERT_TARGET_GEOLOCATION_CITY_FIELD : ALERT_ADVERSARY_GEOLOCATION_CITY_FIELD)">
+    </app-data-field-render>
+  </div>
+
 </div>

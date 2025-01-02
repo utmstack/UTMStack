@@ -1,4 +1,4 @@
-<div [ngStyle]="{'max-width':tableWidth?(tableWidth-15)+'px':'100%'}" class="card p-0 h-100 w-100">
+<div [ngStyle]="{'max-width':tableWidth ? tableWidth +'px':'100%'}" class="card p-0 h-100 w-100">
   <div class="table-responsive text-nowrap mb-2">
     <table class="table table-fixed" id="table">
       <thead>
@@ -10,13 +10,14 @@
         <ng-container *ngFor="let column of fields; let index = index">
           <th (sort)="onSort($event)"
               *ngIf="column.visible"
-              [isSortable]="isSortableColumn(column)"
+              [ngClass]="{'col-summary': column.field === 'Summary'}"
+              [isSortable]="column.field !== 'Summary' && isSortableColumn(column)"
               [sortable]="column.field"
               appColumnSortable
               class="font-weight-semibold cursor-pointer handle"
               scope="col">
             <i (click)="removeColumn.emit(column)"
-               *ngIf="viewDeleteAction"
+               *ngIf="viewDeleteAction && column.field !=='@timestamp' && column.field !=='Summary'"
                class="icon-cross3 cursor-pointer"
                container="body"
                ngbTooltip="Delete column"
@@ -28,17 +29,17 @@
       </tr>
       </thead>
       <tbody *ngIf="loading">
-      <tr>
-        <td [attr.colspan]="fields?fields.length + 1:5">
-          <div class="p-3 d-flex justify-content-center align-items-center text-blue-800">
-            <app-utm-spinner [height]="'35px'"
-                             [label]="'Loading...'"
-                             [loading]="loading"
-                             [width]="'35px'">
-            </app-utm-spinner>
-          </div>
-        </td>
-      </tr>
+        <tr>
+          <td [attr.colspan]="fields ? fields.length + 1:5">
+            <div class="p-3 d-flex justify-content-center align-items-center text-blue-800">
+              <app-utm-spinner [height]="'35px'"
+                               [label]="'Loading...'"
+                               [loading]="loading"
+                               [width]="'35px'">
+              </app-utm-spinner>
+            </div>
+          </td>
+        </tr>
       </tbody>
       <tbody *ngFor="let row of rows; let index = index"
              [hidden]="!(rows || rows.length>0) && !loading" class="tbody-dynamic">
@@ -50,13 +51,27 @@
           </span>
         </td>
         <ng-container *ngFor="let td of fields">
-          <td *ngIf="td.visible && td.type!==dataTypeEnum.DATE;else date"
+          <td *ngIf="td.field === 'Summary' && td.visible">
+            <div class="w-100 d-flex flex-wrap">
+              <ng-container *ngFor="let summary of summaryColumns">
+                <div *ngIf="resolveTdValue(row, summary.key) !== '-'"
+                     class="cursor-pointer d-flex justify-content-center align-items-center border-1 mr-2 p-1 border-grey-100 border-radius-1">
+                  <div class="filter-label">
+                <span class="text-center pt-1 pb-1 m-1 border-blue-800" >
+                    <strong>{{ summary.title }}</strong>: <em> {{ resolveTdValue(row, summary.key) }} </em>
+                </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </td>
+          <td *ngIf="td.field !== 'Summary' && td.visible && td.type !== dataTypeEnum.DATE; else date"
               [innerHTML]="resolveTdValue(row, td)"
               style="word-break: break-all;white-space: pre-wrap">
           </td>
 
           <ng-template #date>
-            <td>
+            <td *ngIf="td.field !== 'Summary' && td.visible">
               <span>{{resolveTdValue(row, td)|date:utmDateFormat.MEDIUM:'UTC'}}</span>
             </td>
           </ng-template>

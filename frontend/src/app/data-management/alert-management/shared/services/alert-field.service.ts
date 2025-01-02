@@ -12,4 +12,20 @@ export class AlertFieldService {
   update(field: UtmFieldType) {
     this.fieldUpdateBehavior.next(field);
   }
+
+
+  findField(fields: UtmFieldType[], name: string): UtmFieldType | undefined {
+    for (const field of fields) {
+      if (field.field === name) {
+        return field;
+      }
+      if (field.fields) {
+        const nestedField = this.findField(field.fields, name);
+        if (nestedField) {
+          return nestedField;
+        }
+      }
+    }
+    return undefined;
+  }
 }

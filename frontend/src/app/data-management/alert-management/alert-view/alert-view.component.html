@@ -158,7 +158,7 @@
                 </div>
               </td>
               <ng-container *ngFor="let td of fields">
-                <td (click)="viewDetailAlert(alert,td)"
+                <td [ngClass]="{'min-width' : td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}" (click)="viewDetailAlert(alert,td)"
                     *ngIf="(td.visible)">
                   <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
                                          [field]="td"

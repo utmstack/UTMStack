@@ -51,5 +51,5 @@ public interface UtmDataInputStatusRepository extends JpaRepository<UtmDataInput
     List<String> findDataSourcesToConfigure(@Param("dataType") String dataType);
 
     Optional<UtmDataInputStatus> findByDataType(String dataType);
-    Optional<UtmDataInputStatus> findBySource(String source);
+    Optional<UtmDataInputStatus> findBySourceAndDataType(String source, String dataType);
 }
