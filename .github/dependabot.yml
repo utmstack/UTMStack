@@ -6,10 +6,6 @@
 version: 2
 updates:
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/agent/agent" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/agent/installer" # Location of package manifests
     schedule:
       interval: "weekly"
@@ -18,15 +14,18 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/agent/service" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/agent-manager" # Location of package manifests
     schedule:
       interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/bitdefender" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/collector-installer" # Location of package manifests
+  - package-ecosystem: "maven" # Adding support for java
+    directories: 
+      - "/backend"
+      - "/user-auditor"
+      - "/web-pdf"
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
@@ -43,6 +42,10 @@ updates:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/plugins/azure" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/plugins/bitdefender" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod" # See documentation for possible values
