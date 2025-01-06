@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
-	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/config-client-go/types"
 	"google.golang.org/api/option"
 )
@@ -30,7 +31,7 @@ func (g *GroupModule) PullLogs() {
 		default:
 			client, err := pubsub.NewClient(g.CTX, g.ProjectID, option.WithCredentialsJSON([]byte(g.JsonKey)))
 			if err != nil {
-				_ = gosdk.Error("failed to create client", err, map[string]any{})
+				_ = catcher.Error("failed to create client", err, map[string]any{})
 				return
 			}
 
@@ -39,7 +40,7 @@ func (g *GroupModule) PullLogs() {
 			sub := client.Subscription(g.SubscriptionID)
 
 			err = sub.Receive(g.CTX, func(ctx context.Context, msg *pubsub.Message) {
-				logsQueue <- &gosdk.Log{
+				logsQueue <- &plugins.Log{
 					Id:         uuid.NewString(),
 					TenantId:   defaultTenant,
 					DataType:   "google",
@@ -51,7 +52,7 @@ func (g *GroupModule) PullLogs() {
 				msg.Ack()
 			})
 			if err != nil {
-				_ = gosdk.Error("failed to receive message", err, map[string]any{})
+				_ = catcher.Error("failed to receive message", err, map[string]any{})
 				continue
 			}
 		}
@@ -61,7 +62,7 @@ func (g *GroupModule) PullLogs() {
 func (g *GroupModule) VerifyCredentials() bool {
 	client, err := pubsub.NewClient(g.CTX, g.ProjectID, option.WithCredentialsJSON([]byte(g.JsonKey)))
 	if err != nil {
-		_ = gosdk.Error("failed to create client", err, map[string]any{})
+		_ = catcher.Error("failed to create client", err, map[string]any{})
 		return false
 	}
 	defer func() { _ = client.Close() }()
@@ -69,11 +70,11 @@ func (g *GroupModule) VerifyCredentials() bool {
 	sub := client.Subscription(g.SubscriptionID)
 	exist, err := sub.Exists(g.CTX)
 	if err != nil {
-		_ = gosdk.Error("failed to verify subscription", err, map[string]any{})
+		_ = catcher.Error("failed to verify subscription", err, map[string]any{})
 		return false
 	}
 	if !exist {
-		_ = gosdk.Error("subscription does not exist", nil, map[string]any{})
+		_ = catcher.Error("subscription does not exist", nil, map[string]any{})
 		return false
 	}
 	return true

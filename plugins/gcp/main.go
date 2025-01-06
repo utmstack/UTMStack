@@ -1,27 +1,26 @@
 package main
 
 import (
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"os/signal"
 	"syscall"
-
-	gosdk "github.com/threatwinds/go-sdk"
 )
 
-var localNotificationsChannel chan *gosdk.Message
-var logsQueue = make(chan *gosdk.Log)
+var localNotificationsChannel chan *plugins.Message
+var logsQueue = make(chan *plugins.Log)
 
 func main() {
-	mode := gosdk.GetCfg().Env.Mode
+	mode := plugins.GetCfg().Env.Mode
 	if mode != "worker" {
 		os.Exit(0)
 	}
 
-	localNotificationsChannel = make(chan *gosdk.Message)
-	logsQueue = make(chan *gosdk.Log)
+	localNotificationsChannel = make(chan *plugins.Message)
+	logsQueue = make(chan *plugins.Log)
 
 	go processLogs()
-	go processNotification()
+	go plugins.SendNotificationsFromChannel()
 
 	StartGroupModuleManager()
 

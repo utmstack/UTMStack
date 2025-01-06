@@ -1,9 +1,11 @@
 package main
 
 import (
+	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"time"
 
-	gosdk "github.com/threatwinds/go-sdk"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 )
@@ -23,11 +25,11 @@ func StartGroupModuleManager() {
 
 func (m *GroupModuleManager) SyncConfigs() {
 	for {
-		utmConfig := gosdk.PluginCfg("com.utmstack", false)
+		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		if internalKey == "" || backendUrl == "" {
-			_ = gosdk.Error("internalKey or backendUrl is empty", nil, map[string]any{})
+			_ = catcher.Error("internalKey or backendUrl is empty", nil, map[string]any{})
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -39,7 +41,7 @@ func (m *GroupModuleManager) SyncConfigs() {
 		tempModuleConfig, err := client.GetUTMConfig(enum.GCP)
 		if err != nil {
 			if (err.Error() != "") && (err.Error() != " ") {
-				_ = gosdk.Error("cannot get GCP configuration", err, map[string]any{})
+				_ = catcher.Error("cannot get GCP configuration", err, map[string]any{})
 			}
 			continue
 		}
@@ -59,8 +61,12 @@ func (m *GroupModuleManager) SyncConfigs() {
 					group := m.Groups[newConf.ID]
 					isValid := group.VerifyCredentials()
 					if !isValid {
-						_ = gosdk.Error("invalid credentials for group "+newConf.GroupName, nil, map[string]any{})
-						notify("gpc_invalid_credentials", Message{Cause: "Invalid credentials for group " + newConf.GroupName, DataType: "gcp", DataSource: newConf.GroupName})
+						_ = plugins.EnqueueNotification(plugins.TopicIntegrationFailure, plugins.Message{
+							Id: uuid.NewString(),
+							Message: catcher.Error("invalid credentials ", nil, map[string]any{
+								"group": newConf.GroupName,
+							}).Error(),
+						})
 						continue
 					}
 					go group.PullLogs()
