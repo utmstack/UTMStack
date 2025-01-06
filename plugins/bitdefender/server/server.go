@@ -2,11 +2,11 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/threatwinds/go-sdk/catcher"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
-	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/schema"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
@@ -18,12 +18,12 @@ func GetLogs(config *types.ConfigurationSection) http.HandlerFunc {
 		if config.ModuleActive {
 			if r.Header.Get("authorization") == "" {
 				message := "401 Missing Authorization Header"
-				_ = gosdk.Error("missing authorization header", nil, map[string]any{})
+				_ = catcher.Error("missing authorization header", nil, map[string]any{})
 				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
 				_, err := w.Write(j)
 				if err != nil {
-					_ = gosdk.Error("cannot write response", err, nil)
+					_ = catcher.Error("cannot write response", err, nil)
 				}
 				return
 			}
@@ -36,12 +36,12 @@ func GetLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			}
 			if !isAuth {
 				message := "401 Invalid Authentication Credentials"
-				_ = gosdk.Error("invalid authentication credentials", nil, map[string]any{})
+				_ = catcher.Error("invalid authentication credentials", nil, map[string]any{})
 				j, _ := json.Marshal(message)
 				w.WriteHeader(http.StatusUnauthorized)
 				_, err := w.Write(j)
 				if err != nil {
-					_ = gosdk.Error("cannot write response", err, nil)
+					_ = catcher.Error("cannot write response", err, nil)
 				}
 				return
 			}
@@ -49,7 +49,7 @@ func GetLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				_ = gosdk.Error("error decoding body", err, map[string]any{})
+				_ = catcher.Error("error decoding body", err, map[string]any{})
 				return
 			}
 
@@ -60,10 +60,10 @@ func GetLogs(config *types.ConfigurationSection) http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			_, err = w.Write(j)
 			if err != nil {
-				_ = gosdk.Error("cannot write response", err, nil)
+				_ = catcher.Error("cannot write response", err, nil)
 			}
 		} else {
-			_ = gosdk.Error("bitdefender module disabled", nil, map[string]any{})
+			_ = catcher.Error("bitdefender module disabled", nil, map[string]any{})
 		}
 	}
 }
@@ -87,7 +87,7 @@ func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
 	go func() {
 		err := server.ListenAndServeTLS(cert, key)
 		if err != nil {
-			_ = gosdk.Error("error creating server", err, map[string]any{})
+			_ = catcher.Error("error creating server", err, map[string]any{})
 		}
 	}()
 }
