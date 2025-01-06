@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"path"
 	"runtime"
@@ -15,7 +17,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/monitor/azquery"
 	"github.com/google/uuid"
-	gosdk "github.com/threatwinds/go-sdk"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -26,10 +27,10 @@ import (
 const delayCheck = 300
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
-var logQueue = make(chan *gosdk.Log, 100*runtime.NumCPU())
+var logQueue = make(chan *plugins.Log, 100*runtime.NumCPU())
 
 func main() {
-	mode := gosdk.GetCfg().Env.Mode
+	mode := plugins.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
@@ -39,7 +40,7 @@ func main() {
 	}
 
 	for {
-		utmConfig := gosdk.PluginCfg("com.utmstack", false)
+		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		if internalKey == "" || backendUrl == "" {
@@ -56,7 +57,7 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				_ = gosdk.Error("cannot obtain module configuration", err, nil)
+				_ = catcher.Error("cannot obtain module configuration", err, nil)
 			}
 
 			time.Sleep(time.Second * delayCheck)
@@ -124,7 +125,7 @@ func getAzureProcessor(group types.ModuleGroup) AzureConfig {
 func (ap *AzureConfig) pull() {
 	cred, err := azidentity.NewClientSecretCredential(ap.TenantID, ap.ClientID, ap.ClientSecretValue, nil)
 	if err != nil {
-		_ = gosdk.Error("cannot obtain Azure credentials", err, map[string]any{
+		_ = catcher.Error("cannot obtain Azure credentials", err, map[string]any{
 			"group": ap.GroupName,
 		})
 		return
@@ -132,7 +133,7 @@ func (ap *AzureConfig) pull() {
 
 	client, err := azquery.NewLogsClient(cred, nil)
 	if err != nil {
-		_ = gosdk.Error("cannot create Logs client", err, map[string]any{
+		_ = catcher.Error("cannot create Logs client", err, map[string]any{
 			"group": ap.GroupName,
 		})
 		return
@@ -147,13 +148,13 @@ func (ap *AzureConfig) pull() {
 		nil,
 	)
 	if err != nil {
-		_ = gosdk.Error("cannot query Logs", err, map[string]any{
+		_ = catcher.Error("cannot query Logs", err, map[string]any{
 			"group": ap.GroupName,
 		})
 		return
 	}
 	if res.Error != nil {
-		_ = gosdk.Error("cannot query Logs", err, map[string]any{
+		_ = catcher.Error("cannot query Logs", err, map[string]any{
 			"group": ap.GroupName,
 		})
 		return
@@ -179,12 +180,12 @@ func (ap *AzureConfig) pull() {
 		for _, log := range logs {
 			jsonLog, err := json.Marshal(log)
 			if err != nil {
-				_ = gosdk.Error("cannot encode log to JSON", err, map[string]any{
+				_ = catcher.Error("cannot encode log to JSON", err, map[string]any{
 					"group": ap.GroupName,
 				})
 				continue
 			}
-			logQueue <- &gosdk.Log{
+			logQueue <- &plugins.Log{
 				Id:         uuid.New().String(),
 				TenantId:   defaultTenant,
 				DataType:   "azure",
@@ -197,33 +198,38 @@ func (ap *AzureConfig) pull() {
 }
 
 func processLogs() {
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(gosdk.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(plugins.GetCfg().Env.Workdir, "sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		_ = gosdk.Error("cannot connect to engine server", err, map[string]any{})
+		_ = catcher.Error("cannot connect to engine server", err, map[string]any{})
 		os.Exit(1)
 	}
 
-	client := gosdk.NewEngineClient(conn)
+	client := plugins.NewEngineClient(conn)
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		_ = gosdk.Error("cannot create input client", err, map[string]any{})
+		_ = catcher.Error("cannot create input client", err, map[string]any{})
 		// TODO: notify engine about this error before exit
 		os.Exit(1)
 	}
 
-	for {
-		log := <-logQueue
-		err := inputClient.Send(log)
-		if err != nil {
-			_ = gosdk.Error("cannot send log", err, map[string]any{})
-			// TODO: notify engine about this error before exit
-			os.Exit(1)
+	// TODO: implement retry system using ack and timeouts
+	go func() {
+		for {
+			log := <-logQueue
+			err := inputClient.Send(log)
+			if err != nil {
+				_ = catcher.Error("cannot send log", err, map[string]any{})
+				// TODO: notify engine about this error before exit
+				os.Exit(1)
+			}
 		}
+	}()
 
+	for {
 		_, err = inputClient.Recv()
 		if err != nil {
-			_ = gosdk.Error("cannot receive Ack", err, map[string]any{})
+			_ = catcher.Error("cannot receive Ack", err, map[string]any{})
 			// TODO: notify engine about this error before exit
 			os.Exit(1)
 		}
