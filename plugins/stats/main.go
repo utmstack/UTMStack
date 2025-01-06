@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 	"net"
 	"os"
 	"os/signal"
@@ -14,17 +17,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/threatwinds/go-sdk/opensearch"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type notificationServer struct {
-	go_sdk.UnimplementedNotificationServer
+	plugins.UnimplementedNotificationServer
 }
 
-var statisticsQueue chan map[string]go_sdk.DataProcessingMessage
+var statisticsQueue chan map[string]plugins.DataProcessingMessage
 var fails map[string]map[string]map[string]map[string]int64
 var failsLock sync.Mutex
 var success map[string]map[string]int64
@@ -33,36 +35,36 @@ var successLock sync.Mutex
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	os.Remove(path.Join(go_sdk.GetCfg().Env.Workdir,
+	_ = os.Remove(path.Join(plugins.GetCfg().Env.Workdir,
 		"sockets", "com.utmstack.stats_notification.sock"))
 
-	laddr, err := net.ResolveUnixAddr(
-		"unix", path.Join(go_sdk.GetCfg().Env.Workdir,
+	unixAddress, err := net.ResolveUnixAddr(
+		"unix", path.Join(plugins.GetCfg().Env.Workdir,
 			"sockets", "com.utmstack.stats_notification.sock"))
 
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = catcher.Error("cannot resolve unix address", err, nil)
 		os.Exit(1)
 	}
 
-	listener, err := net.ListenUnix("unix", laddr)
+	listener, err := net.ListenUnix("unix", unixAddress)
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = catcher.Error("cannot listen to unix socket", err, nil)
 		os.Exit(1)
 	}
 
-	statisticsQueue = make(chan map[string]go_sdk.DataProcessingMessage, runtime.NumCPU()*100)
+	statisticsQueue = make(chan map[string]plugins.DataProcessingMessage, runtime.NumCPU()*100)
 	fails = make(map[string]map[string]map[string]map[string]int64)
 	success = make(map[string]map[string]int64)
 
 	grpcServer := grpc.NewServer()
-	go_sdk.RegisterNotificationServer(grpcServer, &notificationServer{})
+	plugins.RegisterNotificationServer(grpcServer, &notificationServer{})
 
-	pCfg := go_sdk.PluginCfg("com.utmstack", false)
+	pCfg := plugins.PluginCfg("com.utmstack", false)
 	elasticUrl := pCfg.Get("elasticsearch").String()
 
 	if err := opensearch.Connect([]string{elasticUrl}); err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = catcher.Error("cannot connect to ElasticSearch/OpenSearch", err, nil)
 		os.Exit(1)
 	}
 
@@ -72,7 +74,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		if err := grpcServer.Serve(listener); err != nil {
-			go_sdk.Logger().ErrorF(err.Error())
+			_ = catcher.Error("cannot serve grpc", err, nil)
 			os.Exit(1)
 		}
 	}()
@@ -103,33 +105,29 @@ func main() {
 
 	grpcServer.GracefulStop()
 	cancel()
-	go_sdk.Logger().Info("shutting down...")
 }
 
-func (p *notificationServer) Notify(ctx context.Context, msg *go_sdk.Message) (*emptypb.Empty, error) {
-	go_sdk.Logger().LogF(100, "%s: %s", msg.Topic, msg.Message)
-
-	switch go_sdk.Topic(msg.Topic) {
-	case go_sdk.TOPIC_ENQUEUE_SUCCESS:
-	case go_sdk.TOPIC_ENQUEUE_FAILURE:
-	case go_sdk.TOPIC_PARSING_FAILURE:
-	case go_sdk.TOPIC_ANALYSIS_FAILURE:
-	case go_sdk.TOPIC_CORRELATION_FAILURE:
+func (p *notificationServer) Notify(_ context.Context, msg *plugins.Message) (*emptypb.Empty, error) {
+	switch plugins.Topic(msg.Topic) {
+	case plugins.TopicEnqueueSuccess:
+	case plugins.TopicEnqueueFailure:
+	case plugins.TopicParsingFailure:
+	case plugins.TopicAnalysisFailure:
+	case plugins.TopicCorrelationFailure:
 	default:
 		return &emptypb.Empty{}, nil
 	}
 
-	mbytes := []byte(msg.Message)
+	messageBytes := []byte(msg.Message)
 
-	var pMsg go_sdk.DataProcessingMessage
+	var pMsg plugins.DataProcessingMessage
 
-	err := json.Unmarshal(mbytes, &pMsg)
+	err := json.Unmarshal(messageBytes, &pMsg)
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
-		return &emptypb.Empty{}, err
+		return &emptypb.Empty{}, catcher.Error("cannot unmarshal message", err, map[string]any{})
 	}
 
-	statisticsQueue <- map[string]go_sdk.DataProcessingMessage{msg.Topic: pMsg}
+	statisticsQueue <- map[string]plugins.DataProcessingMessage{msg.Topic: pMsg}
 
 	return &emptypb.Empty{}, nil
 }
@@ -139,8 +137,8 @@ func processStatistics(ctx context.Context) {
 		select {
 		case msg := <-statisticsQueue:
 			for k, v := range msg {
-				switch go_sdk.Topic(k) {
-				case go_sdk.TOPIC_ENQUEUE_SUCCESS:
+				switch plugins.Topic(k) {
+				case plugins.TopicEnqueueSuccess:
 					successLock.Lock()
 					if _, ok := success[v.DataSource]; !ok {
 						success[v.DataSource] = make(map[string]int64)
@@ -149,8 +147,6 @@ func processStatistics(ctx context.Context) {
 					if _, ok := success[v.DataSource][v.DataType]; !ok {
 						success[v.DataSource][v.DataType] = 0
 					}
-
-					go_sdk.Logger().LogF(100, "success: %s", v.DataType)
 
 					success[v.DataSource][v.DataType]++
 					successLock.Unlock()
@@ -168,13 +164,11 @@ func processStatistics(ctx context.Context) {
 						fails[k][v.DataSource][v.DataType] = make(map[string]int64)
 					}
 
-					if _, ok := fails[k][v.DataSource][v.DataType][*v.Cause]; !ok {
-						fails[k][v.DataSource][v.DataType][*v.Cause] = 0
+					if _, ok := fails[k][v.DataSource][v.DataType][v.Error.Code]; !ok {
+						fails[k][v.DataSource][v.DataType][v.Error.Code] = 0
 					}
 
-					go_sdk.Logger().LogF(100, "failure: %s", v.DataType)
-
-					fails[k][v.DataSource][v.DataType][*v.Cause]++
+					fails[k][v.DataSource][v.DataType][v.Error.Code]++
 					failsLock.Unlock()
 				}
 			}
@@ -197,10 +191,8 @@ func saveToDB(ctx context.Context, t string) {
 	for {
 		select {
 		case <-time.After(10 * time.Minute):
-			go_sdk.Logger().Info("sending %s statistics", t)
 			sendStatistic(t)
 		case <-ctx.Done():
-			go_sdk.Logger().Info("shutting down %s statistics", t)
 			return
 		}
 	}
@@ -219,7 +211,7 @@ func extractSuccess() []Statistic {
 				DataSource: dataSource,
 				DataType:   dataType,
 				Count:      count,
-				Type:       string(go_sdk.TOPIC_ENQUEUE_SUCCESS),
+				Type:       string(plugins.TopicEnqueueSuccess),
 			})
 		}
 	}
@@ -243,7 +235,7 @@ func extractFails() []Statistic {
 						Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 						DataSource: dataSource,
 						DataType:   dataType,
-						Cause:      go_sdk.PointerOf(cause),
+						Cause:      utils.PointerOf(cause),
 						Count:      count,
 						Type:       topic,
 					})
@@ -261,26 +253,24 @@ func sendStatistic(t string) {
 	switch t {
 	case "success":
 		success := extractSuccess()
-		go_sdk.Logger().Info("sending %d success statistics", len(success))
 		for _, s := range success {
-			saveToOpensearch(s)
+			saveToOpenSearch(s)
 		}
 
 	case "failure":
 		fails := extractFails()
-		go_sdk.Logger().Info("sending %d failure statistics", len(fails))
 		for _, f := range fails {
-			saveToOpensearch(f)
+			saveToOpenSearch(f)
 		}
 	}
 }
 
-func saveToOpensearch[Data any](data Data) {
+func saveToOpenSearch[Data any](data Data) {
 	oCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	err := opensearch.IndexDoc(oCtx, &data, fmt.Sprintf("v11-statistics-%s", time.Now().UTC().Format("2006.01")), uuid.NewString())
 	if err != nil {
-		go_sdk.Logger().ErrorF(err.Error())
+		_ = catcher.Error("cannot index document", err, map[string]any{})
 	}
 }
