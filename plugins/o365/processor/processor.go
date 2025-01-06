@@ -4,21 +4,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/UTMStack/plugins/o365/configuration"
+	"github.com/utmstack/config-client-go/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"strings"
-
-	go_sdk "github.com/threatwinds/go-sdk"
-	"github.com/utmstack/UTMStack/plugins/o365/configuration"
-	"github.com/utmstack/UTMStack/plugins/o365/utils"
-	"github.com/utmstack/config-client-go/types"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
-var LogQueue = make(chan *go_sdk.Log)
+var LogQueue = make(chan *plugins.Log)
 
 type OfficeProcessor struct {
 	Credentials   MicrosoftLoginResponse
@@ -78,41 +78,33 @@ func (o *OfficeProcessor) GetAuth() error {
 
 func (o *OfficeProcessor) StartSubscriptions() error {
 	for _, subscription := range o.Subscriptions {
-		go_sdk.Logger().Info("starting subscription: %s...", subscription)
-		url := configuration.GetStartSubscriptionLink(o.TenantId) + "?contentType=" + subscription
+		link := configuration.GetStartSubscriptionLink(o.TenantId) + "?contentType=" + subscription
 		headers := map[string]string{
 			"Content-Type":  "application/json",
 			"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 		}
 
-		resp, status, e := utils.DoReq[StartSubscriptionResponse](url, []byte("{}"), http.MethodPost, headers)
-		if e != nil || status != http.StatusOK {
-			if strings.Contains(e.Error(), "subscription is already enabled") {
+		_, _, err := utils.DoReq[StartSubscriptionResponse](link, []byte("{}"), http.MethodPost, headers)
+		if err != nil {
+			if strings.Contains(err.Error(), "subscription is already enabled") {
 				return nil
 			}
-			return e
+			return err
 		}
-
-		respJson, err := json.Marshal(resp)
-		if err != nil || status != http.StatusOK {
-			return fmt.Errorf("failed to unmarshal response: %v", err)
-		}
-
-		go_sdk.Logger().Info("starting subscription response: %v", respJson)
 	}
 
 	return nil
 }
 
-func (o *OfficeProcessor) GetContentList(subscription string, startTime string, endTime string, group types.ModuleGroup) ([]ContentList, error) {
-	url := configuration.GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s", startTime, endTime, subscription)
+func (o *OfficeProcessor) GetContentList(subscription string, startTime string, endTime string) ([]ContentList, error) {
+	link := configuration.GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s", startTime, endTime, subscription)
 
 	headers := map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	respBody, status, err := utils.DoReq[[]ContentList](url, nil, http.MethodGet, headers)
+	respBody, status, err := utils.DoReq[[]ContentList](link, nil, http.MethodGet, headers)
 	if err != nil || status != http.StatusOK {
 		return []ContentList{}, err
 	}
@@ -127,35 +119,35 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	respBody, status, err := utils.DoReq[ContentDetailsResponse](url, nil, http.MethodGet, headers)
-	if err != nil || status != http.StatusOK {
+	respBody, _, err := utils.DoReq[ContentDetailsResponse](url, nil, http.MethodGet, headers)
+	if err != nil {
 		return ContentDetailsResponse{}, err
 	}
 
 	return respBody, nil
 }
 
-func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.ModuleGroup) []string {
-	logs := []string{}
+func (o *OfficeProcessor) GetLogs(startTime string, endTime string) []string {
+	logs := make([]string, 0, 10)
 	for _, subscription := range o.Subscriptions {
-		contentList, err := o.GetContentList(subscription, startTime, endTime, group)
+		contentList, err := o.GetContentList(subscription, startTime, endTime)
 		if err != nil {
-			go_sdk.Logger().LogF(100, "error getting content list: %v", err)
+			_ = catcher.Error("error getting content list", err, map[string]any{})
 			continue
 		}
-		logsCounter := 0
+
 		if len(contentList) > 0 {
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					go_sdk.Logger().ErrorF("error getting content details: %v", err)
+					_ = catcher.Error("error getting content details", err, map[string]any{})
 					continue
 				}
 				if len(details) > 0 {
 					for _, detail := range details {
 						rawDetail, err := json.Marshal(detail)
 						if err != nil {
-							go_sdk.Logger().ErrorF("error marshaling detail: %v", err)
+							_ = catcher.Error("error marshalling content details", err, map[string]any{})
 							continue
 						}
 						logs = append(logs, string(rawDetail))
@@ -163,43 +155,43 @@ func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.
 				}
 			}
 		}
-		go_sdk.Logger().Info("found: %d new logs in %s for group %s", logsCounter, subscription, group.GroupName)
 	}
 	return logs
 }
 
 func ProcessLogs() {
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(go_sdk.GetCfg().Env.Workdir,
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", path.Join(plugins.GetCfg().Env.Workdir,
 		"sockets", "engine_server.sock")), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to connect to engine server: %v", err)
+		_ = catcher.Error("failed to connect to engine server", err, map[string]any{})
 		os.Exit(1)
 	}
 
-	client := go_sdk.NewEngineClient(conn)
+	client := plugins.NewEngineClient(conn)
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to create input client: %v", err)
+		_ = catcher.Error("failed to create input client", err, map[string]any{})
 		os.Exit(1)
 	}
 
-	for {
-		log := <-LogQueue
-		go_sdk.Logger().LogF(100, "sending log: %v", log)
-		err := inputClient.Send(log)
-		if err != nil {
-			go_sdk.Logger().ErrorF("failed to send log: %v", err)
-		} else {
-			go_sdk.Logger().LogF(100, "successfully sent log to processing engine: %v", log)
-		}
+	go func() {
+		for {
+			log := <-LogQueue
 
-		ack, err := inputClient.Recv()
+			err := inputClient.Send(log)
+			if err != nil {
+				_ = catcher.Error("failed to send log", err, map[string]any{})
+				os.Exit(1)
+			}
+		}
+	}()
+
+	for {
+		_, err := inputClient.Recv()
 		if err != nil {
-			go_sdk.Logger().ErrorF("failed to receive ack: %v", err)
+			_ = catcher.Error("failed to receive ack", err, map[string]any{})
 			os.Exit(1)
 		}
-
-		go_sdk.Logger().LogF(100, "received ack: %v", ack)
 	}
 }
