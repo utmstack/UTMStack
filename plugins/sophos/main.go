@@ -1,13 +1,13 @@
 package main
 
 import (
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
-	"github.com/utmstack/UTMStack/plugins/sophos/processor"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -16,31 +16,26 @@ import (
 const delayCheck = 300
 
 func main() {
-	mode := go_sdk.GetCfg().Env.Mode
+	mode := plugins.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
-	pCfg := go_sdk.PluginCfg("com.utmstack", false)
+	pCfg := plugins.PluginCfg("com.utmstack", false)
 	internalKey := pCfg.Get("internalKey").String()
 	backend := pCfg.Get("backend").String()
 
 	client := utmconf.NewUTMClient(internalKey, backend)
 
-	go processor.ProcessLogs()
+	go plugins.SendLogsFromChannel()
 
 	for {
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				go_sdk.Logger().LogF(100, "error getting configuration of the SOPHOS module: invalid character '<'")
 				continue
 			}
-			if (err.Error() != "") && (err.Error() != " ") {
-				go_sdk.Logger().ErrorF("error getting configuration of the SOPHOS module: %v", err)
-			}
-
-			go_sdk.Logger().Info("sync complete waiting %v seconds", delayCheck)
+			_ = catcher.Error("cannot obtain module configuration", err, nil)
 			time.Sleep(delayCheck * time.Second)
 			continue
 		}
@@ -54,21 +49,19 @@ func main() {
 
 				for _, cnf := range group.Configurations {
 					if cnf.ConfValue == "" || cnf.ConfValue == " " {
-						go_sdk.Logger().Info("program not configured yet for group: %s", group.GroupName)
 						skip = true
 						break
 					}
 				}
 
 				if !skip {
-					processor.PullLogs(group)
+					pullLogs(group)
 				}
 				wg.Done()
 			}(group)
 		}
 
 		wg.Wait()
-		go_sdk.Logger().Info("sync complete waiting %d seconds", delayCheck)
 		time.Sleep(time.Second * delayCheck)
 	}
 }
