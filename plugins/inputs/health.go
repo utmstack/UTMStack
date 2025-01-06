@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"github.com/threatwinds/go-sdk/plugins"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -19,7 +19,7 @@ func CheckAgentManagerHealth() {
 	tlsCredentials := credentials.NewTLS(tlsConfig)
 
 	for {
-		pConfig := go_sdk.PluginCfg("com.utmstack", false)
+		pConfig := plugins.PluginCfg("com.utmstack", false)
 		agentManager := pConfig.Get("agentManager").String()
 		internalKey := pConfig.Get("internalKey").String()
 
@@ -42,19 +42,19 @@ func CheckAgentManagerHealth() {
 		resp, err := client.Check(ctx, &grpc_health_v1.HealthCheckRequest{Service: ""})
 		if err != nil {
 			cancel()
-			conn.Close()
+			_ = conn.Close()
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
 		if resp.Status == grpc_health_v1.HealthCheckResponse_SERVING {
 			cancel()
-			conn.Close()
+			_ = conn.Close()
 			break
 		}
 
 		cancel()
-		conn.Close()
+		_ = conn.Close()
 		time.Sleep(5 * time.Second)
 	}
 }

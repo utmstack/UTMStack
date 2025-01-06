@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
-	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/utmstack-inputs/agent"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -51,12 +52,12 @@ func (auth *LogAuthService) SyncAuth() {
 }
 
 func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
-	pConfig := go_sdk.PluginCfg("com.utmstack", false)
+	pConfig := plugins.PluginCfg("com.utmstack", false)
 	agentManager := pConfig.Get("agentManager").String()
 	internalKey := pConfig.Get("internalKey").String()
 
 	if agentManager == "" {
-		go_sdk.Logger().ErrorF("failed to get the SERVER_ADDRESS ")
+		_ = catcher.Error("agentManager config is empty", nil, nil)
 		os.Exit(1)
 	}
 
@@ -67,10 +68,12 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 	tlsCredentials := credentials.NewTLS(tlsConfig)
 	conn, err := grpc.NewClient(agentManager, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to connect to gRPC server: %v", err)
+		_ = catcher.Error("cannot to connect to agent manager", err, nil)
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -87,7 +90,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		})
 		if err != nil {
 			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
-				go_sdk.Logger().ErrorF("error sync collector keys: %v", err)
+				_ = catcher.Error("cannot synchronize collector keys", err, nil)
 			}
 			return
 		}
@@ -111,7 +114,7 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		})
 		if err != nil {
 			if !strings.Contains(err.Error(), "error reading server preface: http2: frame too large") {
-				go_sdk.Logger().ErrorF("error sync agent keys: %v", err)
+				_ = catcher.Error("cannot synchronize agent keys", err, nil)
 			}
 			return
 		}

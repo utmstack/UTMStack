@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 	"net"
 	"net/http"
 	"os"
@@ -9,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	go_sdk "github.com/threatwinds/go-sdk"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
@@ -17,8 +19,6 @@ import (
 )
 
 func startHTTPServer(middlewares *Middlewares, cert string, key string) {
-	go_sdk.Logger().Info("starting HTTP server on 0.0.0.0:8080...")
-
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
@@ -29,8 +29,8 @@ func startHTTPServer(middlewares *Middlewares, cert string, key string) {
 
 	err := router.RunTLS(":8080", cert, key)
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to start HTTP server: %v", err)
-		return
+		_ = catcher.Error("failed to start http server", err, nil)
+		os.Exit(1)
 	}
 }
 
@@ -39,18 +39,18 @@ func Log(c *gin.Context) {
 
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
-		e := go_sdk.Logger().ErrorF(err.Error())
+		e := catcher.Error("failed to read request body", err, map[string]any{})
 		e.GinError(c)
 		return
 	}
 
 	body := buf.String()
 
-	var l = new(go_sdk.Log)
+	var l = new(plugins.Log)
 
-	err = go_sdk.ToObject(&body, l)
+	err = utils.ToObject(&body, l)
 	if err != nil {
-		e := go_sdk.Logger().ErrorF(err.Error())
+		e := catcher.Error("failed to parse log", err, map[string]any{})
 		e.GinError(c)
 		return
 	}
@@ -78,7 +78,7 @@ func Log(c *gin.Context) {
 
 	localLogsChannel <- l
 
-	c.JSON(http.StatusOK, go_sdk.Ack{LastId: l.Id})
+	c.JSON(http.StatusOK, plugins.Ack{LastId: l.Id})
 }
 
 func Ping(c *gin.Context) {
@@ -89,12 +89,12 @@ func GitHub(c *gin.Context) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
-		e := go_sdk.Logger().ErrorF(err.Error())
+		e := catcher.Error("failed to read request body", err, map[string]any{})
 		e.GinError(c)
 		return
 	}
 
-	var l = new(go_sdk.Log)
+	var l = new(plugins.Log)
 
 	l.Raw = buf.String()
 
@@ -108,46 +108,46 @@ func GitHub(c *gin.Context) {
 
 	localLogsChannel <- l
 
-	c.JSON(http.StatusOK, go_sdk.Ack{LastId: l.Id})
+	c.JSON(http.StatusOK, plugins.Ack{LastId: l.Id})
 }
 
 type integration struct {
-	go_sdk.UnimplementedIntegrationServer
+	plugins.UnimplementedIntegrationServer
 }
 
 func startGRPCServer(middlewares *Middlewares, cert string, key string) {
-	creds, err := credentials.NewServerTLSFromFile(cert, key)
+	transportCredentials, err := credentials.NewServerTLSFromFile(cert, key)
 	if err != nil {
-		go_sdk.Logger().Fatal("failed to load TLS credentials: %v", err)
+		_ = catcher.Error("failed to create credentials", err, nil)
+		os.Exit(1)
 	}
 
 	server := grpc.NewServer(
-		grpc.Creds(creds),
+		grpc.Creds(transportCredentials),
 		grpc.ChainUnaryInterceptor(middlewares.GrpcAuth),
 		grpc.ChainStreamInterceptor(middlewares.GrpcStreamAuth),
 	)
 
 	integrationInstance := new(integration)
 
-	go_sdk.RegisterIntegrationServer(server, integrationInstance)
+	plugins.RegisterIntegrationServer(server, integrationInstance)
 	healthServer := health.NewServer()
 	grpcHealth.RegisterHealthServer(server, healthServer)
 	healthServer.SetServingStatus("", grpcHealth.HealthCheckResponse_SERVING)
 
 	listener, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to listen grpc server: %v", err)
+		_ = catcher.Error("failed to listen to grpc", err, nil)
 		os.Exit(1)
 	}
 
-	go_sdk.Logger().Info("starting gRPC server on 0.0.0.0:50051")
 	if err := server.Serve(listener); err != nil {
-		go_sdk.Logger().Fatal("failed to serve grpc: %v", err)
+		_ = catcher.Error("failed to serve grpc", err, nil)
 		os.Exit(1)
 	}
 }
 
-func (i *integration) ProcessLog(srv go_sdk.Integration_ProcessLogServer) error {
+func (i *integration) ProcessLog(srv plugins.Integration_ProcessLogServer) error {
 	for {
 		l, err := srv.Recv()
 		if err != nil {
@@ -177,9 +177,10 @@ func (i *integration) ProcessLog(srv go_sdk.Integration_ProcessLogServer) error 
 
 		localLogsChannel <- l
 
-		if err := srv.Send(&go_sdk.Ack{LastId: l.Id}); err != nil {
-			go_sdk.Logger().ErrorF("failed to send ack: %v", err)
-			return err
+		if err := srv.Send(&plugins.Ack{LastId: l.Id}); err != nil {
+			return catcher.Error("failed to send ack", err, map[string]any{
+				"lastId": l.Id,
+			})
 		}
 	}
 }
