@@ -1,11 +1,10 @@
 package main
 
 import (
+	"github.com/threatwinds/go-sdk/plugins"
 	"net"
 	"strings"
 	"sync"
-
-	gosdk "github.com/threatwinds/go-sdk"
 )
 
 var mu = &sync.RWMutex{}
@@ -93,7 +92,7 @@ func getLocation(geonameID int64) *cityLocation {
 	return location
 }
 
-func geolocate(ip string) *gosdk.Geolocation {
+func geolocate(ip string) *plugins.Geolocation {
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -106,7 +105,7 @@ func geolocate(ip string) *gosdk.Geolocation {
 		return nil
 	}
 
-	var geo = new(gosdk.Geolocation)
+	var geo = new(plugins.Geolocation)
 
 	asn := getASN(ip)
 	city := getCity(ip)
