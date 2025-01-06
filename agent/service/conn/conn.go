@@ -1,7 +1,6 @@
 package conn
 
 import (
-	"crypto/tls"
 	"fmt"
 	"sync"
 	"time"
@@ -10,7 +9,6 @@ import (
 	"github.com/utmstack/UTMStack/agent/service/utils"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -81,28 +79,26 @@ func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 
 	serverAddress := addrs + ":" + port
 	var conn *grpc.ClientConn
+	var err error
 
 	for {
 		if connectionAttemps >= maxConnectionAttempts {
 			return nil, fmt.Errorf("failed to connect to Server")
 		}
 
-		var tlsCredentials credentials.TransportCredentials
-		var err error
+		dialOptions := []grpc.DialOption{
+			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)),
+		}
 
-		if skip {
-			tlsConfig := &tls.Config{
-				InsecureSkipVerify: true,
-			}
-			tlsCredentials = credentials.NewTLS(tlsConfig)
-		} else {
-			tlsCredentials, err = utils.LoadTLSCredentials(config.CertPath)
+		if !skip {
+			tlsCredentials, err := utils.LoadGRPCTLSCredentials(config.CertPath)
 			if err != nil {
 				return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
 			}
+			dialOptions = append(dialOptions, grpc.WithTransportCredentials(tlsCredentials))
 		}
 
-		conn, err = grpc.NewClient(serverAddress, grpc.WithTransportCredentials(tlsCredentials), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+		conn, err = grpc.NewClient(serverAddress, dialOptions...)
 		if err != nil {
 			connectionAttemps++
 			utils.Logger.ErrorF("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())

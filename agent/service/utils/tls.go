@@ -9,8 +9,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func LoadTLSCredentials(crtName string) (credentials.TransportCredentials, error) {
-	// Load the server's certificate
+func LoadHTTPTLSCredentials(crtName string) (*tls.Config, error) {
 	serverCert, err := os.ReadFile(crtName)
 	if err != nil {
 		return nil, err
@@ -23,6 +22,15 @@ func LoadTLSCredentials(crtName string) (credentials.TransportCredentials, error
 
 	config := &tls.Config{
 		RootCAs: certPool,
+	}
+
+	return config, nil
+}
+
+func LoadGRPCTLSCredentials(crtName string) (credentials.TransportCredentials, error) {
+	config, err := LoadHTTPTLSCredentials(crtName)
+	if err != nil {
+		return nil, err
 	}
 
 	return credentials.NewTLS(config), nil

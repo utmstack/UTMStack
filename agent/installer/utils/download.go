@@ -19,9 +19,12 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 
 	client := &http.Client{}
 	if !skipTls {
-		_, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
+		tlsConfig, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
 		if err != nil {
 			return fmt.Errorf("failed to load TLS credentials: %v", err)
+		}
+		client.Transport = &http.Transport{
+			TLSClientConfig: tlsConfig,
 		}
 	}
 

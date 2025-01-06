@@ -23,9 +23,12 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	client := &http.Client{}
 	if !skipTlsVerification {
-		_, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
+		tlsConfig, err := LoadTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
 		if err != nil {
 			return result, http.StatusInternalServerError, fmt.Errorf("failed to load TLS credentials: %v", err)
+		}
+		client.Transport = &http.Transport{
+			TLSClientConfig: tlsConfig,
 		}
 	}
 

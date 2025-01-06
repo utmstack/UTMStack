@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent/self/config"
 	"github.com/utmstack/UTMStack/agent/self/update"
@@ -23,6 +24,8 @@ func main() {
 		}
 		utils.SelfLogger.Info("%s stopped correctly", config.SERV_NAME)
 	}
+
+	time.Sleep(10 * time.Second)
 
 	err := update.UpdateService()
 	if err != nil {

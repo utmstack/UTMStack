@@ -51,7 +51,7 @@ func UpdateDependencies(cnf *config.Config) {
 		agentVersion := agentVersionResp.Version
 		if agentVersion != versions["agent-service"] {
 			utils.Logger.Info("New version of agent service found: %s", agentVersion)
-			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.GetAgentBin("")), headers, config.GetAgentBin("_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.GetAgentBin("")), headers, config.GetAgentBin("new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
 				utils.Logger.ErrorF("error downloading agent: %v", err)
 				continue
 			}

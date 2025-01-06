@@ -19,12 +19,12 @@ func DownloadDependencies(address, authKey, skip string) error {
 	versions := map[string]string{}
 	headers := map[string]string{"connection-key": authKey}
 
-	agentVersion, _, err := utils.DoReq[Version](fmt.Sprintf(config.VersionUrl, address, "agent-service"), nil, "GET", headers, skip == "yes")
+	agentVersion, _, err := utils.DoReq[Version](fmt.Sprintf(config.VersionUrl, address, config.DependenciesPort, "agent-service"), nil, "GET", headers, skip == "yes")
 	if err != nil {
 		return fmt.Errorf("error getting agent version: %v", err)
 	}
 
-	installerVersion, _, err := utils.DoReq[Version](fmt.Sprintf(config.VersionUrl, address, "agent-installer"), nil, "GET", headers, skip == "yes")
+	installerVersion, _, err := utils.DoReq[Version](fmt.Sprintf(config.VersionUrl, address, config.DependenciesPort, "agent-installer"), nil, "GET", headers, skip == "yes")
 	if err != nil {
 		return fmt.Errorf("error getting installer version: %v", err)
 	}
@@ -34,7 +34,7 @@ func DownloadDependencies(address, authKey, skip string) error {
 
 	dependFiles := config.GetDependFiles()
 	for _, file := range dependFiles {
-		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, file), headers, file, utils.GetMyPath(), skip == "yes"); err != nil {
+		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, file), headers, file, utils.GetMyPath(), skip == "yes"); err != nil {
 			return fmt.Errorf("error downloading file %s: %v", file, err)
 		}
 	}

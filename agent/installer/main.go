@@ -27,7 +27,7 @@ func main() {
 			}
 
 			utils.Logger.WriteSimpleMessage("Installing UTMStack Agent...")
-			if !utils.IsPortOpen(ip, config.AgentManagerPort) || !utils.IsPortOpen(ip, config.LogAuthProxyPort) {
+			if !utils.IsPortOpen(ip, config.AgentManagerPort) || !utils.IsPortOpen(ip, config.LogAuthProxyPort) || !utils.IsPortOpen(ip, config.DependenciesPort) {
 				utils.Logger.WriteFatal("one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
 			}
 

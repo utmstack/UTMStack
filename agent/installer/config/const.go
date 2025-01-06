@@ -8,11 +8,12 @@ import (
 )
 
 var (
-	DependUrl        = "https://%s:9001/private/dependencies/%s"
-	VersionUrl       = "https://%s:9001/private/version?service=%s"
+	DependUrl        = "https://%s:%s/private/dependencies/%s"
+	VersionUrl       = "https://%s:%s/private/version?service=%s"
 	InstallerLogFile = "utmstack_agent_installer.log"
 	UpdaterSelfLinux = "utmstack_updater_self"
 	AgentManagerPort = "9000"
+	DependenciesPort = "9001"
 	LogAuthProxyPort = "50051"
 	VersionPath      = filepath.Join(utils.GetMyPath(), "version.json")
 )

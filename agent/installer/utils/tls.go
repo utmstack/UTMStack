@@ -5,12 +5,9 @@ import (
 	"crypto/x509"
 	"fmt"
 	"os"
-
-	"google.golang.org/grpc/credentials"
 )
 
-func LoadTLSCredentials(crtName string) (credentials.TransportCredentials, error) {
-	// Load the server's certificate
+func LoadTLSCredentials(crtName string) (*tls.Config, error) {
 	serverCert, err := os.ReadFile(crtName)
 	if err != nil {
 		return nil, err
@@ -25,5 +22,5 @@ func LoadTLSCredentials(crtName string) (credentials.TransportCredentials, error
 		RootCAs: certPool,
 	}
 
-	return credentials.NewTLS(config), nil
+	return config, nil
 }
