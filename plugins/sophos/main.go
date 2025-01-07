@@ -4,6 +4,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -27,7 +28,9 @@ func main() {
 
 	client := utmconf.NewUTMClient(internalKey, backend)
 
-	go plugins.SendLogsFromChannel()
+	for i := 0; i < 2*runtime.NumCPU(); i++ {
+		go plugins.SendLogsFromChannel()
+	}
 
 	for {
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)

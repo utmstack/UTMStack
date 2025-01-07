@@ -231,8 +231,13 @@ func main() {
 func connect() (*sql.DB, error) {
 	pCfg := plugins.PluginCfg("com.utmstack", false)
 	password := pCfg.Get("postgresql.password").String()
+	server := pCfg.Get("postgresql.server").String()
+	port := pCfg.Get("postgresql.port").Int()
+	database := pCfg.Get("postgresql.database").String()
+	user := pCfg.Get("postgresql.user").String()
 
-	connStr := fmt.Sprintf("user=postgres password=%s dbname=utmstack host=postgres port=5432 sslmode=disable", password)
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%d sslmode=disable", user, password,
+		database, server, port)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -472,8 +477,9 @@ func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
 }
 
 func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
-	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
-	if e != nil {
+	files, err := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
+	if err != nil {
+		_ = catcher.Error("failed to list files", err, map[string]any{})
 		os.Exit(1)
 	}
 
@@ -605,6 +611,7 @@ func writePatterns(pCfg *plugins.Config, patterns map[string]string) error {
 func createFolderStructure(gCfg *plugins.Config) error {
 	folders := []string{
 		filepath.Join(gCfg.Env.Workdir, "rules"),
+		filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"),
 		filepath.Join(gCfg.Env.Workdir, "pipeline"),
 		filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"),
 	}
@@ -616,7 +623,9 @@ func createFolderStructure(gCfg *plugins.Config) error {
 
 		err := os.MkdirAll(folder, os.ModePerm)
 		if err != nil {
-			return fmt.Errorf("failed to create folder: %v", err)
+			return catcher.Error("failed to create folder structure", err, map[string]any{
+				"folder": folder,
+			})
 		}
 	}
 
