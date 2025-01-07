@@ -7,7 +7,7 @@
     "frontend": "11.0.8",
     "pipelines": "11.0.0",
     "plugins-alerts": "11.0.1",
-    "plugins-aws": "11.0.1",
+    "plugins-aws": "11.0.2",
     "plugins-azure": "11.0.1",
     "plugins-bitdefender": "11.0.1",
     "plugins-config": "11.0.1",
