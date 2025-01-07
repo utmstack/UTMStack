@@ -2,17 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+
 	"os"
 	"path"
 	"runtime"
@@ -20,13 +11,21 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 )
 
-const delayCheck = 300
-const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+const (
+	delayCheck    = 300
+	defaultTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+)
 
 var logQueue = make(chan *plugins.Log, 100*runtime.NumCPU())
 
@@ -97,151 +96,6 @@ func main() {
 		time.Sleep(time.Second * delayCheck)
 		st = et.Add(1)
 	}
-}
-
-func etlProcess(events []*cloudwatchlogs.OutputLogEvent) []string {
-	var logs = make([]string, 0)
-
-	for _, event := range events {
-		logs = append(logs, *event.Message)
-	}
-
-	return logs
-}
-
-type AWSProcessor struct {
-	RegionName      string
-	AccessKey       string
-	SecretAccessKey string
-}
-
-func GetAWSProcessor(group types.ModuleGroup) AWSProcessor {
-	awsPro := AWSProcessor{}
-	for _, cnf := range group.Configurations {
-		switch cnf.ConfName {
-		case "Default Region":
-			awsPro.RegionName = cnf.ConfValue
-		case "Access Key":
-			awsPro.AccessKey = cnf.ConfValue
-		case "Secret Key":
-			awsPro.SecretAccessKey = cnf.ConfValue
-		}
-	}
-	return awsPro
-}
-
-func (p *AWSProcessor) createAWSSession() (*session.Session, error) {
-	if p.RegionName == "" {
-		return nil, catcher.Error("cannot create AWS session",
-			errors.New("region name is empty"), nil)
-	}
-
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(p.RegionName),
-		Credentials: credentials.NewStaticCredentialsFromCreds(
-			credentials.Value{
-				AccessKeyID:     p.AccessKey,
-				SecretAccessKey: p.SecretAccessKey,
-			},
-		),
-	})
-	if err != nil {
-		return nil, catcher.Error("cannot create AWS session", err, nil)
-	}
-
-	return sess, nil
-}
-
-func (p *AWSProcessor) DescribeLogGroups() ([]string, error) {
-	awsSession, err := p.createAWSSession()
-	if err != nil {
-		return nil, catcher.Error("cannot create AWS session", err, nil)
-	}
-
-	cwl := cloudwatchlogs.New(awsSession)
-	var logGroups []string
-	err = cwl.DescribeLogGroupsPages(&cloudwatchlogs.DescribeLogGroupsInput{},
-		func(page *cloudwatchlogs.DescribeLogGroupsOutput, lastPage bool) bool {
-			for _, group := range page.LogGroups {
-				logGroups = append(logGroups, aws.StringValue(group.LogGroupName))
-			}
-			return !lastPage
-		})
-	if err != nil {
-		return nil, catcher.Error("cannot get log groups", err, nil)
-	}
-
-	return logGroups, nil
-}
-
-func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, error) {
-	awsSession, err := p.createAWSSession()
-	if err != nil {
-		return nil, catcher.Error("cannot create AWS session", err, nil)
-	}
-
-	cwl := cloudwatchlogs.New(awsSession)
-	var logStreams []string
-	err = cwl.DescribeLogStreamsPages(&cloudwatchlogs.DescribeLogStreamsInput{
-		LogGroupName: aws.String(logGroup),
-		OrderBy:      aws.String("LastEventTime"),
-		Descending:   aws.Bool(true),
-	},
-		func(page *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
-			for _, stream := range page.LogStreams {
-				logStreams = append(logStreams, aws.StringValue(stream.LogStreamName))
-			}
-			return !lastPage
-		})
-	if err != nil {
-		return nil, catcher.Error("cannot get log streams", err, nil)
-	}
-
-	return logStreams, nil
-}
-
-func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
-	awsSession, err := p.createAWSSession()
-	if err != nil {
-		return nil, catcher.Error("cannot create AWS session", err, nil)
-	}
-
-	cwl := cloudwatchlogs.New(awsSession)
-
-	logGroups, err := p.DescribeLogGroups()
-	if err != nil {
-		return nil, catcher.Error("cannot get log groups", err, nil)
-	}
-
-	transformedLogs := make([]string, 0)
-	for _, logGroup := range logGroups {
-		logStreams, err := p.DescribeLogStreams(logGroup)
-		if err != nil {
-			return nil, catcher.Error("cannot get log streams", err, nil)
-		}
-
-		for _, stream := range logStreams {
-			params := &cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  aws.String(logGroup),
-				LogStreamName: aws.String(stream),
-				StartTime:     aws.Int64(startTime.Unix() * 1000),
-				EndTime:       aws.Int64(endTime.Unix() * 1000),
-				StartFromHead: aws.Bool(true),
-			}
-
-			err := cwl.GetLogEventsPages(params,
-				func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
-					cleanLogs := etlProcess(page.Events)
-					transformedLogs = append(transformedLogs, cleanLogs...)
-					return !lastPage
-				})
-			if err != nil {
-				return nil, catcher.Error("cannot get logs", err, nil)
-			}
-		}
-	}
-
-	return transformedLogs, nil
 }
 
 func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
