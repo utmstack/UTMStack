@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"runtime"
 	"sync"
 	"time"
 
-	gosdk "github.com/threatwinds/go-sdk"
-	ossdk "github.com/threatwinds/go-sdk/opensearch"
+	"github.com/threatwinds/go-sdk/opensearch"
 	"github.com/tidwall/gjson"
 )
 
@@ -20,11 +21,11 @@ func addToQueue(l string) {
 }
 
 func startQueue() {
-	elasticUrl := gosdk.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
+	elasticUrl := plugins.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
 
-	err := ossdk.Connect([]string{elasticUrl})
+	err := opensearch.Connect([]string{elasticUrl})
 	if err != nil {
-		_ = gosdk.Error("cannot connect to Elasticsearch/OpenSearch", err, nil)
+		_ = catcher.Error("cannot connect to Elasticsearch/OpenSearch", err, nil)
 		os.Exit(1)
 	}
 
@@ -32,7 +33,7 @@ func startQueue() {
 	for i := 0; i < numCPU; i++ {
 		go func() {
 			var ndMutex = &sync.Mutex{}
-			var nd = make([]ossdk.BulkItem, 0, 10)
+			var nd = make([]opensearch.BulkItem, 0, 10)
 
 			go func() {
 				for {
@@ -42,12 +43,12 @@ func startQueue() {
 					}
 
 					ndMutex.Lock()
-					err := ossdk.Bulk(context.Background(), nd)
+					err := opensearch.Bulk(context.Background(), nd)
 					if err != nil {
-						_ = gosdk.Error("failed to send logs to Elasticsearch/OpenSearch", err, nil)
+						_ = catcher.Error("failed to send logs to Elasticsearch/OpenSearch", err, nil)
 					}
 
-					nd = make([]ossdk.BulkItem, 0, 10)
+					nd = make([]opensearch.BulkItem, 0, 10)
 					ndMutex.Unlock()
 				}
 			}()
@@ -62,7 +63,7 @@ func startQueue() {
 				index := indexBuilder(fmt.Sprintf("v11-log-%s", dataType), time.Now().UTC())
 
 				ndMutex.Lock()
-				nd = append(nd, ossdk.BulkItem{
+				nd = append(nd, opensearch.BulkItem{
 					Index:  index,
 					Id:     id,
 					Body:   []byte(l),

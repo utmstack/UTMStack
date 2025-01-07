@@ -3,12 +3,13 @@ package configuration
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
-	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 
@@ -28,7 +29,7 @@ var configsSent = make(map[string]ModuleConfig)
 
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 	for {
-		utmConfig := gosdk.PluginCfg("com.utmstack", false)
+		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		client := UTMStackConfigurationClient.NewUTMClient(internalKey, backendUrl)
@@ -41,7 +42,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				_ = gosdk.Error("error getting configuration of the Bitdefender module", err, map[string]any{})
+				_ = catcher.Error("error getting configuration of the Bitdefender module", err, map[string]any{})
 			}
 			continue
 		}
@@ -54,16 +55,16 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 			if isNecessaryConfig {
 				if !araAnyEmpty(group.Configurations[0].ConfValue, group.Configurations[1].ConfValue, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue) {
 					if err := apiPush(group, "sendConf"); err != nil {
-						_ = gosdk.Error("error sending configuration", err, map[string]any{})
+						_ = catcher.Error("error sending configuration", err, map[string]any{})
 						continue
 					}
 					time.Sleep(15 * time.Second)
 					if err := apiPush(group, "getConf"); err != nil {
-						_ = gosdk.Error("error getting configuration", err, map[string]any{})
+						_ = catcher.Error("error getting configuration", err, map[string]any{})
 						continue
 					}
 					if err := apiPush(group, "sendTest"); err != nil {
-						_ = gosdk.Error("error sending test event", err, map[string]any{})
+						_ = catcher.Error("error sending test event", err, map[string]any{})
 						continue
 					}
 
@@ -88,13 +89,13 @@ func apiPush(config types.ModuleGroup, operation string) error {
 
 	fn, ok := operationFunc[operation]
 	if !ok {
-		return gosdk.Error("wrong operation", nil, map[string]any{})
+		return catcher.Error("wrong operation", nil, map[string]any{})
 	}
 
 	for i := 0; i < 5; i++ {
 		response, err := fn(config)
 		if err != nil {
-			_ = gosdk.Error(fmt.Sprintf("%v", err), err, map[string]any{})
+			_ = catcher.Error(fmt.Sprintf("%v", err), err, map[string]any{})
 			time.Sleep(1 * time.Minute)
 			continue
 		}
@@ -104,14 +105,14 @@ func apiPush(config types.ModuleGroup, operation string) error {
 		return nil
 	}
 
-	return gosdk.Error("error sending configuration after 5 retries", nil, map[string]any{})
+	return catcher.Error("error sending configuration after 5 retries", nil, map[string]any{})
 }
 
 func sendPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
 	byteTemplate := getTemplateSetPush(config)
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		return nil, gosdk.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
+		return nil, catcher.Error("error when marshaling the request body to send the configuration", err, map[string]any{})
 	}
 	return sendRequest(body, config)
 }
@@ -120,7 +121,7 @@ func getPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
 	byteTemplate := getTemplateGet()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		return nil, gosdk.Error("error when marshaling the request body to get the configuration", err, map[string]any{})
+		return nil, catcher.Error("error when marshaling the request body to get the configuration", err, map[string]any{})
 	}
 	return sendRequest(body, config)
 }
@@ -129,7 +130,7 @@ func sendTestPushEvent(config types.ModuleGroup) (*http.Response, error) {
 	byteTemplate := getTemplateTest()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		return nil, gosdk.Error("error when marshaling the request body to send the test event", err, map[string]any{})
+		return nil, catcher.Error("error when marshaling the request body to send the test event", err, map[string]any{})
 	}
 	return sendRequest(body, config)
 }

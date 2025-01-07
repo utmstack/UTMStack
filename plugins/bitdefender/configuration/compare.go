@@ -6,8 +6,8 @@ import (
 	"github.com/utmstack/config-client-go/types"
 )
 
-func compareConfigs(saveConfs map[string]ModuleConfig, newConf types.ModuleGroup) (isNecessaryConfig bool) {
-	cnf, ok := saveConfs[newConf.GroupName]
+func compareConfigs(saveConfigs map[string]ModuleConfig, newConf types.ModuleGroup) (isNecessaryConfig bool) {
+	cnf, ok := saveConfigs[newConf.GroupName]
 	if !ok {
 		return true
 	}

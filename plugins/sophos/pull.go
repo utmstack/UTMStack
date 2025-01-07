@@ -1,21 +1,19 @@
-package processor
+package main
 
 import (
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"time"
 
 	"github.com/google/uuid"
-	go_sdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/config-client-go/types"
 )
 
 var timeGroups = make(map[int]int)
 
-const delayCheck = 300
-const DefaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
-func PullLogs(group types.ModuleGroup) {
-	go_sdk.Logger().Info("starting log sync for : %s", group.GroupName)
-
+func pullLogs(group types.ModuleGroup) {
 	epoch := int(time.Now().Unix())
 
 	_, ok := timeGroups[group.ModuleID]
@@ -27,23 +25,23 @@ func PullLogs(group types.ModuleGroup) {
 		timeGroups[group.ModuleID] = epoch + 1
 	}()
 
-	agent := GetSophosCentralProcessor(group)
-	logs, err := agent.GetLogs(group, timeGroups[group.ModuleID])
+	agent := getSophosCentralProcessor(group)
+	logs, err := agent.getLogs(timeGroups[group.ModuleID])
 	if err != nil {
-		go_sdk.Logger().ErrorF("error getting logs: %v", err)
+		_ = catcher.Error("error getting logs", err, map[string]any{})
 		return
 	}
 
 	if len(logs) > 0 {
 		for _, log := range logs {
-			LogQueue <- &go_sdk.Log{
+			plugins.EnqueueLog(&plugins.Log{
 				Id:         uuid.New().String(),
-				TenantId:   DefaultTenant,
+				TenantId:   defaultTenant,
 				DataType:   "sophos-central",
 				DataSource: group.GroupName,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 				Raw:        log,
-			}
+			})
 		}
 	}
 }

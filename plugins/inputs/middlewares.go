@@ -7,16 +7,16 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"io"
-	"strconv"
-	"strings"
-
 	"github.com/gin-gonic/gin"
-	go_sdk "github.com/threatwinds/go-sdk"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"io"
+	"strconv"
+	"strings"
 )
 
 type Middlewares struct {
@@ -48,13 +48,13 @@ func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		connectionKey := c.GetHeader(proxyAPIKeyHeader)
 		if connectionKey == "" {
-			e := go_sdk.Logger().ErrorF("connection key not provided")
+			e := catcher.Error("missing connection key", nil, nil)
 			e.GinError(c)
 			return
 		}
 		isValid := m.AuthService.IsConnectionKeyValid(connectionKey)
 		if !isValid {
-			e := go_sdk.Logger().ErrorF("invalid connection key")
+			e := catcher.Error("invalid connection key", nil, nil)
 			e.GinError(c)
 			return
 		}
@@ -66,13 +66,13 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			e := go_sdk.Logger().ErrorF("error reading request body: %v", err)
+			e := catcher.Error("failed to read request body", err, nil)
 			e.GinError(c)
 			return
 		}
 		sig := c.GetHeader("X-Hub-Signature-256")
 		if len(sig) == 0 {
-			e := go_sdk.Logger().ErrorF("missing X-Hub-Signature-256")
+			e := catcher.Error("missing X-Hub-Signature-256 header", nil, nil)
 			e.GinError(c)
 			return
 		}
@@ -80,7 +80,7 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 		key := m.AuthService.GetConnectionKey()
 		err = verifySignature(body, key, sig)
 		if err != nil {
-			e := go_sdk.Logger().ErrorF(err.Error())
+			e := catcher.Error("failed to verify signature", err, nil)
 			e.GinError(c)
 			return
 		}
@@ -95,7 +95,6 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 		return status.Error(codes.Internal, "metadata is not provided")
 	}
 
-	var authType string
 	authKey := md.Get("key")
 	authId := md.Get("id")
 	connectorType := md.Get("type")
@@ -103,17 +102,6 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 	authInternalKey := md.Get("internal-key")
 
 	if len(authKey) > 0 && len(authId) > 0 && len(connectorType) > 0 {
-		authType = "key"
-	} else if len(authConnectionKey) > 0 {
-		authType = "connection-key"
-	} else if len(authInternalKey) > 0 {
-		authType = "internal-key"
-	} else {
-		return status.Error(codes.Unauthenticated, "auth is not provided")
-	}
-
-	switch authType {
-	case "key":
 		key := authKey[0]
 		id, err := strconv.ParseUint(authId[0], 10, 32)
 		if err != nil {
@@ -124,15 +112,17 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 		if !m.AuthService.IsKeyValid(key, uint(id), typ) {
 			return status.Error(codes.PermissionDenied, "invalid key")
 		}
-	case "connection-key":
+	} else if len(authConnectionKey) > 0 {
 		if !isConnectionKeyValid(authConnectionKey[0]) {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
-	case "internal-key":
-		internalKey := go_sdk.PluginCfg("com.utmstack", false).Get("internalKey").String()
+	} else if len(authInternalKey) > 0 {
+		internalKey := plugins.PluginCfg("com.utmstack", false).Get("internalKey").String()
 		if internalKey != authInternalKey[0] {
 			return status.Error(codes.PermissionDenied, "internal key does not match")
 		}
+	} else {
+		return status.Error(codes.Unauthenticated, "auth is not provided")
 	}
 
 	return nil

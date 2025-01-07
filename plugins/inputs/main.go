@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"path/filepath"
 	"runtime"
-
-	go_sdk "github.com/threatwinds/go-sdk"
 )
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
-var localLogsChannel chan *go_sdk.Log
+var localLogsChannel chan *plugins.Log
 
 type PluginConfig struct {
 	ServerName   string `yaml:"serverName"`
@@ -23,7 +23,7 @@ type PluginConfig struct {
 }
 
 func main() {
-	mode := go_sdk.GetCfg().Env.Mode
+	mode := plugins.GetCfg().Env.Mode
 	if mode != "worker" {
 		os.Exit(0)
 	}
@@ -37,13 +37,13 @@ func main() {
 
 	cert, key, err := loadCerts()
 	if err != nil {
-		go_sdk.Logger().ErrorF("failed to load certificates: %v", err)
+		_ = catcher.Error("cannot load certificates", err, nil)
 		os.Exit(1)
 	}
 
 	cpu := runtime.NumCPU()
 
-	localLogsChannel = make(chan *go_sdk.Log, cpu*100)
+	localLogsChannel = make(chan *plugins.Log, cpu*100)
 
 	for i := 0; i < cpu; i++ {
 		go sendLog()
@@ -54,7 +54,7 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	certsFolder := go_sdk.PluginCfg("com.utmstack", false).Get("certsFolder").String()
+	certsFolder := plugins.PluginCfg("com.utmstack", false).Get("certsFolder").String()
 
 	certPath := filepath.Join(certsFolder, utmCertFileName)
 	keyPath := filepath.Join(certsFolder, utmCertFileKey)

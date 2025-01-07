@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"sync"
 	"syscall"
 
-	gosdk "github.com/threatwinds/go-sdk"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/processor"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/server"
@@ -21,14 +22,14 @@ var (
 )
 
 func main() {
-	mode := gosdk.GetCfg().Env.Mode
+	mode := plugins.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
 	cert, key, err := loadCerts()
 	if err != nil {
-		_ = gosdk.Error("cannot load certificates", err, nil)
+		_ = catcher.Error("cannot load certificates", err, nil)
 		os.Exit(1)
 	}
 
@@ -43,7 +44,7 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	utmConfig := gosdk.PluginCfg("com.utmstack", false)
+	utmConfig := plugins.PluginCfg("com.utmstack", false)
 	certsFolder := utmConfig.Get("certsFolder").String()
 
 	certPath := filepath.Join(certsFolder, configuration.UtmCertFileName)

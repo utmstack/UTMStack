@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"os"
@@ -18,7 +20,6 @@ import (
 	"sync"
 	"time"
 
-	gosdk "github.com/threatwinds/go-sdk"
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -27,10 +28,10 @@ import (
 const delayCheck = 300
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
-var logQueue = make(chan *gosdk.Log, 100*runtime.NumCPU())
+var logQueue = make(chan *plugins.Log, 100*runtime.NumCPU())
 
 func main() {
-	mode := gosdk.GetCfg().Env.Mode
+	mode := plugins.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
@@ -41,7 +42,7 @@ func main() {
 
 	st := time.Now().Add(-600 * time.Second)
 	for {
-		utmConfig := gosdk.PluginCfg("com.utmstack", false)
+		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
 		if internalKey == "" || backendUrl == "" {
@@ -59,7 +60,7 @@ func main() {
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				_ = gosdk.Error("cannot obtain module configuration", err, nil)
+				_ = catcher.Error("cannot obtain module configuration", err, nil)
 			}
 
 			time.Sleep(time.Second * delayCheck)
@@ -131,7 +132,7 @@ func GetAWSProcessor(group types.ModuleGroup) AWSProcessor {
 
 func (p *AWSProcessor) createAWSSession() (*session.Session, error) {
 	if p.RegionName == "" {
-		return nil, gosdk.Error("cannot create AWS session",
+		return nil, catcher.Error("cannot create AWS session",
 			errors.New("region name is empty"), nil)
 	}
 
@@ -145,7 +146,7 @@ func (p *AWSProcessor) createAWSSession() (*session.Session, error) {
 		),
 	})
 	if err != nil {
-		return nil, gosdk.Error("cannot create AWS session", err, nil)
+		return nil, catcher.Error("cannot create AWS session", err, nil)
 	}
 
 	return sess, nil
@@ -154,7 +155,7 @@ func (p *AWSProcessor) createAWSSession() (*session.Session, error) {
 func (p *AWSProcessor) DescribeLogGroups() ([]string, error) {
 	awsSession, err := p.createAWSSession()
 	if err != nil {
-		return nil, gosdk.Error("cannot create AWS session", err, nil)
+		return nil, catcher.Error("cannot create AWS session", err, nil)
 	}
 
 	cwl := cloudwatchlogs.New(awsSession)
@@ -167,7 +168,7 @@ func (p *AWSProcessor) DescribeLogGroups() ([]string, error) {
 			return !lastPage
 		})
 	if err != nil {
-		return nil, gosdk.Error("cannot get log groups", err, nil)
+		return nil, catcher.Error("cannot get log groups", err, nil)
 	}
 
 	return logGroups, nil
@@ -176,7 +177,7 @@ func (p *AWSProcessor) DescribeLogGroups() ([]string, error) {
 func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, error) {
 	awsSession, err := p.createAWSSession()
 	if err != nil {
-		return nil, gosdk.Error("cannot create AWS session", err, nil)
+		return nil, catcher.Error("cannot create AWS session", err, nil)
 	}
 
 	cwl := cloudwatchlogs.New(awsSession)
@@ -193,7 +194,7 @@ func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, error) {
 			return !lastPage
 		})
 	if err != nil {
-		return nil, gosdk.Error("cannot get log streams", err, nil)
+		return nil, catcher.Error("cannot get log streams", err, nil)
 	}
 
 	return logStreams, nil
@@ -202,21 +203,21 @@ func (p *AWSProcessor) DescribeLogStreams(logGroup string) ([]string, error) {
 func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 	awsSession, err := p.createAWSSession()
 	if err != nil {
-		return nil, gosdk.Error("cannot create AWS session", err, nil)
+		return nil, catcher.Error("cannot create AWS session", err, nil)
 	}
 
 	cwl := cloudwatchlogs.New(awsSession)
 
 	logGroups, err := p.DescribeLogGroups()
 	if err != nil {
-		return nil, gosdk.Error("cannot get log groups", err, nil)
+		return nil, catcher.Error("cannot get log groups", err, nil)
 	}
 
 	transformedLogs := make([]string, 0)
 	for _, logGroup := range logGroups {
 		logStreams, err := p.DescribeLogStreams(logGroup)
 		if err != nil {
-			return nil, gosdk.Error("cannot get log streams", err, nil)
+			return nil, catcher.Error("cannot get log streams", err, nil)
 		}
 
 		for _, stream := range logStreams {
@@ -235,7 +236,7 @@ func (p *AWSProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 					return !lastPage
 				})
 			if err != nil {
-				return nil, gosdk.Error("cannot get logs", err, nil)
+				return nil, catcher.Error("cannot get logs", err, nil)
 			}
 		}
 	}
@@ -248,7 +249,7 @@ func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 
 	logs, err := agent.GetLogs(startTime, endTime)
 	if err != nil {
-		_ = gosdk.Error("cannot get logs", err, map[string]any{
+		_ = catcher.Error("cannot get logs", err, map[string]any{
 			"startTime": startTime,
 			"endTime":   endTime,
 			"group":     group.GroupName,
@@ -257,7 +258,7 @@ func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 	}
 
 	for _, log := range logs {
-		logQueue <- &gosdk.Log{
+		logQueue <- &plugins.Log{
 			Id:         uuid.NewString(),
 			TenantId:   defaultTenant,
 			DataType:   "aws",
@@ -270,34 +271,39 @@ func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 
 func processLogs() {
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s",
-		path.Join(gosdk.GetCfg().Env.Workdir, "sockets", "engine_server.sock")),
+		path.Join(plugins.GetCfg().Env.Workdir, "sockets", "engine_server.sock")),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		_ = gosdk.Error("cannot connect to engine server", err, nil)
+		_ = catcher.Error("cannot connect to engine server", err, nil)
 		os.Exit(1)
 	}
 
-	client := gosdk.NewEngineClient(conn)
+	client := plugins.NewEngineClient(conn)
 
 	inputClient, err := client.Input(context.Background())
 	if err != nil {
-		_ = gosdk.Error("cannot create input client", err, nil)
+		_ = catcher.Error("cannot create input client", err, nil)
 		// TODO: notify engine about this error before exit
 		os.Exit(1)
 	}
 
-	for {
-		log := <-logQueue
-		err := inputClient.Send(log)
-		if err != nil {
-			_ = gosdk.Error("cannot send log", err, nil)
-			// TODO: notify engine about this error before exit
-			os.Exit(1)
+	// TODO: implement retry system using ack and timeouts
+	go func() {
+		for {
+			log := <-logQueue
+			err := inputClient.Send(log)
+			if err != nil {
+				_ = catcher.Error("cannot send log", err, nil)
+				// TODO: notify engine about this error before exit
+				os.Exit(1)
+			}
 		}
+	}()
 
+	for {
 		_, err = inputClient.Recv()
 		if err != nil {
-			_ = gosdk.Error("cannot receive ack", err, nil)
+			_ = catcher.Error("cannot receive ack", err, nil)
 			// TODO: notify engine about this error before exit
 			os.Exit(1)
 		}
