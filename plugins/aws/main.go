@@ -1,11 +1,7 @@
 package main
 
 import (
-	"context"
-	"fmt"
-
 	"os"
-	"path"
 	"runtime"
 	"strings"
 	"sync"
@@ -14,9 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
@@ -27,16 +20,14 @@ const (
 	defaultTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 )
 
-var logQueue = make(chan *plugins.Log, 100*runtime.NumCPU())
-
 func main() {
 	mode := plugins.GetCfg().Env.Mode
 	if mode != "manager" {
 		os.Exit(0)
 	}
 
-	for t := 0; t < runtime.NumCPU(); t++ {
-		go processLogs()
+	for t := 0; t < 2*runtime.NumCPU(); t++ {
+		go plugins.SendLogsFromChannel()
 	}
 
 	st := time.Now().Add(-600 * time.Second)
@@ -112,54 +103,13 @@ func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 	}
 
 	for _, log := range logs {
-		logQueue <- &plugins.Log{
+		plugins.EnqueueLog(&plugins.Log{
 			Id:         uuid.NewString(),
 			TenantId:   defaultTenant,
 			DataType:   "aws",
 			DataSource: group.GroupName,
 			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 			Raw:        log,
-		}
-	}
-}
-
-func processLogs() {
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s",
-		path.Join(plugins.GetCfg().Env.Workdir, "sockets", "engine_server.sock")),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		_ = catcher.Error("cannot connect to engine server", err, nil)
-		os.Exit(1)
-	}
-
-	client := plugins.NewEngineClient(conn)
-
-	inputClient, err := client.Input(context.Background())
-	if err != nil {
-		_ = catcher.Error("cannot create input client", err, nil)
-		// TODO: notify engine about this error before exit
-		os.Exit(1)
-	}
-
-	// TODO: implement retry system using ack and timeouts
-	go func() {
-		for {
-			log := <-logQueue
-			err := inputClient.Send(log)
-			if err != nil {
-				_ = catcher.Error("cannot send log", err, nil)
-				// TODO: notify engine about this error before exit
-				os.Exit(1)
-			}
-		}
-	}()
-
-	for {
-		_, err = inputClient.Recv()
-		if err != nil {
-			_ = catcher.Error("cannot receive ack", err, nil)
-			// TODO: notify engine about this error before exit
-			os.Exit(1)
-		}
+		})
 	}
 }
