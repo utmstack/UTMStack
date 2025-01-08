@@ -7,14 +7,14 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable} from 'rxjs';
 import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
+import {StateStorageService} from '../../../../core/auth/state-storage.service';
 import {LoginService} from '../../../../core/login/login.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
-import {stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
+import {extractQueryParamsForNavigation, stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
-import {StateStorageService} from "../../../../core/auth/state-storage.service";
 
 @Component({
   selector: 'app-login',
@@ -102,7 +102,8 @@ export class LoginComponent implements OnInit {
                 });
               });
             } else {
-              this.router.navigate([route]);
+              const { path, queryParams } = extractQueryParamsForNavigation(url);
+              this.router.navigate([path], {queryParams});
             }
           }
         } else {
@@ -168,10 +169,14 @@ export class LoginComponent implements OnInit {
   startNavigation() {
     this.accountService.identity(true).then(account => {
       if (account) {
-        const url = this.stateStorageService.getUrl();
+        const { path, queryParams } =
+          extractQueryParamsForNavigation(this.stateStorageService.getUrl() ? this.stateStorageService.getUrl() : '' );
+        if (path) {
+          this.stateStorageService.resetPreviousUrl();
+        }
         const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
-          ? '/getting-started' : !!url ? url : '/dashboard/overview';
-        this.router.navigate([redirectTo])
+          ? '/getting-started' : !!path ? path : '/dashboard/overview';
+        this.router.navigate([redirectTo], {queryParams})
           .then(() => this.spinner.hide());
       } else {
         this.logged = false;

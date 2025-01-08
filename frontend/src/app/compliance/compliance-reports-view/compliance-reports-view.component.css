@@ -1,0 +1,39 @@
+
+img{
+    margin-right: 5px;
+}
+
+table {
+    tr {
+        border-top: 1px solid #dee2e6;
+    }
+    td {
+        border: none !important;
+    }
+}
+
+.card-title {
+  font-weight: bold;
+}
+
+.label-header {
+  font-size: 12px;
+}
+
+.border-left-danger {
+  border-left: 5px solid #dc3545 !important;
+}
+
+.border-left-success{
+  border-left: 5px solid #28a745 !important;
+}
+
+.button-pdf {
+  margin-right: 25px !important;
+  margin-top: 0;
+}
+
+.table-responsive {
+  height: 76vh;
+  overflow-y: auto;
+}
