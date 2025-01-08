@@ -14,10 +14,10 @@ export class FieldDataService {
               private localFieldService: LocalFieldService) {
   }
 
-  getFields(pattern: string): Observable<ElasticSearchFieldInfoType[]> {
+  getFields(pattern: string, forceRefresh = false): Observable<ElasticSearchFieldInfoType[]> {
     return new Observable<ElasticSearchFieldInfoType[]>(subscriber => {
       const fields: ElasticSearchFieldInfoType[] | null = this.localFieldService.getPatternStoredFields(pattern);
-      if (!fields || fields.length === 0) {
+      if ((!fields || fields.length === 0) || forceRefresh) {
         this.indexPatternFieldService.getElasticIndexField({indexPattern: pattern})
           .subscribe(response => {
             this.localFieldService.setPatternStoredFields(pattern, response.body);

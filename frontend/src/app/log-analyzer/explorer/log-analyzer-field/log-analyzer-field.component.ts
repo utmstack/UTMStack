@@ -44,16 +44,13 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         filter((dataChange: LogAnalyzerDataChangeType) => {
-          console.log('UUID', this.uuid);
-          console.log('dataChange', !!dataChange);
-          console.log('condition', !!dataChange && this.uuid === dataChange.tabUUID);
           return !!dataChange && this.uuid === dataChange.tabUUID;
         }))
       .subscribe((dataChange: LogAnalyzerDataChangeType) => {
         this.pageStart = 0;
         this.pageEnd = 100;
         this.pattern = dataChange.pattern.pattern;
-        this.fieldDataService.getFields(this.pattern).subscribe(field => {
+        this.fieldDataService.getFields(this.pattern, true).subscribe(field => {
           this.fields = field;
           this.fieldsOriginal = field;
           this.fieldSelected = this.fieldSelected ? this.fieldSelected : [{
