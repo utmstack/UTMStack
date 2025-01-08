@@ -106,11 +106,11 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
     if (!this.standard) {
       this.manageStandards();
     } else {
-      /*this.router.navigate([], {
+      this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams: { standardId: this.standard.id },
         queryParamsHandling: 'merge',
-      });*/
+      });
     }
   }
 
