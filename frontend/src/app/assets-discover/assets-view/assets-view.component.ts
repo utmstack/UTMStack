@@ -82,6 +82,7 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
   agentConsole: NetScanType;
   reasonRun: IncidentCommandType;
   agent: string;
+  noData = false;
 
   constructor(private utmNetScanService: UtmNetScanService,
               private modalService: NgbModal,
@@ -114,8 +115,19 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
           this.loading = false;
           this.assets = response.body;
+          this.noData = response.body.length === 0;
         }),
-        map((response) => response.body)
+        map((response) => {
+          return response.body.map(asset => {
+            if (asset.dataInputList && asset.dataInputList.length > 0) {
+              asset.dataInputList = asset.dataInputList.sort((a, b) => a.timestamp - b.timestamp);
+            } else {
+              asset.dataInputList = [];
+            }
+
+            return asset;
+          });
+        })
       );
   }
 
@@ -129,8 +141,9 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filterWidth = dimensions.filterWidth;
   }
 
-  loadPage($event: number) {
-    this.requestParam.page = $event - 1;
+  loadPage(page: number) {
+    this.page = page - 1;
+    this.requestParam.page = page;
     this.getAssets();
   }
 
@@ -140,6 +153,10 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   trackByFn(index: number, item: NetScanType) {
     return item.id;
+  }
+
+  trackByDataInputFn(index: number, item: UtmDataInputStatus) {
+    return item.dataType;
   }
 
   onItemsPerPageChange($event: number) {
