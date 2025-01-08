@@ -44,12 +44,12 @@
 </ng-container>
 <ng-template #popContent>
   <div *ngIf="!isCollapsed" class="w-100">
-    <div class="d-flex align-content-center justify-content-between align-items-center p-2 mb-2 border-bottom-1 border-grey-100 pb-3">
+    <div class="d-flex align-content-center justify-content-between align-items-center p-2 mb-2">
       <div class="d-flex align-items-center cursor-pointer mr-2">
         <div style="height: 35px;" class="px-2 last-time-tag background-color-grey-100 d-flex align-items-center justify-content-center text-center me-2">
           Last
         </div>
-        <input [(ngModel)]="lastTime" class="form-control w-75 last-time cursor-pointer" min="1" type="number">
+        <input style="width: 60px" [(ngModel)]="lastTime" class="form-control last-time cursor-pointer" [max]="maxTimeValue()" min="1" type="number">
       </div>
 
       <ng-select [(ngModel)]="timeUnit" [clearable]="true"
@@ -60,9 +60,16 @@
                  class="mr-2 w-100">
       </ng-select>
       <button (click)="applyDate();popover.close()"
-              [disabled]="!lastTime || !timeUnit" class="btn utm-button-primary utm-button">
+              [disabled]="(!lastTime || lastTime > maxTimeValue()) || !timeUnit" class="btn utm-button-primary utm-button">
         Apply
       </button>
+    </div>
+    <div class="d-flex align-content-center justify-content-between align-items-center mb-2 border-bottom-1 border-grey-100">
+      <div *ngIf="lastTime && lastTime > maxTimeValue()">
+        <small *ngIf="lastTime > maxTimeValue()" class="form-text text-danger pt-0 pb-1 mt-0">
+          The maximum allowed value for Time selected is 30 days.
+        </small>
+      </div>
     </div>
     <span (click)="isCollapsedCommon = !isCollapsedCommon"
           class="font-weight-semibold p-2 cursor-pointer">

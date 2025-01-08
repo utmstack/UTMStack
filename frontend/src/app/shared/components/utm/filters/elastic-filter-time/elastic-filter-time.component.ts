@@ -68,7 +68,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     {time: ElasticTimeEnum.DAY, last: 90, label: 'last 90 days'},
     {time: ElasticTimeEnum.YEAR, last: 1, label: 'last year'},*/
   ];
-  timeUnit: { time: ElasticTimeEnum, label: string };
+  timeUnit: { time: ElasticTimeEnum, label: string } = this.times[0];
   dateFrom: string;
   dateTo: string = ElasticTimeEnum.NOW;
   rangeTimeTo: NgbDate;
@@ -268,6 +268,26 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
       return diffInDays >= 0 && diffInDays <= 30;  // Validate the range is not greater than 30 days
     }
     return false;
+  }
+
+  maxTimeValue(): number {
+    switch (this.timeUnit.time) {
+      case ElasticTimeEnum.MONTH:
+        return 1;
+      case ElasticTimeEnum.WEEKS:
+        return 4;
+      case ElasticTimeEnum.DAY:
+        return 30;
+      case ElasticTimeEnum.HOUR:
+        return 720;
+      case ElasticTimeEnum.MINUTE:
+        return 432000;
+      case ElasticTimeEnum.SECOND:
+        return 2592000;
+
+      default:
+        return 0;
+    }
   }
 }
 

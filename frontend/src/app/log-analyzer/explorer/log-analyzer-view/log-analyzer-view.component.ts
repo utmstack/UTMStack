@@ -217,9 +217,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     $event.forEach(value => {
       this.fields.push({field: value.name, visible: true, type: value.type});
     });
-    if ($event.length === 1) {
-      this.fields.push({field: 'Summary', visible: true, type: ElasticDataTypesEnum.STRING});
-    }
   }
 
   onFilterChange($event: ElasticFilterType[]) {

@@ -19,9 +19,9 @@
         <button (click)="getData()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
           <i class="icon-reload-alt"></i>&nbsp;Refresh data
         </button>
-        <button (click)="saveQuery()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
+        <!--<button (click)="saveQuery()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
           <i class="icon-floppy-disk"></i>&nbsp;Save
-        </button>
+        </button>-->
         <button (click)="exportToCsv()"
                 [disabled]="(fields && fields.length === 0) || !rows || csvExport"
                 class="btn btn-sm utm-button utm-button-primary mb-1">
