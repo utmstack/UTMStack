@@ -55,7 +55,7 @@ func main() {
 	}
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
-		plugins.SendLogsFromChannel()
+		go plugins.SendLogsFromChannel()
 	}
 
 	st := time.Now().Add(-delayCheck * time.Second)
@@ -123,11 +123,6 @@ type OfficeProcessor struct {
 	ClientId      string
 	ClientSecret  string
 	Subscriptions []string
-}
-
-type PluginConfig struct {
-	InternalKey string `yaml:"internalKey"`
-	Backend     string `yaml:"backend"`
 }
 
 type MicrosoftLoginResponse struct {
