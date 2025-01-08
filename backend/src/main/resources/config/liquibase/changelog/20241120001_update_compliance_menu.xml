@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20241120001" author="Manuel">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+
+            UPDATE utm_menu
+            SET name = 'Overview',
+                url = 'compliance/report-viewer'
+            WHERE id = 505;
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN config_report_note TEXT;
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN config_report_name varchar(250);
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>
