@@ -5,9 +5,8 @@ go 1.23.1
 require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.48
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.0.6
+	github.com/threatwinds/go-sdk v1.0.7
 	github.com/utmstack/config-client-go v1.2.6
-	google.golang.org/grpc v1.69.2
 )
 
 require (
@@ -22,6 +21,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.3 // indirect
 	github.com/aws/smithy-go v1.22.1 // indirect
+	google.golang.org/grpc v1.69.2 // indirect
 )
 
 require (
@@ -30,10 +30,9 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.32.7
 	github.com/aws/aws-sdk-go-v2/config v1.28.7
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.45.1
-	github.com/bytedance/sonic v1.12.6 // indirect
-	github.com/bytedance/sonic/loader v0.2.1 // indirect
+	github.com/bytedance/sonic v1.12.7 // indirect
+	github.com/bytedance/sonic/loader v0.2.2 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
-	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/gin-contrib/sse v1.0.0 // indirect
 	github.com/gin-gonic/gin v1.10.0 // indirect
