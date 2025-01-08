@@ -1,31 +1,39 @@
-<div class="bg-white p-2 w-100 m-0 d-flex align-items-center justify-content-between">
-  <div class="d-flex align-items-center justify-content-start mr-1">
-    <app-index-pattern-select (indexPatternChange)="changeFields($event)"
-                              [template]="'log-explorer'"
-                              [pattern]="pattern">
-    </app-index-pattern-select>
-  </div>
-  <app-utm-search-input (searchFor)="onSearchInAll($event)"
-                        [placeholder]="'Search in '+ (pattern?pattern.pattern:'...')"
-                        style="width: 60%"></app-utm-search-input>
-  <div class="log-analyzer-actions d-flex justify-content-end align-items-center ml-5">
-    <div class="actions-log span-small-icon">
-      <button (click)="getData()" class="btn utm-button utm-button-primary mr-2">
-        <i class="icon-reload-alt"></i>&nbsp;Refresh data
-      </button>
-
-      <button (click)="saveQuery()" class="btn utm-button utm-button-primary mr-2">
-        <i class="icon-floppy-disk"></i>&nbsp;Save
-      </button>
-      <button (click)="exportToCsv()"
-              [disabled]="(fields && fields.length===0) || !rows || csvExport"
-              class="btn utm-button utm-button-primary">
-        <i [ngClass]="csvExport?'icon-download10':'icon-table2'" class="mr-1"></i>
-        {{csvExport ? 'Generating...' : 'Export to CSV'}}
-      </button>
+<div class="px-3 w-100 m-0 d-flex align-items-center justify-content-between">
+  <div style="border-left: 1px #dee2e6 solid" class="d-flex p-2 bg-white w-100">
+    <div class="d-flex align-items-center justify-content-start mr-1">
+      <app-index-pattern-select
+        (indexPatternChange)="changeFields($event)"
+        [template]="'log-explorer'"
+        [pattern]="pattern">
+      </app-index-pattern-select>
     </div>
+    <div class="d-flex search-container flex-grow-1 mx-2 align-items-center">
+      <app-utm-search-input
+        (searchFor)="onSearchInAll($event)"
+        [placeholder]="'Search in ' + (pattern ? pattern.pattern : '...')"
+        class="w-100">
+      </app-utm-search-input>
+    </div>
+    <div class="log-analyzer-actions d-flex justify-content-end align-items-center flex-wrap ml-5">
+      <div class="actions-log span-small-icon">
+        <button (click)="getData()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
+          <i class="icon-reload-alt"></i>&nbsp;Refresh data
+        </button>
+        <button (click)="saveQuery()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
+          <i class="icon-floppy-disk"></i>&nbsp;Save
+        </button>
+        <button (click)="exportToCsv()"
+                [disabled]="(fields && fields.length === 0) || !rows || csvExport"
+                class="btn btn-sm utm-button utm-button-primary mb-1">
+          <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'" class="mr-1"></i>
+          {{csvExport ? 'Generating...' : 'Export to CSV'}}
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
+
 
 <!--header-->
 <app-utm-elastic-filter (filterChange)="onFilterChange($event)"
@@ -42,20 +50,20 @@
   </div>
 </ng-template>
 
-<div class="container-elements d-flex log-fields flex-nowrap m-0 align-items-start">
-  <div [ngStyle]="{'width':fieldWidth}"
+<div class="container-elements pt-2 pl-3 pr-2 pt-1 d-flex log-fields flex-nowrap m-0 align-items-start">
+  <div [ngStyle]="{'width': filterWidth +'px'}"
        mwlResizable
        [enableGhostResize]="true"
        [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
        (resizeEnd)="onResize($event)"
-       (resizing)="onResize($event)" class="field-view resizable-filter-container">
+       (resizing)="onResize($event)" class="field-view resizable-filter-container mr-2">
     <app-log-analyzer-field (columnChange)="onColumnChange($event)"
                             [fieldSelected]="selectedFields"
                             [filters]="filters"
                             [uuid]="uuid"></app-log-analyzer-field>
   </div>
   <div class="log-result flex-grow-1">
-    <div class="d-table p-2 w-100">
+    <div class="d-table pr-2 w-100">
       <div class="card bg-light border-0 m-0 p-0">
 
         <div class="d-flex p-2 justify-content-between align-items-center">
@@ -87,7 +95,6 @@
 
         </div>
       </div>
-      <!--                           [tableWidth]="tableWidth"-->
       <ng-container *ngIf="view==='table';else chartView">
         <app-dynamic-table (pageChange)="onPageChange($event)"
                            (removeColumn)="onRemoveColumn($event)"
@@ -101,7 +108,7 @@
                            [rows]="rows"
                            [showDetail]="true"
                            [showInactiveColumns]="false"
-                           [tableWidth]="detailWidth"
+                           [tableWidth]="tableWidth"
                            [totalItems]="totalItems"
                            [viewDeleteAction]="true"></app-dynamic-table>
       </ng-container>
