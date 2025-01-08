@@ -1,6 +1,7 @@
 package conn
 
 import (
+	"crypto/tls"
 	"fmt"
 	"sync"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/service/utils"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -83,7 +85,7 @@ func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 
 	for {
 		if connectionAttemps >= maxConnectionAttempts {
-			return nil, fmt.Errorf("failed to connect to Server")
+			return nil, fmt.Errorf("failed to connect to Server: %v", err)
 		}
 
 		dialOptions := []grpc.DialOption{
@@ -96,6 +98,8 @@ func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 				return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
 			}
 			dialOptions = append(dialOptions, grpc.WithTransportCredentials(tlsCredentials))
+		} else {
+			dialOptions = append(dialOptions, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
 		}
 
 		conn, err = grpc.NewClient(serverAddress, dialOptions...)

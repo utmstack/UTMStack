@@ -108,9 +108,18 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 		fmt.Printf("Updating UTMStack to version %s\n", master.VersionName)
 		config.Logger().Info("Updating UTMStack to version %s", master.VersionName)
 
+		thereIsImageUpdate := false
+		postInstallationCommands := []string{}
+
 		for _, cv := range master.ComponentVersions {
 			cVersion, ok := currentVersions[cv.Component.Name]
 			if !ok || cVersion != cv.VersionName {
+				if cv.Component.Name == "agent-manager" || cv.Component.Name == "backend" ||
+					cv.Component.Name == "frontend" || cv.Component.Name == "user-auditor" ||
+					cv.Component.Name == "web-pdf" {
+					thereIsImageUpdate = true
+				}
+
 				if download && len(cv.Files) > 0 {
 					fmt.Printf("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
 					config.Logger().Info("Downloading files for component %s version %s", cv.Component.Name, cv.VersionName)
@@ -130,19 +139,27 @@ func (c *UpdaterClient) CheckUpdate(download bool, runCmds bool, wait int) error
 				if runCmds && len(cv.Scripts) > 0 {
 					config.Logger().Info("Running post commands for component %s version %s", cv.Component.Name, cv.VersionName)
 					for _, cmd := range cv.Scripts {
-						config.Logger().Info("Running command: %s", cmd.Script)
-						parts := strings.Split(cmd.Script, " ")
-						cmd := parts[0]
-						args := parts[1:]
-						err = utils.RunCmd(cmd, args...)
-						if err != nil {
-							return fmt.Errorf("error running command: %v", err)
-						}
+						postInstallationCommands = append(postInstallationCommands, cmd.Script)
 					}
-					config.Logger().Info("Prunning old images")
-					utils.RunCmd("docker", "image", "prune", "-f")
 				}
 			}
+		}
+
+		postInstallationCommands = removeDuplicates(postInstallationCommands)
+		for _, c := range postInstallationCommands {
+			config.Logger().Info("Running command: %s", c)
+			parts := strings.Split(c, " ")
+			cmd := parts[0]
+			args := parts[1:]
+			err = utils.RunCmd(cmd, args...)
+			if err != nil {
+				config.Logger().ErrorF("error running command: %v", err)
+			}
+		}
+
+		if thereIsImageUpdate {
+			config.Logger().Info("Prunning old images")
+			utils.RunCmd("docker", "image", "prune", "-f")
 		}
 
 		err := SaveVersions(GetVersionsFromMaster(master))
@@ -171,4 +188,18 @@ func (c *UpdaterClient) UpdateEdition() error {
 	}
 
 	return config.SaveEdition(&edition)
+}
+
+func removeDuplicates(strings []string) []string {
+	seen := make(map[string]bool)
+	result := []string{}
+
+	for _, str := range strings {
+		if !seen[str] {
+			seen[str] = true
+			result = append(result, str)
+		}
+	}
+
+	return result
 }
