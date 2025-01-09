@@ -81,10 +81,7 @@ public class UtmComplianceReportConfigService {
     }
 
     public Page<UtmComplianceReportConfig> getReportsByFilters(Long standardId, String solution, Long sectionId,
-                                                               String search, Pageable pageable)
-            throws UtmPageNumberNotSupported {
-
-        // Construcción del script principal
+                                                               String search, Pageable pageable) {
         StringBuilder script = new StringBuilder(
                 "SELECT cfg.* FROM utm_compliance_report_config cfg " +
                         "INNER JOIN utm_compliance_standard_section sec ON cfg.standard_section_id = sec.id " +
@@ -122,7 +119,6 @@ public class UtmComplianceReportConfigService {
             String condition = "(cfg.config_report_name ILIKE '%" + search + "%' OR d.name ILIKE '%" + search + "%')";
             script.append(hasWhere ? " AND " : " WHERE ").append(condition);
             countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
-            hasWhere = true;
         }
 
         if (StringUtils.hasText(solution)) {
@@ -132,16 +128,13 @@ public class UtmComplianceReportConfigService {
             script.append(" ORDER BY ").append(sortField).append(" ").append(sortDirection);
         }
 
-        // Ejecutar la consulta para obtener los resultados
         List<UtmComplianceReportConfig> results = em.createNativeQuery(script.toString(), UtmComplianceReportConfig.class)
                 .setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber()))
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
 
-        // Obtener el total de resultados
         long total = ((Number) em.createNativeQuery(countScript.toString()).getSingleResult()).longValue();
 
-        // Devolver los resultados en una página
         return new PageImpl<>(results, pageable, total);
     }
 
