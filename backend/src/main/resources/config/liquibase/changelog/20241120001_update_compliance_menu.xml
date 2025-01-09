@@ -8,15 +8,24 @@
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
             UPDATE utm_menu
-            SET url = 'compliance/report-viewer?standardId=200&standardName=Device Activity'
+            SET url = 'compliance/report-viewer?standardId=100&standardName=Account Management',
+                menu_active = false
+            WHERE id = 502;
+
+            UPDATE utm_menu
+            SET url = 'compliance/report-viewer?standardId=200&standardName=Device Activity',
+                menu_active = false
             WHERE id = 503;
 
             UPDATE utm_menu
-            SET url = 'compliance/report-viewer?standardId=300&standardName=Application Audit'
+            SET url = 'compliance/report-viewer?standardId=300&standardName=Application Audit',
+                menu_active = false
             WHERE id = 504;
 
             UPDATE utm_menu
-            SET url = 'compliance/report-viewer?standardId=200&standardName=Device Activity'
+            SET url = 'compliance/report-viewer?standardId=400&standardName=Alerts and Incidents',
+                name = 'Alerts And Incidents',
+                menu_active = false
             WHERE id = 505;
 
             INSERT INTO public.utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)

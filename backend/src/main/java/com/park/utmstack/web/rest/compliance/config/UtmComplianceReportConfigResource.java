@@ -172,11 +172,12 @@ public class UtmComplianceReportConfigResource {
     public ResponseEntity<List<UtmComplianceReportConfig>> getReportsByFilters(@RequestParam(required = false) Long standardId,
                                                                                @RequestParam(required = false) String solution,
                                                                                @RequestParam(required = false) Long sectionId,
+                                                                               @RequestParam(required = false) String search,
                                                                                @RequestParam(required = false) Boolean expandDashboard,
                                                                                Pageable pageable) {
         final String ctx = CLASS_NAME + ".getReportsByFilters";
         try {
-            Page<UtmComplianceReportConfig> page = complianceReportConfigService.getReportsByFilters(standardId, solution, sectionId, pageable);
+            Page<UtmComplianceReportConfig> page = complianceReportConfigService.getReportsByFilters(standardId, solution, sectionId, search, pageable);
 
             if (!Objects.isNull(expandDashboard) && expandDashboard) {
                 for (UtmComplianceReportConfig report : page)

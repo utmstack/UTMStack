@@ -46,17 +46,23 @@ public class UtmComplianceReportConfigQueryService extends QueryService<UtmCompl
             }
             if (criteria.getConfigReportEditable() != null) {
                 specification = specification.and(
-                    buildSpecification(criteria.getConfigReportEditable(), UtmComplianceReportConfig_.configReportEditable));
+                        buildSpecification(criteria.getConfigReportEditable(), UtmComplianceReportConfig_.configReportEditable));
             }
-            if (criteria.getConfigSolution() != null) {
+            if (criteria.getConfigSolution() != null || criteria.getConfigReportName() != null) {
                 specification = specification.and(
-                    buildStringSpecification(criteria.getConfigSolution(), UtmComplianceReportConfig_.configSolution));
+                        buildStringSpecification(criteria.getConfigSolution(), UtmComplianceReportConfig_.configSolution)
+                                .or(buildStringSpecification(criteria.getConfigSolution(), UtmComplianceReportConfig_.configReportName)));
+            }
+            if (criteria.getConfigReportName() != null) {
+                specification = specification.and(
+                        buildStringSpecification(criteria.getConfigReportName(), UtmComplianceReportConfig_.configReportName));
             }
             if (criteria.getStandardSectionId() != null) {
                 specification = specification.and(
-                    buildRangeSpecification(criteria.getStandardSectionId(), UtmComplianceReportConfig_.standardSectionId));
+                        buildRangeSpecification(criteria.getStandardSectionId(), UtmComplianceReportConfig_.standardSectionId));
             }
         }
         return specification;
     }
+
 }
