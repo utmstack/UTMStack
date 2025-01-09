@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -39,7 +39,8 @@ import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-d
 @Component({
   selector: 'app-assets-view',
   templateUrl: './assets-view.component.html',
-  styleUrls: ['./assets-view.component.scss']
+  styleUrls: ['./assets-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
   assets$: Observable<NetScanType[]>;
