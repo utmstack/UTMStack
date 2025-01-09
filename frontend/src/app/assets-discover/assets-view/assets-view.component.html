@@ -161,32 +161,33 @@
                           placement="auto"
                           container="body"
                           class="badge p-1 border-1 m-1">
-                      {{ dat.dataType }}
+                          {{ dat.dataType }}
                       <i class="ml-2 text-white cursor-pointer" (click)="deleteDataType($event, dat)"
                          *ngIf="!isSourceConnected(asset, dat)"
-                         [ngClass]="deleting.includes(dat.id)?'icon-spinner2 spinner':'icon-cross'"></i>
-                   <ng-template #dataTypeDetail>
-                     <div>
-                          <span
-                            [ngClass]="isSourceConnected(asset, dat)?'text-success':'text-warning-800'"
-                            class="span-small-icon d-flex justify-content-start align-items-center mt-2">
-                          <i
-                            [ngClass]="'icon-circle2'"
-                            class="mr-2"></i>
-                            <span class="flex-wrap" style="max-width: 280px">
-                            {{ dat.dataType + ' is ' + (isSourceConnected(asset, dat) ? 'up' : 'taking longer than usual to send logs') }}
-                            </span>
-                         </span>
-                         <span class="span-small-icon d-flex justify-content-start align-items-center mt-2 mb-2">
-                          <i
-                            [ngClass]="'icon-sort-time-desc'"
-                            class="mr-2"></i>
-                              <span>
-                                Last input: {{ formatTimestampToDate(dat.timestamp) | date }}
+                         [ngClass]="deleting.includes(dat.id) ? 'icon-spinner2 spinner':'icon-cross font-size-sm'">
+                      </i>
+                     <ng-template #dataTypeDetail>
+                       <div>
+                            <span
+                              [ngClass]="isSourceConnected(asset, dat)?'text-success':'text-warning-800'"
+                              class="span-small-icon d-flex justify-content-start align-items-center mt-2">
+                            <i
+                              [ngClass]="'icon-circle2'"
+                              class="mr-2"></i>
+                              <span class="flex-wrap" style="max-width: 280px">
+                              {{ dat.dataType + ' is ' + (isSourceConnected(asset, dat) ? 'up' : 'taking longer than usual to send logs') }}
                               </span>
-                         </span>
-                       </div>
-                    </ng-template>
+                           </span>
+                           <span class="span-small-icon d-flex justify-content-start align-items-center mt-2 mb-2">
+                            <i
+                              [ngClass]="'icon-sort-time-desc'"
+                              class="mr-2"></i>
+                                <span>
+                                  Last input: {{ formatTimestampToDate(dat.timestamp) | date }}
+                                </span>
+                           </span>
+                         </div>
+                      </ng-template>
                    </span>
 
                   </div>

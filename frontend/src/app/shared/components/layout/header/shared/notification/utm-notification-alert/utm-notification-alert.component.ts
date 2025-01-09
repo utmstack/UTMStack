@@ -6,8 +6,8 @@ import {MenuBehavior} from '../../../../../../behaviors/menu.behavior';
 import {NewAlertBehavior} from '../../../../../../behaviors/new-alert.behavior';
 import {stringParamToQueryParams} from '../../../../../../util/query-params-to-filter.util';
 import {AlertOpenStatusService} from '../../../../../../webflux/alert-open-status.service';
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-utm-notification-alert',
@@ -18,8 +18,8 @@ export class UtmNotificationAlertComponent implements OnInit, OnDestroy {
   @ViewChild('iconBell') iconBell: ElementRef;
   totalAlerts = 10;
   prevTotal = 5;
-  timeoutAlert: number;
-  intervalAlert: number;
+  timeoutAlert: any;
+  intervalAlert: any;
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(private toast: UtmToastService,
