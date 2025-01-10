@@ -1,14 +1,14 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
-import {NgxSpinnerService} from 'ngx-spinner';
 import {EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, concatMap, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {SortByType} from '../../shared/types/sort-by.type';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
+import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
+import {$} from "protractor";
 
 @Component({
   selector: 'app-compliance-reports-view',
@@ -28,7 +28,13 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
   itemsPerPage = 15;
   page = 0;
   totalItems = 0;
+  sortEvent: SortEvent = {
+    column: 'config_report_name',
+    direction: 'desc'
+  };
   destroy$: Subject<void> = new Subject();
+  sort = 'config_report_name,desc';
+  search: string;
 
   constructor(private reportsService: CpReportsService,
               private toastService: UtmToastService) {
@@ -48,7 +54,9 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
           size: this.itemsPerPage,
           standardId: this.section.standardId,
           sectionId: this.section.id,
-          expandDashboard: true
+          expandDashboard: true,
+          sort: this.sort,
+          search: this.search ? this.search : null,
         })),
         tap(res => this.totalItems = Number(res.headers.get('X-Total-Count'))),
         map((res) => {
@@ -65,6 +73,7 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
         catchError((err: HttpErrorResponse) => {
           this.toastService.showError('Error',
             'Unable to retrieve the list of reports. Please try again or contact support.');
+          this.loading = false;
           return EMPTY;
         }),
         tap((data) => {
@@ -84,6 +93,24 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
 
   loadPage(page: number) {
     this.page = page - 1;
+    this.reportsService.notifyRefresh({
+      loading: true,
+      sectionId: this.section.id,
+      reportSelected: 0
+    });
+  }
+
+  onSortBy(sort: SortEvent) {
+    this.sort = `${sort.column},${sort.direction}`;
+    this.reportsService.notifyRefresh({
+      loading: true,
+      sectionId: this.section.id,
+      reportSelected: 0
+    });
+  }
+
+  onSearch($event: string) {
+    this.search = $event;
     this.reportsService.notifyRefresh({
       loading: true,
       sectionId: this.section.id,
