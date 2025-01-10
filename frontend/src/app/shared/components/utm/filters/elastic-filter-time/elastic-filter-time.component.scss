@@ -22,3 +22,7 @@
 .max-width-300 {
   max-width: 300px !important;
 }
+
+.form-control[readonly]{
+  background-color: transparent !important;
+}

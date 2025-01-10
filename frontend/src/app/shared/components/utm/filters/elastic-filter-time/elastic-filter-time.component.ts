@@ -258,16 +258,19 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     }
   }
 
-  // Simple validation for the date range (you can add more logic here)
   isValidDate(): boolean {
     if (this.rangeTimeFrom && this.rangeTimeTo) {
       const from = new Date(this.rangeTimeFrom.year, this.rangeTimeFrom.month - 1, this.rangeTimeFrom.day);
       const to = new Date(this.rangeTimeTo.year, this.rangeTimeTo.month - 1, this.rangeTimeTo.day);
       const diffInTime = to.getTime() - from.getTime();
-      const diffInDays = diffInTime / (1000 * 3600 * 24);  // Convert to days
-      return diffInDays >= 0 && diffInDays <= 30;  // Validate the range is not greater than 30 days
+      const diffInDays = diffInTime / (1000 * 3600 * 24);
+      return diffInDays >= 0 && diffInDays <= 30;
     }
     return false;
+  }
+
+  isDirty(){
+    return this.rangeTimeFrom !== undefined && this.rangeTimeTo !== undefined;
   }
 
   maxTimeValue(): number {

@@ -67,7 +67,7 @@
     <div class="d-flex align-content-center justify-content-between align-items-center mb-2 border-bottom-1 border-grey-100">
       <div *ngIf="lastTime && lastTime > maxTimeValue()">
         <small *ngIf="lastTime > maxTimeValue()" class="form-text text-danger pt-0 pb-1 mt-0">
-          The maximum allowed value for Time selected is 30 days.
+          The time interval cannot exceed 30 days.
         </small>
       </div>
     </div>
@@ -96,12 +96,14 @@
         <label class="pb-1" for="timeFrom">Time from</label>
         <div class="input-group">
           <input #timeFromRange="ngModel" #ttf="ngbDatepicker"
-                 [(ngModel)]="rangeTimeFrom" [maxDate]="maxDateFrom" [ngClass]="{'input-field-has-error':!isValidDate()}"
+                 [(ngModel)]="rangeTimeFrom"
+                 [maxDate]="maxDateFrom"
                  class="form-control " id="timeFrom"
                  name="d2"
                  ngbDatepicker
                  placeholder="yyyy-mm-dd"
-                 (ngModelChange)="onTimeFromChange()">
+                 (ngModelChange)="onTimeFromChange()"
+                  readonly>
           <div class="input-group-append">
             <button (click)="ttf.toggle()" class="btn utm-button utm-button-primary" type="button">
               <i class="icon-calendar22"></i>
@@ -116,13 +118,14 @@
         <label class="pb-1" for="timeTo">Time to</label>
         <div class="input-group">
           <input #timeToRange="ngModel" #ttr="ngbDatepicker"
-                 [(ngModel)]="rangeTimeTo" [maxDate]="maxDateTo"
-                 [ngClass]="{'input-field-has-error':!isValidDate()}"
+                 [(ngModel)]="rangeTimeTo"
+                 [maxDate]="maxDateTo"
                  class="form-control" id="timeTo"
                  name="d2"
                  ngbDatepicker
                  placeholder="yyyy-mm-dd"
-                 (ngModelChange)="onTimeToChange()">
+                 (ngModelChange)="onTimeToChange()"
+                 readonly>
           <div class="input-group-append">
             <button (click)="ttr.toggle()" class="btn utm-button utm-button-primary" type="button">
               <i class="icon-calendar22"></i>
@@ -134,10 +137,10 @@
     </div>
     <div class="pt-2 d-flex justify-content-between">
       <ul>
-        <li *ngIf="!isValidDate()">
-           <span class="text-danger-400">
-             Date range is invalid
-           </span>
+        <li *ngIf="!isValidDate() && isDirty()">
+          <span class="text-danger-400">
+            Date range cannot exceed 30 days.
+          </span>
         </li>
       </ul>
       <button (click)="applyRange();popover.close()"
