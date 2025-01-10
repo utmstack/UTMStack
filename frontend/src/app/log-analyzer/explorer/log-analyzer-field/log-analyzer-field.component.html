@@ -15,10 +15,14 @@
   <div class="d-flex justify-content-between pl-2 pb-0">
     <span class="font-weight-semibold">Available fields</span>
   </div>
-  <div class="mb-2 pr-2 pl-2 w-100">
-    <app-utm-search-input (searchFor)="onSearch($event)" [placeholder]="'Search field'"
+  <div class="mb-2 pr-2 pl-2 w-100 d-flex align-items-center">
+    <app-utm-search-input class="flex-grow-1" (searchFor)="onSearch($event)" [placeholder]="'Search field'"
                           [searching]="searching"></app-utm-search-input>
+    <button style="height: 36px" class="btn btn-primary btn-refresh ml-1" [ngbTooltip]="'Refresh'" (click)="loadFields()">
+      <i class="icon-reload-alt"></i>
+    </button>
   </div>
+
   <div *ngIf="loadingFields"
        class="content d-flex justify-content-center align-items-center h-100 w-100 analyzer-fields">
     <app-utm-spinner [height]="'35px'" [label]="'Loading fields...'" [loading]="true"

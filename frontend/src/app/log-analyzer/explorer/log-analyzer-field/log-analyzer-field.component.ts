@@ -138,6 +138,7 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
   }
 
   loadFields(): Promise<void> {
+    this.loadingFields = true;
     return new Promise((resolve, reject) => {
       this.fieldDataService.getFields(this.pattern, true).subscribe(
         field => {
