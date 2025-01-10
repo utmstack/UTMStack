@@ -75,7 +75,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   previousPage: any;
   reverse: any;
   search: string;
-  interval: number;
+  interval: any;
   taskDetail: string;
   sortBy = 'created,desc';
 
