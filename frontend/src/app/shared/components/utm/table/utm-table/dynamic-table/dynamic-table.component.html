@@ -16,7 +16,7 @@
               class="font-weight-semibold cursor-pointer handle"
               scope="col">
             <i (click)="removeColumn.emit(column)"
-               *ngIf="viewDeleteAction"
+               *ngIf="viewDeleteAction && column.field !=='@timestamp' && column.field !=='Summary'"
                class="icon-cross3 cursor-pointer"
                container="body"
                ngbTooltip="Delete column"
