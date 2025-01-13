@@ -11,6 +11,8 @@ import {ElasticFilterType} from '../../../../../types/filter/elastic-filter.type
 import {OperatorsType} from '../../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../../types/time-filter.type';
 import {resolveIcon} from '../../../../../util/elastic-fields.util';
+import {Subject} from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-elastic-filter-add',
@@ -30,6 +32,8 @@ export class ElasticFilterAddComponent implements OnInit {
    * Filter to edit
    */
   @Input() filter: ElasticFilterType;
+
+  @Input() hiddenFields: string[] = [];
   /**
    * All operators
    */
@@ -49,9 +53,9 @@ export class ElasticFilterAddComponent implements OnInit {
   valueFrom: any;
   valueTo: any;
   fieldTypes = ElasticDataTypesEnum;
-  timeValue: NgbDate;
   time: NgbTimeStruct = {hour: 0, minute: 0, second: 0};
   loadingValues = false;
+  destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder,
               private fieldDataBehavior: FieldDataService,
@@ -60,7 +64,10 @@ export class ElasticFilterAddComponent implements OnInit {
 
   ngOnInit() {
     this.initFormFilter();
-    this.fieldDataBehavior.getFields(this.pattern).subscribe(field => {
+    this.fieldDataBehavior.getFields(this.pattern)
+      .pipe(takeUntil(this.destroy$),
+      map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
+      .subscribe(field => {
       if (field) {
         this.fields = field;
         this.loading = false;

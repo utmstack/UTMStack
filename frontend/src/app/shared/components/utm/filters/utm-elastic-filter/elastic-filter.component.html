@@ -80,7 +80,7 @@
               autoClose="true"
               placement="bottom-left"
               popoverClass="utm-popover-bottom">
-              <i class="icon-menu3 font-size-sm"></i>
+              <i class="icon-filter3 font-size-sm"></i>
             </button>
             <button
               type="button"
@@ -106,7 +106,7 @@
             class="dropdown cursor-pointer d-flex justify-content-center align-items-center border-1 mr-2 p-1 border-grey-100 border-radius-1"
             #popoverField="ngbPopover"
             (click)="selectFilter(filter, index)"
-            [ngbPopover]="popField"
+            [ngbPopover]="filter.field !== '@timestamp' ? popField : null"
             autoClose="true"
             placement="bottom"
             popoverClass="utm-popover-bottom">
@@ -173,13 +173,16 @@
 <!--add filter-->
 <ng-template #addContent>
   <app-elastic-filter-add (filterChange)="addFilter($event)"
+                          [hiddenFields]=" template === 'log-explorer' ? ['@timestamp'] : []"
                           [filter]="filterSelected"
                           [pattern]="pattern">
   </app-elastic-filter-add>
 </ng-template>
 <ng-template #addTitle>
   <div class="d-flex justify-content-between align-items-center">
-    <h6 class="font-weight-light m-0">Add filter</h6>
+    <h6 class="font-weight-light m-0">
+      {{ !editMode ? 'Add filter' : 'Edit filter' }}
+    </h6>
     <button
       type="button"
       class="btn btn-sm btn-link text-danger p-0 ml-2"
