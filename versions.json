@@ -1,10 +1,10 @@
 {
-    "master-version": "11.0.27",
+    "master-version": "11.0.28",
     "agent-service": "11.0.7",
     "agent-installer": "11.0.4",
     "agent-manager": "11.0.3",
     "backend": "11.0.6",
-    "frontend": "11.0.14",
+    "frontend": "11.0.15",
     "pipelines": "11.0.0",
     "plugins-alerts": "11.0.2",
     "plugins-aws": "11.0.3",
