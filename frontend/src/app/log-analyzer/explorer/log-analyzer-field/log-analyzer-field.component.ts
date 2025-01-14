@@ -44,42 +44,27 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         filter((dataChange: LogAnalyzerDataChangeType) => {
-          console.log('UUID', this.uuid);
-          console.log('dataChange', !!dataChange);
-          console.log('condition', !!dataChange && this.uuid === dataChange.tabUUID);
           return !!dataChange && this.uuid === dataChange.tabUUID;
         }))
       .subscribe((dataChange: LogAnalyzerDataChangeType) => {
         this.pageStart = 0;
         this.pageEnd = 100;
         this.pattern = dataChange.pattern.pattern;
-        this.fieldDataService.getFields(this.pattern).subscribe(field => {
-          this.fields = field;
-          this.fieldsOriginal = field;
-          this.fieldSelected = this.fieldSelected ? this.fieldSelected : [{
-            name: '@timestamp',
-            type: ElasticDataTypesEnum.DATE
-          }];
-          this.columnChange.emit(this.fieldSelected);
-          this.loadingFields = false;
-        }, error => {
-          this.loadingFields = false;
-          this.fields = [];
-        });
+        this.loadFields();
       });
 
-    this.indexFieldController.$field.subscribe(field => {
+    this.indexFieldController.$field.subscribe(async (field) => {
       if (field) {
-        const indexToAdd = this.getIndexField(field);
+        const indexToAdd = await this.getIndexField(field);
         if (indexToAdd !== -1) {
           this.addToColumns(this.fieldsOriginal[indexToAdd]);
         } else {
           const regex = /\.(\d+)\./g;
           if (regex.test(field)) {
             const referenceField = field.replace(regex, '.');
-            const refFieldIndex = this.getIndexField(referenceField);
+            const refFieldIndex = await this.getIndexField(referenceField);
             if (refFieldIndex !== -1) {
-              this.addToColumns({name: field, type: this.fieldsOriginal[refFieldIndex].type});
+              this.addToColumns({ name: field, type: this.fieldsOriginal[refFieldIndex].type });
             }
           }
         }
@@ -87,8 +72,15 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
     });
   }
 
-  getIndexField(field: string): number {
-    return this.fieldsOriginal.findIndex(value => value.name === field);
+  async getIndexField(field: string): Promise<number> {
+    const findIndex = (): number => this.fieldsOriginal.findIndex(value => value.name === field);
+
+    let index = findIndex();
+    if (index === -1) {
+      await this.loadFields();
+      index = findIndex();
+    }
+    return index;
   }
 
   onSearch($event: string) {
@@ -144,6 +136,31 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
   onScroll() {
     this.pageEnd += 50;
   }
+
+  loadFields(): Promise<void> {
+    this.loadingFields = true;
+    return new Promise((resolve, reject) => {
+      this.fieldDataService.getFields(this.pattern, true).subscribe(
+        field => {
+          this.fields = field;
+          this.fieldsOriginal = field;
+          this.fieldSelected = this.fieldSelected || [{
+            name: '@timestamp',
+            type: ElasticDataTypesEnum.DATE
+          }];
+          this.columnChange.emit(this.fieldSelected);
+          this.loadingFields = false;
+          resolve();
+        },
+        error => {
+          this.loadingFields = false;
+          this.fields = [];
+          reject(error);
+        }
+      );
+    });
+  }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

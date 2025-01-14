@@ -119,104 +119,108 @@
             </tr>
             </thead>
             <tbody *ngIf="assets$ | async as assets">
-              <ng-container *ngFor="let asset of assets; trackBy: trackByFn">
-                <tr (click)="viwAgentDetail($event, asset)" class="cursor-pointer">
-                  <td class="text-center">
-                    <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
-                      <div class="list-icons span-small-icon">
-                        <i (click)="addToSelected($event, asset)"
-                           [ngClass]="isSelected(asset)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
-                           [ngbTooltip]="'Add to selected'"
-                           class="cursor-pointer"
-                           container="body"
-                           tooltipClass="utm-tooltip-top"></i>
-                      </div>
-                      <app-assets-apply-type (applyTypeEvent)="getAssets()" (focus)="stopInterval($event)" [assets]="[asset.id]" [typeFormat]="'icon'"
-                                             [type]="asset.assetType" class="ml-2">
-                      </app-assets-apply-type>
-
-                      <app-asset-group-add (focus)="stopInterval($event)"
-                                           (applyGroupEvent)="getAssets()" [assets]="[asset.id]"
-                                           [group]="asset.group"
-                                           [typeFormat]="'icon'" class="ml-2"></app-asset-group-add>
-
-                      <app-assets-apply-note (focus)="stopInterval($event)" [asset]="asset" class="ml-2"></app-assets-apply-note>
+            <ng-container *ngFor="let asset of assets; trackBy: trackByFn">
+              <tr (click)="viwAgentDetail($event, asset)" class="cursor-pointer">
+                <td class="text-center">
+                  <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
+                    <div class="list-icons span-small-icon">
+                      <i (click)="addToSelected($event, asset)"
+                         [ngClass]="isSelected(asset)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                         [ngbTooltip]="'Add to selected'"
+                         class="cursor-pointer"
+                         container="body"
+                         tooltipClass="utm-tooltip-top"></i>
                     </div>
-                  </td>
-                  <td>
-                    <app-asset-status [asset]="asset"></app-asset-status>
-                  </td>
-                  <td>
-                    {{getAssetSource(asset)}}
-                  </td>
-                  <td>
-                    <div class="d-flex justify-content-start align-items-start flex-wrap w-100 h-100"
-                         *ngIf="asset.dataInputList && asset.dataInputList.length>0">
-                    <span *ngFor="let dat of asset.dataInputList;"
+                    <app-assets-apply-type (applyTypeEvent)="getAssets()" (focus)="stopInterval($event)"
+                                           [assets]="[asset.id]" [typeFormat]="'icon'"
+                                           [type]="asset.assetType" class="ml-2">
+                    </app-assets-apply-type>
+
+                    <app-asset-group-add (focus)="stopInterval($event)"
+                                         (applyGroupEvent)="getAssets()" [assets]="[asset.id]"
+                                         [group]="asset.group"
+                                         [typeFormat]="'icon'" class="ml-2"></app-asset-group-add>
+
+                    <app-assets-apply-note (focus)="stopInterval($event)" [asset]="asset"
+                                           class="ml-2"></app-assets-apply-note>
+                  </div>
+                </td>
+                <td>
+                  <app-asset-status [asset]="asset"></app-asset-status>
+                </td>
+                <td>
+                  {{ getAssetSource(asset) }}
+                </td>
+                <td>
+                  <div class="d-flex justify-content-start align-items-start flex-wrap w-100 h-100"
+                       *ngIf="asset.dataInputList && asset.dataInputList.length > 0">
+
+                    <span *ngFor="let dat of asset.dataInputList; trackBy: trackByDataInputFn"
                           [ngClass]="isSourceConnected(asset, dat) ? 'bg-success-300' : 'bg-warning-800'"
                           [ngbTooltip]="dataTypeDetail"
                           placement="auto"
                           container="body"
                           class="badge p-1 border-1 m-1">
-                      {{dat.dataType}}
+                          {{ dat.dataType }}
                       <i class="ml-2 text-white cursor-pointer" (click)="deleteDataType($event, dat)"
                          *ngIf="!isSourceConnected(asset, dat)"
-                         [ngClass]="deleting.includes(dat.id)?'icon-spinner2 spinner':'icon-cross'"></i>
-                   <ng-template #dataTypeDetail>
-                     <div>
-                          <span
-                            [ngClass]="isSourceConnected(asset, dat)?'text-success':'text-warning-800'"
-                            class="span-small-icon d-flex justify-content-start align-items-center mt-2">
-                          <i
-                            [ngClass]="'icon-circle2'"
-                            class="mr-2"></i>
-                            <span class="flex-wrap" style="max-width: 280px">
-                            {{dat.dataType + ' is ' + (isSourceConnected(asset, dat) ? 'up' : 'taking longer than usual to send logs')}}
-                            </span>
-                         </span>
-                         <span class="span-small-icon d-flex justify-content-start align-items-center mt-2 mb-2">
-                          <i
-                            [ngClass]="'icon-sort-time-desc'"
-                            class="mr-2"></i>
-                              <span>
-                                Last input: {{formatTimestampToDate(dat.timestamp) | date }}
+                         [ngClass]="deleting.includes(dat.id) ? 'icon-spinner2 spinner':'icon-cross font-size-sm'">
+                      </i>
+                     <ng-template #dataTypeDetail>
+                       <div>
+                            <span
+                              [ngClass]="isSourceConnected(asset, dat)?'text-success':'text-warning-800'"
+                              class="span-small-icon d-flex justify-content-start align-items-center mt-2">
+                            <i
+                              [ngClass]="'icon-circle2'"
+                              class="mr-2"></i>
+                              <span class="flex-wrap" style="max-width: 280px">
+                              {{ dat.dataType + ' is ' + (isSourceConnected(asset, dat) ? 'up' : 'taking longer than usual to send logs') }}
                               </span>
-                         </span>
-                       </div>
-                    </ng-template>
+                           </span>
+                           <span class="span-small-icon d-flex justify-content-start align-items-center mt-2 mb-2">
+                            <i
+                              [ngClass]="'icon-sort-time-desc'"
+                              class="mr-2"></i>
+                                <span>
+                                  Last input: {{ formatTimestampToDate(dat.timestamp) | date }}
+                                </span>
+                           </span>
+                         </div>
+                      </ng-template>
                    </span>
 
-                    </div>
-                  </td>
-                  <td (click)="viwAgentDetail($event, asset)" >
-                    {{getLastInput(asset)}}
-                  </td>
+                  </div>
+                </td>
+                <td (click)="viwAgentDetail($event, asset)">
+                  {{ getLastInput(asset) }}
+                </td>
 
-                  <td class="td-action">
-                    <div
-                      class="d-flex justify-content-end align-items-center medium-icon">
+                <td class="td-action">
+                  <div
+                    class="d-flex justify-content-end align-items-center medium-icon">
 
-                      <i (click)="viwAgentDetail($event, asset)" class="icon-display cursor-pointer ml-2"
-                         *ngIf="asset.agent"
-                         ngbTooltip="View agent detail"
-                         container="body"
-                         placement="left"></i>
+                    <i (click)="viwAgentDetail($event, asset)" class="icon-display cursor-pointer ml-2"
+                       *ngIf="asset.agent"
+                       ngbTooltip="View agent detail"
+                       container="body"
+                       placement="left"></i>
 
-                      <i (click)="deleteAsset($event, asset)" class="icon-cross2 cursor-pointer ml-2"
-                         ngbTooltip="Delete source"
-                         container="body"
-                         placement="auto"></i>
-                    </div>
-                  </td>
-                </tr>
-              </ng-container>
-            </tbody>
-            <tbody *ngIf="(assets && assets.length===0)  && !loading">
-              <tr>
-                <td [attr.colspan]="assetsFields.length +1">
-                  <app-no-data-found></app-no-data-found>
+                    <i (click)="deleteAsset($event, asset)" class="icon-cross2 cursor-pointer ml-2"
+                       ngbTooltip="Delete source"
+                       container="body"
+                       placement="auto"></i>
+                  </div>
                 </td>
               </tr>
+            </ng-container>
+            </tbody>
+            <tbody *ngIf="noData  && !loading">
+            <tr>
+              <td [attr.colspan]="assetsFields.length +1">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
             </tbody>
             <tbody *ngIf="loading">
             <tr>
@@ -236,7 +240,6 @@
         <div *ngIf="assets && assets.length>0" class="mb-3 mt-3">
           <div class="row justify-content-center">
             <ngb-pagination (pageChange)="loadPage($event)"
-                            [(page)]="page"
                             [boundaryLinks]="true"
                             [collectionSize]="totalItems"
                             [maxSize]="10"
@@ -262,7 +265,7 @@
     <div class="title d-flex justify-content-between  align-items-center border-bottom-1
      border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">
-        Agent {{agent}} detail
+        Agent {{ agent }} detail
       </h6>
       <button (click)="closeDetail()" aria-label="Close"
               class="close button-close" type="button">
@@ -272,9 +275,9 @@
     <div class="p-3">
       <div class="w-100" *ngIf="reasonRun">
         <app-utm-agent-connect
-                [websocketCommand]="reasonRun"
-                [asset]="viewAssetDetail"
-                [hostname]="agent"></app-utm-agent-connect>
+          [websocketCommand]="reasonRun"
+          [asset]="viewAssetDetail"
+          [hostname]="agent"></app-utm-agent-connect>
       </div>
 
     </div>

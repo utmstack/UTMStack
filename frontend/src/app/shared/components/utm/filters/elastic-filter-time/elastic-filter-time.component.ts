@@ -68,7 +68,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     {time: ElasticTimeEnum.DAY, last: 90, label: 'last 90 days'},
     {time: ElasticTimeEnum.YEAR, last: 1, label: 'last year'},*/
   ];
-  timeUnit: { time: ElasticTimeEnum, label: string };
+  timeUnit: { time: ElasticTimeEnum, label: string } = this.times[0];
   dateFrom: string;
   dateTo: string = ElasticTimeEnum.NOW;
   rangeTimeTo: NgbDate;
@@ -258,16 +258,39 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     }
   }
 
-  // Simple validation for the date range (you can add more logic here)
   isValidDate(): boolean {
     if (this.rangeTimeFrom && this.rangeTimeTo) {
       const from = new Date(this.rangeTimeFrom.year, this.rangeTimeFrom.month - 1, this.rangeTimeFrom.day);
       const to = new Date(this.rangeTimeTo.year, this.rangeTimeTo.month - 1, this.rangeTimeTo.day);
       const diffInTime = to.getTime() - from.getTime();
-      const diffInDays = diffInTime / (1000 * 3600 * 24);  // Convert to days
-      return diffInDays >= 0 && diffInDays <= 30;  // Validate the range is not greater than 30 days
+      const diffInDays = diffInTime / (1000 * 3600 * 24);
+      return diffInDays >= 0 && diffInDays <= 30;
     }
     return false;
+  }
+
+  isDirty(){
+    return this.rangeTimeFrom !== undefined && this.rangeTimeTo !== undefined;
+  }
+
+  maxTimeValue(): number {
+    switch (this.timeUnit.time) {
+      case ElasticTimeEnum.MONTH:
+        return 1;
+      case ElasticTimeEnum.WEEKS:
+        return 4;
+      case ElasticTimeEnum.DAY:
+        return 30;
+      case ElasticTimeEnum.HOUR:
+        return 720;
+      case ElasticTimeEnum.MINUTE:
+        return 432000;
+      case ElasticTimeEnum.SECOND:
+        return 2592000;
+
+      default:
+        return 0;
+    }
   }
 }
 

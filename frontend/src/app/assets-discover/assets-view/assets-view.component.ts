@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -39,7 +39,8 @@ import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-d
 @Component({
   selector: 'app-assets-view',
   templateUrl: './assets-view.component.html',
-  styleUrls: ['./assets-view.component.scss']
+  styleUrls: ['./assets-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
   assets$: Observable<NetScanType[]>;
@@ -82,6 +83,7 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
   agentConsole: NetScanType;
   reasonRun: IncidentCommandType;
   agent: string;
+  noData = false;
 
   constructor(private utmNetScanService: UtmNetScanService,
               private modalService: NgbModal,
@@ -114,8 +116,19 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
           this.totalItems = Number(response.headers.get('X-Total-Count'));
           this.loading = false;
           this.assets = response.body;
+          this.noData = response.body.length === 0;
         }),
-        map((response) => response.body)
+        map((response) => {
+          return response.body.map(asset => {
+            if (asset.dataInputList && asset.dataInputList.length > 0) {
+              asset.dataInputList = asset.dataInputList.sort((a, b) => a.timestamp - b.timestamp);
+            } else {
+              asset.dataInputList = [];
+            }
+
+            return asset;
+          });
+        })
       );
   }
 
@@ -129,8 +142,9 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filterWidth = dimensions.filterWidth;
   }
 
-  loadPage($event: number) {
-    this.requestParam.page = $event - 1;
+  loadPage(page: number) {
+    this.page = page - 1;
+    this.requestParam.page = page;
     this.getAssets();
   }
 
@@ -140,6 +154,10 @@ export class AssetsViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   trackByFn(index: number, item: NetScanType) {
     return item.id;
+  }
+
+  trackByDataInputFn(index: number, item: UtmDataInputStatus) {
+    return item.dataType;
   }
 
   onItemsPerPageChange($event: number) {
