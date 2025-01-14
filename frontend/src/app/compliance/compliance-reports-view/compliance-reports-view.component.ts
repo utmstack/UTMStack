@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit} from '@angular/core';
 import {EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
@@ -8,7 +8,6 @@ import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
 import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
-import {$} from "protractor";
 
 @Component({
   selector: 'app-compliance-reports-view',
@@ -23,7 +22,7 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
   selected: number;
   fields: SortByType[];
   reportDetail: ComplianceReportType;
-  loading = false;
+  loading = true;
   noData = false;
   itemsPerPage = 15;
   page = 0;
