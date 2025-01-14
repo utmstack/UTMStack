@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/service/config"
 	"github.com/utmstack/UTMStack/agent/service/logservice"
@@ -78,7 +78,7 @@ func (w Winlogbeat) SendSystemLogs() {
 			utils.Logger.ErrorF("error getting hostname: %v", err)
 			host = "unknown"
 		}
-		logservice.LogQueue <- &go_sdk.Log{
+		logservice.LogQueue <- &plugins.Log{
 			DataType:   string(config.DataTypeWindowsAgent),
 			DataSource: host,
 			Raw:        validatedLog,
