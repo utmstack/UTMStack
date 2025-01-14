@@ -13,6 +13,7 @@
     </button>
   </div>
 </div>
+<div *ngIf="!preparingPrint" class="report-loading"></div>
 <div class="d-flex justify-content-center align-items-start w-100 m-0 d-print-block">
   <div class="compliance-front-page">
     <div *ngIf="account" class="prepared print-front-align">

@@ -218,6 +218,9 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
+import {TimePeriodPipe} from "./pipes/time-period.pipe";
+import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
+import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
 import {FilterPipe} from "./pipes/filter.pipe";
 
 
@@ -360,6 +363,10 @@ import {FilterPipe} from "./pipes/filter.pipe";
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
     TimezoneOffsetPipe,
+    TimePeriodPipe,
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent,
     FilterPipe
   ],
   exports: [
@@ -455,6 +462,10 @@ import {FilterPipe} from "./pipes/filter.pipe";
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
     TimezoneOffsetPipe,
+    TimePeriodPipe,
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent,
     FilterPipe
   ],
   entryComponents: [
@@ -499,7 +510,8 @@ import {FilterPipe} from "./pipes/filter.pipe";
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
-    EmailSettingNotificactionComponent],
+    EmailSettingNotificactionComponent,
+    ModalAddNoteComponent],
   providers: [
     UtmToastService,
     MenuBehavior,

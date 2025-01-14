@@ -1,0 +1,124 @@
+<div class="container-fluid p-3">
+  <div class="w-100">
+    <div class="card w-100 h-100">
+      <div class="card-body p-0 position-relative">
+        <div class="card bg-light border-0 m-0">
+          <div class="d-flex p-2 m-1 justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
+              Compliance assesment
+            </h5>
+            <app-utm-search-input (searchFor)="onSearch($event)"
+                                  [searching]="loading"
+                                  placeholder="Search ...">
+            </app-utm-search-input>
+
+          </div>
+        </div>
+
+        <!-- Spinner -->
+        <div *ngIf="loading"
+             class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+             style="background-color: rgba(255, 255, 255, 0.8); z-index: 10;">
+          <app-utm-spinner [height]="'35px'"
+                           [label]="'Loading ...'"
+                           [loading]="loading"
+                           [width]="'35px'">
+          </app-utm-spinner>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+            <tr>
+              <th></th>
+              <th><span>Status</span></th>
+              <th (sort)="onSortBy($event)"
+                  [isSortable]="true"
+                  [sortEvent]="sortEvent"
+                  [sortable]="'config_report_name'"
+                  appColumnSortable
+                  class="font-weight-semibold cursor-pointer">
+                Security Control Name
+              </th>
+              <th><span>Time Window</span></th>
+              <th><span>Description</span></th>
+            </tr>
+            </thead>
+            <tbody *ngIf="reports$ | async as reports;">
+            <tr class="cursor-pointer" (click)="reportDetail=report"
+                *ngFor="let report of reports; let index = index"
+                style="position: relative; z-index: 1;">
+              <td style="width: 5%; position: relative; z-index: 0;"
+                  [ngClass]="(report.configReportNote && report.configReportNote !== '') || report.status === 'complaint' ? 'border-left-success' : 'border-left-danger'"
+                  [ngStyle]="(report.configReportNote && report.configReportNote !== '') || report.status === 'complaint' ? {'border-left': '5px solid green !important;'} : {'border-left': '5px solid red !important;'}">
+                <app-report-apply-note [report]="report" [showNote]="false"></app-report-apply-note>
+              </td>
+              <td style="width: 15%; position: relative; z-index: 0;">
+                <app-compliance-status [report]="report" [template]="'dropdown'"></app-compliance-status>
+              </td>
+              <td style="width: 35%; position: relative; z-index: 0;">
+                <img src="assets/icons/compliance/shield.png" alt="shield"/>
+                <label
+                  [innerHTML]="report.configReportName ? report.configReportName : report.associatedDashboard.name | safe:'html'"
+                  class="font-size-base text-wrap" style="cursor: pointer" *ngIf="report.associatedDashboard">
+                </label>
+              </td>
+              <td style="width: 15%; position: relative; z-index: 0;">
+                <app-compliance-time [report]="report"></app-compliance-time>
+              </td>
+              <td style="width: 35%; position: relative; z-index: 0;" *ngIf="report.associatedDashboard">
+                <div style="max-width: 350px" class="text-truncate">
+                  {{ report.configSolution }}
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="noData">
+              <td colspan="5">
+                <app-no-data-found></app-no-data-found>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div [hidden]="noData" class="my-4">
+          <div class="row justify-content-center">
+            <ngb-pagination
+              (pageChange)="loadPage($event)"
+              [boundaryLinks]="true"
+              [collectionSize]="totalItems"
+              [maxSize]="5"
+              [pageSize]="itemsPerPage"
+              [rotate]="true"
+              [size]="'sm'">
+            </ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="reportDetail" class="utm-right-container">
+  <div (click)="reportDetail= undefined" class="overlay overlay-lg col-md-7"></div>
+  <div class="card utm-right-action utm-right-action-lg ml-0">
+    <div
+      [ngClass]="(reportDetail.configReportNote && reportDetail.configReportNote !== '') || reportDetail.status === 'complaint' ? 'border-left-success' : 'border-left-danger'"
+      class="title d-flex justify-content-between  align-items-center border-bottom-1
+            border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
+      <h6 class="card-title text-blue-800 font-weight-light">
+        <img src="assets/icons/compliance/shield.png" alt="shield"/>
+        <label [innerHTML]="reportDetail.associatedDashboard.name | safe:'html'"
+               class="font-size-base text-wrap"
+               *ngIf="reportDetail.associatedDashboard">
+        </label>
+      </h6>
+      <button (click)="reportDetail= undefined" aria-label="Close"
+              class="close button-close" type="button">
+        <div class="close-icon"></div>
+      </button>
+    </div>
+    <app-compliance-report-detail [report]="reportDetail"></app-compliance-report-detail>
+  </div>
+</div>

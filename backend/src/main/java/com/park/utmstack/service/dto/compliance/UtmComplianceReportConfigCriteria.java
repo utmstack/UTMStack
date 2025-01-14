@@ -7,6 +7,7 @@ import tech.jhipster.service.filter.StringFilter;
 public class UtmComplianceReportConfigCriteria {
     private LongFilter id;
     private StringFilter configSolution;
+    private StringFilter configReportName;
     private LongFilter standardSectionId;
     private BooleanFilter configReportEditable;
     private BooleanFilter expandDashboard;
@@ -49,5 +50,13 @@ public class UtmComplianceReportConfigCriteria {
 
     public void setExpandDashboard(BooleanFilter expandDashboard) {
         this.expandDashboard = expandDashboard;
+    }
+
+    public StringFilter getConfigReportName() {
+        return configReportName;
+    }
+
+    public void setConfigReportName(StringFilter configReportName) {
+        this.configReportName = configReportName;
     }
 }

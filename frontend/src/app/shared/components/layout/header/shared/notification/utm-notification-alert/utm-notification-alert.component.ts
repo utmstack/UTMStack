@@ -18,8 +18,8 @@ export class UtmNotificationAlertComponent implements OnInit, OnDestroy {
   @ViewChild('iconBell') iconBell: ElementRef;
   totalAlerts = 0;
   prevTotal = 0;
-  timeoutAlert: number;
-  intervalAlert: number;
+  timeoutAlert: any;
+  intervalAlert: any;
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(private toast: UtmToastService,
