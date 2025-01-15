@@ -250,21 +250,16 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 				StartTime:     aws.Int64(startTime.Unix() * 1000),
 				EndTime:       aws.Int64(endTime.Unix() * 1000),
 				StartFromHead: aws.Bool(true),
+			}, func(options *cloudwatchlogs.GetLogEventsPaginatorOptions) {
+				options.StopOnDuplicateToken = true
+				options.Limit = 10000
 			})
-
-			var lastToken string
 
 			for paginator.HasMorePages() {
 				page, err := paginator.NextPage(ctx)
 				if err != nil {
 					return nil, catcher.Error("cannot get logs", err, nil)
 				}
-
-				if lastToken == *page.NextForwardToken {
-					break
-				}
-
-				lastToken = *page.NextForwardToken
 
 				for _, event := range page.Events {
 					transformedLogs = append(transformedLogs, *event.Message)
