@@ -16,8 +16,9 @@ export interface ReportParams  {
 @Injectable({
   providedIn: 'root'
 })
-// GET /api/compliance/report
-export class CpReportsService extends RefreshDataService<{ sectionId: number, loading: boolean, reportSelected: number }, HttpResponse<ComplianceReportType[]>> {
+export class CpReportsService extends RefreshDataService<{ sectionId: number,
+  loading: boolean, reportSelected: number }, HttpResponse<ComplianceReportType[]>> {
+
   private resourceUrl = SERVER_API_URL + 'api/compliance/report-config';
   private loadReportSubject = new BehaviorSubject<ReportParams>(null);
   private onLoadReportNoteSubject = new BehaviorSubject<ComplianceReportType>(null);

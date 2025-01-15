@@ -33,14 +33,15 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.reports$ = this.route.queryParams
     .pipe(
-      filter((params) => !!params['section']),
-      map((params) => JSON.parse(decodeURIComponent(params['section']))),
+      filter((params) => !!params.section),
+      map((params) => JSON.parse(decodeURIComponent(params.section))),
       tap(section => this.section = section),
         concatMap(() => this.reportsService.fetchData({
           page: 0,
           size: 1000,
           standardId: this.section.standardId,
-          sectionId: this.section.id
+          sectionId: this.section.id,
+          expandDashboard: true,
         })),
         map((res) => {
           return res.body.map((r, index) => {

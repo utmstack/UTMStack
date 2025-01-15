@@ -2,40 +2,42 @@
   <div *ngIf="compliance$ | async as compliance">
     <span [ngClass]="compliance.status ? 'text-success' : 'text-danger'"
           class="span-small-icon d-flex justify-content-start align-items-center">
-         <!-- <i
-            [ngClass]="'icon-circle2'"
-            class="mr-2"></i>-->
-      {{compliance.status ? 'Compliant' : 'Non compliant'}}
+      {{ compliance.status ? 'Compliant' : 'Non compliant' }}
     </span>
   </div>
 </ng-container>
 
 <ng-container *ngIf="template === 'dropdown'">
-  <div (click)="onClick($event)" *ngIf="compliance$ | async as compliance" ngbDropdown container="body" #drop="ngbDropdown">
-  <a class="btn btn-light btn-sm"
-     [ngClass]="(report.note && report.note !== '') || compliance.status ? 'text-success' : 'text-danger'" ngbDropdownToggle>
-    <span class="indicator-progress" *ngIf="changing">
-       <span class="spinner-border spinner-border-sm align-middle me-2"></span>
-    </span>
-    <span>
-      {{compliance.status || report.note && report.note !== '' ? 'Compliant' : 'Non compliant'}}
-    </span>
-    <button class="toggle-button">
-      <i class="icon-arrow-down32 font-size-sm text-dark"></i>
-    </button>
-  </a>
-  <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold font-size-sm py-2 px-3" ngbDropdownMenu>
-    <div *ngIf="report.status === 'non_complaint'" class="menu-item px-2 cursor-pointer menu-hover"
-         (click)="changeStatusTo('complaint'); drop.close()">
-      <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-success">{{'Complaint'}}</a>
-    </div>
-    <div *ngIf="report.status === 'complaint'" class="menu-item px-2 cursor-pointer menu-hover"
-         (click)="changeStatusTo('non_complaint'); drop.close()">
-      <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-danger">{{'Non complaint'}}</a>
+  <div *ngIf="compliance$ | async as compliance" (click)="onClick($event)" ngbDropdown container="body" #drop="ngbDropdown">
+    <a class="btn btn-light btn-sm"
+       [ngClass]="(report.configReportNote && report.configReportNote !== '') || compliance.status ? 'text-success' : 'text-danger'"
+       ngbDropdownToggle>
+      <span class="indicator-progress" *ngIf="changing">
+        <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+      </span>
+      <span>
+        {{ compliance.status || (report.configReportNote && report.configReportNote !== '') ? 'Compliant' : 'Non compliant' }}
+      </span>
+      <button class="toggle-button">
+        <i class="icon-arrow-down32 font-size-sm text-dark"></i>
+      </button>
+    </a>
+
+    <div
+      class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold font-size-sm py-2 px-3"
+      ngbDropdownMenu>
+      <div *ngIf="report.status === 'non_complaint'" class="menu-item px-2 cursor-pointer menu-hover"
+           (click)="changeStatusTo('complaint'); drop.close()">
+        <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-success">{{ 'Complaint' }}</a>
+      </div>
+      <div *ngIf="report.status === 'complaint'" class="menu-item px-2 cursor-pointer menu-hover"
+           (click)="changeStatusTo('non_complaint'); drop.close()">
+        <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-danger">{{ 'Non compliant' }}</a>
+      </div>
     </div>
   </div>
-</div>
 </ng-container>
+
 
 
 

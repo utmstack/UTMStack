@@ -83,6 +83,12 @@ public class UtmComplianceReportConfig implements Serializable {
     @Column(name = "config_url")
     private String configUrl;
 
+    @Column(name = "config_report_note")
+    private String configReportNote;
+
+    @Column(name = "config_report_name", length = 50)
+    private String configReportName;
+
     @Transient
     @JsonSerialize
     @JsonDeserialize
@@ -111,7 +117,6 @@ public class UtmComplianceReportConfig implements Serializable {
     @JsonDeserialize
     private List<RequestParamFilter> requestParamFilters;
 
-    private String note;
 
     public Long getId() {
         return id;
@@ -305,11 +310,19 @@ public class UtmComplianceReportConfig implements Serializable {
         this.associatedDashboard = associatedDashboard;
     }
 
-    public String getNote() {
-        return note;
+    public String getConfigReportNote() {
+        return configReportNote;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setConfigReportNote(String configReportNote) {
+        this.configReportNote = configReportNote;
+    }
+
+    public String getConfigReportName() {
+        return configReportName;
+    }
+
+    public void setConfigReportName(String configReportName) {
+        this.configReportName = configReportName;
     }
 }

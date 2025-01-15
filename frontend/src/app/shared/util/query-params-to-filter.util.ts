@@ -179,6 +179,6 @@ export function extractQueryParamsForNavigation(url: string): { path: string, qu
     return { path, queryParams };
   }
 
-  return { path: url, queryParams: {} };
+  return { path: url, queryParams: {} }; // Si no hay parámetros, devuelve solo la ruta base
 }
 

@@ -49,6 +49,12 @@ public class SearchUtil {
                         case DOES_NOT_CONTAIN:
                             buildDoesNotContainOperator(bool, filter);
                             break;
+                        case CONTAIN_ONE_OF:
+                            buildContainOnOneOfOperator(bool, filter);
+                            break;
+                        case DOES_NOT_CONTAIN_ONE_OF:
+                            buildDoesNotContainOnOneOfOperator(bool, filter);
+                            break;
                         case IS_ONE_OF:
                             buildIsOneOfOperator(bool, filter);
                             break;
@@ -137,6 +143,43 @@ public class SearchUtil {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
     }
+
+    private static void buildContainOnOneOfOperator(BoolQuery.Builder bool, FilterType filter) {
+        final String ctx = CLASSNAME + ".buildContainOnOneOfOperator";
+        try {
+            filter.validate();
+
+            BoolQuery.Builder shouldQuery = new BoolQuery.Builder();
+            for (Object val : (List<?>) filter.getValue()) {
+                shouldQuery.should(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(val))));
+            }
+
+            shouldQuery.minimumShouldMatch(String.valueOf(1));
+
+            bool.filter(f -> f.bool(shouldQuery.build()));
+
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    private static void buildDoesNotContainOnOneOfOperator(BoolQuery.Builder bool, FilterType filter) {
+        final String ctx = CLASSNAME + ".buildExcludeAllOfOperator";
+        try {
+            filter.validate();
+
+            BoolQuery.Builder mustNotQuery = new BoolQuery.Builder();
+            for (Object val : (List<?>) filter.getValue()) {
+                mustNotQuery.mustNot(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(val))));
+            }
+
+            bool.filter(f -> f.bool(mustNotQuery.build()));
+
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+        }
+    }
+
 
     private static void buildDoesNotContainOperator(BoolQuery.Builder bool, FilterType filter) {
         final String ctx = CLASSNAME + ".buildDoesNotContainOperator";

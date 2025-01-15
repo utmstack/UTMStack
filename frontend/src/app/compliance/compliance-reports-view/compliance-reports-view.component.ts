@@ -1,14 +1,13 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {EMPTY, Observable} from 'rxjs';
-import {catchError, concatMap, filter, map, tap} from 'rxjs/operators';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit} from '@angular/core';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {SortByType} from '../../shared/types/sort-by.type';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
+import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 
 @Component({
   selector: 'app-compliance-reports-view',
@@ -16,78 +15,110 @@ import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-
   styleUrls: ['./compliance-reports-view.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ComplianceReportsViewComponent implements OnInit, OnChanges {
+export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() section: ComplianceStandardSectionType;
 
   reports$: Observable<ComplianceReportType[]>;
   selected: number;
   fields: SortByType[];
-
   reportDetail: ComplianceReportType;
+  loading = true;
+  noData = false;
+  itemsPerPage = 15;
+  page = 0;
+  totalItems = 0;
+  sortEvent: SortEvent = {
+    column: 'config_report_name',
+    direction: 'desc'
+  };
+  destroy$: Subject<void> = new Subject();
+  sort = 'config_report_name,desc';
+  search: string;
 
   constructor(private reportsService: CpReportsService,
-              private spinner: NgxSpinnerService,
-              private exportPdfService: ExportPdfService,
-              private toastService: UtmToastService) { }
+              private toastService: UtmToastService) {
+  }
 
   ngOnInit() {
     this.reports$ = this.reportsService.onRefresh$
-      .pipe(filter(reportRefresh =>
+      .pipe(takeUntil(this.destroy$),
+        filter(reportRefresh =>
           !!reportRefresh && reportRefresh.loading),
         tap((reportRefresh) => {
+          this.loading = true;
           this.selected = reportRefresh.reportSelected;
         }),
-        concatMap(() => this.reportsService.fetchData({
-          page: 0,
-          size: 1000,
+        switchMap(() => this.reportsService.fetchData({
+          page: this.page,
+          size: this.itemsPerPage,
           standardId: this.section.standardId,
-          sectionId: this.section.id
+          sectionId: this.section.id,
+          expandDashboard: true,
+          sort: this.sort,
+          search: this.search ? this.search : null,
         })),
+        tap(res => this.totalItems = Number(res.headers.get('X-Total-Count'))),
         map((res) => {
-          return res.body.map((r, index) => {
+          return res.body.filter(r => r.dashboard.length > 0 && r.dashboard.every(v => v.visualization.pattern.active));
+        }),
+        map((res) => {
+          return res.map((r, index) => {
             return {
               ...r,
               selected: index === this.selected
             };
           });
         }),
-        tap((reports) => {
-          /*if (this.loadFirst) {
-            this.loadReport(reports[0]);
-            this.loadFirst = false;
-          }*/
-        }),
         catchError((err: HttpErrorResponse) => {
           this.toastService.showError('Error',
             'Unable to retrieve the list of reports. Please try again or contact support.');
+          this.loading = false;
           return EMPTY;
+        }),
+        tap((data) => {
+          this.loading = false;
+          this.noData = data.length === 0;
         }));
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.section && changes.section.currentValue) {
-      this.reportsService.notifyRefresh({
-        loading: true,
-        sectionId: changes.section.currentValue.id,
-        reportSelected: 0
-      });
-    }
-  }
-
-  onStatusChange(status: string, report: ComplianceReportType) {
-    // report.status = status;
-  }
-
-  exportToPdf() {
-    this.spinner.show('buildPrintPDF');
-    const url = '/dashboard/export-compliance/' + this.reportDetail.id;
-    const fileName = this.reportDetail.associatedDashboard.name.replace(/ /g, '_');
-    this.exportPdfService.getPdf(url, fileName, 'PDF_TYPE_TOKEN').subscribe(response => {
-      this.spinner.hide('buildPrintPDF').then(() =>
-        this.exportPdfService.handlePdfResponse(response));
-    }, error => {
-      this.spinner.hide('buildPrintPDF').then(() =>
-        this.toastService.showError('Error', 'An error occurred while creating a PDF.'));
+  ngOnChanges(): void {
+    this.page = 0;
+    this.reportsService.notifyRefresh({
+      loading: true,
+      sectionId: this.section.id,
+      reportSelected: 0
     });
+  }
+
+  loadPage(page: number) {
+    this.page = page - 1;
+    this.reportsService.notifyRefresh({
+      loading: true,
+      sectionId: this.section.id,
+      reportSelected: 0
+    });
+  }
+
+  onSortBy(sort: SortEvent) {
+    this.sort = `${sort.column},${sort.direction}`;
+    this.reportsService.notifyRefresh({
+      loading: true,
+      sectionId: this.section.id,
+      reportSelected: 0
+    });
+  }
+
+  onSearch($event: string) {
+    this.search = $event;
+    this.reportsService.notifyRefresh({
+      loading: true,
+      sectionId: this.section.id,
+      reportSelected: 0
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

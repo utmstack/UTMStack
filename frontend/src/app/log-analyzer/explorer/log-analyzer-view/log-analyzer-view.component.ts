@@ -223,6 +223,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange($event: ElasticFilterType[]) {
+    console.log('filter', $event);
     this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.filters = $event;

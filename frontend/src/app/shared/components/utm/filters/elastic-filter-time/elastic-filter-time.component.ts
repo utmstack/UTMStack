@@ -64,8 +64,8 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
     {time: ElasticTimeEnum.HOUR, last: 12, label: 'last 12 hours'},
     {time: ElasticTimeEnum.HOUR, last: 24, label: 'last 24 hours'},
     {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'},
-   /* {time: ElasticTimeEnum.DAY, last: 30, label: 'last 30 days'},
-    {time: ElasticTimeEnum.DAY, last: 90, label: 'last 90 days'},
+   {time: ElasticTimeEnum.DAY, last: 30, label: 'last 30 days'},
+    /* {time: ElasticTimeEnum.DAY, last: 90, label: 'last 90 days'},
     {time: ElasticTimeEnum.YEAR, last: 1, label: 'last year'},*/
   ];
   timeUnit: { time: ElasticTimeEnum, label: string } = this.times[0];

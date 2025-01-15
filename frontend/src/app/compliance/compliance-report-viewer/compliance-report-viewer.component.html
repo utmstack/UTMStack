@@ -37,12 +37,13 @@
           </div>
         </div>
 
-        <div class="card-body p-0 m-0">
-          <div *ngFor="let section of sections$ | async; let index = index; trackBy: trackFn" class="d-flex flex-column">
+        <div class="card-body p-0 m-0 bg-light">
+          <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn" class="d-flex flex-column">
             <app-utm-cp-section [section]="section"
+                                [action]="action"
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
-                                (isActive)="onChangeSectionActive($event)"
+                                (isActive)="onChangeSectionActive($event, sections)"
                                 [expandable]="action==='reports'">
             </app-utm-cp-section>
           </div>
@@ -53,7 +54,7 @@
     <div class="flex-grow-1">
       <div class="h-100 card m-0">
         <app-compliance-reports-view [section]="activeSection" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
-        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'" ></app-compliance-result-view>
+        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>
       </div>
     </div>
   </div>
