@@ -1,6 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {NgbDate, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
+import {NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
 import {FILTER_OPERATORS} from '../../../../../constants/filter-operators.const';
 import {ElasticDataTypesEnum} from '../../../../../enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../../../enums/elastic-operators.enum';
@@ -11,8 +13,6 @@ import {ElasticFilterType} from '../../../../../types/filter/elastic-filter.type
 import {OperatorsType} from '../../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../../types/time-filter.type';
 import {resolveIcon} from '../../../../../util/elastic-fields.util';
-import {Subject} from 'rxjs';
-import {map, takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-elastic-filter-add',
@@ -68,13 +68,13 @@ export class ElasticFilterAddComponent implements OnInit {
       .pipe(takeUntil(this.destroy$),
       map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
       .subscribe(field => {
-      if (field) {
-        this.fields = field;
-        this.loading = false;
-        if (this.filter) {
-          this.setFilterEdit();
+        if (field) {
+          this.fields = field;
+          this.loading = false;
+          if (this.filter) {
+            this.setFilterEdit();
+          }
         }
-      }
     });
     this.formFilter.get('field').valueChanges.subscribe(val => {
       this.getFieldValues();
@@ -115,7 +115,10 @@ export class ElasticFilterAddComponent implements OnInit {
     if (this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_BETWEEN ||
       this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_BETWEEN) {
       this.setValueRange();
+    } else if (this.formFilter.get('operator').value === ElasticOperatorsEnum.CONTAIN_ONE_OF) {
+      this.formFilter.get('value').setValue([this.formFilter.get('value').value]);
     }
+
     this.filterChange.emit(this.formFilter.value);
   }
 
