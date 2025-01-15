@@ -150,7 +150,10 @@ func (p *AWSProcessor) createAWSSession() (aws.Config, error) {
 			errors.New("region name is empty"), nil)
 	}
 
-	cfg, err := config.LoadDefaultConfig(context.Background(),
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithRegion(p.RegionName),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(p.AccessKey, p.SecretAccessKey, "")),
 	)
@@ -170,8 +173,12 @@ func (p *AWSProcessor) describeLogGroups() ([]string, error) {
 	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
 	var logGroups []string
 	paginator := cloudwatchlogs.NewDescribeLogGroupsPaginator(cwl, &cloudwatchlogs.DescribeLogGroupsInput{})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
 	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(context.TODO())
+		page, err := paginator.NextPage(ctx)
 		if err != nil {
 			return nil, catcher.Error("cannot get log groups", err, nil)
 		}
@@ -196,8 +203,12 @@ func (p *AWSProcessor) describeLogStreams(logGroup string) ([]string, error) {
 		OrderBy:      "LastEventTime",
 		Descending:   aws.Bool(true),
 	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
 	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(context.TODO())
+		page, err := paginator.NextPage(ctx)
 		if err != nil {
 			return nil, catcher.Error("cannot get log streams", err, nil)
 		}
@@ -222,6 +233,9 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 		return nil, catcher.Error("cannot get log groups", err, nil)
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+
 	transformedLogs := make([]string, 0, 10)
 	for _, logGroup := range logGroups {
 		logStreams, err := p.describeLogStreams(logGroup)
@@ -239,7 +253,7 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 			})
 
 			for paginator.HasMorePages() {
-				page, err := paginator.NextPage(context.TODO())
+				page, err := paginator.NextPage(ctx)
 				if err != nil {
 					return nil, catcher.Error("cannot get logs", err, nil)
 				}
