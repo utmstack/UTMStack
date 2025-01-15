@@ -252,11 +252,20 @@ func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
 				StartFromHead: aws.Bool(true),
 			})
 
+			var lastToken string
+
 			for paginator.HasMorePages() {
 				page, err := paginator.NextPage(ctx)
 				if err != nil {
 					return nil, catcher.Error("cannot get logs", err, nil)
 				}
+
+				if lastToken == *page.NextForwardToken {
+					break
+				}
+
+				lastToken = *page.NextForwardToken
+
 				for _, event := range page.Events {
 					transformedLogs = append(transformedLogs, *event.Message)
 				}
