@@ -10,7 +10,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	go_sdk "github.com/threatwinds/go-sdk"
+	"github.com/threatwinds/go-sdk/plugins"
+
 	"github.com/utmstack/UTMStack/agent/service/agent"
 	"github.com/utmstack/UTMStack/agent/service/config"
 	"github.com/utmstack/UTMStack/agent/service/conn"
@@ -31,7 +32,7 @@ type LogProcessor struct {
 var (
 	processor     LogProcessor
 	processorOnce sync.Once
-	LogQueue      = make(chan *go_sdk.Log)
+	LogQueue      = make(chan *plugins.Log)
 	timeToSleep   = time.Duration(10 * time.Second)
 	timeCLeanLogs = time.Duration(10 * time.Minute)
 )
@@ -63,7 +64,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		client := go_sdk.NewIntegrationClient(conn)
+		client := plugins.NewIntegrationClient(conn)
 		plClient := createClient(client, ctx)
 		l.connErrWritten = false
 
@@ -72,7 +73,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 	}
 }
 
-func (l *LogProcessor) handleAcknowledgements(plClient go_sdk.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -116,7 +117,7 @@ func (l *LogProcessor) handleAcknowledgements(plClient go_sdk.Integration_Proces
 	}
 }
 
-func (l *LogProcessor) processLogs(plClient go_sdk.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -194,7 +195,7 @@ func (l *LogProcessor) CleanCountedLogs() {
 
 		if found {
 			for _, log := range unprocessed {
-				LogQueue <- &go_sdk.Log{
+				LogQueue <- &plugins.Log{
 					Id:         log.ID,
 					Raw:        log.Log,
 					DataType:   log.Type,
@@ -206,7 +207,7 @@ func (l *LogProcessor) CleanCountedLogs() {
 	}
 }
 
-func createClient(client go_sdk.IntegrationClient, ctx context.Context) go_sdk.Integration_ProcessLogClient {
+func createClient(client plugins.IntegrationClient, ctx context.Context) plugins.Integration_ProcessLogClient {
 	var connErrMsgWritten bool
 	invalidKeyCounter := 0
 	for {

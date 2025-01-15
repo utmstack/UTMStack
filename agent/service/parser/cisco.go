@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"sync"
 
-	go_sdk "github.com/threatwinds/go-sdk"
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/service/config"
 )
 
@@ -41,7 +41,7 @@ func (p *CiscoParser) IdentifySource(log string) (config.DataType, error) {
 	return config.DataTypeCiscoMeraki, nil
 }
 
-func (p *CiscoParser) ProcessData(logMessage interface{}, datasource string, queue chan *go_sdk.Log) error {
+func (p *CiscoParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
 	log, ok := logMessage.(string)
 	if !ok {
 		return fmt.Errorf("log is not of type string")
@@ -50,7 +50,7 @@ func (p *CiscoParser) ProcessData(logMessage interface{}, datasource string, que
 	if err != nil {
 		return err
 	}
-	queue <- &go_sdk.Log{
+	queue <- &plugins.Log{
 		DataType:   string(logType),
 		DataSource: datasource,
 		Raw:        log,
