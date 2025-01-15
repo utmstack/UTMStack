@@ -92,6 +92,7 @@ import {
 import {UtmNotificationComponent} from './components/layout/header/utm-header-notification/utm-notification.component';
 import {SidebarComponent} from './components/layout/sidebar/sidebar.component';
 import {NotFoundComponent} from './components/not-found/not-found.component';
+import { SelectableListComponent } from './components/selectable-list/selectable-list.component';
 import {
   UtmHeaderHealthWarningComponent
 } from './components/utm-header-health-warning/utm-header-health-warning.component';
@@ -229,11 +230,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
-import { SelectableListComponent } from './components/selectable-list/selectable-list.component';
-import {TimePeriodPipe} from "./pipes/time-period.pipe";
-import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
-import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
-import {FilterPipe} from "./pipes/filter.pipe";
+
 
 
 @NgModule({
