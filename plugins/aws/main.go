@@ -1,6 +1,12 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"os"
 	"runtime"
 	"strings"
@@ -30,7 +36,8 @@ func main() {
 		go plugins.SendLogsFromChannel()
 	}
 
-	st := time.Now().Add(-600 * time.Second)
+	startTime := time.Now().UTC().Add(-1 * delayCheck * time.Second)
+	endTime := time.Now().UTC()
 	for {
 		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
@@ -42,7 +49,6 @@ func main() {
 
 		client := utmconf.NewUTMClient(internalKey, backendUrl)
 
-		et := st.Add(299 * time.Second)
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
@@ -54,7 +60,8 @@ func main() {
 			}
 
 			time.Sleep(time.Second * delayCheck)
-			st = et.Add(1)
+			startTime = time.Now().UTC().Add(-1 * delayCheck * time.Second)
+			endTime = time.Now().UTC()
 			continue
 		}
 
@@ -74,7 +81,7 @@ func main() {
 					}
 
 					if !skip {
-						pull(st, et, group)
+						pull(startTime, endTime, group)
 					}
 
 					wg.Done()
@@ -85,14 +92,16 @@ func main() {
 		}
 
 		time.Sleep(time.Second * delayCheck)
-		st = et.Add(1)
+
+		startTime = endTime.Add(1)
+		endTime = time.Now().UTC()
 	}
 }
 
 func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
-	agent := GetAWSProcessor(group)
+	agent := getAWSProcessor(group)
 
-	logs, err := agent.GetLogs(startTime, endTime)
+	logs, err := agent.getLogs(startTime, endTime)
 	if err != nil {
 		_ = catcher.Error("cannot get logs", err, map[string]any{
 			"startTime": startTime,
@@ -112,4 +121,134 @@ func pull(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 			Raw:        log,
 		})
 	}
+}
+
+type AWSProcessor struct {
+	RegionName      string
+	AccessKey       string
+	SecretAccessKey string
+}
+
+func getAWSProcessor(group types.ModuleGroup) AWSProcessor {
+	awsPro := AWSProcessor{}
+	for _, cnf := range group.Configurations {
+		switch cnf.ConfName {
+		case "Default Region":
+			awsPro.RegionName = cnf.ConfValue
+		case "Access Key":
+			awsPro.AccessKey = cnf.ConfValue
+		case "Secret Key":
+			awsPro.SecretAccessKey = cnf.ConfValue
+		}
+	}
+	return awsPro
+}
+
+func (p *AWSProcessor) createAWSSession() (aws.Config, error) {
+	if p.RegionName == "" {
+		return aws.Config{}, catcher.Error("cannot create AWS session",
+			errors.New("region name is empty"), nil)
+	}
+
+	cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(p.RegionName),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(p.AccessKey, p.SecretAccessKey, "")),
+	)
+	if err != nil {
+		return aws.Config{}, catcher.Error("cannot create AWS session", err, nil)
+	}
+
+	return cfg, nil
+}
+
+func (p *AWSProcessor) describeLogGroups() ([]string, error) {
+	awsConfig, err := p.createAWSSession()
+	if err != nil {
+		return nil, catcher.Error("cannot create AWS session", err, nil)
+	}
+
+	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
+	var logGroups []string
+	paginator := cloudwatchlogs.NewDescribeLogGroupsPaginator(cwl, &cloudwatchlogs.DescribeLogGroupsInput{})
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(context.TODO())
+		if err != nil {
+			return nil, catcher.Error("cannot get log groups", err, nil)
+		}
+		for _, group := range page.LogGroups {
+			logGroups = append(logGroups, *group.LogGroupName)
+		}
+	}
+
+	return logGroups, nil
+}
+
+func (p *AWSProcessor) describeLogStreams(logGroup string) ([]string, error) {
+	awsConfig, err := p.createAWSSession()
+	if err != nil {
+		return nil, catcher.Error("cannot create AWS session", err, nil)
+	}
+
+	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
+	var logStreams []string
+	paginator := cloudwatchlogs.NewDescribeLogStreamsPaginator(cwl, &cloudwatchlogs.DescribeLogStreamsInput{
+		LogGroupName: aws.String(logGroup),
+		OrderBy:      "LastEventTime",
+		Descending:   aws.Bool(true),
+	})
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(context.TODO())
+		if err != nil {
+			return nil, catcher.Error("cannot get log streams", err, nil)
+		}
+		for _, stream := range page.LogStreams {
+			logStreams = append(logStreams, *stream.LogStreamName)
+		}
+	}
+
+	return logStreams, nil
+}
+
+func (p *AWSProcessor) getLogs(startTime, endTime time.Time) ([]string, error) {
+	awsConfig, err := p.createAWSSession()
+	if err != nil {
+		return nil, catcher.Error("cannot create AWS session", err, nil)
+	}
+
+	cwl := cloudwatchlogs.NewFromConfig(awsConfig)
+
+	logGroups, err := p.describeLogGroups()
+	if err != nil {
+		return nil, catcher.Error("cannot get log groups", err, nil)
+	}
+
+	transformedLogs := make([]string, 0, 10)
+	for _, logGroup := range logGroups {
+		logStreams, err := p.describeLogStreams(logGroup)
+		if err != nil {
+			return nil, catcher.Error("cannot get log streams", err, nil)
+		}
+
+		for _, stream := range logStreams {
+			paginator := cloudwatchlogs.NewGetLogEventsPaginator(cwl, &cloudwatchlogs.GetLogEventsInput{
+				LogGroupName:  aws.String(logGroup),
+				LogStreamName: aws.String(stream),
+				StartTime:     aws.Int64(startTime.Unix() * 1000),
+				EndTime:       aws.Int64(endTime.Unix() * 1000),
+				StartFromHead: aws.Bool(true),
+			})
+
+			for paginator.HasMorePages() {
+				page, err := paginator.NextPage(context.TODO())
+				if err != nil {
+					return nil, catcher.Error("cannot get logs", err, nil)
+				}
+				for _, event := range page.Events {
+					transformedLogs = append(transformedLogs, *event.Message)
+				}
+			}
+		}
+	}
+
+	return transformedLogs, nil
 }
