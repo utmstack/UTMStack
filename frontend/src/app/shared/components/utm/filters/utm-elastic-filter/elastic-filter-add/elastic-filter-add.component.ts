@@ -55,6 +55,10 @@ export class ElasticFilterAddComponent implements OnInit {
   fieldTypes = ElasticDataTypesEnum;
   time: NgbTimeStruct = {hour: 0, minute: 0, second: 0};
   loadingValues = false;
+  selectableOperators = [ElasticOperatorsEnum.IS_ONE_OF,
+    ElasticOperatorsEnum.IS_NOT_ONE_OF,
+    ElasticOperatorsEnum.CONTAIN_ONE_OF,
+    ElasticOperatorsEnum.DOES_NOT_CONTAIN_ONE_OF];
   destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder,
@@ -66,7 +70,7 @@ export class ElasticFilterAddComponent implements OnInit {
     this.initFormFilter();
     this.fieldDataBehavior.getFields(this.pattern)
       .pipe(takeUntil(this.destroy$),
-      map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
+        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
       .subscribe(field => {
         if (field) {
           this.fields = field;
@@ -75,7 +79,7 @@ export class ElasticFilterAddComponent implements OnInit {
             this.setFilterEdit();
           }
         }
-    });
+      });
     this.formFilter.get('field').valueChanges.subscribe(val => {
       this.getFieldValues();
     });
@@ -115,8 +119,6 @@ export class ElasticFilterAddComponent implements OnInit {
     if (this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_BETWEEN ||
       this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_BETWEEN) {
       this.setValueRange();
-    } else if (this.formFilter.get('operator').value === ElasticOperatorsEnum.CONTAIN_ONE_OF) {
-      this.formFilter.get('value').setValue([this.formFilter.get('value').value]);
     }
 
     this.filterChange.emit(this.formFilter.value);
@@ -168,10 +170,15 @@ export class ElasticFilterAddComponent implements OnInit {
       indexPattern: this.pattern,
       keyword: this.formFilter.get('field').value
     };
-    this.elasticSearchIndexService.getElasticFieldValues(req).subscribe(res => {
-      this.fieldValues = res.body;
-      this.loadingValues = false;
-    });
+    this.elasticSearchIndexService.getElasticFieldValues(req)
+      .subscribe(res => {
+          this.fieldValues = res.body;
+          this.loadingValues = false;
+        },
+        error => {
+          this.fieldValues = [];
+          this.loadingValues = false;
+        });
   }
 
   /**
@@ -192,7 +199,7 @@ export class ElasticFilterAddComponent implements OnInit {
    * @param $event Field
    */
   changeField($event) {
-    this.formFilter.get('field').setValue($event.name);
+    // this.formFilter.get('field').setValue($event.name);
     this.formFilter.get('value').setValue(null);
     this.formFilter.get('operator').setValue(null);
     this.getOperators();
@@ -224,8 +231,7 @@ export class ElasticFilterAddComponent implements OnInit {
           return this.operatorFieldSelectable();
         } else {
           // if type of current filter is not keyword return result of validation if current operator is selectable or not
-          return (this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_ONE_OF ||
-            this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_ONE_OF);
+          return this.selectableOperators.includes(this.formFilter.get('operator').value);
         }
       } else if (this.field.type === ElasticDataTypesEnum.DATE) {
         return this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_ONE_OF ||
@@ -318,7 +324,9 @@ export class ElasticFilterAddComponent implements OnInit {
    */
   isMultipleSelectValue() {
     this.multiple = this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_ONE_OF ||
-      this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_ONE_OF;
+      this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_ONE_OF ||
+      this.formFilter.get('operator').value === ElasticOperatorsEnum.CONTAIN_ONE_OF ||
+      this.formFilter.get('operator').value === ElasticOperatorsEnum.DOES_NOT_CONTAIN_ONE_OF;
   }
 
   /**
