@@ -35,7 +35,7 @@ export class ReportApplyNoteComponent implements OnInit, OnChanges {
 
   getNoteValue() {
     if (this.report) {
-      this.note = this.report.note && this.report.note !== '' ? this.report.note : '';
+      this.note = this.report.configReportNote && this.report.configReportNote !== '' ? this.report.configReportNote : '';
     }
   }
 
@@ -43,7 +43,8 @@ export class ReportApplyNoteComponent implements OnInit, OnChanges {
     this.creating = true;
     this.reportsService.update({
       ...this.report,
-      note: this.note
+      dashboard: [],
+      configReportNote: this.note
     }).subscribe(response => {
       this.toastService.showSuccessBottom('Comment added successfully');
       this.applyNote.emit('success');
@@ -55,7 +56,7 @@ export class ReportApplyNoteComponent implements OnInit, OnChanges {
       });
     }, error => {
       this.toastService.showError('Error adding note',
-        'Error adding comment, please try again');
+        'Error adding note, please try again');
       this.creating = false;
     });
   }

@@ -9,6 +9,7 @@ import {CpReportBehavior} from '../../behavior/cp-report.behavior';
 import {ComplianceTypeEnum} from '../../enums/compliance-type.enum';
 import {CpReportsService} from '../../services/cp-reports.service';
 import {ComplianceReportType} from '../../type/compliance-report.type';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-utm-compliance-create',
@@ -27,18 +28,26 @@ export class UtmComplianceCreateComponent implements OnInit {
   operatorEnum = ElasticOperatorsEnum;
   solution = '';
   dashboardId: number;
+  name: string;
+  complianceForm: FormGroup;
 
 
   constructor(private cpReportsService: CpReportsService,
               public activeModal: NgbActiveModal,
               private cpReportBehavior: CpReportBehavior,
               private utmToastService: UtmToastService,
-              public modalService: NgbModal) {
+              public modalService: NgbModal,
+              private fb: FormBuilder) {
   }
 
   ngOnInit() {
+    this.complianceForm = this.fb.group({
+      reportName: [this.report ? this.report.configReportName : '' ,
+        [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
+      solution: [this.report ? this.report.configSolution : '', [Validators.maxLength(2000)]]
+    });
+
     if (this.report) {
-      this.solution = this.report.configSolution;
       this.viewSection = true;
       this.standardSectionId = this.report.standardSectionId;
       this.dashboardId = this.report.dashboardId;
@@ -92,11 +101,12 @@ export class UtmComplianceCreateComponent implements OnInit {
       dashboardId: this.dashboardId,
       // configReportRequestType: ComplianceRequestTypeEnum.POST,
       // configReportResourceUrl: ELASTIC_SEARCH_ENDPOINT,
-      configSolution: this.solution.replace(/\r?\n/g, '<br/>'),
+      configSolution: this.complianceForm.controls.solution.value.replace(/\r?\n/g, '<br/>'),
       // requestBodyFilters: this.filters,
       // requestParamFilters: REQUEST_PARAMS_FILTER,
       configType: ComplianceTypeEnum.TEMPLATE,
-      standardSectionId: this.standardSectionId
+      standardSectionId: this.standardSectionId,
+      configReportName: this.complianceForm.controls.reportName.value,
     };
     if (this.report) {
       reportCompliance.id = this.report.id;

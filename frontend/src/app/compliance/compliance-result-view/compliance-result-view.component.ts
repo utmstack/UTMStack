@@ -1,23 +1,26 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridType} from 'angular-gridster2';
 import {UUID} from 'angular2-uuid';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {Subject} from 'rxjs';
-import {filter, map, takeUntil, tap} from 'rxjs/operators';
 import {UtmRenderVisualization} from '../../dashboard/shared/services/utm-render-visualization.service';
-import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
-import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {UtmDashboardVisualizationType} from '../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 import {UtmDashboardType} from '../../shared/chart/types/dashboard/utm-dashboard.type';
-import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
-import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
-import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
 import {ComplianceParamsEnum} from '../shared/enums/compliance-params.enum';
+import {ComplianceEndpointService} from '../shared/services/compliance-endpoint.service';
+import {ComplianceTemplateService} from '../shared/services/compliance-template.service';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {HippaSignaturesType} from '../shared/type/hippa-signatures.type';
+import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
+import {filtersToStringParam} from '../../shared/util/query-params-to-filter.util';
+import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
+import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
+import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {Subject} from 'rxjs';
+import {filter, map, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-compliance-result-view',
@@ -79,7 +82,9 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.activeRoute.queryParams
-      .pipe(filter((params) => Object.keys(params).length > 0),
+      .pipe(
+          takeUntil(this.destroy$),
+          filter((params) => Object.keys(params).length > 0),
           tap(() => {
             this.loadingVisualizations = true;
             this.showBack = true;
@@ -123,12 +128,14 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
    * Return template
    */
   getTemplate() {
-    this.cpReportsService.find(this.reportId).subscribe(response => {
-      this.report = response.body;
-      if (this.report.dashboardId) {
-        this.loadVisualizations(this.report.dashboardId);
-      }
-    });
+    if (this.reportId) {
+      this.cpReportsService.find(this.reportId).subscribe(response => {
+        this.report = response.body;
+        if (this.report.dashboardId) {
+          this.loadVisualizations(this.report.dashboardId);
+        }
+      });
+    }
   }
 
   loadVisualizations(dashboardId) {
@@ -168,5 +175,6 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    console.log('destroy!!!');
   }
 }

@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Observable, Subject} from 'rxjs';
 import {concatMap, filter, map, takeUntil, tap} from 'rxjs/operators';
-import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
 import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
+import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
 
 
 @Component({

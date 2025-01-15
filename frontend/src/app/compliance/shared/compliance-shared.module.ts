@@ -3,9 +3,13 @@ import {CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA} from '@angular/core'
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {NgxJsonViewerModule} from "ngx-json-viewer";
 import {UtmDashboardSharedModule} from '../../dashboard/shared/utm-dashboard-shared.module';
 import {UtmSharedModule} from '../../shared/utm-shared.module';
 import {ComplianceReportsViewComponent} from '../compliance-reports-view/compliance-reports-view.component';
+import {
+  CompliancePrintViewComponent
+} from '../compliance-reports-view/components/compliance-print-view/compliance-print-view.component';
 import {
   ComplianceReportDetailComponent
 } from '../compliance-reports-view/components/compliance-report-detail/compliance-report-detail.component';
@@ -32,9 +36,6 @@ import {UtmCpStandardSectionCreateComponent} from './components/utm-cp-standard-
 import {UtmCpStandardSelectComponent} from './components/utm-cp-standard-select/utm-cp-standard-select.component';
 import {UtmReportInfoViewComponent} from './components/utm-report-info-view/utm-report-info-view.component';
 import {UtmSaveAsComplianceComponent} from './components/utm-save-as-compliance/utm-save-as-compliance.component';
-import {
-  CompliancePrintViewComponent
-} from "../compliance-reports-view/components/compliance-print-view/compliance-print-view.component";
 
 
 @NgModule({
@@ -65,7 +66,8 @@ import {
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
-    UtmDashboardSharedModule
+    UtmDashboardSharedModule,
+    NgxJsonViewerModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

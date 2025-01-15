@@ -1,18 +1,19 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import { Observable } from 'rxjs';
-import {concatMap, filter, map, tap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {concatMap, filter, map, startWith, tap} from 'rxjs/operators';
 import {ModalService} from '../../../../core/modal/modal.service';
-import { UtmRenderVisualization } from '../../../../dashboard/shared/services/utm-render-visualization.service';
-import { RunVisualizationService } from '../../../../graphic-builder/shared/services/run-visualization.service';
-import { VisualizationType } from '../../../../shared/chart/types/visualization.type';
+import {UtmRenderVisualization} from '../../../../dashboard/shared/services/utm-render-visualization.service';
+import {RunVisualizationService} from '../../../../graphic-builder/shared/services/run-visualization.service';
+import {VisualizationType} from '../../../../shared/chart/types/visualization.type';
 import {ModalAddNoteComponent} from '../../../../shared/components/utm/util/modal-add-note/modal-add-note.component';
-import { ChartTypeEnum } from '../../../../shared/enums/chart-type.enum';
+import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
-import {CpReportsService} from '../../../shared/services/cp-reports.service';
-import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
+import {ComplianceReportType} from '../../../shared/type/compliance-report.type';
+import {UtmDashboardVisualizationType} from '../../../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 
 
 export type ComplianceStatus = 'complaint' | 'non_complaint';
+
 @Component({
   selector: 'app-compliance-status',
   templateUrl: './compliance-status.component.html',
@@ -22,18 +23,20 @@ export type ComplianceStatus = 'complaint' | 'non_complaint';
 export class ComplianceStatusComponent implements OnInit {
   @Input() template: 'default' | 'dropdown' = 'default';
   private _report: ComplianceReportType;
-  compliance$!: Observable<{ status: boolean }>;
+  compliance$: Observable<{ status: boolean }> = null;
   request = {
     page: 0,
     size: 10000,
     sort: 'order,asc',
     'idDashboard.equals': 0
   };
+  vis: VisualizationType;
 
   @Output() isCompliant = new EventEmitter<boolean>();
+  @Output() visualization = new EventEmitter<any>();
   changing: any;
   status: ComplianceStatus = 'complaint';
-  @Output() visualization = new EventEmitter<any>();
+  loading = false;
 
   constructor(private utmRenderVisualization: UtmRenderVisualization,
               private runVisualization: RunVisualizationService,
@@ -42,7 +45,7 @@ export class ComplianceStatusComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.compliance$ = this.utmRenderVisualization.onRefresh$
+    /*this.compliance$ = this.utmRenderVisualization.onRefresh$
       .pipe(
         filter((refresh) => !!refresh),
         concatMap(() => this.utmRenderVisualization.query(this.request)
@@ -75,16 +78,42 @@ export class ComplianceStatusComponent implements OnInit {
               };
             })
           ))
+      );*/
+
+    this.compliance$ = this.utmRenderVisualization.onRefresh$
+      .pipe(
+        filter((refresh) => !!refresh),
+        concatMap(() => this.runVisualization.run(this.vis)),
+        map(run => {
+          const isCompliant = run[0] && run[0].rows.length > 0;
+          this.report.status = isCompliant || this.report.configReportNote && this.report.configReportNote !== '' ? 'complaint'
+            : 'non_complaint';
+          this.isCompliant.emit(isCompliant);
+          return {
+            status: isCompliant
+          };
+        }),
       );
   }
 
   @Input() set report(value: ComplianceReportType) {
     if (value) {
       this._report = value;
-      this.request = {
-        ...this.request,
-        'idDashboard.equals': value.dashboardId,
-      };
+      const visualizationType: UtmDashboardVisualizationType = value.dashboard.find(vis =>
+        vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART);
+
+      if (visualizationType) {
+        this.visualization.emit(visualizationType);
+        this.vis = visualizationType.visualization;
+      }
+      const time = visualizationType.visualization.filterType.find(filterType => filterType.field === '@timestamp');
+      if (time) {
+        this.timeWindowsService.changeTimeWindows({
+          reportId: value.id,
+          time: time.value[0]
+        });
+      }
+
       this.utmRenderVisualization.notifyRefresh(true);
     }
   }

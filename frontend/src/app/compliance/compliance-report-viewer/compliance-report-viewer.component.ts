@@ -1,16 +1,19 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalOptions} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, concatMap, filter, map, takeUntil, tap} from 'rxjs/operators';
+import {catchError, concatMap, debounceTime, distinctUntilChanged, filter, map, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {ADMIN_ROLE} from '../../shared/constants/global.constant';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {UtmCpStandardComponent} from '../shared/components/utm-cp-standard/utm-cp-standard.component';
+import {ComplianceParamsEnum} from '../shared/enums/compliance-params.enum';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {CpStandardSectionService} from '../shared/services/cp-standard-section.service';
+import {CpStandardService} from '../shared/services/cp-standard.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
 import {ComplianceStandardType} from '../shared/type/compliance-standard.type';
@@ -34,14 +37,37 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   constructor(private standardSectionService: CpStandardSectionService,
               private toastService: UtmToastService,
               private modalService: NgbModal,
-              private $localStorage: LocalStorageService,
               private spinner: NgxSpinnerService,
               private reportsService: CpReportsService,
-              private exportPdfService: ExportPdfService) {
-    this.standard = this.$localStorage.retrieve('selectedStandard');
+              private exportPdfService: ExportPdfService,
+              private activatedRoute: ActivatedRoute,
+              private standardService: CpStandardService,
+              private router: Router,
+              private localStorage: LocalStorageService) {
+
+    this.standard = this.localStorage.retrieve('selectedStandard');
   }
 
   ngOnInit() {
+    this.activatedRoute.queryParams
+      .pipe(
+        debounceTime(100),
+        distinctUntilChanged(),
+        filter((params) => params && params[ComplianceParamsEnum.STANDARD_ID]),
+        map((params) => params[ComplianceParamsEnum.STANDARD_ID]),
+        concatMap( standardId => this.standardService.find(standardId))
+      ).pipe(
+        map((response) => response.body),
+        tap((standard) => {
+          this.standard = standard;
+          this.activeIndexSection = 0;
+          this.standardSectionService.notifyRefresh({
+            loading: true,
+            activeSection: 0
+          });
+        })
+    ).subscribe();
+
     this.sections$ = this.standardSectionService.onRefresh$
       .pipe(takeUntil(this.destroy$),
             filter(refresh => !!refresh && refresh.loading),
@@ -79,11 +105,6 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   ngAfterViewInit(): void {
     if (!this.standard) {
       this.manageStandards();
-    } else {
-      this.standardSectionService.notifyRefresh({
-        loading: true,
-        activeSection: 0
-      });
     }
   }
 
@@ -97,14 +118,17 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
 
     modalRef.result.then((standard) => {
       this.standard = standard;
-      this.standardSectionService.notifyRefresh({
-        loading: true,
-        activeSection: 0
+
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: { standardId: this.standard.id },
+        queryParamsHandling: 'merge',
       });
     });
   }
 
-  onChangeSectionActive(index: number) {
+  onChangeSectionActive(index: number, sections: ComplianceStandardType[]) {
+    console.log(index, sections);
     this.activeIndexSection = index;
     this.standardSectionService.notifyRefresh({
       loading: true,
@@ -133,12 +157,16 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
     return section.id;
   }
 
-  getUrl(){
-    return this.action === 'reports' ? '/dashboard/export-compliance/' + this.report.id :
-     `/compliance/print-view/?section=${this.getActiveSectionParams()}`;
+  getUrl() {
+    if (this.action === 'reports') {
+        return '/dashboard/export-compliance/' + this.report.id;
+    } else {
+      const section = this.getActiveSectionParams();
+      return  encodeURIComponent('/compliance/print-view?section=' + section);
+    }
   }
 
-  getActiveSectionParams(){
+  getActiveSectionParams() {
    return encodeURIComponent(JSON.stringify({
     standardId: this.activeSection.standardId,
     id: this.activeSection.id

@@ -20,6 +20,7 @@ export class UtmCpSectionComponent implements OnInit {
   @Output() isActive: EventEmitter<number> = new EventEmitter<number>();
   @Input() loadFirst = false;
   @Input() expandable = true;
+  @Input() action: 'reports' | 'compliance' = 'compliance';
 
   reports$: Observable<ComplianceReportType[]>;
   selected: number;
@@ -70,14 +71,17 @@ export class UtmCpSectionComponent implements OnInit {
   }
 
   loadReports() {
+    if (this.action === 'reports') {
       this.reportsService.notifyRefresh({
         sectionId: this.section.id,
         loading: true,
         reportSelected: 0
       });
-      if (!this.section.isActive) {
-        this.isActive.emit(this.index);
-      }
+    }
+
+    if (!this.section.isActive) {
+      this.isActive.emit(this.index);
+    }
   }
 
   generateReport(index: number, report: ComplianceReportType) {

@@ -30,13 +30,12 @@ export class ModalAddNoteComponent implements OnInit {
   }
 
   confirm() {
-    //this.creating = true;
     this.setReport();
     this.reportsService.update({
       ...this.report,
+      dashboard: [],
     }).subscribe(response => {
-      this.toastService.showSuccessBottom('Comment added successfully');
-     // this.creating = false;
+      this.toastService.showSuccessBottom('Note added successfully');
       this.reportsService.notifyRefresh({
         loading: true,
         sectionId: this.report.section.id,
@@ -45,7 +44,6 @@ export class ModalAddNoteComponent implements OnInit {
     }, error => {
       this.toastService.showError('Error adding note',
         'Error adding comment, please try again');
-      // this.creating = false;
     });
     this.activeModal.close('ok');
   }
@@ -55,6 +53,6 @@ export class ModalAddNoteComponent implements OnInit {
   }
 
   setReport(){
-    this.report.status === 'non_complaint' ? this.report.note = this.note : this.report.note = '';
+    this.report.status === 'non_complaint' ? this.report.configReportNote = this.note : this.report.configReportNote = '';
   }
 }

@@ -1,6 +1,3 @@
-.container-fluid {
-    background-color: #f8f9fa;
-}
 
 img{
     margin-right: 5px;
@@ -34,4 +31,9 @@ table {
 .button-pdf {
   margin-right: 25px !important;
   margin-top: 0;
+}
+
+.table-responsive {
+  height: 76vh;
+  overflow-y: auto;
 }

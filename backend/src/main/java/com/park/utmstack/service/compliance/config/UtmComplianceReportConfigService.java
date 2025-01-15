@@ -9,6 +9,7 @@ import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.exceptions.UtmPageNumberNotSupported;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,33 +80,64 @@ public class UtmComplianceReportConfigService {
         complianceReportConfigRepository.deleteReportsByStandardIdAndIdNotIn(standardId, reportIds);
     }
 
-    public List<UtmComplianceReportConfig> getReportsByFilters(Long standardId, String solution, Long sectionId, Pageable pageable) throws
-        UtmPageNumberNotSupported {
+    public Page<UtmComplianceReportConfig> getReportsByFilters(Long standardId, String solution, Long sectionId,
+                                                               String search, Pageable pageable) {
         StringBuilder script = new StringBuilder(
-            "SELECT cfg.* FROM utm_compliance_report_config cfg INNER JOIN utm_compliance_standard_section sec ON cfg.standard_section_id=sec.id INNER JOIN utm_compliance_standard st ON sec.standard_id=st.id");
+                "SELECT cfg.* FROM utm_compliance_report_config cfg " +
+                        "INNER JOIN utm_compliance_standard_section sec ON cfg.standard_section_id = sec.id " +
+                        "INNER JOIN utm_compliance_standard st ON sec.standard_id = st.id " +
+                        "LEFT JOIN utm_dashboard d ON cfg.dashboard_id = d.id");
+
+        StringBuilder countScript = new StringBuilder(
+                "SELECT COUNT(cfg.id) FROM utm_compliance_report_config cfg " +
+                        "INNER JOIN utm_compliance_standard_section sec ON cfg.standard_section_id = sec.id " +
+                        "INNER JOIN utm_compliance_standard st ON sec.standard_id = st.id " +
+                        "LEFT JOIN utm_dashboard d ON cfg.dashboard_id = d.id");
 
         boolean hasWhere = false;
 
         if (standardId != null) {
             hasWhere = true;
-            script.append(" WHERE").append(" st.id = ").append(standardId);
+            script.append(" WHERE st.id = ").append(standardId);
+            countScript.append(" WHERE st.id = ").append(standardId);
         }
 
         if (StringUtils.hasText(solution)) {
             String condition = "cfg.config_solution ILIKE '%" + solution + "%'";
             script.append(hasWhere ? " AND " : " WHERE ").append(condition);
+            countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
             hasWhere = true;
         }
 
         if (sectionId != null) {
             String condition = "sec.id = " + sectionId;
             script.append(hasWhere ? " AND " : " WHERE ").append(condition);
+            countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
         }
 
-        return em.createNativeQuery(script.toString(), UtmComplianceReportConfig.class).setFirstResult(
-            UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber())).setMaxResults(
-            pageable.getPageSize()).getResultList();
+        if (StringUtils.hasText(search)) {
+            String condition = "(cfg.config_report_name ILIKE '%" + search + "%' OR d.name ILIKE '%" + search + "%')";
+            script.append(hasWhere ? " AND " : " WHERE ").append(condition);
+            countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
+        }
+
+        if (StringUtils.hasText(solution)) {
+            pageable.getSort();
+            String sortField = pageable.getSort().iterator().next().getProperty();
+            String sortDirection = pageable.getSort().iterator().next().getDirection().name();
+            script.append(" ORDER BY ").append(sortField).append(" ").append(sortDirection);
+        }
+
+        List<UtmComplianceReportConfig> results = em.createNativeQuery(script.toString(), UtmComplianceReportConfig.class)
+                .setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber()))
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+
+        long total = ((Number) em.createNativeQuery(countScript.toString()).getSingleResult()).longValue();
+
+        return new PageImpl<>(results, pageable, total);
     }
+
 
     public void deleteAllByConfigSolutionAndSectionIdAndDashboardId(String configSolution, Long sectionId, Long dashboardId) {
         complianceReportConfigRepository.deleteAllByConfigSolutionAndStandardSectionIdAndDashboardId(configSolution, sectionId, dashboardId);
@@ -135,7 +167,7 @@ public class UtmComplianceReportConfigService {
 
                 // Standards
                 Optional<UtmComplianceStandard> eStandard = standardService.findByStandardNameLike(
-                    standard.getStandardName());
+                        standard.getStandardName());
 
                 if (eStandard.isPresent())
                     standard.setId(eStandard.get().getId());
@@ -143,7 +175,7 @@ public class UtmComplianceReportConfigService {
 
                 // Sections
                 Optional<UtmComplianceStandardSection> eSection = standardSectionService.findByStandardSectionNameLike(
-                    section.getStandardSectionName());
+                        section.getStandardSectionName());
 
                 if (eSection.isPresent())
                     section.setId(eSection.get().getId());
@@ -154,7 +186,7 @@ public class UtmComplianceReportConfigService {
 
                 // Compliance report
                 Optional<UtmComplianceReportConfig> eReport = complianceReportConfigRepository.
-                    findByConfigSolutionAndStandardSectionIdAndDashboardId(report.getConfigSolution(), report.getStandardSectionId(), report.getDashboardId());
+                        findByConfigSolutionAndStandardSectionIdAndDashboardId(report.getConfigSolution(), report.getStandardSectionId(), report.getDashboardId());
 
                 eReport.ifPresent(utmComplianceReportConfig -> report.setId(utmComplianceReportConfig.getId()));
                 report.setStandardSectionId(section.getId());

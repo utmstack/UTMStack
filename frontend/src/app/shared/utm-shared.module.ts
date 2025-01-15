@@ -230,6 +230,10 @@ import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import { SelectableListComponent } from './components/selectable-list/selectable-list.component';
+import {TimePeriodPipe} from "./pipes/time-period.pipe";
+import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
+import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
+import {FilterPipe} from "./pipes/filter.pipe";
 
 
 @NgModule({
@@ -377,13 +381,12 @@ import { SelectableListComponent } from './components/selectable-list/selectable
     BadgeTypeDirective,
     AppFilterComponent,
     TemplateSelectorDirective,
-    TimePeriodPipe,
+    ModalAddNoteComponent,
+    SelectableListComponent,
     ModalAddNoteComponent,
     TimePeriodPipe,
     UtmCollapsibleTextComponent,
-    TimezoneOffsetPipe,
-    FilterPipe,
-    SelectableListComponent
+    FilterPipe
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -485,7 +488,6 @@ import { SelectableListComponent } from './components/selectable-list/selectable
     TemplateSelectorDirective,
     TimePeriodPipe,
     ModalAddNoteComponent,
-    TimePeriodPipe,
     UtmCollapsibleTextComponent,
     FilterPipe
   ],
