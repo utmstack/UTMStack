@@ -1,5 +1,14 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
 import {EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
@@ -17,6 +26,7 @@ import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 })
 export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() section: ComplianceStandardSectionType;
+  @Output() pageChange = new EventEmitter<{}>();
 
   reports$: Observable<ComplianceReportType[]>;
   selected: number;
@@ -96,6 +106,10 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
       loading: true,
       sectionId: this.section.id,
       reportSelected: 0
+    });
+    this.pageChange.emit({
+      page: this.page,
+      size: this.itemsPerPage
     });
   }
 
