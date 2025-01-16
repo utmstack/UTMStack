@@ -34,6 +34,5 @@ table {
 }
 
 .table-responsive {
-  height: 76vh;
-  overflow-y: auto;
+  min-height: 400px;
 }

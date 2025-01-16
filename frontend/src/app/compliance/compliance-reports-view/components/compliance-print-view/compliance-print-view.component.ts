@@ -35,10 +35,10 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
     .pipe(
       filter((params) => !!params.section),
       map((params) => JSON.parse(decodeURIComponent(params.section))),
-      tap(section => this.section = section),
-        concatMap(() => this.reportsService.fetchData({
-          page: 0,
-          size: 1000,
+      tap(params => this.section = params),
+        concatMap((params) => this.reportsService.fetchData({
+          page: params.page,
+          size: params.size,
           standardId: this.section.standardId,
           sectionId: this.section.id,
           expandDashboard: true,
