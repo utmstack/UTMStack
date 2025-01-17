@@ -33,6 +33,10 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   pdfExport = false;
   action: 'reports' | 'compliance' = 'compliance';
   activeSection: ComplianceStandardSectionType = null;
+  pageable = {
+    page: 0,
+    size: 15
+  };
 
   constructor(private standardSectionService: CpStandardSectionService,
               private toastService: UtmToastService,
@@ -167,10 +171,17 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   }
 
   getActiveSectionParams() {
-   return encodeURIComponent(JSON.stringify({
-    standardId: this.activeSection.standardId,
-    id: this.activeSection.id
+   return encodeURIComponent(
+     JSON.stringify({
+        standardId: this.activeSection.standardId,
+        id: this.activeSection.id,
+        page: this.pageable.page,
+        size: this.pageable.size
    }));
+  }
+
+  onPageChange($event: any) {
+    this.pageable = $event;
   }
 
   ngOnDestroy(): void {

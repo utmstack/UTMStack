@@ -58,12 +58,17 @@
                 <app-compliance-status [report]="report" [template]="'dropdown'"></app-compliance-status>
               </td>
               <td style="width: 35%; position: relative; z-index: 0;">
-                <img src="assets/icons/compliance/shield.png" alt="shield"/>
-                <label
-                  [innerHTML]="report.configReportName ? report.configReportName : report.associatedDashboard.name | safe:'html'"
-                  class="font-size-base text-wrap" style="cursor: pointer" *ngIf="report.associatedDashboard">
-                </label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <img src="assets/icons/compliance/shield.png" alt="shield" style="flex-shrink: 0;"/>
+                  <label
+                    [innerHTML]="report.configReportName ? report.configReportName : report.associatedDashboard.name | safe:'html'"
+                    class="font-size-base text-wrap"
+                    style="cursor: pointer; flex-grow: 1;"
+                    *ngIf="report.associatedDashboard">
+                  </label>
+                </div>
               </td>
+
               <td style="width: 15%; position: relative; z-index: 0;">
                 <app-compliance-time [report]="report"></app-compliance-time>
               </td>
@@ -73,7 +78,7 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="noData">
+            <tr *ngIf="noData && !loading">
               <td colspan="5">
                 <app-no-data-found></app-no-data-found>
               </td>

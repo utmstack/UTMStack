@@ -1,9 +1,10 @@
 import {Type} from '@angular/core';
+import {LogAnalyzerQueryType} from './log-analyzer-query.type';
 
 export class TabType {
   public id?: number;
   public title: string;
-  public tabData: any;
+  public tabData: LogAnalyzerQueryType;
   public active: boolean;
   public component: Type<any>;
   public uuid?: string;

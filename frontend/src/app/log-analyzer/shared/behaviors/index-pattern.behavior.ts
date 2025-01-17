@@ -4,5 +4,13 @@ import {LogAnalyzerDataChangeType} from '../type/log-analyzer-data-change.type';
 
 @Injectable({providedIn: 'root'})
 export class IndexPatternBehavior {
-  $pattern = new BehaviorSubject<LogAnalyzerDataChangeType>(null);
+  private patternBehavior = new BehaviorSubject<LogAnalyzerDataChangeType>(null);
+  pattern$ = this.patternBehavior.asObservable();
+
+  constructor() {
+  }
+
+  changePattern(pattern: LogAnalyzerDataChangeType) {
+    this.patternBehavior.next(pattern);
+  }
 }

@@ -221,6 +221,7 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {TimePeriodPipe} from "./pipes/time-period.pipe";
 import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
 import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
+import {FilterPipe} from "./pipes/filter.pipe";
 
 
 @NgModule({
@@ -365,7 +366,8 @@ import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsib
     TimePeriodPipe,
     ModalAddNoteComponent,
     TimePeriodPipe,
-    UtmCollapsibleTextComponent
+    UtmCollapsibleTextComponent,
+    FilterPipe
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -463,7 +465,8 @@ import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsib
     TimePeriodPipe,
     ModalAddNoteComponent,
     TimePeriodPipe,
-    UtmCollapsibleTextComponent
+    UtmCollapsibleTextComponent,
+    FilterPipe
   ],
   entryComponents: [
     LoginComponent,

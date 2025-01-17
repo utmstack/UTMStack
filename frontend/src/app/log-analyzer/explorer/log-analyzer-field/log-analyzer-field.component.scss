@@ -1,5 +1,11 @@
 .analyzer-fields {
   overflow: auto;
-  min-height: calc(100vh + 315px);
-  max-height: calc(100vh + 315px)
+  max-height: 75vh!important;
+}
+
+.btn-refresh{
+  background-color: #d3dae696;
+  color: #0277bd;
+  height: 36px!important;
+  border: 1px solid #d3dae696;
 }
