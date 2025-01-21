@@ -9,7 +9,7 @@ import {CpReportBehavior} from '../../behavior/cp-report.behavior';
 import {ComplianceTypeEnum} from '../../enums/compliance-type.enum';
 import {CpReportsService} from '../../services/cp-reports.service';
 import {ComplianceReportType} from '../../type/compliance-report.type';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-utm-compliance-create',
@@ -44,7 +44,8 @@ export class UtmComplianceCreateComponent implements OnInit {
     this.complianceForm = this.fb.group({
       reportName: [this.report ? this.report.configReportName : '' ,
         [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
-      solution: [this.report ? this.report.configSolution : '', [Validators.maxLength(2000)]]
+      solution: [this.report ? this.report.configSolution : '', [Validators.maxLength(2000)]],
+      remediation: [this.report ? this.report.configRemediation : '', [Validators.maxLength(2000)]]
     });
 
     if (this.report) {
@@ -102,6 +103,7 @@ export class UtmComplianceCreateComponent implements OnInit {
       // configReportRequestType: ComplianceRequestTypeEnum.POST,
       // configReportResourceUrl: ELASTIC_SEARCH_ENDPOINT,
       configSolution: this.complianceForm.controls.solution.value.replace(/\r?\n/g, '<br/>'),
+      configRemediation: this.complianceForm.controls.remediation.value.replace(/\r?\n/g, '<br/>'),
       // requestBodyFilters: this.filters,
       // requestParamFilters: REQUEST_PARAMS_FILTER,
       configType: ComplianceTypeEnum.TEMPLATE,
