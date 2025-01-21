@@ -45,7 +45,7 @@ export class UtmComplianceCreateComponent implements OnInit {
       reportName: [this.report ? this.report.configReportName : '' ,
         [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
       solution: [this.report ? this.report.configSolution : '', [Validators.maxLength(2000)]],
-      remediation: [this.report ? this.report.configRemediation : '', [Validators.maxLength(2000)]]
+      remediation: [this.report && this.report.configRemediation ? this.report.configRemediation : '', [Validators.maxLength(2000)]]
     });
 
     if (this.report) {
