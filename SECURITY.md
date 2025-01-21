@@ -18,3 +18,5 @@
 |  12.x LTS | :clock1:           | Jan 15, 2036 |
 
 :white_check_mark: Supported | :x: Unsupported | :date: Will be released soon | :clock1: Planned
+
+Please report security vulnerabilities to support@utmstack.com
