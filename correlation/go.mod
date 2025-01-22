@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/correlation
 go 1.21
 
 require (
-	github.com/fsnotify/fsnotify v1.7.0
+	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/levigross/grequests v0.0.0-20221222020224-9eee758d18d5
@@ -11,7 +11,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
-	github.com/swaggo/swag v1.16.3
+	github.com/swaggo/swag v1.16.4
 	github.com/tidwall/gjson v1.18.0
 	gopkg.in/yaml.v3 v3.0.1
 )
