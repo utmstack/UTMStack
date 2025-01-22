@@ -8,7 +8,7 @@
      [ngClass]="{'icon-arrow-right32': !section.isCollapsed, 'icon-arrow-down32 font-weight-bold' : section.isCollapsed}"></i>
 </button>
 <ul class="submenu" [ngClass]="{ 'show': section.isCollapsed && expandable }" id="collapse{{ section.id }}">
-  <div class="pr-2">
+  <div class="sub-menu-content pr-2">
     <li class="section-item cursor-pointer mb-1"
         [ngClass]="{'active': section.isActive && report.selected}"
         *ngFor="let report of reports$  | async as reports; let index = index"
