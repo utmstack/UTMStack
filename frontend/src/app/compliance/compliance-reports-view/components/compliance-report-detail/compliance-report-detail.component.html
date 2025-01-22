@@ -58,7 +58,7 @@
       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configSolution"></app-utm-collapsible-text>
     </div>
 
-    <ng-container *ngIf="report.status === 'non_complaint'">
+    <ng-container *ngIf="report.status === 'non_complaint' && report.configRemediation">
       <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
         <span class="text-blue-800 font-weight-light mr-2">Compliance remediation:</span>
       </div>
