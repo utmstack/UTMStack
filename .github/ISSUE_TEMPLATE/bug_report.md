@@ -55,4 +55,5 @@ body:
     attributes:
       label: Relevant logs and/or screenshots
       description: Please copy and paste any relevant log output or screenshots here.
+
 ---
