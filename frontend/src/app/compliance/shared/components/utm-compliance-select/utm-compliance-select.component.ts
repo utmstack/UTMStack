@@ -89,7 +89,7 @@ export class UtmComplianceSelectComponent implements OnInit {
     };
     this.cpStandardSectionService.query(query).subscribe(response => {
       this.standardSections = response.body;
-      this.section = this.standardSections[0].id;
+      this.section = !!this.section ? this.section : this.standardSections[0].id;
       this.getDashboardList();
       if (this.idReport) {
         this.getSelectedDashboard(this.idReport);
@@ -101,7 +101,7 @@ export class UtmComplianceSelectComponent implements OnInit {
     this.cpStandardService.query({page: 0, size: 1000}).subscribe(
       (res: HttpResponse<any>) => {
         this.standards = res.body;
-        this.standard = this.standards[0].id;
+        this.standard = !!this.standard ? this.standard : this.standards[0].id;
         this.getSections();
       },
       (res: HttpResponse<any>) => this.onError(res)

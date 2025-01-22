@@ -79,7 +79,6 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
-    this.runVisualization();
     this.defaultTime = resolveDefaultVisualizationTime(this.visualization);
     this.runVisualizationBehavior.$run.subscribe(id => {
       if (id && this.chartId === id) {
@@ -95,6 +94,10 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
         });
       }
     });
+
+    if (!this.defaultTime) {
+      this.runVisualization();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {

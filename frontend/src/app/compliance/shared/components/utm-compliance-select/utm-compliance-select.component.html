@@ -40,7 +40,7 @@
   </div>
   <div class="table-responsive">
     <table class="table text-nowrap">
-      <tbody *ngIf="complianceReports && complianceReports.length>0">
+      <tbody *ngIf="standardSections && standardSections.length > 0">
       <tr *ngFor="let report of complianceReports">
         <td colspan="1">
           <div (click)="selectDashboard(report)"

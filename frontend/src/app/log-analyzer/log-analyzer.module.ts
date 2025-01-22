@@ -17,6 +17,7 @@ import {LogAnalyzerFieldDetailComponent} from './explorer/log-analyzer-field/log
 import {LogAnalyzerFieldComponent} from './explorer/log-analyzer-field/log-analyzer-field.component';
 import {LogAnalyzerTabsComponent} from './explorer/log-analyzer-tabs/log-analyzer-tabs.component';
 import {LogAnalyzerViewComponent} from './explorer/log-analyzer-view/log-analyzer-view.component';
+import {LogQueryFilterSelectorComponent} from './explorer/log-query-filter-selector/log-query-filter-selector.component';
 import {LogAnalyzerRoutingModule} from './log-analyzer-routing.module';
 import {LogAnalyzerQueryCreateComponent} from './queries/log-analyzer-query-create/log-analyzer-query-create.component';
 import {LogAnalyzerQueryDeleteComponent} from './queries/log-analyzer-query-delete/log-analyzer-query-delete.component';
@@ -39,7 +40,8 @@ import {TabService} from './shared/services/tab.service';
     LogAnalyzerQueryListComponent,
     LogAnalyzerQueryCreateComponent,
     LogAnalyzerQueryDeleteComponent,
-    LogAnalyzerFieldCardComponent],
+    LogAnalyzerFieldCardComponent,
+    LogQueryFilterSelectorComponent],
   imports: [
     CommonModule,
     LogAnalyzerRoutingModule,

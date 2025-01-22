@@ -12,6 +12,7 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UserDTO;
 import com.park.utmstack.service.util.RandomUtil;
 import com.park.utmstack.util.exceptions.CurrentUserLoginNotFoundException;
+import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InvalidPasswordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +28,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -227,14 +225,17 @@ public class UserService {
         }
     }
 
-    public void deleteUser(String login) {
+    public void deleteUser(String login) throws Exception {
         String ctx = CLASS_NAME + ".deleteUser";
-        Optional<User> user = userRepository.findOneByLogin(login);
-        if (user.isPresent()) {
-            User usr = user.get();
-            userRepository.delete(usr);
-            log.debug("Deleted User: {}", usr);
+        User user = userRepository.findOneByLogin(login)
+                .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", login)));
+
+        if (user.getAuthorities().stream().anyMatch(authority -> authority.getName().equals("ROLE_ADMIN")) && userRepository.countAdmins() == 1) {
+            throw new BadRequestAlertException(ctx, "Cannot delete the last admin user.", UserService.class.toString());
         }
+
+        userRepository.delete(user);
+        log.debug("Deleted User: {}", user);
     }
 
     public void changePassword(String currentClearTextPassword, String newPassword) {

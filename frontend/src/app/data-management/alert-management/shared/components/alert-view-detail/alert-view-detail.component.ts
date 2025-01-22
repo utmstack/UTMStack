@@ -16,9 +16,7 @@ import {
   ALERT_PROTOCOL_FIELD,
   ALERT_SENSOR_FIELD,
   ALERT_SEVERITY_FIELD_LABEL,
-  ALERT_STATUS_FIELD,
-  ALERT_TACTIC_FIELD,
-  ALERT_TIMESTAMP_FIELD
+  ALERT_STATUS_FIELD, ALERT_TACTIC_FIELD, ALERT_TIMESTAMP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {LOG_ROUTE} from '../../../../../shared/constants/app-routes.constant';
 import {LOG_INDEX_PATTERN, LOG_INDEX_PATTERN_ID} from '../../../../../shared/constants/main-index-pattern.constant';
@@ -34,7 +32,6 @@ import {AlertUpdateHistoryBehavior} from '../../behavior/alert-update-history.be
 import {AlertUpdateTagBehavior} from '../../behavior/alert-update-tag.behavior';
 import {AlertHistoryActionEnum} from '../../enums/alert-history-action.enum';
 import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
-import {AlertManagementService} from '../../services/alert-management.service';
 
 @Component({
   selector: 'app-alert-view-detail',
@@ -47,6 +44,7 @@ export class AlertViewDetailComponent implements OnInit {
   @Input() hideEmptyField = false;
   @Input() dataType: EventDataTypeEnum;
   @Input() tags: AlertTags[];
+  @Input()  timeFilter: ElasticFilterType;
   @Output() refreshData = new EventEmitter<boolean>();
   ALERT_NAME = ALERT_NAME_FIELD;
   STATUS_FIELD = ALERT_STATUS_FIELD;
@@ -77,19 +75,17 @@ export class AlertViewDetailComponent implements OnInit {
   hideLastChange = false;
   incidentResponse = false;
 
-  constructor(private alertServiceManagement: AlertManagementService,
-              private utmToastService: UtmToastService,
-              private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior,
+  constructor(private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private spinner: NgxSpinnerService,
               private elasticDataService: ElasticDataService,
               private moduleService: UtmModulesService,
-              private router: Router) {
+              private router: Router,
+              private toastService: UtmToastService) {
   }
 
   ngOnInit() {
     this.viewLog = this.fullScreen;
-    // @ts-ignore
     this.logs = this.alert.logs.reverse();
     this.countRelatedEvents = this.logs.length;
     const ref = this.alert.reference;
@@ -155,14 +151,18 @@ export class AlertViewDetailComponent implements OnInit {
   searchLastLog() {
     if (!this.log) {
       this.getLastLog = true;
-      const filter: ElasticFilterType[] = [{field: ALERT_ID_FIELD, operator: ElasticOperatorsEnum.IS, value: this.logs[0]}];
+      const filters: ElasticFilterType[] = [
+        ...(this.timeFilter ? [this.timeFilter] : []),
+        { field: ALERT_ID_FIELD, operator: ElasticOperatorsEnum.IS, value: this.logs[0] }
+      ];
       this.elasticDataService.search(1, 1,
-        1, LOG_INDEX_PATTERN, filter).subscribe(
+        1, LOG_INDEX_PATTERN, filters).subscribe(
         (res: HttpResponse<any>) => {
-          this.log = res.body[0];
+          this.log = res.body[0] ? res.body[0] : {};
           this.getLastLog = false;
         },
         (res: HttpResponse<any>) => {
+          this.toastService.showError('Error', 'An error occurred while trying to retrieve the latest log.');
         }
       );
     }
@@ -170,6 +170,10 @@ export class AlertViewDetailComponent implements OnInit {
 
   viewLastLog() {
     this.searchLastLog();
+  }
+
+  isEmptyResponse() {
+    return Object.entries(this.log).length === 0;
   }
 }
 

@@ -6,6 +6,8 @@ import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/elasticsearch-index.service';
 import {ElasticsearchIndexInfoType} from '../../shared/types/elasticsearch/elasticsearch-index-info.type';
 import {IndexDeleteComponent} from './index-delete/index-delete.component';
+import {UtmAccountModule} from "../../account/account.module";
+import {UtmToastService} from "../../shared/alert/utm-toast.service";
 
 @Component({
   selector: 'app-index-management',
@@ -23,7 +25,8 @@ export class IndexManagementComponent implements OnInit {
   req: any;
 
   constructor(private elasticIndexService: ElasticSearchIndexService,
-              private modalService: NgbModal) {
+              private modalService: NgbModal,
+              private toastService: UtmToastService,) {
   }
 
   ngOnInit() {
@@ -43,7 +46,23 @@ export class IndexManagementComponent implements OnInit {
   }
 
   onSortBy($event: SortEvent) {
-    this.req.sort = $event.column + ',' + $event.direction;
+    switch ($event.column) {
+      case 'creationDate':
+        this.req.sort = 'creation.date.string' + ',' + $event.direction;
+        break;
+
+      case 'docsCount':
+        this.req.sort = 'docs.count' + ',' + $event.direction;
+        break;
+
+      case 'size':
+        this.req.sort = 'store.size' + ',' + $event.direction;
+        break;
+
+      default:
+        this.req.sort = $event.column + ',' + $event.direction;
+        break;
+    }
     this.getIndexes();
   }
 
@@ -97,6 +116,7 @@ export class IndexManagementComponent implements OnInit {
   }
 
   private onError(error) {
-    // this.alertService.error(error.error, error.message, null);
+    this.toastService.showError('Error', 'An error occurred while listing the indexes');
+    this.loading = false;
   }
 }

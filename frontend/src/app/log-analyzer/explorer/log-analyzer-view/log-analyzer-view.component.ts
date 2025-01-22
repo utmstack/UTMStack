@@ -1,13 +1,21 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, Input, OnDestroy, OnInit, Type} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, HostListener, Input, OnDestroy, OnInit, Type} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ResizeEvent} from 'angular-resizable-element';
 import * as moment from 'moment';
+import {Observable, Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {ElasticFilterDefaultTime} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
-import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
-import {UtmTableDetailComponent} from '../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
+import {
+  ElasticFilterDefaultTime
+} from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
+import {
+  UtmFilterBehavior
+} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
+import {
+  UtmTableDetailComponent
+} from '../../../shared/components/utm/table/utm-table/utm-table-detail/utm-table-detail.component';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {LOG_ANALYZER_TOTAL_ITEMS} from '../../../shared/constants/log-analyzer.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
@@ -16,7 +24,6 @@ import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum
 import {DataNatureTypeEnum, NatureDataPrefixEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataExportService} from '../../../shared/services/elasticsearch/elastic-data-export.service';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
-import {ElasticSearchIndexService} from '../../../shared/services/elasticsearch/elasticsearch-index.service';
 import {TimezoneFormatService} from '../../../shared/services/utm-timezone.service';
 import {DatePipeDefaultOptions} from '../../../shared/types/date-pipe-default-options';
 import {ElasticSearchFieldInfoType} from '../../../shared/types/elasticsearch/elastic-search-field-info.type';
@@ -24,12 +31,14 @@ import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.typ
 import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pattern';
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {parseQueryParamsToFilter} from '../../../shared/util/query-params-to-filter.util';
-import {LogAnalyzerQueryCreateComponent} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
-import {DataSortBehavior} from '../../shared/behaviors/data-sort.behavior';
+import {
+  LogAnalyzerQueryCreateComponent
+} from '../../queries/log-analyzer-query-create/log-analyzer-query-create.component';
 import {IndexFieldController} from '../../shared/behaviors/index-field-controller.behavior';
 import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavior';
 import {LogFilterBehavior} from '../../shared/behaviors/log-filter.behavior';
 import {QueryRunBehavior} from '../../shared/behaviors/query-run.behavior';
+import {TabService} from '../../shared/services/tab.service';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 
 @Component({
@@ -46,9 +55,13 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   itemsPerPage = ITEMS_PER_PAGE;
   totalItems = LOG_ANALYZER_TOTAL_ITEMS;
   view: 'table' | 'chart' = 'table';
-  filters: ElasticFilterType[] = [{field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-24h', 'now']}];
+  filters: ElasticFilterType[] = [{
+    field: '@timestamp',
+    operator: ElasticOperatorsEnum.IS_BETWEEN,
+    value: ['now-24h', 'now']
+  }];
   selectedFields: ElasticSearchFieldInfoType[] = [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
-  dataNature: DataNatureTypeEnum = DataNatureTypeEnum.EVENT;
+  dataNature: string = DataNatureTypeEnum.EVENT;
   queryParams: any;
   counter: any;
   runningQuery: boolean;
@@ -67,11 +80,13 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   patterns: UtmIndexPattern[];
   paramLoaded = false;
   defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
-  dateFormat: DatePipeDefaultOptions;
+  dateFormat$: Observable<DatePipeDefaultOptions>;
+  destroy$ = new Subject<void>();
+  filterWidth: number;
+  tableWidth: number;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior,
               private logAnalyzerService: ElasticDataService,
-              private indexPatternFieldService: ElasticSearchIndexService,
               private indexFieldController: IndexFieldController,
               private modalService: NgbModal,
               private queryRunBehavior: QueryRunBehavior,
@@ -79,52 +94,48 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
               private utmToastService: UtmToastService,
               private utmFilterBehavior: UtmFilterBehavior,
               private elasticDataExportService: ElasticDataExportService,
-              private dataSortBehavior: DataSortBehavior,
               private timezoneFormatService: TimezoneFormatService,
-              private logFilterBehavior: LogFilterBehavior) {
-    this.detailWidth = (this.pageWidth - 310);
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.queryParams = Object.entries(params).length > 0 ? params : null;
-      if (this.queryParams) {
-        if (this.queryParams['@timestamp']) {
-          const range = this.queryParams['@timestamp'].split('->')[1].split(',');
-          this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
-          this.filters[0] = {field: '@timestamp', operator: ElasticOperatorsEnum.IS_BETWEEN, value: [range[0], range[1]]};
-        }
-        this.dataNature = params.indexPattern;
-        if (params.patternId) {
-          this.pattern = new UtmIndexPattern(params.patternId, params.indexPattern, true);
-          this.indexPatternBehavior.$pattern.next({pattern: this.pattern, tabUUID: this.uuid});
-        }
-      }
-    });
-    this.timezoneFormatService.getDateFormatSubject().subscribe(format => {
-      this.dateFormat = format;
-    });
-  }
+              private logFilterBehavior: LogFilterBehavior,
+              private router: Router,
+              private tabService: TabService) {
 
-  ngOnDestroy(): void {
-    this.filters = [];
-    this.utmFilterBehavior.$filterChange.next(null);
-    this.utmFilterBehavior.$filterExistChange.next(null);
+    this.detailWidth = (this.pageWidth - 310);
   }
 
   ngOnInit() {
-    if (Object(this.queryParams).hasOwnProperty('patternId')) {
-      this.pattern = new UtmIndexPattern(this.queryParams.patternId, this.queryParams.indexPattern, true);
-      this.indexPatternBehavior.$pattern.next({pattern: this.pattern, tabUUID: this.uuid});
-      this.initExplorer();
-    } else {
-      this.initExplorer();
-    }
+    this.setInitialWidth();
+    this.activatedRoute.queryParams
+      .subscribe(params => {
+          this.queryParams = Object.entries(params).length > 0 ? params : null;
+          if (this.queryParams) {
+            if (this.queryParams['@timestamp']) {
+              const range = this.queryParams['@timestamp'].split('->')[1].split(',');
+              this.defaultTime = new ElasticFilterDefaultTime(range[0], range[1]);
+              this.filters[0] = {
+                field: '@timestamp',
+                operator: ElasticOperatorsEnum.IS_BETWEEN,
+                value: [range[0], range[1]]
+              };
+            }
+          }
+      });
+    this.dateFormat$ = this.timezoneFormatService.getDateFormatSubject();
+    this.initExplorer();
   }
 
   initExplorer() {
-
+    this.dataNature = this.data.pattern.pattern;
+    this.pattern = this.data.pattern;
+    this.indexPatternBehavior.changePattern({pattern: this.pattern, tabUUID: this.uuid});
     this.logFilterBehavior.$logFilter.next({filter: this.filters, sort: this.sortBy});
+
     this.resolveParams().then((dataNature) => {
-      this.indexPatternBehavior.$pattern.subscribe(nature => {
-        if (nature && this.uuid === nature.tabUUID) {
+      this.indexPatternBehavior.pattern$
+        .pipe(
+          takeUntil(this.destroy$),
+          filter((nature) => !!nature && this.uuid === nature.tabUUID)
+        )
+        .subscribe(nature => {
           this.setFilterSearchOnNatureChange();
           this.pattern = nature.pattern;
           if (!this.data) {
@@ -133,11 +144,9 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
           this.rows = [];
           this.loading = true;
           setTimeout(() => {
-
             this.getData();
           }, 1000);
-        }
-      });
+        });
     });
   }
 
@@ -153,12 +162,14 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
         origin = this.dataNature;
         // get filters from url and add to current filter
         parseQueryParamsToFilter(this.queryParams).then((filters) => {
-          filters.forEach(filter => {
-            const indexFilter = this.filters.findIndex(value => value.field === filter.field);
+          filters.forEach(filterType => {
+            const indexFilter = this.filters.findIndex(value => value.field === filterType.field);
             if (indexFilter !== -1) {
-              this.filters[indexFilter] = filter;
+              this.filters[indexFilter] = filterType;
             } else {
-              this.filters.push(filter);
+              if (filterType.field !== 'refreshRoute') {
+                this.filters.push(filterType);
+              }
             }
           });
           // this.filters = this.filters.concat(filters);
@@ -172,7 +183,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       if (this.data) {
         this.selectedFields = [];
         this.fields = this.data.columnsType;
-        this.filters = this.data.filtersType ? this.data.filtersType : [];
+        this.filters = this.data.filtersType ? this.data.filtersType : this.filters;
         origin = this.data.pattern.pattern;
         this.pattern = this.data.pattern;
         if (this.fields) {
@@ -180,7 +191,9 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
             this.selectedFields.push({name: value.field, type: value.type});
           });
         } else {
-          this.selectedFields.push({name: '@timestamp', type: ElasticDataTypesEnum.DATE});
+          this.selectedFields.push(
+            {name: '@timestamp', type: ElasticDataTypesEnum.DATE},
+          );
         }
       }
 
@@ -207,6 +220,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange($event: ElasticFilterType[]) {
+    console.log('filter', $event);
     this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.filters = $event;
@@ -257,17 +271,39 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     this.indexFieldController.$field.next($event.field);
   }
 
-  changeFields(pattern: UtmIndexPattern) {
+  setInitialWidth() {
+    if (this.pageWidth > 4000) {
+      this.filterWidth = 400;
+    } else if (this.pageWidth > 2500) {
+      this.filterWidth = 350;
+    } else if (this.pageWidth > 1980) {
+      this.filterWidth = 350;
+    } else {
+      this.filterWidth = 300;
+    }
 
-    this.utmFilterBehavior.$filterChange.next(null);
+    this.tableWidth = this.pageWidth - this.filterWidth - 51;
+    console.log('tableWidth', this.tableWidth);
+  }
+
+  changeFields(pattern: UtmIndexPattern) {
+    /*this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.filters = this.filters.filter(value => value.operator === ElasticOperatorsEnum.IS_IN_FIELD || value.field === '@timestamp');
-    this.indexPatternBehavior.$pattern.next({pattern, tabUUID: this.uuid});
+    //this.indexPatternBehavior.changePattern({pattern: this.pattern, tabUUID: this.uuid});
     this.selectedFields = [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
     this.sortBy = NatureDataPrefixEnum.TIMESTAMP + ',' + 'desc';
     this.pattern = pattern;
-    this.fields = [{field: '@timestamp', type: ElasticDataTypesEnum.DATE, visible: true, label: '@timestamp'}];
+    this.fields = [{field: '@timestamp', type: ElasticDataTypesEnum.DATE, visible: true, label: '@timestamp'}];*/
 
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        patternId: pattern.id,
+        indexPattern: pattern.pattern,
+        refreshRoute: true
+      },
+    });
   }
 
   saveQuery() {
@@ -337,5 +373,20 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
       this.detailWidth = (this.pageWidth - $event.rectangle.width - 10);
       this.fieldWidth = $event.rectangle.width + 'px';
     }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResizeWindows(event: any) {
+    console.log('resize', event);
+    this.pageWidth = event.target.innerWidth;
+    this.setInitialWidth();
+  }
+
+  ngOnDestroy(): void {
+    this.filters = [];
+    this.utmFilterBehavior.$filterChange.next(null);
+    this.utmFilterBehavior.$filterExistChange.next(null);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -13,6 +13,7 @@
     </button>
   </div>
 </div>
+<div *ngIf="!preparingPrint" class="report-loading"></div>
 <div class="d-flex justify-content-center align-items-start w-100 m-0 d-print-block">
   <div class="compliance-front-page">
     <div *ngIf="account" class="prepared print-front-align">
@@ -26,7 +27,6 @@
       <div class="line"></div>
       <h5 class="mt-5 ">Generated on {{date | date:'short':'UTC'}}</h5>
     </div>
-
 
     <!--    <img class="img-front-page" src="/assets/img/report/A4_compliance.png">-->
     <img [src]="sanitizer.bypassSecurityTrustUrl(cover)"
@@ -68,8 +68,6 @@
     </div>
   </div>
 
-
-  <app-render-visualization-print [loadingVisualizations]="loadingVisualizations"
-                                  (visualizationLoaded)="onVisualizationLoaded()"
+  <app-render-visualization-print (visualizationLoaded)="onVisualizationLoaded()"
                                   [visualizationRender]="visualizationRender"></app-render-visualization-print>
 </div>

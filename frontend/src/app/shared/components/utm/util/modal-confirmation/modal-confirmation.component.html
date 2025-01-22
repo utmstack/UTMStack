@@ -6,7 +6,7 @@
   </div>
 
 
-  <label class="font-weight-light modal-message">{{message}}</label>
+  <label [innerHTML]="message" class="font-weight-light modal-message"></label>
   <div class="d-flex justify-content-end mt-3">
     <button [hidden]="hideBtnCancel" (click)="cancel()" class="btn utm-button utm-button-grey mr-3">
       <i class="icon-cancel-circle2"></i>

@@ -65,5 +65,11 @@
 
     <include file="/config/liquibase/changelog/20240517001_add_collectors_source_menu.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20241122001_alter_action_detail_length.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20241213001_updating_asa_and_firepower_filters.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20241120001_update_compliance_menu.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
