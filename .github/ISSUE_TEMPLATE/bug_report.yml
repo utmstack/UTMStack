@@ -99,4 +99,3 @@ body:
       label: Browser and version
     validations:
       required: true
----
