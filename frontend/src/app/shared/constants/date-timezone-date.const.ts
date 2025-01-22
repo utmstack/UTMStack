@@ -32,6 +32,7 @@ export const TIMEZONES: Array<{ label: string; timezone: string, zone: string }>
   {label: 'Hong Kong (HKT)', timezone: 'Asia/Hong_Kong', zone: 'Asia'},
   {label: 'New Delhi (IST)', timezone: 'Asia/Kolkata', zone: 'Asia'},
   {label: 'Dubai (GST)', timezone: 'Asia/Dubai', zone: 'Asia'},
+  {label: 'Jakarta (WIB)', timezone: 'Asia/Jakarta', zone: 'Asia'},
   {label: 'Jerusalem (IST)', timezone: 'Asia/Jerusalem', zone: 'Asia'},
   {label: 'Buenos Aires (ART)', timezone: 'America/Argentina/Buenos_Aires', zone: 'America'},
   {label: 'São Paulo (BRT)', timezone: 'America/Sao_Paulo', zone: 'America'},

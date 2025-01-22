@@ -7,6 +7,8 @@ import {CpStandardManagementComponent} from './compliance-management/cp-standard
 import {ComplianceResultViewComponent} from './compliance-result-view/compliance-result-view.component';
 import {ComplianceScheduleComponent} from './compliance-schedule/compliance-schedule.component';
 import {ComplianceTemplatesComponent} from './compliance-templates/compliance-templates.component';
+import {ComplianceReportViewerComponent} from "./compliance-report-viewer/compliance-report-viewer.component";
+import { CompliancePrintViewComponent } from './compliance-reports-view/components/compliance-print-view/compliance-print-view.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'templates'},
@@ -37,6 +39,16 @@ const routes: Routes = [
     path: 'schedule',
     component: ComplianceScheduleComponent,
     data: {authorities: [ADMIN_ROLE]}
+  },
+  {
+    path: 'report-viewer',
+    component: ComplianceReportViewerComponent,
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]}
+  },
+  {
+    path: 'print-view',
+    component: CompliancePrintViewComponent,
+    data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
 ];
 

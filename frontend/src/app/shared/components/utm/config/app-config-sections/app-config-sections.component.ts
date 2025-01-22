@@ -9,6 +9,7 @@ import {
   TIMEZONES
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
+import {TimezoneFormatService} from "../../../../services/utm-timezone.service";
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
@@ -41,7 +42,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private modalService: NgbModal,
               private restartApiBehavior: RestartApiBehavior,
-              private toastService: UtmToastService) {
+              private toastService: UtmToastService,
+              private timezoneFormatService: TimezoneFormatService) {
   }
 
 
@@ -162,19 +164,12 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     });
   }
 
-  refreshTimeSettings() {
+  async refreshTimeSettings() {
     const index = this.configToSave
       .findIndex(value => value.confParamShort === DATE_SETTING_TIMEZONE_SHORT
         || value.confParamShort === DATE_SETTING_FORMAT_SHORT);
     if (index !== -1) {
-      window.location.reload();
-      // const timezone = this.getConfigToSaveValue(DATE_SETTING_TIMEZONE_SHORT);
-      // const dateFormat = this.getConfigToSaveValue(DATE_SETTING_FORMAT_SHORT);
-      // const format: DatePipeDefaultOptions = {
-      //   dateFormat: dateFormat ? dateFormat : DEFAULT_DATE_SETTING_DATE,
-      //   timezone: timezone ? timezone : DEFAULT_DATE_SETTING_TIMEZONE
-      // };
-      // this.timezoneFormatService.setDateFormatSubject(format);
+      await this.timezoneFormatService.loadTimezoneAndFormat();
     }
   }
 

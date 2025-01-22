@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing UtmIncidentAlert.
@@ -97,5 +98,27 @@ public class UtmIncidentAlertService {
 
     public List<UtmIncidentAlert> findAllByIncidentId(Long incidentId) {
         return utmIncidentAlertRepository.findAllByIncidentId(incidentId);
+    }
+
+
+    /**
+     * Checks if any of the provided alert IDs exist in the database.
+     *
+     * @param alertIds List of alert IDs to check.
+     * @return True if at least one alert exists, false otherwise.
+     */
+    public List<String> existsAnyAlert(List<String> alertIds) {
+        return utmIncidentAlertRepository.findByAlertIdIn(alertIds)
+                .stream()
+                .map(UtmIncidentAlert::getAlertId)
+                .collect(Collectors.toList());
+    }
+
+    public String formatAlertMessage(List<String> alertIds) {
+        return "The following alert(s) are already associated with another incident:<br><br>" +
+                "<ul>" +
+                alertIds.stream().map(alertId -> "<li>" + alertId + "</li>").collect(Collectors.joining()) +
+                "</ul>" +
+                "<br>Please review the incidents section for more details.";
     }
 }

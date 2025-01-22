@@ -42,7 +42,7 @@
          [attr.aria-expanded]="showDetailFor===report.id"
          aria-controls="collapse"
          class="font-size-base text-justify text-blue-800 cursor-pointer">
-        {{report.associatedDashboard.name}}
+        {{ report.configReportName ? report.configReportName : report.associatedDashboard.name}}
       </a>
       <div *ngIf="report.id===showDetailFor">
         <p [innerHTML]="report.configSolution | safe:'html'"

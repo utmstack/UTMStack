@@ -9,7 +9,7 @@ import {TabType} from '../../type/tab.type';
   styleUrls: ['./tab-content.component.scss']
 })
 export class TabContentComponent implements OnInit {
-  @Input() tab;
+  @Input() tab: TabType;
   @ViewChild(TabContentDirective)
   contentContainer: TabContentDirective;
 
@@ -17,6 +17,7 @@ export class TabContentComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('data:', this.tab.tabData);
     const tab: TabType = this.tab;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(
       tab.component

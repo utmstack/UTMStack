@@ -218,6 +218,10 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-detail/utm-collector-detail.component';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
+import {TimePeriodPipe} from "./pipes/time-period.pipe";
+import {ModalAddNoteComponent} from "./components/utm/util/modal-add-note/modal-add-note.component";
+import { UtmCollapsibleTextComponent } from './components/utm/util/utm-collapsible-text/utm-collapsible-text.component';
+import {FilterPipe} from "./pipes/filter.pipe";
 
 
 @NgModule({
@@ -358,7 +362,12 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
-    TimezoneOffsetPipe
+    TimezoneOffsetPipe,
+    TimePeriodPipe,
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent,
+    FilterPipe
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -452,7 +461,12 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
     IrVariableCreateComponent,
     IncidentVariableSelectComponent,
     EmailSettingNotificactionComponent,
-    TimezoneOffsetPipe
+    TimezoneOffsetPipe,
+    TimePeriodPipe,
+    ModalAddNoteComponent,
+    TimePeriodPipe,
+    UtmCollapsibleTextComponent,
+    FilterPipe
   ],
   entryComponents: [
     LoginComponent,
@@ -496,7 +510,8 @@ import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
     GettingStartedFinishedModalComponent,
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
-    EmailSettingNotificactionComponent],
+    EmailSettingNotificactionComponent,
+    ModalAddNoteComponent],
   providers: [
     UtmToastService,
     MenuBehavior,

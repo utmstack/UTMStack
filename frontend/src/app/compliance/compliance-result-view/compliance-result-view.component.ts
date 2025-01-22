@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CompactType, GridsterConfig, GridType} from 'angular-gridster2';
@@ -20,7 +20,7 @@ import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {filter, map, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-compliance-result-view',
@@ -28,13 +28,15 @@ import {takeUntil} from 'rxjs/operators';
   styleUrls: ['./compliance-result-view.component.scss']
 })
 export class ComplianceResultViewComponent implements OnInit, OnDestroy {
+  @Input() showExport = true;
+  @Input() template: 'default' | 'compliance' = 'default';
   reportId: number;
   report: ComplianceReportType;
   signatures: HippaSignaturesType[] = [];
   dashboardId: number;
   UUID = UUID.UUID();
   visualizationRender: UtmDashboardVisualizationType[];
-  loadingVisualizations = true;
+  loadingVisualizations = false;
   interval: any;
   dashboard: UtmDashboardType;
   pdfExport = false;
@@ -66,27 +68,42 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   configSolution: string;
   filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject<void>();
+  showBack = false;
 
   constructor(private activeRoute: ActivatedRoute,
               private cpReportsService: CpReportsService,
-              private complianceEndpointService: ComplianceEndpointService,
               private utmToastService: UtmToastService,
-              private modalService: NgbModal,
-              private complianceTemplateService: ComplianceTemplateService,
               private utmRenderVisualization: UtmRenderVisualization,
               private timeFilterBehavior: TimeFilterBehavior,
               private spinner: NgxSpinnerService,
               private exportPdfService: ExportPdfService) {
-
-    this.activeRoute.queryParams.subscribe((params) => {
-      this.reportId = params[ComplianceParamsEnum.TEMPLATE];
-      this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
-      this.sectionId = params[ComplianceParamsEnum.SECTION_ID];
-    });
   }
 
   ngOnInit() {
-    this.getTemplate();
+
+    this.activeRoute.queryParams
+      .pipe(
+          takeUntil(this.destroy$),
+          filter((params) => Object.keys(params).length > 0),
+          tap(() => {
+            this.loadingVisualizations = true;
+            this.showBack = true;
+          }))
+      .subscribe((params) => {
+        this.initializeReportParams(params);
+    });
+
+    this.cpReportsService.onLoadReport$
+      .pipe(takeUntil(this.destroy$),
+            filter(params => !!params),
+            tap(() => this.loadingVisualizations = true),
+            map(params => ({
+              ...params,
+              template: params.template.id
+            })))
+      .subscribe(params => {
+        this.initializeReportParams(params);
+      });
 
     this.timeFilterBehavior.$time
       .pipe(takeUntil(this.destroy$))
@@ -99,16 +116,26 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
       });
   }
 
+  initializeReportParams(params) {
+    this.reportId = params[ComplianceParamsEnum.TEMPLATE];
+    this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
+    this.sectionId = params[ComplianceParamsEnum.SECTION_ID];
+
+    this.getTemplate();
+  }
+
   /**
    * Return template
    */
   getTemplate() {
-    this.cpReportsService.find(this.reportId).subscribe(response => {
-      this.report = response.body;
-      if (this.report.dashboardId) {
-        this.loadVisualizations(this.report.dashboardId);
-      }
-    });
+    if (this.reportId) {
+      this.cpReportsService.find(this.reportId).subscribe(response => {
+        this.report = response.body;
+        if (this.report.dashboardId) {
+          this.loadVisualizations(this.report.dashboardId);
+        }
+      });
+    }
   }
 
   loadVisualizations(dashboardId) {
@@ -148,5 +175,6 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    console.log('destroy!!!');
   }
 }
