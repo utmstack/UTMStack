@@ -19,7 +19,7 @@ export class UtmNotificationAdComponent implements OnInit, OnDestroy {
   }[] = [];
   @ViewChild('adChanges') adChanges: ElementRef;
   total = 0;
-  private interval: number;
+  private interval: any;
   newEvents = false;
   private prevTotal = -1;
 

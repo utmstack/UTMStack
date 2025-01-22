@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -7,12 +7,13 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable} from 'rxjs';
 import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
+import {StateStorageService} from '../../../../core/auth/state-storage.service';
 import {LoginService} from '../../../../core/login/login.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
-import {stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
+import {extractQueryParamsForNavigation, stringParamToQueryParams} from '../../../util/query-params-to-filter.util';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
 
 @Component({
@@ -33,6 +34,8 @@ export class LoginComponent implements OnInit {
   isInDemo: boolean;
   loadingAuth = true;
   loginImage$: Observable<string>;
+  loadingLogin = false;
+  isInternalNavigation = false;
 
   constructor(
     private loginService: LoginService,
@@ -46,7 +49,8 @@ export class LoginComponent implements OnInit {
     private modalService: NgbModal,
     private themeChangeBehavior: ThemeChangeBehavior,
     private spinner: NgxSpinnerService,
-    private apiServiceCheckerService: ApiServiceCheckerService
+    private apiServiceCheckerService: ApiServiceCheckerService,
+    private stateStorageService: StateStorageService
   ) {
     this.credentials = {};
     this.isInDemo = window.location.href.includes(DEMO_URL);
@@ -58,23 +62,23 @@ export class LoginComponent implements OnInit {
       if (result) {
         this.activatedRoute.queryParams.subscribe(params => {
           if (params.token) {
+            this.loadingLogin = false;
             this.loginService.loginWithToken(params.token, true).then(() => {
-              if (params.url) {
-                this.checkLogin(params.url);
-              } else {
-                this.router.navigate(['/dashboard/overview']).then(() => {
-                  this.spinner.hide('loadingSpinner');
-                });
-              }
+              this.loadingLogin = false;
+              this.isInternalNavigation = true;
+              this.startInternalNavigation(params);
             });
           } else if (params.key) {
+            this.loadingLogin = false;
+            this.isInternalNavigation = true;
             this.loginService.loginWithKey(params.key, true).then(() => {
-              this.startInternalNavigation();
+              this.startInternalNavigation(params);
             });
+          } else {
+            this.initForm();
+            this.loadingAuth = false;
           }
         });
-        this.initForm();
-        this.loadingAuth = false;
       }
     });
   }
@@ -82,30 +86,31 @@ export class LoginComponent implements OnInit {
   checkLogin(url ?: string) {
     console.log('Checking URL token');
     this.accountService.identity(true).then(value => {
-      if (value) {
-        this.spinner.show('loadingSpinner');
-        if (url) {
-          const urlRoute = url.split('<-PARAMS->');
-          const route = urlRoute[0];
-          const params = urlRoute[1];
-          if (params) {
-            stringParamToQueryParams(params).then(queryParams => {
-              this.router.navigate([route],
-                {queryParams}).then(() => {
-                this.menuBehavior.$menu.next(false);
-                this.spinner.hide('loadingSpinner');
+      setTimeout(() => {
+        if (value) {
+          //this.spinner.show('loadingSpinner');
+          if (url) {
+            const urlRoute = url.split('<-PARAMS->');
+            const route = urlRoute[0];
+            const params = urlRoute[1];
+            if (params) {
+              stringParamToQueryParams(params).then(queryParams => {
+                this.router.navigate([route],
+                  {queryParams}).then(() => {
+                  this.menuBehavior.$menu.next(false);
+                  //this.spinner.hide('loadingSpinner');
+                });
               });
-            });
-          } else {
-            this.router.navigate([route]).then(() => {
-              this.spinner.hide('loadingSpinner');
-            });
+            } else {
+              const { path, queryParams } = extractQueryParamsForNavigation(url);
+              this.router.navigate([path], {queryParams});
+            }
           }
+        } else {
+          //this.spinner.hide('loadingSpinner');
+          this.loadingAuth = false;
         }
-      } else {
-        this.spinner.hide('loadingSpinner');
-        this.loadingAuth = false;
-      }
+      }, 1000);
     });
   }
 
@@ -164,9 +169,14 @@ export class LoginComponent implements OnInit {
   startNavigation() {
     this.accountService.identity(true).then(account => {
       if (account) {
+        const { path, queryParams } =
+          extractQueryParamsForNavigation(this.stateStorageService.getUrl() ? this.stateStorageService.getUrl() : '' );
+        if (path) {
+          this.stateStorageService.resetPreviousUrl();
+        }
         const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
-          ? '/getting-started' : '/dashboard/overview';
-        this.router.navigate([redirectTo])
+          ? '/getting-started' : !!path ? path : '/dashboard/overview';
+        this.router.navigate([redirectTo], {queryParams})
           .then(() => this.spinner.hide());
       } else {
         this.logged = false;
@@ -175,8 +185,14 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  startInternalNavigation() {
-    this.router.navigate(['/dashboard/overview']);
+  startInternalNavigation(params) {
+    if (params.url) {
+      this.checkLogin(params.url);
+    } else {
+      this.router.navigate(['/dashboard/overview']).then(() => {
+        this.spinner.hide('loadingSpinner');
+      });
+    }
   }
 
 }

@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChildren} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {TableBuilderResponseType} from '../../../../shared/chart/types/response/table-builder-response.type';
@@ -23,6 +23,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
   @Input() navigateUrl: string;
   @Input() params;
   @Input() paramClick: string;
+  @Output() loaded = new EventEmitter<void>();
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   @ViewChildren(SortableDirective) headers: QueryList<SortableDirective>;
@@ -64,6 +65,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
         this.pageEnd = this.itemsPerPage;
         this.responseRows = this.data.rows;
         this.totalItems = this.data.rows.length;
+        this.loaded.emit();
       });
   }
 

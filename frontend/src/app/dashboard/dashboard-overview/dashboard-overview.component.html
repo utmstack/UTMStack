@@ -12,6 +12,7 @@
       </button>
     </div>
   </div>
+  <div *ngIf="!preparingPrint" class="report-loading"></div>
   <app-utm-report-header *ngIf="pdfExport" [reportName]="'UTMSTACK Overview'"></app-utm-report-header>
   <div [ngClass]="{'mt-3':pdfExport}" id="utmDashboardAlert">
     <div class="w-100 border-bottom-grey-100 border-bottom-1 mb-3 pb-2">
@@ -19,10 +20,14 @@
     </div>
     <div class="row">
       <div class="col-lg-4 col-md-12 col-sm-12">
-        <app-chart-alert-daily-week [refreshInterval]="refreshInterval"></app-chart-alert-daily-week>
+        <app-chart-alert-daily-week [refreshInterval]="refreshInterval"
+                                    (loaded)="onRun()">
+        </app-chart-alert-daily-week>
       </div>
       <div class="col-lg-8 col-md-12 col-sm-12">
-        <app-chart-alert-by-status [refreshInterval]="refreshInterval"></app-chart-alert-by-status>
+        <app-chart-alert-by-status [refreshInterval]="refreshInterval"
+                                   (loaded)="onRun()">
+        </app-chart-alert-by-status>
       </div>
     </div>
 
@@ -34,10 +39,14 @@
                               [navigateUrl]="ALERT_ROUTE"
                               [paramClick]="paramAlertSeverityCLick"
                               [params]="paramsAlertSeverity"
-                              [refreshInterval]="refreshInterval"></app-chart-common-pie>
+                              (loaded)="onRun()"
+                              [refreshInterval]="refreshInterval">
+        </app-chart-common-pie>
       </div>
       <div class="col-lg-5 col-md-12 col-sm-12">
-        <app-chart-alert-by-category [refreshInterval]="refreshInterval"></app-chart-alert-by-category>
+        <app-chart-alert-by-category [refreshInterval]="refreshInterval"
+                                     (loaded)="onRun()">
+        </app-chart-alert-by-category>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12">
         <app-chart-common-table [endpoint]="'top-alerts'"
@@ -45,6 +54,7 @@
                                 [navigateUrl]="ALERT_ROUTE"
                                 [paramClick]="tableTopAlertsParamsClick"
                                 [params]="tableTopAlertsParams"
+                                (loaded)="onRun()"
                                 [refreshInterval]="refreshInterval">
         </app-chart-common-table>
       </div>
@@ -63,10 +73,12 @@
                               [navigateUrl]="LOG_ANALYZER_ROUTE"
                               [paramClick]="paramEventByTypeCLick"
                               [params]="paramsEventByType"
+                              (loaded)="onRun()"
                               [refreshInterval]="refreshInterval"></app-chart-common-pie>
       </div>
       <div class="col-lg-5 col-md-12 col-sm-12">
-        <app-chart-event-in-time [refreshInterval]="refreshInterval"></app-chart-event-in-time>
+        <app-chart-event-in-time [refreshInterval]="refreshInterval"
+                                 (loaded)="onRun()"></app-chart-event-in-time>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12">
         <app-chart-common-table [endpoint]="'top-windows-events'"
@@ -74,6 +86,7 @@
                                 [navigateUrl]="LOG_ANALYZER_ROUTE"
                                 [paramClick]="paramEvenTopCLick"
                                 [params]="paramsTopEvent"
+                                (loaded)="onRun()"
                                 [refreshInterval]="refreshInterval">
         </app-chart-common-table>
       </div>

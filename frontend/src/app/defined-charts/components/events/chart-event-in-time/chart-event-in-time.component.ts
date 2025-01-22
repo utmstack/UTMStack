@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {buildMultilineObject} from '../../../../shared/chart/util/build-multiline-option.util';
@@ -17,6 +17,7 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 })
 export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;
+  @Output() loaded = new EventEmitter<void>();
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   queryParams = {from: 'now-7d', to: 'now', interval: 'Day'};
@@ -83,6 +84,7 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
         } else {
           this.noData = true;
         }
+        this.loaded.emit();
       });
 
   }
