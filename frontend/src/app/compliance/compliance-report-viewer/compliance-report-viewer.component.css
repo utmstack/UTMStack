@@ -1,6 +1,5 @@
-.full-height {
-  height: 90vh;
-  overflow-y: auto;
+.box-sizing{
+  box-sizing: border-box;
 }
 ::ng-deep app-compliance-report-viewer gridster {
   background-color: unset !important;
@@ -39,5 +38,14 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.content-menu {
+  overflow: hidden;
+}
+
+.sidebar-section {
+  position: sticky;
+  align-self: start;
+  width: 350px;
+}
 
 
