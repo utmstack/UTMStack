@@ -25,7 +25,7 @@ jobs:
           
       - name: Read version from config
         id: read_version
-        uses: CumulusDS/get-yaml-paths-action@v1.0.1
+        uses: CumulusDS/get-yaml-paths-action@v1.0.2
         with:
           file: version.yml
           version: version     
