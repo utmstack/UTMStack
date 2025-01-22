@@ -1,6 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {NgbDate, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
+import {NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
 import {FILTER_OPERATORS} from '../../../../../constants/filter-operators.const';
 import {ElasticDataTypesEnum} from '../../../../../enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../../../enums/elastic-operators.enum';
@@ -30,6 +32,8 @@ export class ElasticFilterAddComponent implements OnInit {
    * Filter to edit
    */
   @Input() filter: ElasticFilterType;
+
+  @Input() hiddenFields: string[] = [];
   /**
    * All operators
    */
@@ -49,9 +53,13 @@ export class ElasticFilterAddComponent implements OnInit {
   valueFrom: any;
   valueTo: any;
   fieldTypes = ElasticDataTypesEnum;
-  timeValue: NgbDate;
   time: NgbTimeStruct = {hour: 0, minute: 0, second: 0};
   loadingValues = false;
+  selectableOperators = [ElasticOperatorsEnum.IS_ONE_OF,
+    ElasticOperatorsEnum.IS_NOT_ONE_OF,
+    ElasticOperatorsEnum.CONTAIN_ONE_OF,
+    ElasticOperatorsEnum.DOES_NOT_CONTAIN_ONE_OF];
+  destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder,
               private fieldDataBehavior: FieldDataService,
@@ -60,15 +68,18 @@ export class ElasticFilterAddComponent implements OnInit {
 
   ngOnInit() {
     this.initFormFilter();
-    this.fieldDataBehavior.getFields(this.pattern).subscribe(field => {
-      if (field) {
-        this.fields = field;
-        this.loading = false;
-        if (this.filter) {
-          this.setFilterEdit();
+    this.fieldDataBehavior.getFields(this.pattern)
+      .pipe(takeUntil(this.destroy$),
+        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
+      .subscribe(field => {
+        if (field) {
+          this.fields = field;
+          this.loading = false;
+          if (this.filter) {
+            this.setFilterEdit();
+          }
         }
-      }
-    });
+      });
     this.formFilter.get('field').valueChanges.subscribe(val => {
       this.getFieldValues();
     });
@@ -109,6 +120,7 @@ export class ElasticFilterAddComponent implements OnInit {
       this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_BETWEEN) {
       this.setValueRange();
     }
+
     this.filterChange.emit(this.formFilter.value);
   }
 
@@ -158,10 +170,15 @@ export class ElasticFilterAddComponent implements OnInit {
       indexPattern: this.pattern,
       keyword: this.formFilter.get('field').value
     };
-    this.elasticSearchIndexService.getElasticFieldValues(req).subscribe(res => {
-      this.fieldValues = res.body;
-      this.loadingValues = false;
-    });
+    this.elasticSearchIndexService.getElasticFieldValues(req)
+      .subscribe(res => {
+          this.fieldValues = res.body;
+          this.loadingValues = false;
+        },
+        error => {
+          this.fieldValues = [];
+          this.loadingValues = false;
+        });
   }
 
   /**
@@ -182,7 +199,7 @@ export class ElasticFilterAddComponent implements OnInit {
    * @param $event Field
    */
   changeField($event) {
-    this.formFilter.get('field').setValue($event.name);
+    // this.formFilter.get('field').setValue($event.name);
     this.formFilter.get('value').setValue(null);
     this.formFilter.get('operator').setValue(null);
     this.getOperators();
@@ -214,8 +231,7 @@ export class ElasticFilterAddComponent implements OnInit {
           return this.operatorFieldSelectable();
         } else {
           // if type of current filter is not keyword return result of validation if current operator is selectable or not
-          return (this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_ONE_OF ||
-            this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_ONE_OF);
+          return this.selectableOperators.includes(this.formFilter.get('operator').value);
         }
       } else if (this.field.type === ElasticDataTypesEnum.DATE) {
         return this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_ONE_OF ||
@@ -308,7 +324,9 @@ export class ElasticFilterAddComponent implements OnInit {
    */
   isMultipleSelectValue() {
     this.multiple = this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_ONE_OF ||
-      this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_ONE_OF;
+      this.formFilter.get('operator').value === ElasticOperatorsEnum.IS_NOT_ONE_OF ||
+      this.formFilter.get('operator').value === ElasticOperatorsEnum.CONTAIN_ONE_OF ||
+      this.formFilter.get('operator').value === ElasticOperatorsEnum.DOES_NOT_CONTAIN_ONE_OF;
   }
 
   /**

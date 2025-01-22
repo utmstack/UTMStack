@@ -8,7 +8,6 @@ import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
 import {ADMIN_ROLE, USER_ROLE} from './shared/constants/global.constant';
 import {AppThemeLocationEnum} from './shared/enums/app-theme-location.enum';
 import {UtmAppThemeService} from './shared/services/theme/utm-app-theme.service';
-import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 
 @Component({
   selector: 'app-root',
@@ -32,8 +31,7 @@ export class AppComponent implements OnInit {
     private themeChangeBehavior: ThemeChangeBehavior,
     private utmAppThemeService: UtmAppThemeService,
     private router: Router, private renderer: Renderer2,
-    private apiServiceCheckerService: ApiServiceCheckerService,
-    private timezoneFormatService: TimezoneFormatService) {
+    private apiServiceCheckerService: ApiServiceCheckerService) {
 
     this.translate.setDefaultLang('en');
 
@@ -122,13 +120,14 @@ export class AppComponent implements OnInit {
   }
 
   isInExportRoute() {
-    return this.router.url.includes('dashboard/export/') || this.router.url.includes('dashboard/export-compliance') ||
+    return this.router.url.includes('dashboard/export/') ||
+           this.router.url.includes('dashboard/export-compliance') ||
+           this.router.url.includes('compliance/print-view') ||
       this.router.url.includes('/getting-started') ||
       this.router.url.includes('/dashboard/export-report/') || this.iframeView || this.router.url.includes('/data/alert/detail/');
   }
 
    init() {
-    this.timezoneFormatService.loadTimezoneAndFormat();
     this.getReportLogo();
   }
 }

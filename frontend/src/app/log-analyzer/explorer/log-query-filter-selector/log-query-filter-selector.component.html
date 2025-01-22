@@ -1,0 +1,10 @@
+<div class="custom-flex-item custom-flex-item-grow-zero ml-1">
+  <div class="order-buttons-container">
+    <button [ngbTooltip]="'Query menu'" aria-pressed="true" type="button" class="order-button btn-left">
+      <i class="icon-filter4 font-size-sm"></i>
+    </button>
+    <button (click)="popFilter.open()" [ngbTooltip]="'Add filter'" aria-pressed="false" type="button" class="order-button btn-right">
+      <i class="icon-plus-circle2 font-size-sm"></i>
+    </button>
+  </div>
+</div>

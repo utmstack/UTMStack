@@ -162,3 +162,23 @@ export function getIndexPattern(param: string) {
   }
   return '';
 }
+
+export function extractQueryParamsForNavigation(url: string): { path: string, queryParams: Record<string, string> } {
+  const queryParamsStart = url.indexOf('?');
+
+  if (queryParamsStart !== -1) {
+    const path = url.slice(0, queryParamsStart); // Obtén la ruta base
+    const queryParamsString = url.slice(queryParamsStart + 1);
+    const searchParams = new URLSearchParams(queryParamsString);
+    const queryParams: Record<string, string> = {};
+
+    searchParams.forEach((value, key) => {
+      queryParams[key] = value; // No decodifiques nada aquí
+    });
+
+    return { path, queryParams };
+  }
+
+  return { path: url, queryParams: {} }; // Si no hay parámetros, devuelve solo la ruta base
+}
+

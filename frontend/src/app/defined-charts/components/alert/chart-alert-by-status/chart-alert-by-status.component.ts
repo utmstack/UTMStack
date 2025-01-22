@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {ALERT_GLOBAL_FIELD, ALERT_STATUS_FIELD, ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
@@ -26,6 +26,7 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 })
 export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;
+  @Output() loaded = new EventEmitter<void>();
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   time: TimeFilterType;
@@ -67,6 +68,7 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
     this.overviewAlertDashboardService.getCardAlertByStatus(req).subscribe(res => {
       this.status = res.body;
       this.loadingStatusAlert = false;
+      this.loaded.emit();
     });
   }
 

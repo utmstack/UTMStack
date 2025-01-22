@@ -1,8 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {UtmFilterBehavior} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
+import {
+  UtmFilterBehavior
+} from '../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
 import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
-import {ElasticSearchIndexService} from '../../../shared/services/elasticsearch/elasticsearch-index.service';
 import {FieldDataService} from '../../../shared/services/elasticsearch/field-data.service';
 import {ElasticSearchFieldInfoType} from '../../../shared/types/elasticsearch/elastic-search-field-info.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -15,21 +18,21 @@ import {LogAnalyzerDataChangeType} from '../../shared/type/log-analyzer-data-cha
   templateUrl: './log-analyzer-field.component.html',
   styleUrls: ['./log-analyzer-field.component.scss']
 })
-export class LogAnalyzerFieldComponent implements OnInit {
+export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
   @Input() fieldSelected: ElasticSearchFieldInfoType[];
   @Input() uuid: string;
   @Input() filters: ElasticFilterType[];
   @Output() columnChange = new EventEmitter<ElasticSearchFieldInfoType[]>();
   fields: ElasticSearchFieldInfoType[] = [];
   fieldsOriginal: ElasticSearchFieldInfoType[] = [];
-  loadingFields = true;
+  loadingFields = false;
   searching = false;
   pattern: string;
   pageStart = 0;
   pageEnd = 100;
+  destroy$ = new Subject<void>();
 
-  constructor(private elasticSearchIndexService: ElasticSearchIndexService,
-              private indexPatternBehavior: IndexPatternBehavior,
+  constructor(private indexPatternBehavior: IndexPatternBehavior,
               private fieldDataService: FieldDataService,
               private utmFilterBehavior: UtmFilterBehavior,
               private indexFieldController: IndexFieldController) {
@@ -37,36 +40,31 @@ export class LogAnalyzerFieldComponent implements OnInit {
 
   ngOnInit() {
     this.fieldSelected = this.fieldSelected ? this.fieldSelected : [];
-    this.indexPatternBehavior.$pattern.subscribe((dataChange: LogAnalyzerDataChangeType) => {
-      this.loadingFields = true;
-      this.pageStart = 0;
-      this.pageEnd = 100;
-      if (dataChange && this.uuid === dataChange.tabUUID) {
-        this.loadingFields = true;
+    this.indexPatternBehavior.pattern$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((dataChange: LogAnalyzerDataChangeType) => {
+          return !!dataChange && this.uuid === dataChange.tabUUID;
+        }))
+      .subscribe((dataChange: LogAnalyzerDataChangeType) => {
+        this.pageStart = 0;
+        this.pageEnd = 100;
         this.pattern = dataChange.pattern.pattern;
-        this.fieldDataService.getFields(this.pattern).subscribe(field => {
-          this.fields = field;
-          this.fieldsOriginal = field;
-          this.fieldSelected = this.fieldSelected ? this.fieldSelected : [{name: '@timestamp', type: ElasticDataTypesEnum.DATE}];
-          this.columnChange.emit(this.fieldSelected);
-          this.loadingFields = false;
-        });
-      } else {
-        this.loadingFields = false;
-      }
-    });
-    this.indexFieldController.$field.subscribe(field => {
+        this.loadFields();
+      });
+
+    this.indexFieldController.$field.subscribe(async (field) => {
       if (field) {
-        const indexToAdd = this.getIndexField(field);
+        const indexToAdd = await this.getIndexField(field);
         if (indexToAdd !== -1) {
           this.addToColumns(this.fieldsOriginal[indexToAdd]);
         } else {
           const regex = /\.(\d+)\./g;
           if (regex.test(field)) {
             const referenceField = field.replace(regex, '.');
-            const refFieldIndex = this.getIndexField(referenceField);
+            const refFieldIndex = await this.getIndexField(referenceField);
             if (refFieldIndex !== -1) {
-              this.addToColumns({name: field, type: this.fieldsOriginal[refFieldIndex].type});
+              this.addToColumns({ name: field, type: this.fieldsOriginal[refFieldIndex].type });
             }
           }
         }
@@ -74,8 +72,15 @@ export class LogAnalyzerFieldComponent implements OnInit {
     });
   }
 
-  getIndexField(field: string): number {
-    return this.fieldsOriginal.findIndex(value => value.name === field);
+  async getIndexField(field: string): Promise<number> {
+    const findIndex = (): number => this.fieldsOriginal.findIndex(value => value.name === field);
+
+    let index = findIndex();
+    if (index === -1) {
+      await this.loadFields();
+      index = findIndex();
+    }
+    return index;
   }
 
   onSearch($event: string) {
@@ -130,5 +135,35 @@ export class LogAnalyzerFieldComponent implements OnInit {
 
   onScroll() {
     this.pageEnd += 50;
+  }
+
+  loadFields(): Promise<void> {
+    this.loadingFields = true;
+    return new Promise((resolve, reject) => {
+      this.fieldDataService.getFields(this.pattern, true).subscribe(
+        field => {
+          this.fields = field;
+          this.fieldsOriginal = field;
+          this.fieldSelected = this.fieldSelected || [{
+            name: '@timestamp',
+            type: ElasticDataTypesEnum.DATE
+          }];
+          this.columnChange.emit(this.fieldSelected);
+          this.loadingFields = false;
+          resolve();
+        },
+        error => {
+          this.loadingFields = false;
+          this.fields = [];
+          reject(error);
+        }
+      );
+    });
+  }
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

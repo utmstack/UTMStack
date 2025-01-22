@@ -69,7 +69,7 @@ func Update(updateReady chan bool) {
 			updateReady <- true
 		}
 
-		time.Sleep(23 * time.Hour)
+		time.Sleep(168 * time.Hour)
 	}
 }
 
