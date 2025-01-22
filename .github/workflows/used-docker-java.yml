@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push the Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
           push: true
