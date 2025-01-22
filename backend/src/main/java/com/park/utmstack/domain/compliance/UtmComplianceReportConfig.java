@@ -37,6 +37,9 @@ public class UtmComplianceReportConfig implements Serializable {
     @Column(name = "config_solution")
     private String configSolution;
 
+    @Column(name = "config_report_remediation")
+    private String configRemediation;
+
     @JsonIgnore
     @Column(name = "config_report_columns")
     private String configReportColumns;
@@ -324,5 +327,13 @@ public class UtmComplianceReportConfig implements Serializable {
 
     public void setConfigReportName(String configReportName) {
         this.configReportName = configReportName;
+    }
+
+    public String getConfigRemediation() {
+        return configRemediation;
+    }
+
+    public void setConfigRemediation(String configRemediation) {
+        this.configRemediation = configRemediation;
     }
 }

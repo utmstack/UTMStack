@@ -9,7 +9,7 @@
   <div class="compliance d-print-block border rounded p-4">
 
     <div class="compliance-header mb-3">
-      <h4 class="text-dark">{{ report.associatedDashboard.name }}</h4>
+      <h4 class="text-dark">{{ report.configReportName ? report.configReportName : report.associatedDashboard.name }}</h4>
       <h6 class="text-muted">{{ report.associatedDashboard.description }}</h6>
     </div>
 
