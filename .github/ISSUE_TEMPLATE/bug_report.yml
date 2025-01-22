@@ -1,6 +1,6 @@
 ---
 name: "🐛 Bug Report"
-about: "Report a bug"
+description: "Report a bug"
 title: "(short issue description)"
 labels: [bug, needs-triage]
 assignees: []
