@@ -18,14 +18,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: "11"
           distribution: "temurin"
           
       - name: Read version from config
         id: read_version
-        uses: CumulusDS/get-yaml-paths-action@v1.0.1
+        uses: CumulusDS/get-yaml-paths-action@v1.0.2
         with:
           file: version.yml
           version: version     
@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push the Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
           push: true

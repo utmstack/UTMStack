@@ -1,34 +1,38 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/installer" # Location of package manifests
+  - package-ecosystem: "gomod"
+    directories: 
+      - "/installer"
+      - "/agent-manager"
+      - "/agent/agent"
+      - "/agent/installer"
+      - "/agent/redline/"
+      - "/agent/self"
+      - "/agent/updater"
+      - "/aws"
+      - "/bitdefender"
+      - "/correlation"
+      - "/log-auth-proxy"
+      - "/office365"
+      - "/sophos"
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/correlation" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/office365" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/bitdefender" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "maven" # Adding support for java
+      interval: "daily"
+  - package-ecosystem: "maven"
     directories: 
       - "/backend"
       - "/user-auditor"
       - "/web-pdf"
     schedule:
-      interval: "weekly"
+      interval: "daily"
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
+  - package-ecosystem: pip
+    directory: "/mutate"
+    schedule:
+      interval: daily
+    groups:
+      python-packages:
+        patterns:
+          - "*"
