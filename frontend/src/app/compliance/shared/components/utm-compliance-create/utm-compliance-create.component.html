@@ -24,27 +24,45 @@
     </div>
   </div>
   <div *ngIf="step===1" class="configure-step mt-3">
-    <div class="d-flex flex-column w-75 mb-3">
-      <label class="pb-1" for="standard">Standard</label>
-      <app-utm-cp-standard-select
-        (standardSelect)="onStandardChange($event)"
-        [standardId]="report?report.section.standardId:null"
-        id="standard">
-      </app-utm-cp-standard-select>
-    </div>
-    <div *ngIf="viewSection" class="d-flex flex-column w-100 mb-3">
-      <label class="pb-1" for="standard">Standard section</label>
-      <app-utm-cp-st-section-select
-        (standardSectionSelect)="onStandardSectionChange($event)"
-        [onlyWithReport]="false"
-        [standardSectionEditId]="report?report.standardSectionId:null"
-        id="standardSection">
-      </app-utm-cp-st-section-select>
-    </div>
-    <div class="form-group">
-      <label for="reportDesc">Solution ({{1500 - solution.length}})</label>
-      <textarea [(ngModel)]="solution" class="form-control" id="reportDesc" rows="4"></textarea>
-    </div>
+    <form [formGroup]="complianceForm">
+      <div class="d-flex flex-column w-75 mb-3">
+        <label class="pb-1" for="standard">Standard</label>
+        <app-utm-cp-standard-select
+          (standardSelect)="onStandardChange($event)"
+          [standardId]="report?report.section.standardId:null"
+          id="standard">
+        </app-utm-cp-standard-select>
+      </div>
+      <div *ngIf="viewSection" class="d-flex flex-column w-100 mb-3">
+        <label class="pb-1" for="standard">Standard section</label>
+        <app-utm-cp-st-section-select
+          (standardSectionSelect)="onStandardSectionChange($event)"
+          [onlyWithReport]="false"
+          [standardSectionEditId]="report?report.standardSectionId:null"
+          id="standardSection">
+        </app-utm-cp-st-section-select>
+      </div>
+      <div class="form-group">
+        <label for="reportName">Compliance Name</label>
+        <input formControlName="reportName" type="text" class="form-control" id="reportName">
+        <div *ngIf="complianceForm.get('reportName').dirty && complianceForm.get('reportName').invalid">
+          <small *ngIf="complianceForm.get('reportName').hasError('required')" class="form-text text-danger">
+            Report name is required.
+          </small>
+          <small *ngIf="complianceForm.get('reportName').hasError('minlength')" class="form-text text-danger">
+            Report name must be at least 10 characters long.
+          </small>
+          <small *ngIf="complianceForm.get('reportName').hasError('maxlength')" class="form-text text-danger">
+            Report name must not exceed 200 characters.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reportDesc">Solution ({{ 2000 - solution.length }})</label>
+        <textarea formControlName="solution" class="form-control" id="reportDesc" rows="4" maxlength="2000"></textarea>
+      </div>
+    </form>
   </div>
   <div *ngIf="step===2" class="configure-step mt-3 mb-3">
     <app-utm-dashboard-select (dashboardSelected)="onDashboardSelected($event)"
@@ -58,7 +76,7 @@
       Back
     </button>
     <button (click)="nextStep()" *ngIf="step ===1"
-            [disabled]="!standardSectionId || solution===''"
+            [disabled]="!standardSectionId || complianceForm.invalid"
             class="btn utm-button utm-button-primary ml-2">
       Next&nbsp;
       <i class="icon-arrow-right22"></i>
@@ -69,7 +87,7 @@
             [disabled]="!dashboardId"
             class="btn utm-button utm-button-primary ml-2">
       <i [ngClass]="creating?'icon-spinner2 spinner':'icon-shield-check'"></i>
-      {{report ? 'Edit' : 'Create'}} compliance&nbsp;
+      {{ report ? 'Edit' : 'Create' }} compliance&nbsp;
     </button>
   </div>
 </div>

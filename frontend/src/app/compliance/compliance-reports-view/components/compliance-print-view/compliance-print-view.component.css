@@ -1,0 +1,33 @@
+
+@media print {
+  .report-loading {
+    display: none;
+  }
+
+  .compliance {
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-shadow: none;
+  }
+
+  .compliance-header {
+    font-size: 1.1rem;
+  }
+
+  .compliance-status, .compliance-time, .compliance-evidence {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .standard-prev {
+    font-size: 1.4rem;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .font-weight-bold {
+    font-weight: bold;
+  }
+}

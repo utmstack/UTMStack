@@ -85,7 +85,7 @@ public class ResponseParserForTableChart implements ResponseParser<TableChartRes
                 if (CollectionUtils.isEmpty(_buckets))
                     return;
                 for (BucketAggregation _bucket : _buckets) {
-                    rowCells.add(new TableChartResult.Cell<>(_bucket.getKey(), false));
+                    rowCells.add(new TableChartResult.Cell<>(!_bucket.getKey().isEmpty() ? _bucket.getKey() : "UNKNOWN", false));
                     parseBuckets(bucket.getSubBucket(), _bucket.getSubAggregations(), metrics, _bucket);
                 }
             } else {

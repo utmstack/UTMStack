@@ -103,10 +103,12 @@
                  [loadingText]="'Loading Timezones...'"
                  [loading]="!timezones"
                  groupBy="zone"
-                 bindLabel="label"
                  bindValue="timezone"
                  [(ngModel)]="conf.confParamValue"
                  id="timezoneSetting">
+                <ng-template ng-option-tmp ng-label-tmp let-item="item">
+                  ({{ item.timezone | timezoneOffset }}) {{ item.label }}
+                </ng-template>
 
       </ng-select>
 

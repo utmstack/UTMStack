@@ -9,7 +9,7 @@ import {ChartTypeEnum} from '../../../shared/enums/chart-type.enum';
 })
 export class RenderVisualizationPrintComponent implements OnInit {
   @Input() visualizationRender: UtmDashboardVisualizationType[];
-  @Input() loadingVisualizations = true;
+  @Input() loadingVisualizations = false;
   @Output() visualizationLoaded = new EventEmitter<boolean>();
   runList = 0;
   chartTypeEnum = ChartTypeEnum;
@@ -37,8 +37,9 @@ export class RenderVisualizationPrintComponent implements OnInit {
   onRun($event: string) {
     this.runList += 1;
     if (this.runList === this.visualizationRender.length) {
+      this.loadingVisualizations = true;
       console.log('All the visualizations data has loaded, waiting for rendering');
-      setTimeout(() => this.visualizationLoaded.emit(true), 5000);
+      setTimeout(() => this.visualizationLoaded.emit(true), 3000);
       console.log('All the visualizations now has rendered');
     }
   }

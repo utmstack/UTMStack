@@ -1,0 +1,37 @@
+<div style="height: 30px" class="w-100 d-flex align-items-center justify-content-center"
+     [ngbTooltip]="note === '' ? 'Add note' : 'View Note'"
+     placement="top"
+     tooltipClass="utm-tooltip-top">
+    <span #notePopover="ngbPopover"
+          (click)="onClick($event)"
+          [ngbPopover]="colContent"
+          [popoverTitle]="colTitle"
+          autoClose="outside"
+          class="text-blue-800 cursor-pointer small-md-icon w-100 h-100 d-flex align-items-center justify-content-center"
+          container="body"
+          placement="auto"
+          popoverClass="utm-popover"
+          triggers="click">
+      <i [ngClass]="creating ? 'icon-spinner2 spinner' : note === '' ? 'icon-pencil3' : 'icon-pencil4'"></i>
+      <span *ngIf="showNote" class="ml-3">
+        {{ note }}
+      </span>
+    </span>
+</div>
+
+<ng-template #colContent>
+  <div class="w-100">
+    <textarea [(ngModel)]="note" class="form-control" rows="5"></textarea>
+  </div>
+
+  <div class="d-flex justify-content-around align-items-center my-2">
+      <span (click)="addNote(); notePopover.close()"
+            class="badge badge-flat border-primary text-blue-800 cursor-pointer span-small-icon">
+        <i class="icon-pencil3"></i>&nbsp;Add note
+      </span>
+  </div>
+</ng-template>
+
+<ng-template #colTitle>
+  <h6 class="font-weight-light">Note</h6>
+</ng-template>

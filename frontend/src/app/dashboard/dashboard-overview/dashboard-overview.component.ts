@@ -1,16 +1,11 @@
-import {HttpResponse} from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Subject} from 'rxjs';
-import {filter, map, takeUntil} from 'rxjs/operators';
-// tslint:disable-next-line:max-line-length
+import {map, takeUntil} from 'rxjs/operators';
 import {UtmModulesEnum} from '../../app-module/shared/enum/utm-module.enum';
-import {UtmModulesService} from '../../app-module/shared/services/utm-modules.service';
 import {UtmModuleType} from '../../app-module/shared/type/utm-module.type';
 import {AccountService} from '../../core/auth/account.service';
-import {rebuildVisualizationFilterTime} from '../../graphic-builder/shared/util/chart-filter/chart-filter.util';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {MenuBehavior} from '../../shared/behaviors/menu.behavior';
 import {TimeFilterBehavior} from '../../shared/behaviors/time-filter.behavior';
@@ -24,18 +19,14 @@ import {HIGH_TEXT, LOW_TEXT, MEDIUM_TEXT} from '../../shared/constants/alert/ale
 import {ALERT_ROUTE, LOG_ROUTE} from '../../shared/constants/app-routes.constant';
 import {TIME_DASHBOARD_REFRESH} from '../../shared/constants/time-refresh.const';
 import {IndexPatternSystemEnumID, IndexPatternSystemEnumName} from '../../shared/enums/index-pattern-system.enum';
-import {UtmRunModeService} from '../../shared/services/active-modules/utm-run-mode.service';
 import {OverviewAlertDashboardService} from '../../shared/services/charts-overview/overview-alert-dashboard.service';
-import {UtmOpenModuleModalService} from '../../shared/services/config/utm-open-module-modal.service';
-import {ElasticSearchIndexService} from '../../shared/services/elasticsearch/elasticsearch-index.service';
 import {IndexPatternService} from '../../shared/services/elasticsearch/index-pattern.service';
 import {LocalFieldService} from '../../shared/services/elasticsearch/local-field.service';
 import {ExportPdfService} from '../../shared/services/util/export-pdf.service';
 import {ChartSerieValueType} from '../../shared/types/chart-reponse/chart-serie-value.type';
 import {ElasticFilterType} from '../../shared/types/filter/elastic-filter.type';
-import {UtmIndexPattern} from '../../shared/types/index-pattern/utm-index-pattern';
+import {UtmIndexPatternFields} from '../../shared/types/index-pattern/utm-index-pattern-fields';
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
-import {UtmIndexPatternFields} from "../../shared/types/index-pattern/utm-index-pattern-fields";
 
 @Component({
   selector: 'app-dashboard-overview',
@@ -87,18 +78,16 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
   filterTime: { from: string, to: string };
   filtersValues: ElasticFilterType[] = [];
   destroy$: Subject<void> = new Subject();
+  runList = 0;
+  visualizationRender = 8;
+  preparingPrint = true;
 
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
-              private moduleService: UtmModulesService,
-              private utmRunModeService: UtmRunModeService,
               private menuBehavior: MenuBehavior,
-              private utmOpenModuleModalService: UtmOpenModuleModalService,
               private localFieldService: LocalFieldService,
               private indexPatternService: IndexPatternService,
-              private indexPatternFieldService: ElasticSearchIndexService,
               private accountService: AccountService,
-              private modalService: NgbModal,
               private spinner: NgxSpinnerService,
               private exportPdfService: ExportPdfService,
               private activatedRoute: ActivatedRoute,
@@ -128,7 +117,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
      * END
      */
 
-    this.getDailyAlert();
+    // this.getDailyAlert();
 
     /**
      * Show activate modules modal on constructor
@@ -265,8 +254,18 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     });
   }
 
+  onRun() {
+    this.runList += 1;
+    if (this.runList === this.visualizationRender) {
+      console.log('All the visualizations data has loaded, waiting for rendering');
+      setTimeout(() => this.preparingPrint = false, 3000);
+      console.log('All the visualizations now has rendered');
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
 }
