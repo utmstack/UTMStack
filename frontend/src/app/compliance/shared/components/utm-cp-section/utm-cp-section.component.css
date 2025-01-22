@@ -35,12 +35,12 @@
   display: grid;
   grid-template-rows: 0fr;
   transition: 300ms ease-in-out;
-
-   div {
-    overflow: hidden;
-  }
 }
 
 .submenu.show {
   grid-template-rows: 1fr;
+}
+
+.submenu .sub-menu-content {
+  overflow: hidden;
 }
