@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	SYSTEM_RESERVED_MEMORY = 1.4 * 1000
+	SYSTEM_RESERVED_MEMORY = 1 * 1000
 )
 
 type ServiceConfig struct {

@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Community Support
+    url: https://github.com/utmstack/UTMStack/discussions/categories/q-a
+    about: Please ask and answer questions as a discussion thread
+
+  - name: 🛟 Commercial Support
+    url: https://support.utmstack.com
+    about: If you have a commercial support agreement, please file a ticket
+
+  - name: 🏙️ UTMStack Enterprise
+    url: https://calendar.app.google/SUCGayUduYReUvxM9
+    about: To learn about UTMStack's enterprise edition and how we can assist your company, arrange a consultation with our sales representatives
