@@ -44,7 +44,7 @@ spring:
         cache: false
 
 server:
-    port: 8080
+    port: 8081
 
 jhipster:
     # CORS is only enabled by default with the "dev" profile

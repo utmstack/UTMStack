@@ -8,6 +8,8 @@ import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {InputClassResolve} from '../../../shared/util/input-class-resolve';
 import {LogAnalyzerQueryService} from '../../shared/services/log-analyzer-query.service';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
+import {TabService} from "../../shared/services/tab.service";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-log-analyzer-query-create',
@@ -28,12 +30,13 @@ export class LogAnalyzerQueryCreateComponent implements OnInit {
               public inputClassResolve: InputClassResolve,
               private fb: FormBuilder,
               private utmToastService: UtmToastService,
-              private analyzerQueryService: LogAnalyzerQueryService) {
+              private analyzerQueryService: LogAnalyzerQueryService,
+              private tabService: TabService) {
   }
 
   ngOnInit() {
     this.initFormSaveVis();
-    if (this.query) {
+    if (this.query && this.query.id) {
       this.queryForm.patchValue(this.query);
     }
     this.queryForm.get('filtersType').setValue(this.filters);
@@ -67,7 +70,7 @@ export class LogAnalyzerQueryCreateComponent implements OnInit {
 
   saveQuery() {
     this.creating = true;
-    if (this.query && !this.saveMode) {
+    if (this.query && this.query.id && !this.saveMode) {
       this.editQuery();
     } else {
       this.createQuery();
@@ -75,10 +78,13 @@ export class LogAnalyzerQueryCreateComponent implements OnInit {
   }
 
   createQuery() {
-    this.analyzerQueryService.create(this.queryForm.value).subscribe(indexPattern => {
+    this.analyzerQueryService.create(this.queryForm.value)
+      .pipe(map((response) => response.body))
+      .subscribe(queryType => {
       this.utmToastService.showSuccessBottom('Query saved successfully');
       this.activeModal.close();
       this.querySaved.emit('created');
+      this.tabService.onSaveTabSubject.next(queryType);
     }, error1 => {
       this.creating = false;
       this.utmToastService.showError('Error', 'Error saving query');
@@ -86,10 +92,13 @@ export class LogAnalyzerQueryCreateComponent implements OnInit {
   }
 
   editQuery() {
-    this.analyzerQueryService.update(this.queryForm.value).subscribe(indexPattern => {
+    this.analyzerQueryService.update(this.queryForm.value)
+      .pipe(map((response) => response.body))
+      .subscribe(queryType => {
       this.utmToastService.showSuccessBottom('Query updated successfully');
       this.activeModal.close();
       this.querySaved.emit('saved');
+      this.tabService.onSaveTabSubject.next(queryType);
     }, error1 => {
       this.creating = false;
       this.utmToastService.showError('Error', 'Error updating query');

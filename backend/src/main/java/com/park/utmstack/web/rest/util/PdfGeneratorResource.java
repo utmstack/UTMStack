@@ -66,7 +66,7 @@ public class PdfGeneratorResource {
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename);
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
 
-            byte [] resultPdf = pdfService.getPdf(Constants.FRONT_BASE_URL + url, accessKey.substring(7), accessType.get());
+            byte [] resultPdf = pdfService.getPdf( url, accessKey.substring(7), accessType.get());
             if (resultPdf != null && resultPdf.length > 0 ) {
                 return ResponseEntity.ok().headers(headers).body(resultPdf);
             } else {

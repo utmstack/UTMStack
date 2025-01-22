@@ -10,7 +10,6 @@ import {NgxSortableModule} from 'ngx-sortable-2';
 import {ComplianceManagementModule} from '../compliance/compliance-management/compliance-management.module';
 import {NavBehavior} from '../shared/behaviors/nav.behavior';
 import {VersionUpdateBehavior} from '../shared/behaviors/version-update.behavior';
-import {TimezoneFormatService} from '../shared/services/utm-timezone.service';
 import {UtmSharedModule} from '../shared/utm-shared.module';
 import {AppConfigComponent} from './app-config/app-config.component';
 import {AppLogsComponent} from './app-logs/app-logs.component';
@@ -102,7 +101,7 @@ import {UtmApiDocComponent} from './utm-api-doc/utm-api-doc.component';
     HealthChecksComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-  providers: [NavBehavior, VersionUpdateBehavior, TimezoneFormatService]
+  providers: [NavBehavior, VersionUpdateBehavior]
 })
 export class AppManagementModule {
 }

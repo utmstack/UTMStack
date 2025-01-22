@@ -1,14 +1,13 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {filter} from 'rxjs/operators';
+import {delay, filter, tap} from 'rxjs/operators';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
 import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
 import {ADMIN_ROLE, USER_ROLE} from './shared/constants/global.constant';
 import {AppThemeLocationEnum} from './shared/enums/app-theme-location.enum';
 import {UtmAppThemeService} from './shared/services/theme/utm-app-theme.service';
-import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 
 @Component({
   selector: 'app-root',
@@ -20,9 +19,11 @@ export class AppComponent implements OnInit {
   roles = [ADMIN_ROLE, USER_ROLE];
   menu = false;
   private height: string;
-  offline = null;
+  offline = false;
+  online = false;
   iframeView = false;
   favIcon: HTMLLinkElement;
+  hideStatus = false;
 
   constructor(
     private translate: TranslateService,
@@ -30,8 +31,7 @@ export class AppComponent implements OnInit {
     private themeChangeBehavior: ThemeChangeBehavior,
     private utmAppThemeService: UtmAppThemeService,
     private router: Router, private renderer: Renderer2,
-    private apiServiceCheckerService: ApiServiceCheckerService,
-    private timezoneFormatService: TimezoneFormatService) {
+    private apiServiceCheckerService: ApiServiceCheckerService) {
 
     this.translate.setDefaultLang('en');
 
@@ -53,6 +53,9 @@ export class AppComponent implements OnInit {
       if (this.router.url.includes('iframe')) {
         this.iframeView = true;
       }
+      if (this.router.url.includes('url')) {
+        this.hideStatus = true;
+      }
     });
   }
 
@@ -68,12 +71,18 @@ export class AppComponent implements OnInit {
 
     this.apiServiceCheckerService.isOnlineApi$
       .pipe(
-        filter(isOnline => isOnline))
-      .subscribe(isOnline => {
-        if (this.offline) {
-          this.init();
-        }
-        setTimeout(() => this.offline = null, 3000);
+        filter(isOnline => isOnline),
+        tap(() => {
+          if (this.offline) {
+            this.init();
+          }
+          this.online = true;
+        }),
+        delay(1000)
+      )
+      .subscribe(() => {
+        this.offline = false;
+        this.online = false;
       });
   }
 
@@ -111,13 +120,14 @@ export class AppComponent implements OnInit {
   }
 
   isInExportRoute() {
-    return this.router.url.includes('dashboard/export/') || this.router.url.includes('dashboard/export-compliance') ||
+    return this.router.url.includes('dashboard/export/') ||
+           this.router.url.includes('dashboard/export-compliance') ||
+           this.router.url.includes('compliance/print-view') ||
       this.router.url.includes('/getting-started') ||
       this.router.url.includes('/dashboard/export-report/') || this.iframeView || this.router.url.includes('/data/alert/detail/');
   }
 
    init() {
-    this.timezoneFormatService.loadTimezoneAndFormat();
     this.getReportLogo();
   }
 }
