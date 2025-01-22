@@ -1,6 +1,6 @@
-<div class="container-fluid p-2" style="height: 90vh;">
+<div class="container-fluid">
   <!-- Title and action buttons -->
-  <div class="d-flex justify-content-between align-items-center mb-2 row no-gutters">
+  <div class="d-flex justify-content-between align-items-center my-2 row no-gutters box-sizing">
     <div class="col-md-6">
       <h5 class="card-title mb-0 text-uppercase label-header">
         Reports Templates {{ standard ? ': ' + standard.standardName : '' }}
@@ -20,10 +20,10 @@
   </div>
 
   <!-- Main content area -->
-  <div class="row m-0 h-100">
+  <div [ngStyle]="{'min-height': getMenuHeight(), 'height': getMenuHeight()}" class="row m-0 content-menu">
     <!-- Left column -->
-    <div class="col-auto px-0 full-height" style="width: 300px;">
-      <div class="h-100 card m-0">
+    <div class="col-auto px-0 sidebar-section h-100">
+      <div class="card m-0 h-100">
         <!-- Section navigation -->
         <div class="card-header header-elements-sm-inline p-0 bg-white card-header-title">
           <div class="d-flex justify-content-between w-100">
@@ -44,13 +44,15 @@
         </div>
 
         <!-- List of sections -->
-        <div class="card-body p-0 m-0 bg-light">
-          <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn" class="d-flex flex-column">
+        <div class="card-body p-0 mb-4 overflow-auto">
+          <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn"
+               [ngClass]="{'mt-3': index === 0}"
+               class="d-flex flex-column mb-1 mx-2">
             <app-utm-cp-section [section]="section"
                                 [action]="action"
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
-                                (isActive)="onChangeSectionActive($event, sections)"
+                                (isActive)="onChangeSectionActive($event, section, sections)"
                                 [expandable]="action==='reports'">
             </app-utm-cp-section>
           </div>

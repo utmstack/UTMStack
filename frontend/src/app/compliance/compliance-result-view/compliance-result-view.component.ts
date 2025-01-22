@@ -97,12 +97,9 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$),
             filter(params => !!params),
             tap(() => this.loadingVisualizations = true),
-            map(params => ({
-              ...params,
-              template: params.template.id
-            })))
+      )
       .subscribe(params => {
-        this.initializeReportParams(params);
+        this.loadReport(params);
       });
 
     this.timeFilterBehavior.$time
@@ -116,7 +113,19 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
       });
   }
 
-  initializeReportParams(params) {
+  loadReport(params: any) {
+    this.reportId = params.template.id;
+    this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
+    this.sectionId = params[ComplianceParamsEnum.SECTION_ID];
+
+    this.report = params.template;
+    this.dashboardId = this.report.dashboardId;
+    this.visualizationRender = this.report.dashboard;
+    this.loadingVisualizations = false;
+
+  }
+
+  initializeReportParams(params: any) {
     this.reportId = params[ComplianceParamsEnum.TEMPLATE];
     this.standardId = params[ComplianceParamsEnum.STANDARD_ID];
     this.sectionId = params[ComplianceParamsEnum.SECTION_ID];

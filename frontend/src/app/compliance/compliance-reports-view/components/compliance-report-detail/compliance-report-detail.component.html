@@ -58,6 +58,16 @@
       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configSolution"></app-utm-collapsible-text>
     </div>
 
+    <ng-container *ngIf="report.status === 'non_complaint'">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+        <span class="text-blue-800 font-weight-light mr-2">Compliance remediation:</span>
+      </div>
+
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+        <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configRemediation"></app-utm-collapsible-text>
+      </div>
+    </ng-container>
+
     <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2 mt-3">
       <span class="text-blue-800 font-weight-light mr-2">Evidence:</span>
     </div>
