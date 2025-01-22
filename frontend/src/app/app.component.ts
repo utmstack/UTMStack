@@ -120,7 +120,7 @@ export class AppComponent implements OnInit {
   }
 
   isInExportRoute() {
-    return this.router.url.includes('dashboard/export/') || 
+    return this.router.url.includes('dashboard/export/') ||
            this.router.url.includes('dashboard/export-compliance') ||
            this.router.url.includes('compliance/print-view') ||
       this.router.url.includes('/getting-started') ||

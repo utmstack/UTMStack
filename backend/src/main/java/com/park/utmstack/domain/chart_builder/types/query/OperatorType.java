@@ -4,6 +4,8 @@ public enum OperatorType {
     IS,
     IS_NOT,
     CONTAIN,
+    CONTAIN_ONE_OF,
+    DOES_NOT_CONTAIN_ONE_OF,
     DOES_NOT_CONTAIN,
     IS_ONE_OF,
     IS_NOT_ONE_OF,

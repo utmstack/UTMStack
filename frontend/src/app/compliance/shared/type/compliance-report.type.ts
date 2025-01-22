@@ -5,6 +5,7 @@ import {ComplianceRequestTypeEnum} from '../enums/compliance-request-type.enum';
 import {ComplianceTypeEnum} from '../enums/compliance-type.enum';
 import {ComplianceStandardSectionType} from './compliance-standard-section.type';
 import {ComplianceTemplateParams} from './compliance-template-params.type';
+import {UtmDashboardVisualizationType} from "../../../shared/chart/types/dashboard/utm-dashboard-visualization.type";
 
 export class ComplianceReportType {
   columns?: UtmFieldType[];
@@ -28,5 +29,7 @@ export class ComplianceReportType {
   selected?: boolean;
   visualization?: any;
   status?: string;
-  note?: string;
+  configReportNote?: string;
+  configReportName?: string;
+  dashboard?: UtmDashboardVisualizationType[];
 }

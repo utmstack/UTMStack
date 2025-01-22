@@ -82,7 +82,9 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.activeRoute.queryParams
-      .pipe(filter((params) => Object.keys(params).length > 0),
+      .pipe(
+          takeUntil(this.destroy$),
+          filter((params) => Object.keys(params).length > 0),
           tap(() => {
             this.loadingVisualizations = true;
             this.showBack = true;
@@ -126,12 +128,14 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
    * Return template
    */
   getTemplate() {
-    this.cpReportsService.find(this.reportId).subscribe(response => {
-      this.report = response.body;
-      if (this.report.dashboardId) {
-        this.loadVisualizations(this.report.dashboardId);
-      }
-    });
+    if (this.reportId) {
+      this.cpReportsService.find(this.reportId).subscribe(response => {
+        this.report = response.body;
+        if (this.report.dashboardId) {
+          this.loadVisualizations(this.report.dashboardId);
+        }
+      });
+    }
   }
 
   loadVisualizations(dashboardId) {
@@ -171,5 +175,6 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    console.log('destroy!!!');
   }
 }

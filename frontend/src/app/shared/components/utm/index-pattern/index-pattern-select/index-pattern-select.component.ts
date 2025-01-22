@@ -1,6 +1,6 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {NgbActiveModal, NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
 import {IndexPatternService} from '../../../../services/elasticsearch/index-pattern.service';
 import {UtmIndexPattern} from '../../../../types/index-pattern/utm-index-pattern';
 import {IndexPatternCreateComponent} from '../index-pattern-create/index-pattern-create.component';
@@ -15,6 +15,10 @@ export class IndexPatternSelectComponent implements OnInit {
   @Input() pattern: UtmIndexPattern;
   @Input() patterRegex;
   @Output() indexPatternChange = new EventEmitter<UtmIndexPattern>();
+  @Input() template: 'default' | 'log-explorer' = 'default';
+  searchTerm: string;
+  order: 'asc' | 'desc' = 'asc';
+  @ViewChild('popover') popover: NgbPopover;
 
   constructor(public activeModal: NgbActiveModal,
               private modalService: NgbModal,
@@ -52,6 +56,7 @@ export class IndexPatternSelectComponent implements OnInit {
   }
 
   onIndexPatternChange($event: any) {
+    this.pattern = $event;
     this.indexPatternChange.emit($event);
   }
 
@@ -65,5 +70,17 @@ export class IndexPatternSelectComponent implements OnInit {
       this.pattern = this.patterns[0];
       this.indexPatternChange.emit(this.pattern);
     }
+  }
+
+  setOrder(order: 'asc' | 'desc') {
+    this.order = order;
+
+    this.patterns = this.patterns.sort((a, b) => {
+      if (order === 'asc') {
+        return a.pattern.localeCompare(b.pattern);
+      } else {
+        return b.pattern.localeCompare(a.pattern);
+      }
+    });
   }
 }

@@ -23,6 +23,10 @@ export class StateStorageService {
     return this.$sessionStorage.retrieve('destinationState');
   }
 
+  resetPreviousUrl() {
+    this.$sessionStorage.clear('previousUrl');
+  }
+
   storeUrl(url: string) {
     this.$sessionStorage.store('previousUrl', url);
   }

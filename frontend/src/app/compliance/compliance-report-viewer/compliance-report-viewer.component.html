@@ -1,7 +1,10 @@
-<div class="container-fluid p-2">
+<div class="container-fluid p-2" style="height: 90vh;">
+  <!-- Title and action buttons -->
   <div class="d-flex justify-content-between align-items-center mb-2 row no-gutters">
     <div class="col-md-6">
-      <h5 class="card-title mb-0 text-uppercase label-header">Reports Templates {{ standard ? ': ' + standard.standardName : '' }}</h5>
+      <h5 class="card-title mb-0 text-uppercase label-header">
+        Reports Templates {{ standard ? ': ' + standard.standardName : '' }}
+      </h5>
     </div>
     <div class="col-md-6">
       <div *appHasAnyAuthority="admin" class="d-flex justify-content-end">
@@ -16,9 +19,12 @@
     </div>
   </div>
 
-  <div class="row m-0">
-    <div style="max-width: 300px" class="col-lg-3 col-md-3 col-sm-12 pl-0 pr-0 full-height mr-2">
+  <!-- Main content area -->
+  <div class="row m-0 h-100">
+    <!-- Left column -->
+    <div class="col-auto px-0 full-height" style="width: 300px;">
       <div class="h-100 card m-0">
+        <!-- Section navigation -->
         <div class="card-header header-elements-sm-inline p-0 bg-white card-header-title">
           <div class="d-flex justify-content-between w-100">
             <div class="section-icon d-flex flex-column align-items-center cursor-pointer pt-2"
@@ -37,12 +43,14 @@
           </div>
         </div>
 
-        <div class="card-body p-0 m-0">
-          <div *ngFor="let section of sections$ | async; let index = index; trackBy: trackFn" class="d-flex flex-column">
+        <!-- List of sections -->
+        <div class="card-body p-0 m-0 bg-light">
+          <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn" class="d-flex flex-column">
             <app-utm-cp-section [section]="section"
+                                [action]="action"
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
-                                (isActive)="onChangeSectionActive($event)"
+                                (isActive)="onChangeSectionActive($event, sections)"
                                 [expandable]="action==='reports'">
             </app-utm-cp-section>
           </div>
@@ -50,10 +58,12 @@
       </div>
     </div>
 
-    <div class="flex-grow-1">
+    <!-- Right column -->
+    <div class="col">
       <div class="h-100 card m-0">
-        <app-compliance-reports-view [section]="activeSection" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
-        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'" ></app-compliance-result-view>
+        <!-- Conditional rendering based on selected action -->
+        <app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
+        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>
       </div>
     </div>
   </div>

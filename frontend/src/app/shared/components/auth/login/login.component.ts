@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -7,6 +7,7 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable} from 'rxjs';
 import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
+import {StateStorageService} from '../../../../core/auth/state-storage.service';
 import {LoginService} from '../../../../core/login/login.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
@@ -48,7 +49,8 @@ export class LoginComponent implements OnInit {
     private modalService: NgbModal,
     private themeChangeBehavior: ThemeChangeBehavior,
     private spinner: NgxSpinnerService,
-    private apiServiceCheckerService: ApiServiceCheckerService
+    private apiServiceCheckerService: ApiServiceCheckerService,
+    private stateStorageService: StateStorageService
   ) {
     this.credentials = {};
     this.isInDemo = window.location.href.includes(DEMO_URL);
@@ -167,9 +169,14 @@ export class LoginComponent implements OnInit {
   startNavigation() {
     this.accountService.identity(true).then(account => {
       if (account) {
+        const { path, queryParams } =
+          extractQueryParamsForNavigation(this.stateStorageService.getUrl() ? this.stateStorageService.getUrl() : '' );
+        if (path) {
+          this.stateStorageService.resetPreviousUrl();
+        }
         const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
-          ? '/getting-started' : '/dashboard/overview';
-        this.router.navigate([redirectTo])
+          ? '/getting-started' : !!path ? path : '/dashboard/overview';
+        this.router.navigate([redirectTo], {queryParams})
           .then(() => this.spinner.hide());
       } else {
         this.logged = false;

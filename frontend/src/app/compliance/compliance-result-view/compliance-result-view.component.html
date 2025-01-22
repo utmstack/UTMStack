@@ -59,10 +59,9 @@
 
 <ng-container *ngIf="template==='compliance'">
   <div class="container-fluid p-3">
-  <!-- Encabezado del Reporte -->
+
   <div *ngIf="report" class="d-flex flex-column mb-3">
 
-    <!-- Título del Reporte -->
     <div class="d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0 text-uppercase label-header d-flex align-items-center">
         <span *ngIf="report.configSolution"
@@ -79,15 +78,7 @@
         {{ report.associatedDashboard.name }} ({{ report.section.standardSectionName }})
       </h5>
 
-      <!-- Controles de Acción -->
       <div class="d-flex align-items-center mt-2">
-        <button *ngIf="showBack"
-                class="btn utm-button utm-button-primary ml-2"
-                [queryParams]="{'standardId': standardId, 'sectionId': sectionId}"
-                routerLink="/compliance/templates">
-          <i class="icon-arrow-left8 mr-2"></i> Back
-        </button>
-
         <a *ngIf="showExport"
            (click)="exportToPdf()"
            [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
@@ -104,13 +95,13 @@
       </div>
     </div>
 
-    <!-- Popover para soluciones -->
+
     <ng-template #solutionPopover>
       <p [innerHTML]="configSolution | safe:'html'" class="font-size-base text-justify"></p>
     </ng-template>
   </div>
 
-  <!-- Contenedor del Dashboard -->
+
   <div [id]="UUID" class="w-100">
     <app-utm-dashboard-grid *ngIf="visualizationRender"
                             [UUID]="'complianceId'"
@@ -120,12 +111,12 @@
     </app-utm-dashboard-grid>
   </div>
 
-  <!-- Loader de Visualización -->
+
   <div *ngIf="!visualizationRender" class="dashboard-loader d-flex justify-content-center align-items-center w-100 h-100">
     <app-utm-spinner [height]="'110px'"
                      [loading]="!visualizationRender"
                      [width]="'110px'"
-                     label="Loading dashboard"
+                     label="Loading ..."
                      style="width: 100%; margin-top: 15%">
     </app-utm-spinner>
   </div>

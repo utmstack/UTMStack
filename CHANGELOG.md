@@ -1,7 +1,8 @@
-# UTMStack 10.5.17 Release Notes
+# UTMStack 10.5.18 Release Notes
 ## Bugfix
--Fixed an issue preventing incident status updates when entering long solutions.
--Fixed an issue blocking incident creation from the Alerts panel.
--Added Asia/Jakarta timezone to the TIMEZONES list.
--Fixed Timezone changes on an instance don't get updated when access by Federation Server
--Fixed Last log not displayed for a generated alert 
+- Fixed unable to change status to complete if observations contains french characters
+- Fixed Elastic filter time adds unnecessary /d to intervals in Log Explorer
+- Fixed handle special characters in password query parameter
+- Fixed filter duplication issue in Log Explorer when removing filters
+- Fixed Cisco ASA and Cisco Firepower filters when the data coming without syslog date or host information
+- Fixed container memory resource distribution
