@@ -1,6 +1,6 @@
 ---
 name: "🐛 Bug Report"
-description: Report a bug
+about: Report a bug
 title: "(short issue description)"
 labels: [bug, needs-triage]
 assignees: []
