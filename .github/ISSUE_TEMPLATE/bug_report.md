@@ -14,7 +14,6 @@ body:
           required: true
         - label: I have verified that my UTMStack version is up-to-date
           required: true
-
   - type: textarea
     id: description
     attributes:
@@ -22,7 +21,6 @@ body:
       description: What is the problem? A clear and concise description of the bug.
     validations:
       required: true
-
   - type: checkboxes
     id: regression
     attributes:
@@ -32,7 +30,6 @@ body:
       options:
         - label: Select this option if this issue appears to be a regression.
           required: false
-
   - type: textarea
     id: expected
     attributes:
@@ -40,8 +37,7 @@ body:
       description: |
         What did you expect to happen?
     validations:
-      required: true
-    
+      required: true   
   - type: textarea
     id: current
     attributes:
@@ -53,7 +49,6 @@ body:
         If service responses are relevant, please include wire logs.
     validations:
       required: true
-
   - type: textarea
     id: reproduction
     attributes:
@@ -62,7 +57,6 @@ body:
         Provide concise steps that can be used to reproduce the issue.
     validations:
       required: true
-
   - type: textarea
     id: solution
     attributes:
@@ -70,8 +64,7 @@ body:
       description: |
         Suggest a fix/reason for the bug
     validations:
-      required: false
-    
+      required: false    
   - type: textarea
     id: context
     attributes:
@@ -80,7 +73,6 @@ body:
         Anything else that might be relevant for troubleshooting this bug. Providing context helps us come up with a solution that is most useful in the real world.
     validations:
       required: false
-
   - type: input
     id: utmstack-version
     attributes:
@@ -89,21 +81,18 @@ body:
         Please provide your current UTMStack version.
     validations:
       required: true
-
   - type: input
     id: operating-system
     attributes:
       label: Operating System and version
     validations:
       required: true
-
   - type: input
     id: hypervisor
     attributes:
       label: Hypervisor and version
     validations:
       required: true
-
   - type: input
     id: browser
     attributes:
