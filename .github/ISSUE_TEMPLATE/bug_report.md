@@ -1,59 +1,112 @@
 ---
-name: Bug Report
-about: File a bug report
-title: "[BUG] <short description of the bug>"
-labels: [bug]
-assignees: ''
-
+name: "🐛 Bug Report"
+description: Report a bug
+title: "(short issue description)"
+labels: [bug, needs-triage]
+assignees: []
 body:
-  - type: markdown
+  - type: checkboxes
+    id: ack
     attributes:
-      value: |
-        To ensure efficient bug tracking, kindly confirm that the issue you're experiencing is indeed a bug. For general questions, configuration support, or discussions, please refer to our GitHub Discussions.
-
-        We appreciate you taking the time to report this bug!
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
-    validations:
-      required: true
-  - type: dropdown
-    id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
+      label: Acknowledgements
       options:
-        - v10
-        - v11-preview
-    validations:
-      required: true
-  - type: textarea
-    id: steps-to-reproduce
-    attributes:
-      label: Steps to reproduce
-      description: How can we reproduce the bug?
-      placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
-    validations:
-      required: true
-  - type: textarea
-    id: code-examples
-    attributes:
-      label: Code examples
-      description: |
-        If possible, please provide a brief code example or a link to a
-        repository that can be used to reproduce the bug.
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant logs and/or screenshots
-      description: Please copy and paste any relevant log output or screenshots here.
+        - label: I have searched (https://github.com/utmstack/UTMStack/issues) for past instances of this issue
+          required: true
+        - label: I have verified that my UTMStack version is up-to-date
+          required: true
 
----
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What is the problem? A clear and concise description of the bug.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: regression
+    attributes:
+      label: Regression Issue
+      description: What is a regression? If it worked in a previous version but doesn't in the latest version, it's considered a
+        regression. In this case, please provide specific version number in the report.
+      options:
+        - label: Select this option if this issue appears to be a regression.
+          required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: |
+        What did you expect to happen?
+    validations:
+      required: true
+    
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Behavior
+      description: |
+        What actually happened?
+
+        Please include full errors, uncaught exceptions, stack traces, and relevant logs.
+        If service responses are relevant, please include wire logs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: |
+        Provide concise steps that can be used to reproduce the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Possible Solution
+      description: |
+        Suggest a fix/reason for the bug
+    validations:
+      required: false
+    
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Information/Context
+      description: |
+        Anything else that might be relevant for troubleshooting this bug. Providing context helps us come up with a solution that is most useful in the real world.
+    validations:
+      required: false
+
+  - type: input
+    id: utmstack-version
+    attributes:
+      label: UTMStack Version
+      description: |
+        Please provide your current UTMStack version.
+    validations:
+      required: true
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating System and version
+    validations:
+      required: true
+
+  - type: input
+    id: hypervisor
+    attributes:
+      label: Hypervisor and version
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+    validations:
+      required: true
