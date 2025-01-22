@@ -2,7 +2,7 @@
 name: 🚀 Feature Request
 description: Suggest an idea for this project
 title: "(short issue description)"
-labels: [feature-request, needs-triage]
+labels: [enhancement, needs-triage]
 assignees: []
 body:
   - type: textarea
