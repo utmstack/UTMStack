@@ -1,0 +1,33 @@
+<div *ngIf="!preparingPrint" class="report-loading"></div>
+
+<h3 class="standard-prev text-center mb-4">
+  <strong>Compliance Assessment</strong>
+</h3>
+
+<div *ngFor="let report of reports$ | async" class="report-container mb-4">
+
+  <div class="compliance d-print-block border rounded p-4">
+
+    <div class="compliance-header mb-3">
+      <h4 class="text-dark">{{ report.associatedDashboard.name }}</h4>
+      <h6 class="text-muted">{{ report.associatedDashboard.description }}</h6>
+    </div>
+
+    <div class="compliance-status mb-3">
+      <p class="font-weight-bold">Status:</p>
+      <app-compliance-status [report]="report" (visualization)="onVisualizationChange($event, report)"></app-compliance-status>
+    </div>
+
+    <div class="compliance-time mb-3">
+      <p class="font-weight-bold">Time Window:</p>
+      <app-compliance-time [report]="report"></app-compliance-time>
+    </div>
+
+    <div *ngIf="report.visualization" class="compliance-evidence mb-3">
+      <p class="font-weight-bold">Evidence:</p>
+      <app-render-visualization-print *ngIf="report.visualization"
+                                      (visualizationLoaded)="onVisualizationLoaded()"
+                                      [visualizationRender]="[report.visualization]"></app-render-visualization-print>
+    </div>
+  </div>
+</div>

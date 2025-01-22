@@ -31,19 +31,19 @@ export class LogAnalyzerFieldCardComponent implements OnInit {
   resolveIcon(): string {
     switch (this.field.type) {
       case ElasticDataTypesEnum.TEXT:
-        return 'icon-text-color';
+        return 'icon-text-color icon-field';
       case ElasticDataTypesEnum.LONG:
-        return 'icon-hash';
+        return 'icon-hash icon-field';
       case ElasticDataTypesEnum.FLOAT:
-        return 'icon-hash';
+        return 'icon-hash icon-field';
       case ElasticDataTypesEnum.DATE:
-        return 'icon-calendar52';
+        return 'icon-calendar52 icon-field';
       case ElasticDataTypesEnum.OBJECT:
-        return 'icon-circle-css';
+        return 'icon-circle-css icon-field';
       case ElasticDataTypesEnum.BOOLEAN:
-        return 'icon-split';
+        return 'icon-split icon-field';
       default:
-        return 'icon-question3';
+        return 'icon-question3 icon-field';
     }
   }
 

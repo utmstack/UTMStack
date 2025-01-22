@@ -83,6 +83,9 @@ public class ResponseParserForPieChart implements ResponseParser<PieChartResult>
             List<PieChartResult> _return = new ArrayList<>();
 
             for (BucketAggregation _bucket : _buckets) {
+                if(_bucket.getKey().isEmpty()){
+                    _bucket.setKey("UNKNOWN");
+                }
                 switch (metric.getAggregation()) {
                     case AVERAGE:
                         AvgAggregate avg = _bucket.getSubAggregations().get(metric.getId()).avg();

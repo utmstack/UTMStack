@@ -22,9 +22,9 @@ public class WebPdfController {
     private final PdfGenerationService pdfGenerationService;
 
     @GetMapping("/generate-pdf")
-    public ResponseEntity<ResponseDto> generatePdf(@RequestParam String url, @RequestParam String accessType, @RequestParam String accessKey) {
+    public ResponseEntity<ResponseDto> generatePdf(@RequestParam String baseUrl, @RequestParam String url, @RequestParam String accessType, @RequestParam String accessKey) {
         try {
-            byte[] pdfBytes = pdfGenerationService.generatePdf(url, accessKey, AccessType.valueOf(accessType.toUpperCase()));
+            byte[] pdfBytes = pdfGenerationService.generatePdf(baseUrl, url, accessKey, AccessType.valueOf(accessType.toUpperCase()));
 
             return ResponseEntity.ok().body(ResponseDto.builder().pdfBytes(pdfBytes).build());
 

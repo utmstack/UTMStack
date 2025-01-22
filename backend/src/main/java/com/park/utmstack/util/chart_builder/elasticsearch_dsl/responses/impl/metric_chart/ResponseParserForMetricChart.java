@@ -81,6 +81,9 @@ public class ResponseParserForMetricChart implements ResponseParser<MetricChartR
 
             for (Metric metric : metrics) {
                 for (BucketAggregation _bucket : _buckets) {
+                    if(_bucket.getKey().isEmpty()){
+                        _bucket.setKey("UNKNOWN");
+                    }
                     switch (metric.getAggregation()) {
                         case AVERAGE:
                             AvgAggregate avg = _bucket.getSubAggregations().get(metric.getId()).avg();

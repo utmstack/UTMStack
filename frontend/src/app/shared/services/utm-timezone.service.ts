@@ -18,16 +18,26 @@ export class TimezoneFormatService {
   constructor(private httpClient: HttpClient) {
   }
 
-  loadTimezoneAndFormat(): void {
-    this.httpClient.get(this.resourceUrl)
-      .subscribe(response => {
-        const configs = response;
-        const timezone = this.getSettingValue(configs, DATE_SETTING_TIMEZONE_SHORT);
-        const dateFormat = this.getSettingValue(configs, DATE_SETTING_FORMAT_SHORT);
-        this.dateFormatSubject.next({dateFormat: dateFormat ? dateFormat : 'medium', timezone: timezone ? timezone : 'UTC'});
-      }, error => {
-        console.error('Unable to set default time format');
-      });
+  loadTimezoneAndFormat(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.httpClient.get(this.resourceUrl)
+        .subscribe(
+          response => {
+            const configs = response;
+            const timezone = this.getSettingValue(configs, DATE_SETTING_TIMEZONE_SHORT);
+            const dateFormat = this.getSettingValue(configs, DATE_SETTING_FORMAT_SHORT);
+            this.dateFormatSubject.next({
+              dateFormat: dateFormat ? dateFormat : 'medium',
+              timezone: timezone ? timezone : 'UTC'
+            });
+            resolve();
+          },
+          error => {
+            console.error('Unable to set default time format', error);
+            reject(error);
+          }
+        );
+    });
   }
 
   getSettingValue(settings: any, key: string): string {

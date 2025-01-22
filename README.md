@@ -18,7 +18,7 @@
 
 Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques. Visit an [online demo here.](https://utmstack.com/demo)  
 
-We have a [dedicated repository](https://github.com/AtlasInsideCorp/UTMStackCorrelationRules)  for correlation rules, contributors are welcome to submit a pull request. 
+We have a [dedicated repository](https://github.com/utmstack/rules)  for correlation rules, contributors are welcome to submit a pull request. 
 
 <h1 align="center">
 <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-two.gif" width="400px" alt="UTMStack"></a>   <a href="https://utmstack.com"><img src="https://utmstack.com/wp-content/uploads/2023/07/dashboard-one.gif" width="372px" alt="UTMStack"></a> </h1>
@@ -81,7 +81,7 @@ Definitions:
 - Data source: any individual source of logs, for example, devices, agents, SaaS integrations.
 
 Resources needed for one month of hot log storage.
-- For 50 data sources (120 GB) of hot log storage you will need 4 Cores, 12 GB RAM, 150 GB Disk Space
+- For 50 data sources (120 GB) of hot log storage you will need 4 Cores, 16 GB RAM, 150 GB Disk Space
 - For 120 data sources (250 GB) of hot log storage you will need 8 Cores, 16 GB RAM, 250 GB Disk Space
 - For 240 data sources (500 GB) of hot log storage you will need 16 Cores, 32 GB RAM, 500 GB Disk Space
 - For 500 data sources (1000 GB) of hot log storage you will need 32 Cores, 64 GB RAM, 1000 GB Disk Space
