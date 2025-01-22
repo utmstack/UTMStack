@@ -5,3 +5,4 @@
 - Fixed handle special characters in password query parameter
 - Fixed filter duplication issue in Log Explorer when removing filters
 - Fixed Cisco ASA and Cisco Firepower filters when the data coming without syslog date or host information
+- Fixed container memory resource distribution
