@@ -1,6 +1,6 @@
 ---
 name: "🐛 Bug Report"
-about: Report a bug
+about: "Report a bug"
 title: "(short issue description)"
 labels: [bug, needs-triage]
 assignees: []
@@ -99,3 +99,4 @@ body:
       label: Browser and version
     validations:
       required: true
+---
