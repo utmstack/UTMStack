@@ -8,7 +8,7 @@ def determine_environment(event_name, ref, review_state, base_ref, head_ref):
     """
     Determines the environment based on the GitHub event.
     """
-    if event_name == "push" and ref.startswith("refs/heads/feature/"):
+    if event_name == "push" and ref.startswith("refs/heads/release/"):
         return "dev"
     elif event_name == "pull_request_review" and review_state == "approved" and base_ref == "main" and head_ref.startswith("feature/"):
         return "qa"
