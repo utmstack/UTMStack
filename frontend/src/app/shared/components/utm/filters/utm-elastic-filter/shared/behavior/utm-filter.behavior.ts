@@ -12,4 +12,15 @@ export class UtmFilterBehavior {
    * Use to add exist filter on add field to table
    */
   $filterExistChange = new BehaviorSubject<ElasticFilterType>(null);
+
+  processKey(key: string): string {
+    const regex = /\.(\d+)\./g;
+    if (regex.test(key)) {
+      return key.replace(regex, '.');
+    } else if (!isNaN(Number(key.substring(key.lastIndexOf('.'), key.length)))) {
+      return key.substring(0, key.lastIndexOf('.'));
+    } else {
+      return key;
+    }
+  }
 }

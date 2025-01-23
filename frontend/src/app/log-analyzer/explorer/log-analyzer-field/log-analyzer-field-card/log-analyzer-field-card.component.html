@@ -2,13 +2,14 @@
      (mouseover)="viewAddButton=true" class="d-flex justify-content-between align-items-center p-1 card-field cursor-pointer">
   <span (click)="isCollapsed = !isCollapsed" class="d-flex flex-grow-1 flex-nowrap overflow-hidden">
     <!--<span class="font-weight-bold"><i [class]="resolveIcon()"></i></span>&nbsp;&nbsp;-->
-        <span class="font-weight-bold mr-1">
-          <i class="icon-dots icon-hover"></i>
-          <i [class]="resolveIcon()"></i>
+        <span class="d-flex align-items-center font-weight-bold mr-1">
+          <i class="icon-field icon-dots icon-hover top-0"></i>
+          <i class="top-0" [ngClass]="resolveIcon()"></i>
         </span>
     <span [ngClass]="{'font-weight-bold':isCollapsed}"
           [ngStyle]="{'max-width':fieldWidth}"
           [ngbTooltip]="processField(field.name)"
+          container="body"
           [openDelay]="1000"
           class="field-name"
           placement="bottom"
@@ -17,11 +18,31 @@
     </span>
   </span>
   <ng-container *ngIf="field.name !== '@timestamp'">
-    <span (click)="addToColumns(field)" [hidden]="!viewAddButton"
+    <!--<span (click)="addToColumns(field)" [hidden]="!viewAddButton"
           [ngClass]="isInColumns(field) ? 'bg-danger-600' : 'bg-blue-800'"
           class="badge cursor-pointer font-weight-light">
-   {{isInColumns(field) ? 'remove' : 'add'}}
-  </span>
+        {{isInColumns(field) ? 'remove' : 'add'}}
+    </span>-->
+    <span (click)="addToFilter(field)" [hidden]="!viewAddButton || field.name === 'log.timestamp'">
+      <div
+        [ngClass]="{'content-circle': !isInColumns(field), 'hidden': isInColumns(field)}"
+        [ngbTooltip]="'Add field as filter'"
+        container="body"
+        placement="auto"
+        class="d-flex align-items-center justify-content-center mr-1">
+        <i class="font-size-sm top-0" [ngClass]="{'icon-filter4': !isInColumns(field), 'hidden': isInColumns(field)}"></i>
+      </div>
+    </span>
+    <span (click)="addToColumns(field)" [hidden]="!viewAddButton">
+      <div
+        [ngClass]="{'content-circle': !isInColumns(field), 'background-color-grey-100 p-2 border-radius-1': isInColumns(field)}"
+        [ngbTooltip]="!isInColumns(field) ? 'Add field as column' : 'Remove field from table'"
+        container="body"
+        placement="auto"
+        class="d-flex align-items-center justify-content-center">
+        <i class="font-size-sm" [ngClass]="{'icon-table': !isInColumns(field), 'icon-cross2': isInColumns(field)}"></i>
+      </div>
+    </span>
   </ng-container>
 </div>
 <div *ngIf="isCollapsed" id="collapseFieldProperty">
