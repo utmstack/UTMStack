@@ -69,7 +69,7 @@
 
     <include file="/config/liquibase/changelog/20241213001_updating_asa_and_firepower_filters.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20241120001_update_compliance_menu.xml" relativeToChangelogFile="false"/>
+    <!--<include file="/config/liquibase/changelog/20241120001_update_compliance_menu.xml" relativeToChangelogFile="false"/>-->
 
     <include file="/config/liquibase/changelog/20250121001_add_remediation_column_config_report.xml" relativeToChangelogFile="false"/>
 
