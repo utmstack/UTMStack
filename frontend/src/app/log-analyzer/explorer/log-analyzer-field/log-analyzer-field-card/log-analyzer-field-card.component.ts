@@ -1,5 +1,9 @@
 import {Component, EventEmitter, HostListener, Input, OnInit, Output} from '@angular/core';
+import {
+  UtmFilterBehavior
+} from '../../../../shared/components/utm/filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
 import {ElasticDataTypesEnum} from '../../../../shared/enums/elastic-data-types.enum';
+import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
 import {ElasticFilterType} from '../../../../shared/types/filter/elastic-filter.type';
 
@@ -18,7 +22,7 @@ export class LogAnalyzerFieldCardComponent implements OnInit {
   viewAddButton = false;
   fieldWidth: string;
 
-  constructor() {
+  constructor(private utmFilterBehavior: UtmFilterBehavior) {
   }
 
   ngOnInit() {
@@ -49,6 +53,17 @@ export class LogAnalyzerFieldCardComponent implements OnInit {
 
   addToColumns(field: ElasticSearchFieldInfoType) {
     this.addFieldToColumn.emit(field);
+  }
+
+
+  addToFilter(field: ElasticSearchFieldInfoType) {
+    this.utmFilterBehavior.$filterChange.next(
+      {
+        field: this.utmFilterBehavior.processKey(field.name),
+        value: null,
+        operator: ElasticOperatorsEnum.IS,
+        status: 'ACTIVE'
+      });
   }
 
   isInColumns(field: ElasticSearchFieldInfoType): boolean {
