@@ -101,7 +101,7 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
     const uuid = UUID.UUID();
     this.tabNumber = this.tabService.getTabCount() + 1;
     const pattern = params && params.patternId ? new UtmIndexPattern(params.patternId, params.indexPattern, true) :
-      new UtmIndexPattern(1, 'v11-log-*', true);
+      new UtmIndexPattern(1, 'log-*', true);
 
     this.tabService.addTab(
       new TabType(LogAnalyzerViewComponent, (tabName ? tabName : 'New query ' + this.tabNumber),
