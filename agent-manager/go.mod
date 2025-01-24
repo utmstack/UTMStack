@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/logger v1.1.9
 	google.golang.org/grpc v1.54.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.36.4
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.0
 )
