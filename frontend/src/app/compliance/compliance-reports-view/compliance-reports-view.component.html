@@ -89,6 +89,7 @@
         <div [hidden]="noData" class="my-4">
           <div class="row justify-content-center">
             <ngb-pagination
+              [(page)]="page"
               (pageChange)="loadPage($event)"
               [boundaryLinks]="true"
               [collectionSize]="totalItems"
