@@ -8,7 +8,7 @@ const (
 )
 
 func GetAgentBin(typ string) string {
-	var bin string = "utmstack_agent_service"
+	var bin = "utmstack_agent_service"
 	if typ == "new" {
 		bin = bin + "_new"
 	}

@@ -82,8 +82,9 @@ func (m *NetflowModule) EnablePort(proto string) {
 							return
 						}
 
-						netOpErr, err := err.(*net.OpError)
-						if err && netOpErr.Timeout() {
+						var netOpErr *net.OpError
+						ok := errors.As(err, &netOpErr)
+						if ok && netOpErr.Timeout() {
 							continue
 						}
 
@@ -139,7 +140,8 @@ func (m *NetflowModule) IsPortListen(proto string) bool {
 	}
 }
 
-func (m *NetflowModule) SetNewPort(proto string, port string) {
+func (m *NetflowModule) SetNewPort(_ string, _ string) {
+	//TODO: implement this function
 }
 
 func (m *NetflowModule) GetPort(proto string) string {

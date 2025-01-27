@@ -1,4 +1,4 @@
-package beats
+package collectors
 
 import (
 	"fmt"
@@ -17,9 +17,9 @@ type Winlogbeat struct{}
 func (w Winlogbeat) Install() error {
 	path := utils.GetMyPath()
 
-	winlogPath := filepath.Join(path, "beats", "winlogbeat")
-	beatConfig := BeatConfig{
-		LogsPath:    filepath.Join(winlogPath, "logs"),
+	winlogbeatPath := filepath.Join(path, "beats", "winlogbeat")
+	beatConfig := CollectorConfig{
+		LogsPath:    filepath.Join(winlogbeatPath, "logs"),
 		LogFileName: "windowscollector",
 	}
 
@@ -31,7 +31,7 @@ func (w Winlogbeat) Install() error {
 			return fmt.Errorf("error creating %s folder", beatConfig.LogsPath)
 		}
 
-		configFile := filepath.Join(winlogPath, "winlogbeat.yml")
+		configFile := filepath.Join(winlogbeatPath, "winlogbeat.yml")
 		templateFile := filepath.Join(path, "templates", "winlogbeat.yml")
 		err = utils.GenerateFromTemplate(beatConfig, templateFile, configFile)
 		if err != nil {
@@ -39,11 +39,11 @@ func (w Winlogbeat) Install() error {
 		}
 
 		err = utils.Execute("sc",
-			winlogPath,
+			winlogbeatPath,
 			"create",
 			config.WinServName,
 			"binPath=",
-			fmt.Sprintf("\"%s\\winlogbeat.exe\" --environment=windows_service -c \"%s\\winlogbeat.yml\" --path.home \"%s\" --path.data \"C:\\ProgramData\\winlogbeat\" --path.logs \"C:\\ProgramData\\winlogbeat\\logs\" -E logging.files.redirect_stderr=true", winlogPath, winlogPath, winlogPath),
+			fmt.Sprintf("\"%s\\winlogbeat.exe\" --environment=windows_service -c \"%s\\winlogbeat.yml\" --path.home \"%s\" --path.data \"C:\\ProgramData\\winlogbeat\" --path.logs \"C:\\ProgramData\\winlogbeat\\logs\" -E logging.files.redirect_stderr=true", winlogbeatPath, winlogbeatPath, winlogbeatPath),
 			"DisplayName=",
 			config.WinServName,
 			"start=",
@@ -52,7 +52,7 @@ func (w Winlogbeat) Install() error {
 			return fmt.Errorf("error installing %s service: %s", config.WinServName, err)
 		}
 
-		err = utils.Execute("sc", winlogPath, "start", config.WinServName)
+		err = utils.Execute("sc", winlogbeatPath, "start", config.WinServName)
 		if err != nil {
 			return fmt.Errorf("error starting %s service: %s", config.WinServName, err)
 		}
@@ -64,9 +64,9 @@ func (w Winlogbeat) Install() error {
 func (w Winlogbeat) SendSystemLogs() {
 	logLinesChan := make(chan string)
 	path := utils.GetMyPath()
-	winbLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
+	winlogbeatLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
 
-	go utils.WatchFolder("windowscollector", winbLogPath, logLinesChan)
+	go utils.WatchFolder("windowscollector", winlogbeatLogPath, logLinesChan)
 	for logLine := range logLinesChan {
 		validatedLog, _, err := validations.ValidateString(logLine, false)
 		if err != nil {

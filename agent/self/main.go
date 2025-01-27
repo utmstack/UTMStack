@@ -27,7 +27,7 @@ func main() {
 
 	time.Sleep(10 * time.Second)
 
-	err := update.UpdateService()
+	err := update.RunUpdate()
 	if err != nil {
 		utils.SelfLogger.Fatal("error updating new %s service: %v", config.SERV_NAME, err)
 	}

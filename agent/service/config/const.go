@@ -27,7 +27,7 @@ var (
 	WinServName         = "UTMStackWindowsLogsCollector"
 	CollectorFileName   = filepath.Join(utils.GetMyPath(), "log-collector-config.json")
 	UUIDFileName        = filepath.Join(utils.GetMyPath(), "uuid.yml")
-	ConfigFile          = filepath.Join(utils.GetMyPath(), "config.yml")
+	ConfigurationFile   = filepath.Join(utils.GetMyPath(), "config.yml")
 	PortRangeMin        = "7000"
 	PortRangeMax        = "9000"
 	RetentionConfigFile = filepath.Join(utils.GetMyPath(), "retention.json")

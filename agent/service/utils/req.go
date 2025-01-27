@@ -36,7 +36,9 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	if err != nil {
 		return result, http.StatusInternalServerError, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

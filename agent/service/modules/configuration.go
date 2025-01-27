@@ -54,14 +54,12 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 		return "", fmt.Errorf("error reading collector config: %v", err)
 	}
 
-	if proto != "tcp" && proto != "udp" {
-		return "", fmt.Errorf("invalid protocol: %s", proto)
-	}
 	if valid := config.ValidateModuleType(logTyp); valid == "nil" {
 		return "", fmt.Errorf("invalid integration: %s", logTyp)
 	}
 
 	integration := cnf.Integrations[logTyp]
+
 	switch proto {
 	case "tcp":
 		integration.TCP.IsListen = isEnabled
@@ -69,6 +67,8 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	case "udp":
 		integration.UDP.IsListen = isEnabled
 		port = integration.UDP.Port
+	default:
+		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
 
 	cnf.Integrations[logTyp] = integration
@@ -82,15 +82,14 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 		return "", fmt.Errorf("error reading collector config: %v", err)
 	}
 
-	if proto != "tcp" && proto != "udp" {
-		return "", fmt.Errorf("invalid protocol: %s", proto)
-	}
 	if valid := config.ValidateModuleType(logTyp); valid == "nil" {
 		return "", fmt.Errorf("invalid integration: %s", logTyp)
 	}
+
 	if changeValid := ValidateChangeInPort(port, logTyp); !changeValid {
 		return "", fmt.Errorf("change in port %s protocol %s not allowed for %s or out range %s-%s", port, proto, logTyp, config.PortRangeMin, config.PortRangeMax)
 	}
+
 	if !IsPortAvailable(port, proto, &cnf, logTyp) {
 		return "", fmt.Errorf("port %s is already in use", port)
 	}
@@ -103,6 +102,8 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 	case "udp":
 		old = integration.UDP.Port
 		integration.UDP.Port = port
+	default:
+		return "", fmt.Errorf("invalid protocol: %s", proto)
 	}
 
 	cnf.Integrations[logTyp] = integration
@@ -110,19 +111,20 @@ func ChangePort(logTyp string, proto string, port string) (string, error) {
 }
 
 func IsPortAvailable(port string, proto string, cnf *CollectorConfiguration, currentIntegration string) bool {
-	for integration, config := range cnf.Integrations {
+	for integration, integrationConfig := range cnf.Integrations {
 		if integration != currentIntegration {
-			if config.TCP.Port == port || config.UDP.Port == port {
+			if integrationConfig.TCP.Port == port || integrationConfig.UDP.Port == port {
 				return false
 			}
 		}
 	}
 
-	ln, err := net.Listen(proto, ":"+port)
+	listener, err := net.Listen(proto, ":"+port)
 	if err != nil {
 		return false
 	}
-	ln.Close()
+
+	listener.Close()
 
 	return true
 }
@@ -157,8 +159,9 @@ func WriteCollectorConfig(integrations map[string]Integration, filename string) 
 
 func WriteCollectorConfigFromModules(mod []Module, filename string) error {
 	integrations := make(map[string]Integration)
+
 	for _, m := range mod {
-		integrations[string(m.GetDataType())] = Integration{
+		integrations[m.GetDataType()] = Integration{
 			TCP: Port{
 				IsListen: m.IsPortListen("tcp"),
 				Port:     m.GetPort("tcp"),
@@ -169,5 +172,6 @@ func WriteCollectorConfigFromModules(mod []Module, filename string) error {
 			},
 		}
 	}
+
 	return WriteCollectorConfig(integrations, filename)
 }

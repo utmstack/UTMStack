@@ -24,7 +24,7 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 		return false, nil
 	}
 
-	serviceStatus := strings.ToLower(strings.TrimSpace(string(output)))
+	serviceStatus := strings.ToLower(strings.TrimSpace(output))
 	if runtime.GOOS == "linux" {
 		return serviceStatus == "active", nil
 	} else if runtime.GOOS == "windows" {

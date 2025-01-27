@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ciscoParser     = CiscoParser{}
-	ciscoParserOnce sync.Once
-	RegexspCisco    = map[config.DataType]string{
+	ciscoParser      = CiscoParser{}
+	ciscoParserOnce  sync.Once
+	expressionsCisco = map[config.DataType]string{
 		config.DataTypeCiscoAsa:       `%ASA-`,
 		config.DataTypeCiscoFirepower: `%FTD-`,
 		config.DataTypeCiscoSwitch:    `%(\w|_)+-((\b\w+\b-\b\w+\b-)?)(\d)-([A-Z]|_)+`,
@@ -29,8 +29,8 @@ func GetCiscoParser() *CiscoParser {
 }
 
 func (p *CiscoParser) IdentifySource(log string) (config.DataType, error) {
-	for logType, regp := range RegexspCisco {
-		regExpCompiled, err := regexp.Compile(string(regp))
+	for logType, expression := range expressionsCisco {
+		regExpCompiled, err := regexp.Compile(expression)
 		if err != nil {
 			return "", err
 		}

@@ -26,35 +26,24 @@ func ReadYAML(path string, result interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
+
 	d := yaml.NewDecoder(file)
 	if err := d.Decode(result); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func WriteStringToFile(fileName string, body string) error {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
-
 	if err != nil {
 		return err
 	}
-
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	_, err = file.WriteString(body)
-	return err
-}
-
-func WriteBytesToFile(fileName string, data []byte) error {
-	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.Write(data) // Cambiado de WriteString a Write para aceptar []byte directamente
 	return err
 }
 
@@ -64,7 +53,7 @@ func WriteYAML(url string, data interface{}) error {
 		return err
 	}
 
-	err = WriteStringToFile(url, string(config[:]))
+	err = WriteStringToFile(url, string(config))
 	if err != nil {
 		return err
 	}
@@ -78,7 +67,7 @@ func WriteJSON(path string, data interface{}) error {
 		return err
 	}
 
-	err = WriteStringToFile(path, string(jsonData[:]))
+	err = WriteStringToFile(path, string(jsonData))
 	if err != nil {
 		return err
 	}
@@ -91,29 +80,28 @@ func ReadJson(fileName string, data interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	err = json.Unmarshal(content, data)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func GenerateFromTemplate(data interface{}, tfile string, cfile string) error {
-	_, fileName := filepath.Split(tfile)
-	ut, err := template.New(fileName).ParseFiles(tfile)
-
+func GenerateFromTemplate(data interface{}, templateFile string, configFile string) error {
+	_, fileName := filepath.Split(templateFile)
+	ut, err := template.New(fileName).ParseFiles(templateFile)
 	if err != nil {
 		return err
 	}
 
-	writer, err := os.OpenFile(cfile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
-
+	writer, err := os.OpenFile(configFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return err
 	}
 
 	err = ut.Execute(writer, data)
-
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,7 @@
 package agent
 
 import (
-	context "context"
+	"context"
 	"runtime"
 	"strconv"
 	"strings"
@@ -11,7 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/service/conn"
 	"github.com/utmstack/UTMStack/agent/service/utils"
 	"google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -20,7 +20,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 	var connErrMsgWritten, errorLogged bool
 
 	for {
-		conn, err := conn.GetAgentManagerConnection(cnf)
+		connection, err := conn.GetAgentManagerConnection(cnf)
 		if err != nil {
 			if !connErrMsgWritten {
 				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
@@ -30,7 +30,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		client := NewAgentServiceClient(conn)
+		client := NewAgentServiceClient(connection)
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
 			if !connErrMsgWritten {

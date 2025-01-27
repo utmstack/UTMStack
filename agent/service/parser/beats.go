@@ -43,8 +43,8 @@ func GetBeatsParser() *BeatsParser {
 }
 
 func (p *BeatsParser) IdentifySource(log string) (config.DataType, error) {
-	for DataType, regp := range RegexspBeats {
-		regExpCompiled, err := regexp.Compile(string(regp))
+	for DataType, expression := range RegexspBeats {
+		regExpCompiled, err := regexp.Compile(expression)
 		if err != nil {
 			return "", err
 		}

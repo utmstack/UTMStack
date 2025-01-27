@@ -1,7 +1,7 @@
 package logservice
 
 import (
-	context "context"
+	"context"
 	"errors"
 	"os"
 	"strconv"
@@ -33,8 +33,8 @@ var (
 	processor     LogProcessor
 	processorOnce sync.Once
 	LogQueue      = make(chan *plugins.Log)
-	timeToSleep   = time.Duration(10 * time.Second)
-	timeCLeanLogs = time.Duration(10 * time.Minute)
+	timeToSleep   = 10 * time.Second
+	timeCLeanLogs = 10 * time.Minute
 )
 
 func GetLogProcessor() LogProcessor {
@@ -54,7 +54,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 
 	for {
 		ctxEof, cancelEof := context.WithCancel(context.Background())
-		conn, err := conn.GetCorrelationConnection(cnf)
+		connection, err := conn.GetCorrelationConnection(cnf)
 		if err != nil {
 			if !l.connErrWritten {
 				utils.Logger.ErrorF("error connecting to Correlation: %v", err)
@@ -64,7 +64,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
-		client := plugins.NewIntegrationClient(conn)
+		client := plugins.NewIntegrationClient(connection)
 		plClient := createClient(client, ctx)
 		l.connErrWritten = false
 
@@ -124,13 +124,13 @@ func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient
 			utils.Logger.Info("context done, exiting processLogs")
 			return
 		case newLog := <-LogQueue:
-			uuid, err := uuid.NewRandom()
+			id, err := uuid.NewRandom()
 			if err != nil {
 				utils.Logger.ErrorF("failed to generate uuid: %v", err)
 				continue
 			}
 
-			newLog.Id = uuid.String()
+			newLog.Id = id.String()
 			l.db.Lock()
 			err = l.db.Create(&models.Log{ID: newLog.Id, Log: newLog.Raw, Type: newLog.DataType, CreatedAt: time.Now(), DataSource: newLog.DataSource, Processed: false})
 			if err != nil {
@@ -184,7 +184,7 @@ func (l *LogProcessor) CleanCountedLogs() {
 		}
 		l.db.Unlock()
 
-		unprocessed := []models.Log{}
+		unprocessed := make([]models.Log, 0, 10)
 		l.db.Lock()
 		found, err := l.db.Find(&unprocessed, "processed", false)
 		l.db.Unlock()
@@ -217,7 +217,7 @@ func createClient(client plugins.IntegrationClient, ctx context.Context) plugins
 				invalidKeyCounter++
 				if invalidKeyCounter >= 20 {
 					utils.Logger.Info("Uninstalling agent: reason: agent has been removed from the panel...")
-					agent.UninstallAll()
+					_ = agent.UninstallAll()
 					os.Exit(1)
 				}
 			} else {

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/service/agent"
-	"github.com/utmstack/UTMStack/agent/service/beats"
+	"github.com/utmstack/UTMStack/agent/service/collectors"
 	"github.com/utmstack/UTMStack/agent/service/config"
 	"github.com/utmstack/UTMStack/agent/service/database"
 	"github.com/utmstack/UTMStack/agent/service/logservice"
@@ -41,7 +41,7 @@ func main() {
 				utils.Logger.Fatal("error configuring syslog server: %v", err)
 			}
 
-			if err = beats.InstallBeats(*cnf); err != nil {
+			if err = collectors.InstallCollectors(); err != nil {
 				utils.Logger.Fatal("error installing beats: %v", err)
 			}
 
@@ -56,7 +56,7 @@ func main() {
 			integration := os.Args[2]
 			proto := os.Args[3]
 
-			port, err := modules.ChangeIntegrationStatus(integration, proto, (arg == "enable-integration"))
+			port, err := modules.ChangeIntegrationStatus(integration, proto, arg == "enable-integration")
 			if err != nil {
 				utils.Logger.ErrorF("error trying to %s: %v", arg, err)
 				os.Exit(0)
@@ -111,10 +111,11 @@ func main() {
 				utils.Logger.ErrorF("error deleting agent: %v", err)
 			}
 
-			if err = beats.UninstallBeats(); err != nil {
+			if err = collectors.UninstallCollectors(); err != nil {
 				utils.Logger.Fatal("error uninstalling beats: %v", err)
 			}
-			os.Remove(config.ConfigFile)
+
+			os.Remove(config.ConfigurationFile)
 
 			serv.UninstallService()
 			utils.Logger.Info("UTMStack Agent service uninstalled correctly")
