@@ -17,7 +17,7 @@ export interface ReportParams  {
   providedIn: 'root'
 })
 export class CpReportsService extends RefreshDataService<{ sectionId: number,
-  loading: boolean, reportSelected: number }, HttpResponse<ComplianceReportType[]>> {
+                  loading: boolean, reportSelected: number, page?: number }, HttpResponse<ComplianceReportType[]>> {
 
   private resourceUrl = SERVER_API_URL + 'api/compliance/report-config';
   private loadReportSubject = new BehaviorSubject<ReportParams>(null);

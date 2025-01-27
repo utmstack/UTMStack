@@ -68,6 +68,7 @@ export class ComplianceReportDetailComponent implements OnInit {
 
   @Input() set report(report: ComplianceReportType) {
     if (report) {
+      console.log('Report:', report);
       this._report = report;
       this.request = {
         ...this.request,
