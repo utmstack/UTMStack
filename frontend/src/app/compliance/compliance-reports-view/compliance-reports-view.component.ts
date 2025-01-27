@@ -58,8 +58,8 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
           this.loading = true;
           this.selected = reportRefresh.reportSelected;
         }),
-        switchMap(() => this.reportsService.fetchData({
-          page: this.page,
+        switchMap((reportRefresh) => this.reportsService.fetchData({
+          page: reportRefresh.page,
           size: this.itemsPerPage,
           standardId: this.section.standardId,
           sectionId: this.section.id,
@@ -100,15 +100,16 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
     });
   }
 
-  loadPage(page: number) {
-    this.page = page - 1;
+  loadPage(pageEvent: number) {
+    const page = this.page !== 0 ? this.page - 1 : this.page;
     this.reportsService.notifyRefresh({
       loading: true,
       sectionId: this.section.id,
-      reportSelected: 0
+      reportSelected: 0,
+      page
     });
     this.pageChange.emit({
-      page: this.page,
+      page,
       size: this.itemsPerPage
     });
   }
