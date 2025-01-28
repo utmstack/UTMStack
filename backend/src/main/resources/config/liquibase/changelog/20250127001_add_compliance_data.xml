@@ -1217,8 +1217,53 @@
             INSERT INTO utm_compliance_report_config (id, config_solution, config_report_columns, config_report_req_body, config_report_req_params, config_report_resource_url, config_report_request_type, config_report_pageable, config_report_filter_by_time, config_report_data_origin, config_report_export_csv_url, standard_section_id, config_report_editable, dashboard_id, config_type, config_url, config_report_note, config_report_name, config_report_remediation) VALUES (898, e'The Windows Access to Shared Resources Report provides detailed logs of events where users or systems access shared resources, such as files, folders, printers, or shared drives. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as shared resource access can expose sensitive data if not properly monitored.<br/>	•	Regulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of shared resource access to protect sensitive financial systems and customer data.<br/>	•	Access Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that access to shared resources is restricted to authorized users and activities are logged.<br/>	•	Real-Time Alerting: Captures and notifies administrators immediately of unauthorized or suspicious access to shared resources, enabling rapid response to potential threats.<br/>	•	Incident Detection: Identifies patterns of unauthorized access, excessive data downloads, or unusual access times, which may indicate insider threats or compromised accounts.<br/>	•	Audit Readiness: Tracks all access events to shared resources, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure resource-sharing practices.', null, null, null, null, null, null, null, null, null, 1000017, true, 1000013, 'TEMPLATE', null, null, 'Windows Access to Shared Resources', null);
 
             SELECT setval('utm_compliance_report_config_id_seq', (SELECT MAX(id) FROM utm_compliance_report_config));
-        
 
+            -- dashboard menu
+
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (104, 'Threat Activity', 'dashboard/render/7/threat-activity', 100, 1, 7, 10, true, false, null, null);
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (107, 'Windows Systems', 'dashboard/render/226/windows-systems', 100, 1, 226, 40, true, false, null, null);
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (108, 'O365 Overview', 'dashboard/render/13/o365-overview', 100, 1, 13, 50, true, false, null, 'O365');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (109, 'O365 Exchange', 'dashboard/render/234/o365-exchange', 100, 1, 234, 60, true, false, null, 'O365');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (110, 'O365 Active Directory', 'dashboard/render/271/o365-active-directory', 100, 1, 271, 70, true, false, null, 'O365');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (111, 'O365 SharePoint', 'dashboard/render/221/o365-sharepoint', 100, 1, 221, 80, true, false, null, 'O365');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (112, 'O365 Threat Intelligence', 'dashboard/render/11/o365-threat-intelligence', 100, 1, 11, 90, true, false, null, 'O365');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (113, 'VMware System', 'dashboard/render/223/vmware-system', 100, 1, 223, 100, true, false, null, 'VMWARE');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (114, 'AWS Cloud', 'dashboard/render/227/aws-cloud', 100, 1, 227, 110, false, false, null, 'AWS_IAM_USER');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (116, 'Meraki System', 'dashboard/render/236/meraki-system', 100, 1, 236, 130, true, false, null, 'MERAKI');
+            INSERT INTO utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short) VALUES (117, 'Bitdefender System', 'dashboard/render/238/bitdefender-system', 100, 1, 238, 140, false, false, null, 'BITDEFENDER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (104, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (104, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (107, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (107, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (108, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (108, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (109, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (109, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (110, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (110, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (111, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (111, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (112, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (112, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (113, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (113, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (114, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (114, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (116, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (116, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (117, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (117, 'ROLE_USER');
             ]]>
         </sql>
     </changeSet>

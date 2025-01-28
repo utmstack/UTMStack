@@ -1,6 +1,8 @@
 package com.park.utmstack.repository.compliance;
 
 import com.park.utmstack.domain.compliance.UtmComplianceReportConfig;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,7 +18,6 @@ import java.util.Optional;
 /**
  * Spring Data  repository for the ComplianceTemplate entity.
  */
-@SuppressWarnings("unused")
 @Repository
 public interface UtmComplianceReportConfigRepository extends JpaRepository<UtmComplianceReportConfig, Long>, JpaSpecificationExecutor<UtmComplianceReportConfig> {
 
@@ -28,4 +29,19 @@ public interface UtmComplianceReportConfigRepository extends JpaRepository<UtmCo
     @Transactional
     @Query("delete from UtmComplianceReportConfig r where r.standardSectionId in (select s.id from UtmComplianceStandardSection s where s.standardId = :standardId) and r.id not in :reportIds")
     void deleteReportsByStandardIdAndIdNotIn(@Param("standardId") Long standardId, @Param("reportIds") List<Long> reportIds);
+
+    @Query(value = "SELECT cfg FROM UtmComplianceReportConfig cfg " +
+            "JOIN cfg.section sec " +
+            "LEFT JOIN cfg.associatedDashboard d " +
+            "WHERE (:standardId IS NULL OR sec.standardId = :standardId) " +
+            "AND (:solution IS NULL OR lower(cfg.configSolution) LIKE %:solution%) " +
+            "AND (:sectionId IS NULL OR sec.id = :sectionId) " +
+            "AND (:search IS NULL OR lower(cfg.configReportName) LIKE %:search% OR d.name LIKE %:search%)")
+    Page<UtmComplianceReportConfig> getReportsByFilters(
+            @Param("standardId") Long standardId,
+            @Param("solution") String solution,
+            @Param("sectionId") Long sectionId,
+            @Param("search") String search,
+            Pageable pageable);
+
 }

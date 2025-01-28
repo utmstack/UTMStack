@@ -1,12 +1,22 @@
 package com.park.utmstack.service.compliance.config;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.park.utmstack.domain.chart_builder.UtmDashboard;
+import com.park.utmstack.domain.chart_builder.UtmDashboardVisualization;
+import com.park.utmstack.domain.chart_builder.UtmVisualization;
+import com.park.utmstack.domain.chart_builder.types.ChartType;
 import com.park.utmstack.domain.compliance.UtmComplianceReportConfig;
 import com.park.utmstack.domain.compliance.UtmComplianceStandard;
 import com.park.utmstack.domain.compliance.UtmComplianceStandardSection;
+import com.park.utmstack.domain.compliance.enums.ComplianceStatus;
 import com.park.utmstack.repository.compliance.UtmComplianceReportConfigRepository;
 import com.park.utmstack.service.chart_builder.UtmDashboardService;
+import com.park.utmstack.service.chart_builder.UtmDashboardVisualizationService;
+import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.util.UtilPagination;
-import com.park.utmstack.util.exceptions.UtmPageNumberNotSupported;
+import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
+import com.park.utmstack.util.exceptions.UtmElasticsearchException;
+import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,17 +40,24 @@ public class UtmComplianceReportConfigService {
     private final UtmDashboardService dashboardService;
     private final UtmComplianceStandardService standardService;
     private final UtmComplianceStandardSectionService standardSectionService;
+
+    private final UtmDashboardVisualizationService dashboardVisualizationService;
+
+    private final ElasticsearchService elasticsearchService;
     private final EntityManager em;
 
     public UtmComplianceReportConfigService(UtmComplianceReportConfigRepository complianceReportConfigRepository,
                                             UtmDashboardService dashboardService,
                                             UtmComplianceStandardService standardService,
                                             UtmComplianceStandardSectionService standardSectionService,
+                                            UtmDashboardVisualizationService dashboardVisualizationService, ElasticsearchService elasticsearchService,
                                             EntityManager em) {
         this.complianceReportConfigRepository = complianceReportConfigRepository;
         this.dashboardService = dashboardService;
         this.standardService = standardService;
         this.standardSectionService = standardSectionService;
+        this.dashboardVisualizationService = dashboardVisualizationService;
+        this.elasticsearchService = elasticsearchService;
         this.em = em;
     }
 
@@ -81,61 +99,24 @@ public class UtmComplianceReportConfigService {
     }
 
     public Page<UtmComplianceReportConfig> getReportsByFilters(Long standardId, String solution, Long sectionId,
-                                                               String search, Pageable pageable) {
-        StringBuilder script = new StringBuilder(
-                "SELECT cfg.* FROM utm_compliance_report_config cfg " +
-                        "INNER JOIN utm_compliance_standard_section sec ON cfg.standard_section_id = sec.id " +
-                        "INNER JOIN utm_compliance_standard st ON sec.standard_id = st.id " +
-                        "LEFT JOIN utm_dashboard d ON cfg.dashboard_id = d.id");
+                                                               String search, Boolean expandDashboard, Boolean setStatus, Pageable pageable) throws UtmElasticsearchException {
 
-        StringBuilder countScript = new StringBuilder(
-                "SELECT COUNT(cfg.id) FROM utm_compliance_report_config cfg " +
-                        "INNER JOIN utm_compliance_standard_section sec ON cfg.standard_section_id = sec.id " +
-                        "INNER JOIN utm_compliance_standard st ON sec.standard_id = st.id " +
-                        "LEFT JOIN utm_dashboard d ON cfg.dashboard_id = d.id");
+        Page<UtmComplianceReportConfig> page = complianceReportConfigRepository.getReportsByFilters(standardId, solution, sectionId, search, pageable);
 
-        boolean hasWhere = false;
-
-        if (standardId != null) {
-            hasWhere = true;
-            script.append(" WHERE st.id = ").append(standardId);
-            countScript.append(" WHERE st.id = ").append(standardId);
+        if (expandDashboard != null && expandDashboard) {
+            for (UtmComplianceReportConfig report : page) {
+                dashboardVisualizationService.findAllByIdDashboard(report.getDashboardId()).ifPresent(report::setDashboard);
+            }
         }
 
-        if (StringUtils.hasText(solution)) {
-            String condition = "cfg.config_solution ILIKE '%" + solution + "%'";
-            script.append(hasWhere ? " AND " : " WHERE ").append(condition);
-            countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
-            hasWhere = true;
+        if (setStatus) {
+            for (UtmComplianceReportConfig report : page) {
+                report.setConfigReportStatus(this.getStatus(report.getAssociatedDashboard()));
+            }
         }
 
-        if (sectionId != null) {
-            String condition = "sec.id = " + sectionId;
-            script.append(hasWhere ? " AND " : " WHERE ").append(condition);
-            countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
-        }
+        return page;
 
-        if (StringUtils.hasText(search)) {
-            String condition = "(cfg.config_report_name ILIKE '%" + search + "%' OR d.name ILIKE '%" + search + "%')";
-            script.append(hasWhere ? " AND " : " WHERE ").append(condition);
-            countScript.append(hasWhere ? " AND " : " WHERE ").append(condition);
-        }
-
-        if (StringUtils.hasText(solution)) {
-            pageable.getSort();
-            String sortField = pageable.getSort().iterator().next().getProperty();
-            String sortDirection = pageable.getSort().iterator().next().getDirection().name();
-            script.append(" ORDER BY ").append(sortField).append(" ").append(sortDirection);
-        }
-
-        List<UtmComplianceReportConfig> results = em.createNativeQuery(script.toString(), UtmComplianceReportConfig.class)
-                .setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber()))
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-
-        long total = ((Number) em.createNativeQuery(countScript.toString()).getSingleResult()).longValue();
-
-        return new PageImpl<>(results, pageable, total);
     }
 
 
@@ -143,10 +124,6 @@ public class UtmComplianceReportConfigService {
         complianceReportConfigRepository.deleteAllByConfigSolutionAndStandardSectionIdAndDashboardId(configSolution, sectionId, dashboardId);
     }
 
-    /**
-     * @param reports
-     * @param override
-     */
     public void importReports(List<UtmComplianceReportConfig> reports, boolean override) throws Exception {
         final String ctx = CLASSNAME + ".importReports";
         try {
@@ -198,6 +175,25 @@ public class UtmComplianceReportConfigService {
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             throw new Exception(msg);
+        }
+    }
+
+    private ComplianceStatus getStatus(UtmDashboard dashboard) throws UtmElasticsearchException {
+        List<UtmDashboardVisualization> dashboardVisualizations = dashboardVisualizationService.findAllByIdDashboard(dashboard.getId())
+                .orElse(Collections.emptyList());
+
+        UtmVisualization visualization = dashboardVisualizations.stream().filter(d -> d.getVisualization().getChartType().equals(ChartType.LIST_CHART)
+                        || d.getVisualization().getChartType().equals(ChartType.TABLE_CHART))
+                .map(UtmDashboardVisualization::getVisualization)
+                .findFirst()
+                .orElse(null);
+
+        if(Objects.nonNull(visualization)){
+            RequestDsl requestQuery = new RequestDsl(visualization);
+            SearchResponse<ObjectNode> result = elasticsearchService.search(requestQuery.getSearchSourceBuilderForCount().build(), ObjectNode.class);
+            return result.hits().total().value() > 0 ? ComplianceStatus.COMPLAINT : ComplianceStatus.NON_COMPLAINT;
+        } else {
+            return ComplianceStatus.NON_COMPLAINT;
         }
     }
 }

@@ -173,17 +173,14 @@ public class UtmComplianceReportConfigResource {
                                                                                @RequestParam(required = false) String solution,
                                                                                @RequestParam(required = false) Long sectionId,
                                                                                @RequestParam(required = false) String search,
-                                                                               @RequestParam(required = false) Boolean expandDashboard,
+                                                                               @RequestParam(required = false, defaultValue = "false") Boolean setStatus,
+                                                                               @RequestParam(required = false, defaultValue = "false") Boolean expandDashboard,
                                                                                Pageable pageable) {
         final String ctx = CLASS_NAME + ".getReportsByFilters";
         try {
-            Page<UtmComplianceReportConfig> page = complianceReportConfigService.getReportsByFilters(standardId, solution, sectionId, search, pageable);
+            Page<UtmComplianceReportConfig> page = complianceReportConfigService.getReportsByFilters(standardId, solution, sectionId, search, expandDashboard, setStatus, pageable);
 
-            if (!Objects.isNull(expandDashboard) && expandDashboard) {
-                for (UtmComplianceReportConfig report : page)
-                    dashboardVisualizationService.findAllByIdDashboard(report.getDashboardId()).ifPresent(report::setDashboard);
-            }
-            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/utm-asset-groups/searchGroupsByFilter");
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/report-config/get-by-filters");
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
