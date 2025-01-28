@@ -61,7 +61,7 @@
     </div>
 
     <!-- Right column -->
-    <div class="col">
+    <div class="col overflow-auto h-100">
       <div class="h-100 card m-0">
         <!-- Conditional rendering based on selected action -->
         <app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
