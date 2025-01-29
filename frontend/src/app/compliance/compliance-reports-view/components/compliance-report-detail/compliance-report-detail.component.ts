@@ -11,6 +11,7 @@ import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time
 import {ComplianceReportType} from '../../../shared/type/compliance-report.type';
 import {ExportPdfService} from "../../../../shared/services/util/export-pdf.service";
 import {UtmToastService} from "../../../../shared/alert/utm-toast.service";
+import {ComplianceStatusEnum} from "../../../shared/enums/compliance-status.enum";
 
 @Component({
   selector: 'app-compliance-report-detail',
@@ -20,7 +21,7 @@ import {UtmToastService} from "../../../../shared/alert/utm-toast.service";
 export class ComplianceReportDetailComponent implements OnInit {
   request = {
     page: 0,
-    size: 10000,
+    size: 10,
     sort: 'order,asc',
     'idDashboard.equals': 0
   };
@@ -28,6 +29,7 @@ export class ComplianceReportDetailComponent implements OnInit {
   compliance$!: Observable<any>;
   csvExport = false;
   printFormat = false;
+  ComplianceStatusEnum = ComplianceStatusEnum;
 
   constructor(private utmRenderVisualization: UtmRenderVisualization,
               private runVisualization: RunVisualizationService,
@@ -135,4 +137,8 @@ export class ComplianceReportDetailComponent implements OnInit {
     });
   }
 
+  isComplaint() {
+    return this.report.configReportStatus === ComplianceStatusEnum.COMPLAINT
+      || (this.report.configReportNote && this.report.configReportNote !== '');
+  }
 }

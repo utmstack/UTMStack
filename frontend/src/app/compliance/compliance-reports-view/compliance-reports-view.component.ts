@@ -38,11 +38,11 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
   page = 0;
   totalItems = 0;
   sortEvent: SortEvent = {
-    column: 'config_report_name',
+    column: 'configReportName',
     direction: 'desc'
   };
   destroy$: Subject<void> = new Subject();
-  sort = 'config_report_name,desc';
+  sort = 'configReportName,desc';
   search: string;
 
   constructor(private reportsService: CpReportsService,
@@ -64,6 +64,7 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
           standardId: this.section.standardId,
           sectionId: this.section.id,
           expandDashboard: true,
+          setStatus: true,
           sort: this.sort,
           search: this.search ? this.search : null,
         })),

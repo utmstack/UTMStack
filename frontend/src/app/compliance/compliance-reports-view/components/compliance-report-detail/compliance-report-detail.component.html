@@ -1,11 +1,11 @@
 <div class="w-100" *ngIf="compliance$ | async as compliance">
-  <div [ngClass]="(report.status === 'complaint' || report.status === 'in_progress') ? 'border-left-success' : 'border-left-danger'">
+  <div [ngClass]="isComplaint() ? 'border-left-success' : 'border-left-danger'">
     <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
       <div style="padding-left: 10px" class="w-100">
         <span class="text-blue-800 font-weight-light mr-2">Status:</span>
-        <span [ngClass]="compliance.rows.length > 0 ? 'text-success' : 'text-danger'"
+        <span [ngClass]="isComplaint() ? 'text-success' : 'text-danger'"
               class="span-small-icon d-flex justify-content-start align-items-center">
-            {{ report.status === 'complaint' ? 'Compliant' : 'Non compliant' }}
+            {{ isComplaint() ? 'Compliant' : 'Non compliant' }}
         </span>
       </div>
 
@@ -58,7 +58,17 @@
       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configSolution"></app-utm-collapsible-text>
     </div>
 
-    <ng-container *ngIf="report.status === 'non_complaint' && report.configRemediation">
+    <ng-container *ngIf="report.configReportNote">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+        <span class="text-blue-800 font-weight-light mr-2">Compliance note:</span>
+      </div>
+
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+        <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configReportNote"></app-utm-collapsible-text>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isComplaint() && report.configRemediation">
       <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
         <span class="text-blue-800 font-weight-light mr-2">Compliance remediation:</span>
       </div>
