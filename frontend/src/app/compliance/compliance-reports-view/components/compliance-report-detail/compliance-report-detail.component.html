@@ -1,4 +1,4 @@
-<div class="w-100" *ngIf="compliance$ | async as compliance">
+<div class="w-100 d-flex flex-column flex-grow-1 h-100" *ngIf="compliance$ | async as compliance">
   <div [ngClass]="isComplaint() ? 'border-left-success' : 'border-left-danger'">
     <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
       <div style="padding-left: 10px" class="w-100">
@@ -82,9 +82,8 @@
       <span class="text-blue-800 font-weight-light mr-2">Evidence:</span>
     </div>
 
-    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
-      <ngx-json-viewer [expanded]="false" [json]="compliance" class="col-12"></ngx-json-viewer>
-      <p class="font-size-base"></p>
+    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex d-flex flex-column flex-grow-1 overflow-auto mb-2">
+      <app-utm-json-detail-view [rowDocument]="compliance.rows"></app-utm-json-detail-view>
     </div>
   </div>
 </div>
