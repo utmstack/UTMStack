@@ -27,7 +27,7 @@
         </div>
 
         <!-- Tabla -->
-        <div class="table-responsive">
+        <div [ngStyle]="{'min-height': getTableHeight(), 'height': getTableHeight()}" class="table-responsive">
           <table class="table mb-0">
             <thead>
             <tr>
@@ -108,7 +108,8 @@
 <div *ngIf="reportDetail" class="utm-right-container">
   <div (click)="reportDetail= undefined" class="overlay overlay-lg col-md-7"></div>
   <div class="card utm-right-action utm-right-action-lg ml-0">
-    <div [ngClass]="(reportDetail.configReportNote && reportDetail.configReportNote !== '') || reportDetail.status === 'complaint' ? 'border-left-success' : 'border-left-danger'"
+    <div [ngClass]="reportDetail.configReportStatus === ComplianceStatusEnum.COMPLAINT
+      || (reportDetail.configReportNote && reportDetail.configReportNote !== '') ? 'border-left-success' : 'border-left-danger'"
       class="title d-flex justify-content-between  align-items-center border-bottom-1
             border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
       <h6 class="card-title text-blue-800 font-weight-light">
