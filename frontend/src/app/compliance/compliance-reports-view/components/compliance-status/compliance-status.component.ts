@@ -1,8 +1,5 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Observable} from 'rxjs';
 import {ModalService} from '../../../../core/modal/modal.service';
-import {UtmRenderVisualization} from '../../../../dashboard/shared/services/utm-render-visualization.service';
-import {RunVisualizationService} from '../../../../graphic-builder/shared/services/run-visualization.service';
 import {UtmDashboardVisualizationType} from '../../../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 import {VisualizationType} from '../../../../shared/chart/types/visualization.type';
 import {ModalAddNoteComponent} from '../../../../shared/components/utm/util/modal-add-note/modal-add-note.component';
