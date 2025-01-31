@@ -13,6 +13,7 @@ import com.park.utmstack.repository.compliance.UtmComplianceReportConfigReposito
 import com.park.utmstack.service.chart_builder.UtmDashboardService;
 import com.park.utmstack.service.chart_builder.UtmDashboardVisualizationService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
+import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
