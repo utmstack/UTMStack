@@ -118,7 +118,7 @@
           [size]="'sm'"></ngb-pagination>
       </div>
     </div>
-    <div *ngIf="!data  || !data.rows" class="h-100 w-100 p-5 d-flex justify-content-center align-items-center">
+    <div *ngIf="!loadingOption && (!data  || !data.rows)" class="h-100 w-100 p-5 d-flex justify-content-center align-items-center">
       <app-no-data-chart [error]="false" [typeChart]="chart"></app-no-data-chart>
     </div>
   </div>

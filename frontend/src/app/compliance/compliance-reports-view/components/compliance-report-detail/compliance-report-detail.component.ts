@@ -44,7 +44,10 @@ export class ComplianceReportDetailComponent implements OnInit {
     this.compliance$ = this.utmRenderVisualization.onRefresh$
       .pipe(
         filter((refresh) => !!refresh),
-        concatMap(() => this.runVisualization.run(this.vis)),
+        concatMap(() => this.runVisualization.run(this.vis, {
+          page: 0,
+          size: 5,
+        })),
         map(run => run[0] && run[0] ? run[0] : {
           rows: []
         }),
