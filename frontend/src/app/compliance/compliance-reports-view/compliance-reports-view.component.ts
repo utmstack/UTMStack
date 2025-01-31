@@ -120,7 +120,8 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
     });
     this.pageChange.emit({
       page,
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
+      sort: this.sort
     });
   }
 
