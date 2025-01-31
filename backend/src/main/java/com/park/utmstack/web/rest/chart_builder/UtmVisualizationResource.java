@@ -280,7 +280,9 @@ public class UtmVisualizationResource {
     }
 
     @PostMapping("/utm-visualizations/run")
-    public ResponseEntity<List<?>> run(@RequestBody UtmVisualization visualization) throws UtmChartBuilderException {
+    public ResponseEntity<List<?>> run(@RequestBody UtmVisualization visualization,
+                                       Pageable pageable,
+                                       @RequestParam(defaultValue = "200") int top) throws UtmChartBuilderException {
         final String ctx = CLASSNAME + ".run";
         try {
             Assert.notNull(visualization, "Param utmVisualization must not be null");
@@ -289,7 +291,7 @@ public class UtmVisualizationResource {
                 return ResponseEntity.ok(Collections.emptyList());
 
             RequestDsl requestQuery = new RequestDsl(visualization);
-            SearchResponse<ObjectNode> result = elasticsearchService.search(requestQuery.getSearchSourceBuilder().build(), ObjectNode.class);
+            SearchResponse<ObjectNode> result = elasticsearchService.search(requestQuery.getSearchSourceBuilder(pageable, 200).build(), ObjectNode.class);
             ResponseParser<?> responseParser = responseParserFactory.instance(visualization.getChartType());
             return ResponseEntity.ok().body(responseParser.parse(visualization, result));
         } catch (Exception e) {
