@@ -2,7 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  EventEmitter, HostListener,
   Input,
   OnChanges,
   OnDestroy,
@@ -12,11 +12,12 @@ import {
 import {EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
+import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
 import {SortByType} from '../../shared/types/sort-by.type';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
-import {SortEvent} from '../../shared/directives/sortable/type/sort-event';
+import {ComplianceStatusEnum} from "../shared/enums/compliance-status.enum";
 
 @Component({
   selector: 'app-compliance-reports-view',
@@ -44,12 +45,20 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
   destroy$: Subject<void> = new Subject();
   sort = 'configReportName,desc';
   search: string;
+  viewportHeight: number;
+  ComplianceStatusEnum = ComplianceStatusEnum;
 
   constructor(private reportsService: CpReportsService,
               private toastService: UtmToastService) {
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.viewportHeight = window.innerHeight;
+  }
+
   ngOnInit() {
+    this.viewportHeight = window.innerHeight;
     this.reports$ = this.reportsService.onRefresh$
       .pipe(takeUntil(this.destroy$),
         filter(reportRefresh =>
@@ -111,7 +120,8 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
     });
     this.pageChange.emit({
       page,
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
+      sort: this.sort
     });
   }
 
@@ -131,6 +141,11 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
       sectionId: this.section.id,
       reportSelected: 0
     });
+  }
+
+  getTableHeight() {
+    console.log('getTableHeight:', 100 - ((350 / this.viewportHeight) * 100) + 'vh');
+    return 100 - ((350 / this.viewportHeight) * 100) + 'vh';
   }
 
   ngOnDestroy(): void {

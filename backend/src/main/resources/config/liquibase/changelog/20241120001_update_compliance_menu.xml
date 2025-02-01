@@ -50,6 +50,9 @@
 
             ALTER TABLE utm_compliance_report_config
                 ADD COLUMN IF NOT EXISTS config_report_remediation TEXT;
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN IF NOT EXISTS config_report_status TEXT;
             ]]>
         </sql>
     </changeSet>

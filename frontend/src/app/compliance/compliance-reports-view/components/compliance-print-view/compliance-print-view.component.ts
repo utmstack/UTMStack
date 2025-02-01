@@ -1,13 +1,13 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map, takeUntil, tap} from 'rxjs/operators';
-import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
-import { HttpErrorResponse } from '@angular/common/http';
 import { CpReportsService } from 'src/app/compliance/shared/services/cp-reports.service';
 import { ComplianceStandardSectionType } from 'src/app/compliance/shared/type/compliance-standard-section.type';
 import { UtmToastService } from 'src/app/shared/alert/utm-toast.service';
 import { SortByType } from 'src/app/shared/types/sort-by.type';
-import { ActivatedRoute } from '@angular/router';
+import { ComplianceReportType } from '../../../shared/type/compliance-report.type';
 
 
 @Component({
@@ -22,8 +22,6 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   reports$: Observable<ComplianceReportType[]>;
   selected: number;
   fields: SortByType[];
-
-  reportDetail: ComplianceReportType;
   preparingPrint = true;
 
   constructor(private reportsService: CpReportsService,
@@ -42,6 +40,8 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
           standardId: this.section.standardId,
           sectionId: this.section.id,
           expandDashboard: true,
+          setStatus: true,
+          sort: params.sort,
         })),
         map((res) => {
           return res.body.map((r, index) => {
@@ -62,13 +62,11 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
     report.visualization = visualization;
   }
 
-  ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
-  }
-
   onVisualizationLoaded(){
     this.preparingPrint = false;
   }
 
-
+  ngOnDestroy(): void {
+    throw new Error('Method not implemented.');
+  }
 }

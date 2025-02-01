@@ -35,7 +35,8 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   activeSection: ComplianceStandardSectionType = null;
   pageable = {
     page: 0,
-    size: 15
+    size: 15,
+    sort: 'configReportName,desc'
   };
   viewportHeight: number;
 
@@ -188,7 +189,8 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
         standardId: this.activeSection.standardId,
         id: this.activeSection.id,
         page: this.pageable.page,
-        size: this.pageable.size
+        size: this.pageable.size,
+        sort: this.pageable.sort
    }));
   }
 

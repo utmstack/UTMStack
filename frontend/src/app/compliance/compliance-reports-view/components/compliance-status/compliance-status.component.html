@@ -8,7 +8,7 @@
 </ng-container>
 
 <ng-container *ngIf="template === 'dropdown'">
-  <div (click)="onClick($event)" ngbDropdown container="body" #drop="ngbDropdown">
+  <span (click)="onClick($event)" ngbDropdown container="body" #drop="ngbDropdown">
     <a class="btn btn-light btn-sm"
        [ngClass]="(report.configReportNote && report.configReportNote !== '') || report.configReportStatus === ComplianceStatus.COMPLAINT ? 'text-success' : 'text-danger'"
        ngbDropdownToggle>
@@ -35,7 +35,7 @@
         <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-danger">{{ 'Non compliant' }}</a>
       </div>
     </div>
-  </div>
+  </span>
 </ng-container>
 
 
