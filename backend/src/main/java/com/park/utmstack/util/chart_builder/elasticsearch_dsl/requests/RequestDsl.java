@@ -57,6 +57,27 @@ public class RequestDsl {
         }
     }
 
+    public SearchRequest.Builder getSearchSourceBuilderForCount() throws UtmElasticsearchException {
+        final String ctx = CLASSNAME + ".getSearchSourceBuilderForCount";
+        try {
+            List<FilterType> filters = visualization.getFilterType();
+
+            if (CollectionUtils.isEmpty(filters))
+                filters = new ArrayList<>();
+
+            searchRequestBuilder.query(SearchUtil.toQuery(filters));
+
+            searchRequestBuilder.size(0);  // Esto asegura que no se devuelvan los documentos
+            searchRequestBuilder.trackTotalHits(TrackHits.of(t -> t.enabled(true)));
+
+            return searchRequestBuilder;
+        } catch (Exception e) {
+            throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
+        }
+    }
+
+
+
     /**
      * Build an aggregation section for an elasticsearch dsl request
      *

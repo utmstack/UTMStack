@@ -223,7 +223,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange($event: ElasticFilterType[]) {
-    console.log('filter', $event);
     this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.filters = $event;
@@ -255,8 +254,10 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
         },
         (res: HttpResponse<any>) => {
           this.counter = moment(new Date()).diff(dateStart, 'seconds', true);
+          this.loading = false;
           this.runningQuery = false;
           this.error = true;
+          this.rows = [];
         }
       );
     } else {

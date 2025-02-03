@@ -24,11 +24,35 @@
                 name = 'Alerts And Incidents'
             WHERE id = 505;
 
-            ALTER TABLE utm_compliance_report_config
-                ADD COLUMN config_report_note TEXT;
+            INSERT INTO public.utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (507, 'CMMC', 'compliance/report-viewer?standardId=1000000&standardName=CMMC', 500, 1, null, 6, true, false, null, null);
+
+            INSERT INTO public.utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (508, 'HIPAA', 'compliance/report-viewer?standardId=1000001&standardName=HIPAA', 500, 1, null, 7, true, false, null, null);
+
+            INSERT INTO public.utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (509, 'BANKING AUDIT', 'compliance/report-viewer?standardId=1000002&standardName=BANKING AUDIT', 500, 1, null, 7, true, false, null, null);
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (507, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (507, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (508, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (508, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (509, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (509, 'ROLE_USER');
 
             ALTER TABLE utm_compliance_report_config
-                ADD COLUMN config_report_name varchar(250);
+                ADD COLUMN IF NOT EXISTS config_report_note TEXT;
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN IF NOT EXISTS config_report_name varchar(250);
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN IF NOT EXISTS config_report_remediation TEXT;
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN IF NOT EXISTS config_report_status TEXT;
             ]]>
         </sql>
     </changeSet>
