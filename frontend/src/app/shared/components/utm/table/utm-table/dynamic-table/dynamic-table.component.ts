@@ -90,18 +90,12 @@ export class UtmDynamicTableComponent implements OnInit, OnDestroy {
   utmDateFormat = UtmDateFormatEnum;
   destroy$: Subject<void> = new Subject<void>();
 
-  summaryColumns = [];
+  summaryColumns = SUMMARY_COLUMNS;
 
   constructor(private indexPatternBehavior: IndexPatternBehavior) {
   }
 
   ngOnInit(): void {
-    this.indexPatternBehavior.pattern$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((log) => {
-        this.summaryColumns = SUMMARY_COLUMNS.filter( s =>
-          s.pattern.toLowerCase().includes(log.pattern.pattern.toLowerCase()))[0].fields;
-    });
   }
 
   onSort($event: SortEvent) {

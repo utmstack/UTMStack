@@ -1,27 +1,12 @@
 export const SUMMARY_COLUMNS = [
-  {
-    pattern: 'v11-log-wineventlog-*',
-    fields: [
-      {key: {field: 'log.eventName'}, title: 'Event'},
-      {key: {field: 'dataType'}, title: 'Data Type'},
-      {key: {field: 'dataSource'}, title: 'Data Source'},
-    ]
-  },
-  {
-    pattern: 'v11-alert-*',
-    fields: [
-      {key: {field: 'description'}, title: 'Description'},
-      {key: {field: 'dataType'}, title: 'Data Type'},
-      {key: {field: 'dataSource'}, title: 'Data Source'},
-    ]
-  },
-  {
-    pattern: 'v11-log-*',
-    fields: [
-      {key: {field: 'tenantName'}, title: 'Tenant'},
-      {key: {field: 'dataType'}, title: 'Data Type'},
-      {key: {field: 'dataSource'}, title: 'Data Source'},
-    ]
-  }
-];
 
+      {key: {field: 'dataType'}, title: 'Data Type'},
+      {key: {field: 'dataSource'}, title: 'Data Source'},
+      {key: {field: 'protocol'}, title: 'Protocol'},
+      {key: {field: 'connectionStatus'}, title: 'Connection status'},
+      {key: {field: 'statusCode'}, title: 'Status code'},
+      {key: {field: 'actionResult'}, title: 'Action result'},
+      {key: {field: 'command'}, title: 'Command'},
+      {key: {field: 'severity'}, title: 'Severity'},
+      {key: {field: 'origin.host'}, title: 'Origin host'}
+];
