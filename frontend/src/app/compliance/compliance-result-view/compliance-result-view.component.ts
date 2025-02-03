@@ -184,6 +184,5 @@ export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    console.log('destroy!!!');
   }
 }

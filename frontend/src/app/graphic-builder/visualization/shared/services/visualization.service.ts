@@ -1,4 +1,4 @@
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../../../app.constants';
@@ -42,8 +42,8 @@ export class VisualizationService {
     return this.http.delete(this.resourceUrl + '/bulk-delete/' + visualizations, {observe: 'response'});
   }
 
-  run(visualization: VisualizationType): Observable<HttpResponse<any>> {
-    return this.http.post<VisualizationType>(this.resourceUrl + '/run', visualization, {observe: 'response'});
+  run(visualization: VisualizationType, params: HttpParams): Observable<HttpResponse<any>> {
+    return this.http.post<VisualizationType>(this.resourceUrl + '/run', visualization, {params, observe: 'response'});
   }
 
   bulkImport(visualizations: { visualizations: VisualizationType[], override: boolean }) {

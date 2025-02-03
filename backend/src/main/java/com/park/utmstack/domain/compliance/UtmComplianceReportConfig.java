@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.park.utmstack.domain.chart_builder.UtmDashboard;
 import com.park.utmstack.domain.chart_builder.UtmDashboardVisualization;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
+import com.park.utmstack.domain.compliance.enums.ComplianceStatus;
 import com.park.utmstack.domain.compliance.enums.ComplianceType;
 import com.park.utmstack.domain.compliance.types.RequestParamFilter;
 import com.park.utmstack.domain.shared_types.DataColumn;
@@ -92,6 +93,10 @@ public class UtmComplianceReportConfig implements Serializable {
     @Column(name = "config_report_name", length = 50)
     private String configReportName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "config_report_status", length = 25)
+    private ComplianceStatus configReportStatus;
+
     @Transient
     @JsonSerialize
     @JsonDeserialize
@@ -104,6 +109,8 @@ public class UtmComplianceReportConfig implements Serializable {
     @OneToOne
     @JoinColumn(name = "dashboard_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmDashboard associatedDashboard;
+
+
 
     @Transient
     @JsonSerialize
@@ -335,5 +342,13 @@ public class UtmComplianceReportConfig implements Serializable {
 
     public void setConfigRemediation(String configRemediation) {
         this.configRemediation = configRemediation;
+    }
+
+    public ComplianceStatus getConfigReportStatus() {
+        return configReportStatus;
+    }
+
+    public void setConfigReportStatus(ComplianceStatus complianceStatus) {
+        this.configReportStatus = complianceStatus;
     }
 }

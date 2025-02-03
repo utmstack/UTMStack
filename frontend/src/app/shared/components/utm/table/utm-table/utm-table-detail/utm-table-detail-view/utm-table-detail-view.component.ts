@@ -37,22 +37,11 @@ export class UtmTableDetailViewComponent implements OnInit {
   filterByValue(row: { key: string; value: any }) {
     this.utmFilterBehavior.$filterChange.next(
       {
-        field: this.processKey(row.key),
+        field: this.utmFilterBehavior.processKey(row.key),
         value: row.value,
         operator: ElasticOperatorsEnum.IS,
         status: 'ACTIVE'
       });
-  }
-
-  processKey(key: string): string {
-    const regex = /\.(\d+)\./g;
-    if (regex.test(key)) {
-      return key.replace(regex, '.');
-    } else if (!isNaN(Number(key.substring(key.lastIndexOf('.'), key.length)))) {
-      return key.substring(0, key.lastIndexOf('.'));
-    } else {
-      return key;
-    }
   }
 
   isDate(key: string, value: string): boolean {

@@ -86,6 +86,8 @@ export class UtmCpSectionComponent implements OnInit, OnChanges {
   loadReports() {
     if (!this.section.isActive) {
       this.isActive.emit(this.index);
+    } else {
+      this.section.isCollapsed = !this.section.isCollapsed;
     }
   }
 
