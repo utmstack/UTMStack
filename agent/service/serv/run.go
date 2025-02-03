@@ -7,8 +7,8 @@ import (
 
 func RunService() {
 	svcConfig := GetConfigServ()
-	prg := new(program)
-	newService, err := service.New(prg, svcConfig)
+	p := new(program)
+	newService, err := service.New(p, svcConfig)
 	if err != nil {
 		utils.Logger.Fatal("error creating new service: %v", err)
 	}

@@ -4,7 +4,7 @@ on:
   release:
     types: [ 'released' ]
   push:
-    branches: [ 'main', 'feature/**' ]
+    branches: [ 'main', 'release/**' ]
   pull_request_review:
     types: [submitted]
 

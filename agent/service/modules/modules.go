@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	moCache = []Module{}
+	moCache = make([]Module, 0, 10)
 )
 
 type Module interface {
@@ -35,7 +35,7 @@ func GetModule(typ string) Module {
 	}
 }
 
-func ModulesUp() {
+func StartModules() {
 	for {
 		time.Sleep(delayCheckSyslogCnfig)
 		logCollectorConfig, err := ReadCollectorConfig()
@@ -106,12 +106,12 @@ func ModulesUp() {
 func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 	configs := make(map[string][]bool) // first bool is if is necessary kill the port, second bool is if is necessary start the port
 
-	protos := []string{"tcp", "udp"}
-	for _, proto := range protos {
+	protocols := []string{"tcp", "udp"}
+	for _, protocol := range protocols {
 		var isEnabled bool
 		var port string
 
-		switch proto {
+		switch protocol {
 		case "tcp":
 			isEnabled = cnf.TCP.IsListen
 			port = cnf.TCP.Port
@@ -120,21 +120,21 @@ func processConfigs(mod Module, cnf Integration) (map[string][]bool, error) {
 			port = cnf.UDP.Port
 		}
 
-		if mod.IsPortListen(proto) && !isEnabled {
-			configs[proto] = []bool{true, false}
-		} else if !mod.IsPortListen(proto) && isEnabled {
-			configs[proto] = []bool{false, true}
-		} else if mod.IsPortListen(proto) && isEnabled && mod.GetPort(proto) != port {
-			configs[proto] = []bool{true, true}
+		if mod.IsPortListen(protocol) && !isEnabled {
+			configs[protocol] = []bool{true, false}
+		} else if !mod.IsPortListen(protocol) && isEnabled {
+			configs[protocol] = []bool{false, true}
+		} else if mod.IsPortListen(protocol) && isEnabled && mod.GetPort(protocol) != port {
+			configs[protocol] = []bool{true, true}
 		} else {
-			configs[proto] = []bool{false, false}
+			configs[protocol] = []bool{false, false}
 		}
 	}
 
 	return configs, nil
 }
 
-// Return true if the port change is allowed
+// ValidateChangeInPort returns true if the port change is allowed
 func ValidateChangeInPort(newPort string, dataType string) bool {
 	for _, logType := range config.ProhibitedPortsChange {
 		if string(logType) == dataType {

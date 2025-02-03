@@ -27,19 +27,28 @@ func main() {
 			}
 
 			utils.Logger.WriteSimpleMessage("Installing UTMStack Agent...")
-			if !utils.IsPortOpen(ip, config.AgentManagerPort) || !utils.IsPortOpen(ip, config.LogAuthProxyPort) || !utils.IsPortOpen(ip, config.DependenciesPort) {
-				utils.Logger.WriteFatal("one or more of the requiered ports are closed. Please open ports 9000 and 50051.")
+
+			if err := utils.IsPortReachable(ip, config.AgentManagerPort); err != nil {
+				utils.Logger.WriteFatal("cannot connect to %s on port %d, %v", ip, config.AgentManagerPort, err)
+			}
+
+			if err := utils.IsPortReachable(ip, config.LogAuthProxyPort); err != nil {
+				utils.Logger.WriteFatal("cannot connect to %s on port %d, %v", ip, config.LogAuthProxyPort, err)
+			}
+
+			if err := utils.IsPortReachable(ip, config.DependenciesPort); err != nil {
+				utils.Logger.WriteFatal("cannot connect to %s on port %d: %v", ip, config.DependenciesPort, err)
 			}
 
 			certsPath := filepath.Join(path, "certs")
 			err := utils.CreatePathIfNotExist(certsPath)
 			if err != nil {
-				utils.Logger.WriteFatal("error creating path: %s", err)
+				utils.Logger.WriteFatal("error creating path: %v", err)
 			}
 
 			err = utils.GenerateCerts(certsPath)
 			if err != nil {
-				utils.Logger.WriteFatal("error generating certificates: %s", err)
+				utils.Logger.WriteFatal("error generating certificates: %v", err)
 			}
 
 			utils.Logger.WriteSimpleMessage("Downloading UTMStack dependencies...")

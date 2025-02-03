@@ -6,12 +6,12 @@ import (
 )
 
 func GetIPAddress() (string, error) {
-	addrs, err := net.InterfaceAddrs()
+	ipAddress, err := net.InterfaceAddrs()
 	if err != nil {
 		return "", err
 	}
 
-	for _, addr := range addrs {
+	for _, addr := range ipAddress {
 		ipNet, ok := addr.(*net.IPNet)
 		if ok && !ipNet.IP.IsLoopback() {
 			if ipNet.IP.To4() != nil {
@@ -21,13 +21,4 @@ func GetIPAddress() (string, error) {
 	}
 
 	return "", errors.New("failed to get IP address")
-}
-
-func IsPortUsed(proto string, port string) bool {
-	conn, err := net.Listen(proto, ":"+port)
-	if err != nil {
-		return true
-	}
-	conn.Close()
-	return false
 }

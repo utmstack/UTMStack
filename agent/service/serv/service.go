@@ -2,14 +2,14 @@ package serv
 
 import (
 	"context"
+	"github.com/kardianos/service"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
 
-	"github.com/kardianos/service"
 	pb "github.com/utmstack/UTMStack/agent/service/agent"
-	"github.com/utmstack/UTMStack/agent/service/beats"
+	"github.com/utmstack/UTMStack/agent/service/collectors"
 	"github.com/utmstack/UTMStack/agent/service/config"
 	"github.com/utmstack/UTMStack/agent/service/database"
 	"github.com/utmstack/UTMStack/agent/service/logservice"
@@ -22,12 +22,13 @@ import (
 
 type program struct{}
 
-func (p *program) Start(s service.Service) error {
+func (p *program) Start(_ service.Service) error {
 	go p.run()
 	return nil
 }
 
-func (p *program) Stop(s service.Service) error {
+func (p *program) Stop(_ service.Service) error {
+	// TODO: implement this function
 	return nil
 }
 
@@ -53,11 +54,11 @@ func (p *program) run() {
 	go pb.IncidentResponseStream(cnf, ctx)
 	go pb.StartPing(cnf, ctx)
 
-	logp := logservice.GetLogProcessor()
-	go logp.ProcessLogs(cnf, ctx)
+	logProcessor := logservice.GetLogProcessor()
+	go logProcessor.ProcessLogs(cnf, ctx)
 
-	go modules.ModulesUp()
-	beats.BeatsLogsReader()
+	go modules.StartModules()
+	collectors.LogsReader()
 
 	go updates.UpdateDependencies(cnf)
 

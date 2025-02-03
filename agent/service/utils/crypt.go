@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func GenerateKey(REPALCE_KEY string) ([]byte, error) {
+func GenerateKey(baseKey string) ([]byte, error) {
 	info, err := GetOsInfo()
 	if err != nil {
 		return nil, fmt.Errorf("error getting os info: %v", err)
@@ -13,11 +13,11 @@ func GenerateKey(REPALCE_KEY string) ([]byte, error) {
 
 	data := []byte(info.Hostname + info.Mac + info.OsType)
 	base64Key := base64.StdEncoding.EncodeToString(data)
-	return []byte(REPALCE_KEY + base64Key), nil
+	return []byte(baseKey + base64Key), nil
 }
 
-func GenerateKeyByUUID(REPLACE_KEY string, uuid string) ([]byte, error) {
-	data := []byte(REPLACE_KEY + uuid)
+func GenerateKeyByUUID(baseKey string, uuid string) ([]byte, error) {
+	data := []byte(baseKey + uuid)
 	base64Key := base64.StdEncoding.EncodeToString(data)
 	return []byte(base64Key), nil
 }

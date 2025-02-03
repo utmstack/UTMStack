@@ -149,7 +149,8 @@ func (m *SyslogModule) enableTCP() {
 							return
 						}
 
-						netOpErr, ok := err.(*net.OpError)
+						var netOpErr *net.OpError
+						ok := errors.As(err, &netOpErr)
 						if ok && netOpErr.Timeout() {
 							continue
 						}
@@ -210,7 +211,8 @@ func (m *SyslogModule) enableUDP() {
 							return
 						}
 
-						netOpErr, ok := err.(*net.OpError)
+						var netOpErr *net.OpError
+						ok := errors.As(err, &netOpErr)
 						if ok && netOpErr.Timeout() {
 							continue
 						}

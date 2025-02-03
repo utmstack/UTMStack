@@ -1,4 +1,4 @@
-package beats
+package collectors
 
 import (
 	"fmt"
@@ -18,9 +18,9 @@ type Filebeat struct{}
 func (f Filebeat) Install() error {
 	path := utils.GetMyPath()
 
-	filebLogPath := filepath.Join(path, "beats", "filebeat")
-	beatConfig := BeatConfig{
-		LogsPath:    filepath.Join(filebLogPath, "logs"),
+	filebeatLogPath := filepath.Join(path, "beats", "filebeat")
+	beatConfig := CollectorConfig{
+		LogsPath:    filepath.Join(filebeatLogPath, "logs"),
 		LogFileName: "modulescollector",
 	}
 
@@ -31,7 +31,7 @@ func (f Filebeat) Install() error {
 			return fmt.Errorf("error creating %s folder", beatConfig.LogsPath)
 		}
 
-		configFile := filepath.Join(filebLogPath, "filebeat.yml")
+		configFile := filepath.Join(filebeatLogPath, "filebeat.yml")
 		templateFile := filepath.Join(path, "templates", "filebeat.yml")
 		if err = utils.GenerateFromTemplate(beatConfig, templateFile, configFile); err != nil {
 			return fmt.Errorf("error config from %s: %v", templateFile, err)
@@ -39,11 +39,11 @@ func (f Filebeat) Install() error {
 		switch runtime.GOOS {
 		case "windows":
 			err = utils.Execute("sc",
-				filebLogPath,
+				filebeatLogPath,
 				"create",
 				config.ModulesServName,
 				"binPath=",
-				fmt.Sprintf("\"%s\\filebeat.exe\" --environment=windows_service -c \"%s\\filebeat.yml\" --path.home \"%s\" --path.data \"C:\\ProgramData\\filebeat\" --path.logs \"C:\\ProgramData\\filebeat\\logs\" -E logging.files.redirect_stderr=true", filebLogPath, filebLogPath, filebLogPath),
+				fmt.Sprintf("\"%s\\filebeat.exe\" --environment=windows_service -c \"%s\\filebeat.yml\" --path.home \"%s\" --path.data \"C:\\ProgramData\\filebeat\" --path.logs \"C:\\ProgramData\\filebeat\\logs\" -E logging.files.redirect_stderr=true", filebeatLogPath, filebeatLogPath, filebeatLogPath),
 				"DisplayName=",
 				config.ModulesServName,
 				"start=",
@@ -52,27 +52,27 @@ func (f Filebeat) Install() error {
 				return fmt.Errorf("error installing %s service: %s", config.ModulesServName, err)
 			}
 
-			err = utils.Execute("sc", filebLogPath, "start", config.ModulesServName)
+			err = utils.Execute("sc", filebeatLogPath, "start", config.ModulesServName)
 			if err != nil {
 				return fmt.Errorf("error starting %s service: %s", config.ModulesServName, err)
 			}
 		case "linux":
 			if err = utils.CreateLinuxService(config.ModulesServName, fmt.Sprintf(
 				"%s -c %s -path.home %s -path.config %s -path.data /var/lib/filebeat -path.logs /var/log/filebeat",
-				filepath.Join(filebLogPath, "filebeat"),
-				filepath.Join(filebLogPath, "filebeat.yml"),
-				filebLogPath,
-				filebLogPath,
+				filepath.Join(filebeatLogPath, "filebeat"),
+				filepath.Join(filebeatLogPath, "filebeat.yml"),
+				filebeatLogPath,
+				filebeatLogPath,
 			),
 			); err != nil {
 				return fmt.Errorf("error creating %s service: %v", config.ModulesServName, err)
 			}
 
-			if err = utils.Execute("chmod", filebLogPath, "-R", "777", "filebeat"); err != nil {
+			if err = utils.Execute("chmod", filebeatLogPath, "-R", "777", "filebeat"); err != nil {
 				return fmt.Errorf("error executing chmod: %v", err)
 			}
 
-			if err = utils.Execute("systemctl", filebLogPath, "daemon-reload"); err != nil {
+			if err = utils.Execute("systemctl", filebeatLogPath, "daemon-reload"); err != nil {
 				return fmt.Errorf("error reloading daemon: %v", err)
 			}
 
@@ -82,27 +82,27 @@ func (f Filebeat) Install() error {
 			}
 
 			if family == "debian" || family == "rhel" {
-				err := utils.Execute("systemctl", filebLogPath, "enable", config.ModulesServName)
+				err := utils.Execute("systemctl", filebeatLogPath, "enable", config.ModulesServName)
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
 
-				err = utils.Execute("systemctl", filebLogPath, "start", config.ModulesServName)
+				err = utils.Execute("systemctl", filebeatLogPath, "start", config.ModulesServName)
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
 
-				err = utils.Execute("./filebeat", filebLogPath, "modules", "enable", "system")
+				err = utils.Execute("./filebeat", filebeatLogPath, "modules", "enable", "system")
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
 
-				err = utils.Execute("sed", filepath.Join(filebLogPath, "modules.d"), "-i", "s/enabled: false/enabled: true/g", "system.yml")
+				err = utils.Execute("sed", filepath.Join(filebeatLogPath, "modules.d"), "-i", "s/enabled: false/enabled: true/g", "system.yml")
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
 
-				err = utils.Execute("systemctl", filebLogPath, "restart", config.ModulesServName)
+				err = utils.Execute("systemctl", filebeatLogPath, "restart", config.ModulesServName)
 				if err != nil {
 					return fmt.Errorf("%s", err)
 				}
@@ -117,18 +117,18 @@ func (f Filebeat) SendSystemLogs() {
 	host, _ := os.Hostname()
 	logLinesChan := make(chan string)
 	path := utils.GetMyPath()
-	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
+	fileBeatLogPath := filepath.Join(path, "beats", "filebeat", "logs")
 
-	parser := parser.GetParser("beats")
+	beatsParser := parser.GetParser("beats")
 
-	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan)
+	go utils.WatchFolder("modulescollector", fileBeatLogPath, logLinesChan)
 	for logLine := range logLinesChan {
 		message, _, err := validations.ValidateString(logLine, false)
 		if err != nil {
 			utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 			continue
 		}
-		err = parser.ProcessData(logLine, host, logservice.LogQueue)
+		err = beatsParser.ProcessData(logLine, host, logservice.LogQueue)
 		if err != nil {
 			utils.Logger.ErrorF("error processing beats data: %v", err)
 			continue

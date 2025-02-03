@@ -40,10 +40,10 @@ func GetInitialConfig() (*Config, string) {
 }
 
 var (
-	cnf          = Config{}
-	confOnce     sync.Once
-	instuuid     = ""
-	instuuidOnce sync.Once
+	cnf                = Config{}
+	confOnce           sync.Once
+	installationId     = ""
+	installationIdOnce sync.Once
 )
 
 func GetCurrentConfig() (*Config, error) {
@@ -52,7 +52,7 @@ func GetCurrentConfig() (*Config, error) {
 		uuidExists := utils.CheckIfPathExist(UUIDFileName)
 
 		var encryptConfig Config
-		if err := utils.ReadYAML(ConfigFile, &encryptConfig); err != nil {
+		if err := utils.ReadYAML(ConfigurationFile, &encryptConfig); err != nil {
 			errR = fmt.Errorf("error reading config file: %v", err)
 			return
 		}
@@ -60,13 +60,13 @@ func GetCurrentConfig() (*Config, error) {
 		var key []byte
 		var err error
 		if uuidExists {
-			uuid, err := GetUUID()
+			id, err := GetUUID()
 			if err != nil {
 				errR = fmt.Errorf("failed to get uuid: %v", err)
 				return
 			}
 
-			key, err = utils.GenerateKeyByUUID(REPLACE_KEY, uuid)
+			key, err = utils.GenerateKeyByUUID(REPLACE_KEY, id)
 			if err != nil {
 				errR = fmt.Errorf("error geneating key: %v", err)
 				return
@@ -104,12 +104,12 @@ func GetCurrentConfig() (*Config, error) {
 }
 
 func SaveConfig(cnf *Config) error {
-	uuid, err := GenerateNewUUID()
+	id, err := GenerateNewUUID()
 	if err != nil {
 		return fmt.Errorf("failed to generate uuid: %v", err)
 	}
 
-	key, err := utils.GenerateKeyByUUID(REPLACE_KEY, uuid)
+	key, err := utils.GenerateKeyByUUID(REPLACE_KEY, id)
 	if err != nil {
 		return fmt.Errorf("error geneating key: %v", err)
 	}
@@ -126,20 +126,20 @@ func SaveConfig(cnf *Config) error {
 		SkipCertValidation: cnf.SkipCertValidation,
 	}
 
-	if err := utils.WriteYAML(ConfigFile, encryptConf); err != nil {
+	if err := utils.WriteYAML(ConfigurationFile, encryptConf); err != nil {
 		return err
 	}
 	return nil
 }
 
 func GenerateNewUUID() (string, error) {
-	uuid, err := uuid.NewRandom()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return "", fmt.Errorf("failed to generate uuid: %v", err)
 	}
 
 	InstallationUUID := InstallationUUID{
-		UUID: uuid.String(),
+		UUID: id.String(),
 	}
 
 	if err = utils.WriteYAML(UUIDFileName, InstallationUUID); err != nil {
@@ -151,19 +151,19 @@ func GenerateNewUUID() (string, error) {
 
 func GetUUID() (string, error) {
 	var errR error
-	instuuidOnce.Do(func() {
-		var uuid = InstallationUUID{}
-		if err := utils.ReadYAML(UUIDFileName, &uuid); err != nil {
+	installationIdOnce.Do(func() {
+		var id = InstallationUUID{}
+		if err := utils.ReadYAML(UUIDFileName, &id); err != nil {
 			errR = fmt.Errorf("error reading uuid file: %v", err)
 			return
 		}
 
-		instuuid = uuid.UUID
+		installationId = id.UUID
 	})
 
 	if errR != nil {
 		return "", errR
 	}
 
-	return instuuid, nil
+	return installationId, nil
 }

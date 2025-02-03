@@ -5,7 +5,6 @@ go 1.22.5
 require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/threatwinds/logger v1.1.12
-	google.golang.org/grpc v1.69.2
 )
 
 require (
@@ -37,7 +36,6 @@ require (
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241230172942-26aa7a208def // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
