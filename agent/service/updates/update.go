@@ -77,7 +77,6 @@ func UpdateDependencies(cnf *config.Config) {
 			}
 
 			utils.Execute(config.GetSelfUpdaterPath(), utils.GetMyPath())
-
 		}
 	}
 }

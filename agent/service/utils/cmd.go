@@ -18,16 +18,18 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		return string(out[:]) + err.Error(), true
+		return string(out) + err.Error(), true
 	}
 
-	if strings.TrimSpace(string(out[:])) == "" {
+	cleanedOut := strings.TrimSpace(string(out))
+
+	if cleanedOut == "" {
 		return "command executed successfully", false
 	}
 
-	validUtf8Out, _, err := validations.ValidateString(string(out[:]), false)
+	validUtf8Out, _, err := validations.ValidateString(cleanedOut, false)
 	if err != nil {
-		return string(out[:]) + err.Error(), true
+		return string(out) + err.Error(), true
 	}
 
 	return validUtf8Out, false

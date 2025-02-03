@@ -1,7 +1,7 @@
 package agent
 
 import (
-	context "context"
+	"context"
 	"fmt"
 	"os/user"
 	"strconv"
@@ -13,12 +13,12 @@ import (
 )
 
 func DeleteAgent(cnf *config.Config) error {
-	conn, err := conn.GetAgentManagerConnection(cnf)
+	connection, err := conn.GetAgentManagerConnection(cnf)
 	if err != nil {
 		return fmt.Errorf("error connecting to Agent Manager: %v", err)
 	}
 
-	agentClient := NewAgentServiceClient(conn)
+	agentClient := NewAgentServiceClient(connection)
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = metadata.AppendToOutgoingContext(ctx, "key", cnf.AgentKey)
 	ctx = metadata.AppendToOutgoingContext(ctx, "id", strconv.Itoa(int(cnf.AgentID)))
@@ -30,11 +30,11 @@ func DeleteAgent(cnf *config.Config) error {
 		return fmt.Errorf("error getting user: %v", err)
 	}
 
-	delet := &DeleteRequest{
+	delReq := &DeleteRequest{
 		DeletedBy: currentUser.Username,
 	}
 
-	_, err = agentClient.DeleteAgent(ctx, delet)
+	_, err = agentClient.DeleteAgent(ctx, delReq)
 	if err != nil {
 		utils.Logger.ErrorF("error removing UTMStack Agent from Agent Manager %v", err)
 	}

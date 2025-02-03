@@ -1,7 +1,7 @@
 package agent
 
 import (
-	context "context"
+	"context"
 	"fmt"
 	"strings"
 
@@ -12,12 +12,12 @@ import (
 )
 
 func RegisterAgent(cnf *config.Config, UTMKey string) error {
-	conn, err := conn.GetAgentManagerConnection(cnf)
+	connection, err := conn.GetAgentManagerConnection(cnf)
 	if err != nil {
 		return fmt.Errorf("error connecting to Agent Manager: %v", err)
 	}
 
-	agentClient := NewAgentServiceClient(conn)
+	agentClient := NewAgentServiceClient(connection)
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = metadata.AppendToOutgoingContext(ctx, "connection-key", UTMKey)
 	defer cancel()

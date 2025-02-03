@@ -38,7 +38,7 @@ type NetflowObject struct {
 	Message netflow.Message
 }
 
-func (p *NetflowParser) ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error {
+func (p *NetflowParser) ProcessData(logMessage interface{}, _ string, queue chan *plugins.Log) error {
 	var metrics []pnf.Metric
 	var remote string
 

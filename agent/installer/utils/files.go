@@ -29,17 +29,6 @@ func WriteStringToFile(fileName string, body string) error {
 	return err
 }
 
-func WriteBytesToFile(fileName string, data []byte) error {
-	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.Write(data) // Cambiado de WriteString a Write para aceptar []byte directamente
-	return err
-}
-
 func WriteJSON(path string, data interface{}) error {
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {

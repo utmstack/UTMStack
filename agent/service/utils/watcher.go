@@ -7,7 +7,7 @@ import (
 )
 
 func TailLogFile(filePath string, logLinesChan chan string, stopChan chan bool) {
-	latestline := "null"
+	latestLine := "null"
 
 loop:
 	for {
@@ -21,14 +21,14 @@ loop:
 				Logger.Info("error reading file %s: %v\n", filePath, err)
 				continue
 			}
-			if len(lines) == 1 && latestline != lines[0] {
+			if len(lines) == 1 && latestLine != lines[0] {
 				logLinesChan <- lines[0]
-				latestline = lines[0]
-			} else if len(lines) > 1 && latestline != lines[len(lines)-1] {
-				var startIndex int = 0
-				if latestline != "null" {
+				latestLine = lines[0]
+			} else if len(lines) > 1 && latestLine != lines[len(lines)-1] {
+				var startIndex = 0
+				if latestLine != "null" {
 					for i, v := range lines {
-						if v == latestline {
+						if v == latestLine {
 							startIndex = i + 1
 							break
 						}
@@ -38,7 +38,7 @@ loop:
 					logLinesChan <- line
 				}
 				if len(lines) > 0 {
-					latestline = lines[len(lines)-1]
+					latestLine = lines[len(lines)-1]
 				}
 			}
 			time.Sleep(time.Second)

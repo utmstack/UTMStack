@@ -9,11 +9,3 @@ func IncrementReconnectDelay(delay time.Duration, maxReconnectDelay time.Duratio
 	}
 	return delay
 }
-
-func IncrementReconnectTime(currentTime time.Duration, delay time.Duration, maxReconnectTime time.Duration) time.Duration {
-	currentTime = currentTime + delay
-	if currentTime >= maxReconnectTime {
-		currentTime = maxReconnectTime
-	}
-	return currentTime
-}

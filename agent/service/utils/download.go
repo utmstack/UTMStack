@@ -32,10 +32,9 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 	if err != nil {
 		return fmt.Errorf("error sending request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
 		return fmt.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
 	}
 
@@ -43,7 +42,7 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 	if err != nil {
 		return fmt.Errorf("error creating file: %v", err)
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/self/utils"
 )
 
-func UpdateService() error {
+func RunUpdate() error {
 	path := utils.GetMyPath()
 
 	newbin := config.GetAgentBin("new")
