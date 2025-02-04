@@ -152,10 +152,10 @@
     </form>
   </div>
   <div class="button-container d-flex justify-content-end pr-3 w-100">
-    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-2">
+    <button  *ngIf="currentStep == 1" (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-2">
       <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
-    <button *ngIf="currentStep == 1" (click)="next()" class="btn utm-button utm-button-primary">
+    <button *ngIf="currentStep == 1" [disabled]="ruleForm.invalid" (click)="next()" class="btn utm-button utm-button-primary">
       Next
       <i class="icon-arrow-right32"></i>&nbsp;
     </button>
