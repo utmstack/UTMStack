@@ -69,6 +69,7 @@ fieldset {
 }
 
 .form-body {
+  min-height: 450px;
   max-height: 700px;
   overflow-y: auto!important;
   overflow-x: hidden!important;

@@ -1,155 +1,170 @@
 <app-utm-modal-header [name]="(rule ?'Edit':'Create') + ' rule'"></app-utm-modal-header>
-<div class="modal-content d-flex flex-column pt-3 pl-3 pb-3">
-  <div class="form-body pr-1">
+<div class="modal-content d-flex flex-column p-3">
+  <div class="form-body w-100">
     <form [formGroup]="ruleForm">
-      <div class="row">
-        <div class="col-6">
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input [ngClass]="{'is-invalid': ruleForm.get('name').invalid && ruleForm.get('name').touched}"
-                   class="form-control" formControlName="name" id="name"
-                   type="text">
-            <div *ngIf="ruleForm.get('name').invalid && ruleForm.get('name').touched"
-                 class="invalid-feedback">
-              Name is required.
+      <ng-container *ngIf="currentStep == 1">
+        <div class="row">
+          <div class="col-6">
+            <div class="form-group">
+              <label for="name">Name:</label>
+              <input [ngClass]="{'is-invalid': ruleForm.get('name').invalid && ruleForm.get('name').touched}"
+                     class="form-control" formControlName="name" id="name"
+                     type="text">
+              <div *ngIf="ruleForm.get('name').invalid && ruleForm.get('name').touched"
+                   class="invalid-feedback">
+                Name is required.
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group">
+              <label for="category">Category:</label>
+              <input [ngClass]="{'is-invalid': ruleForm.get('category').invalid && ruleForm.get('category').touched}"
+                     class="form-control" formControlName="category" id="category"
+                     type="text">
+              <div *ngIf="ruleForm.get('category').invalid && ruleForm.get('category').touched"
+                   class="invalid-feedback">
+                Category is required.
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-6">
-          <div class="form-group">
-            <label for="category">Category:</label>
-            <input [ngClass]="{'is-invalid': ruleForm.get('category').invalid && ruleForm.get('category').touched}"
-                   class="form-control" formControlName="category" id="category"
-                   type="text">
-            <div *ngIf="ruleForm.get('category').invalid && ruleForm.get('category').touched"
-                 class="invalid-feedback">
-              Category is required.
+        <div class="row">
+          <div class="col-6">
+            <div class="form-group">
+              <label for="technique">Technique:</label>
+              <input [ngClass]="{'is-invalid': ruleForm.get('technique').invalid && ruleForm.get('technique').touched}"
+                     class="form-control" formControlName="technique" id="technique"
+                     type="text">
+              <div *ngIf="ruleForm.get('technique').invalid && ruleForm.get('technique').touched"
+                   class="invalid-feedback">
+                Technique is required.
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-select">
+              <label>Data Types:</label>
+              <ng-select (change)="onDataTypeChange($event)"
+                         (search)="onSearch($event)"
+                         (scrollToEnd)="loadDataTypes()"
+                         [addTag]="true"
+                         [items]="(types$ | async)"
+                         [loading]="loadingDataTypes"
+                         [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}"
+                         [trackByFn]="trackByFn"
+                         [virtualScroll]="true"
+                         addTagText="Create New"
+                         bindLabel="dataType"
+                         class="flex-item type-select"
+                         formControlName="dataTypes"
+                         multiple="true"
+                         placeholder="Choose or add types">
+              </ng-select>
+              <div *ngIf="ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched"
+                   class="invalid-feedback">
+                At least one data type is required.
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-6">
-          <div class="form-group">
-            <label for="technique">Technique:</label>
-            <input [ngClass]="{'is-invalid': ruleForm.get('technique').invalid && ruleForm.get('technique').touched}"
-                   class="form-control" formControlName="technique" id="technique"
-                   type="text">
-            <div *ngIf="ruleForm.get('technique').invalid && ruleForm.get('technique').touched"
-                 class="invalid-feedback">
-              Technique is required.
-            </div>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="form-group-select">
-            <label>Data Types:</label>
-            <ng-select (change)="onDataTypeChange($event)"
-                       (search)="onSearch($event)"
-                       (scrollToEnd)="loadDataTypes()"
-                       [addTag]="true"
-                       [items]="(types$ | async)"
-                       [loading]="loadingDataTypes"
-                       [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}"
-                       [trackByFn]="trackByFn"
-                       [virtualScroll]="true"
-                       addTagText="Create New"
-                       bindLabel="dataType"
-                       class="flex-item type-select"
-                       formControlName="dataTypes"
-                       multiple="true"
-                       placeholder="Choose or add types">
-            </ng-select>
-            <div *ngIf="ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched"
-                 class="invalid-feedback">
-              At least one data type is required.
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="row">
-        <div class="col-6">
-          <app-references [rule]="rule" [formGroup]="ruleForm"></app-references>
-        </div>
-        <div class="col-6">
-          <fieldset class="form-fieldset border p-3">
-            <legend>
-              <label>
-                Impact
-              </label>
-            </legend>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="confidentiality">Confidentiality:</label>
-                  <input
-                    [ngClass]="{'is-invalid': ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched}"
-                    class="form-control"
-                    formControlName="confidentiality"
-                    id="confidentiality"
-                    type="number">
-                  <div *ngIf="ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched"
-                       class="invalid-feedback">
-                    Value must be between 0 and 3.
+        <div class="row">
+          <div class="col-6">
+            <app-references [rule]="rule" [formGroup]="ruleForm"></app-references>
+          </div>
+          <div class="col-6">
+            <fieldset class="form-fieldset border p-3">
+              <legend>
+                <label>
+                  Impact
+                </label>
+              </legend>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="confidentiality">Confidentiality:</label>
+                    <input
+                      [ngClass]="{'is-invalid': ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched}"
+                      class="form-control"
+                      formControlName="confidentiality"
+                      id="confidentiality"
+                      type="number">
+                    <div *ngIf="ruleForm.get('confidentiality').invalid && ruleForm.get('confidentiality').touched"
+                         class="invalid-feedback">
+                      Value must be between 0 and 3.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="integrity">Integrity:</label>
+                    <input
+                      [ngClass]="{'is-invalid': ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched}"
+                      class="form-control" formControlName="integrity"
+                      id="integrity"
+                      type="number">
+                    <div *ngIf="ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched"
+                         class="invalid-feedback">
+                      Value must be between 0 and 3.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="availability">Availability:</label>
+                    <input
+                      [ngClass]="{'is-invalid': ruleForm.get('availability').invalid && ruleForm.get('availability').touched}"
+                      class="form-control" formControlName="availability"
+                      id="availability"
+                      type="number">
+                    <div *ngIf="ruleForm.get('availability').invalid && ruleForm.get('availability').touched"
+                         class="invalid-feedback">
+                      Value must be between 0 and 3.
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="integrity">Integrity:</label>
-                  <input
-                    [ngClass]="{'is-invalid': ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched}"
-                    class="form-control" formControlName="integrity"
-                    id="integrity"
-                    type="number">
-                  <div *ngIf="ruleForm.get('integrity').invalid && ruleForm.get('integrity').touched"
-                       class="invalid-feedback">
-                    Value must be between 0 and 3.
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="availability">Availability:</label>
-                  <input
-                    [ngClass]="{'is-invalid': ruleForm.get('availability').invalid && ruleForm.get('availability').touched}"
-                    class="form-control" formControlName="availability"
-                    id="availability"
-                    type="number">
-                  <div *ngIf="ruleForm.get('availability').invalid && ruleForm.get('availability').touched"
-                       class="invalid-feedback">
-                    Value must be between 0 and 3.
-                  </div>
-                </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea
+                [ngClass]="{'is-invalid': ruleForm.get('description').invalid && ruleForm.get('description').touched}"
+                class="form-control" formControlName="description"
+                id="description"
+                rows="4"></textarea>
+              <div *ngIf="ruleForm.get('description').invalid && ruleForm.get('description').touched"
+                   class="invalid-feedback">
+                Description is required.
               </div>
             </div>
-          </fieldset>
+          </div>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description:</label>
-        <textarea
-          [ngClass]="{'is-invalid': ruleForm.get('description').invalid && ruleForm.get('description').touched}"
-          class="form-control" formControlName="description"
-          id="description"
-          rows="2"></textarea>
-        <div *ngIf="ruleForm.get('description').invalid && ruleForm.get('description').touched"
-             class="invalid-feedback">
-          Description is required.
-        </div>
-      </div>
-
-      <app-variables [formGroup]="ruleForm" [rule]="rule" (variablesEmitter)="onChangeVariables($event)"></app-variables>
+      </ng-container>
+      <ng-container *ngIf="currentStep == 2">
+        <app-variables [formGroup]="ruleForm" [rule]="rule" (variablesEmitter)="onChangeVariables($event)"></app-variables>
+      </ng-container>
     </form>
   </div>
   <div class="button-container d-flex justify-content-end pr-3 w-100">
-    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
-      <i class="icon-cancel-circle2"></i>&nbsp; Cancel
+    <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-2">
+      <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
-    <button (click)="saveRule()" [disabled]="ruleForm.invalid" class="btn utm-button utm-button-primary">
-      <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt'"></i>&nbsp; Save
+    <button *ngIf="currentStep == 1" (click)="next()" class="btn utm-button utm-button-primary">
+      Next
+      <i class="icon-arrow-right32"></i>&nbsp;
+    </button>
+    <button *ngIf="currentStep == 2" (click)="back()" class="btn utm-button utm-button-primary mr-2">
+      <i class="icon-arrow-left32 top-0"></i>
+      Back
+    </button>
+    <button *ngIf="currentStep == 2" (click)="saveRule()" [disabled]="ruleForm.invalid" class="btn utm-button utm-button-primary">
+      <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Save
     </button>
   </div>
 </div>

@@ -31,6 +31,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   savedVariables = [];
   rule: Rule;
   loading: false;
+  currentStep = 1;
 
   constructor(private fb: FormBuilder,
               private dataTypeService: DataTypeService,
@@ -136,5 +137,12 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
   onChangeVariables(variables: any[]) {
     this.savedVariables = [...variables];
+  }
+
+  next(){
+    this.currentStep += 1;
+  }
+  back(){
+    this.currentStep -= 1;
   }
 }
