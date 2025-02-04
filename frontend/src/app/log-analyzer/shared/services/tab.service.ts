@@ -111,7 +111,6 @@ export class TabService {
    * Emit the latest state of the tabs.
    */
   private emitTabs(): void {
-    console.log(this.tabs);
     this.tabSubject.next(this.tabs);
   }
 }

@@ -55,15 +55,6 @@ export class ComplianceReportDetailComponent implements OnInit {
   }
 
   @Input() set report(report: ComplianceReportType) {
-    /*if (report) {
-      this._report = report;
-      this.request = {
-        ...this.request,
-        'idDashboard.equals': report.dashboardId,
-      };
-      this.utmRenderVisualization.notifyRefresh(true);
-    }*/
-
     if (report) {
       this._report = report;
       const visualizationType: UtmDashboardVisualizationType = report.dashboard.find(vis =>

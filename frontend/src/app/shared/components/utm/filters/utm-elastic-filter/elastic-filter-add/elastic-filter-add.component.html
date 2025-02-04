@@ -111,7 +111,9 @@
     !formFilter.valid ||
     (
       (formFilter.get('operator').value !== operatorEnum.IS_BETWEEN &&
+       formFilter.get('operator').value !== operatorEnum.EXIST &&
        formFilter.get('operator').value !== operatorEnum.IS_NOT_BETWEEN &&
+       formFilter.get('operator').value !== operatorEnum.DOES_NOT_EXIST &&
        !formFilter.get('value').value
       ) ||
       (
