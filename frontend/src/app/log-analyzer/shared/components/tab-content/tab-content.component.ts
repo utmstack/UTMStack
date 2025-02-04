@@ -17,7 +17,6 @@ export class TabContentComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('data:', this.tab.tabData);
     const tab: TabType = this.tab;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(
       tab.component

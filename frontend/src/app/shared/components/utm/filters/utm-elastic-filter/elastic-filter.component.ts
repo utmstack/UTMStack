@@ -47,10 +47,9 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
         if (filterType.status === 'ACTIVE') {
           if (!filterType.value) {
             this.popoverFilter.close();
-            this.selectFilter(filterType, this.filters.length - 1);
+            this.selectFilter(filterType, this.filters.length);
             this.editMode = true;
-            setTimeout(() =>  this.popoverFilter.open(),
-              300);
+            this.popoverFilter.open();
           }
 
           this.filters.push(filterType);
