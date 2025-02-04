@@ -44,13 +44,29 @@ export class ComplianceReportDetailComponent implements OnInit {
     this.compliance$ = this.utmRenderVisualization.onRefresh$
       .pipe(
         filter((refresh) => !!refresh),
-        concatMap(() => this.runVisualization.run(this.vis, {
-          page: 0,
-          size: 5,
-        })),
-        map(run => run[0] && run[0] ? run[0] : {
-          rows: []
-        }),
+        concatMap(() => this.utmRenderVisualization.query(this.request)
+          .pipe(
+            map(response => response.body.filter(vis =>
+              vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART
+            )),
+            filter(vis => vis.length > 0),
+            map(vis => vis[0].visualization),
+            tap( vis => {
+              const time = vis.filterType.find( filterType => filterType.field === '@timestamp');
+              if (time) {
+                this.timeWindowsService.changeTimeWindows({
+                  reportId: this.report.id,
+                  time: time.value[0]
+                });
+              }
+            }),
+            concatMap((vis: VisualizationType) => this.runVisualization.run(vis)),
+            map(run => {
+              return  run[0] && run[0] ? run[0] : {
+                rows: []
+              };
+            })
+          ))
       );
   }
 
