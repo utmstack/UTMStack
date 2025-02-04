@@ -1,23 +1,19 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Observable} from 'rxjs';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {DataType, Mode, Rule, Variable} from '../../../models/rule.model';
+import {AddRuleStepEnum, DataType, Mode, Rule} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
 
 @Component({
   selector: 'app-add-rule',
   templateUrl: './add-rule.component.html',
-  styleUrls: ['./add-rule.component.css'],
+  styleUrls: ['./add-rule.component.scss'],
 })
 export class AddRuleComponent implements OnInit, OnDestroy {
+  RULE_FORM = AddRuleStepEnum;
   ruleForm: FormGroup;
   mode: Mode = 'ADD';
   loadingDataTypes = false;
@@ -31,7 +27,8 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   savedVariables = [];
   rule: Rule;
   loading: false;
-  currentStep = 1;
+  currentStep = AddRuleStepEnum.STEP1;
+  stepCompleted: number[] = [];
 
   constructor(private fb: FormBuilder,
               private dataTypeService: DataTypeService,
@@ -131,18 +128,46 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-    this.dataTypeService.resetTypes();
-  }
-
   onChangeVariables(variables: any[]) {
     this.savedVariables = [...variables];
   }
 
   next(){
-    this.currentStep += 1;
+    this.stepCompleted.push(this.currentStep);
+    this.currentStep = AddRuleStepEnum.STEP2;
   }
   back(){
-    this.currentStep -= 1;
+    this.stepCompleted.pop();
+    this.currentStep = AddRuleStepEnum.STEP1;
+    if(this.mode === 'ADD'){
+      this.ruleForm.get('definition').markAsUntouched();
+      this.ruleForm.get('definition').markAsPristine();
+    }
+  }
+
+  isCompleted(step: number) {
+    return this.stepCompleted.findIndex(value => value === step) !== -1;
+  }
+
+  isValidStep(step: number) {
+    switch (step) {
+      case AddRuleStepEnum.STEP1:
+        return this.ruleForm.get('dataTypes').valid &&
+         this.ruleForm.get('name').valid &&
+         this.ruleForm.get('confidentiality').valid &&
+         this.ruleForm.get('integrity').valid &&
+         this.ruleForm.get('availability').valid &&
+         this.ruleForm.get('category').valid &&
+         this.ruleForm.get('technique').valid &&
+         this.ruleForm.get('references').valid &&
+         this.ruleForm.get('description').valid;
+
+      case AddRuleStepEnum.STEP2:
+        return this.ruleForm.get('definition').valid;
+    }
+  }
+
+  ngOnDestroy() {
+    this.dataTypeService.resetTypes();
   }
 }

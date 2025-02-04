@@ -1,3 +1,5 @@
+@import "../../../../../assets/styles/theme.scss";
+@import "../../../../../assets/styles/var.scss";
 
 .btn-close {
     height: 36px;
@@ -55,13 +57,6 @@ fieldset {
     left: 250px;
 }
 
-/*.references-container {
-    max-height: 132px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    padding: 5px;
-}*/
-
 .modal-content {
   display: flex;
   flex-direction: column;
@@ -69,7 +64,7 @@ fieldset {
 }
 
 .form-body {
-  min-height: 450px;
+  min-height: 590px;
   max-height: 700px;
   overflow-y: auto!important;
   overflow-x: hidden!important;
@@ -99,4 +94,61 @@ fieldset {
 
 .utm-button-grey{
   height: 30px;
+}
+
+.step-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  position: relative;
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+
+    .round-indicator {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+
+      i {
+        font-size: 11px;
+      }
+    }
+
+    .step-active {
+      background-color: $blue-scroll;
+    }
+
+    .step-inactive {
+      background-color: $grey-color;
+    }
+
+    .step-success {
+      background-color: $success-color !important;
+    }
+  }
+
+  .step-link {
+    height: 1px;
+    background-color: #7777;
+    width: 34%;
+    top: 33px;
+    left: 33%;
+    position: absolute;
+    z-index: 0;
+  }
+
+}
+
+.utm-box {
+  z-index: auto!important;
 }
