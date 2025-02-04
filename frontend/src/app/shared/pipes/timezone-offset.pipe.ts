@@ -7,9 +7,8 @@ import * as moment from 'moment-timezone';
 export class TimezoneOffsetPipe implements PipeTransform {
 
   transform(timezone: string): string {
-    console.log(timezone);
-    const offset = moment.tz(timezone).format('Z');  // Obtener offset como +02:00
-    return `GMT${offset}`;  // Concatenar con 'GMT'
+    const offset = moment.tz(timezone).format('Z');
+    return `GMT${offset}`;
   }
 
 }

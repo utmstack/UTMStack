@@ -284,7 +284,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     }
 
     this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    console.log('tableWidth', this.tableWidth);
   }
 
   changeFields(pattern: UtmIndexPattern) {
@@ -378,7 +377,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize', ['$event'])
   onResizeWindows(event: any) {
-    console.log('resize', event);
     this.pageWidth = event.target.innerWidth;
     this.setInitialWidth();
   }
