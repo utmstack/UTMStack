@@ -122,122 +122,308 @@ pipeline:
                 as: msgflag
                 ofType: string
             expression: msgflag_ok == false
+      # Performing json step over the remaining message field (Cases when log.message has a message field inside)
+      - json:
+          source: log.message
+          where:
+            variables:
+              - get: log.message
+                as: msgflag
+                ofType: string
+            expression: msgflag_ok == true
       # Rename audit fields from json
       - rename:
           from:
             - log.audit_format_version
           to: log.auditFormatVersion
+          where:
+            variables:
+              - get: log.audit_format_version
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_category
           to: log.auditCategory
+          where:
+            variables:
+              - get: log.audit_category
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_node_host_address
           to: log.auditNodeHostAddress
+          where:
+            variables:
+              - get: log.audit_node_host_address
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_node_host_name
           to: log.auditNodeHostName
+          where:
+            variables:
+              - get: log.audit_node_host_name
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_layer
           to: log.auditRequestLayer
+          where:
+            variables:
+              - get: log.audit_request_layer
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_origin
           to: log.auditRequestOrigin
+          where:
+            variables:
+              - get: log.audit_request_origin
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_effective_user_is_admin
           to: log.auditRequestEffectiveUserIsAdmin
+          where:
+            variables:
+              - get: log.audit_request_effective_user_is_admin
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_effective_user
           to: log.auditRequestEffectiveUser
+          where:
+            variables:
+              - get: log.audit_request_effective_user
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_rest_request_path
           to: log.auditRestRequestPath
+          where:
+            variables:
+              - get: log.audit_rest_request_path
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_rest_request_params
           to: log.auditRestRequestParams
+          where:
+            variables:
+              - get: log.audit_rest_request_params
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_rest_request_headers
           to: log.auditRestRequestHeaders
+          where:
+            variables:
+              - get: log.audit_rest_request_headers
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_initiating_user
           to: log.auditRequestInitiatingUser
+          where:
+            variables:
+              - get: log.audit_request_initiating_user
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_body
           to: log.auditRequestBody
+          where:
+            variables:
+              - get: log.audit_request_body
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_rest_request_method
           to: log.auditRestRequestMethod
+          where:
+            variables:
+              - get: log.audit_rest_request_method
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_exception_stacktrace
           to: log.auditRequestExceptionStacktrace
+          where:
+            variables:
+              - get: log.audit_request_exception_stacktrace
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_trace_task_id
           to: log.auditTraceTaskId
+          where:
+            variables:
+              - get: log.audit_trace_task_id
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_transport_headers
           to: log.auditTransportHeaders
+          where:
+            variables:
+              - get: log.audit_transport_headers
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_transport_request_type
           to: log.auditTransportRequestType
+          where:
+            variables:
+              - get: log.audit_transport_request_type
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_trace_indices
           to: log.auditTraceIndices
+          where:
+            variables:
+              - get: log.audit_trace_indices
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_trace_resolved_indices
           to: log.auditTraceResolvedIndices
+          where:
+            variables:
+              - get: log.audit_trace_resolved_indices
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_trace_doc_types
           to: log.auditTraceDocTypes
+          where:
+            variables:
+              - get: log.audit_trace_doc_types
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_trace_task_parent_id
           to: log.auditTraceTaskParentId
+          where:
+            variables:
+              - get: log.audit_trace_task_parent_id
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_request_privilege
           to: log.auditRequestPrivilege
+          where:
+            variables:
+              - get: log.audit_request_privilege
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.audit_compliance_operation
           to: log.auditComplianceOperation
+          where:
+            variables:
+              - get: log.audit_compliance_operation
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       - rename:
           from:
             - log.node.id
             - log.audit_node_id
           to: log.nodeId
+          where:
+            variables:
+              - get: log.node.id
+                as: fflag
+                ofType: string
+              - get: log.audit_node_id
+                as: f2flag
+                ofType: string
+            expression: fflag_ok == true || f2flag_ok == true
       - rename:
           from:
             - log.node.name
             - log.audit_node_name
           to: log.nodeName
+          where:
+            variables:
+              - get: log.node.name
+                as: fflag
+                ofType: string
+              - get: log.node.name
+                as: f2flag
+                ofType: string
+            expression: fflag_ok == true || f2flag_ok == true
       - rename:
           from:
             - log.cluster.name
             - log.audit_cluster_name
           to: log.clusterName
+          where:
+            variables:
+              - get: log.cluster.name
+                as: fflag
+                ofType: string
+              - get: log.audit_cluster_name
+                as: f2flag
+                ofType: string
+            expression: fflag_ok == true || f2flag_ok == true
       - rename:
           from:
             - log.cluster.uuid
           to: log.clusterUuid
+          where:
+            variables:
+              - get: log.cluster.uuid
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       # Adding severity based on log.level
       - add:
           function: 'string'
@@ -284,3 +470,5 @@ pipeline:
             - log.ecs
             - log.log
             - log.fileset
+            - log.cluster
+            - log.node
