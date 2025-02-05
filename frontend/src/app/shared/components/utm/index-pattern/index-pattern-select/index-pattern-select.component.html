@@ -54,6 +54,7 @@
         <div class="custom-flex-item custom-flex-item-grow-1">
           <div class="form-group form-group-feedback form-group-feedback-left m-0">
             <input
+              autofocus
               [(ngModel)]="searchTerm"
               [placeholder]="'Search source'"
               class="form-control"
@@ -89,7 +90,6 @@
         </div>
       </div>
 
-      <!-- Listado de patrones de índice -->
       <div class="custom-list-container" role="listbox" id="indexPatternList">
         <div
           *ngFor="let pat of patterns | filter: searchTerm"
