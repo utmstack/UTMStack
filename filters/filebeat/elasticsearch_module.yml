@@ -122,6 +122,107 @@ pipeline:
                 as: msgflag
                 ofType: string
             expression: msgflag_ok == false
+      # Rename audit fields from json
+      - rename:
+          from:
+            - log.audit_format_version
+          to: log.auditFormatVersion
+      - rename:
+          from:
+            - log.audit_category
+          to: log.auditCategory
+      - rename:
+          from:
+            - log.audit_node_id
+          to: log.auditNodeId
+      - rename:
+          from:
+            - log.audit_node_name
+          to: log.auditNodeName
+      - rename:
+          from:
+            - log.audit_node_host_address
+          to: log.auditNodeHostAddress
+      - rename:
+          from:
+            - log.audit_node_host_name
+          to: log.auditNodeHostName
+      - rename:
+          from:
+            - log.audit_request_layer
+          to: log.auditRequestLayer
+      - rename:
+          from:
+            - log.audit_request_origin
+          to: log.auditRequestOrigin
+      - rename:
+          from:
+            - log.audit_request_effective_user_is_admin
+          to: log.auditRequestEffectiveUserIsAdmin
+      - rename:
+          from:
+            - log.audit_request_effective_user
+          to: log.auditRequestEffectiveUser
+      - rename:
+          from:
+            - log.audit_rest_request_path
+          to: log.auditRestRequestPath
+      - rename:
+          from:
+            - log.audit_rest_request_params
+          to: log.auditRestRequestParams
+      - rename:
+          from:
+            - log.audit_rest_request_headers
+          to: log.auditRestRequestHeaders
+      - rename:
+          from:
+            - log.audit_request_initiating_user
+          to: log.auditRequestInitiatingUser
+      - rename:
+          from:
+            - log.audit_request_body
+          to: log.auditRequestBody
+      - rename:
+          from:
+            - log.audit_rest_request_method
+          to: log.auditRestRequestMethod
+      - rename:
+          from:
+            - log.audit_request_exception_stacktrace
+          to: log.auditRequestExceptionStacktrace
+      - rename:
+          from:
+            - log.audit_trace_task_id
+          to: log.auditTraceTaskId
+      - rename:
+          from:
+            - log.audit_transport_headers
+          to: log.auditTransportHeaders
+      - rename:
+          from:
+            - log.audit_transport_request_type
+          to: log.auditTransportRequestType
+      - rename:
+          from:
+            - log.audit_trace_indices
+          to: log.auditTraceIndices
+      - rename:
+          from:
+            - log.audit_trace_resolved_indices
+          to: log.auditTraceResolvedIndices
+      - rename:
+          from:
+            - log.audit_trace_doc_types
+          to: log.auditTraceDocTypes
+      - rename:
+          from:
+            - log.audit_trace_task_parent_id
+          to: log.auditTraceTaskParentId
+      - rename:
+          from:
+            - log.audit_request_privilege
+          to: log.auditRequestPrivilege
       # Adding severity based on log.level
       - add:
           function: 'string'
