@@ -56,6 +56,7 @@ import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-fu
 import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
+import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enum";
 
 @Component({
   selector: 'app-alert-view',
@@ -327,7 +328,25 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       {centered: true});
     modalSaveReport.componentInstance.filters = this.filters;
     modalSaveReport.componentInstance.dataType = this.dataType;
-    modalSaveReport.componentInstance.fields = this.fields.filter(value => value.visible === true);
+    modalSaveReport.componentInstance.fields = this.getColumnToExport();
+  }
+
+  getColumnToExport() {
+    let fields = this.fields.filter(value => value.visible === true);
+
+    fields = fields.map( f => {
+      if (f.field === ALERT_STATUS_FIELD) {
+        f = {
+          ...f,
+          field: ALERT_STATUS_LABEL_FIELD,
+          type: ElasticDataTypesEnum.STRING
+        };
+      }
+
+      return f;
+    });
+
+    return fields;
   }
 
   toggleCheck() {
