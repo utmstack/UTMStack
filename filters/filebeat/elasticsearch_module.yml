@@ -424,6 +424,12 @@ pipeline:
                 as: fflag
                 ofType: string
             expression: fflag_ok == true
+      # Casting new fields after json parsing
+      - cast:
+          to: '[]string'
+          fields:
+            - log.audittraceindices
+            - log.audittraceresolvedindices
       # Adding severity based on log.level
       - add:
           function: 'string'
@@ -472,3 +478,14 @@ pipeline:
             - log.fileset
             - log.cluster
             - log.node
+      # Droping unwanted logs
+      - drop:
+          where:
+            variables:
+              - get: action
+                as: act
+                ofType: string
+              - get: log.component
+                as: cmp
+                ofType: string
+            expression: act_ok == true && cmp_ok == true && ( (act != "elasticsearch.server" && act != "elasticsearch.audit") || (act == "elasticsearch.server" && (cmp.contains("audit")==false && cmp.contains("Audit")==false ) ) )
