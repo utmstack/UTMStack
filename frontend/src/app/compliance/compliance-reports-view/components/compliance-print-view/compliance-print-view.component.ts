@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {EMPTY, Observable} from 'rxjs';
-import {catchError, concatMap, filter, map, takeUntil, tap} from 'rxjs/operators';
+import {catchError, concatMap, filter, map, tap} from 'rxjs/operators';
 import { CpReportsService } from 'src/app/compliance/shared/services/cp-reports.service';
 import { ComplianceStandardSectionType } from 'src/app/compliance/shared/type/compliance-standard-section.type';
 import { UtmToastService } from 'src/app/shared/alert/utm-toast.service';
