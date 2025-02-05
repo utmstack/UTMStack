@@ -81,6 +81,12 @@ pipeline:
             - log.level
             - log.component
             - log.nodeName
+          where:
+            variables:
+              - get: log.msg
+                as: msgflag
+                ofType: string
+            expression: msgflag_ok == true
       - trim:
           function: suffix
           substring: ']'
@@ -89,12 +95,33 @@ pipeline:
             - log.level
             - log.component
             - log.nodeName
+          where:
+            variables:
+              - get: log.msg
+                as: msgflag
+                ofType: string
+            expression: msgflag_ok == true
       - reformat:
           fields:
             - deviceTime
           function: time
           fromFormat: '2022-01-20T22:52:07,431'
           toFormat: '2024-09-23T15:57:40.338364445Z'
+          where:
+            variables:
+              - get: deviceTime
+                as: dt
+                ofType: string
+            expression: dt_ok == true
+      # Begin parsing when message comes in json format
+      - json:
+          source: log.message
+          where:
+            variables:
+              - get: log.msg
+                as: msgflag
+                ofType: string
+            expression: msgflag_ok == false
       # Adding severity based on log.level
       - add:
           function: 'string'
