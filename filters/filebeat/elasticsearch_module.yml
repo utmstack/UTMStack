@@ -133,14 +133,6 @@ pipeline:
           to: log.auditCategory
       - rename:
           from:
-            - log.audit_node_id
-          to: log.auditNodeId
-      - rename:
-          from:
-            - log.audit_node_name
-          to: log.auditNodeName
-      - rename:
-          from:
             - log.audit_node_host_address
           to: log.auditNodeHostAddress
       - rename:
@@ -223,6 +215,29 @@ pipeline:
           from:
             - log.audit_request_privilege
           to: log.auditRequestPrivilege
+      - rename:
+          from:
+            - log.audit_compliance_operation
+          to: log.auditComplianceOperation
+      - rename:
+          from:
+            - log.node.id
+            - log.audit_node_id
+          to: log.nodeId
+      - rename:
+          from:
+            - log.node.name
+            - log.audit_node_name
+          to: log.nodeName
+      - rename:
+          from:
+            - log.cluster.name
+            - log.audit_cluster_name
+          to: log.clusterName
+      - rename:
+          from:
+            - log.cluster.uuid
+          to: log.clusterUuid
       # Adding severity based on log.level
       - add:
           function: 'string'
