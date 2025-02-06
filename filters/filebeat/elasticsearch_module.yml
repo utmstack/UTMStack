@@ -37,7 +37,7 @@ pipeline:
       - rename:
           from:
             - log.event.dataset
-          to: action
+          to: log.eventDataset
       - rename:
           from:
             - log.agent.version
@@ -147,7 +147,7 @@ pipeline:
       - rename:
           from:
             - log.audit_category
-          to: log.auditCategory
+          to: action
           where:
             variables:
               - get: log.audit_category
@@ -426,6 +426,27 @@ pipeline:
                 as: fflag
                 ofType: string
             expression: fflag_ok == true
+      # Adding fields from elastic audit json file
+      - rename:
+          from:
+            - log.event.type
+          to: log.eventType
+          where:
+            variables:
+              - get: log.event.type
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.event.action
+          to: action
+          where:
+            variables:
+              - get: log.event.action
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       # Casting new fields after json parsing
       - cast:
           to: '[]string'
@@ -484,7 +505,7 @@ pipeline:
       - drop:
           where:
             variables:
-              - get: action
+              - get: log.eventDataset
                 as: act
                 ofType: string
               - get: log.component
