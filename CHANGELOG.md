@@ -11,4 +11,3 @@
 - Moved “Add Filter” button to the left and improved filter UI with better icons.
 - Removed unnecessary header space to enhance table visibility.
 - Added "contains one of" and "does not contain one of" operators to filters.
-- Improved compliance report views with added functionalities, including status tracking and evidence attachments.
