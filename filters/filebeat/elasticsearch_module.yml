@@ -1,9 +1,11 @@
 # Elasticsearch filter, version 3.0.0
-# Fields based on https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-elasticsearch.html
+# Fields based on https://www.elastic.co/guide/en/elasticsearch/reference/8.17/audit-event-types.html, 
+# https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-elasticsearch.html
 # and filebeat fields.yml version 7.13.4 oss
-# Support logs from elasticsearch 7++
+# Support only audit logs from elasticsearch 7++
 # Filter Input requirements -> fileset: datatype
-#                              server: plain text
+#                              server: plain text, json
+#                              audit: plain text, json
 # 1. Parsing the json from beats
 # 2. Parsing the message field containing the elasticsearch log
 pipeline:
