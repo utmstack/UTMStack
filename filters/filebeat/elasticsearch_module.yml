@@ -447,12 +447,163 @@ pipeline:
                 as: fflag
                 ofType: string
             expression: fflag_ok == true
+      - rename:
+          from:
+            - log.request.id
+          to: log.requestId
+          where:
+            variables:
+              - get: log.request.id
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.origin.address
+          to: origin.ip
+          where:
+            variables:
+              - get: log.origin.address
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.origin.type
+          to: log.originType
+          where:
+            variables:
+              - get: log.origin.type
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.url.path
+          to: origin.url
+          where:
+            variables:
+              - get: log.url.path
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.url.query
+          to: log.urlQuery
+          where:
+            variables:
+              - get: log.url.query
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.request.method
+          to: log.method
+          where:
+            variables:
+              - get: log.request.method
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.transport_profile
+          to: log.transportProfile
+          where:
+            variables:
+              - get: log.transport_profile
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.user.name
+          to: origin.user
+          where:
+            variables:
+              - get: log.user.name
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.user.realm
+          to: log.userRealm
+          where:
+            variables:
+              - get: log.user.realm
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.user.run_by.name
+          to: log.userRunByName
+          where:
+            variables:
+              - get: log.user.run_by.name
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.authentication.type
+          to: log.authenticationType
+          where:
+            variables:
+              - get: log.authentication.type
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.apikey.name
+          to: log.apikeyName
+          where:
+            variables:
+              - get: log.apikey.name
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.user.roles
+          to: log.userRoles
+          where:
+            variables:
+              - get: log.user.roles
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.user.run_as.name
+          to: log.userRunAsName
+          where:
+            variables:
+              - get: log.user.run_as.name
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      - rename:
+          from:
+            - log.user.run_as.name
+          to: log.userRunAsName
+          where:
+            variables:
+              - get: log.user.run_as.name
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
       # Casting new fields after json parsing
       - cast:
           to: '[]string'
           fields:
-            - log.audittraceindices
-            - log.audittraceresolvedindices
+            - log.auditTraceIndices
+            - log.auditTraceResolvedIndices
+            - log.indices
       # Adding severity based on log.level
       - add:
           function: 'string'
@@ -501,6 +652,14 @@ pipeline:
             - log.fileset
             - log.cluster
             - log.node
+            - log.opaque_id
+            - log.trace_id
+            - log.x_forwarded_for
+            - log.request
+            - log.url
+            - log.user
+            - log.apikey
+            - log.authentication
       # Droping unwanted logs
       - drop:
           where:
