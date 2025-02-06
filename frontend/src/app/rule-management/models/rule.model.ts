@@ -70,3 +70,8 @@ export interface Rule {
 }
 
 export type Mode = 'ADD' | 'EDIT';
+
+export enum AddRuleStepEnum {
+  STEP1,
+  STEP2,
+}

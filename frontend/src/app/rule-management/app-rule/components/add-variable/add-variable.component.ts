@@ -1,11 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {singleTermValidator, variableTemplate} from "../../../custom-validators";
-import {ElasticSearchFieldInfoType} from "../../../../shared/types/elasticsearch/elastic-search-field-info.type";
-import {VariableDataType} from "../../../models/rule.constant";
-import {Observable} from "rxjs";
-import {FieldDataService} from "../../../../shared/services/elasticsearch/field-data.service";
-import {Rule} from "../../../models/rule.model";
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {FieldDataService} from '../../../../shared/services/elasticsearch/field-data.service';
+import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
+import {singleTermValidator, variableTemplate} from '../../../custom-validators';
+import {VariableDataType} from '../../../models/rule.constant';
+import {Rule} from '../../../models/rule.model';
 
 
 @Component({
@@ -24,7 +24,7 @@ export class AddVariableComponent implements OnInit {
               private fieldDataService: FieldDataService) { }
 
   ngOnInit() {
-    this.fields$ = this.getFields('log-*');
+    this.fields$ = this.getFields('v11-log-*');
     this.savedVariables = this.rule && this.rule.definition ? this.rule.definition.ruleVariables : [];
 
     this.formGroup.setControl('definition', this.fb.group({
