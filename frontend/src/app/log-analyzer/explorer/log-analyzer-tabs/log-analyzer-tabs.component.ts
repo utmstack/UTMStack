@@ -57,7 +57,6 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
         const isRefresh = params.refreshRoute || null;
         if (this.queryId) {
           this.logAnalyzerQueryService.find(this.queryId).subscribe(vis => {
-            console.log('QUERY:', vis);
             this.query = vis.body;
             this.addNewTab(this.query.name, this.query, params);
           });
@@ -122,7 +121,6 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('destroy');
     this.destroy$.next();
     this.destroy$.complete();
   }

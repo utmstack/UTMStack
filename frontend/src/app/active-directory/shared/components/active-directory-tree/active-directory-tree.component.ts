@@ -154,7 +154,6 @@ getAllInfo() {
   }
 
   deploy(item: TreeItem) {
-    console.log(item);
     const index = this.deployed.findIndex(value => value === item.id);
     if (index === -1) {
       this.deployed.push(item.id);
