@@ -1,11 +1,12 @@
 module github.com/utmstack/UTMStack/office365
 
-go 1.21.0
-toolchain go1.22.5
+go 1.22.4
+
+toolchain go1.23.4
 
 require (
 	github.com/threatwinds/logger v1.1.12
-	github.com/utmstack/config-client-go v1.2.5
+	github.com/utmstack/config-client-go v1.2.6
 )
 
 require (
