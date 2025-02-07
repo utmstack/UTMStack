@@ -109,8 +109,8 @@ github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068 h1:1B+EAUqxEyPByCf
 github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068/go.mod h1:QRP5wJOf7gGMGL2fCAfmh/5CMZQspRxT5DqghaPRrjM=
 github.com/threatwinds/logger v1.1.12 h1:3TzwO2+m5XwSHDc3QOYvg0nUnsj/U2yJppULndRzL/4=
 github.com/threatwinds/logger v1.1.12/go.mod h1:eevkhjP9wSpRekRIgi4ZAq7DMdlUMy+Shwx/QNDvOHg=
-github.com/threatwinds/validations v1.0.5 h1:kY/Y1g3urTqTNAL/80wWkxPrCHhcbISGduBuVz99d00=
-github.com/threatwinds/validations v1.0.5/go.mod h1:vedgpo8crNfHtCMoTlimBlbsFMalXpoTSuSfQh4gU48=
+github.com/threatwinds/validations v1.0.9 h1:p+DkqNpZ7g+uCmgv2FPDnkOM4ITrNxgauiTmNbVjo/E=
+github.com/threatwinds/validations v1.0.9/go.mod h1:POXU59KPuFTXcKl7qNWoQRNc9LiQnjbYBujjqWgW86A=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65EE=
