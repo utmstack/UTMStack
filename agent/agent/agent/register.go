@@ -29,12 +29,17 @@ func RegisterAgent(conn *grpc.ClientConn, cnf *configuration.Config, UTMKey stri
 		return fmt.Errorf("error getting os info: %v", err)
 	}
 
+	version, err := GetVersion()
+	if err != nil {
+		return fmt.Errorf("error getting agent version: %v", err)
+	}
+
 	request := &AgentRequest{
 		Ip:             ip,
 		Hostname:       osInfo.Hostname,
 		Os:             osInfo.OsType,
 		Platform:       osInfo.Platform,
-		Version:        osInfo.Version,
+		Version:        version,
 		RegisterBy:     osInfo.CurrentUser,
 		Mac:            osInfo.Mac,
 		OsMajorVersion: osInfo.OsMajorVersion,

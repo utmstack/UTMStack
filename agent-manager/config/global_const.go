@@ -5,6 +5,7 @@ import "os"
 func KeyAuthRoutes() []string {
 	return []string{
 		"/agent.AgentService/AgentStream",
+		"/agent.AgentService/UpdateAgent",
 		"/agent.AgentService/DeleteAgent",
 
 		"/agent.CollectorService/CollectorStream",
