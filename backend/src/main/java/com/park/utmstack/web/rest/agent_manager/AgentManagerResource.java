@@ -167,6 +167,13 @@ public class AgentManagerResource {
         }
     }
 
+    /**
+     * {@code POST  /update-agent-attrs} : Updates the agent attributes.
+     *
+     * @param agentRequestVM the attributes to change of the agent and authentication information.
+     * @return the {@link ResponseEntity} of type {@link AuthResponseDTO} with status {@code 200 (OK)}, status {@code 400 (Bad request)} if any entity validation fails,
+     * or with status {@code 500 (Internal Server Error)} if the agent manager didn't respond to the call.
+     */
     @PostMapping("/update-agent-attrs")
     public ResponseEntity<AuthResponseDTO> updateAgentAttributes (@Valid @RequestBody AgentRequestVM agentRequestVM) {
         final String ctx = CLASSNAME + ".updateAgentAttributes";
