@@ -87,9 +87,4 @@
 
     <include file="/config/liquibase/changelog/20241120001_update_compliance_menu.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20250127001_add_compliance_data.xml" relativeToChangelogFile="false"/>
-
-
-
-
 </databaseChangeLog>
