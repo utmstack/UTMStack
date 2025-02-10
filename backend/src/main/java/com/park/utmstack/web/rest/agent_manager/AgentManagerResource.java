@@ -10,15 +10,13 @@ import com.park.utmstack.service.incident_response.UtmIncidentVariableService;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.application_modules.UtmModuleResource;
 import com.park.utmstack.web.rest.util.HeaderUtil;
+import com.park.utmstack.web.rest.vm.AgentRequestVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -159,6 +157,21 @@ public class AgentManagerResource {
                     .build();
             AgentDTO response = agentGrpcService.getAgentByHostname(request);
             return ResponseEntity.ok(response.getStatus() == AgentStatusEnum.ONLINE);
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @PostMapping("/update-agent-attrs")
+    public ResponseEntity<AuthResponseDTO> updateAgentAttributes (AgentRequestVM agentRequestVM) {
+        final String ctx = CLASSNAME + ".updateAgentAttributes";
+        try {
+            AuthResponseDTO response = agentGrpcService.updateAgentAttributes(agentRequestVM);
+            return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

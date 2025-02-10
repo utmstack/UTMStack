@@ -1,17 +1,17 @@
 package com.park.utmstack.service.agent_manager;
 
+import com.google.rpc.context.AttributeContext;
 import com.park.utmstack.security.SecurityUtils;
-import com.park.utmstack.service.dto.agent_manager.AgentCommandDTO;
-import com.park.utmstack.service.dto.agent_manager.AgentDTO;
-import com.park.utmstack.service.dto.agent_manager.ListAgentsCommandsResponseDTO;
-import com.park.utmstack.service.dto.agent_manager.ListAgentsResponseDTO;
+import com.park.utmstack.service.dto.agent_manager.*;
 import com.park.utmstack.service.grpc.*;
+import com.park.utmstack.web.rest.vm.AgentRequestVM;
 import io.grpc.*;
 import io.grpc.Status;
 import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,6 +87,33 @@ public class AgentGrpcService {
         return new AgentDTO(agent);
     }
 
+    public AuthResponseDTO protoToDTOAuthResponse(AuthResponse auth) {
+        return new AuthResponseDTO(auth);
+    }
+
+    public AuthResponseDTO updateAgentAttributes(AgentRequestVM agentRequestVM) throws Exception {
+        final String ctx = CLASSNAME + ".updateAgentAttributes";
+        try {
+            if(!StringUtils.hasText(agentRequestVM.getIp())
+            || !StringUtils.hasText(agentRequestVM.getHostname())
+            || !StringUtils.hasText(agentRequestVM.getMac())
+            || !StringUtils.hasText(agentRequestVM.getAgentKey())
+            || agentRequestVM.getId() < 0){
+                throw new Exception(ctx + ": Invalid arguments, the following attributes are required: ip, hostname, mac, agentKey, agentId");
+            }
+            AgentRequest req = agentRequestVM.getAgentRequest();
+            Metadata customHeaders = new Metadata();
+            customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agentRequestVM.getAgentKey());
+            customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agentRequestVM.getId()));
+
+            Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
+            AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
+            AuthResponse authResponse = newStub.updateAgent(req);
+            return protoToDTOAuthResponse(authResponse);
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
 
     public AgentDTO updateAgentType(AgentTypeUpdate newType) throws Exception {
         final String ctx = CLASSNAME + ".updateAgentType";
