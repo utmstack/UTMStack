@@ -1,6 +1,5 @@
 package com.park.utmstack.service.agent_manager;
 
-import com.google.rpc.context.AttributeContext;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.dto.agent_manager.*;
 import com.park.utmstack.service.grpc.*;
@@ -11,7 +10,6 @@ import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,8 +46,8 @@ public class AgentGrpcService {
             ListAgentsResponseDTO dto = new ListAgentsResponseDTO();
 
             List<AgentDTO> agentDTOs = response.getRowsList().stream()
-                .map(this::protoToDTOAgent)
-                .collect(Collectors.toList());
+                    .map(this::protoToDTOAgent)
+                    .collect(Collectors.toList());
 
             dto.setAgents(agentDTOs);
             dto.setTotal(response.getTotal());
@@ -66,8 +64,8 @@ public class AgentGrpcService {
             ListAgentsCommandsResponseDTO dto = new ListAgentsCommandsResponseDTO();
 
             List<AgentCommandDTO> agentCommandDTOs = response.getRowsList().stream()
-                .map(this::protoToDTOAgentCommand)
-                .collect(Collectors.toList());
+                    .map(this::protoToDTOAgentCommand)
+                    .collect(Collectors.toList());
 
             dto.setAgentCommands(agentCommandDTOs);
             dto.setTotal(response.getTotal());
@@ -94,12 +92,8 @@ public class AgentGrpcService {
     public AuthResponseDTO updateAgentAttributes(AgentRequestVM agentRequestVM) throws Exception {
         final String ctx = CLASSNAME + ".updateAgentAttributes";
         try {
-            if(!StringUtils.hasText(agentRequestVM.getIp())
-            || !StringUtils.hasText(agentRequestVM.getHostname())
-            || !StringUtils.hasText(agentRequestVM.getMac())
-            || !StringUtils.hasText(agentRequestVM.getAgentKey())
-            || agentRequestVM.getId() < 0){
-                throw new Exception(ctx + ": Invalid arguments, the following attributes are required: ip, hostname, mac, agentKey, agentId");
+            if (agentRequestVM.getId() <= 0) {
+                throw new Exception(ctx + ": Invalid argument, the agent id must be greater than 0.");
             }
             AgentRequest req = agentRequestVM.getAgentRequest();
             Metadata customHeaders = new Metadata();
@@ -109,7 +103,13 @@ public class AgentGrpcService {
             Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
             AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
             AuthResponse authResponse = newStub.updateAgent(req);
-            return protoToDTOAuthResponse(authResponse);
+            if (authResponse != null) {
+                return protoToDTOAuthResponse(authResponse);
+            } else {
+                throw new Exception("The agent manager didn't respond to the request, probably is down !!!");
+            }
+        } catch (NullPointerException e) {
+            throw new Exception("The agent manager didn't respond to the request, probably is down !!!");
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }

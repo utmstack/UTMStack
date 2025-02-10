@@ -2,7 +2,9 @@ package com.park.utmstack.web.rest.vm;
 
 import com.park.utmstack.service.grpc.AgentRequest;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 public class AgentRequestVM {
     @NotEmpty
@@ -12,7 +14,7 @@ public class AgentRequestVM {
     private String os;
     private String platform;
     private String version;
-    private String registerBy;
+    @NotEmpty
     private String mac;
     private String osMajorVersion;
     private String osMinorVersion;
@@ -20,7 +22,7 @@ public class AgentRequestVM {
     private String addresses;
     @NotEmpty
     private String agentKey;
-    @NotEmpty
+    @Min(1)
     private int id;
 
 
@@ -33,7 +35,6 @@ public class AgentRequestVM {
                 .setOs(this.os)
                 .setPlatform(this.platform)
                 .setVersion(this.version)
-                .setRegisterBy(this.registerBy)
                 .setMac(this.mac)
                 .setOsMajorVersion(this.osMajorVersion)
                 .setOsMinorVersion(this.osMinorVersion)
@@ -80,14 +81,6 @@ public class AgentRequestVM {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public String getRegisterBy() {
-        return registerBy;
-    }
-
-    public void setRegisterBy(String registerBy) {
-        this.registerBy = registerBy;
     }
 
     public String getMac() {
