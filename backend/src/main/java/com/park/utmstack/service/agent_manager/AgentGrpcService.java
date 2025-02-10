@@ -92,9 +92,6 @@ public class AgentGrpcService {
     public AuthResponseDTO updateAgentAttributes(AgentRequestVM agentRequestVM) throws Exception {
         final String ctx = CLASSNAME + ".updateAgentAttributes";
         try {
-            if (agentRequestVM.getId() <= 0) {
-                throw new Exception(ctx + ": Invalid argument, the agent id must be greater than 0.");
-            }
             AgentRequest req = agentRequestVM.getAgentRequest();
             Metadata customHeaders = new Metadata();
             customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agentRequestVM.getAgentKey());
