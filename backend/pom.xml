@@ -42,7 +42,7 @@
         <javassist.version>3.27.0-GA</javassist.version>
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <liquibase.version>4.24.0</liquibase.version>
+        <liquibase.version>4.29.1</liquibase.version>
         <liquibase-hibernate5.version>4.5.0</liquibase-hibernate5.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
@@ -74,7 +74,7 @@
         <sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
         <!-- jhipster-needle-maven-property -->
         <io.grpc.version>1.55.1</io.grpc.version>
-        <protoc.version>3.23.2</protoc.version>
+        <protoc.version>4.29.3</protoc.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <annotation-api.version>1.2</annotation-api.version>
