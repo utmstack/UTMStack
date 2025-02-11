@@ -20,6 +20,7 @@ export class VisualizationType {
   userModified?: number;
   aggregationType?: MetricDataType;
   chartAction?: any;
+  systemOwner: boolean;
 
 }
 
