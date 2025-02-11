@@ -44,5 +44,8 @@ export class UtmAgentManagerService {
     return this.http.get<AgentCommandType[]>(this.resourceUrl + '/agent-commands', {params: options, observe: 'response'});
   }
 
+  updateAgent(agent: Partial<AgentType>): Observable<HttpResponse<any>> {
+    return this.http.post(this.resourceUrl + '/update-agent-attrs', agent, {observe: 'response'});
+  }
 
 }
