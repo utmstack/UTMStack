@@ -52,14 +52,14 @@ func endWith(str, suff string) bool {
 	return strings.HasSuffix(str, suff)
 }
 
-func expresion(exp, str string) bool {
+func expresion(exp, str string) (bool, error) {
 	re, err := regexp.Compile(exp)
 	if err == nil {
 		if re.MatchString(str) {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, err
 }
 
 func minThan(min, may string) bool {
@@ -104,9 +104,17 @@ func compare(operator, val1, val2 string) bool {
 	case "not end with":
 		return !endWith(val1, val2)
 	case "regexp":
-		return expresion(val2, val1)
+		matched, err := expresion(val2, val1)
+		if err == nil {
+			return matched
+		}
+		return false
 	case "not regexp":
-		return !expresion(val2, val1)
+		matched, err := expresion(val2, val1)
+		if err == nil {
+			return !matched
+		}
+		return false
 	case "<":
 		return minThan(val1, val2)
 	case ">":
