@@ -1,8 +1,8 @@
-**Contributing Guidelines for UTMStack**
+# Contributing Guidelines for UTMStack
 
 These guidelines are intended to help you contribute to the UTMStack repository in a way that is both helpful and productive.
 
-**How to Contribute**
+## How to Contribute
 
 1. Fork the UTMStack repository.
 2. Clone your forked repository to your local machine.
@@ -13,7 +13,7 @@ These guidelines are intended to help you contribute to the UTMStack repository 
 7. Respond to any feedback from maintainers and make changes as needed.
 8. Once your pull request is approved, it will be merged into the upstream UTMStack repository.
 
-**Code Style**
+## Code Style
 
 * Please follow the PEP 8 style guide for Python code.
 * Please follow the [Golang style guide](https://google.github.io/styleguide/go/guide) for Golang code.
@@ -23,17 +23,17 @@ These guidelines are intended to help you contribute to the UTMStack repository 
 * Please add comments to your code to explain what it does and why.
 * Please use consistent formatting throughout your code.
 
-**Testing**
+## Testing
 
 * Please add unit tests for your changes.
 * Please make sure that your changes do not break any existing tests.
 
-**Documentation**
+## Documentation
 
 * Please update the documentation to reflect your changes.
 * Please add new documentation for any new features or functionality that you add.
 
-**Other Guidelines**
+## Other Guidelines
 
 * Please be respectful of other contributors.
 * Please be constructive in your feedback.
