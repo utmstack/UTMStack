@@ -64,17 +64,16 @@ func expresion(exp, str string) (bool, error) {
 	return false, err
 }
 
-func minThan(min, may string) bool {
-	minN, err := strconv.ParseFloat(min, 64)
-	if err != nil {
-		return false
+func parseFloats(val1, val2 string) (float64, float64, error) {
+	f1, err1 := strconv.ParseFloat(val1, 64)
+	if err1 != nil {
+		return 0, 0, err1
 	}
-	mayN, err := strconv.ParseFloat(may, 64)
-	if err != nil {
-		return false
+	f2, err2 := strconv.ParseFloat(val2, 64)
+	if err2 != nil {
+		return 0, 0, err2
 	}
-
-	return minN < mayN
+	return f1, f2, nil
 }
 
 func compare(operator, val1, val2 string) bool {
@@ -107,24 +106,40 @@ func compare(operator, val1, val2 string) bool {
 		return !endWith(val1, val2)
 	case "regexp":
 		matched, err := expresion(val2, val1)
-		if err == nil {
-			return matched
+		if err != nil {
+			return false
 		}
-		return false
+		return matched
 	case "not regexp":
 		matched, err := expresion(val2, val1)
-		if err == nil {
-			return !matched
+		if err != nil {
+			return false
 		}
-		return false
+		return matched
 	case "<":
-		return minThan(val1, val2)
+		f1, f2, err := parseFloats(val1, val2)
+		if err != nil {
+			return false
+		}
+		return f1 < f2
 	case ">":
-		return !minThan(val1, val2)
+		f1, f2, err := parseFloats(val1, val2)
+		if err != nil {
+			return false
+		}
+		return f1 > f2
 	case "<=":
-		return equal(val1, val2) || minThan(val1, val2)
+		f1, f2, err := parseFloats(val1, val2)
+		if err != nil {
+			return false
+		}
+		return f1 <= f2
 	case ">=":
-		return equal(val1, val2) || !minThan(val1, val2)
+		f1, f2, err := parseFloats(val1, val2)
+		if err != nil {
+			return false
+		}
+		return f1 >= f2
 	case "exist":
 		return true
 	case "in cidr":
