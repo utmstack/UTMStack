@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"net"
 	"regexp"
 	"strconv"
@@ -9,17 +10,18 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func inCIDR(addr, network string) bool {
+func inCIDR(addr, network string) (bool, error) {
 	_, subnet, err := net.ParseCIDR(network)
 	if err == nil {
 		ip := net.ParseIP(addr)
 		if ip != nil {
 			if subnet.Contains(ip) {
-				return true
+				return true, nil
 			}
 		}
+		return false, fmt.Errorf("invalid IP address")
 	}
-	return false
+	return false, err
 }
 
 func equal(val1, val2 string) bool {
@@ -126,9 +128,17 @@ func compare(operator, val1, val2 string) bool {
 	case "exist":
 		return true
 	case "in cidr":
-		return inCIDR(val1, val2)
+		matched, err := inCIDR(val1, val2)
+		if err == nil {
+			return matched
+		}
+		return false
 	case "not in cidr":
-		return !inCIDR(val1, val2)
+		matched, err := inCIDR(val1, val2)
+		if err == nil {
+			return !matched
+		}
+		return false
 	default:
 		return false
 	}
