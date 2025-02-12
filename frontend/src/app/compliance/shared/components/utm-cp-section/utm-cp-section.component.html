@@ -1,44 +1,21 @@
-<div *ngIf="!expandable"
-     (click)="loadReports()"
-     [ngClass]="{'section-active': section.isCollapsed}"
-     class="section-name d-flex cursor-pointer justify-content-between align-items-center w-100">
-    <span class="section-title cursor-pointer d-flex align-items-center">
-      {{ section.standardSectionName }}
-    </span>
-</div>
-
-<div *ngIf="expandable">
-  <div class="section-name d-flex cursor-pointer justify-content-between align-items-center w-100"
-       [ngClass]="{'section-active': section.isCollapsed}"
-       (click)="section.isCollapsed = !section.isCollapsed; loadReports()">
-
-  <span class="section-title cursor-pointer d-flex align-items-center">
-    {{ section.standardSectionName }}
-  </span>
-
-    <button class="toggle-button"
-            aria-expanded="{{section.isCollapsed }}"
-            aria-controls="collapse{{ section.id }}">
-      <i class="icon-arrow-down32 font-size-sm text-dark" [ngClass]="{'icon-arrow-up32': !section.isCollapsed}"></i>
-    </button>
+<button class="d-flex align-items-center dropdown-btn w-100 mb-1"
+        [ngClass]="{'active': section.isCollapsed && !expandable }"
+        (click)=" loadReports()">
+        <span class="section-title">
+          {{ section.standardSectionName }}
+        </span>
+  <i *ngIf="expandable" class="font-size-sm text-dark"
+     [ngClass]="{'icon-arrow-right32': !section.isCollapsed, 'icon-arrow-down32 font-weight-bold' : section.isCollapsed}"></i>
+</button>
+<ul class="submenu" [ngClass]="{ 'show': section.isCollapsed && expandable }" id="collapse{{ section.id }}">
+  <div class="sub-menu-content pr-2">
+    <li class="section-item cursor-pointer mb-1"
+        [ngClass]="{'active': section.isActive && report.selected}"
+        *ngFor="let report of reports$  | async as reports; let index = index"
+        (click)="generateReport(report, reports)">
+      <span>
+        {{ report.configReportName ? report.configReportName : report.associatedDashboard.name }}
+      </span>
+    </li>
   </div>
-
-  <div class="collapse section-content" [ngClass]="{'show': section.isCollapsed}" id="collapse{{ section.id }}">
-    <div class="p-2">
-      <div *ngFor="let report of reports$ | async; let index = index"
-           class="report-item cursor-pointer d-flex align-items-start mb-2"
-           (click)="generateReport(index, report)"
-           [ngClass]="{'selected': section.isActive && report.selected}">
-        <div [ngClass]="{'text-primary': section.isActive && report.selected}"
-             class="flex-grow-1">
-          <label [innerHTML]="report.associatedDashboard.name | safe:'html'"
-                 class="font-size-base cursor-pointer text-wrap"
-                 *ngIf="report.associatedDashboard"></label>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
+</ul>

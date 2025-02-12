@@ -37,7 +37,6 @@ export class UserRouteAccessService implements CanActivate {
       }
       return false;
     } else {
-      console.log('URL:', url);
       this.stateStorageService.storeUrl(url);
       return false;
     }

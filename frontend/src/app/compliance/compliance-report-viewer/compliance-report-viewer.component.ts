@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalOptions} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -35,8 +35,10 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   activeSection: ComplianceStandardSectionType = null;
   pageable = {
     page: 0,
-    size: 15
+    size: 15,
+    sort: 'configReportName,desc'
   };
+  viewportHeight: number;
 
   constructor(private standardSectionService: CpStandardSectionService,
               private toastService: UtmToastService,
@@ -50,6 +52,12 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
               private localStorage: LocalStorageService) {
 
     this.standard = this.localStorage.retrieve('selectedStandard');
+    this.viewportHeight = window.innerHeight;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.viewportHeight = window.innerHeight;
   }
 
   ngOnInit() {
@@ -131,12 +139,17 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
     });
   }
 
-  onChangeSectionActive(index: number, sections: ComplianceStandardType[]) {
-    console.log(index, sections);
+  onChangeSectionActive(index: number, section: ComplianceStandardSectionType, sections: ComplianceStandardSectionType[]) {
     this.activeIndexSection = index;
-    this.standardSectionService.notifyRefresh({
-      loading: true,
-      activeSection: index
+    sections.forEach((sec, i) => {
+      if (i === index) {
+        sec.isCollapsed = true;
+        sec.isActive = true;
+        this.activeSection = section;
+      } else {
+        sec.isCollapsed = false;
+        sec.isActive = false;
+      }
     });
   }
 
@@ -176,12 +189,17 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
         standardId: this.activeSection.standardId,
         id: this.activeSection.id,
         page: this.pageable.page,
-        size: this.pageable.size
+        size: this.pageable.size,
+        sort: this.pageable.sort
    }));
   }
 
   onPageChange($event: any) {
     this.pageable = $event;
+  }
+
+  getMenuHeight() {
+    return 100 - ((150 / this.viewportHeight) * 100) + 'vh';
   }
 
   ngOnDestroy(): void {

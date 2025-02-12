@@ -84,7 +84,6 @@ export class LoginComponent implements OnInit {
   }
 
   checkLogin(url ?: string) {
-    console.log('Checking URL token');
     this.accountService.identity(true).then(value => {
       setTimeout(() => {
         if (value) {

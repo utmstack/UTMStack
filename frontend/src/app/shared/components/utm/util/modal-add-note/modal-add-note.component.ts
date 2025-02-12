@@ -1,8 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ComplianceStatusEnum} from '../../../../../compliance/shared/enums/compliance-status.enum';
+import {CpReportsService} from '../../../../../compliance/shared/services/cp-reports.service';
 import {ComplianceReportType} from '../../../../../compliance/shared/type/compliance-report.type';
-import {CpReportsService} from "../../../../../compliance/shared/services/cp-reports.service";
-import {UtmToastService} from "../../../../alert/utm-toast.service";
+import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
   selector: 'app-modal-add-note',
@@ -11,6 +12,7 @@ import {UtmToastService} from "../../../../alert/utm-toast.service";
 })
 export class ModalAddNoteComponent implements OnInit {
   @Input() report: ComplianceReportType;
+  @Input() isComplaint: boolean;
   header: string;
   message: string;
   confirmBtnText: string;
@@ -20,6 +22,7 @@ export class ModalAddNoteComponent implements OnInit {
   textType: 'warning' | 'danger';
   hideBtnCancel = false;
   note = '';
+  ComplianceStatusEnum = ComplianceStatusEnum;
 
   constructor(private activeModal: NgbActiveModal,
               private reportsService: CpReportsService,
@@ -30,9 +33,10 @@ export class ModalAddNoteComponent implements OnInit {
   }
 
   confirm() {
-    this.setReport();
+
     this.reportsService.update({
       ...this.report,
+      configReportNote: !this.isComplaint ? this.note : null,
       dashboard: [],
     }).subscribe(response => {
       this.toastService.showSuccessBottom('Note added successfully');
@@ -50,9 +54,5 @@ export class ModalAddNoteComponent implements OnInit {
 
   cancel() {
     this.activeModal.dismiss('cancel');
-  }
-
-  setReport(){
-    this.report.status === 'non_complaint' ? this.report.configReportNote = this.note : this.report.configReportNote = '';
   }
 }

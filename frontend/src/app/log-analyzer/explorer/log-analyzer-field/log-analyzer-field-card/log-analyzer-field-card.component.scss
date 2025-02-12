@@ -1,8 +1,4 @@
 .card-field {
-  i {
-    font-size: 12px;
-  }
-
   .field-name {
     min-width: 200px;
     white-space: nowrap;
@@ -52,6 +48,19 @@
   .icon-hover {
     display: inline-block;
   }
+}
+
+.content-circle {
+  color: #3F4254;
+  border: 1px solid #3F4254;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.icon-field {
+  font-size: 0.8rem!important;
 }
 
 

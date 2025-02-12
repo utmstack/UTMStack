@@ -57,7 +57,6 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
         const isRefresh = params.refreshRoute || null;
         if (this.queryId) {
           this.logAnalyzerQueryService.find(this.queryId).subscribe(vis => {
-            console.log('QUERY:', vis);
             this.query = vis.body;
             this.addNewTab(this.query.name, this.query, params);
           });
@@ -101,7 +100,7 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
     const uuid = UUID.UUID();
     this.tabNumber = this.tabService.getTabCount() + 1;
     const pattern = params && params.patternId ? new UtmIndexPattern(params.patternId, params.indexPattern, true) :
-      new UtmIndexPattern(1, 'v11-log-*', true);
+      new UtmIndexPattern(1, 'log-*', true);
 
     this.tabService.addTab(
       new TabType(LogAnalyzerViewComponent, (tabName ? tabName : 'New query ' + this.tabNumber),
@@ -122,7 +121,6 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('destroy');
     this.destroy$.next();
     this.destroy$.complete();
   }

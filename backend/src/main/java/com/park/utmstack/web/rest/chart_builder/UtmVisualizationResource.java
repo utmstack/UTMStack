@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -280,7 +282,10 @@ public class UtmVisualizationResource {
     }
 
     @PostMapping("/utm-visualizations/run")
-    public ResponseEntity<List<?>> run(@RequestBody UtmVisualization visualization) throws UtmChartBuilderException {
+    public ResponseEntity<List<?>> run(@RequestBody UtmVisualization visualization,
+                                       @RequestParam(value = "page", required = false) Integer page,
+                                       @RequestParam(value = "size", required = false) Integer size,
+                                       @RequestParam(defaultValue = "200") int top) throws UtmChartBuilderException {
         final String ctx = CLASSNAME + ".run";
         try {
             Assert.notNull(visualization, "Param utmVisualization must not be null");
@@ -289,7 +294,12 @@ public class UtmVisualizationResource {
                 return ResponseEntity.ok(Collections.emptyList());
 
             RequestDsl requestQuery = new RequestDsl(visualization);
-            SearchResponse<ObjectNode> result = elasticsearchService.search(requestQuery.getSearchSourceBuilder().build(), ObjectNode.class);
+            SearchResponse<ObjectNode> result;
+            if(Objects.nonNull(page) && Objects.nonNull(size)){
+                 result = elasticsearchService.search(requestQuery.getSearchSourceBuilder( PageRequest.of(page, size), top).build(), ObjectNode.class);
+            } else {
+                 result = elasticsearchService.search(requestQuery.getSearchSourceBuilder().build(), ObjectNode.class);
+            }
             ResponseParser<?> responseParser = responseParserFactory.instance(visualization.getChartType());
             return ResponseEntity.ok().body(responseParser.parse(visualization, result));
         } catch (Exception e) {

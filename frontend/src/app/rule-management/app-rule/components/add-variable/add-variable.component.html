@@ -103,7 +103,7 @@
           <div *ngFor="let savedVariable of savedVariables; let j = index">
             <div class="mr-2" *ngIf="!savedVariable.isEditing">
               <div style="min-width: 100px"
-                   class="d-flex flex-wrap cursor-pointer badge p-2 border-1 badge-flat font-weight-light border-primary-800 text-primary-800">
+                   class="d-flex flex-wrap cursor-pointer badge p-2 border-1 badge-flat font-weight-light border-grey-100 text-blue-800">
                 <div (click)="copyVariable(savedVariable.as)" [ngbTooltip]="savedVariable.get">
                   <i class="mr-1 font-size-sm icon-cog7"></i>
                   <span>

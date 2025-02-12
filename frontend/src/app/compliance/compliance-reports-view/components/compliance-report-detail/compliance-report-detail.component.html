@@ -1,11 +1,11 @@
-<div class="w-100" *ngIf="compliance$ | async as compliance">
-  <div [ngClass]="(report.status === 'complaint' || report.status === 'in_progress') ? 'border-left-success' : 'border-left-danger'">
+<div class="w-100 d-flex flex-column flex-grow-1 h-100" *ngIf="compliance$ | async as compliance">
+  <div [ngClass]="isComplaint() ? 'border-left-success' : 'border-left-danger'">
     <div class="d-flex justify-content-around align-content-center py-1" style="border-bottom: 1px solid #ccc;">
       <div style="padding-left: 10px" class="w-100">
         <span class="text-blue-800 font-weight-light mr-2">Status:</span>
-        <span [ngClass]="compliance.rows.length > 0 ? 'text-success' : 'text-danger'"
+        <span [ngClass]="isComplaint() ? 'text-success' : 'text-danger'"
               class="span-small-icon d-flex justify-content-start align-items-center">
-            {{ report.status === 'complaint' ? 'Compliant' : 'Non compliant' }}
+            {{ isComplaint() ? 'Compliant' : 'Non compliant' }}
         </span>
       </div>
 
@@ -58,13 +58,32 @@
       <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configSolution"></app-utm-collapsible-text>
     </div>
 
+    <ng-container *ngIf="report.configReportNote">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+        <span class="text-blue-800 font-weight-light mr-2">Compliance note:</span>
+      </div>
+
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+        <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configReportNote"></app-utm-collapsible-text>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isComplaint() && report.configRemediation">
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mt-3">
+        <span class="text-blue-800 font-weight-light mr-2">Compliance remediation:</span>
+      </div>
+
+      <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
+        <app-utm-collapsible-text class="font-size-base" [maxLength]="200" [text]="report.configRemediation"></app-utm-collapsible-text>
+      </div>
+    </ng-container>
+
     <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2 mt-3">
       <span class="text-blue-800 font-weight-light mr-2">Evidence:</span>
     </div>
 
-    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
-      <ngx-json-viewer [expanded]="false" [json]="compliance" class="col-12"></ngx-json-viewer>
-      <p class="font-size-base"></p>
+    <div *ngIf="compliance.rows.length > 0" class="alert-details w-100 d-flex d-flex flex-column flex-grow-1 overflow-auto mb-2">
+      <app-utm-json-detail-view [rowDocument]="compliance.rows"></app-utm-json-detail-view>
     </div>
   </div>
 </div>

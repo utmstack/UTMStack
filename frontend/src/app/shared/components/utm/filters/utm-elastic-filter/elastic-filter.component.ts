@@ -45,12 +45,21 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
         filter(filterType => !!filterType))
       .subscribe(filterType => {
         if (filterType.status === 'ACTIVE') {
+          if (!filterType.value) {
+            this.popoverFilter.close();
+            this.selectFilter(filterType, this.filters.length);
+            this.editMode = true;
+            this.popoverFilter.open();
+          }
+
           this.filters.push(filterType);
         } else {
           this.filters = this.filters.filter(f => f.value !== filterType.value);
         }
 
-        this.filterChange.emit(this.filters);
+        if (!this.filterSelected) {
+          this.filterChange.emit(this.filters);
+        }
       });
   }
 
@@ -95,13 +104,13 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
       return (value.field === filter.field && value.operator === filter.operator);
     });
     this.filters.splice(index, 1);
-    this.filterSelected = undefined;
+    this.filterSelected = null;
     this.filterChange.emit(this.filters);
   }
 
   deleteAll() {
     this.filters = [];
-    this.filterSelected = undefined;
+    this.filterSelected = null;
     this.filterChange.emit(this.filters);
   }
 

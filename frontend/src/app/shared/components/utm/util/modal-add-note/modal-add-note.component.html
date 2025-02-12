@@ -5,7 +5,7 @@
     {{textDisplay}}
   </div>
   <label [innerHTML]="message" class="font-weight-light modal-message"></label>
-  <div *ngIf="report.status === 'non_complaint'" class="w-100 mt-2">
+  <div *ngIf="!isComplaint" class="w-100 mt-2">
     <form #noteForm="ngForm">
       <textarea [(ngModel)]="note" #noteField="ngModel" required  class="form-control" name="note" rows="5"></textarea>
       <div *ngIf="noteField.invalid && noteField.dirty" class="text-danger">
@@ -18,7 +18,7 @@
       <i class="icon-cancel-circle2"></i>
       Cancel
     </button>
-    <button [disabled]="report.status === 'non_complaint' && note === ''" (click)="confirm()" [ngClass]="confirmBtnType" class="btn utm-button utm-button-primary">
+    <button [disabled]="(!isComplaint && note === '')" (click)="confirm()" [ngClass]="confirmBtnType" class="btn utm-button utm-button-primary">
       <i [ngClass]="confirmBtnIcon" class="icon-database-remove"></i>
       {{confirmBtnText}}
     </button>

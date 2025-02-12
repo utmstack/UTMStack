@@ -1,5 +1,14 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import {EMPTY, Observable} from 'rxjs';
 import {catchError, concatMap, filter, map, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
@@ -13,7 +22,7 @@ import {ComplianceStandardSectionType} from '../../type/compliance-standard-sect
   styleUrls: ['./utm-cp-section.component.css', ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UtmCpSectionComponent implements OnInit {
+export class UtmCpSectionComponent implements OnInit, OnChanges {
 
   @Input() section: ComplianceStandardSectionType;
   @Input() index: number;
@@ -30,16 +39,9 @@ export class UtmCpSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.section.isActive && this.index === 0) {
-      this.reportsService.notifyRefresh({
-        sectionId: this.section.id,
-        loading: true,
-        reportSelected: 0
-      });
-    }
     this.reports$ = this.reportsService.onRefresh$
       .pipe(filter(reportRefresh =>
-          !!reportRefresh && reportRefresh.loading && reportRefresh.sectionId === this.section.id),
+          !!reportRefresh && reportRefresh.loading && reportRefresh.sectionId === this.section.id && this.expandable),
         tap((reportRefresh) => {
           this.selected = reportRefresh.reportSelected;
         }),
@@ -47,7 +49,8 @@ export class UtmCpSectionComponent implements OnInit {
           page: 0,
           size: 1000,
           standardId: this.section.standardId,
-          sectionId: this.section.id
+          sectionId: this.section.id,
+          expandDashboard: true,
         })),
         map((res) => {
           return res.body.map((r, index) => {
@@ -70,30 +73,32 @@ export class UtmCpSectionComponent implements OnInit {
         }));
   }
 
-  loadReports() {
-    if (this.action === 'reports') {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.section.isActive) {
       this.reportsService.notifyRefresh({
         sectionId: this.section.id,
         loading: true,
         reportSelected: 0
       });
     }
+  }
 
+  loadReports() {
     if (!this.section.isActive) {
       this.isActive.emit(this.index);
+    } else {
+      this.section.isCollapsed = !this.section.isCollapsed;
     }
   }
 
-  generateReport(index: number, report: ComplianceReportType) {
-    if (this.section.isActive) {
-      this.reportsService.notifyRefresh({
-        sectionId: this.section.id,
-        loading: true,
-        reportSelected: index
-      });
+  generateReport(report: ComplianceReportType, reports: ComplianceReportType[]) {
+    if (this.section.isActive && report) {
+      reports.forEach(r => r.selected = false);
+      report.selected = true;
+      this.loadReport(report);
     }
-    this.loadReport(report);
   }
+
 
   loadReport(report: ComplianceReportType) {
     this.reportsService.loadReport({

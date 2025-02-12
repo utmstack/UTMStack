@@ -9,8 +9,10 @@ import {VisualizationType} from '../../../../shared/chart/types/visualization.ty
 import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {TimeWindowsService} from '../../../shared/components/utm-cp-section/time-windows.service';
 import {ComplianceReportType} from '../../../shared/type/compliance-report.type';
-import {ExportPdfService} from "../../../../shared/services/util/export-pdf.service";
-import {UtmToastService} from "../../../../shared/alert/utm-toast.service";
+import {ExportPdfService} from '../../../../shared/services/util/export-pdf.service';
+import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
+import {ComplianceStatusEnum} from '../../../shared/enums/compliance-status.enum';
+import {UtmDashboardVisualizationType} from '../../../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 
 @Component({
   selector: 'app-compliance-report-detail',
@@ -20,7 +22,7 @@ import {UtmToastService} from "../../../../shared/alert/utm-toast.service";
 export class ComplianceReportDetailComponent implements OnInit {
   request = {
     page: 0,
-    size: 10000,
+    size: 10,
     sort: 'order,asc',
     'idDashboard.equals': 0
   };
@@ -28,6 +30,8 @@ export class ComplianceReportDetailComponent implements OnInit {
   compliance$!: Observable<any>;
   csvExport = false;
   printFormat = false;
+  vis: VisualizationType;
+  ComplianceStatusEnum = ComplianceStatusEnum;
 
   constructor(private utmRenderVisualization: UtmRenderVisualization,
               private runVisualization: RunVisualizationService,
@@ -40,39 +44,33 @@ export class ComplianceReportDetailComponent implements OnInit {
     this.compliance$ = this.utmRenderVisualization.onRefresh$
       .pipe(
         filter((refresh) => !!refresh),
-        concatMap(() => this.utmRenderVisualization.query(this.request)
-          .pipe(
-            map(response => response.body.filter(vis =>
-              vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART
-            )),
-            filter(vis => vis.length > 0),
-            map(vis => vis[0].visualization),
-            tap( vis => {
-              const time = vis.filterType.find( filterType => filterType.field === '@timestamp');
-              if (time) {
-                this.timeWindowsService.changeTimeWindows({
-                  reportId: this.report.id,
-                  time: time.value[0]
-                });
-              }
-            }),
-            concatMap((vis: VisualizationType) => this.runVisualization.run(vis)),
-            map(run => {
-              return  run[0] && run[0] ? run[0] : {
-                rows: []
-              };
-            })
-          ))
+        concatMap(() => this.runVisualization.run(this.vis, {
+          page: 0,
+          size: 5,
+        })),
+        map(run => run[0] && run[0] ? run[0] : {
+          rows: []
+        }),
       );
   }
 
   @Input() set report(report: ComplianceReportType) {
     if (report) {
       this._report = report;
-      this.request = {
-        ...this.request,
-        'idDashboard.equals': report.dashboardId,
-      };
+      const visualizationType: UtmDashboardVisualizationType = report.dashboard.find(vis =>
+        vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART);
+
+      if (visualizationType) {
+        this.vis = visualizationType.visualization;
+      }
+      const time = visualizationType.visualization.filterType.find(filterType => filterType.field === '@timestamp');
+      if (time) {
+        this.timeWindowsService.changeTimeWindows({
+          reportId: report.id,
+          time: time.value[0]
+        });
+      }
+
       this.utmRenderVisualization.notifyRefresh(true);
     }
   }
@@ -134,4 +132,8 @@ export class ComplianceReportDetailComponent implements OnInit {
     });
   }
 
+  isComplaint() {
+    return this.report.configReportStatus === ComplianceStatusEnum.COMPLAINT
+      || (this.report.configReportNote && this.report.configReportNote !== '');
+  }
 }
