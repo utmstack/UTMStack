@@ -15,12 +15,12 @@
              [ngClass]="{'is-invalid': reference.invalid && reference.touched}"
              class="form-control"
              type="text">
-      <div class="input-group-append">
+      <div style="height: 36px" class="input-group-append">
         <button (click)="removeReference(i)"
                 [disabled]="references.length === 1"
                 class="btn btn-danger btn-close text-white"
                 type="button">
-          <i class="icon-trash text-white"></i>
+          <span class="icon-trash text-white"></span>
         </button>
       </div>
       <div *ngIf="reference.errors?.required && reference.touched"

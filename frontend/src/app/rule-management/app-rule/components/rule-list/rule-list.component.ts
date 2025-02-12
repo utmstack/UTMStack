@@ -94,17 +94,20 @@ export class RuleListComponent implements OnInit, OnDestroy {
     this.configService.action$
       .pipe(
         takeUntil(this.destroy$),
-        filter(action => action === Actions.CREATE_RULE)
+        filter(action => action === Actions.CREATE_RULE || action === Actions.IMPORT_RULE),
+        map(action =>  action === Actions.CREATE_RULE ? 'ADD' : 'IMPORT')
       )
-      .subscribe(() => this.addRule());
+      .subscribe((action) => this.addRule(action));
   }
 
-  addRule() {
+  addRule(mode: string) {
     const modalRef = this.modalService.open(AddRuleComponent, {
       size: 'lg',
       centered: true,
       windowClass: 'add-rule-modal',
     });
+
+    modalRef.componentInstance.mode = mode;
     this.handleResponse(modalRef);
   }
 
@@ -194,6 +197,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   editRule(rule: Rule) {
     const modal = this.modalService.open(AddRuleComponent, {size: 'lg', centered: true});
     modal.componentInstance.rule = rule;
+    modal.componentInstance.mode = 'EDIT';
 
     this.handleResponse(modal);
   }

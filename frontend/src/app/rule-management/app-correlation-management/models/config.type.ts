@@ -10,5 +10,6 @@ export enum Actions {
     CREATE_ASSET = 'Add asset',
     CREATE_TYPE = 'Add data type',
     CREATE_PATTERN = 'Add pattern',
-    CREATE_RULE = 'Add rule'
+    CREATE_RULE = 'Add rule',
+    IMPORT_RULE = 'Import rule',
 }

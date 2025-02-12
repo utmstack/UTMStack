@@ -96,7 +96,7 @@ fieldset {
   height: 30px;
 }
 
-.step-container {
+/*.step-container {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -140,15 +140,54 @@ fieldset {
   .step-link {
     height: 1px;
     background-color: #7777;
-    width: 34%;
+    width: 51%;
     top: 33px;
-    left: 33%;
+    left: 24%;
     position: absolute;
     z-index: 0;
   }
 
-}
-
+}*/
 .utm-box {
   z-index: auto!important;
 }
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.round-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ccc;
+  position: relative;
+  z-index: 1;
+}
+
+.step-link {
+  flex: 1;
+  height: 1px;
+  background-color: #ccc;
+  position: relative;
+  top: 10px;
+}
+
+.step-active {
+  background-color: $blue-scroll;
+}
+
+.step-inactive {
+  background-color: $grey-color;
+}
+
+.step-success {
+  background-color: $success-color !important;
+}
+

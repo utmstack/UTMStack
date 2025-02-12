@@ -27,7 +27,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   savedVariables = [];
   rule: Rule;
   loading: false;
-  currentStep = AddRuleStepEnum.STEP1;
+  currentStep: AddRuleStepEnum;
   stepCompleted: number[] = [];
 
   constructor(private fb: FormBuilder,
@@ -35,11 +35,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
               private ruleService: RuleService,
               private utmToastService: UtmToastService,
               public activeModal: NgbActiveModal) {
-    this.initializeForm();
   }
 
   ngOnInit() {
-    this.mode = this.rule ? 'EDIT' : 'ADD';
+    this.currentStep = this.mode !== 'IMPORT' ? AddRuleStepEnum.STEP1 : AddRuleStepEnum.STEP0;
     this.initializeForm(this.rule);
 
     this.types$ = this.dataTypeService.type$;
@@ -132,7 +131,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     this.savedVariables = [...variables];
   }
 
-  next(){
+  next() {
     this.stepCompleted.push(this.currentStep);
     this.currentStep = AddRuleStepEnum.STEP2;
   }

@@ -69,9 +69,10 @@ export interface Rule {
     ruleActive: boolean;
 }
 
-export type Mode = 'ADD' | 'EDIT';
+export type Mode = 'ADD' | 'EDIT' | 'IMPORT';
 
 export enum AddRuleStepEnum {
+  STEP0,
   STEP1,
   STEP2,
 }

@@ -5,9 +5,12 @@
             <button class="btn utm-button utm-button-primary" routerLink="/alerting-rules/manage">
                 <i class="icon-cog3 mr-1"></i> Configuration
             </button>
-            <button (click)="addRule()" class="btn utm-button utm-button-primary ml-2"> <!--routerLink="/alerting-rules/rule"-->
+            <button (click)="addRule(Actions.CREATE_RULE)" class="btn utm-button utm-button-primary ml-2">
                 <i class="icon-plus-circle2 mr-1"></i> Add new rule
             </button>
+          <button (click)="addRule(Actions.IMPORT_RULE)" class="btn utm-button utm-button-primary ml-2">
+            <i class="icon-upload mr-1"></i> Import rule
+          </button>
         </div>
     </div>
     <!--TABLE-->

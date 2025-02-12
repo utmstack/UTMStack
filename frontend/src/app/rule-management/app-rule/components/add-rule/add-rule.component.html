@@ -1,31 +1,39 @@
 <app-utm-modal-header [name]="(rule ?'Edit':'Create') + ' rule'"></app-utm-modal-header>
 <div class="modal-content d-flex flex-column p-3">
   <div class="form-body w-100">
-    <div class="d-flex flex-column justify-content-start align-items-start">
-      <div class="step-container mt-2 mb-4">
+    <div class="d-flex justify-content-center">
+      <div class="step-container d-flex justify-content-between mt-2 mb-4 w-75">
+        <ng-container *ngIf="mode === 'IMPORT'">
+          <div class="step">
+            <span class="text-blue-800 font-weight-bold">Import</span>
+            <div [ngClass]="isCompleted(RULE_FORM.STEP0) ? 'step-success': currentStep == RULE_FORM.STEP0 ? 'step-active' : 'step-inactive'"
+                 class="round-indicator">
+              <i class="text-white font-size-sm" [ngClass]="isCompleted(RULE_FORM.STEP0) ? 'icon-checkmark3' : 'icon-upload4'"></i>
+            </div>
+          </div>
+          <div class="step-link"></div>
+        </ng-container>
+
         <div class="step">
-          <span class="text-blue-800 font-weight-bold">
-            General
-        </span>
+          <span class="text-blue-800 font-weight-bold">General</span>
           <div [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'step-success': currentStep == RULE_FORM.STEP1 ? 'step-active' : 'step-inactive'"
                class="round-indicator">
-            <i [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'icon-checkmark3 top-0' : 'icon-pie-chart8 top-0'"></i>
+            <i class="text-white font-size-sm" [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'icon-checkmark3' : 'icon-markup'"></i>
           </div>
         </div>
         <div class="step-link"></div>
+
         <div class="step">
-          <span class="text-blue-800 font-weight-bold">
-            Definition
-        </span>
+          <span class="text-blue-800 font-weight-bold">Definition</span>
           <div [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'step-success' : currentStep == RULE_FORM.STEP2 ? 'step-active' : 'step-inactive'"
                class="round-indicator">
-            <i [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'icon-checkmark3 top-0' : 'icon-cog7 top-0'"></i>
+            <i class="text-white font-size-sm" [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'icon-checkmark3' : 'icon-cog7'"></i>
           </div>
         </div>
       </div>
     </div>
     <form [formGroup]="ruleForm">
-      <div [hidden]="currentStep == RULE_FORM.STEP2">
+      <div [hidden]="currentStep != RULE_FORM.STEP1">
         <div class="row">
           <div class="col-6">
             <div class="form-group">
@@ -169,16 +177,19 @@
           </div>
         </div>
       </div>
-      <div [hidden]="currentStep == RULE_FORM.STEP1">
-        <app-variables [formGroup]="ruleForm" [rule]="rule" (variablesEmitter)="onChangeVariables($event)"></app-variables>
+      <div [hidden]="currentStep != RULE_FORM.STEP2">
+        <app-variables [formGroup]="ruleForm" [rule]="rule"
+                       (variablesEmitter)="onChangeVariables($event)"></app-variables>
       </div>
     </form>
   </div>
   <div class="button-container d-flex justify-content-end pr-3 w-100">
-    <button  *ngIf="currentStep == RULE_FORM.STEP1" (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-2">
+    <button *ngIf="currentStep == RULE_FORM.STEP1" (click)="activeModal.close()"
+            class="btn utm-button utm-button-grey mr-2">
       <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
-    <button *ngIf="currentStep == RULE_FORM.STEP1" [disabled]="!isValidStep(RULE_FORM.STEP1)" (click)="next()" class="btn utm-button utm-button-primary">
+    <button *ngIf="currentStep == RULE_FORM.STEP1" [disabled]="!isValidStep(RULE_FORM.STEP1)" (click)="next()"
+            class="btn utm-button utm-button-primary">
       Next
       <i class="icon-arrow-right32"></i>&nbsp;
     </button>
@@ -186,7 +197,8 @@
       <i class="icon-arrow-left32 top-0"></i>
       Back
     </button>
-    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()" [disabled]="ruleForm.invalid" class="btn utm-button utm-button-primary">
+    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()" [disabled]="ruleForm.invalid"
+            class="btn utm-button utm-button-primary">
       <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Save
     </button>
   </div>
