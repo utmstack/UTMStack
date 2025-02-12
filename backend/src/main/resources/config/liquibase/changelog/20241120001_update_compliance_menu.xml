@@ -25,10 +25,16 @@
             WHERE id = 505;
 
             ALTER TABLE utm_compliance_report_config
-                ADD COLUMN config_report_note TEXT;
+                ADD COLUMN IF NOT EXISTS config_report_note TEXT;
 
             ALTER TABLE utm_compliance_report_config
-                ADD COLUMN config_report_name varchar(250);
+                ADD COLUMN IF NOT EXISTS config_report_name varchar(250);
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN IF NOT EXISTS config_report_remediation TEXT;
+
+            ALTER TABLE utm_compliance_report_config
+                ADD COLUMN IF NOT EXISTS config_report_status TEXT;
             ]]>
         </sql>
     </changeSet>

@@ -9,10 +9,12 @@ import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.util.TimezoneUtil;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
+import com.park.utmstack.util.exceptions.UtmSerializationException;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.aggregations.*;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.TrackHits;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -34,7 +36,50 @@ public class RequestDsl {
     }
 
     public SearchRequest.Builder getSearchSourceBuilder() throws UtmElasticsearchException {
+        return getSearchSourceBuilder(null, 10000);
+    }
+
+    public SearchRequest.Builder getSearchSourceBuilder(Pageable pageable, int top) throws UtmElasticsearchException {
         final String ctx = CLASSNAME + ".getSearchSourceBuilder";
+        try {
+            prepareSearchRequest();
+
+            if (isAggregatedChart()) {
+                buildAggregation();
+                searchRequestBuilder.size(0);
+                searchRequestBuilder.trackTotalHits(TrackHits.of(t -> t.enabled(true)));
+            } else {
+                applyPagination(pageable, top);
+            }
+            return searchRequestBuilder;
+        } catch (Exception e) {
+            throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
+        }
+    }
+
+    private void prepareSearchRequest() throws UtmSerializationException {
+        List<FilterType> filters = visualization.getFilterType();
+        if (CollectionUtils.isEmpty(filters)) {
+            filters = new ArrayList<>();
+        }
+        searchRequestBuilder.query(SearchUtil.toQuery(filters));
+    }
+
+    private boolean isAggregatedChart() {
+        return visualization.getChartType() != ChartType.LIST_CHART &&
+                visualization.getChartType() != ChartType.TEXT_CHART;
+    }
+
+    private void applyPagination(Pageable pageable, int top) {
+        if (pageable != null && pageable.isPaged()) {
+            SearchUtil.applyPaginationAndSort(searchRequestBuilder, pageable, top);
+        } else {
+            searchRequestBuilder.size(10000);
+        }
+    }
+
+    public SearchRequest.Builder getSearchSourceBuilderForCount() throws UtmElasticsearchException {
+        final String ctx = CLASSNAME + ".getSearchSourceBuilderForCount";
         try {
             List<FilterType> filters = visualization.getFilterType();
 
@@ -43,19 +88,16 @@ public class RequestDsl {
 
             searchRequestBuilder.query(SearchUtil.toQuery(filters));
 
-            if (visualization.getChartType() != ChartType.LIST_CHART &&
-                visualization.getChartType() != ChartType.TEXT_CHART) {
-                buildAggregation();
-                searchRequestBuilder.size(0);
-                searchRequestBuilder.trackTotalHits(TrackHits.of(t -> t.enabled(true)));
-            } else {
-                searchRequestBuilder.size(10000);
-            }
+            searchRequestBuilder.size(0);  // Esto asegura que no se devuelvan los documentos
+            searchRequestBuilder.trackTotalHits(TrackHits.of(t -> t.enabled(true)));
+
             return searchRequestBuilder;
         } catch (Exception e) {
             throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
         }
     }
+
+
 
     /**
      * Build an aggregation section for an elasticsearch dsl request

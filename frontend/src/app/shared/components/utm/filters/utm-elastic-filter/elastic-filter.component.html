@@ -101,8 +101,7 @@
 
         <!-- Filters List -->
         <div class="filters d-flex justify-content-start align-items-center flex-wrap">
-          <div
-            *ngFor="let filter of resolveFilters(); let index = index"
+          <div *ngFor="let filter of resolveFilters(); let index = index"
             class="dropdown cursor-pointer d-flex justify-content-center align-items-center border-1 mr-2 p-1 border-grey-100 border-radius-1"
             #popoverField="ngbPopover"
             (click)="selectFilter(filter, index)"

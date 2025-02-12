@@ -220,7 +220,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange($event: ElasticFilterType[]) {
-    console.log('filter', $event);
     this.utmFilterBehavior.$filterChange.next(null);
     this.utmFilterBehavior.$filterExistChange.next(null);
     this.filters = $event;
@@ -252,8 +251,10 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
         },
         (res: HttpResponse<any>) => {
           this.counter = moment(new Date()).diff(dateStart, 'seconds', true);
+          this.loading = false;
           this.runningQuery = false;
           this.error = true;
+          this.rows = [];
         }
       );
     } else {
@@ -283,7 +284,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     }
 
     this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    console.log('tableWidth', this.tableWidth);
   }
 
   changeFields(pattern: UtmIndexPattern) {
@@ -377,7 +377,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize', ['$event'])
   onResizeWindows(event: any) {
-    console.log('resize', event);
     this.pageWidth = event.target.innerWidth;
     this.setInitialWidth();
   }
