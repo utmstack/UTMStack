@@ -1,5 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {EMPTY, of} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 import {NetScanType} from '../../../../../assets-discover/shared/types/net-scan.type';
+import {UtmToastService} from '../../../../alert/utm-toast.service';
+import {UtmAgentManagerService} from '../../../../services/agent/utm-agent-manager.service';
 import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 
 @Component({
@@ -11,11 +15,19 @@ export class UtmAgentDetailComponent implements OnInit {
   @Input() agent: AgentType;
   @Input() asset: NetScanType;
   agentStatusEnum = AgentStatusEnum;
+  ips: string[];
+  macs: string[];
+  agentIp: string;
+  loading = false;
 
-  constructor() {
+  constructor(private agentManagerService: UtmAgentManagerService,
+              private utmToastService: UtmToastService) {
   }
 
   ngOnInit() {
+    this.agentIp = this.agent.ip;
+    this.ips = this.agent.addresses !== '' ? this.agent.addresses.split(',') : [];
+    this.macs = this.agent.mac !== '' ? this.agent.mac.split(',') : [];
   }
 
   public getAgentIcon(): string {
@@ -35,5 +47,28 @@ export class UtmAgentDetailComponent implements OnInit {
 
   getAssets() {
 
+  }
+
+  changeIp(event: string) {
+    this.loading = true;
+    const agent = {
+      id: this.agent.id,
+      ip: this.agentIp,
+      mac: this.macs.length > 0 ? this.macs[0] : '',
+      agentKey: this.agent.agentKey
+    };
+
+    this.agentManagerService.updateAgent(agent)
+      .pipe(
+        map(response => response.body),
+        tap(response => this.loading = false),
+        catchError(error => {
+          this.utmToastService.showError('Error',
+            'An error occurred while updating the agent ip. Please try again later.');
+          this.loading = false;
+          this.agentIp = this.agent.ip;
+          return EMPTY;
+        }))
+      .subscribe(() => this.agent.ip = this.agentIp);
   }
 }

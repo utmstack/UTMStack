@@ -2,7 +2,16 @@
   <div class="agent-details w-100 d-flex justify-content-start mb-2"
        *ngIf="agent.ip">
     <span class="text-blue-800 font-weight-light has-minimum-width">IP:</span>&nbsp;
-    {{agent.ip}}
+      <ng-select (change)="changeIp($event)"
+                 [(ngModel)]="agentIp"
+                 [loading]="loading"
+                 [clearable]="true"
+                 [items]="ips"
+                 [searchable]="false"
+                 class="has-minimum-width mr-3"
+                 placeholder="Agent ip"
+                 style="width: 40%"
+      ></ng-select>
   </div>
   <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.hostname">
     <span class="text-blue-800 font-weight-light has-minimum-width">Name:</span>&nbsp;

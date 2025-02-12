@@ -38,10 +38,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing UtmVisualization.
@@ -251,6 +248,7 @@ public class UtmVisualizationResource {
      * DELETE  /utm-visualizations/:id : delete the "id" utmVisualization.
      *
      * @param id the id of the utmVisualization to delete
+     * @throws NoSuchElementException 404 (Not Found) if the visualization does not exist or is a system owner
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/utm-visualizations/{id}")
@@ -259,7 +257,14 @@ public class UtmVisualizationResource {
         try {
             visualizationService.delete(id);
             return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(
+                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+        catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);

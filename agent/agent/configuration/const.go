@@ -109,16 +109,6 @@ var (
 	ProhibitedPortsChange = []LogType{LogTypeCiscoGeneric, LogTypeNetflow}
 )
 
-func GetCertPath() string {
-	path, _ := utils.GetMyPath()
-	return filepath.Join(path, "certs", "utm.crt")
-}
-
-func GetKeyPath() string {
-	path, _ := utils.GetMyPath()
-	return filepath.Join(path, "certs", "utm.key")
-}
-
 func GetCaPath() string {
 	path, _ := utils.GetMyPath()
 	return filepath.Join(path, "certs", "ca.crt")

@@ -1,11 +1,9 @@
 package com.park.utmstack.service.agent_manager;
 
 import com.park.utmstack.security.SecurityUtils;
-import com.park.utmstack.service.dto.agent_manager.AgentCommandDTO;
-import com.park.utmstack.service.dto.agent_manager.AgentDTO;
-import com.park.utmstack.service.dto.agent_manager.ListAgentsCommandsResponseDTO;
-import com.park.utmstack.service.dto.agent_manager.ListAgentsResponseDTO;
+import com.park.utmstack.service.dto.agent_manager.*;
 import com.park.utmstack.service.grpc.*;
+import com.park.utmstack.web.rest.vm.AgentRequestVM;
 import io.grpc.*;
 import io.grpc.Status;
 import io.grpc.stub.MetadataUtils;
@@ -48,8 +46,8 @@ public class AgentGrpcService {
             ListAgentsResponseDTO dto = new ListAgentsResponseDTO();
 
             List<AgentDTO> agentDTOs = response.getRowsList().stream()
-                .map(this::protoToDTOAgent)
-                .collect(Collectors.toList());
+                    .map(this::protoToDTOAgent)
+                    .collect(Collectors.toList());
 
             dto.setAgents(agentDTOs);
             dto.setTotal(response.getTotal());
@@ -66,8 +64,8 @@ public class AgentGrpcService {
             ListAgentsCommandsResponseDTO dto = new ListAgentsCommandsResponseDTO();
 
             List<AgentCommandDTO> agentCommandDTOs = response.getRowsList().stream()
-                .map(this::protoToDTOAgentCommand)
-                .collect(Collectors.toList());
+                    .map(this::protoToDTOAgentCommand)
+                    .collect(Collectors.toList());
 
             dto.setAgentCommands(agentCommandDTOs);
             dto.setTotal(response.getTotal());
@@ -87,6 +85,32 @@ public class AgentGrpcService {
         return new AgentDTO(agent);
     }
 
+    public AuthResponseDTO protoToDTOAuthResponse(AuthResponse auth) {
+        return new AuthResponseDTO(auth);
+    }
+
+    public AuthResponseDTO updateAgentAttributes(AgentRequestVM agentRequestVM) throws Exception {
+        final String ctx = CLASSNAME + ".updateAgentAttributes";
+        try {
+            AgentRequest req = agentRequestVM.getAgentRequest();
+            Metadata customHeaders = new Metadata();
+            customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agentRequestVM.getAgentKey());
+            customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agentRequestVM.getId()));
+
+            Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
+            AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
+            AuthResponse authResponse = newStub.updateAgent(req);
+            if (authResponse != null) {
+                return protoToDTOAuthResponse(authResponse);
+            } else {
+                throw new Exception("The agent manager didn't respond to the request, probably is down !!!");
+            }
+        } catch (NullPointerException e) {
+            throw new Exception("The agent manager didn't respond to the request, probably is down !!!");
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
 
     public AgentDTO updateAgentType(AgentTypeUpdate newType) throws Exception {
         final String ctx = CLASSNAME + ".updateAgentType";
