@@ -457,6 +457,32 @@ pipeline:
                 as: fflag
                 ofType: string
             expression: fflag_ok == true
+      # Extracting ip and port from address
+      - grok:
+          patterns:
+            - fieldName: log.origin.address
+              pattern: '(.*)\:'
+            - fieldName: origin.port
+              pattern: '{{.greedy}}'
+          source: log.origin.address
+          where:
+            variables:
+              - get: log.origin.address
+                as: fflag
+                ofType: string
+            expression: fflag_ok == true
+      # Cleaning ip address if has port
+      - trim:
+          function: suffix
+          substring: ':'
+          fields:
+            - log.origin.address
+          where:
+            variables:
+              - get: log.origin.address
+                as: oaddr
+                ofType: string
+            expression: oaddr_ok == true
       - rename:
           from:
             - log.origin.address
@@ -604,6 +630,7 @@ pipeline:
             - log.auditTraceIndices
             - log.auditTraceResolvedIndices
             - log.indices
+            - log.userRoles
       # Adding severity based on log.level
       - add:
           function: 'string'
