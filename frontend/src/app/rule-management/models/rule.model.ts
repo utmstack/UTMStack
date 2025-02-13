@@ -69,7 +69,7 @@ export interface Rule {
     ruleActive: boolean;
 }
 
-export type Mode = 'ADD' | 'EDIT' | 'IMPORT';
+export type Mode = 'ADD' | 'EDIT' | 'IMPORT' | 'ERROR';
 
 export enum AddRuleStepEnum {
   STEP0,

@@ -1,4 +1,4 @@
-<div (click)="fileInput.click()" (onFileDropped)="uploadFile($event)"
+<div [hidden]="shoPreview && previewFiles.length > 0" (click)="fileInput.click()" (onFileDropped)="uploadFile($event)"
      appUtmFileDragDrop class="uploadfilecontainer">
   <i class="icon-upload10"></i>
   <h6 class="font-weight-light text-blue-800">Drag file or click here to select {{msg}}</h6>
@@ -6,9 +6,32 @@
          hidden
          type="file">
 </div>
-<div *ngFor="let file of files;let i=index" class="files-list">
-  <span>{{ file.name }}</span>
-  <span (click)="deleteAttachment(i)" class="delete-file cursor-pointer">
+
+<div *ngIf="messageError" class="d-flex  mt-3 flex-column">
+  <div class="alert alert-danger alert-styled-right mb-2 info-dismissible w-100">
+    <span class="font-weight-semibold">Error! </span>
+     {{ messageError }}
+  </div>
+</div>
+
+<ng-container *ngIf="shoPreview; else defaultTemplate">
+  <div class="mt-3">
+    <ng-container *ngFor="let prev of previewFiles; let index = index">
+      <div class="border p-3 bg-light position-relative">
+        <span style="top: 7px;right: 10px;" (click)="deleteAttachment(index)" class="delete-file cursor-pointer position-absolute">
+          <i class="icon-cross2"></i>
+        </span>
+          <app-utm-json-detail-view [rowDocument]="prev"></app-utm-json-detail-view>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>
+
+<ng-template #defaultTemplate>
+  <div *ngFor="let file of files;let i=index" class="files-list">
+    <span>{{ file.name }}</span>
+    <span (click)="deleteAttachment(i)" class="delete-file cursor-pointer">
     <i class="icon-cross2"></i>
   </span>
-</div>
+  </div>
+</ng-template>

@@ -68,7 +68,7 @@ export class RuleService extends RefreshDataService<boolean, HttpResponse<Rule[]
   }
 
   public saveRule(mode: Mode, rule: Partial<Rule>) {
-    if (mode === 'ADD') {
+    if (mode === 'ADD' || mode === 'IMPORT') {
       return this.save(rule);
     } else {
       return this.update(rule);

@@ -1,11 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Observable} from 'rxjs';
+import {forkJoin, Observable} from 'rxjs';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {AddRuleStepEnum, DataType, Mode, Rule} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-add-rule',
@@ -39,10 +40,14 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.currentStep = this.mode !== 'IMPORT' ? AddRuleStepEnum.STEP1 : AddRuleStepEnum.STEP0;
-    this.initializeForm(this.rule);
+
+    if (this.mode !== 'IMPORT') {
+      this.initializeForm(this.rule);
+    }
 
     this.types$ = this.dataTypeService.type$;
     this.loadDataTypes();
+    console.log(this.ruleForm);
   }
 
   onDataTypeChange(selectedDataTypes: DataType[]) {
@@ -133,14 +138,21 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
   next() {
     this.stepCompleted.push(this.currentStep);
-    this.currentStep = AddRuleStepEnum.STEP2;
+    switch (this.currentStep) {
+      case 0: this.currentStep = AddRuleStepEnum.STEP1;
+              break;
+      case 1: this.currentStep = AddRuleStepEnum.STEP2;
+              break;
+    }
   }
+
   back(){
     this.stepCompleted.pop();
-    this.currentStep = AddRuleStepEnum.STEP1;
-    if(this.mode === 'ADD'){
-      this.ruleForm.get('definition').markAsUntouched();
-      this.ruleForm.get('definition').markAsPristine();
+    switch (this.currentStep) {
+      case 2: this.currentStep = AddRuleStepEnum.STEP1;
+              break;
+      case 1: this.currentStep = AddRuleStepEnum.STEP0;
+              break;
     }
   }
 
@@ -165,6 +177,39 @@ export class AddRuleComponent implements OnInit, OnDestroy {
         return this.ruleForm.get('definition').valid;
     }
   }
+
+  onFileChange($event: any): void {
+    if ($event.length > 0 ) {
+      if ($event[0].dataTypes) {
+        forkJoin(
+          $event[0].dataTypes.map((dt: string) =>
+            this.dataTypeService.getAll({ search: dt }).pipe(
+              map(res => res.body.length > 0 ? res.body[0] : null)
+            )
+          )
+        ).subscribe(filteredDataTypes => {
+          const dataTypes = filteredDataTypes.filter(dt => !!dt);
+          this.rule = {
+            ...$event[0],
+            dataTypes: dataTypes ? dataTypes : []
+          };
+          this.initializeForm(this.rule);
+        });
+      } else {
+        this.rule = {
+          ...$event[0]
+        };
+        this.initializeForm(this.rule);
+      }
+    } else {
+      this.mode = 'ERROR';
+    }
+  }
+
+  onLoadError(){
+    this.mode = 'ERROR';
+  }
+
 
   ngOnDestroy() {
     this.dataTypeService.resetTypes();

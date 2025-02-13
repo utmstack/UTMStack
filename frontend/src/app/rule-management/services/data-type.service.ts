@@ -4,8 +4,7 @@ import {BehaviorSubject, Observable, of} from 'rxjs';
 import {SERVER_API_URL} from '../../app.constants';
 import {createRequestOption} from '../../shared/util/request-util';
 import {DataType} from '../models/rule.model';
-import {switchMap, tap} from "rxjs/operators";
-import {InputSourceDataType} from "../../assets-discover/source-data-type-config/input-source-data.type";
+import {switchMap, tap} from 'rxjs/operators';
 
 const resourceUrl = `${SERVER_API_URL}api/data-types`;
 

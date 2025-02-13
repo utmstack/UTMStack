@@ -96,58 +96,10 @@ fieldset {
   height: 30px;
 }
 
-/*.step-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  width: 100%;
-  position: relative;
+.font-size-sm {
+  font-size: .85rem!important;
+}
 
-  .step {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-
-    .round-indicator {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-
-      i {
-        font-size: 11px;
-      }
-    }
-
-    .step-active {
-      background-color: $blue-scroll;
-    }
-
-    .step-inactive {
-      background-color: $grey-color;
-    }
-
-    .step-success {
-      background-color: $success-color !important;
-    }
-  }
-
-  .step-link {
-    height: 1px;
-    background-color: #7777;
-    width: 51%;
-    top: 33px;
-    left: 24%;
-    position: absolute;
-    z-index: 0;
-  }
-
-}*/
 .utm-box {
   z-index: auto!important;
 }

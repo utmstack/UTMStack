@@ -18,7 +18,7 @@
           <span class="text-blue-800 font-weight-bold">General</span>
           <div [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'step-success': currentStep == RULE_FORM.STEP1 ? 'step-active' : 'step-inactive'"
                class="round-indicator">
-            <i class="text-white font-size-sm" [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'icon-checkmark3' : 'icon-markup'"></i>
+            <i class="text-white font-size-sm top-0" [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'icon-checkmark3' : 'icon-shield-check'"></i>
           </div>
         </div>
         <div class="step-link"></div>
@@ -27,13 +27,26 @@
           <span class="text-blue-800 font-weight-bold">Definition</span>
           <div [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'step-success' : currentStep == RULE_FORM.STEP2 ? 'step-active' : 'step-inactive'"
                class="round-indicator">
-            <i class="text-white font-size-sm" [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'icon-checkmark3' : 'icon-cog7'"></i>
+            <i class="text-white font-size-sm top-0" [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'icon-checkmark3' : 'icon-cog7'"></i>
           </div>
         </div>
       </div>
     </div>
-    <form [formGroup]="ruleForm">
-      <div [hidden]="currentStep != RULE_FORM.STEP1">
+    <div [hidden]="currentStep != RULE_FORM.STEP0">
+      <div class="d-flex  mt-3 flex-column">
+        <div class="alert alert-info alert-styled-right mb-2 info-dismissible w-100">
+          <span class="font-weight-semibold">Info! </span>
+          The rule import process requires a valid file with a <strong>.yml</strong> extension.
+        </div>
+      </div>
+      <app-utm-file-upload (fileEmit)="onFileChange($event)"
+                           (errorEmit)="onLoadError()"
+                           [acceptTypes]="'.yml'"
+                           [shoPreview]="true"
+                           [multiple]="false"></app-utm-file-upload>
+    </div>
+    <form *ngIf="currentStep != RULE_FORM.STEP0" [formGroup]="ruleForm">
+        <div [hidden]="currentStep != RULE_FORM.STEP1">
         <div class="row">
           <div class="col-6">
             <div class="form-group">
@@ -183,12 +196,12 @@
       </div>
     </form>
   </div>
-  <div class="button-container d-flex justify-content-end pr-3 w-100">
-    <button *ngIf="currentStep == RULE_FORM.STEP1" (click)="activeModal.close()"
+  <div *ngIf="ruleForm" class="button-container d-flex justify-content-end pr-3 w-100">
+    <button *ngIf="currentStep != RULE_FORM.STEP2" (click)="activeModal.close()"
             class="btn utm-button utm-button-grey mr-2">
       <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
-    <button *ngIf="currentStep == RULE_FORM.STEP1" [disabled]="!isValidStep(RULE_FORM.STEP1)" (click)="next()"
+    <button *ngIf="currentStep != RULE_FORM.STEP2" [disabled]="currentStep == RULE_FORM.STEP1 && !isValidStep(RULE_FORM.STEP1)" (click)="next()"
             class="btn utm-button utm-button-primary">
       Next
       <i class="icon-arrow-right32"></i>&nbsp;
