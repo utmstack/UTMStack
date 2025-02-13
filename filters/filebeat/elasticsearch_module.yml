@@ -505,6 +505,17 @@ pipeline:
                 as: ip
                 ofType: string
             expression: ip_ok == true
+      # Port field conversion
+      - cast:
+          fields:
+            - origin.port
+          to: int
+          where:
+            variables:
+              - get: origin.port
+                as: prt
+                ofType: string
+            expression: prt_ok == true
       - rename:
           from:
             - log.origin.type
