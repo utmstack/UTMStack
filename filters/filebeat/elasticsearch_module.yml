@@ -493,6 +493,18 @@ pipeline:
                 as: fflag
                 ofType: string
             expression: fflag_ok == true
+      # Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where:
+            variables:
+              - get: origin.ip
+                as: ip
+                ofType: string
+            expression: ip_ok == true
       - rename:
           from:
             - log.origin.type
