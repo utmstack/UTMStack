@@ -38,7 +38,6 @@ type OSInfo struct {
 	Hostname       string
 	OsType         string
 	Platform       string
-	Version        string
 	CurrentUser    string
 	Mac            string
 	OsMajorVersion string
@@ -74,7 +73,6 @@ func GetOsInfo() (*OSInfo, error) {
 	info.Hostname = hostName
 	info.OsType = hostInfo.Info().OS.Type
 	info.Platform = hostInfo.Info().OS.Platform
-	info.Version = hostInfo.Info().OS.Version
 	info.CurrentUser = currentUser.Username
 	info.Mac = strings.Join(hostInfo.Info().MACs, ",")
 	info.OsMajorVersion = strconv.Itoa(hostInfo.Info().OS.Major)

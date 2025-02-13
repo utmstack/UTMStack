@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,6 +68,70 @@ func (s *Grpc) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthRespo
 	}
 
 	h.Info("Agent %s with id %d registered correctly", agent.Hostname, agent.ID)
+	return res, nil
+}
+
+func (s *Grpc) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthResponse, error) {
+	h := util.GetLogger()
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return &AuthResponse{}, status.Error(codes.Internal, "unable to get metadata from context")
+	}
+
+	ids, ok := md["id"]
+	if !ok || len(ids) == 0 {
+		return &AuthResponse{}, status.Error(codes.Internal, "unable to get agent id from metadata")
+	}
+
+	id, err := strconv.Atoi(ids[0])
+	if err != nil {
+		return &AuthResponse{}, status.Error(codes.Internal, "unable to parse agent id from metadata")
+	}
+
+	agent, err := agentService.FindByID(uint(id))
+	if err != nil {
+		h.ErrorF("Failed to find agent: %v", err)
+		return nil, err
+	}
+
+	if req.GetIp() != "" {
+		agent.Ip = req.GetIp()
+	}
+	if req.GetHostname() != "" {
+		agent.Hostname = req.GetHostname()
+	}
+	if req.GetVersion() != "" {
+		agent.Version = req.GetVersion()
+	}
+	if req.GetMac() != "" {
+		agent.Mac = req.GetMac()
+	}
+	if req.GetOsMajorVersion() != "" {
+		agent.OsMajorVersion = req.GetOsMajorVersion()
+	}
+	if req.GetOsMinorVersion() != "" {
+		agent.OsMinorVersion = req.GetOsMinorVersion()
+	}
+	if req.GetAliases() != "" {
+		agent.Aliases = req.GetAliases()
+	}
+	if req.GetAddresses() != "" {
+		agent.Addresses = req.GetAddresses()
+	}
+
+	err = agentService.Update(agent)
+	if err != nil {
+		h.ErrorF("Failed to update agent: %v", err)
+		return nil, err
+	}
+
+	res := &AuthResponse{
+		Id:  uint32(agent.ID),
+		Key: agent.AgentKey,
+	}
+
+	h.Info("Agent %s with id %d updated correctly", agent.Hostname, agent.ID)
 	return res, nil
 }
 

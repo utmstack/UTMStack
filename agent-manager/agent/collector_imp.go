@@ -260,7 +260,7 @@ func (s *Grpc) RegisterCollectorConfig(ctx context.Context, in *CollectorConfig)
 	err = collectorService.SaveCollectorConfigs(collectorConf, collector.ID)
 	if err != nil {
 		h.ErrorF("error saving collector configuration: %v", err)
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error saving collector configuration: %v", err.Error()))
+		return nil, status.Errorf(codes.Internal, "error saving collector configuration: %v", err.Error())
 	}
 
 	s.pendingConfigM.Lock()

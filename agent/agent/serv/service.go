@@ -90,6 +90,7 @@ func (p *program) run() {
 	beats.BeatsLogsReader(h)
 	go redline.CheckRedlineService(h)
 
+	go pb.UpdateAgent(agentClient, ctxAgent)
 	go modules.ModulesUp(h)
 	go pb.StartPing(pingClient, ctxPing, cnf, h)
 	go pb.IncidentResponseStream(agentClient, ctxAgent, cnf, h)
