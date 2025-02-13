@@ -2,7 +2,7 @@
 # Fields based on https://www.elastic.co/guide/en/elasticsearch/reference/8.17/audit-event-types.html, 
 # https://www.elastic.co/guide/en/beats/filebeat/7.13/filebeat-module-elasticsearch.html
 # and filebeat fields.yml version 7.13.4 oss
-# Support only audit logs from elasticsearch 7++
+# Support only server and audit logs from elasticsearch 7++
 # Filter Input requirements -> fileset: datatype
 #                              server: plain text, json
 #                              audit: plain text, json
@@ -660,6 +660,8 @@ pipeline:
             - log.user
             - log.apikey
             - log.authentication
+            - log.origin
+
       # Droping unwanted logs
       - drop:
           where:
@@ -670,4 +672,4 @@ pipeline:
               - get: log.component
                 as: cmp
                 ofType: string
-            expression: act_ok == true && cmp_ok == true && ( (act != "elasticsearch.server" && act != "elasticsearch.audit") || (act == "elasticsearch.server" && (cmp.contains("audit")==false && cmp.contains("Audit")==false ) ) )
+            expression: act_ok == true && cmp_ok == true && ( (act != "elasticsearch.server" && act != "elasticsearch.audit") || (act == "elasticsearch.server" && (cmp.matches("(A|a)udit")==false && cmp.matches("(S|s)(S|s)(L|l)")==false && cmp.matches("(S|s)ecurity")==false ) ) )
