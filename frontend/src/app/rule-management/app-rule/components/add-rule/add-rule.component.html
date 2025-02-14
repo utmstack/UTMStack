@@ -40,10 +40,8 @@
         </div>
       </div>
       <app-utm-file-upload (fileEmit)="onFileChange($event)"
-                           (errorEmit)="onLoadError()"
-                           [acceptTypes]="'.yml'"
-                           [shoPreview]="true"
-                           [multiple]="false"></app-utm-file-upload>
+                           [acceptTypes]="'.yml'">
+      </app-utm-file-upload>
     </div>
     <form *ngIf="currentStep != RULE_FORM.STEP0" [formGroup]="ruleForm">
         <div [hidden]="currentStep != RULE_FORM.STEP1">

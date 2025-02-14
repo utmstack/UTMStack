@@ -89,10 +89,8 @@ export class UtmFileUploadComponent implements OnInit {
               resolve(arr);
             }
           } catch (error) {
-            const errorMessage = `Error parsing file ${fileArray[index].name}: ${error.message}`;
-            console.error(errorMessage);
-            this.files.splice(index, 1);
-            reject(errorMessage);
+            filesProcessed++;
+            fileArray[index].error = `Error parsing file ${fileArray[index].name}: ${error.message}`;
           }
         };
 
@@ -105,4 +103,7 @@ export class UtmFileUploadComponent implements OnInit {
     });
   }
 
+  showError(file: any) {
+    file.showError = !file.showError;
+  }
 }

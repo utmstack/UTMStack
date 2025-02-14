@@ -67,6 +67,9 @@ export interface Rule {
     definition: Definition;
     systemOwner: boolean;
     ruleActive: boolean;
+    valid?: boolean;
+    showDetail?: boolean;
+    status?: boolean;
 }
 
 export type Mode = 'ADD' | 'EDIT' | 'IMPORT' | 'ERROR';

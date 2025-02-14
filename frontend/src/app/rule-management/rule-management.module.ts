@@ -40,6 +40,8 @@ import {
 } from './app-correlation-management/components/assets/components/components/asset-detail/asset-detail.component';
 import {AddReferenceComponent} from "./app-rule/components/reference/add-reference.component";
 import {AddVariableComponent} from "./app-rule/components/add-variable/add-variable.component";
+import {ImportRuleComponent} from "./app-rule/components/import-rules/import-rule.component";
+import {ImportRuleService} from "./app-rule/components/import-rules/import-rule.service";
 
 
 @NgModule({
@@ -49,6 +51,7 @@ import {AddVariableComponent} from "./app-rule/components/add-variable/add-varia
       RuleFieldComponent,
       RuleDetailComponent,
       AddRuleComponent,
+      ImportRuleComponent,
       SidebarComponent,
       AppCorrelationManagementComponent,
       AssetsComponent,
@@ -88,12 +91,14 @@ import {AddVariableComponent} from "./app-rule/components/add-variable/add-varia
       PatternManagerService,
       PatternsResolverService,
       AssetsResolverService,
-      AssetManagerService
+      AssetManagerService,
+      ImportRuleService
   ],
    entryComponents: [
        AddTypeComponent,
        AddPatternComponent,
-       AddAssetComponent
+       AddAssetComponent,
+       ImportRuleComponent
    ]
 })
 export class RuleManagementModule { }

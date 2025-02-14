@@ -1,0 +1,115 @@
+<app-utm-modal-header [name]="(rule ?'Edit':'Create') + ' rule'"></app-utm-modal-header>
+<div class="modal-content d-flex flex-column p-3">
+  <div class="form-body w-100">
+    <div class="d-flex justify-content-center">
+      <div class="step-container d-flex justify-content-between mt-2 mb-4 w-75">
+
+        <div class="step">
+          <span class="text-blue-800 font-weight-bold">Import</span>
+          <div
+            [ngClass]="isCompleted(RULE_FORM.STEP0) ? 'step-success': currentStep == RULE_FORM.STEP0 ? 'step-active' : 'step-inactive'"
+            class="round-indicator">
+            <i class="text-white font-size-sm"
+               [ngClass]="isCompleted(RULE_FORM.STEP0) ? 'icon-checkmark3' : 'icon-file-upload'"></i>
+          </div>
+        </div>
+        <div class="step-link"></div>
+
+
+        <div class="step">
+          <span class="text-blue-800 font-weight-bold">Review</span>
+          <div
+            [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'step-success': currentStep == RULE_FORM.STEP1 ? 'step-active' : 'step-inactive'"
+            class="round-indicator">
+            <i class="text-white font-size-sm top-0"
+               [ngClass]="isCompleted(RULE_FORM.STEP1) ? 'icon-checkmark3' : 'icon-shield-check'"></i>
+          </div>
+        </div>
+        <div class="step-link"></div>
+
+        <div class="step">
+          <span class="text-blue-800 font-weight-bold">Import</span>
+          <div
+            [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'step-success' : currentStep == RULE_FORM.STEP2 ? 'step-active' : 'step-inactive'"
+            class="round-indicator">
+            <i class="text-white font-size-sm top-0"
+               [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'icon-checkmark3' : 'icon-upload10'"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div [hidden]="currentStep != RULE_FORM.STEP0">
+      <div class="d-flex  mt-3 flex-column">
+        <div class="alert alert-info alert-styled-right mb-2 info-dismissible w-100">
+          <span class="font-weight-semibold">Info! </span>
+          The rule import process requires a valid file with a <strong>.yml</strong> extension.
+        </div>
+      </div>
+      <app-utm-file-upload (fileEmit)="onFileChange($event)"
+                           [acceptTypes]="'.yml'">
+      </app-utm-file-upload>
+    </div>
+
+    <div [hidden]="currentStep === RULE_FORM.STEP0">
+      <div class="rule-items wm-200px">
+        <div style="background: #f8f8f8" *ngFor="let rule of rules; let i = index"
+             class="p-2 border rounded mb-2 d-flex flex-column">
+
+          <div (click)="showRule(rule)" class="d-flex align-items-center justify-content-between w-100 cursor-pointer">
+            <div [ngClass]="{'text-success': rule.valid, 'text-danger': !rule.valid}" class="rule-filename">
+              <span (click)="showRule(rule)" class="cursor-pointer opacity-75">
+                <i [ngClass]="{'icon-arrow-down32' : !rule.showDetail, 'icon-arrow-up32' : rule.showDetail}"
+                   class="font-size-sm"></i>
+              </span>
+              <span class="ml-2">
+                <strong>{{ rule.name + ' ' }}</strong>
+                <small>({{ rule.valid ? 'valid' : 'invalid' }} )</small>
+              </span>
+            </div>
+
+            <div *ngIf="!loading rule" class="d-flex">
+              <div (click)="deleteRule(i)" class="cursor-pointer opacity-75 ml-2">
+                <i class="icon-cross2 font-size-sm"></i>
+              </div>
+            </div>
+
+            <div *ngIf="loading" class="d-flex">
+              <div  class="cursor-pointer opacity-75 ml-2">
+                <i class="icon-spinner spinner"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <div *ngIf="rule.showDetail" [ngClass]="{'alert-danger' : !rule.valid, 'alert-success': rule.valid}" class="alert mt-2 py-2 pl-3 w-100">
+            <app-utm-json-detail-view [rowDocument]="rule"></app-utm-json-detail-view>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div *ngIf="files.length > 0" class="button-container d-flex justify-content-end pr-3 w-100">
+    <button *ngIf="currentStep != RULE_FORM.STEP2" (click)="activeModal.close()"
+            class="btn utm-button utm-button-grey mr-2">
+      <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
+    </button>
+
+    <button *ngIf="currentStep == RULE_FORM.STEP1" (click)="back()" class="btn utm-button utm-button-primary mr-2">
+      <i class="icon-arrow-left32 top-0"></i>
+      Back
+    </button>
+
+    <button *ngIf="currentStep != RULE_FORM.STEP2" (click)="next()"
+            class="btn utm-button utm-button-primary">
+      Next
+      <i class="icon-arrow-right32"></i>&nbsp;
+    </button>
+
+    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()"
+            class="btn utm-button utm-button-primary">
+      <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Import rules
+    </button>
+  </div>
+</div>

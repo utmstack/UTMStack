@@ -18,6 +18,7 @@ import { Rule, RULE_REQUEST} from '../../../models/rule.model';
 import {FilterService} from '../../../services/filter.service';
 import {RuleService} from '../../../services/rule.service';
 import {AddRuleComponent} from '../add-rule/add-rule.component';
+import {ImportRuleComponent} from '../import-rules/import-rule.component';
 
 
 @Component({
@@ -101,7 +102,7 @@ export class RuleListComponent implements OnInit, OnDestroy {
   }
 
   addRule(mode: string) {
-    const modalRef = this.modalService.open(AddRuleComponent, {
+    const modalRef = this.modalService.open(mode === 'ADD' ? AddRuleComponent : ImportRuleComponent, {
       size: 'lg',
       centered: true,
       windowClass: 'add-rule-modal',

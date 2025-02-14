@@ -47,7 +47,6 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
     this.types$ = this.dataTypeService.type$;
     this.loadDataTypes();
-    console.log(this.ruleForm);
   }
 
   onDataTypeChange(selectedDataTypes: DataType[]) {

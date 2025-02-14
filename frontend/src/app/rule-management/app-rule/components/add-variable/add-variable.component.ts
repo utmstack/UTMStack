@@ -34,7 +34,7 @@ export class AddVariableComponent implements OnInit {
   }
 
   getFields(indexPattern: string) {
-    return this.fieldDataService.getFields(indexPattern);
+    return this.fieldDataService.getFields(indexPattern, true);
   }
 
   get variables() {
@@ -52,7 +52,7 @@ export class AddVariableComponent implements OnInit {
   onFieldChange(selectField: string) {
     const variable = this.variables.at(0);
     const varFormGroup = variable.get('as');
-    if(!!variable.get('get').value){
+    if (!!variable.get('get').value) {
       varFormGroup.setValidators([Validators.required, singleTermValidator()]);
       varFormGroup.updateValueAndValidity();
     } else {
