@@ -77,8 +77,8 @@ jobs:
       
       - name: Build Plugins
         run: |
-          export GOOS=linux
-          export GOARCH=amd64
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
           cd ${{ github.workspace }}/plugins
           make build
       
