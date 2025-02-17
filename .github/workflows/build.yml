@@ -96,19 +96,13 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path "./geolocation/"
           Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/geolocation/*" -Destination "./geolocation/"
-
-          docker build -t ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community \
-            --build-arg BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }} \
-            -f ./event_processor.Dockerfile \
-            .
+          docker build -t ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community --build-arg BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }} -f ./event_processor.Dockerfile .
           echo "Event Processor image built"
 
       - name: Build Agent Manager Image
         run: |
           go build -o ./agent-manager/agent-manager -v ./agent-manager
-          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community \
-            -f ./agent-manager/Dockerfile \
-            .
+          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community -f ./agent-manager/Dockerfile .
           echo "Agent Manager image built"
 
       - name: Push images with dependencies
