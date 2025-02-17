@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-between w-100 align-items-center" >
   <h6 class="font-weight-semibold  m-0">Pipeline filters</h6>
-  <button (click)="filterEdit = null;openEditJson = true"
+  <!--<button (click)="filterEdit = null;openEditJson = true"
           class="btn utm-button utm-button-primary">
     <i class="icon-database-add mr-2"></i> Add filter
-  </button>
+  </button>-->
 </div>
 
 <!--<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus!=='up'">
@@ -23,8 +23,9 @@
   <ng-container *ngFor="let filter of filters">
     <div class="card m-0 p-3 cursor-pointer">
       <div class="text-blue-800 d-flex align-content-center justify-content-between">
-        <h6 class="d-flex justify-content-start align-items-center">
+        <h6 (click)="viewFilter(filter)" class="d-flex justify-content-start align-items-center cursor-pointer">
             <span inlineSVG="assets/icons/system/MARKET_RESEARCH.svg"
+                  ngbTooltip="View filter"
                   [ngClass]="{'svg-spinner': pipeline.pipelineStatus === 'up'}"
                   class="svg-icon svg-icon-2x svg-icon-grey text-grey-300 mr-2"></span>
           {{filter.filterName}}</h6>
@@ -70,6 +71,7 @@
       </button>
     </div>
     <app-logstash-filter-create (filterEditClose)="onFilterEditClose()"
+                                [disable] = "filterEdit.systemOwner"
                                 (close)="openEditJson= undefined"
                                 [dataType]="filters[0].datatype"
                                 [filter]="filterEdit" [pipeline]="pipeline"></app-logstash-filter-create>

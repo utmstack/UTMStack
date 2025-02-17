@@ -18,6 +18,7 @@ export class LogstashFilterCreateComponent implements OnInit {
   @Input() filter: LogstashFilterType;
   @Input() pipeline: UtmPipeline;
   @Input() dataType: DataType;
+  @Input() disable = false;
   types$: Observable<DataType[]>;
   daTypeRequest: {page: number, size: number} = {
     page: -1,

@@ -120,4 +120,9 @@ export class LogstashFiltersComponent implements OnInit {
     const icon = this.svgMap[module];
     return icon ? icon : 'generic.svg';
   }
+
+  viewFilter(filter: LogstashFilterType) {
+    this.filterEdit = filter;
+    this.openEditJson = true;
+  }
 }
