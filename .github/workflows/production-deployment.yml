@@ -47,7 +47,7 @@ jobs:
           fi
 
   deploy:
-    name: Deploy
+    name: Deploy to Production
     needs: validations
     uses: ./.github/workflows/build.yml
     with:
@@ -55,4 +55,9 @@ jobs:
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
       environment: prod
       ghcr_token: ${{ secrets.GITHUB_TOKEN }}
+    secrets:
+      AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
+      CM_AUTH: ${{ secrets.CM_AUTH_ALPHA }}
     

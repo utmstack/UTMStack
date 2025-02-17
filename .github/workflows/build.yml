@@ -12,6 +12,16 @@ on:
       environment:
         required: true
         type: string
+    secrets:
+      AGENT_SECRET_PREFIX:
+        required: true
+      SIGN_KEY:
+        required: true
+      SIGN_CONTAINER:
+        required: true
+      CM_AUTH:
+        required: true
+
 
 jobs:
   build_images:
@@ -101,7 +111,7 @@ jobs:
           echo "Pushing new release..."
           $changelog = Get-Content -Path "CHANGELOG.md" -Raw
 
-          $cmAuth = ${{ secrets.CM_AUTH_ALPHA }} | ConvertFrom-Json
+          $cmAuth = ${{ secrets.CM_AUTH }} | ConvertFrom-Json
 
           $body = @{
               version   = ${{ inputs.version_tag }}
