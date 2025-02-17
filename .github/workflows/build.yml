@@ -85,7 +85,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/bitdefender; go build -o com.utmstack.bitdefender.plugin -v .
           cd ${{ github.workspace }}/plugins/config; go build -o com.utmstack.config.plugin -v .
           cd ${{ github.workspace }}/plugins/events; go build -o com.utmstack.events.plugin -v .
-          cd ${{ github.workspace }}/plugins/gcp; CGO_ENABLED=0 go build -o com.utmstack.gcp.plugin -v .
+          cd ${{ github.workspace }}/plugins/gcp; go build -o com.utmstack.gcp.plugin -v .
           cd ${{ github.workspace }}/plugins/geolocation; go build -o com.utmstack.geolocation.plugin -v .
           cd ${{ github.workspace }}/plugins/inputs; go build -o com.utmstack.inputs.plugin -v .
           cd ${{ github.workspace }}/plugins/o365; go build -o com.utmstack.o365.plugin -v .
