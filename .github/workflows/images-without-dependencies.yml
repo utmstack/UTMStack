@@ -57,7 +57,7 @@ jobs:
     name: Java 11 deployment
     needs: prepare_deployment
     if: ${{ needs.prepare_deployment.outputs.tech == 'java-11' }}
-    uses: ./.github/workflows/used-docker-java-11.yml
+    uses: ./.github/workflows/used-docker-java-11-new.yml
     with:
       image_name: ${{ inputs.microservice }}
       tag: ${{inputs.tag}}-community
