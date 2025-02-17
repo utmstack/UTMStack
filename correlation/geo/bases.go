@@ -1,76 +1,47 @@
 package geo
 
 import (
+	"github.com/utmstack/UTMStack/correlation/utils"
 	"log"
 	"net"
-	"os"
 	"path/filepath"
 	"strconv"
-	"time"
-
-	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
-// Goroutine for update geolocalization databases
-func Update(updateReady chan bool) {
-	first := true
-	for {
-		log.Printf("Downloading GeoIP databases")
-		cnf := utils.GetConfig()
-		var files = map[string]string{
-			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v4.csv",
-			filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v6.csv",
-			filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):     "https://cdn.utmstack.com/geoip/blocks-v4.csv",
-			filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):     "https://cdn.utmstack.com/geoip/blocks-v6.csv",
-			filepath.Join(cnf.GeoIPFolder, "locations-en.csv"):  "https://cdn.utmstack.com/geoip/locations-en.csv",
-		}
+func Load() {
+	log.Printf("Loading GeoIP databases")
 
-		if _, err := os.Stat(cnf.GeoIPFolder); os.IsNotExist(err) {
-			os.MkdirAll(cnf.GeoIPFolder, os.ModeDir)
-		}
-
-		if _, err := os.Stat(filepath.Join(cnf.GeoIPFolder, "locations-en.csv")); os.IsNotExist(err) || !first {
-			for file, url := range files {
-				if err := utils.Download(url, file); err != nil {
-					log.Printf("Could not download file: %v", err)
-					continue
-				}
-			}
-		}
-
-		for file := range files {
-			csv := utils.ReadCSV(file)
-			mu.Lock()
-			switch file {
-			case filepath.Join(cnf.GeoIPFolder, "asn-blocks-v4.csv"):
-				asnBlocks = nil
-				populateASNBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "asn-blocks-v6.csv"):
-				populateASNBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "blocks-v4.csv"):
-				cityBlocks = nil
-				populateCityBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "blocks-v6.csv"):
-				populateCityBlocks(csv)
-			case filepath.Join(cnf.GeoIPFolder, "locations-en.csv"):
-				cityLocations = nil
-				populateCityLocations(csv)
-			}
-			mu.Unlock()
-		}
-
-		log.Printf("asnBlocks rows: %v", len(asnBlocks))
-		log.Printf("cityBlocks rows: %v", len(cityBlocks))
-		log.Printf("cityLocations rows: %v", len(cityLocations))
-		log.Printf("GeoIP databases updated")
-
-		if first {
-			first = false
-			updateReady <- true
-		}
-
-		time.Sleep(168 * time.Hour)
+	var files = []string{
+		"asn-blocks-v4.csv",
+		"asn-blocks-v6.csv",
+		"blocks-v4.csv",
+		"blocks-v6.csv",
+		"locations-en.csv",
 	}
+
+	for _, file := range files {
+		csv := utils.ReadCSV(filepath.Join("/app", file))
+		switch file {
+		case "asn-blocks-v4.csv":
+			asnBlocks = nil
+			populateASNBlocks(csv)
+		case "asn-blocks-v6.csv":
+			populateASNBlocks(csv)
+		case "blocks-v4.csv":
+			cityBlocks = nil
+			populateCityBlocks(csv)
+		case "blocks-v6.csv":
+			populateCityBlocks(csv)
+		case "locations-en.csv":
+			cityLocations = nil
+			populateCityLocations(csv)
+		}
+	}
+
+	log.Printf("asnBlocks rows: %v", len(asnBlocks))
+	log.Printf("cityBlocks rows: %v", len(cityBlocks))
+	log.Printf("cityLocations rows: %v", len(cityLocations))
+	log.Printf("GeoIP databases loaded")
 }
 
 func populateASNBlocks(csv [][]string) {
@@ -114,6 +85,7 @@ func populateCityBlocks(csv [][]string) {
 		if line[1] == "" {
 			continue
 		}
+
 		geonameID, err := strconv.Atoi(line[1])
 		if err != nil {
 			log.Printf("Could not parse geonameID in populateCityBlocks: %v", err)
@@ -171,7 +143,6 @@ func populateCityBlocks(csv [][]string) {
 		}
 
 		cityBlocks = append(cityBlocks, t)
-
 	}
 }
 
