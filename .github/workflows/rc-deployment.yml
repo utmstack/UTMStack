@@ -22,10 +22,10 @@ jobs:
           if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
             echo "✅ Version tag format is correct."
 
-            if [[ "${ github.ref }" =~ ^refs/heads/main) ]]; then
-              echo "✅ Base branch ${ github.ref } is valid."
+            if [[ "${{ github.ref }}" =~ ^refs/heads/main) ]]; then
+              echo "✅ Base branch ${{ github.ref }} is valid."
             else
-              echo "⛔ ERROR: Base branch ${ github.ref } is not valid. It should be main."
+              echo "⛔ ERROR: Base branch ${{ github.ref }} is not valid. It should be main."
               exit 1
             fi
 
