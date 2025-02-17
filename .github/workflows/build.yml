@@ -117,10 +117,10 @@ jobs:
           echo "Pushing new release..."
           $changelog = Get-Content -Path "CHANGELOG.md" -Raw
 
-          $cmAuth = ${{ secrets.CM_AUTH }} | ConvertFrom-Json
+          $cmAuth = '${{ secrets.CM_AUTH }}' | ConvertFrom-Json
 
           $body = @{
-              version   = ${{ inputs.version_tag }}
+              version   = '${{ inputs.version_tag }}'
               changelog = $changelog
               images    = "ghcr.io/utmstack/utmstack/backend,ghcr.io/utmstack/utmstack/frontend,ghcr.io/utmstack/utmstack/user-auditor,ghcr.io/utmstack/utmstack/web-pdf,ghcr.io/utmstack/utmstack/eventprocessor,ghcr.io/utmstack/utmstack/agent-manager"
               edition   = "community"
