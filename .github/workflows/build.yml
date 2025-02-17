@@ -116,6 +116,7 @@ jobs:
         run: |
           echo "Pushing new release..."
           $changelog = Get-Content -Path "CHANGELOG.md" -Raw
+          $changelog = [string]$changelog
 
           $cmAuth = '${{ secrets.CM_AUTH }}' | ConvertFrom-Json
 
