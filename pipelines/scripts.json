@@ -1,4 +1,0 @@
-[
-    "docker service update --force utmstack_event-processor-manager",
-    "docker service update --force utmstack_event-processor-worker"
-]

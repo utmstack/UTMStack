@@ -16,13 +16,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-    
-      - name: Load Version
-        id: set-version
-        run: |
-          versions=$(cat "${{ github.workspace }}/versions.json")
-          service_version=$(echo "${versions}" | jq -r --arg s "${{inputs.image_name}}" '.[$s]')
-          echo "version=${service_version}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4 #this installs node and npm for us
         with:
@@ -43,7 +36,7 @@ jobs:
           npm run-script build
 
       - name: Setup BuildX
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
         
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -52,18 +45,9 @@ jobs:
           username: utmstack
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push the Image for Components v11
-        if: ${{ inputs.environment != 'v10-dev' }}
-        uses: docker/build-push-action@v2
+      - name: Build and Push the Image
+        uses: docker/build-push-action@v6
         with:
-          context: ./${{inputs.image_name}}
-          push: true
-          tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:v${{ steps.set-version.outputs.version }}-${{inputs.environment}}
-      
-      - name: Build and Push the Image for v10
-        if : ${{ inputs.environment == 'v10-dev' }}
-        uses: docker/build-push-action@v2
-        with:
-          context: ./${{inputs.image_name}}
+          context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.environment}}

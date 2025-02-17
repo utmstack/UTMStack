@@ -1,3 +1,0 @@
-[
-    "docker service update --image ghcr.io/utmstack/utmstack/user-auditor:imagetagreplace utmstack_user-auditor"
-]
