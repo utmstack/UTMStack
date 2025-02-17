@@ -55,9 +55,4 @@ jobs:
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
       environment: prod
       ghcr_token: ${{ secrets.GITHUB_TOKEN }}
-      sign_cert: ${{ vars.SIGN_CERT }}
-      sign_key: ${{ secrets.SIGN_KEY }}
-      sign_container: ${{ secrets.SIGN_CONTAINER }}
-    env:
-      CM_AUTH: ${{ secrets.CM_AUTH_PROD }}
     

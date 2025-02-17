@@ -12,18 +12,6 @@ on:
       environment:
         required: true
         type: string
-      ghcr_token:
-        required: true
-        type: string
-      sign_cert:
-        required: true
-        type: string
-      sign_key:
-        required: true
-        type: string
-      sign_container:
-        required: true
-        type: string
 
 jobs:
   build_images:
@@ -49,7 +37,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         run: |
-          docker login ghcr.io -u utmstack -p ${{ inputs.ghcr_token }}
+          docker login ghcr.io -u utmstack -p ${{ secrets.GITHUB_TOKEN }}
           echo "Logged in to GitHub Container Registry"
       
       - name: Download base images
@@ -68,9 +56,9 @@ jobs:
           
           $env:GOOS = "windows"
           cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ inputs.sign_cert }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ inputs.sign_key }}}}]=${{ inputs.sign_container }}" "utmstack_agent_service.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
           cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ inputs.sign_cert }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ inputs.sign_key }}}}]=${{ inputs.sign_container }}" "utmstack_agent_installer.exe"
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_installer.exe"
 
           Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/agent/*" -Destination "./dependencies/"
 
@@ -113,7 +101,7 @@ jobs:
           echo "Pushing new release..."
           $changelog = Get-Content -Path "CHANGELOG.md" -Raw
 
-          $cmAuth = $env:CM_AUTH | ConvertFrom-Json
+          $cmAuth = ${{ secrets.CM_AUTH_ALPHA }} | ConvertFrom-Json
 
           $body = @{
               version   = ${{ inputs.version_tag }}
