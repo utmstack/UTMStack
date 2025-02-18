@@ -431,6 +431,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		},
 		Volumes: []string{
 			stack.Rules + ":/app/rulesets",
+			"geoip_data:/app/geosets",
 		},
 		Environment: []string{
 			"SERVER_NAME=" + conf.ServerName,
@@ -611,6 +612,10 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	}
 
 	c.Volumes["postgres_data"] = Volume{
+		"external": false,
+	}
+
+	c.Volumes["geoip_data"] = Volume{
 		"external": false,
 	}
 
