@@ -10,11 +10,11 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Osmany Montero",
-            "email": "osmany@quantfall.com"
+            "name": "UTMStack LLC",
+            "email": "contact@utmstack.com"
         },
         "license": {
-            "name": "Private"
+            "name": "AGPLv3"
         },
         "version": "{{.Version}}"
     },
@@ -47,7 +47,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "UTMStack's Correlation Engine",
-	Description:      "Rules based correlation engine for UTMStack.",
+	Description:      "Rules-based correlation engine for UTMStack.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
