@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/utils"
+	"github.com/tidwall/gjson"
 )
 
 func Search(query string) []string {
@@ -19,8 +19,8 @@ func Search(query string) []string {
 	} else {
 		hits := gjson.Get(string(cnn), "hits.hits").Array()
 		for _, hit := range hits {
-			l := gjson.Get(hit.String(), "_source")
-			result = append(result, l.String())
+			log := gjson.Get(hit.String(), "_source")
+			result = append(result, log.String())
 		}
 	}
 	return result

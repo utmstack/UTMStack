@@ -13,15 +13,15 @@ import (
 
 const bufferSize int = 1000000
 
-var storageMutex = &sync.RWMutex{}
+var cacheStorageMutex = &sync.RWMutex{}
 
-var storage []string
+var CacheStorage []string
 
 func Status() {
 	for {
-		log.Printf("Logs in cache: %v", len(storage))
-		if len(storage) != 0 {
-			est := gjson.Get(storage[0], "@timestamp").String()
+		log.Printf("Logs in cache: %v", len(CacheStorage))
+		if len(CacheStorage) != 0 {
+			est := gjson.Get(CacheStorage[0], "@timestamp").String()
 			log.Printf("Old document in cache: %s", est)
 		}
 		time.Sleep(60 * time.Second)
@@ -31,8 +31,8 @@ func Status() {
 
 func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 	var elements []string
-	storageMutex.RLock()
-	defer storageMutex.RUnlock()
+	cacheStorageMutex.RLock()
+	defer cacheStorageMutex.RUnlock()
 
 	cToBreak := 0
 	ait := time.Now().UTC().Unix() - func() int64 {
@@ -43,8 +43,8 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 			return seconds
 		}
 	}()
-	for i := len(storage) - 1; i >= 0; i-- {
-		est := gjson.Get(storage[i], "@timestamp").String()
+	for i := len(CacheStorage) - 1; i >= 0; i-- {
+		est := gjson.Get(CacheStorage[i], "@timestamp").String()
 		eit, err := time.Parse(time.RFC3339Nano, est)
 		if err != nil {
 			log.Printf("Could not parse @timestamp: %v", err)
@@ -61,23 +61,23 @@ func Search(allOf []rules.AllOf, oneOf []rules.OneOf, seconds int64) []string {
 			var allCatch bool
 			var oneCatch bool
 			for _, of := range oneOf {
-				oneCatch = evalElement(storage[i], of.Field, of.Operator, of.Value)
+				oneCatch = evalElement(CacheStorage[i], of.Field, of.Operator, of.Value)
 				if oneCatch {
 					break
 				}
 			}
 			for _, af := range allOf {
-				allCatch = evalElement(storage[i], af.Field, af.Operator, af.Value)
+				allCatch = evalElement(CacheStorage[i], af.Field, af.Operator, af.Value)
 				if !allCatch {
 					break
 				}
 			}
 			if (len(allOf) == 0 || allCatch) && (len(oneOf) == 0 || oneCatch) {
-				elements = append(elements, storage[i])
+				elements = append(elements, CacheStorage[i])
 			}
 		}
 	}
-
+	
 	return elements
 }
 
@@ -97,9 +97,9 @@ func ProcessQueue() {
 		go func() {
 			for {
 				l := <-logs
-				storageMutex.Lock()
-				storage = append(storage, l)
-				storageMutex.Unlock()
+				cacheStorageMutex.Lock()
+				CacheStorage = append(CacheStorage, l)
+				cacheStorageMutex.Unlock()
 			}
 		}()
 	}
@@ -109,11 +109,11 @@ func Clean() {
 	for {
 		var clean bool
 
-		if len(storage) > 1 {
+		if len(CacheStorage) > 1 {
 			if utils.AssignedMemory >= 80 {
 				clean = true
 			} else {
-				old := gjson.Get(storage[0], "@timestamp").String()
+				old := gjson.Get(CacheStorage[0], "@timestamp").String()
 				oldTime, err := time.Parse(time.RFC3339Nano, old)
 				if err != nil {
 					log.Printf("Could not parse old log timestamp. Cleaning up")
@@ -129,9 +129,9 @@ func Clean() {
 		}
 
 		if clean {
-			storageMutex.Lock()
-			storage = storage[1:]
-			storageMutex.Unlock()
+			cacheStorageMutex.Lock()
+			CacheStorage = CacheStorage[1:]
+			cacheStorageMutex.Unlock()
 		} else {
 			time.Sleep(5 * time.Second)
 		}

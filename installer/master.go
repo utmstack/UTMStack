@@ -55,7 +55,7 @@ func Master(c *types.Config) error {
 
 	if utils.GetLock(202402081552, stack.LocksDir) {
 		fmt.Println("Preparing kernel to run UTMStack")
-		if err := PrepareKernel(); err != nil {
+		if err := PrepareSystem(); err != nil {
 			return err
 		}
 

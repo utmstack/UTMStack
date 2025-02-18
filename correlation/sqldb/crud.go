@@ -5,6 +5,36 @@ import (
 	"time"
 )
 
+func GetStatus() ([]map[string]interface{}, error) {
+	var dataSourceStatus []map[string]interface{}
+	var err error
+
+	ping()
+
+	rows, err := db.Query(`SELECT source, data_type, timestamp, median FROM utm_data_input_status`)
+
+	if err != nil {
+		log.Printf("Error getting status from utm_data_input_status: %v", err)
+	} else {
+		for rows.Next() {
+			var (
+				source, dataType  string
+				timestamp, median int64
+			)
+			rows.Scan(&source, &dataType, &timestamp, &median)
+			dataSourceStatus = append(dataSourceStatus,
+				map[string]interface{}{
+					"dataSource": source,
+					"dataType":   dataType,
+					"timestamp":  timestamp,
+					"median":     median,
+				})
+		}
+	}
+
+	return dataSourceStatus, err
+}
+
 func UpdateStatistics(i, s, t string, c int64) {
 	ping()
 
