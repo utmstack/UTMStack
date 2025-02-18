@@ -6,8 +6,9 @@ import (
 
 type Config struct {
 	RulesFolder   string `yaml:"rulesFolder"`
+	GeoIPFolder   string `yaml:"geoipFolder"`
 	Elasticsearch string `yaml:"elasticsearch"`
-	Postgres      struct {
+	PostgreSQL    struct {
 		Server   string `yaml:"server"`
 		Port     string `yaml:"port"`
 		User     string `yaml:"user"`

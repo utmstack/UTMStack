@@ -3,7 +3,16 @@ package geo
 import (
 	"fmt"
 	"net"
+	"strings"
+	"sync"
+
+	"github.com/levigross/grequests"
 )
+
+var mu = &sync.Mutex{}
+
+var myExternalIP net.IP
+var myExternalIPOnce sync.Once
 
 type asnBlock struct {
 	network *net.IPNet
@@ -54,7 +63,28 @@ func IsLocal(a net.IP) bool {
 	return false
 }
 
-func getCity(ip net.IP) cityBlock {
+func GetExternal() net.IP {
+	if resp, err := grequests.Get("http://myexternalip.com/raw", nil); err == nil {
+		ip := net.ParseIP(strings.TrimSpace(resp.String()))
+		return ip
+	}
+	return nil
+}
+
+func GetExternalOnce() net.IP {
+	myExternalIPOnce.Do(func() {
+		myExternalIP = GetExternal()
+	})
+	return myExternalIP
+}
+
+func getCity(a string) cityBlock {
+	ip := net.ParseIP(a)
+
+	if IsLocal(ip) {
+		ip = GetExternalOnce()
+	}
+
 	var city cityBlock
 	for _, e := range cityBlocks {
 		if e.network.Contains(ip) {
@@ -64,7 +94,13 @@ func getCity(ip net.IP) cityBlock {
 	return city
 }
 
-func getASN(ip net.IP) asnBlock {
+func getASN(a string) asnBlock {
+	ip := net.ParseIP(a)
+
+	if IsLocal(ip) {
+		ip = GetExternalOnce()
+	}
+
 	var asn asnBlock
 	for _, e := range asnBlocks {
 		if e.network.Contains(ip) {
@@ -85,16 +121,11 @@ func getLocation(geonameID int) cityLocation {
 }
 
 func Geolocate(ip string) map[string]string {
-	parsedIP := net.ParseIP(ip)
-
-	if IsLocal(parsedIP) {
-		return map[string]string{}
-	}
-
-	asn := getASN(parsedIP)
-	city := getCity(parsedIP)
+	mu.Lock()
+	asn := getASN(ip)
+	city := getCity(ip)
 	location := getLocation(city.geonameID)
-
+	mu.Unlock()
 	return map[string]string{
 		"country":             location.countryName,
 		"countryCode":         location.countryISOCode,

@@ -1,14 +1,10 @@
 package main
 
 import (
-	"github.com/utmstack/UTMStack/correlation/ti"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/utmstack/UTMStack/correlation/api"
 	"github.com/utmstack/UTMStack/correlation/cache"
 	"github.com/utmstack/UTMStack/correlation/correlation"
@@ -19,23 +15,28 @@ import (
 	"github.com/utmstack/UTMStack/correlation/sqldb"
 	"github.com/utmstack/UTMStack/correlation/statistics"
 	"github.com/utmstack/UTMStack/correlation/utils"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title UTMStack's Correlation Engine
 // @version 1.0
-// @description Rules-based correlation engine for UTMStack.
-// @contact.name UTMStack LLC
-// @contact.email contact@utmstack.com
-// @license.name AGPLv3
+// @description Rules based correlation engine for UTMStack.
+// @contact.name Osmany Montero
+// @contact.email osmany@quantfall.com
+// @license.name Private
 // @host localhost:8080
 // @BasePath /v1
 
 func main() {
 	sqldb.Connect()
-	geo.Load()
-	ti.Load()
 
 	ready := make(chan bool, 1)
+
+	go geo.Update(ready)
+	<-ready
+
 	go rules.Update(ready)
 	<-ready
 
@@ -50,11 +51,11 @@ func main() {
 	go cache.ProcessQueue()
 	go search.ProcessQueue()
 	go statistics.Update()
-	go ti.IsBlocklisted()
 
 	go func() {
 		gin.SetMode(gin.ReleaseMode)
 
+		//r := gin.Default()
 		r := gin.New()
 		r.Use(gin.Recovery())
 		r.Use(gin.ErrorLogger())
@@ -65,14 +66,11 @@ func main() {
 		docURL := ginSwagger.URL("/swagger/doc.json")
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, docURL))
 
-		err := r.Run()
-		if err != nil {
-			panic(err)
-		}
+		r.Run()
 	}()
 
 	signals := make(chan os.Signal, 1)
-	go rules.Changes(signals)
+	go rules.RulesChanges(signals)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 	<-signals
 }
