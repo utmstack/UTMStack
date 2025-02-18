@@ -1,11 +1,8 @@
-package cache_test
+package cache
 
 import (
-	"testing"
-	
-
-	"github.com/utmstack/UTMStack/correlation/cache"
 	"github.com/utmstack/UTMStack/correlation/rules"
+	"testing"
 )
 
 func TestSearch(t *testing.T) {
@@ -16,7 +13,7 @@ func TestSearch(t *testing.T) {
 		`{"@timestamp":"2022-01-01T00:00:03.000Z","field1":"value1","field2":"value2"}`,
 		`{"@timestamp":"2022-01-01T00:00:04.000Z","field1":"value1","field2":"value2"}`,
 	}
-	cache.CacheStorage = cacheStorage
+	storage = cacheStorage
 	allOf := []rules.AllOf{
 		{Field: "field1", Operator: "==", Value: "value1"},
 	}
@@ -31,7 +28,7 @@ func TestSearch(t *testing.T) {
 		`{"@timestamp":"2022-01-01T00:00:01.000Z","field1":"value1","field2":"value2"}`,
 		`{"@timestamp":"2022-01-01T00:00:00.000Z","field1":"value1","field2":"value2"}`,
 	}
-	result := cache.Search(allOf, oneOf, int64(seconds))
+	result := Search(allOf, oneOf, int64(seconds))
 	if len(result) != len(expected) {
 		t.Errorf("Expected %d elements, but got %d", len(expected), len(result))
 	}

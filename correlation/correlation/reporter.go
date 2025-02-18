@@ -2,16 +2,15 @@ package correlation
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
+	"github.com/levigross/grequests"
+	"github.com/utmstack/UTMStack/correlation/geo"
+	"github.com/utmstack/UTMStack/correlation/search"
+	"github.com/utmstack/UTMStack/correlation/utils"
+	"log"
 	"strconv"
 	"strings"
 	"time"
-
-	"log"
-
-	"github.com/google/uuid"
-	"github.com/levigross/grequests"
-	"github.com/utmstack/UTMStack/correlation/search"
-	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 type Host struct {
@@ -65,13 +64,47 @@ type AlertFields struct {
 }
 
 func Alert(name, severity, description, solution, category, tactic string, reference []string, dataType, dataSource string,
-	details map[string]string) {
+	fields map[string]string) {
+
+	// Try to geolocate SourceIP if exists
+	if fields["SourceIP"] != "" {
+		location := geo.Geolocate(fields["SourceIP"])
+		if len(location) != 0 {
+			fields["SourceCountry"] = location["country"]
+			fields["SourceCountryCode"] = location["countryCode"]
+			fields["SourceCity"] = location["city"]
+			fields["SourceLat"] = location["latitude"]
+			fields["SourceLon"] = location["longitude"]
+			fields["SourceAccuracyRadius"] = location["accuracyRadius"]
+			fields["SourceASN"] = location["asn"]
+			fields["SourceASO"] = location["aso"]
+			fields["SourceIsSatelliteProvider"] = location["isSatelliteProvider"]
+			fields["SourceIsAnonymousProxy"] = location["isAnonymousProxy"]
+		}
+	}
+
+	// Try to geolocate DestinationIP if exists
+	if fields["DestinationIP"] != "" {
+		location := geo.Geolocate(fields["DestinationIP"])
+		if len(location) != 0 {
+			fields["DestinationCountry"] = location["country"]
+			fields["DestinationCountryCode"] = location["countryCode"]
+			fields["DestinationCity"] = location["city"]
+			fields["DestinationLat"] = location["latitude"]
+			fields["DestinationLon"] = location["longitude"]
+			fields["DestinationAccuracyRadius"] = location["accuracyRadius"]
+			fields["DestinationASN"] = location["asn"]
+			fields["DestinationASO"] = location["aso"]
+			fields["DestinationIsSatelliteProvider"] = location["isSatelliteProvider"]
+			fields["DestinationIsAnonymousProxy"] = location["isAnonymousProxy"]
+		}
+	}
 
 	log.Printf("Reporting alert: %s", name)
 
-	if !UpdateAlert(name, severity, details) {
+	if !UpdateAlert(name, severity, fields) {
 		NewAlert(name, severity, description, solution, category, tactic, reference, dataType, dataSource,
-			details)
+			fields)
 	}
 }
 
@@ -208,11 +241,12 @@ func UpdateAlert(name, severity string, details map[string]string) bool {
 							},
 						},
 					})
-					_ = r.Close()
 					if err != nil {
 						log.Printf("Could not update existent alert: %v", err)
 						return false
 					}
+
+					_ = r.Close()
 				}
 			}
 		}
