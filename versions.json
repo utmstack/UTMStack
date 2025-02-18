@@ -1,0 +1,23 @@
+{
+    "master-version": "11.0.35",
+    "agent-service": "11.0.8",
+    "agent-installer": "11.0.4",
+    "agent-manager": "11.0.3",
+    "backend": "11.0.9",
+    "frontend": "11.0.20",
+    "pipelines": "11.0.0",
+    "plugins-alerts": "11.0.2",
+    "plugins-aws": "11.0.4",
+    "plugins-azure": "11.0.2",
+    "plugins-bitdefender": "11.0.2",
+    "plugins-config": "11.0.2",
+    "plugins-events": "11.0.2",
+    "plugins-gcp": "11.0.2",
+    "plugins-geolocation": "11.0.2",
+    "plugins-inputs": "11.0.2",
+    "plugins-o365": "11.0.2",
+    "plugins-sophos": "11.0.2",
+    "plugins-stats": "11.0.2",
+    "user-auditor": "11.0.0",
+    "web-pdf": "11.0.0"
+}
