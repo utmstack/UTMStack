@@ -12,16 +12,14 @@ import (
 
 func inCIDR(addr, network string) (bool, error) {
 	_, subnet, err := net.ParseCIDR(network)
-	if err == nil {
-		ip := net.ParseIP(addr)
-		if ip != nil {
-			if subnet.Contains(ip) {
-				return true, nil
-			}
-		}
+	if err != nil {
+		return false, err
+	}
+	ip := net.ParseIP(addr)
+	if ip == nil {
 		return false, fmt.Errorf("invalid IP address")
 	}
-	return false, err
+	return subnet.Contains(ip), nil
 }
 
 func equal(val1, val2 string) bool {
@@ -56,12 +54,10 @@ func endWith(str, suff string) bool {
 
 func expresion(exp, str string) (bool, error) {
 	re, err := regexp.Compile(exp)
-	if err == nil {
-		if re.MatchString(str) {
-			return true, nil
-		}
+	if err != nil {
+		return false, err
 	}
-	return false, err
+	return re.MatchString(str), nil
 }
 
 func parseFloats(val1, val2 string) (float64, float64, error) {
@@ -115,7 +111,7 @@ func compare(operator, val1, val2 string) bool {
 		if err != nil {
 			return false
 		}
-		return matched
+		return !matched
 	case "<":
 		f1, f2, err := parseFloats(val1, val2)
 		if err != nil {
@@ -160,8 +156,10 @@ func compare(operator, val1, val2 string) bool {
 }
 
 func evalElement(elem, field, operator, value string) bool {
-	if gjson.Get(elem, field).Exists() {
-		return compare(operator, gjson.Get(elem, field).String(), value)
+	if elem := gjson.Get(elem, field); elem.Exists() {
+		raw := elem
+		fmt.Printf("raw: %s\n", raw)
+		return compare(operator, raw.String(), value)
 	} else if operator == "not exist" {
 		return true
 	}
