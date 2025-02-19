@@ -13,7 +13,7 @@ import (
 func inCIDR(addr, network string) (bool, error) {
 	_, subnet, err := net.ParseCIDR(network)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("invalid CIDR")
 	}
 	ip := net.ParseIP(addr)
 	if ip == nil {
@@ -52,7 +52,7 @@ func endWith(str, suff string) bool {
 	return strings.HasSuffix(str, suff)
 }
 
-func expresion(exp, str string) (bool, error) {
+func expression(exp, str string) (bool, error) {
 	re, err := regexp.Compile(exp)
 	if err != nil {
 		return false, err
@@ -61,14 +61,16 @@ func expresion(exp, str string) (bool, error) {
 }
 
 func parseFloats(val1, val2 string) (float64, float64, error) {
-	f1, err1 := strconv.ParseFloat(val1, 64)
-	if err1 != nil {
-		return 0, 0, err1
+	f1, err := strconv.ParseFloat(val1, 64)
+	if err != nil {
+		return 0, 0, err
 	}
-	f2, err2 := strconv.ParseFloat(val2, 64)
-	if err2 != nil {
-		return 0, 0, err2
+
+	f2, err := strconv.ParseFloat(val2, 64)
+	if err != nil {
+		return 0, 0, err
 	}
+
 	return f1, f2, nil
 }
 
@@ -101,13 +103,13 @@ func compare(operator, val1, val2 string) bool {
 	case "not end with":
 		return !endWith(val1, val2)
 	case "regexp":
-		matched, err := expresion(val2, val1)
+		matched, err := expression(val2, val1)
 		if err != nil {
 			return false
 		}
 		return matched
 	case "not regexp":
-		matched, err := expresion(val2, val1)
+		matched, err := expression(val2, val1)
 		if err != nil {
 			return false
 		}
@@ -140,16 +142,16 @@ func compare(operator, val1, val2 string) bool {
 		return true
 	case "in cidr":
 		matched, err := inCIDR(val1, val2)
-		if err == nil {
-			return matched
+		if err != nil {
+			return false
 		}
-		return false
+		return matched
 	case "not in cidr":
 		matched, err := inCIDR(val1, val2)
-		if err == nil {
-			return !matched
+		if err != nil {
+			return false
 		}
-		return false
+		return !matched
 	default:
 		return false
 	}

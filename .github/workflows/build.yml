@@ -1,0 +1,134 @@
+name: Build & Push Images
+
+on:
+  workflow_call:
+    inputs:
+      version_tag:
+        required: true
+        type: string
+      event_processor_tag:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      ghcr_token:
+        required: true
+        type: string
+      sign_cert:
+        required: true
+        type: string
+      sign_key:
+        required: true
+        type: string
+      sign_container:
+        required: true
+        type: string
+
+jobs:
+  build_images:
+    name: Build Docker Images without dependencies
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ['backend', 'frontend', 'user-auditor', 'web-pdf'] 
+    uses: ./.github/workflows/images-without-dependencies.yml
+    with:
+      microservice: ${{ matrix.service }}
+      tag: ${{ inputs.version_tag }}
+    secrets: inherit
+
+  build_images_with_dependencies:
+    name: Build & Push Images with dependencies
+    needs: 
+      - build_images
+    runs-on: signing
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        run: |
+          docker login ghcr.io -u utmstack -p ${{ inputs.ghcr_token }}
+          echo "Logged in to GitHub Container Registry"
+      
+      - name: Download base images
+        run: |
+          docker pull ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }}
+          echo "Downloaded base images"
+
+      - name: Build Agent
+        run: |
+          cd ${{ github.workspace }}/agent/service/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service -v .
+          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer -v .
+          
+          $env:GOOS = "windows"
+          cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ inputs.sign_cert }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ inputs.sign_key }}}}]=${{ inputs.sign_container }}" "utmstack_agent_service.exe"
+          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ inputs.sign_cert }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ inputs.sign_key }}}}]=${{ inputs.sign_container }}" "utmstack_agent_installer.exe"
+
+          Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/agent/*" -Destination "./dependencies/"
+
+          echo "Agent build completed"
+      
+      - name: Build Plugins
+        run: |
+          export GOOS=linux
+          export GOARCH=amd64
+          cd ${{ github.workspace }}/plugins
+          make build
+      
+      - name: Build Event Processor Image
+        run: |
+          New-Item -ItemType Directory -Force -Path "./geolocation/"
+          Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/geolocation/*" -Destination "./geolocation/"
+
+          docker build -t ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community \
+            --build-arg BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }} \
+            -f ./event_processor.Dockerfile \
+            .
+          echo "Event Processor image built"
+
+      - name: Build Agent Manager Image
+        run: |
+          go build -o ./agent-manager/agent-manager -v ./agent-manager
+          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community \
+            -f ./agent-manager/Dockerfile \
+            .
+          echo "Agent Manager image built"
+
+      - name: Push images with dependencies
+        run: |
+          docker push ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community
+          docker push ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community
+          echo "Pushed images with dependencies"
+  
+      - name: Push new release
+        run: |
+          echo "Pushing new release..."
+          $changelog = Get-Content -Path "CHANGELOG.md" -Raw
+
+          $cmAuth = $env:CM_AUTH | ConvertFrom-Json
+
+          $body = @{
+              version   = ${{ inputs.version_tag }}
+              changelog = $changelog
+              images    = "ghcr.io/utmstack/utmstack/backend,ghcr.io/utmstack/utmstack/frontend,ghcr.io/utmstack/utmstack/user-auditor,ghcr.io/utmstack/utmstack/web-pdf,ghcr.io/utmstack/utmstack/eventprocessor,ghcr.io/utmstack/utmstack/agent-manager"
+              edition   = "community"
+          } | ConvertTo-Json -Depth 3
+
+          $response = Invoke-RestMethod -Method Post `
+              -Uri "https://customermanager.utmstack.com/${{ inputs.environment }}/api/v1/releases/register" `
+              -Headers @{
+                  id  = $cmAuth.id
+                  key = $cmAuth.key
+              } `
+              -Body $body `
+              -ContentType "application/json"
+
+          $response
