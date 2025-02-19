@@ -2,11 +2,11 @@ basePath: /v1
 host: localhost:8080
 info:
   contact:
-    email: osmany@quantfall.com
-    name: Osmany Montero
-  description: Rules based correlation engine for UTMStack.
+    email: contact@utmstack.com
+    name: UTMStack LLC
+  description: Rules-based correlation engine for UTMStack.
   license:
-    name: Private
+    name: AGPLv3
   title: UTMStack's Correlation Engine
   version: "1.0"
 paths:
