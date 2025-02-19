@@ -31,6 +31,11 @@ func ListRulesFiles() []string {
 	return files
 }
 
+type SavedField struct {
+	Field string `yaml:"field"`
+	Alias string `yaml:"alias"`
+}
+
 type AllOf struct {
 	Field    string `yaml:"field"`
 	Operator string `yaml:"operator"`
@@ -44,17 +49,17 @@ type OneOf struct {
 }
 
 type Cache struct {
-	AllOf     []AllOf            `yaml:"allOf"`
-	OneOf     []OneOf            `yaml:"oneOf"`
-	TimeLapse int64              `yaml:"timeLapse"`
-	MinCount  int                `yaml:"minCount"`
-	Save      []utils.SavedField `yaml:"save"`
+	AllOf     []AllOf      `yaml:"allOf"`
+	OneOf     []OneOf      `yaml:"oneOf"`
+	TimeLapse int64        `yaml:"timeLapse"`
+	MinCount  int          `yaml:"minCount"`
+	Save      []SavedField `yaml:"save"`
 }
 
 type Search struct {
-	Query    string             `yaml:"query"`
-	MinCount int                `yaml:"minCount"`
-	Save     []utils.SavedField `yaml:"save"`
+	Query    string       `yaml:"query"`
+	MinCount int          `yaml:"minCount"`
+	Save     []SavedField `yaml:"save"`
 }
 
 type Rule struct {
@@ -80,15 +85,15 @@ func GetRules() []Rule {
 		utils.ReadYaml(file, &tmpRules)
 		log.Printf("%v rule/s found", len(tmpRules))
 		for _, tr := range tmpRules {
-			n := true
+			new := true
 			for _, r := range rules {
 				if r.Name == tr.Name {
-					n = false
+					new = false
 					log.Printf("Ignoring rule: '%s' from: %s", r.Name, file)
 					break
 				}
 			}
-			if n {
+			if new {
 				rules = append(rules, tr)
 			}
 		}
@@ -97,7 +102,7 @@ func GetRules() []Rule {
 	return rules
 }
 
-func Changes(signals chan os.Signal) {
+func RulesChanges(signals chan os.Signal) {
 	cnf := utils.GetConfig()
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -136,15 +141,15 @@ func Changes(signals chan os.Signal) {
 				if err != nil {
 					log.Printf("Could not list rules folders: %v", err)
 				}
-				n := true
+				new := true
 				if info.IsDir() {
 					for _, folder := range folders {
 						if path == folder {
-							n = false
+							new = false
 							break
 						}
 					}
-					if n {
+					if new {
 						folders = append(folders, path)
 						if err := watcher.Add(path); err != nil {
 							log.Printf("Could not start watcher for a rules folder: %v", err)

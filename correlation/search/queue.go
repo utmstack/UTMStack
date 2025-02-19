@@ -36,7 +36,7 @@ func ProcessQueue() {
 						tmp := nd
 						nd = ""
 						ndMutex.Unlock()
-
+						
 						body, err := utils.DoPost(url, "application/x-ndjson", strings.NewReader(tmp))
 						if err != nil {
 							log.Fatalf("Could not send logs to Elasticsearch: %v. %s", err, body)
@@ -48,7 +48,7 @@ func ProcessQueue() {
 
 			for {
 				l := <-logs
-				var cl = new(bytes.Buffer)
+				var cl *bytes.Buffer = new(bytes.Buffer)
 				dataType := gjson.Get(l, "dataType").String()
 				dataSource := gjson.Get(l, "dataSource").String()
 
@@ -72,3 +72,4 @@ func ProcessQueue() {
 		}()
 	}
 }
+
