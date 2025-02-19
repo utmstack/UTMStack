@@ -1,14 +1,14 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Rules based correlation engine for UTMStack.",
+        "description": "Rules-based correlation engine for UTMStack.",
         "title": "UTMStack's Correlation Engine",
         "contact": {
-            "name": "Osmany Montero",
-            "email": "osmany@quantfall.com"
+            "name": "UTMStack LLC",
+            "email": "contact@utmstack.com"
         },
         "license": {
-            "name": "Private"
+            "name": "AGPLv3"
         },
         "version": "1.0"
     },
