@@ -159,9 +159,7 @@ func compare(operator, val1, val2 string) bool {
 
 func evalElement(elem, field, operator, value string) bool {
 	if elem := gjson.Get(elem, field); elem.Exists() {
-		raw := elem
-		fmt.Printf("raw: %s\n", raw)
-		return compare(operator, raw.String(), value)
+		return compare(operator, elem.String(), value)
 	} else if operator == "not exist" {
 		return true
 	}
