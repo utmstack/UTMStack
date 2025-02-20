@@ -1,4 +1,4 @@
-<app-utm-modal-header [name]="(rule ?'Edit':'Create') + ' rule'"></app-utm-modal-header>
+<app-utm-modal-header [name]="'Import rule(s)'"></app-utm-modal-header>
 <div class="modal-content d-flex flex-column p-3">
   <div class="form-body w-100">
     <div class="d-flex justify-content-center">
@@ -47,34 +47,37 @@
         </div>
       </div>
       <app-utm-file-upload (fileEmit)="onFileChange($event)"
+                           [validateFileSize]="true"
                            [acceptTypes]="'.yml'">
       </app-utm-file-upload>
     </div>
 
     <div [hidden]="currentStep === RULE_FORM.STEP0">
-      <div class="rule-items wm-200px">
+      <div class="rule-items mt-3 wm-200px">
         <div style="background: #f8f8f8" *ngFor="let rule of rules; let i = index"
              class="p-2 border rounded mb-2 d-flex flex-column">
 
           <div (click)="showRule(rule)" class="d-flex align-items-center justify-content-between w-100 cursor-pointer">
-            <div [ngClass]="{'text-success': rule.valid, 'text-danger': !rule.valid}" class="rule-filename">
+            <div [ngClass]="{'text-success': rule.status === 'valid', 'text-danger': rule.status === 'error'}" class="rule-filename">
               <span (click)="showRule(rule)" class="cursor-pointer opacity-75">
                 <i [ngClass]="{'icon-arrow-down32' : !rule.showDetail, 'icon-arrow-up32' : rule.showDetail}"
                    class="font-size-sm"></i>
               </span>
               <span class="ml-2">
                 <strong>{{ rule.name + ' ' }}</strong>
-                <small>({{ rule.valid ? 'valid' : 'invalid' }} )</small>
+                <small>({{ rule.status }} )</small>
               </span>
             </div>
 
-            <div *ngIf="!loading rule" class="d-flex">
+            <div *ngIf="!rule.isLoading " class="d-flex">
               <div (click)="deleteRule(i)" class="cursor-pointer opacity-75 ml-2">
-                <i class="icon-cross2 font-size-sm"></i>
+                <i *ngIf="rule.status === 'valid'" class="icon-cross2 font-size-sm"></i>
+                <i *ngIf="rule.status === 'error'" class="icon-warning2 font-size-sm"></i>
+                <i *ngIf="rule.status === 'saved'" class="icon-check2 font-size-sm"></i>
               </div>
             </div>
 
-            <div *ngIf="loading" class="d-flex">
+            <div *ngIf="rule.isLoading" class="d-flex">
               <div  class="cursor-pointer opacity-75 ml-2">
                 <i class="icon-spinner spinner"></i>
               </div>
@@ -88,10 +91,9 @@
         </div>
       </div>
     </div>
-
   </div>
   <div *ngIf="files.length > 0" class="button-container d-flex justify-content-end pr-3 w-100">
-    <button *ngIf="currentStep != RULE_FORM.STEP2" (click)="activeModal.close()"
+    <button *ngIf="currentStep != RULE_FORM.STEP2 && currentStep != RULE_FORM.STEP3" (click)="activeModal.close()"
             class="btn utm-button utm-button-grey mr-2">
       <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
@@ -101,7 +103,7 @@
       Back
     </button>
 
-    <button *ngIf="currentStep != RULE_FORM.STEP2" (click)="next()"
+    <button *ngIf="currentStep != RULE_FORM.STEP2 && currentStep != RULE_FORM.STEP3" (click)="next()"
             class="btn utm-button utm-button-primary">
       Next
       <i class="icon-arrow-right32"></i>&nbsp;
@@ -110,6 +112,11 @@
     <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()"
             class="btn utm-button utm-button-primary">
       <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Import rules
+    </button>
+
+    <button *ngIf="currentStep == RULE_FORM.STEP3" (click)="close()"
+            class="btn utm-button utm-button-primary">
+      Close
     </button>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as yaml from 'js-yaml';
+import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
   selector: 'app-utm-file-upload',
@@ -12,20 +13,42 @@ export class UtmFileUploadComponent implements OnInit {
   @Input() msg: string;
   @Input() multiple = true;
   @Input() shoPreview = false;
+  @Input() validateFileSize = false;
+  @Input() maxFileSize = 10 * 1024;
+  maxFiles = 10;
+  maxFilesError = false;
   @Output() fileEmit = new EventEmitter<any[]>();
   @Output() errorEmit = new EventEmitter<any>();
   messageError: string;
   previewFiles = [];
 
-  constructor() {
+  constructor(private toastService: UtmToastService) {
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   uploadFile(event) {
+
+    if (event && event.length > this.maxFiles) {
+      this.maxFilesError = true;
+      return;
+    } else {
+      this.maxFilesError = false;
+    }
+
+    if (this.validateFileSize) {
+      if (!event || event.length === 0) {
+        return;
+      }
+
+      const invalidFile = Array.from(event).filter((file: any) => file.size > this.maxFileSize);
+      event = Array.from(event).filter((file: any) => file.size < this.maxFileSize);
+      invalidFile.forEach((file: any) =>
+        this.toastService.showError('Error', `File "${file.name}" exceeds the ${this.maxFileSize} KB limit.`));
+    }
+
     this.loadFileBeforeEmit(event)
-      .then(files => this.emitFile(files)) // Chain emitFile
+      .then(files => this.emitFile(files))
       .then(docs => {
         this.messageError = null;
         this.previewFiles = docs;

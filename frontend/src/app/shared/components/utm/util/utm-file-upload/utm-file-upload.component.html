@@ -5,9 +5,12 @@
   <input #fileInput (change)="uploadFile($event.target['files'])" [accept]="acceptTypes" [multiple]="true"
          hidden
          type="file">
+  <small *ngIf="maxFilesError" class="form-text text-danger">
+    {{ 'You can upload up to ' + maxFiles + 'files only.'}}
+  </small>
 </div>
 
-<div class="dropzone-items wm-200px">
+<div style="height: 250px" class="dropzone-items wm-200px overflow-auto">
   <div style="background: #f8f8f8" *ngFor="let file of files; let i = index"
        class="p-2 border rounded mb-2 d-flex flex-column">
 
@@ -18,7 +21,7 @@
         </span>
         <span [ngClass]="{ 'ml-1' : file.error, 'ml-2': !file.error }">
           <strong>{{ file.name + ' ' }}</strong>
-        <small>({{ file.size | number: '1.0-2' }} KB)</small>
+        <small>({{ file.size / 1000 | number: '1.0-2' }} KB)</small>
         </span>
       </div>
 

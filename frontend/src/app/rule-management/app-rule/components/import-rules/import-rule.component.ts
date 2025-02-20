@@ -1,14 +1,14 @@
+import {HttpResponse} from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {forkJoin, of} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import {forkJoin, from, of} from 'rxjs';
+import {catchError, concatMap, map, tap, toArray} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {AddRuleStepEnum, Mode, Rule} from '../../../models/rule.model';
+import {AddRuleStepEnum, Mode, Rule, Status} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
-import {ImportRuleService} from "./import-rule.service";
-import {HttpResponse} from "@angular/common/http";
+import {ImportRuleService} from './import-rule.service';
 
 @Component({
   selector: 'app-add-rule',
@@ -41,37 +41,56 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
 
   saveRule() {
     this.loading = true;
-    forkJoin(
-      this.rules.map(rule =>
+    from(this.rules).pipe(
+      concatMap(rule =>
         this.ruleService.saveRule('ADD', rule).pipe(
+          tap(() => rule.isLoading = !rule.isLoading),
           map((response: HttpResponse<any>) => {
             if (response.status === 204) {
-              rule.status = true;
+              rule.status = 'saved';
+              rule.isLoading = false;
               return rule;
             } else {
               throw new Error('Unexpected response status');
             }
           }),
           catchError(error => {
-            rule.status = false;
-            return of(null);
+            rule.isLoading = false;
+            rule.status = 'error';
+            return of(rule);
           })
         )
-      )
+      ),
+      toArray()
     ).subscribe({
       next: response => {
+        const hasError = response.some(r => r.status === 'error');
+        const successResponse = response.every(r => r.status === 'saved');
+
+        this.loading = false;
         this.isSubmitting = false;
-        this.utmToastService.showSuccessBottom( 'Rule(s) imported successfully');
-        this.activeModal.close(true);
-      },
-      error: err => {
-        this.isSubmitting = false;
-        this.utmToastService.showError('Error', 'Error importing rules');
-        console.error('Error saving rule:', err.message);
+        // this.currentStep = this.RULE_FORM.STEP3;
+        this.next();
+
+        if (response.length === 1) {
+          if (successResponse) {
+            this.utmToastService.showSuccessBottom('Rule imported successfully');
+          } else if (hasError) {
+            this.utmToastService.showError('Import failed', 'The rule could not be imported.');
+          }
+        } else {
+          if (successResponse) {
+            this.utmToastService.showSuccessBottom('Rules imported successfully');
+          } else if (hasError) {
+            this.utmToastService.showError('Import completed with errors', 'Some rules failed to import.');
+          } else {
+            this.utmToastService.showWarning('Import partially successful', 'Some rules were not saved.');
+          }
+        }
       }
     });
-
   }
+
 
   next() {
     this.stepCompleted.push(this.currentStep);
@@ -80,6 +99,8 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
               this.validRules();
               break;
       case 1: this.currentStep = AddRuleStepEnum.STEP2;
+              break;
+      case 2: this.currentStep = AddRuleStepEnum.STEP3;
               break;
     }
   }
@@ -113,10 +134,17 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
             dataTypes: file.dataTypes.length > 0 ? file.dataTypes : []
           }));
 
-          this.rules = this.rules.map(rule => ({
+          this.rules = this.rules.map(rule => {
+          const isValid = this.importRuleService.isValidRule(rule);
+
+          return {
             ...rule,
-            valid: this.importRuleService.isValidRule(rule)
-        }));
+            valid: isValid,
+            status: isValid ? ('valid' as Status) : ('error' as Status)
+          };
+
+        });
+
         });
     } else {
       this.mode = 'ERROR';
@@ -139,23 +167,9 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
     return this.stepCompleted.findIndex(value => value === step) !== -1;
   }
 
-  isValidStep(step: number) {
-    switch (step) {
-      case AddRuleStepEnum.STEP1:
-
-
-      case AddRuleStepEnum.STEP2:
-        return this.ruleForm.get('definition').valid;
-    }
-  }
-
   onFileChange($event: any): void {
     this.files = $event;
     this.files = this.files.filter(file => !file.error);
-  }
-
-  ngOnDestroy() {
-    this.dataTypeService.resetTypes();
   }
 
   deleteRule(i: number) {
@@ -164,5 +178,13 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
 
   showRule(rule: Rule) {
     rule.showDetail = !rule.showDetail;
+  }
+
+  close(){
+    this.activeModal.close();
+  }
+
+  ngOnDestroy() {
+    this.dataTypeService.resetTypes();
   }
 }

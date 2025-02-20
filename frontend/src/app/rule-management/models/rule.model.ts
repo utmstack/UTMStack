@@ -69,13 +69,16 @@ export interface Rule {
     ruleActive: boolean;
     valid?: boolean;
     showDetail?: boolean;
-    status?: boolean;
+    status?: Status;
+    isLoading: boolean;
 }
 
 export type Mode = 'ADD' | 'EDIT' | 'IMPORT' | 'ERROR';
+export type Status = 'valid' | 'saved' | 'error';
 
 export enum AddRuleStepEnum {
   STEP0,
   STEP1,
   STEP2,
+  STEP3,
 }
