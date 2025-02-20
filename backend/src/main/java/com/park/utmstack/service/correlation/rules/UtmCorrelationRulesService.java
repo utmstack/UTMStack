@@ -1,10 +1,10 @@
 package com.park.utmstack.service.correlation.rules;
 
+import com.park.utmstack.domain.chart_builder.UtmVisualization;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.Property;
-import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.correlation.rules.UtmCorrelationRulesRepository;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
@@ -56,11 +56,13 @@ public class UtmCorrelationRulesService {
      * @return the persisted entity.
      */
     public UtmCorrelationRules save(UtmCorrelationRules rule) {
+        final String ctx = CLASSNAME + ".saveRule";
         log.debug("Request to save UtmCorrelationRules : {}", rule);
-        if (rule.getId() == null) {
-            rule.setId(utmCorrelationRulesRepository.getNextId());
-        }
 
+        Optional<UtmCorrelationRules> existingRule = utmCorrelationRulesRepository.findById(rule.getId());
+        if (existingRule.isPresent()) {
+            throw new RuntimeException(ctx + ": " + String.format("Rule with %1$s already exist", rule.getId()));
+        }
         rule.setDataTypes(this.saveDataTypes(rule));
         rule.setRuleLastUpdate();
         return utmCorrelationRulesRepository.save(rule);
@@ -229,4 +231,9 @@ public class UtmCorrelationRulesService {
         return existingDataTypes;
     }
 
+    public Long getSystemSequenceNextValue() {
+        return utmCorrelationRulesRepository.findFirstBySystemOwnerIsTrueOrderByIdDesc()
+                .map(rule -> rule.getId() + 1)
+                .orElse(1L);
+    }
 }

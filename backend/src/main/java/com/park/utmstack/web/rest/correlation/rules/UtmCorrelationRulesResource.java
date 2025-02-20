@@ -5,6 +5,7 @@ import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
+import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
@@ -47,12 +48,16 @@ public class UtmCorrelationRulesResource {
 
     private final UtmCorrelationRulesMapper utmCorrelationRulesMapper;
 
+    private UtmStackService utmStackService;
+
     public UtmCorrelationRulesResource(ApplicationEventService applicationEventService,
                                        UtmCorrelationRulesService rulesService,
-                                       UtmCorrelationRulesMapper utmCorrelationRulesMapper) {
+                                       UtmCorrelationRulesMapper utmCorrelationRulesMapper,
+                                       UtmStackService utmStackService) {
         this.applicationEventService = applicationEventService;
         this.rulesService = rulesService;
         this.utmCorrelationRulesMapper = utmCorrelationRulesMapper;
+        this.utmStackService = utmStackService;
     }
 
     /**
@@ -80,6 +85,14 @@ public class UtmCorrelationRulesResource {
                     throw new BadRequestException(ctx + ": The rule's definition variables or expression field is null or empty, please check.");
                 }
             }
+
+            // Set the next system sequence value only if the environment is dev
+            // All visualizations created under the development environment are considered as from the system
+            if (utmStackService.isInDevelop()) {
+                utmCorrelationRulesDTO.setId(rulesService.getSystemSequenceNextValue());
+                utmCorrelationRulesDTO.setSystemOwner(true);
+            }
+
             rulesService.save(this.utmCorrelationRulesMapper.toEntity(utmCorrelationRulesDTO));
             return ResponseEntity.noContent().build();
         } catch (BadRequestException e) {

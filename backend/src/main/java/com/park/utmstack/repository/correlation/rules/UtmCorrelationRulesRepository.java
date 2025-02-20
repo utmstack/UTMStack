@@ -11,6 +11,7 @@ import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data  repository for the UtmCorrelationRules entity.
@@ -49,4 +50,6 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
                                               @Param("ruleEndDate") Instant ruleEndDate,
                                               @Param("ruleSearch")  String ruleSearch,
                                               Pageable pageable);
+
+    Optional<UtmCorrelationRules> findFirstBySystemOwnerIsTrueOrderByIdDesc();
 }
