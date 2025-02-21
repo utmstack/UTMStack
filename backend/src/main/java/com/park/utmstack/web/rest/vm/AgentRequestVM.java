@@ -1,8 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
 import com.park.utmstack.service.grpc.AgentRequest;
-
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 
 /*
