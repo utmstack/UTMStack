@@ -52,11 +52,8 @@ export class UtmAgentDetailComponent implements OnInit {
   changeIp(event: string) {
     this.loading = true;
     const agent = {
-      id: this.agent.id,
       hostname: this.agent.hostname,
       ip: this.agentIp,
-      mac: this.macs.length > 0 ? this.macs[0] : '',
-      agentKey: this.agent.agentKey
     };
 
     this.agentManagerService.updateAgent(agent)
