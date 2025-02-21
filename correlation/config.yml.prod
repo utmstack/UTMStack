@@ -1,5 +1,4 @@
 rulesFolder: /app/rulesets/
-geoipFolder: /app/geosets/
 elasticsearch: "http://ELASTICSEARCH_HOST:ELASTICSEARCH_PORT"
 postgresql:
   server: POSTGRESQL_HOST
