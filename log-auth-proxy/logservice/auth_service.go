@@ -2,6 +2,7 @@ package logservice
 
 import (
 	"context"
+	"crypto/tls"
 	"os"
 	"sync"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/utmstack/UTMStack/log-auth-proxy/panelservice"
 	"github.com/utmstack/UTMStack/log-auth-proxy/utils"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -57,7 +58,11 @@ func (auth *LogAuthService) syncKeys(typ agent.ConnectorType) {
 		h.Fatal("Failed to get the SERVER_ADDRESS ")
 	}
 
-	conn, err := grpc.Dial(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
+	tlsConfig := &tls.Config{InsecureSkipVerify: true}
+	creds := credentials.NewTLS(tlsConfig)
+	opts := grpc.WithTransportCredentials(creds)
+
+	conn, err := grpc.NewClient(serverAddress, opts, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)))
 	if err != nil {
 		h.ErrorF("Failed to connect to gRPC server: %v", err)
 		return
