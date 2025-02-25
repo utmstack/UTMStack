@@ -93,9 +93,29 @@ public class AgentGrpcService {
         final String ctx = CLASSNAME + ".updateAgentAttributes";
         try {
             AgentRequest req = agentRequestVM.getAgentRequest();
-            Metadata customHeaders = new Metadata();
-            customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agentRequestVM.getAgentKey());
-            customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agentRequestVM.getId()));
+
+            // Validating the existence of the agent.
+            String currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user login"));
+            Agent agent = null;
+            String hostname = agentRequestVM.getHostname();
+
+            try {
+                agent = blockingStub.getAgentByHostname(Hostname.newBuilder().setHostname(hostname).build());
+                if (agent == null) {
+                    String msg = String.format("%1$s: Agent %2$s could not be updated because no information was obtained from the agent", ctx, hostname);
+                    log.error(msg);
+                    throw new Exception(msg);
+                }
+            } catch (StatusRuntimeException e) {
+                if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
+                    String msg = String.format("%1$s: Agent %2$s could not be updated because was not found", ctx, hostname);
+                    log.error(msg);
+                    throw new Exception(msg);
+                }
+            }
+
+            assert agent != null;
+            Metadata customHeaders = getCustomHeaders(agent);
 
             Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
             AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
@@ -163,9 +183,8 @@ public class AgentGrpcService {
 
             AgentDelete request = AgentDelete.newBuilder().setDeletedBy(currentUser).build();
 
-            Metadata customHeaders = new Metadata();
-            customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());
-            customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agent.getId()));
+            assert agent != null;
+            Metadata customHeaders = getCustomHeaders(agent);
 
             Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
             AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
@@ -176,5 +195,12 @@ public class AgentGrpcService {
             log.error(msg);
             throw new RuntimeException(msg);
         }
+    }
+
+    private Metadata getCustomHeaders (Agent agent) {
+        Metadata customHeaders = new Metadata();
+        customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());
+        customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agent.getId()));
+        return customHeaders;
     }
 }
