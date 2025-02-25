@@ -2,6 +2,7 @@ package rules
 
 import (
 	"log"
+	"os"
 	"os/exec"
 	"time"
 
@@ -15,10 +16,18 @@ func Update(updateReady chan bool) {
 		cnf := utils.GetConfig()
 
 		rm := exec.Command("rm", "-R", cnf.RulesFolder+"system")
-		_ = rm.Run()
+		err := rm.Run()
+		if err != nil {
+			log.Printf("Could not remove rules folder: %v", err)
+			os.Exit(1)
+		}
 
 		clone := exec.Command("git", "clone", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
-		_ = clone.Run()
+		err = clone.Run()
+		if err != nil {
+			log.Printf("Could not clone rules: %v", err)
+			os.Exit(1)
+		}
 
 		if first {
 			first = false
