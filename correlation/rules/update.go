@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"errors"
 	"log"
 	"os"
 	"os/exec"
@@ -15,11 +16,21 @@ func Update(updateReady chan bool) {
 		log.Println("Downloading rules")
 		cnf := utils.GetConfig()
 
-		rm := exec.Command("rm", "-R", cnf.RulesFolder+"system")
-		err := rm.Run()
+		f, err := os.Stat(cnf.RulesFolder + "system")
 		if err != nil {
-			log.Printf("Could not remove rules folder: %v", err)
-			os.Exit(1)
+			if errors.Is(err, os.ErrNotExist) {
+				log.Printf("Could not get rules folder: %v", err)
+				os.Exit(1)
+			}
+		}
+
+		if f.IsDir() || f.Name() == "system" {
+			rm := exec.Command("rm", "-R", cnf.RulesFolder+"system")
+			err = rm.Run()
+			if err != nil {
+				log.Printf("Could not remove rules folder: %v", err)
+				os.Exit(1)
+			}
 		}
 
 		clone := exec.Command("git", "clone", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
