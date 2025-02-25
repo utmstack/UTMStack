@@ -25,7 +25,7 @@ func Update(updateReady chan bool) {
 			updateReady <- true
 		}
 
-		log.Println("Rules updated, waiting for 48 hours to update again")
-		time.Sleep(48 * time.Hour)
+		log.Println("Rules updated, waiting for 72 hours to update again")
+		time.Sleep(72 * time.Hour)
 	}
 }
