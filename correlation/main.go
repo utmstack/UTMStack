@@ -74,6 +74,5 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	go rules.Changes(signals)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
 	<-signals
 }
