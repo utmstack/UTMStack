@@ -16,7 +16,7 @@ func Update(updateReady chan bool) {
 
 		rm := exec.Command("rm", "-R", cnf.RulesFolder+"system")
 		_ = rm.Run()
-		
+
 		clone := exec.Command("git", "clone", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
 		_ = clone.Run()
 
@@ -24,9 +24,8 @@ func Update(updateReady chan bool) {
 			first = false
 			updateReady <- true
 		}
-		
-		log.Println("Rules updated")
+
+		log.Println("Rules updated, waiting for 48 hours to update again")
 		time.Sleep(48 * time.Hour)
 	}
 }
-
