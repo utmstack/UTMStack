@@ -101,6 +101,8 @@ jobs:
 
       - name: Build Agent Manager Image
         run: |
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
           cd ${{ github.workspace }}/agent-manager; go build -o agent-manager -v .
           cd ${{ github.workspace }}
           docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community -f ./agent-manager/Dockerfile .
