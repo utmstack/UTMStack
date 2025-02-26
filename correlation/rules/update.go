@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/utmstack/UTMStack/correlation/utils"
@@ -19,25 +18,20 @@ func Update(updateReady chan bool) {
 		f, err := os.Stat(cnf.RulesFolder + "system")
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
-				log.Printf("Could not get rules folder: %v", err)
-				os.Exit(1)
+				log.Fatalf("Could not get rules folder: %v", err)
 			}
 		}
 
-		if f != nil && (f.IsDir() || f.Name() == "system") {
-			rm := exec.Command("rm", "-R", cnf.RulesFolder+"system")
-			err = rm.Run()
+		if f != nil {
+			err := utils.RunCommand("rm", "-R", cnf.RulesFolder+"system")
 			if err != nil {
-				log.Printf("Could not remove rules folder: %v", err)
-				os.Exit(1)
+				log.Fatalf("Could not remove rules folder: %v", err)
 			}
 		}
 
-		clone := exec.Command("git", "clone", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
-		err = clone.Run()
+		err = utils.RunCommand("git", "clone", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
 		if err != nil {
-			log.Printf("Could not clone rules: %v", err)
-			os.Exit(1)
+			log.Fatalf("Could not clone rules: %v", err)
 		}
 
 		if first {
