@@ -1,9 +1,10 @@
 package main
 
 import (
+	"time"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/utmstack/config-client-go/types"
