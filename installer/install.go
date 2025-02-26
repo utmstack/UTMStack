@@ -2,41 +2,45 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/docker"
+	"github.com/utmstack/UTMStack/installer/network"
+	"github.com/utmstack/UTMStack/installer/services"
+	"github.com/utmstack/UTMStack/installer/system"
 	"github.com/utmstack/UTMStack/installer/updater"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Install() error {
+func Install(orgID string) error {
+	fmt.Println("### Installing UTMStack ###")
 	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
 	if err != nil {
-		return err
+		return fmt.Errorf("error checking if service is installed: %v", err)
 	}
 
 	if isInstalledAlready {
-		fmt.Println("UTMStack is already installed. If you want to re-install it, please remove the service first.")
+		fmt.Println("UTMStack is already installed. If you want to re-install it, please remove the service UTMStackComponentsUpdater first.")
 		return nil
 	}
 
 	cnf := config.GetConfig()
 
 	fmt.Print("Checking system requirements")
-	if err := utils.CheckDistro(config.RequiredDistro); err != nil {
+	if err := system.CheckDistro(config.RequiredDistro); err != nil {
 		return err
 	}
-	if err := utils.CheckCPU(config.RequiredMinCPUCores); err != nil {
+	if err := system.CheckCPU(config.RequiredMinCPUCores); err != nil {
 		return err
 	}
-	if err := utils.CheckDisk(config.RequiredMinDiskSpace); err != nil {
+	if err := system.CheckDisk(config.RequiredMinDiskSpace); err != nil {
 		return err
 	}
 	fmt.Println("[OK]")
 
 	fmt.Print("Generating Stack configuration")
-	stack := config.GetStackConfig()
+	stack := docker.GetStackConfig()
 	fmt.Println(" [OK]")
 
 	if utils.GetLock(1, stack.LocksDir) {
@@ -52,7 +56,7 @@ func Install() error {
 
 	if utils.GetLock(2, stack.LocksDir) {
 		fmt.Print("Preparing system to run UTMStack")
-		if err := PrepareSystem(); err != nil {
+		if err := system.PrepareSystem(); err != nil {
 			return err
 		}
 		if err := utils.SetLock(2, stack.LocksDir); err != nil {
@@ -63,7 +67,7 @@ func Install() error {
 
 	if utils.GetLock(202402081552, stack.LocksDir) {
 		fmt.Print("Preparing kernel to run UTMStack")
-		if err := PrepareSystem(); err != nil {
+		if err := system.PrepareSystem(); err != nil {
 			return err
 		}
 		if err := utils.SetLock(202402081552, stack.LocksDir); err != nil {
@@ -78,10 +82,10 @@ func Install() error {
 		if err != nil {
 			return err
 		}
-		if err := InstallVlan(); err != nil {
+		if err := network.InstallVlan(); err != nil {
 			return err
 		}
-		if err := ConfigureVLAN(iface); err != nil {
+		if err := network.ConfigureVLAN(iface); err != nil {
 			return err
 		}
 		if err := utils.SetLock(202402081553, stack.LocksDir); err != nil {
@@ -92,7 +96,7 @@ func Install() error {
 
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Print("Installing Docker")
-		if err := InstallDocker(); err != nil {
+		if err := docker.InstallDocker(); err != nil {
 			return err
 		}
 		if err := utils.SetLock(3, stack.LocksDir); err != nil {
@@ -107,7 +111,7 @@ func Install() error {
 		if err != nil {
 			return err
 		}
-		if err := InitSwarm(mainIP); err != nil {
+		if err := docker.InitSwarm(mainIP); err != nil {
 			return err
 		}
 		if err := utils.SetLock(4, stack.LocksDir); err != nil {
@@ -118,7 +122,7 @@ func Install() error {
 
 	if !utils.GetLock(5, stack.LocksDir) && utils.GetLock(202407051241, stack.LocksDir) {
 		fmt.Print("Removing old services")
-		if err := utils.RemoveServices([]string{
+		if err := docker.RemoveServices([]string{
 			"utmstack_aws",
 			"utmstack_bitdefender",
 			"utmstack_correlation",
@@ -137,25 +141,24 @@ func Install() error {
 		fmt.Println(" [OK]")
 	}
 
-	if !utils.CheckIfPathExist(filepath.Join(cnf.UpdatesFolder, "download_done.txt")) {
-		if err := updater.GetUpdaterClient().CheckUpdate(true, false, 3); err != nil {
-			return err
-		}
+	fmt.Print("Registering instance")
+	if err := updater.RegisterInstance(orgID); err != nil {
+		return err
 	}
+	fmt.Println(" [OK]")
 
-	fmt.Println("\nInstalling Stack. This may take a while.")
-
-	if err := StackUP(cnf, stack); err != nil {
+	fmt.Println("Installing Stack. This may take a while.")
+	if err := updater.GetUpdaterClient().CheckUpdate(true); err != nil {
 		return err
 	}
 
 	fmt.Print("Installing reverse proxy. This may take a while.")
 
-	if err := InstallNginx(); err != nil {
+	if err := network.InstallNginx(); err != nil {
 		return err
 	}
 
-	if err := ConfigureNginx(cnf, stack); err != nil {
+	if err := network.ConfigureNginx(cnf, stack); err != nil {
 		return err
 	}
 
@@ -163,7 +166,7 @@ func Install() error {
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Print("Installing Administration Tools")
-		if err := InstallTools(); err != nil {
+		if err := system.InstallTools(); err != nil {
 			return err
 		}
 
@@ -176,7 +179,7 @@ func Install() error {
 	if utils.GetLock(6, stack.LocksDir) {
 		fmt.Print("Initializing UTMStack and AgentManager databases")
 		for i := 0; i < 10; i++ {
-			if err := InitPgUtmstack(cnf); err != nil {
+			if err := services.InitPgUtmstack(cnf); err != nil {
 				if i > 8 {
 					return err
 				}
@@ -196,7 +199,7 @@ func Install() error {
 	if utils.GetLock(202311301747, stack.LocksDir) {
 		fmt.Print("Initializing User Auditor database")
 		for i := 0; i < 10; i++ {
-			if err := InitPgUserAuditor(cnf); err != nil {
+			if err := services.InitPgUserAuditor(cnf); err != nil {
 				if i > 8 {
 					return err
 				}
@@ -215,7 +218,7 @@ func Install() error {
 
 	if utils.GetLock(7, stack.LocksDir) {
 		fmt.Print("Initializing OpenSearch. This may take a while.")
-		if err := InitOpenSearch(); err != nil {
+		if err := services.InitOpenSearch(); err != nil {
 			return err
 		}
 
@@ -227,7 +230,7 @@ func Install() error {
 
 	fmt.Print("Waiting for Backend to be ready. This may take a while.")
 
-	if err := Backend(); err != nil {
+	if err := services.Backend(); err != nil {
 		return err
 	}
 
@@ -235,7 +238,7 @@ func Install() error {
 
 	if utils.GetLock(8, stack.LocksDir) {
 		fmt.Print("Generating Connection Key")
-		if err := RegenerateKey(cnf.InternalKey); err != nil {
+		if err := services.RegenerateKey(cnf.InternalKey); err != nil {
 			return err
 		}
 
@@ -247,7 +250,7 @@ func Install() error {
 
 	if utils.GetLock(9, stack.LocksDir) {
 		fmt.Print("Generating Base URL")
-		if err := SetBaseURL(cnf.Password, cnf.ServerName); err != nil {
+		if err := services.SetBaseURL(cnf.Password, cnf.ServerName); err != nil {
 			return err
 		}
 
@@ -275,7 +278,7 @@ func Install() error {
 
 	fmt.Println("Running post installation scripts. This may take a while.")
 
-	if err := PostInstallation(); err != nil {
+	if err := docker.PostInstallation(); err != nil {
 		return err
 	}
 

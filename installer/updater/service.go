@@ -11,7 +11,7 @@ func GetConfigServ() *service.Config {
 		Name:        "UTMStackComponentsUpdater",
 		DisplayName: "UTMStack Components Updater",
 		Description: "UTMStack Components Updater",
-		Arguments:   []string{"updater"},
+		Arguments:   []string{"--run"},
 	}
 
 	return svcConfig

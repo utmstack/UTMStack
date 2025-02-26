@@ -1,10 +1,10 @@
-package types
+package docker
 
 import (
 	"fmt"
 
 	"github.com/utmstack/UTMStack/installer/config"
-	"github.com/utmstack/UTMStack/installer/updater"
+	"github.com/utmstack/UTMStack/installer/system"
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
 )
@@ -85,7 +85,7 @@ func (c *Compose) Encode() ([]byte, error) {
 	return b, nil
 }
 
-func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error {
+func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	var pluginsConfig PluginsConfig
 	err := pluginsConfig.Set(conf, stack)
 	if err != nil {
@@ -108,10 +108,9 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	agentManagerMem := stack.ServiceResources["agentmanager"].AssignedMemory
 	c.Services["agentmanager"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/agent-manager:v" + updater.GetVersions()["agent-manager"] + "-" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/agent-manager:${UTMSTACK_TAG}"),
 		Volumes: []string{
 			stack.Cert + ":/cert",
-			conf.UpdatesFolder + ":/updates",
 		},
 		Ports: []string{
 			"9000:50051",
@@ -175,7 +174,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	frontEndMem := stack.ServiceResources["frontend"].AssignedMemory
 	c.Services["frontend"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/frontend:v" + updater.GetVersions()["frontend"] + "-" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/frontend:${UTMSTACK_TAG}"),
 		DependsOn: []string{
 			"backend",
 			"filebrowser",
@@ -201,7 +200,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
 	backendMin := stack.ServiceResources["backend"].MinMemory
 	c.Services["backend"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:v" + updater.GetVersions()["backend"] + "-" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:${UTMSTACK_TAG}"),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -239,11 +238,10 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 		},
 	}
 
-	// TODO: Get eventprocessor version from Customer Manager
 	epMem := stack.ServiceResources["event-processor"].AssignedMemory
 	epMin := stack.ServiceResources["event-processor"].MinMemory
 	c.Services["event-processor-worker"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/eventprocessor:${UTMSTACK_TAG}"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
 			"aio": []string{
 				"postgres",
@@ -261,11 +259,12 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 			"8080:8080",
 		},
 		Volumes: []string{
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
+			// Check with Osmany
+			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
+			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
 		},
@@ -292,7 +291,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	// TODO: Get eventprocessor version from Customer Manager
 	c.Services["event-processor-manager"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/threatwinds/eventprocessor/base:1.0.0-beta"),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/eventprocessor:${UTMSTACK_TAG}"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
 			"aio": []string{
 				"postgres",
@@ -309,10 +308,10 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 			"8000:8000",
 		},
 		Volumes: []string{
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
+			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
+			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
@@ -342,7 +341,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	// Calculating the less closed odd value to assign the final memory, because if an even value is returned
 	// opensearch raises an error
-	opensearchMem := utils.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
+	opensearchMem := system.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
@@ -388,7 +387,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	userAuditorMem := stack.ServiceResources["user-auditor"].AssignedMemory
 	c.Services["user-auditor"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:v" + updater.GetVersions()["user-auditor"] + "-" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/user-auditor:${UTMSTACK_TAG}"),
 		DependsOn: []string{
 			"postgres",
 			"node1",
@@ -417,7 +416,7 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 
 	webPDFMem := stack.ServiceResources["web-pdf"].AssignedMemory
 	c.Services["web-pdf"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:v" + updater.GetVersions()["web-pdf"] + "-" + conf.Branch),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/web-pdf:${UTMSTACK_TAG}"),
 		Volumes: []string{
 			stack.ShmFolder + ":/dev/shm",
 		},
@@ -437,10 +436,6 @@ func (c *Compose) Populate(conf *config.Config, stack *config.StackConfig) error
 	}
 
 	c.Volumes["postgres_data"] = Volume{
-		"external": false,
-	}
-
-	c.Volumes["agent_manager"] = Volume{
 		"external": false,
 	}
 

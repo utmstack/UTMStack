@@ -6,27 +6,25 @@ import (
 )
 
 const (
-	GetUpdatesInfoEndpoint   = "/api/customer-manager/v1/update-info"
-	RegisterInstanceEndpoint = "/api/customer-manager/v1/instance"
-	GetEditionEndpoint       = "/api/customer-manager/v1/instance-edition"
-	GetFileEndpoint          = "/api/customer-manager/v1/file"
-	ExposerPort              = "10091"
-	RequiredMinCPUCores      = 2
-	RequiredDistro           = "ubuntu"
-	RequiredMinDiskSpace     = 30
-	CMDev                    = "https://customermanagerdev.utmstack.com"
-	CMQa                     = "https://customermanagerqa.utmstack.com"
-	CMRc                     = "https://customermanagerrc.utmstack.com"
-	CMProd                   = "https://customermanager.utmstack.com"
+	RegisterInstanceEndpoint   = "/api/v1/instances/register"
+	GetInstanceDetailsEndpoint = "/api/v1/instances/"
+	GetUpdatesInfoEndpoint     = "/api/v1/updates/"
+
+	CMAlpha = "https://customermanager.utmstack.com/alpha"
+	CMBeta  = "https://customermanager.utmstack.com/beta"
+	CMRc    = "https://customermanager.utmstack.com/rc"
+	CMProd  = "https://customermanager.utmstack.com/prod"
+
+	RequiredMinCPUCores  = 2
+	RequiredMinDiskSpace = 30
+	RequiredDistro       = "ubuntu"
 )
 
 var (
-	ConfigPath        = filepath.Join("/root", "utmstack.yml")
-	UpdaterConfigPath = filepath.Join(GetConfig().UpdatesFolder, "updater.yml")
-	ServiceLogPath    = filepath.Join(GetConfig().UpdatesFolder, "logs", "utmstack-updater.log")
-	CertFilePath      = filepath.Join(GetStackConfig().Cert, "utm.crt")
-	WindowConfigPath  = filepath.Join(GetConfig().UpdatesFolder, "window.yml")
-	UpdatesInfoPath   = filepath.Join(GetConfig().UpdatesFolder, "updates_info.json")
-	EditionFile       = filepath.Join(GetConfig().UpdatesFolder, "edition.yml")
-	CheckUpdatesEvery = 5 * time.Minute
+	ConfigPath         = filepath.Join("/root", "utmstack.yml")
+	InstanceConfigPath = filepath.Join(GetConfig().UpdatesFolder, "instance-config.yml")
+	ServiceLogPath     = filepath.Join(GetConfig().UpdatesFolder, "logs", "utmstack-updater.log")
+	WindowConfigPath   = filepath.Join(GetConfig().UpdatesFolder, "update-window.yml")
+	VersionFilePath    = filepath.Join(GetConfig().UpdatesFolder, "version.yml")
+	CheckUpdatesEvery  = 5 * time.Minute
 )
