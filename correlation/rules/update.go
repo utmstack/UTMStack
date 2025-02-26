@@ -24,7 +24,7 @@ func Update(updateReady chan bool) {
 			}
 		}
 
-		if f.IsDir() || f.Name() == "system" {
+		if f != nil && (f.IsDir() || f.Name() == "system") {
 			rm := exec.Command("rm", "-R", cnf.RulesFolder+"system")
 			err = rm.Run()
 			if err != nil {
