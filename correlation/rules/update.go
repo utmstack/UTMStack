@@ -18,7 +18,7 @@ func Update(updateReady chan bool) {
 
 		f, err := os.Stat(cnf.RulesFolder + "system")
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
+			if !errors.Is(err, os.ErrNotExist) {
 				log.Printf("Could not get rules folder: %v", err)
 				os.Exit(1)
 			}
