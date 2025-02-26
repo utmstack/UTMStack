@@ -29,7 +29,7 @@ func Update(updateReady chan bool) {
 			}
 		}
 
-		err = utils.RunCommand("git", "clone", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
+		err = utils.RunCommand("git", "clone", "--depth", "1", "https://github.com/utmstack/rules.git", cnf.RulesFolder+"system")
 		if err != nil {
 			log.Fatalf("Could not clone rules: %v", err)
 		}
