@@ -1,12 +1,10 @@
-package main
+package docker
 
 import (
 	"fmt"
-	"os"
 	"time"
 
-	"github.com/utmstack/UTMStack/installer/config"
-	"github.com/utmstack/UTMStack/installer/types"
+	"github.com/utmstack/UTMStack/installer/services"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
@@ -52,39 +50,6 @@ func InitSwarm(mainIP string) error {
 	return nil
 }
 
-func StackUP(c *config.Config, stack *config.StackConfig) error {
-	var compose = new(types.Compose)
-	err := compose.Populate(c, stack)
-	if err != nil {
-		return err
-	}
-
-	d, err := compose.Encode()
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile("compose.yml", d, 0644)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("  Downloading images:")
-	for _, service := range compose.Services {
-		fmt.Print("    Downloading ", *service.Image)
-		if err := utils.RunCmd("docker", "pull", *service.Image); err != nil {
-			return err
-		}
-		fmt.Println(" [OK]")
-	}
-
-	if err := utils.RunCmd("docker", "stack", "deploy", "-c", "compose.yml", "utmstack"); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func PostInstallation() error {
 	time.Sleep(3 * time.Minute)
 
@@ -108,7 +73,7 @@ func PostInstallation() error {
 		return err
 	}
 
-	if err := Backend(); err != nil {
+	if err := services.Backend(); err != nil {
 		return err
 	}
 

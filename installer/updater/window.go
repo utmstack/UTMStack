@@ -1,10 +1,11 @@
-package config
+package updater
 
 import (
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
@@ -19,18 +20,18 @@ type MaintenanceWindow struct {
 }
 
 func GetWindowConfig() (*MaintenanceWindow, bool) {
-	if !utils.CheckIfPathExist(WindowConfigPath) {
+	if !utils.CheckIfPathExist(config.WindowConfigPath) {
 		windowConfig := &MaintenanceWindow{
 			Frequency: "daily",
 			StartTime: "00:00",
 			EndTime:   "02:00",
 		}
-		utils.WriteYAML(WindowConfigPath, windowConfig)
+		utils.WriteYAML(config.WindowConfigPath, windowConfig)
 		return windowConfig, false
 	}
 
 	windowConfig := &MaintenanceWindow{}
-	err := utils.ReadYAML(WindowConfigPath, windowConfig)
+	err := utils.ReadYAML(config.WindowConfigPath, windowConfig)
 	if err != nil {
 		fmt.Printf("error reading window config file: %v", err)
 	}

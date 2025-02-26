@@ -1,13 +1,17 @@
-package main
+package network
 
 import (
 	"path"
 
 	"github.com/utmstack/UTMStack/installer/config"
+	"github.com/utmstack/UTMStack/installer/docker"
 	"github.com/utmstack/UTMStack/installer/templates"
-	"github.com/utmstack/UTMStack/installer/types"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
+
+type NginxConfig struct {
+	SharedKey string
+}
 
 func InstallNginx() error {
 	env := []string{"DEBIAN_FRONTEND=noninteractive"}
@@ -23,8 +27,8 @@ func InstallNginx() error {
 	return nil
 }
 
-func ConfigureNginx(conf *config.Config, stack *config.StackConfig) error {
-	c := types.NginxConfig{
+func ConfigureNginx(conf *config.Config, stack *docker.StackConfig) error {
+	c := NginxConfig{
 		SharedKey: conf.InternalKey,
 	}
 

@@ -1,4 +1,4 @@
-package types
+package docker
 
 import (
 	"os"
@@ -34,7 +34,7 @@ type PostgreConfig struct {
 	Database string `yaml:"database"`
 }
 
-func (c *PluginsConfig) Set(conf *config.Config, stack *config.StackConfig) error {
+func (c *PluginsConfig) Set(conf *config.Config, stack *StackConfig) error {
 	c.Plugins = make(map[string]PluginConfig)
 
 	c.Plugins["com.utmstack"] = PluginConfig{

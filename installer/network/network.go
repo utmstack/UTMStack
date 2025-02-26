@@ -1,4 +1,4 @@
-package main
+package network
 
 import (
 	"os"
