@@ -5,8 +5,8 @@ import (
 	"os/exec"
 )
 
-func RunCommand(command ...string) error {
-	cmd := exec.Command(command[0], command[1:]...)
+func RunCommand(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
 
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
