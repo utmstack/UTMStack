@@ -1,15 +1,13 @@
 package com.park.utmstack.service.agent_manager;
 
+import com.park.utmstack.service.dto.agent_manager.*;
 import com.park.utmstack.service.grpc.DeleteRequest;
 import com.park.utmstack.service.grpc.ListRequest;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.security.SecurityUtils;
-import com.park.utmstack.service.dto.agent_manager.AgentCommandDTO;
-import com.park.utmstack.service.dto.agent_manager.AgentDTO;
-import com.park.utmstack.service.dto.agent_manager.ListAgentsCommandsResponseDTO;
-import com.park.utmstack.service.dto.agent_manager.ListAgentsResponseDTO;
 import com.park.utmstack.service.grpc.*;
 import com.park.utmstack.web.rest.errors.AgentNotfoundException;
+import com.park.utmstack.web.rest.vm.AgentRequestVM;
 import io.grpc.*;
 import io.grpc.Status;
 import io.grpc.stub.MetadataUtils;
@@ -137,6 +135,53 @@ public class AgentGrpcService {
         }
     }
 
+    public AuthResponseDTO protoToDTOAuthResponse(AuthResponse auth) {
+        return new AuthResponseDTO(auth);
+    }
+
+    public AuthResponseDTO updateAgentAttributes(AgentRequestVM agentRequestVM) throws Exception {
+        final String ctx = CLASSNAME + ".updateAgentAttributes";
+        try {
+            AgentRequest req = agentRequestVM.getAgentRequest();
+
+            // Validating the existence of the agent.
+            String currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user login"));
+            AgentDTO agent = null;
+            String hostname = agentRequestVM.getHostname();
+
+            try {
+                agent = getAgentByHostname(hostname);
+                if (agent == null) {
+                    String msg = String.format("%1$s: Agent %2$s could not be updated because no information was obtained from the agent", ctx, hostname);
+                    log.error(msg);
+                    throw new Exception(msg);
+                }
+            } catch (StatusRuntimeException e) {
+                if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
+                    String msg = String.format("%1$s: Agent %2$s could not be updated because was not found", ctx, hostname);
+                    log.error(msg);
+                    throw new Exception(msg);
+                }
+            }
+
+            assert agent != null;
+            Metadata customHeaders = getCustomHeaders(agent);
+
+            Channel intercept = ClientInterceptors.intercept(grpcManagedChannel, MetadataUtils.newAttachHeadersInterceptor(customHeaders));
+            AgentServiceGrpc.AgentServiceBlockingStub newStub = AgentServiceGrpc.newBlockingStub(intercept);
+            AuthResponse authResponse = newStub.updateAgent(req);
+            if (authResponse != null) {
+                return protoToDTOAuthResponse(authResponse);
+            } else {
+                throw new Exception("The agent manager didn't respond to the request, probably is down !!!");
+            }
+        } catch (NullPointerException e) {
+            throw new Exception("The agent manager didn't respond to the request, probably is down !!!");
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void deleteAgent(String hostname) throws AgentNotfoundException {
         final String ctx = CLASSNAME + ".deleteAgent";
@@ -180,5 +225,12 @@ public class AgentGrpcService {
             log.error(msg);
             throw new RuntimeException(msg);
         }
+    }
+
+    private Metadata getCustomHeaders (AgentDTO agent) {
+        Metadata customHeaders = new Metadata();
+        customHeaders.put(Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER), agent.getAgentKey());
+        customHeaders.put(Metadata.Key.of("id", Metadata.ASCII_STRING_MARSHALLER), String.valueOf(agent.getId()));
+        return customHeaders;
     }
 }
