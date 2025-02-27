@@ -6,8 +6,8 @@ import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
-import {Observable} from 'rxjs';
-import {filter, tap} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {filter, takeUntil, tap} from 'rxjs/operators';
 import {
   IrCreateRuleComponent
 } from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
@@ -55,6 +55,7 @@ import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {CheckEmailConfigService, ParamShortType} from "../../../shared/services/util/check-email-config.service";
 
 
 @Component({
@@ -123,7 +124,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private alertTagService: AlertTagService,
               private spinner: NgxSpinnerService,
               private checkEmailConfigService: CheckEmailConfigService,
-              private localStorage: LocalStorageService,) {
+              private localStorage: LocalStorageService ) {
     // this.tableWidth = this.pageWidth - 300;
   }
 
