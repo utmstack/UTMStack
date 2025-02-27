@@ -6,9 +6,15 @@
   </button>-->
 </div>
 
-<!--<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus!=='up'">
-  Pipeline start failing at <b>{{pipeline.reloads.lastFailureTimestamp | date}}</b> with error message:<br>
-  <code [innerHTML]="pipeline.reloads.lastError.message | safe:'html'"></code>
+<!--<div class="alert alert-danger alert-styled-right mb-3 mt-3" *ngIf="pipeline.pipelineStatus !== 'up'">
+  <ng-container *ngIf="pipeline && pipeline.reloads && pipeline.reloads.lastFailureTimestamp; else unknownPipelineFailure">
+    Pipeline start failing at <b>{{pipeline.reloads.lastFailureTimestamp | date}}</b> with error message:<br>
+    <code [innerHTML]="pipeline.reloads.lastError.message | safe:'html'"></code>
+  </ng-container>
+
+  <ng-template #unknownPipelineFailure>
+    {{ 'The pipeline has experienced an unexpected failure.' }}
+  </ng-template>
 </div>-->
 
 <div class="row w-100 m-0 mt-3 d-flex justify-content-center align-items-center container-pipeline flex-column"
