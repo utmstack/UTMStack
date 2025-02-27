@@ -1,14 +1,22 @@
 @import "src/assets/styles/theme";
 @import "src/assets/styles/var";
 
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+}
+
 .wrapper {
   position: relative;
   display: flex;
-  min-height: 70vh;
   top: $navbar-secondary-height+$navbar-primary-height+5px;
 
   .main-content {
     flex-grow: 1;
+    overflow-y: auto;
+
 
     app-footer {
       position: absolute;

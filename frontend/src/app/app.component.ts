@@ -1,7 +1,8 @@
-import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
+import {Component, ElementRef, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
-import {delay, filter, tap} from 'rxjs/operators';
+import {delay, distinctUntilChanged, filter, tap} from 'rxjs/operators';
+import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
 import {MenuBehavior} from './shared/behaviors/menu.behavior';
 import {ThemeChangeBehavior} from './shared/behaviors/theme-change.behavior';
@@ -24,6 +25,8 @@ export class AppComponent implements OnInit {
   iframeView = false;
   favIcon: HTMLLinkElement;
   hideStatus = false;
+  isAuth = false;
+  viewportHeight: number;
 
   constructor(
     private translate: TranslateService,
@@ -31,7 +34,8 @@ export class AppComponent implements OnInit {
     private themeChangeBehavior: ThemeChangeBehavior,
     private utmAppThemeService: UtmAppThemeService,
     private router: Router, private renderer: Renderer2,
-    private apiServiceCheckerService: ApiServiceCheckerService) {
+    private apiServiceCheckerService: ApiServiceCheckerService,
+    private accountService: AccountService) {
 
     this.translate.setDefaultLang('en');
 
@@ -61,6 +65,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.favIcon = document.querySelector('#appFavicon');
+    this.viewportHeight = window.innerHeight;
     this.init();
 
     this.themeChangeBehavior.$themeChange.subscribe(value => {
@@ -84,10 +89,15 @@ export class AppComponent implements OnInit {
         this.offline = false;
         this.online = false;
       });
+
+    this.accountService.getAuthenticationState()
+      .pipe(distinctUntilChanged((prev, next) =>  prev && next && prev.id === next.id))
+      .subscribe(identity => this.isAuth = !!identity);
   }
 
   @HostListener('window', ['$event'])
   onResize(event) {
+    this.viewportHeight = window.innerHeight;
     this.height = (window.innerHeight - 85).toString();
   }
 
@@ -129,5 +139,9 @@ export class AppComponent implements OnInit {
 
    init() {
     this.getReportLogo();
+  }
+
+  getContentHeight() {
+    return this.isAuth ? 100 - ((150 / this.viewportHeight) * 100) + 'vh' : '100vh';
   }
 }

@@ -1,5 +1,5 @@
-<div class="container-fluid pr-3 pl-3 pt-2">
-    <div class="d-flex justify-content-between align-items-center mb-2">
+<div class="d-flex flex-column pr-3 pl-3 pt-2 h-100">
+    <div class="d-flex w-100 justify-content-between align-items-center mb-2">
         <h5 class="card-title mb-0 text-uppercase label-header">Manage Rules</h5>
         <div class="header-elements">
             <button class="btn utm-button utm-button-primary" routerLink="/alerting-rules/manage">
@@ -14,35 +14,37 @@
         </div>
     </div>
     <!--TABLE-->
-    <div class="d-flex flex-nowrap m-0 align-items-start">
-        <div [enableGhostResize]="true"
-             [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
-             class="alert-filter-container resizable-filter-container mr-2"
-             mwlResizable>
-            <div class="card h-100">
-                <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
-                    <label class="card-title">Filters</label>
-                    <div class="d-flex">
-                      <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
-                            ngbTooltip="Reset filters"
-                            placement="top" tooltipClass="utm-tooltip-top">
-                         <i class="icon-filter4"></i>
-                      </span>
-                    </div>
-                </div>
-                <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
-                    <div *ngFor="let filter of fieldFilters" class="w-100">
-                        <div *ngIf="filter.visible" class="w-100 mb-2">
-                            <app-generic-filter [fieldFilter]="filter"
-                                                [url]="filterUrl">
-                            </app-generic-filter>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="flex-grow-1">
-            <app-rule-list></app-rule-list>
-        </div>
+    <div class="d-flex flex-column w-100 flex-nowrap m-0 align-items-start h-100">
+        <div class="d-flex flex-grow-1 align-items-stretch w-100">
+          <div [enableGhostResize]="true"
+               [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+               class="alert-filter-container resizable-filter-container mr-2"
+               mwlResizable>
+              <div class="card h-100">
+                  <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
+                      <label class="card-title">Filters</label>
+                      <div class="d-flex">
+                        <span (click)="resetAllFilters()" class="ml-2 cursor-pointer text-blue-800 position-relative"
+                              ngbTooltip="Reset filters"
+                              placement="top" tooltipClass="utm-tooltip-top">
+                           <i class="icon-filter4"></i>
+                        </span>
+                      </div>
+                  </div>
+                  <div class="filter-container p-2 d-flex flex-column justify-content-start h-100 w-100">
+                      <div *ngFor="let filter of fieldFilters" class="w-100">
+                          <div *ngIf="filter.visible" class="w-100 mb-2">
+                              <app-generic-filter [fieldFilter]="filter"
+                                                  [url]="filterUrl">
+                              </app-generic-filter>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="flex-grow-1">
+              <app-rule-list></app-rule-list>
+          </div>
+       </div>
     </div>
 </div>

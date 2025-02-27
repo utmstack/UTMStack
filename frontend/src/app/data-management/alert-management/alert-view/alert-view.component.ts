@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
@@ -110,7 +110,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   openAlerts = 0;
   ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
-
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
