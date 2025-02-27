@@ -9,6 +9,14 @@ on:
       environment:
         required: true
         type: string
+  workflow_dispatch:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
 jobs:
   build:
     name: Build

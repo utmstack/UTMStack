@@ -36,4 +36,25 @@ export class UtmAgentDetailComponent implements OnInit {
   getAssets() {
 
   }
+
+  changeIp(event: string) {
+    this.loading = true;
+    const agent = {
+      hostname: this.agent.hostname,
+      ip: this.agentIp,
+    };
+
+    this.agentManagerService.updateAgent(agent)
+      .pipe(
+        map(response => response.body),
+        tap(response => this.loading = false),
+        catchError(error => {
+          this.utmToastService.showError('Error',
+            'An error occurred while updating the agent ip. Please try again later.');
+          this.loading = false;
+          this.agentIp = this.agent.ip;
+          return EMPTY;
+        }))
+      .subscribe(() => this.agent.ip = this.agentIp);
+  }
 }
