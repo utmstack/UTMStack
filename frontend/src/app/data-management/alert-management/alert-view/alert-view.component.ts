@@ -5,9 +5,9 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {LocalStorageService} from "ngx-webstorage";
-import {Observable, Subject} from 'rxjs';
-import {filter, takeUntil, tap} from 'rxjs/operators';
+import {LocalStorageService} from 'ngx-webstorage';
+import {Observable} from 'rxjs';
+import {filter, tap} from 'rxjs/operators';
 import {
   IrCreateRuleComponent
 } from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
@@ -39,7 +39,6 @@ import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
-import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
 import {AlertTags} from '../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
