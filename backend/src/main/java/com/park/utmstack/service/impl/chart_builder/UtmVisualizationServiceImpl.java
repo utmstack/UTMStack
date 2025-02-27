@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -128,8 +127,6 @@ public class UtmVisualizationServiceImpl implements UtmVisualizationService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete UtmVisualization : {}", id);
-        utmVisualizationRepository.findByIdAndSystemOwnerIsFalse(id)
-                .orElseThrow(() -> new NoSuchElementException(String.format("Visualization %1$s not found", id)));
         utmVisualizationRepository.deleteById(id);
     }
 

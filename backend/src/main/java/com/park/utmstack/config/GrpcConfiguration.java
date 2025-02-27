@@ -2,6 +2,7 @@ package com.park.utmstack.config;
 
 import com.park.utmstack.security.GrpcInterceptor;
 import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -24,10 +25,11 @@ public class GrpcConfiguration {
 
     @Bean
     public ManagedChannel managedChannel() throws SSLException {
-        this.channel = NettyChannelBuilder.forAddress(serverAddress, serverPort)
-            .intercept(new GrpcInterceptor())
-            .sslContext(GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build())
-            .build();
+        this.channel = NettyChannelBuilder
+                .forAddress(serverAddress, serverPort)
+                .intercept(new GrpcInterceptor())
+                .sslContext(GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build())
+                .build();
         return this.channel;
     }
 

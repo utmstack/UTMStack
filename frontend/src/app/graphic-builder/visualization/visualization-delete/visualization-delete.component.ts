@@ -38,8 +38,6 @@ export class VisualizationDeleteComponent implements OnInit {
         this.activeModal.close();
         this.visualizationDeleted.emit('deleted');
       }, () => {
-        this.activeModal.close();
-        this.visualizationDeleted.emit('error');
         this.utmToastService.showError('Error deleting visualization',
           'Error deleting visualization, please check your network and try again');
       });

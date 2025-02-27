@@ -17,7 +17,6 @@ import java.util.Optional;
 public interface UtmDashboardRepository extends JpaRepository<UtmDashboard, Long>, JpaSpecificationExecutor<UtmDashboard> {
 
     Optional<UtmDashboard> findByName(String name);
-    Optional<UtmDashboard> findByIdAndSystemOwnerIsFalse(Long id);
 
     Optional<UtmDashboard> findByIdAndName(Long id, String name);
 

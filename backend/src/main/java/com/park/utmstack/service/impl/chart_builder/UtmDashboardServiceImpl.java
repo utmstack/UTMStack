@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -99,8 +98,6 @@ public class UtmDashboardServiceImpl implements UtmDashboardService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete UtmDashboard : {}", id);
-        dashboardRepository.findByIdAndSystemOwnerIsFalse(id)
-                .orElseThrow(() -> new NoSuchElementException(String.format("Dashboard %1$s not found", id)));
         dashboardRepository.deleteById(id);
     }
 

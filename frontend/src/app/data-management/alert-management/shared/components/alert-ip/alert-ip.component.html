@@ -3,9 +3,6 @@
     <app-utm-country-flag *ngIf="countryCode"
                           [countryCode]="countryCode"
                           [country]="country"></app-utm-country-flag>
-    <span class="ml-2 flex-column justify-content-center ">
-      <i *ngIf="isPrivateIP"  class="icon-home font-size-sm top-0 mr-1 text-blue-800"></i>
-      {{ip}}
-    </span>
+    <span class="ml-2">{{ip}}</span>
   </span>
 </div>

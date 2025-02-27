@@ -32,8 +32,6 @@ export class DashboardDeleteComponent implements OnInit {
         this.navBehavior.$nav.next(true);
         this.dashboardDeleted.emit('deleted');
       }, () => {
-        this.dashboardDeleted.emit('error');
-        this.activeModal.close();
         this.utmToastService.showError('Error deleting dashboard',
           'Error deleting dashboard, please check your network and try again');
       });

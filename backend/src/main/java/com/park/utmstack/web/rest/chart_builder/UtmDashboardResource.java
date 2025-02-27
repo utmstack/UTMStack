@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -79,7 +78,7 @@ public class UtmDashboardResource {
         UtmDashboard result = null;
         try {
             utmDashboard.setUserCreated(
-                    SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
+                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setCreatedDate(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
             // Set the next system sequence value only if the environment is dev
@@ -90,19 +89,19 @@ public class UtmDashboardResource {
 
             result = utmDashboardService.save(utmDashboard);
             return ResponseEntity.created(new URI("/api/utm-dashboards/" + result.getId())).headers(
-                    HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
+                HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
         } catch (DataIntegrityViolationException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.CONFLICT).headers(HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg))
-                    .body(result);
+                .body(result);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(result);
+                HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(result);
         }
     }
 
@@ -124,25 +123,25 @@ public class UtmDashboardResource {
         UtmDashboard result = null;
         try {
             utmDashboard.setUserModified(
-                    SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
+                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setModifiedDate(Instant.now());
             utmDashboard.setSystemOwner(utmDashboard.getSystemOwner() == null ? utmDashboard.getId() < 1000000 : utmDashboard.getSystemOwner());
 
             result = utmDashboardService.save(utmDashboard);
             return ResponseEntity.ok().headers(
-                    HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, utmDashboard.getId().toString())).body(result);
+                HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, utmDashboard.getId().toString())).body(result);
         } catch (DataIntegrityViolationException e) {
             String msg = ctx + ": " + e.getMostSpecificCause().getMessage().replaceAll("\n", "");
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.CONFLICT).headers(HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg))
-                    .body(result);
+                .body(result);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(result);
+                HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(result);
         }
     }
 
@@ -164,7 +163,7 @@ public class UtmDashboardResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 
@@ -185,7 +184,7 @@ public class UtmDashboardResource {
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 
@@ -193,7 +192,6 @@ public class UtmDashboardResource {
      * DELETE  /utm-dashboards/:id : delete the "id" utmDashboard.
      *
      * @param id the id of the utmDashboard to delete
-     * @throws NoSuchElementException 404 (Not Found) if the dashboard does not exist or is a system owner
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/utm-dashboards/{id}")
@@ -202,18 +200,12 @@ public class UtmDashboardResource {
         try {
             utmDashboardService.delete(id);
             return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
-        } catch (NoSuchElementException e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(
-                    HeaderUtil.createFailureAlert("", "", msg)).body(null);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert(null, null, msg)).body(null);
+                HeaderUtil.createFailureAlert(null, null, msg)).body(null);
         }
     }
 
@@ -231,13 +223,13 @@ public class UtmDashboardResource {
                 log.error(msg);
                 applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
                 return ResponseEntity.status(HttpStatus.CONFLICT).headers(HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg))
-                        .build();
+                    .build();
             }
             msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
-                    HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).build();
+                HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).build();
         }
     }
 

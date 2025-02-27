@@ -21,15 +21,8 @@ jobs:
       - name: Determine Tech
         id: get_tech
         run: |
-<<<<<<<< HEAD:.github/workflows/images-without-dependencies.yml
           service="${{inputs.microservice}}"
           if [[ "$service" == "backend" ]]; then
-========
-          folder_changed="${{inputs.microservice}}"
-          if [[ "$folder_changed" == "agent-manager" || "$folder_changed" == "aws" || "$folder_changed" == "bitdefender" || "$folder_changed" == "office365" || "$folder_changed" == "sophos" || "$folder_changed" == "log-auth-proxy" ]]; then
-            tech="golang"
-          elif [[ "$folder_changed" == "backend" ]]; then
->>>>>>>> origin/main:.github/workflows/used-runner.yml
             tech="java-11"
           elif [[ "$service" == "frontend" ]]; then
             tech="frontend"

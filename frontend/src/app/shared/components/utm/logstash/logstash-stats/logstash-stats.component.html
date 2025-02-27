@@ -16,11 +16,11 @@
 
   <div class="d-flex justify-content-between align-items-center mt-3">
           <span class="medium-icon"><i
-            class="icon-meter2 mr-1"></i>Workers: {{workers}}</span>
+            class="icon-meter2 mr-1"></i>Workers: {{logstashPipelines.general.pipeline.workers}}</span>
     <span class="medium-icon"><i
-      class="icon-database-menu mr-1"></i>Batch size: {{batchSize}}</span>
+      class="icon-database-menu mr-1"></i>Batch size: {{logstashPipelines.general.pipeline.batchSize}}</span>
     <span class="medium-icon"><i
-      class="icon-database-time2 mr-1"></i>Batch delay: {{batchDelay}}</span>
+      class="icon-database-time2 mr-1"></i>Batch delay: {{logstashPipelines.general.pipeline.batchDelay}}</span>
   </div>
 
   <div class="w-100 d-inline-block mt-3">
@@ -40,6 +40,6 @@
       <span>Heap usage ({{heapUsed + 'GB'
       + ' used of ' + heapTotal + 'GB'}})</span>
     </div>
-    <app-utm-progressbar [value]="percentHeapUsed"></app-utm-progressbar>
+    <app-utm-progressbar [value]="logstashPipelines.general.jvm.mem.heapUsedPercent"></app-utm-progressbar>
   </div>
 </div>

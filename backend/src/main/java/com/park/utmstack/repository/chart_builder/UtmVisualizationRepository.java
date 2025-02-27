@@ -27,6 +27,4 @@ public interface UtmVisualizationRepository extends JpaRepository<UtmVisualizati
     Optional<UtmVisualization> findFirstBySystemOwnerIsTrueOrderByIdDesc();
 
     List<UtmVisualization> findAllByChTypeIn(List<String> types);
-
-    Optional<UtmVisualization> findByIdAndSystemOwnerIsFalse(Long id);
 }

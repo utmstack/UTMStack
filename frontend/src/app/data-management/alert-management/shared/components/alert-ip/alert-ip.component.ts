@@ -14,7 +14,6 @@ import {
   ALERT_TARGET_IP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
-import {isPrivateIP} from '../../../../../shared/util/ip.util';
 
 @Component({
   selector: 'app-alert-ip',
@@ -30,7 +29,6 @@ export class AlertIpComponent implements OnInit, OnChanges {
   ip: string;
   countryCode: string;
   country: string;
-  isPrivateIP: boolean;
 
   constructor() {
   }
@@ -41,7 +39,6 @@ export class AlertIpComponent implements OnInit, OnChanges {
 
   ngOnInit() {
       this.ip = getValueFromPropertyPath(this.alert, this.ipField, null);
-      this.isPrivateIP = isPrivateIP(this.ip);
       this.country = getValueFromPropertyPath(this.alert, this.countryField, null);
       this.countryCode = getValueFromPropertyPath(this.alert, this.countryCodeField, null);
       this.countryCode = this.countryCode ? this.countryCode.toLowerCase() : null;
