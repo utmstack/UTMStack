@@ -9,14 +9,13 @@ This connector uses a `GRPC` client to communicate with the UTMStack processing 
 
 To obtain the logs, the Sophos Central API is used to communicate with the SIEM service.
 
-The `X-API-KEY` and `Authorization` headers are used to authenticate with Sophos Central services.
-The `API Url` is used to specify the endpoint for retrieving logs.
+The `ClientID` and `ClientSecret` headers are used to authenticate with Sophos Central services.
+The `DataRegion` is used to specify the endpoint for retrieving logs.
 
 ### Requirements
 **Sophos Central Credentials:**
 
-- X-API-KEY
-- Authorization
-- API Url
+- ClientID
+- ClientSecret
 
 Please note that the connector requires a valid Sophos Central account to run. The connector will not work without an account.
