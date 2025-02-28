@@ -1,11 +1,9 @@
 FROM ubuntu:22.04
 
 COPY ./agent-manager/agent-manager /app/
-COPY ./agent/service/utmstack_agent_service /updates/depdendencies/
-COPY ./agent/service/utmstack_agent_service.exe /updates/depdendencies/
-COPY ./agent/installer/utmstack_agent_installer /updates/depdendencies/
-COPY ./agent/installer/utmstack_agent_installer.exe /updates/depdendencies/
-COPY ./agent/installer/dependencies/ /updates/depdendencies/
+COPY ./agent/utmstack_agent /updates/dependencies/agent/
+COPY ./agent/utmstack_agent.exe /updates/dependencies/agent/
+COPY ./agent/dependencies/ /updates/depdendencies/
 
 # Install jq
 RUN apt-get update && \

@@ -57,18 +57,16 @@ jobs:
 
       - name: Build Agent
         run: |
-          cd ${{ github.workspace }}/agent/service/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          cd ${{ github.workspace }}/agent/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
           
           $env:GOOS = "linux"
           $env:GOARCH = "amd64"
-          cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service -v .
-          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer -v .
-          
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent -v .
+      
           $env:GOOS = "windows"
-          cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
-          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_installer.exe"
+          go build -o utmstack_agent.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent.exe"
 
           New-Item -ItemType Directory -Force -Path "./dependencies/"
           Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/agent/*" -Destination "./dependencies/"
