@@ -2,11 +2,12 @@ package serv
 
 import (
 	"context"
-	"github.com/kardianos/service"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+
+	"github.com/kardianos/service"
 
 	pb "github.com/utmstack/UTMStack/agent/service/agent"
 	"github.com/utmstack/UTMStack/agent/service/collectors"
@@ -57,6 +58,7 @@ func (p *program) run() {
 	logProcessor := logservice.GetLogProcessor()
 	go logProcessor.ProcessLogs(cnf, ctx)
 
+	go pb.UpdateAgent(cnf, ctx)
 	go modules.StartModules()
 	collectors.LogsReader()
 

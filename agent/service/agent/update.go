@@ -1,32 +1,22 @@
 package agent
 
 import (
-	"context"
+	context "context"
 	"fmt"
-	"strings"
 
 	"github.com/utmstack/UTMStack/agent/service/config"
 	"github.com/utmstack/UTMStack/agent/service/conn"
 	"github.com/utmstack/UTMStack/agent/service/models"
 	"github.com/utmstack/UTMStack/agent/service/utils"
-	"google.golang.org/grpc/metadata"
 )
 
-func RegisterAgent(cnf *config.Config, UTMKey string) error {
+func UpdateAgent(cnf *config.Config, ctx context.Context) error {
 	connection, err := conn.GetAgentManagerConnection(cnf)
 	if err != nil {
 		return fmt.Errorf("error connecting to Agent Manager: %v", err)
 	}
 
-	agentClient := NewAgentServiceClient(connection)
-	ctx, cancel := context.WithCancel(context.Background())
-	ctx = metadata.AppendToOutgoingContext(ctx, "connection-key", UTMKey)
-	defer cancel()
-
-	ip, err := utils.GetIPAddress()
-	if err != nil {
-		return err
-	}
+	client := NewAgentServiceClient(connection)
 
 	osInfo, err := utils.GetOsInfo()
 	if err != nil {
@@ -40,12 +30,8 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 	}
 
 	request := &AgentRequest{
-		Ip:             ip,
 		Hostname:       osInfo.Hostname,
-		Os:             osInfo.OsType,
-		Platform:       osInfo.Platform,
 		Version:        version.Version,
-		RegisterBy:     osInfo.CurrentUser,
 		Mac:            osInfo.Mac,
 		OsMajorVersion: osInfo.OsMajorVersion,
 		OsMinorVersion: osInfo.OsMinorVersion,
@@ -53,18 +39,10 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 		Addresses:      osInfo.Addresses,
 	}
 
-	response, err := agentClient.RegisterAgent(ctx, request)
+	_, err = client.UpdateAgent(ctx, request)
 	if err != nil {
-		if strings.Contains(err.Error(), "hostname has already been registered") {
-			return fmt.Errorf("failed to register agent: hostname has already been registered")
-		}
-		return fmt.Errorf("failed to register agent: %v", err)
+		return fmt.Errorf("error updating agent: %v", err)
 	}
-
-	cnf.AgentID = uint(response.Id)
-	cnf.AgentKey = response.Key
-
-	utils.Logger.Info("successfully registered agent")
 
 	return nil
 }

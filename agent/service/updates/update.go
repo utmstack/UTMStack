@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/service/config"
+	"github.com/utmstack/UTMStack/agent/service/models"
 	"github.com/utmstack/UTMStack/agent/service/utils"
 )
 
@@ -17,10 +18,6 @@ const (
 var (
 	versions map[string]string
 )
-
-type VersionResponse struct {
-	Version string `json:"version"`
-}
 
 func UpdateDependencies(cnf *config.Config) {
 	if utils.CheckIfPathExist(config.VersionPath) {
@@ -42,7 +39,7 @@ func UpdateDependencies(cnf *config.Config) {
 			"type": "agent",
 		}
 
-		agentVersionResp, _, err := utils.DoReq[VersionResponse](fmt.Sprintf(config.VersionUrl, cnf.Server, "agent-service"), nil, "GET", headers, cnf.SkipCertValidation)
+		agentVersionResp, _, err := utils.DoReq[models.VersionResponse](fmt.Sprintf(config.VersionUrl, cnf.Server, "agent-service"), nil, "GET", headers, cnf.SkipCertValidation)
 		if err != nil {
 			utils.Logger.ErrorF("error getting agent version: %v", err)
 			continue
