@@ -15,7 +15,7 @@ import (
 func DownloadFirstDependencies(address string, authKey string, insecure bool) error {
 	headers := map[string]string{"connection-key": authKey}
 
-	version, _, err := utils.DoReq[models.Version](fmt.Sprintf(config.VersionUrl, address, config.DependenciesPort, "agent"), nil, "GET", headers, insecure)
+	version, _, err := utils.DoReq[models.Version](fmt.Sprintf(config.VersionUrl, address, config.DependenciesPort), nil, "GET", headers, insecure)
 	if err != nil {
 		return fmt.Errorf("error getting agent version: %v", err)
 	}

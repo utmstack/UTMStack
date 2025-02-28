@@ -34,7 +34,7 @@ func UpdateDependencies(cnf *config.Config) {
 			"type": "agent",
 		}
 
-		newVersion, _, err := utils.DoReq[models.Version](fmt.Sprintf(config.VersionUrl, cnf.Server, "agent"), nil, "GET", headers, cnf.SkipCertValidation)
+		newVersion, _, err := utils.DoReq[models.Version](fmt.Sprintf(config.VersionUrl, cnf.Server), nil, "GET", headers, cnf.SkipCertValidation)
 		if err != nil {
 			utils.Logger.ErrorF("error getting agent version: %v", err)
 			continue
