@@ -11,6 +11,7 @@ import (
 )
 
 var timeGroups = make(map[int]int)
+var nextKeys = make(map[int]string)
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
@@ -27,7 +28,7 @@ func pullLogs(group types.ModuleGroup) {
 	}()
 
 	agent := getSophosCentralProcessor(group)
-	logs, err := agent.getLogs(timeGroups[group.ModuleID])
+	logs, newNextKey, err := agent.getLogs(timeGroups[group.ModuleID], nextKeys[group.ModuleID])
 	if err != nil {
 		_ = catcher.Error("error getting logs", err, map[string]any{})
 		return
@@ -45,4 +46,6 @@ func pullLogs(group types.ModuleGroup) {
 			})
 		}
 	}
+
+	nextKeys[group.ModuleID] = newNextKey
 }
