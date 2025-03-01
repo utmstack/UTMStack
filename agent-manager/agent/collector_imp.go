@@ -48,8 +48,7 @@ type CollectorService struct {
 	DBConnection *database.DB
 }
 
-func InitCollectorService() error {
-	var err error
+func InitCollectorService() {
 	collectorServOnce.Do(func() {
 		CollectorServ = &CollectorService{
 			CollectorStreamMap:        make(map[uint]CollectorService_CollectorStreamServer),
@@ -60,10 +59,9 @@ func InitCollectorService() error {
 			DBConnection:              database.GetDB(),
 		}
 		collectors := []models.Collector{}
-		_, err = CollectorServ.DBConnection.GetAll(&collectors, "")
+		_, err := CollectorServ.DBConnection.GetAll(&collectors, "")
 		if err != nil {
-			err = fmt.Errorf("failed to get collectors: %v", err)
-			return
+			utils.ALogger.Fatal("failed to fetch collectors: %v", err)
 		}
 		for _, c := range collectors {
 			CollectorServ.CacheCollectorKey[c.ID] = c.CollectorKey
@@ -71,42 +69,47 @@ func InitCollectorService() error {
 
 		go CollectorServ.ProcessPendingConfigs()
 
-		client := utmconf.NewUTMClient(config.InternalKey, config.PanelServiceName)
-		for _, moduleType := range CollectorServ.CollectorTypes {
-			moduleConfig := &types.ConfigurationSection{}
-			moduleConfig, err = client.GetUTMConfig(moduleType)
-			if err != nil {
-				err = fmt.Errorf("failed to get module config: %v", err)
-				return
-			}
-
-			pendigConfigs := make(map[string][]*CollectorConfigGroup)
-			for _, group := range moduleConfig.ConfigurationGroups {
-				var idInt int
-				idInt, err = strconv.Atoi(group.CollectorID)
+	external:
+		for {
+			client := utmconf.NewUTMClient(config.InternalKey, config.PanelServiceName)
+			for _, moduleType := range CollectorServ.CollectorTypes {
+				moduleConfig := &types.ConfigurationSection{}
+				moduleConfig, err = client.GetUTMConfig(moduleType)
 				if err != nil {
-					err = fmt.Errorf("failed to convert collector id to int: %v", err)
-					return
+					utils.ALogger.ErrorF("failed to get module config: %v", err)
+					time.Sleep(5 * time.Second)
+					continue external
 				}
 
-				CollectorServ.CollectorConfigsCache[uint(idInt)] = append(
-					CollectorServ.CollectorConfigsCache[uint(idInt)],
-					convertModuleGroupToCollectorProto(group),
-				)
+				pendigConfigs := make(map[string][]*CollectorConfigGroup)
+				for _, group := range moduleConfig.ConfigurationGroups {
+					var idInt int
+					idInt, err = strconv.Atoi(group.CollectorID)
+					if err != nil {
+						utils.ALogger.ErrorF("invalid collector ID: %v", err)
+						continue
+					}
 
-				pendigConfigs[group.CollectorID] = append(pendigConfigs[group.CollectorID], convertModuleGroupToCollectorProto(group))
-			}
+					CollectorServ.CollectorConfigsCache[uint(idInt)] = append(
+						CollectorServ.CollectorConfigsCache[uint(idInt)],
+						convertModuleGroupToCollectorProto(group),
+					)
 
-			for id, configs := range pendigConfigs {
-				CollectorServ.CollectorPendigConfigChan <- &CollectorConfig{
-					CollectorId: id,
-					RequestId:   uuid.New().String(),
-					Groups:      configs,
+					pendigConfigs[group.CollectorID] = append(pendigConfigs[group.CollectorID], convertModuleGroupToCollectorProto(group))
 				}
+
+				for id, configs := range pendigConfigs {
+					CollectorServ.CollectorPendigConfigChan <- &CollectorConfig{
+						CollectorId: id,
+						RequestId:   uuid.New().String(),
+						Groups:      configs,
+					}
+				}
+
+				break
 			}
 		}
 	})
-	return err
 }
 
 func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterRequest) (*AuthResponse, error) {

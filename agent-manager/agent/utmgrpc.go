@@ -17,11 +17,7 @@ func InitGrpcServer() {
 		utils.ALogger.Fatal("failed to init agent service: %v", err)
 	}
 
-	err = InitCollectorService()
-	if err != nil {
-		utils.ALogger.Fatal("failed to init collector service: %v", err)
-	}
-
+	go InitCollectorService()
 	InitLastSeenService()
 	InitModulesService()
 
