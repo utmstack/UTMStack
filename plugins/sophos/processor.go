@@ -131,25 +131,24 @@ type Pages struct {
 	MaxSize int64  `json:"maxSize"`
 }
 
-func (p *SophosCentralProcessor) getLogs(fromTime int) ([]string, error) {
+func (p *SophosCentralProcessor) getLogs(fromTime int, nextKey string) ([]string, string, error) {
 	accessToken, err := p.getValidAccessToken()
 	if err != nil {
-		return nil, fmt.Errorf("error getting access token: %v", err)
+		return nil, "", fmt.Errorf("error getting access token: %v", err)
 	}
 
 	if p.TenantID == "" || p.DataRegion == "" {
 		if err := p.getTenantInfo(accessToken); err != nil {
-			return nil, fmt.Errorf("error getting tenant information: %v", err)
+			return nil, "", fmt.Errorf("error getting tenant information: %v", err)
 		}
 	}
 
 	logs := make([]string, 0, 1000)
-	var nextKey string
 
 	for {
 		u, err := p.buildURL(fromTime, nextKey)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 
 		headers := map[string]string{
@@ -160,7 +159,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int) ([]string, error) {
 
 		response, _, err := utils.DoReq[EventAggregate](u.String(), nil, http.MethodGet, headers)
 		if err != nil {
-			return nil, fmt.Errorf("error getting logs: %v", err)
+			return nil, "", fmt.Errorf("error getting logs: %v", err)
 		}
 
 		for _, item := range response.Items {
@@ -178,7 +177,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int) ([]string, error) {
 		nextKey = response.Pages.NextKey
 	}
 
-	return logs, nil
+	return logs, nextKey, nil
 }
 
 func (p *SophosCentralProcessor) buildURL(fromTime int, nextKey string) (*url.URL, error) {
