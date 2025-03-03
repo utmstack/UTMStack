@@ -1,5 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
+import {AS400STEPS} from "../guide-as400/as400.steps";
+import {ACTIONS, PLATFORM} from "../guide-as400/constants";
+import {Step} from "../shared/step";
+import {SOPHOS_STEPS} from "./sophos.steps";
 
 @Component({
   selector: 'app-guide-sophos',
@@ -11,6 +15,9 @@ export class GuideSophosComponent implements OnInit {
   @Input() serverId: number;
   module = UtmModulesEnum;
   configValidity: boolean;
+  steps = SOPHOS_STEPS;
+  platforms = PLATFORM;
+  actions = ACTIONS;
 
   constructor() {
   }
@@ -21,5 +28,4 @@ export class GuideSophosComponent implements OnInit {
   configValidChange($event: boolean) {
     this.configValidity = !$event;
   }
-
 }
