@@ -105,9 +105,8 @@ func InitCollectorService() {
 						Groups:      configs,
 					}
 				}
-
-				break
 			}
+			break
 		}
 	})
 }
