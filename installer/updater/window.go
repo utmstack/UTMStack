@@ -24,7 +24,7 @@ func GetWindowConfig() (*MaintenanceWindow, bool) {
 		windowConfig := &MaintenanceWindow{
 			Frequency: "daily",
 			StartTime: "00:00",
-			EndTime:   "02:00",
+			EndTime:   "23:00",
 		}
 		utils.WriteYAML(config.WindowConfigPath, windowConfig)
 		return windowConfig, false
