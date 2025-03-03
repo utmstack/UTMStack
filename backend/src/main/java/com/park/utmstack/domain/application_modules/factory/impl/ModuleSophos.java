@@ -41,32 +41,22 @@ public class ModuleSophos implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         List<ModuleConfigurationKey> keys = new ArrayList<>();
 
-        // sophos_api_url
+        // sophos_api_client_id
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
-            .withConfKey("sophos_api_url")
-            .withConfName("API Url")
-            .withConfDescription("Configure Sophos Central api url")
+            .withConfKey("sophos_client_id")
+            .withConfName("Client Id")
+            .withConfDescription("Configure Sophos Central client id")
             .withConfDataType("text")
             .withConfRequired(true)
             .build());
 
-        // sophos_authorization
-        keys.add(ModuleConfigurationKey.builder()
-            .withGroupId(groupId)
-            .withConfKey("sophos_authorization")
-            .withConfName("Authorization")
-            .withConfDescription("Configure Sophos Central Authorization")
-            .withConfDataType("password")
-            .withConfRequired(true)
-            .build());
-
-        // sophos_x_api_key
+        // sophos_x_client_secret
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
             .withConfKey("sophos_x_api_key")
-            .withConfName("X-API-KEY")
-            .withConfDescription("Configure Sophos Central api key")
+            .withConfName("Client Secret")
+            .withConfDescription("Configure Sophos Central client secret")
             .withConfDataType("password")
             .withConfRequired(true)
             .build());
