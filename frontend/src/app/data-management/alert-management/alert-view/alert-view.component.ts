@@ -1,6 +1,6 @@
 import {HttpResponse} from '@angular/common/http';
 import { Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -47,16 +47,14 @@ import {SaveAlertReportComponent} from '../alert-reports/shared/components/save-
 import {AlertDataTypeBehavior} from '../shared/behavior/alert-data-type.behavior';
 import {AlertFiltersBehavior} from '../shared/behavior/alert-filters.behavior';
 import {AlertStatusBehavior} from '../shared/behavior/alert-status.behavior';
-import {AlertUpdateTagBehavior} from '../shared/behavior/alert-update-tag.behavior';
 import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/row-to-filters.component';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
-import {AlertManagementService} from '../shared/services/alert-management.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
 import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
-import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enum";
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 
 @Component({
   selector: 'app-alert-view',
