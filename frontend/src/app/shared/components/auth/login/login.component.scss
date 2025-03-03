@@ -51,6 +51,7 @@
 
 .login-pic img {
   max-width: 100%;
+  max-height: 100px;
 }
 
 /*------------------------------------------------------------------
@@ -225,4 +226,12 @@
   left: 0;
   bottom: 0;
   right: 0;
+}
+
+.w-350px {
+  width: 350px !important;
+}
+
+.card {
+  box-shadow: unset;
 }

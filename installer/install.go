@@ -13,7 +13,7 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Install(orgID string) error {
+func Install() error {
 	fmt.Println("### Installing UTMStack ###")
 	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
 	if err != nil {
@@ -142,7 +142,7 @@ func Install(orgID string) error {
 	}
 
 	fmt.Print("Registering instance")
-	if err := updater.RegisterInstance(orgID); err != nil {
+	if err := updater.RegisterInstance(); err != nil {
 		return err
 	}
 	fmt.Println(" [OK]")

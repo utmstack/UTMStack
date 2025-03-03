@@ -75,7 +75,7 @@
         <sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
         <!-- jhipster-needle-maven-property -->
         <io.grpc.version>1.65.1</io.grpc.version>
-        <protoc.version>3.23.2</protoc.version>
+        <protoc.version>4.29.3</protoc.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <annotation-api.version>1.2</annotation-api.version>
@@ -327,7 +327,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.23.2</version>
+            <version>${protoc.version}</version>
         </dependency>
 
         <dependency>

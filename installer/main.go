@@ -15,12 +15,7 @@ func main() {
 			help()
 
 		case "--install", "-i":
-			if len(os.Args) < 3 {
-				fmt.Println("\nPlease provide organization ID")
-				os.Exit(1)
-			}
-
-			err := Install(os.Args[2])
+			err := Install()
 			if err != nil {
 				fmt.Printf("\nerror installing UTMStack: %v", err)
 				os.Exit(1)
@@ -42,13 +37,17 @@ func main() {
 			help()
 		}
 	} else {
-		help()
+		err := Install()
+		if err != nil {
+			fmt.Printf("\nerror installing UTMStack: %v", err)
+			os.Exit(1)
+		}
 	}
 }
 
 func help() {
 	fmt.Println("### UTMStack ###")
-	fmt.Println("Usage: utmstack <argument>")
+	fmt.Println("Usage: installer <argument>")
 	fmt.Println("Arguments:")
 	fmt.Println("  --help, -h              Show this help")
 	fmt.Println("  --install, -i <ID>      Install UTMStack (Requires organization ID)")

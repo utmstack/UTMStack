@@ -180,8 +180,8 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
     rule.showDetail = !rule.showDetail;
   }
 
-  close(){
-    this.activeModal.close();
+  close() {
+    this.activeModal.close(true);
   }
 
   ngOnDestroy() {

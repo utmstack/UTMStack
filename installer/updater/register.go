@@ -9,23 +9,17 @@ import (
 )
 
 type InstanceConfig struct {
-	Server         string `yaml:"server"`
-	InstanceID     string `yaml:"instance_id"`
-	InstanceKey    string `yaml:"instance_key"`
-	OrganizationID string `yaml:"organization_id"`
+	Server      string `yaml:"server"`
+	InstanceID  string `yaml:"instance_id"`
+	InstanceKey string `yaml:"instance_key"`
 }
 
-func RegisterInstance(orgID string) error {
+func RegisterInstance() error {
 	cnf := config.GetConfig()
 	instanceConf := InstanceConfig{}
 
 	err := utils.ReadYAML(config.InstanceConfigPath, &instanceConf)
 	if err != nil || instanceConf.Server == "" || instanceConf.InstanceID == "" || instanceConf.InstanceKey == "" {
-		if orgID == "" {
-			return fmt.Errorf("organization ID is required")
-		}
-		instanceConf.OrganizationID = orgID
-
 		switch cnf.Branch {
 		case "alpha":
 			instanceConf.Server = config.CMAlpha
@@ -37,7 +31,7 @@ func RegisterInstance(orgID string) error {
 			instanceConf.Server = config.CMProd
 		}
 
-		url := fmt.Sprintf("%s%s?organization-id=%s", instanceConf.Server, config.RegisterInstanceEndpoint, instanceConf.OrganizationID)
+		url := fmt.Sprintf("%s%s", instanceConf.Server, config.RegisterInstanceEndpoint)
 		resp, status, err := utils.DoReq[Auth](url, nil, http.MethodPost, nil)
 		if err != nil || status != http.StatusOK {
 			return fmt.Errorf("error registering instance: status code: %d, error %v", status, err)

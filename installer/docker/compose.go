@@ -111,6 +111,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/agent-manager:${UTMSTACK_TAG}"),
 		Volumes: []string{
 			stack.Cert + ":/cert",
+			conf.UpdatesFolder + ":/updates",
 		},
 		Ports: []string{
 			"9000:50051",

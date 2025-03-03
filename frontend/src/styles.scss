@@ -34,7 +34,7 @@ body {
   color: #3F4254;
   //color: #c7d0d9;
   //background-color: #141619;
-  overflow-x: hidden;
+  overflow: hidden;
   margin: 0;
   padding: 0;
 
@@ -1343,6 +1343,12 @@ app-logstash-pipelines{
 .border-radius-1 {
   border-radius: 4px;
 }
+
+.rounded-4 {
+  border-radius: 0.75rem !important;
+}
+
+
 
 
 

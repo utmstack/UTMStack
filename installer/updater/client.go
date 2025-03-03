@@ -64,7 +64,7 @@ func (c *UpdaterClient) CheckUpdate(wait bool) error {
 	for _, release := range resp {
 		if release.Version != currentVersion.Version || release.Edition != currentVersion.Edition {
 			fmt.Printf("Updating UTMStack to version %s-%s...\n", release.Version, release.Edition)
-			config.Logger().Info("Updating UTMStack to version %s-%s...\n", release.Version, release.Edition)
+			config.Logger().Info("Updating UTMStack to version %s-%s...", release.Version, release.Edition)
 			err := docker.StackUP(release.Version + "-" + release.Edition)
 			if err != nil {
 				return fmt.Errorf("error updating UTMStack: %v", err)
@@ -75,6 +75,7 @@ func (c *UpdaterClient) CheckUpdate(wait bool) error {
 		if err != nil {
 			return fmt.Errorf("error saving new version: %v", err)
 		}
+		config.Logger().Info("UTMStack updated to version %s-%s", release.Version, release.Edition)
 	}
 
 	return nil

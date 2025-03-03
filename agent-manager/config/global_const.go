@@ -9,6 +9,7 @@ import (
 func KeyAuthRoutes() []string {
 	return []string{
 		"/agent.AgentService/AgentStream",
+		"/agent.AgentService/UpdateAgent",
 		"/agent.AgentService/DeleteAgent",
 
 		"/agent.CollectorService/CollectorStream",
@@ -50,8 +51,8 @@ var (
 	CertPath                  = "/cert/utm.crt"
 	CertKeyPath               = "/cert/utm.key"
 	UpdatesFolder             = "/updates"
-	UpdatesVersionsPath       = filepath.Join(UpdatesFolder, "updates_info.json")
-	UpdatesDependenciesFolder = filepath.Join(UpdatesFolder, "dependencies")
+	UpdatesVersionsPath       = filepath.Join(UpdatesFolder, "version.json")
+	UpdatesDependenciesFolder = "/dependencies"
 	InternalKey               = os.Getenv("INTERNAL_KEY")
 	PanelServiceName          = os.Getenv("PANEL_SERV_NAME")
 	LogLevel                  = os.Getenv("LOG_LEVEL")

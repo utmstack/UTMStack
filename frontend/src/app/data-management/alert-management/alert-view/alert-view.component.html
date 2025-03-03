@@ -1,4 +1,4 @@
-<div class="container-fluid pr-3 pl-3 pt-2">
+<div class="d-flex flex-column pr-3 pl-3 pt-2 h-100">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="card-title mb-0 text-uppercase label-header">
       Manage {{dataType === eventDataTypeEnum.FALSE_POSITIVE ? 'False positive' : 'Alert'}}</h5>
@@ -18,193 +18,195 @@
     </div>
   </div>
   <!--TABLE-->
-  <div class="d-flex flex-nowrap m-0 align-items-start">
-    <div [ngStyle]="{'width':filterWidth+'px'}"
-         mwlResizable
-         [enableGhostResize]="true"
-         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
-         (resizeEnd)="onResize($event)"
-         (resizing)="onResize($event)"
-         class="alert-filter-container resizable-filter-container mr-2">
-      <app-alert-filter (filterChange)="onFilterChange($event)"
-                        *ngIf="dataType"
-                        [dataType]="dataType"
-                        (filterReset)="onFilterReset($event)"></app-alert-filter>
-    </div>
-    <div class="flex-grow-1">
-      <div class="card h-100">
-        <div *ngIf="refreshingAlert" class="text-blue-800 pt-2 pr-2 pl-2">
+  <div class="d-flex flex-column w-100 flex-nowrap m-0 align-items-start h-100">
+    <div class="d-flex flex-grow-1 align-items-stretch w-100">
+      <div [ngStyle]="{'width':filterWidth+'px'}"
+           mwlResizable
+           [enableGhostResize]="true"
+           [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
+           (resizeEnd)="onResize($event)"
+           (resizing)="onResize($event)"
+           class="alert-filter-container resizable-filter-container mr-2">
+        <app-alert-filter (filterChange)="onFilterChange($event)"
+                          *ngIf="dataType"
+                          [dataType]="dataType"
+                          (filterReset)="onFilterReset($event)"></app-alert-filter>
+      </div>
+      <div class="flex-grow-1">
+        <div class="card h-100">
+          <div *ngIf="refreshingAlert" class="text-blue-800 pt-2 pr-2 pl-2">
             <span class="span-small-icon"><i class="icon-spinner2 spinner"></i>
               &nbsp;The system has detected new alerts, retrieving from the data engine...
             </span>
-        </div>
-        <div *ngIf="incomingAlert$ | async as openAlert" class="d-flex justify-content-start align-items-center pt-2 pr-2 pl-2">
-          <ng-container *ngIf="openAlert > 0 && showRefresh">
+          </div>
+          <div *ngIf="incomingAlert$ | async as openAlert" class="d-flex justify-content-start align-items-center pt-2 pr-2 pl-2">
+            <ng-container *ngIf="openAlert > 0 && showRefresh">
             <span class="span-small-icon">
               &nbsp;The system has detected new alerts.
             </span>
-            <span class="ml-1 text-blue-800 font-weight-semibold cursor-pointer"
-                (click)="refreshAlerts()">Click to update
+              <span class="ml-1 text-blue-800 font-weight-semibold cursor-pointer"
+                    (click)="refreshAlerts()">Click to update
             </span>
-          </ng-container>
-        </div>
-        <div class="card-header p-2 w-100">
-          <app-filter-applied (filterAppliedChange)="onFilterAppliedChange($event)"
-                              [dataType]="dataType"></app-filter-applied>
-          <div class="d-flex justify-content-between align-items-center mt-2">
-            <div class="d-flex justify-content-start align-items-center">
-              <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
-                                       *ngIf="defaultTime"
-                                       [container]="'body'"
-                                       [changeOnInit]="'NO'"
-                                       [defaultTime]="defaultTime"
-                                       [template]="'log-explorer'">
-              </app-elastic-filter-time>
-              <div *ngIf="alertSelected.length > 0"
-                   [ngClass]="alertSelected.length>0?'fadeIn':'fadeOut'"
-                   class="alert-actions d-flex justify-content-end align-items-center animated">
-                <app-alert-apply-status (statusChange)="onApplyStatusChange($event)"
-                                        *ngIf="dataType !== eventDataTypeEnum.EVENT"
-                                        [alertsIDs]="getAlertsIds()"
-                                        [dataType]="dataType"
-                                        [statusFilter]="getCurrentStatus()"
-                                        class="ml-3"></app-alert-apply-status>
-                <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
-                                          [alerts]="alertSelected"
-                                          *ngIf="dataType!== eventDataTypeEnum.INCIDENT"
-                                          [eventType]="dataType"
-                                          [multiple]="true"
-                                          class="ml-3"></app-alert-apply-incident>
+            </ng-container>
+          </div>
+          <div class="card-header p-2 w-100">
+            <app-filter-applied (filterAppliedChange)="onFilterAppliedChange($event)"
+                                [dataType]="dataType"></app-filter-applied>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div class="d-flex justify-content-start align-items-center">
+                <app-elastic-filter-time (timeFilterChange)="onTimeFilterChange($event)"
+                                         *ngIf="defaultTime"
+                                         [container]="'body'"
+                                         [changeOnInit]="'NO'"
+                                         [defaultTime]="defaultTime"
+                                         [template]="'log-explorer'">
+                </app-elastic-filter-time>
+                <div *ngIf="alertSelected.length > 0"
+                     [ngClass]="alertSelected.length>0?'fadeIn':'fadeOut'"
+                     class="alert-actions d-flex justify-content-end align-items-center animated">
+                  <app-alert-apply-status (statusChange)="onApplyStatusChange($event)"
+                                          *ngIf="dataType !== eventDataTypeEnum.EVENT"
+                                          [alertsIDs]="getAlertsIds()"
+                                          [dataType]="dataType"
+                                          [statusFilter]="getCurrentStatus()"
+                                          class="ml-3"></app-alert-apply-status>
+                  <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
+                                            [alerts]="alertSelected"
+                                            *ngIf="dataType!== eventDataTypeEnum.INCIDENT"
+                                            [eventType]="dataType"
+                                            [multiple]="true"
+                                            class="ml-3"></app-alert-apply-incident>
+                </div>
               </div>
+              <app-status-filter (filterStatusChange)="onFilterStatusChange($event)"
+                                 [dataNature]="dataNature"
+                                 [filters]="filters"
+                                 *ngIf="dataType !== eventDataTypeEnum.EVENT"
+                                 [dataType]="dataType"
+                                 [statusFilter]="getCurrentStatus()"></app-status-filter>
+
             </div>
-            <app-status-filter (filterStatusChange)="onFilterStatusChange($event)"
-                               [dataNature]="dataNature"
-                               [filters]="filters"
-                               *ngIf="dataType !== eventDataTypeEnum.EVENT"
-                               [dataType]="dataType"
-                               [statusFilter]="getCurrentStatus()"></app-status-filter>
-
           </div>
-        </div>
-        <div [ngStyle]="{'max-width':tableWidth+'px'}"
-             class="table-responsive resizable-table-responsive h-100">
-          <table class="table text-nowrap">
-            <thead>
-            <tr>
-              <th class="text-left" style="width: 50px;padding-left: 10px;}">
-                <i (click)="toggleCheck()"
-                   [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
-                   [ngbTooltip]="'Add page to selected'"
-                   class="cursor-pointer mr-3"
-                   container="body"
-                   placement="auto"
-                   style="font-size: small"></i>
-                <app-utm-dtable-columns [fields]="fields"
-                                        [ngbTooltip]="'Manage columns'"
-                                        [showInactive]="true"
-                                        container="body"
-                                        icon="icon-table"
-                                        tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
-              </th>
-              <th (sort)="onSortBy($event)"
-                  *ngFor="let item of fields; let i=index"
-                  [hidden]="!item.visible"
-                  [isSortable]="true"
-                  [sortEvent]="sortEvent"
-                  [sortable]="item.type!=='string'?item.field:item.field+'.keyword'"
-                  appColumnSortable
-                  class="font-weight-semibold cursor-pointer">
-                {{item.label}}
-              </th>
-            </tr>
-            </thead>
-            <tbody *ngIf="alerts && alerts.length>0">
-            <tr *ngFor="let alert of alerts" class="cursor-pointer">
-              <td class="text-center">
-                <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
-                  <div class="list-icons">
-                    <i (click)="addToSelected(alert)"
-                       [ngClass]="isSelected(alert)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
-                       [ngbTooltip]="isSelected(alert)?'Remove from selected':'Add to selected'"
-                       class="cursor-pointer"
-                       container="body"
-                       placement="auto"></i>
-                    <i (click)="getRowToFiltersData(alert)"
-                       [ngbTooltip]="'Row to filter'"
-                       class="cursor-pointer icon-filter4 text-blue-800"
-                       container="body"
-                       placement="top"
-                       tooltipClass="utm-tooltip-top"></i>
-                    <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
-                                              *ngIf="dataType !== eventDataTypeEnum.INCIDENT"
-                                              [alert]="alert"
-                                              [eventType]="dataType"
-                                              [multiple]="false">
-                    </app-alert-apply-incident>
-                    <i (click)="openIncidentResponseAutomationModal(alert)"
-                       [ngbTooltip]="'Create incident response automation'"
-                       class="cursor-pointer icon-terminal text-blue-800"
-                       container="body"
-                       placement="top"
-                       tooltipClass="utm-tooltip-top"></i>
-                    <app-alert-apply-note (applyNote)="onApplyNote(alert, $event)" [alert]="alert"
-                                          class="mr-2"></app-alert-apply-note>
-                    <app-alert-tags-apply [alert]="alert"
-                                          [tags]="tags"
-                                          (applyTagsEvent)="getAlert();getTags()"
-                                          class="mr-2"></app-alert-tags-apply>
+          <div [ngStyle]="{'max-width':tableWidth+'px'}"
+               class="table-responsive resizable-table-responsive h-100">
+            <table class="table text-nowrap">
+              <thead>
+              <tr>
+                <th class="text-left" style="width: 50px;padding-left: 10px;}">
+                  <i (click)="toggleCheck()"
+                     [ngClass]="checkbox?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                     [ngbTooltip]="'Add page to selected'"
+                     class="cursor-pointer mr-3"
+                     container="body"
+                     placement="auto"
+                     style="font-size: small"></i>
+                  <app-utm-dtable-columns [fields]="fields"
+                                          [ngbTooltip]="'Manage columns'"
+                                          [showInactive]="true"
+                                          container="body"
+                                          icon="icon-table"
+                                          tooltipClass="utm-tooltip-top"></app-utm-dtable-columns>
+                </th>
+                <th (sort)="onSortBy($event)"
+                    *ngFor="let item of fields; let i=index"
+                    [hidden]="!item.visible"
+                    [isSortable]="true"
+                    [sortEvent]="sortEvent"
+                    [sortable]="item.type!=='string'?item.field:item.field+'.keyword'"
+                    appColumnSortable
+                    class="font-weight-semibold cursor-pointer">
+                  {{item.label}}
+                </th>
+              </tr>
+              </thead>
+              <tbody *ngIf="alerts && alerts.length>0">
+              <tr *ngFor="let alert of alerts" class="cursor-pointer">
+                <td class="text-center">
+                  <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
+                    <div class="list-icons">
+                      <i (click)="addToSelected(alert)"
+                         [ngClass]="isSelected(alert)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                         [ngbTooltip]="isSelected(alert)?'Remove from selected':'Add to selected'"
+                         class="cursor-pointer"
+                         container="body"
+                         placement="auto"></i>
+                      <i (click)="getRowToFiltersData(alert)"
+                         [ngbTooltip]="'Row to filter'"
+                         class="cursor-pointer icon-filter4 text-blue-800"
+                         container="body"
+                         placement="top"
+                         tooltipClass="utm-tooltip-top"></i>
+                      <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
+                                                *ngIf="dataType !== eventDataTypeEnum.INCIDENT"
+                                                [alert]="alert"
+                                                [eventType]="dataType"
+                                                [multiple]="false">
+                      </app-alert-apply-incident>
+                      <i (click)="openIncidentResponseAutomationModal(alert)"
+                         [ngbTooltip]="'Create incident response automation'"
+                         class="cursor-pointer icon-terminal text-blue-800"
+                         container="body"
+                         placement="top"
+                         tooltipClass="utm-tooltip-top"></i>
+                      <app-alert-apply-note (applyNote)="onApplyNote(alert, $event)" [alert]="alert"
+                                            class="mr-2"></app-alert-apply-note>
+                      <app-alert-tags-apply [alert]="alert"
+                                            [tags]="tags"
+                                            (applyTagsEvent)="getAlert();getTags()"
+                                            class="mr-2"></app-alert-tags-apply>
+                    </div>
+
                   </div>
-
-                </div>
-              </td>
-              <ng-container *ngFor="let td of fields">
-                <td [ngClass]="{'min-width' : td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}" (click)="viewDetailAlert(alert,td)"
-                    *ngIf="(td.visible)">
-                  <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
-                                         [field]="td"
-                                         [dataType]="dataType"
-                                         [showStatusChange]="true"></app-data-field-render>
                 </td>
-              </ng-container>
-            </tr>
-            </tbody>
-            <tbody *ngIf="(alerts && alerts.length===0)  && !loading">
-            <tr>
-              <td [attr.colspan]="fields.length +1">
-                <app-no-data-found></app-no-data-found>
-              </td>
-            </tr>
-            </tbody>
-            <tbody *ngIf="loading">
-            <tr>
-              <td [attr.colspan]="fields.length + 1">
-                <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
-                  <app-utm-spinner [height]="'35px'"
-                                   [label]="'Loading...'"
-                                   [loading]="loading"
-                                   [width]="'35px'">
-                  </app-utm-spinner>
-                </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <div *ngIf="alerts && alerts.length>0" class="mb-3 mt-3">
-          <div class="row justify-content-center">
-            <ngb-pagination (pageChange)="loadPage($event)"
-                            [(page)]="page"
-                            [boundaryLinks]="true"
-                            [collectionSize]="totalItems"
-                            [maxSize]="10"
-                            [pageSize]="itemsPerPage"
-                            [rotate]="true"
-                            [size]="'sm'"></ngb-pagination>
-            <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
-                                    class="ml-3">
-            </app-utm-items-per-page>
+                <ng-container *ngFor="let td of fields">
+                  <td [ngClass]="{'min-width' : td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}" (click)="viewDetailAlert(alert,td)"
+                      *ngIf="(td.visible)">
+                    <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
+                                           [field]="td"
+                                           [dataType]="dataType"
+                                           [showStatusChange]="true"></app-data-field-render>
+                  </td>
+                </ng-container>
+              </tr>
+              </tbody>
+              <tbody *ngIf="(alerts && alerts.length===0)  && !loading">
+              <tr>
+                <td [attr.colspan]="fields.length +1">
+                  <app-no-data-found></app-no-data-found>
+                </td>
+              </tr>
+              </tbody>
+              <tbody *ngIf="loading">
+              <tr>
+                <td [attr.colspan]="fields.length + 1">
+                  <div class="p-5 d-flex  justify-content-center align-items-center text-blue-800">
+                    <app-utm-spinner [height]="'35px'"
+                                     [label]="'Loading...'"
+                                     [loading]="loading"
+                                     [width]="'35px'">
+                    </app-utm-spinner>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
           </div>
-          <!-- TABLE END-->
+          <div *ngIf="alerts && alerts.length>0" class="mb-3 mt-3">
+            <div class="row justify-content-center">
+              <ngb-pagination (pageChange)="loadPage($event)"
+                              [(page)]="page"
+                              [boundaryLinks]="true"
+                              [collectionSize]="totalItems"
+                              [maxSize]="10"
+                              [pageSize]="itemsPerPage"
+                              [rotate]="true"
+                              [size]="'sm'"></ngb-pagination>
+              <app-utm-items-per-page (itemsInPage)="onItemsPerPageChange($event)"
+                                      class="ml-3">
+              </app-utm-items-per-page>
+            </div>
+            <!-- TABLE END-->
+          </div>
         </div>
       </div>
     </div>

@@ -66,6 +66,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       this.isSubmitting = true;
       const rule: Rule = {
         ...this.ruleForm.value,
+        dataTypes: this.getDataTypes(this.ruleForm.value.dataTypes)
       };
       rule.definition.ruleVariables = variables;
       this.ruleService.saveRule(this.mode, rule)
@@ -207,6 +208,21 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
   onLoadError(){
     this.mode = 'ERROR';
+  }
+
+  getDataTypes(dataTypes: DataType[]) {
+    return dataTypes.map( d => {
+       if (!d.id) {
+         return {
+           ...d,
+           dataTypeName: d.dataType,
+           systemOwner: false,
+           included: true
+         };
+       } else {
+         return d;
+       }
+    });
   }
 
 

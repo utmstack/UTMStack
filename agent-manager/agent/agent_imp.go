@@ -112,6 +112,62 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	}, nil
 }
 
+func (s *AgentService) UpdateAgent(ctx context.Context, req *AgentRequest) (*AuthResponse, error) {
+	id, key, _, err := utils.GetItemsFromContext(ctx)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid context")
+	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid id")
+	}
+
+	agent := &models.Agent{}
+	err = s.DBConnection.GetFirst(agent, "id = ?", idInt)
+	if err != nil {
+		utils.ALogger.ErrorF("failed to fetch agent: %v", err)
+		return nil, status.Errorf(codes.NotFound, "agent not found")
+	}
+
+	if req.GetIp() != "" {
+		agent.Ip = req.GetIp()
+	}
+	if req.GetHostname() != "" {
+		agent.Hostname = req.GetHostname()
+	}
+	if req.GetVersion() != "" {
+		agent.Version = req.GetVersion()
+	}
+	if req.GetMac() != "" {
+		agent.Mac = req.GetMac()
+	}
+	if req.GetOsMajorVersion() != "" {
+		agent.OsMajorVersion = req.GetOsMajorVersion()
+	}
+	if req.GetOsMinorVersion() != "" {
+		agent.OsMinorVersion = req.GetOsMinorVersion()
+	}
+	if req.GetAliases() != "" {
+		agent.Aliases = req.GetAliases()
+	}
+	if req.GetAddresses() != "" {
+		agent.Addresses = req.GetAddresses()
+	}
+
+	err = s.DBConnection.Upsert(&agent, "id = ?", nil, idInt)
+	if err != nil {
+		utils.ALogger.ErrorF("failed to update agent: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to update agent: %v", err)
+	}
+
+	res := &AuthResponse{
+		Id:  uint32(agent.ID),
+		Key: key,
+	}
+
+	return res, nil
+}
+
 func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*AuthResponse, error) {
 	id, key, _, err := utils.GetItemsFromContext(ctx)
 	if err != nil {
