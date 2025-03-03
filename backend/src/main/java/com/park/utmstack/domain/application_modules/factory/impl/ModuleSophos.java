@@ -46,7 +46,7 @@ public class ModuleSophos implements IModule {
             .withGroupId(groupId)
             .withConfKey("sophos_client_id")
             .withConfName("Client Id")
-            .withConfDescription("Configure Sophos Central client id")
+            .withConfDescription("Configure Sophos Central Client Id")
             .withConfDataType("text")
             .withConfRequired(true)
             .build());
@@ -56,7 +56,7 @@ public class ModuleSophos implements IModule {
             .withGroupId(groupId)
             .withConfKey("sophos_x_api_key")
             .withConfName("Client Secret")
-            .withConfDescription("Configure Sophos Central client secret")
+            .withConfDescription("Configure Sophos Central Client Secret")
             .withConfDataType("password")
             .withConfRequired(true)
             .build());
