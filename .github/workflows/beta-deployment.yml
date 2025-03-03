@@ -38,7 +38,7 @@ jobs:
               echo "✅ User ${{ github.actor }} is a member of the core-developers team."
             else
               echo "⛔ ERROR: User ${{ github.actor }} is not a member of the core-developers team."
-             exit 1
+              exit 1
             fi
 
           else
