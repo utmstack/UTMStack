@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 COPY ./agent-manager/agent-manager /app/
 COPY ./agent/utmstack_agent /dependencies/agent/
 COPY ./agent/utmstack_agent.exe /dependencies/agent/
-COPY ./agent/dependencies/ /depdendencies/
+COPY ./agent/dependencies/ /dependencies/agent/
 
 # Install jq
 RUN apt-get update && \
