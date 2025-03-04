@@ -8,6 +8,7 @@ export const RULE_TECHNIQUE = 'technique';
 export const RULE_CONFIDENTIALITY = 'confidentiality';
 export const RULE_INTEGRITY = 'integrity';
 export const RULE_AVAILABILITY = 'availability';
+export const RULE_ADVERSARY = 'adversary';
 
 // FILTERS FIELDS
 
@@ -15,6 +16,7 @@ export const RULE_FILTER_NAME_FIELD = 'name';
 export const RULE_FILTER_DATA_TYPES = 'RULE_DATA_TYPES';
 export const RULE_FILTER_CATEGORY = 'RULE_CATEGORY';
 export const RULE_FILTER_TECHNIQUE = 'RULE_TECHNIQUE';
+export const RULE_FILTER_ADVERSARY = 'RULE_ADVERSARY';
 export const RULE_FILTER_REFERENCES = 'references';
 
 
@@ -53,6 +55,15 @@ export const RULE_FIELDS: UtmFieldType[] = [
         filter: true,
         filterField: RULE_FILTER_TECHNIQUE,
         width: '10%'
+    },
+    {
+      label: 'Adversary',
+      field: RULE_ADVERSARY,
+      type: ElasticDataTypesEnum.STRING,
+      visible: true,
+      filter: true,
+      filterField: RULE_FILTER_ADVERSARY,
+      width: '10%'
     },
     {
         label: 'Confidentiality',
