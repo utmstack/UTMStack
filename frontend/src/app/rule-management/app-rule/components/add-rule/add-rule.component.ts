@@ -2,11 +2,11 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {forkJoin, Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {AddRuleStepEnum, DataType, Mode, Rule} from '../../../models/rule.model';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
-import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-add-rule',
@@ -30,6 +30,16 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   loading: false;
   currentStep: AddRuleStepEnum;
   stepCompleted: number[] = [];
+  adversaryTypes =[
+    {
+      id: 'ORIGIN',
+      name: 'origin'
+    },
+    {
+      id: 'TARGET',
+      name: 'target'
+    }
+];
 
   constructor(private fb: FormBuilder,
               private dataTypeService: DataTypeService,
@@ -95,12 +105,14 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       id: [rule ? rule.id : ''],
       dataTypes: [rule ? rule.dataTypes : '', Validators.required],
       name: [rule ? rule.name : '', Validators.required],
+      adversary: [rule ? rule.adversary : '', Validators.required],
       confidentiality: [rule ? rule.confidentiality : 0, [Validators.required, Validators.min(0), Validators.max(3)]],
       integrity: [rule ? rule.integrity : 0, [Validators.required, Validators.min(0), Validators.max(3)]],
       availability: [rule ? rule.availability : 0, [Validators.required, Validators.min(0), Validators.max(3)]],
       category: [rule ? rule.category : '', Validators.required],
       technique: [rule ? rule.technique : '', Validators.required],
-      description: [rule ? rule.description : '', Validators.required]
+      description: [rule ? rule.description : '', Validators.required],
+      systemOwner: [rule ? rule.systemOwner : false]
     });
     this.savedVariables = rule ? rule.definition.ruleVariables : [];
   }

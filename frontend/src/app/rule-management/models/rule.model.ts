@@ -57,6 +57,7 @@ export interface Rule {
     id: number;
     dataTypes: DataType[];
     name: string;
+    adversary?: string;
     confidentiality: number;
     integrity: number;
     availability: number;

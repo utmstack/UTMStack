@@ -113,15 +113,25 @@
 
         <div class="row">
           <div class="col-6">
-            <app-references [rule]="rule" [formGroup]="ruleForm"></app-references>
+            <!--<app-references [rule]="rule" [formGroup]="ruleForm"></app-references>-->
+            <div class="form-group-select">
+              <label>Adversary:</label>
+              <ng-select [items]="adversaryTypes"
+                         [ngClass]="{'is-invalid': ruleForm.get('adversary').invalid && ruleForm.get('adversary').touched}"
+                         [virtualScroll]="true"
+                         bindLabel="name"
+                         bindValue="id"
+                         class="flex-item type-select"
+                         formControlName="adversary"
+                         placeholder="Choose adversary">
+              </ng-select>
+              <div *ngIf="ruleForm.get('adversary').invalid && ruleForm.get('adversary').touched"
+                   class="invalid-feedback">
+                Adversary is required.
+              </div>
+            </div>
           </div>
           <div class="col-6">
-            <fieldset class="form-fieldset border p-3">
-              <legend>
-                <label>
-                  Impact
-                </label>
-              </legend>
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
@@ -167,19 +177,21 @@
                   </div>
                 </div>
               </div>
-            </fieldset>
           </div>
         </div>
 
         <div class="row">
-          <div class="col-12">
+          <div class="col-6">
+            <app-references [rule]="rule" [formGroup]="ruleForm"></app-references>
+          </div>
+          <div class="col-6">
             <div class="form-group">
               <label for="description">Description:</label>
               <textarea
                 [ngClass]="{'is-invalid': ruleForm.get('description').invalid && ruleForm.get('description').touched}"
                 class="form-control" formControlName="description"
                 id="description"
-                rows="4"></textarea>
+                rows="5"></textarea>
               <div *ngIf="ruleForm.get('description').invalid && ruleForm.get('description').touched"
                    class="invalid-feedback">
                 Description is required.
