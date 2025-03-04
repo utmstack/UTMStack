@@ -5,7 +5,7 @@ export enum IndexPatternSystemEnumID {
 }
 
 export enum IndexPatternSystemEnumName {
-  ALERT = 'alert-*',
-  LOG = 'log-*',
+  ALERT = 'v11-alert-*',
+  LOG = 'v11-log-*',
   DC = 'dc-*'
 }

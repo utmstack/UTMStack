@@ -1,33 +1,36 @@
 import {HttpResponse} from '@angular/common/http';
-import { Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {LocalStorageService} from 'ngx-webstorage';
+import {Observable, Subject} from 'rxjs';
+import {filter, takeUntil, tap} from 'rxjs/operators';
 import {
   IrCreateRuleComponent
 } from '../../../incident-response/shared/component/ir-create-rule/ir-create-rule.component';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
-import {NewAlertBehavior} from '../../../shared/behaviors/new-alert.behavior';
 import {
   ElasticFilterDefaultTime
 } from '../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {
+  ALERT_ADVERSARY_FIELD,
   ALERT_CASE_ID_FIELD,
   ALERT_FIELDS,
   ALERT_INCIDENT_FLAG_FIELD,
   ALERT_STATUS_FIELD,
   ALERT_STATUS_FIELD_AUTO,
   ALERT_STATUS_LABEL_FIELD,
-  ALERT_TAGS_FIELD,
+  ALERT_TAGS_FIELD, ALERT_TARGET_FIELD,
   ALERT_TIMESTAMP_FIELD,
   EVENT_FIELDS,
   EVENT_IS_ALERT,
   FALSE_POSITIVE_OBJECT,
   INCIDENT_FIELDS
 } from '../../../shared/constants/alert/alert-field.constant';
-import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
+import {IGNORED} from '../../../shared/constants/alert/alert-status.constant';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
@@ -36,6 +39,7 @@ import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
+import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
 import {AlertTags} from '../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -47,16 +51,11 @@ import {SaveAlertReportComponent} from '../alert-reports/shared/components/save-
 import {AlertDataTypeBehavior} from '../shared/behavior/alert-data-type.behavior';
 import {AlertFiltersBehavior} from '../shared/behavior/alert-filters.behavior';
 import {AlertStatusBehavior} from '../shared/behavior/alert-status.behavior';
-import {AlertUpdateTagBehavior} from '../shared/behavior/alert-update-tag.behavior';
 import {RowToFiltersComponent} from '../shared/components/filters/row-to-filter/row-to-filters.component';
 import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
-import {AlertManagementService} from '../shared/services/alert-management.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
+import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
-import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
-import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enum";
 
 @Component({
   selector: 'app-alert-view',
@@ -136,8 +135,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.activatedRoute.queryParams.subscribe(params => {
       const queryParams = Object.entries(params).length > 0 ? params : null;
       if (queryParams) {
-        parseQueryParamsToFilter(queryParams).then((filter) => {
-          mergeParams(filter, this.filters).then((filters) => {
+        parseQueryParamsToFilter(queryParams).then((fil) => {
+          mergeParams(fil, this.filters).then((filters) => {
             this.filters = filters;
             if (queryParams.alertType) {
               this.dataType = queryParams.alertType;
@@ -576,7 +575,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     modal.componentInstance.alert = alert;
   }
 
-  getFilterTime(){
+  getFilterTime() {
     return this.filters.find(f => f.field === ALERT_TIMESTAMP_FIELD);
   }
 
