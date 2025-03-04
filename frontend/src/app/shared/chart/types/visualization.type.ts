@@ -21,6 +21,6 @@ export class VisualizationType {
   aggregationType?: MetricDataType;
   chartAction?: any;
   showTime?: boolean;
-
+  systemOwner?: boolean;
 }
 

@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import {Component, isDevMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
@@ -210,4 +210,6 @@ export class DashboardListComponent implements OnInit {
     this.searching = false;
     this.loading = false;
   }
+
+  protected readonly isDevMode = isDevMode;
 }

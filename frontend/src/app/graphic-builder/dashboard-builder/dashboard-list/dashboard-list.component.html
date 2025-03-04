@@ -54,9 +54,9 @@
                   scope="col">
                 Last Modification&nbsp;
               </th>
-              <th class="font-weight-semibold text-uppercase  cursor-pointer">
+              <!--<th class="font-weight-semibold text-uppercase  cursor-pointer">
                 URL&nbsp;
-              </th>
+              </th>-->
               <th class="font-weight-semibold text-uppercase" style="width:10%">
                 Action&nbsp;
               </th>
@@ -88,22 +88,22 @@
                    {{dashboard.modifiedDate | date:'short':'UTC'}}
                 </span>
               </td>
-              <td>
+              <!--<td>
                 <span>
                    {{getDashboardUrl(dashboard)}}
                 </span>
-              </td>
+              </td>-->
               <td class="td-action">
                 <div class="d-flex justify-content-end align-items-center medium-icon">
                   <i (click)="toClipboard(dashboard)"
                      class="icon-copy3 cursor-pointer mr-2"
                      ngbTooltip="Copy dashboard URL" tooltipClass="utm-tooltip-top"></i>
 
-                  <i (click)="editDashboard(dashboard)"
+                  <i *ngIf="!dashboard.systemOwner || isDevMode()" (click)="editDashboard(dashboard)"
                      class="icon-pencil3 cursor-pointer mr-2"
                      ngbTooltip="Edit dashboard" tooltipClass="utm-tooltip-top"></i>
 
-                  <i (click)="deleteDashboard(dashboard)" class="icon-cross2 cursor-pointer"
+                  <i *ngIf="!dashboard.systemOwner || isDevMode()" (click)="deleteDashboard(dashboard)" class="icon-cross2 cursor-pointer"
                      ngbTooltip="Delete dashboard"
                      placement="left"
                      tooltipClass="utm-tooltip"></i>
