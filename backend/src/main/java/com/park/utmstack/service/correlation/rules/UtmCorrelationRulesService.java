@@ -172,7 +172,9 @@ public class UtmCorrelationRulesService {
         try {
             Page<UtmCorrelationRules> page = utmCorrelationRulesRepository.searchByFilters(
                     f.getName() == null ? null : "%" + f.getName() + "%",f.getConfidentiality(),f.getIntegrity(),f.getAvailability(),
-                    f.getCategory(),f.getTechnique(),f.getActive(),f.getSystemOwner(),f.getDataTypes(),
+                    f.getCategory(),
+                    f.getAdversary(),
+                    f.getTechnique(),f.getActive(),f.getSystemOwner(),f.getDataTypes(),
                     f.getInitDate(),f.getEndDate(), f.getSearch() == null ? null :"%" + f.getSearch() + "%", p );
 
             List<UtmCorrelationRulesDTO> rulesList = this.utmCorrelationRulesMapper.toListDTO(page.getContent());

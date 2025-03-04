@@ -1,5 +1,6 @@
 package com.park.utmstack.repository.correlation.rules;
 
+import com.park.utmstack.service.dto.correlation.AdversaryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +31,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
             "AND ((:ruleIntegrity) IS NULL OR cr.ruleIntegrity IN (:ruleIntegrity)) " +
             "AND ((:ruleAvailability) IS NULL OR cr.ruleAvailability IN (:ruleAvailability)) " +
             "AND ((:ruleCategory) IS NULL OR cr.ruleCategory IN (:ruleCategory)) " +
+            "AND ((:ruleAdversary) IS NULL OR cr.ruleAdversary IN (:ruleAdversary)) " +
             "AND ((:ruleTechnique) IS NULL OR cr.ruleTechnique IN (:ruleTechnique)) " +
             "AND ((:ruleActive) IS NULL OR cr.ruleActive IN (:ruleActive)) " +
             "AND ((:systemOwner) IS NULL OR cr.systemOwner IN (:systemOwner)) " +
@@ -42,6 +44,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
                                               @Param("ruleIntegrity") List<Integer> ruleIntegrity,
                                               @Param("ruleAvailability") List<Integer> ruleAvailability,
                                               @Param("ruleCategory") List<String> ruleCategory,
+                                              @Param("ruleAdversary") List<AdversaryType> ruleAdversary,
                                               @Param("ruleTechnique") List<String> ruleTechnique,
                                               @Param("ruleActive") List<Boolean> ruleActive,
                                               @Param("systemOwner") List<Boolean> systemOwner,
