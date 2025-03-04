@@ -17,8 +17,8 @@ type ProtoPort struct {
 }
 
 var (
-	DependUrl        = "https://%s:9001/private/dependencies/agent/%s"
-	VersionUrl       = "https://%s:9001/private/version"
+	DependUrl        = "https://%s:%s/private/dependencies/agent/%s"
+	VersionUrl       = "https://%s:%s/private/version"
 	AgentManagerPort = "9000"
 	LogAuthProxyPort = "50051"
 	DependenciesPort = "9001"
