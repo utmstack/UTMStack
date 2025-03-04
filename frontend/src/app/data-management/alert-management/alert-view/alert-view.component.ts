@@ -1,6 +1,8 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -56,6 +58,10 @@ import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 
 @Component({
   selector: 'app-alert-view',
@@ -85,7 +91,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   itemsPerPage = ITEMS_PER_PAGE;
   // By default all alert will contain all except alerts in review
   filters: ElasticFilterType[] = [
-    /*{field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},*/
+    {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
     {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
     {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
   ];
@@ -454,7 +460,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   viewDetailAlert(alert: any, td: UtmFieldType) {
     if (td.field !== ALERT_STATUS_FIELD) {
-      console.log('ALERT:', alert);
       this.alertDetail = alert;
       this.viewAlertDetail = true;
     }
