@@ -31,6 +31,7 @@ public class UtmCorrelationRulesMapper {
             dto.setDefinition(entity.getRuleDefinition());
             dto.setDataTypes(entity.getDataTypes());
             dto.setSystemOwner(entity.getSystemOwner());
+            dto.setAdversary(entity.getRuleAdversary());
             dto.setRuleActive(entity.getRuleActive());
             return dto;
         } catch (UtmSerializationException e) {
@@ -55,6 +56,7 @@ public class UtmCorrelationRulesMapper {
             entity.setDataTypes(dto.getDataTypes());
             entity.setRuleActive(dto.getRuleActive() == null || dto.getRuleActive());
             entity.setSystemOwner(dto.getSystemOwner());
+            entity.setRuleAdversary(dto.getAdversary());
             entity.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
 
             return entity;

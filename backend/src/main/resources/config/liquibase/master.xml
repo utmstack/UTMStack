@@ -93,4 +93,6 @@
 
     <include file="/config/liquibase/changelog/20250303001_udpate_sophos_guide.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250304001_add_field_adversary.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

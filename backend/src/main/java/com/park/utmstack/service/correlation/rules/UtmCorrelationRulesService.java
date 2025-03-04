@@ -7,6 +7,7 @@ import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.correlation.rules.UtmCorrelationRulesRepository;
+import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -40,13 +43,16 @@ public class UtmCorrelationRulesService {
 
     private final UtmDataTypesRepository utmDataTypesRepository;
 
+    private final UtmStackService utmStackService;
+
     public UtmCorrelationRulesService(UtmCorrelationRulesRepository utmCorrelationRulesRepository,
                                       UtmNetworkScanService utmNetworkScanService,
-                                      UtmCorrelationRulesMapper utmCorrelationRulesMapper, UtmDataTypesRepository utmDataTypesRepository) {
+                                      UtmCorrelationRulesMapper utmCorrelationRulesMapper, UtmDataTypesRepository utmDataTypesRepository, UtmStackService utmStackService) {
         this.utmCorrelationRulesRepository = utmCorrelationRulesRepository;
         this.utmNetworkScanService = utmNetworkScanService;
         this.utmCorrelationRulesMapper = utmCorrelationRulesMapper;
         this.utmDataTypesRepository = utmDataTypesRepository;
+        this.utmStackService = utmStackService;
     }
 
     /**
@@ -64,7 +70,7 @@ public class UtmCorrelationRulesService {
             throw new RuntimeException(ctx + ": " + String.format("Rule with %1$s already exist", rule.getId()));
         }
         rule.setDataTypes(this.saveDataTypes(rule));
-        rule.setRuleLastUpdate();
+        rule.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
         return utmCorrelationRulesRepository.save(rule);
     }
 
@@ -90,11 +96,11 @@ public class UtmCorrelationRulesService {
         if (correlationRule.getDataTypes().isEmpty()) {
             throw new BadRequestException(ctx + ": The rule must have at least one data type.");
         }
-        if(optionalCorrelationRule.get().getSystemOwner()) {
+        if(optionalCorrelationRule.get().getSystemOwner() && !utmStackService.isInDevelop()) {
             throw new BadRequestException(ctx + ": System's rules can't be updated.");
         }
         correlationRule.setDataTypes(this.saveDataTypes(correlationRule));
-        correlationRule.setRuleLastUpdate();
+        correlationRule.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
         utmCorrelationRulesRepository.save(correlationRule);
     }
 

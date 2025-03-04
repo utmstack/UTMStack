@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250304001" author="Manuel">
+        <sql>
+            <![CDATA[
+                ALTER TABLE utm_correlation_rules
+                ADD COLUMN rule_adversary varchar(25) NOT NULL;
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
