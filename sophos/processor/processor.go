@@ -26,9 +26,9 @@ func getSophosCentralProcessor(group types.ModuleGroup) SophosCentralProcessor {
 
 	for _, cnf := range group.Configurations {
 		switch cnf.ConfName {
-		case "ClientID":
+		case "Client Id":
 			sophosProcessor.ClientID = cnf.ConfValue
-		case "ClientSecret":
+		case "Client Secret":
 			sophosProcessor.ClientSecret = cnf.ConfValue
 		}
 	}
