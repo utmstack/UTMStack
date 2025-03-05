@@ -35,6 +35,8 @@ export class DataFieldRenderComponent implements OnInit {
   ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
   ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   utmFormatDate = UtmDateFormatEnum.UTM_SHORT_UTC;
+  ALERT_TARGET_IP_FIELD = ALERT_TARGET_IP_FIELD;
+  ALERT_ADVERSARY_IP_FIELD = ALERT_ADVERSARY_IP_FIELD;
 
   constructor() {
   }
@@ -53,7 +55,4 @@ export class DataFieldRenderComponent implements OnInit {
   onStatusChange($event: number) {
     this.refreshData.emit(true);
   }
-
-  protected readonly ALERT_TARGET_IP_FIELD = ALERT_TARGET_IP_FIELD;
-  protected readonly ALERT_ADVERSARY_IP_FIELD = ALERT_ADVERSARY_IP_FIELD;
 }
