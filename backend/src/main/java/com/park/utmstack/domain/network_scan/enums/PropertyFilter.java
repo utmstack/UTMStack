@@ -22,6 +22,7 @@ public enum PropertyFilter implements Property {
     COLLECTOR_IP("ip", "UtmCollector", ""),
     COLLECTOR_GROUP("assetGroup.groupName", "UtmCollector", ""),
     RULE_TECHNIQUE("ruleTechnique","UtmCorrelationRules", ""),
+    RULE_ADVERSARY("ruleAdversary","UtmCorrelationRules", ""),
     RULE_CATEGORY("ruleCategory","UtmCorrelationRules", "");
     //RULE_DATA_TYPES("jt.dataType","UtmCorrelationRules", "dataTypes");
     //DATA_TYPES("jt.dataType","UtmNetworkScan", "dataInputSourceList");
