@@ -6,7 +6,8 @@
                     [showDrop]="showStatusChange"
                     [statusField]="STATUS_FIELD">
   </app-alert-status>
-  <app-alert-ip *ngSwitchCase="SOURCE_IP_FIELD" [alert]="data" [type]="'source'"></app-alert-ip>
+  <app-alert-ip *ngSwitchCase="ALERT_TARGET_IP_FIELD" [alert]="data" [type]="'target'"></app-alert-ip>
+  <app-alert-ip *ngSwitchCase="ALERT_ADVERSARY_IP_FIELD" [alert]="data" [type]="'adversary'"></app-alert-ip>
   <app-alert-ip *ngSwitchCase="DESTINATION_IP_FIELD" [alert]="data" [type]="'destination'"></app-alert-ip>
   <app-alert-severity *ngSwitchCase="SEVERITY_LABEL_FIELD"
                       [severity]="resolveSeverity(data)"></app-alert-severity>

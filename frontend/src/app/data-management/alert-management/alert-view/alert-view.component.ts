@@ -454,6 +454,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   viewDetailAlert(alert: any, td: UtmFieldType) {
     if (td.field !== ALERT_STATUS_FIELD) {
+      console.log('ALERT:', alert);
       this.alertDetail = alert;
       this.viewAlertDetail = true;
     }
