@@ -54,11 +54,13 @@ import {AlertGenericFilterComponent} from './components/filters/alert-generic-fi
 import {FilterAppliedComponent} from './components/filters/filter-applied/filter-applied.component';
 import {RowToFiltersComponent} from './components/filters/row-to-filter/row-to-filters.component';
 import {StatusFilterComponent} from './components/filters/status-filter/status-filter.component';
+import {AlertImpactComponent} from "./components/alert-impact/alert-impact.component";
 
 @NgModule({
   declarations: [
     AlertStatusComponent,
     AlertSeverityComponent,
+    AlertImpactComponent,
     AlertCompleteComponent,
     AlertFilterComponent,
     ActiveFiltersComponent,
@@ -102,6 +104,7 @@ import {StatusFilterComponent} from './components/filters/status-filter/status-f
   entryComponents: [
     AlertStatusComponent,
     AlertSeverityComponent,
+    AlertImpactComponent,
     AlertCompleteComponent,
     ActiveFiltersComponent,
     RowToFiltersComponent,
@@ -114,6 +117,7 @@ import {StatusFilterComponent} from './components/filters/status-filter/status-f
   exports: [
     AlertStatusComponent,
     AlertSeverityComponent,
+    AlertImpactComponent,
     AlertCompleteComponent,
     ActiveFiltersComponent,
     RowToFiltersComponent,

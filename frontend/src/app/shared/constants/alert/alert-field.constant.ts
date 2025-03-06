@@ -11,6 +11,7 @@ export const ALERT_STATUS_FIELD = 'status';
 export const ALERT_STATUS_FIELD_AUTO = 'status';
 export const ALERT_STATUS_LABEL_FIELD = 'statusLabel';
 export const ALERT_SEVERITY_FIELD = 'severity';
+export const ALERT_IMPACT_FIELD = 'impact';
 export const ALERT_SEVERITY_FIELD_LABEL = 'severityLabel';
 export const ALERT_TAGS_FIELD = 'tags';
 export const ALERT_NOTE_FIELD = 'notes';
@@ -60,6 +61,12 @@ export const ALERT_DESTINATION_IS_SATELLITE_FIELD = 'destination.isSatelliteProv
 export const ALERT_DESTINATION_IS_AN_PROXY_FIELD = 'destination.isAnonymousProxy';
 export const ALERT_DESTINATION_ACCURACY_FIELD = 'destination.accuracyRadius';
 export const ALERT_DESTINATION_USER_FIELD = 'destination.user';
+
+// IMPACT
+export const ALERT_IMPACT_AVAILABILITY_FIELD = 'impact.availability';
+export const ALERT_IMPACT_CONFIDENTIALITY_FIELD = 'impact.confidentiality';
+export const ALERT_IMPACT_INTEGRITY_FIELD = 'impact.integrity';
+
 
 // TARGET
 export const ALERT_TARGET_IP_FIELD = 'target.ip';
