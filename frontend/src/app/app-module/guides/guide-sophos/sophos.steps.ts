@@ -15,7 +15,7 @@ export const SOPHOS_STEPS: Step[] = [
                   '            <li>Click <strong>Add Credential</strong> (usually found at the top-right).</li>\n' +
                   '            <li>Provide <strong>Name</strong> and <strong>Description</strong>.</li>\n' +
                   '            <li>Select the appropriate <strong>Role</strong>.</li>\n' +
-                  '            <li>Click <strong">Add</strong>.</li>\n' +
+                  '            <li>Click <strong>Add</strong>.</li>\n' +
                   '        </ul>',
     content: {
       id: 'stepContent2',
