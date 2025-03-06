@@ -1,3 +1,6 @@
-<span [ngClass]="background" class="badge p-1 border-1 badge-flat font-weight-light">
-  {{label}}
-</span>
+<div *ngFor="let field of impactFields" class="alert-details w-100 d-flex justify-content-start mb-2">
+    <span class="text-blue-800 font-weight-light has-minimum-width">
+      {{ (field.id | titlecase) + ':'  }}
+    </span>&nbsp;
+ <app-alert-severity [severity]="field.value"></app-alert-severity>
+</div>

@@ -253,6 +253,32 @@ export const ALERT_FIELDS: UtmFieldType[] = [
     ]
   },
   {
+    label: 'Impact',
+    field: ALERT_IMPACT_FIELD,
+    type: ElasticDataTypesEnum.STRING,
+    visible: false,
+    fields: [
+      {
+        label: 'Availability',
+        field: ALERT_IMPACT_AVAILABILITY_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: true,
+      },
+      {
+        label: 'Confidentiality',
+        field: ALERT_IMPACT_CONFIDENTIALITY_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+      {
+        label: 'Integrity',
+        field: ALERT_IMPACT_INTEGRITY_FIELD,
+        type: ElasticDataTypesEnum.STRING,
+        visible: false,
+      },
+    ]
+  },
+  {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
     type: ElasticDataTypesEnum.STRING,
