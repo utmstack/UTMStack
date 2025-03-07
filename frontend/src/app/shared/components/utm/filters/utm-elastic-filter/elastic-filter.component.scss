@@ -48,7 +48,7 @@ app-elastic-filter-add {
   color: #0277bd;
 }
 
-.order-button:hover {
+.order-button:hover:not(.btn-right) {
   background-color: #d3dae6;
 }
 
@@ -63,8 +63,10 @@ app-elastic-filter-add {
 }
 
 .btn-right {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border: 1px dashed #d3dae6;
+  background-color: transparent;
+  width: auto;
+  padding: .25rem .5rem;
 }
 
 .context-menu {

@@ -7,30 +7,35 @@
         [pattern]="pattern">
       </app-index-pattern-select>
     </div>
-    <div class="d-flex search-container flex-grow-1 mx-2 align-items-center">
+    <div class="d-flex search-container flex-grow-1 ml-2 mr-1 align-items-center">
       <app-utm-search-input
         (searchFor)="onSearchInAll($event)"
         [placeholder]="'Search in ' + (pattern ? pattern.pattern : '...')"
         class="w-100">
       </app-utm-search-input>
+      <button (click)="getData()" class="btn btn-primary btn-refresh ml-1" [ngbTooltip]="'Refresh'">
+        <i class="icon-reload-alt"></i>
+      </button>
     </div>
-    <div class="log-analyzer-actions d-flex justify-content-end align-items-center flex-wrap ml-5">
-      <div class="actions-log span-small-icon">
-        <button (click)="getData()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
-          <i class="icon-reload-alt"></i>&nbsp;Refresh data
-        </button>
-        <!--<button (click)="saveQuery()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
+    <div class="log-analyzer-actions d-flex flex-grow-1 justify-content-between align-items-center flex-wrap">
+      <div class="d-flex flex-grow-1 justify-content-center">
+        <button (click)="saveQuery()" [ngbTooltip]="'Save query'" class="btn utm-button utm-button-primary mr-2">
           <i class="icon-floppy-disk"></i>&nbsp;Save
-        </button>-->
+        </button>
+        <button (click)="loadQuery()" [ngbTooltip]="'Load queries'" class="btn utm-button utm-button-primary">
+          <i class="icon-reload-alt"></i>&nbsp;Load queries
+        </button>
+      </div>
+
+      <div style="width: 300px" class="d-flex justify-content-start pl-2">
         <button (click)="exportToCsv()"
                 [disabled]="(fields && fields.length === 0) || !rows || csvExport"
-                class="btn btn-sm utm-button utm-button-primary mb-1">
+                class="btn utm-button utm-button-primary">
           <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'" class="mr-1"></i>
           {{csvExport ? 'Generating...' : 'Export to CSV'}}
         </button>
       </div>
     </div>
-
   </div>
 </div>
 

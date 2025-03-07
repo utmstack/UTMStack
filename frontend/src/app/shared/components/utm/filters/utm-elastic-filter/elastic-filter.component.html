@@ -71,30 +71,13 @@
         <div class="d-flex align-items-center justify-content-start mr-2 pl-2">
           <div class="order-buttons-container">
             <button
+              (click)="resetFilters()"
               type="button"
-              class="order-button btn-left"
-              [ngbTooltip]="'Query menu'"
-              #popoverQuery="ngbPopover"
-              [ngbPopover]="queryContent"
-              ngbTooltip="Add filter"
+              class="order-button"
+              [ngbTooltip]="'Clear filters'"
               autoClose="true"
-              placement="bottom-left"
-              popoverClass="utm-popover-bottom">
+              placement="bottom-left">
               <i class="icon-filter3 font-size-sm"></i>
-            </button>
-            <button
-              type="button"
-              class="order-button btn-right"
-              [ngbTooltip]="'Add filter'"
-              #popoverFilter="ngbPopover"
-              (click)="resetFilterSelection()"
-              [ngbPopover]="addContent"
-              [popoverTitle]="addTitle"
-              ngbTooltip="Add filter"
-              autoClose="outside"
-              placement="bottom-left"
-              popoverClass="utm-popover-bottom">
-              <i class="icon-plus-circle2 font-size-sm"></i>
             </button>
           </div>
         </div>
@@ -102,7 +85,7 @@
         <!-- Filters List -->
         <div class="filters d-flex justify-content-start align-items-center flex-wrap">
           <div *ngFor="let filter of resolveFilters(); let index = index"
-            class="dropdown cursor-pointer d-flex justify-content-center align-items-center border-1 mr-2 p-1 border-grey-100 border-radius-1"
+            class="dropdown cursor-pointer d-flex justify-content-center align-items-center border-1 mr-2 p-1 mb-1 border-grey-100 border-radius-1"
             #popoverField="ngbPopover"
             (click)="selectFilter(filter, index)"
             [ngbPopover]="filter.field !== '@timestamp' ? popField : null"
@@ -129,6 +112,20 @@
               </i>
             </span>
           </div>
+          <button
+            type="button"
+            class="order-button btn-right"
+            [ngbTooltip]="'Add filter'"
+            #popoverFilter="ngbPopover"
+            [ngbPopover]="addContent"
+            [popoverTitle]="addTitle"
+            ngbTooltip="Add filter"
+            autoClose="outside"
+            placement="bottom-left"
+            popoverClass="utm-popover-bottom">
+            <i class="icon-plus-circle2 font-size-sm mr-2"></i>
+            <span> Add filter</span>
+          </button>
         </div>
       </div>
     </div>
@@ -191,38 +188,38 @@
   </div>
 </ng-template>
 
-<ng-template #queryContent>
+<!--<ng-template #queryContent>
   <div class="context-menu">
-    <!-- Add Filter Item -->
+    &lt;!&ndash; Add Filter Item &ndash;&gt;
     <div (click)="openFilterPopover()" class="d-flex justify-content-start align-items-center custom-list-item">
       <i class="icon-plus3 font-size-sm pt-1"></i>
       <span class="ml-2">Add filter</span>
     </div>
 
-    <!-- Clear All Item -->
+    &lt;!&ndash; Clear All Item &ndash;&gt;
     <div (click)="resetFilters()" class="d-flex justify-content-start align-items-center custom-list-item">
       <i class="icon-cross2 font-size-sm pt-1"></i>
       <span class="ml-2">Clear all</span>
     </div>
 
-    <!-- Divider -->
+    &lt;!&ndash; Divider &ndash;&gt;
     <hr class="context-menu-divider">
 
-    <!-- Load Query Item -->
+    &lt;!&ndash; Load Query Item &ndash;&gt;
     <div routerLink="/discover/log-analyzer-queries" class="d-flex justify-content-start align-items-center custom-list-item">
       <i class="icon-reload-alt font-size-sm"></i>
       <span class="ml-2">Load query</span>
-      <!--<i class="icon-arrow-right32 font-size-sm ml-auto pt-1"></i>-->
+      &lt;!&ndash;<i class="icon-arrow-right32 font-size-sm ml-auto pt-1"></i>&ndash;&gt;
     </div>
 
-    <!-- Save Query Item -->
+    &lt;!&ndash; Save Query Item &ndash;&gt;
     <div (click)="saveQuery()" class="d-flex justify-content-start align-items-center custom-list-item">
       <i class="icon-floppy-disk font-size-sm"></i>
       <span class="ml-2">Save query</span>
-      <!--<i class="icon-arrow-right32 font-size-sm ml-auto pt-1"></i>-->
+      &lt;!&ndash;<i class="icon-arrow-right32 font-size-sm ml-auto pt-1"></i>&ndash;&gt;
     </div>
   </div>
-</ng-template>
+</ng-template>-->
 
 <!--Field popup-->
 <ng-template #popField>
