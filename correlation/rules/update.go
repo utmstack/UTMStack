@@ -12,8 +12,19 @@ import (
 func Update(updateReady chan bool) {
 	first := true
 	for {
-		log.Println("Downloading rules")
 		cnf := utils.GetConfig()
+
+		if cnf.ConnectionMode == utils.ConnModeOffline {
+			if _, err := os.Stat(cnf.RulesFolder + "system"); err == nil {
+				log.Println("Offline mode: rules folder exists, skipping git clone")
+				if first {
+					first = false
+					updateReady <- true
+				}
+				time.Sleep(48 * time.Hour)
+				continue
+			}
+		}
 
 		f, err := os.Stat(cnf.RulesFolder + "system")
 		if err != nil {
