@@ -11,7 +11,7 @@
 }
 
 .filter-time-container {
-  min-width: 300px;
+  border-left: 1px solid #ddd;
 }
 
 app-elastic-filter-add {
@@ -100,6 +100,14 @@ app-elastic-filter-add {
 
 .ml-auto {
   margin-left: auto;
+}
+
+.filters-container {
+  flex-basis: 85%;
+}
+
+.gap-1 {
+  gap: .25rem;
 }
 
 
