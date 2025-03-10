@@ -1,36 +1,41 @@
-<div class="px-3 w-100 m-0 d-flex align-items-center justify-content-between">
-  <div style="border-left: 1px #dee2e6 solid" class="d-flex p-2 bg-white w-100">
-    <div class="d-flex align-items-center justify-content-start mr-1">
+<div class="px-3 w-100 m-0 d-flex">
+  <div style="border-left: 1px #dee2e6 solid" class="d-flex flex-grow-1 p-2 bg-white gap-2">
+    <div class="d-flex align-items-center justify-content-start">
       <app-index-pattern-select
         (indexPatternChange)="changeFields($event)"
         [template]="'log-explorer'"
         [pattern]="pattern">
       </app-index-pattern-select>
     </div>
-    <div class="d-flex search-container flex-grow-1 mx-2 align-items-center">
+    <div class="d-flex search-container flex-grow-5 align-items-center gap-1">
       <app-utm-search-input
         (searchFor)="onSearchInAll($event)"
         [placeholder]="'Search in ' + (pattern ? pattern.pattern : '...')"
         class="w-100">
       </app-utm-search-input>
+      <button (click)="getData()" class="btn btn-primary btn-refresh" [ngbTooltip]="'Refresh'">
+        <i class="icon-reload-alt"></i>
+      </button>
     </div>
-    <div class="log-analyzer-actions d-flex justify-content-end align-items-center flex-wrap ml-5">
-      <div class="actions-log span-small-icon">
-        <button (click)="getData()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
-          <i class="icon-reload-alt"></i>&nbsp;Refresh data
+    <div class="log-analyzer-actions d-flex flex-grow-1 justify-content-between align-items-center gap-2">
+      <div class="d-flex  justify-content-center gap-1 flex-grow-1">
+        <button (click)="saveQuery()" [ngbTooltip]="'Save query'" class="btn utm-button utm-button-primary">
+          <i class="icon-floppy-disk"></i>&nbsp;Save query
         </button>
-        <!--<button (click)="saveQuery()" class="btn btn-sm utm-button utm-button-primary mr-2 mb-1">
-          <i class="icon-floppy-disk"></i>&nbsp;Save
-        </button>-->
+        <button (click)="loadQuery()" [ngbTooltip]="'Load query'" class="btn utm-button utm-button-primary">
+          <i class="icon-zoomin3"></i>&nbsp;Load query
+        </button>
+      </div>
+
+      <div class="d-flex justify-content-start">
         <button (click)="exportToCsv()"
                 [disabled]="(fields && fields.length === 0) || !rows || csvExport"
-                class="btn btn-sm utm-button utm-button-primary mb-1">
-          <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'" class="mr-1"></i>
+                class="btn utm-button utm-button-primary">
+          <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'"></i>
           {{csvExport ? 'Generating...' : 'Export to CSV'}}
         </button>
       </div>
     </div>
-
   </div>
 </div>
 
