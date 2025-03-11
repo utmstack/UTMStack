@@ -26,16 +26,16 @@
        [container]="container?container:''"
        [ngbPopover]="popContent"
        autoClose="outside"
-       class="d-flex justify-content-start align-items-center cursor-pointer pr-2 border-grey-100 border-1 border-radius-1"
+       class="d-flex justify-content-start align-items-center cursor-pointer pr-2 border-grey-100 border-1 border-radius-1 flex-grow-1"
        placement="bottom-right"
        popoverClass="utm-popover-filter-time" style="white-space: nowrap">
     <span [ngClass]="invertContent?'ml-2':' p-2 mr-2 border-left-1 '"
           class="setting-filter cursor-pointer text-blue-800 border-grey-100 background-color-grey-100">
-    <i class="icon-calendar52"></i>
-    <i [ngClass]="popover.isOpen()?'icon-arrow-right32':'icon-arrow-down32'" class="ml-2"></i>
+      <i class="icon-calendar52"></i>
+      <i [ngClass]="popover.isOpen()?'icon-arrow-right32':'icon-arrow-down32'" class="ml-2"></i>
    </span>
     <div *ngIf="dateFrom && dateTo"
-         class="d-flex justify-content-between align-items-center span-small-icon">
+         class="d-flex justify-content-center flex-grow-1 span-small-icon">
       <span class="font-weight-semibold">{{dateFrom}}</span>
       <i class="icon-arrow-right8 mr-2 ml-2 mt-1"></i>
       <span class="font-weight-semibold">{{dateTo}}</span>

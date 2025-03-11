@@ -12,8 +12,21 @@ app-log-analyzer-field {
 }
 
 .search-container {
-  max-width: 60%;
-  min-width: 40%;
-  width: 100%;
+  flex-basis: 65%;
+}
+
+.btn-refresh {
+  background-color: #d3dae696;
+  color: #0277bd;
+  height: 36px !important;
+  border: 1px solid #d3dae696;
+}
+
+.gap-1 {
+  gap: .25rem;
+}
+
+.gap-2 {
+  gap: .5rem;
 }
 

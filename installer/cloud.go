@@ -212,7 +212,13 @@ func Cloud(c *types.Config, update bool) error {
 		fmt.Println("Initializing User Auditor database [OK]")
 	}
 
-	if utils.GetLock(7, stack.LocksDir) {
+	indexURL := "http://localhost:9200/.utm-geoip?pretty"
+	indexExists, err := utils.CheckIndexExists(indexURL)
+	if err != nil {
+		return err
+	}
+
+	if !indexExists || utils.GetLock(7, stack.LocksDir) {
 		fmt.Println("Initializing OpenSearch. This may take a while.")
 		if err := InitOpenSearch(); err != nil {
 			return err
