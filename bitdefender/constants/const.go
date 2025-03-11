@@ -4,6 +4,8 @@ import "github.com/utmstack/UTMStack/bitdefender/utils"
 
 const EndpointPush = "/v1.0/jsonrpc/push"
 
+const URL_CHECK_CONNECTION = "https://cloud.gravityzone.bitdefender.com"
+
 func GetInternalKey() string {
 	return utils.Getenv("INTERNAL_KEY")
 }
