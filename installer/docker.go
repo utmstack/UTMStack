@@ -43,11 +43,6 @@ func InitSwarm(mainIP string) error {
 	if err := utils.RunCmd("docker", "swarm", "init", "--advertise-addr", mainIP); err != nil {
 		return err
 	}
-
-	if err := utils.RunCmd("docker", "login", "-u", "client", "-p", "4xYkVIAH8kdAH7mP/9BBhbb2ByzLGm4F", "utmstack.azurecr.io"); err != nil {
-		return err
-	}
-
 	return nil
 }
 
