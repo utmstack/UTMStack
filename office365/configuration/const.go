@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	loginUrl                  = "https://login.microsoftonline.com/"
+	LoginUrl                  = "https://login.microsoftonline.com/"
 	GRANTTYPE                 = "client_credentials"
 	SCOPE                     = "https://manage.office.com/.default"
 	endPointLogin             = "/oauth2/v2.0/token"
@@ -26,7 +26,7 @@ func GetPanelServiceName() string {
 }
 
 func GetMicrosoftLoginLink(tenant string) string {
-	return fmt.Sprintf("%s%s%s", loginUrl, tenant, endPointLogin)
+	return fmt.Sprintf("%s%s%s", LoginUrl, tenant, endPointLogin)
 }
 
 func GetStartSubscriptionLink(tenant string) string {
