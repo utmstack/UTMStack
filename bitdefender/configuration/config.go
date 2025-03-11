@@ -38,7 +38,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 		time.Sleep(delayCheckConfig)
 
 		if err := utils.ConnectionChecker(constants.URL_CHECK_CONNECTION, h); err != nil {
-			h.Fatal("Failed to establish connection: %v", err)
+			h.ErrorF("Failed to establish connection: %v", err)
 		}
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)

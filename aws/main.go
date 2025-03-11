@@ -24,7 +24,7 @@ func main() {
 
 	for {
 		if err := utils.ConnectionChecker(configuration.URL_CHECK_CONNECTION); err != nil {
-			utils.Logger.Fatal("Failed to establish connection: %v", err)
+			utils.Logger.ErrorF("Failed to establish connection: %v", err)
 		}
 
 		et := st.Add(299 * time.Second)
