@@ -11,7 +11,7 @@ func InitOpenSearch() error {
 	for intent := 0; intent <= 10; intent++ {
 		time.Sleep(1 * time.Minute)
 
-		_, err := grequests.Get(baseURL+"_cluster/healt", &grequests.RequestOptions{
+		_, err := grequests.Get(baseURL+"_cluster/health", &grequests.RequestOptions{
 			Params: map[string]string{
 				"wait_for_status": "green",
 				"timeout":         "50s",
