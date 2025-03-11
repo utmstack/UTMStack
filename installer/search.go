@@ -31,8 +31,8 @@ func InitOpenSearch() error {
 		JSON: map[string]interface{}{
 			"type": "fs",
 			"settings": map[string]interface{}{
-				"location": "/usr/share/opensearch/.utm-geoip/",
-				"readonly": true,
+				"location": "/usr/share/opensearch/.utm_geoip/",
+				"compress": true,
 			},
 		},
 	})
@@ -56,9 +56,10 @@ func InitOpenSearch() error {
 		return err
 	}
 
-	_, err = grequests.Post(baseURL+"_snapshot/.utm_geoip/.utm-geoip/_restore?wait_for_completion=true", &grequests.RequestOptions{
+	_, err = grequests.Post(baseURL+"_snapshot/.utm_geoip/.utm_geoip/_restore", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
-			"indices": ".utm-geoip",
+			"indices":              ".utm-geoip",
+			"include_global_state": false,
 		},
 	})
 	if err != nil {
