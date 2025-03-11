@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // CheckIndexExists checks if the given Elasticsearch index exists by sending an HTTP GET
@@ -25,4 +26,23 @@ func CheckIndexExists(url string) (bool, error) {
 		// For any other status code, return an error.
 		return false, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
+}
+
+// retrying every 5 seconds up to a total duration of 1 minute.
+func CheckIndexExistsWithRetry(url string) (bool, error) {
+	timeout := time.Minute
+	interval := 5 * time.Second
+	deadline := time.Now().Add(timeout)
+
+	var lastErr error
+	for time.Now().Before(deadline) {
+		exists, err := CheckIndexExists(url)
+		if err == nil {
+			return exists, nil
+		}
+		lastErr = err
+		fmt.Printf("Attempt failed: %v. Retrying in %v...\n", err, interval)
+		time.Sleep(interval)
+	}
+	return false, fmt.Errorf("failed after retries: %v", lastErr)
 }

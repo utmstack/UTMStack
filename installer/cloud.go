@@ -213,7 +213,7 @@ func Cloud(c *types.Config, update bool) error {
 	}
 
 	indexURL := "http://localhost:9200/.utm-geoip?pretty"
-	indexExists, err := utils.CheckIndexExists(indexURL)
+	indexExists, err := utils.CheckIndexExistsWithRetry(indexURL)
 	if err != nil {
 		return err
 	}
