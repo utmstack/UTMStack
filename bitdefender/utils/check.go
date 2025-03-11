@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/threatwinds/logger"
 )
@@ -9,20 +11,22 @@ import (
 func ConnectionChecker(url string, h *logger.Logger) error {
 	checkConn := func() error {
 		if err := CheckConnection(url); err != nil {
-			return h.ErrorF("connection failed: %v", err)
+			return fmt.Errorf("connection failed: %v", err)
 		}
 		return nil
 	}
 
 	if err := h.InfiniteRetryIfXError(checkConn, "connection failed"); err != nil {
-		return h.ErrorF("error checking connection: %v", err)
+		return err
 	}
 
 	return nil
 }
 
 func CheckConnection(url string) error {
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
