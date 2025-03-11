@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/auth"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/migration"
+	"github.com/utmstack/UTMStack/agent-manager/updates"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -74,6 +75,7 @@ func main() {
 	// Set the health status to SERVING
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 	s.InitPingSync()
+	updates.InitUpdatesManager()
 
 	// Start the gRPC server
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
