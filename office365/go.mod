@@ -5,7 +5,7 @@ go 1.22.4
 toolchain go1.23.4
 
 require (
-	github.com/threatwinds/logger v1.1.12
+	github.com/threatwinds/logger v1.2.1
 	github.com/utmstack/config-client-go v1.2.6
 )
 
