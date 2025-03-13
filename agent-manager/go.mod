@@ -7,7 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/logger v1.1.12
+	github.com/threatwinds/logger v1.2.1
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.5
 	gorm.io/driver/postgres v1.5.11
