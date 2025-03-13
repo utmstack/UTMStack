@@ -200,6 +200,8 @@ func Master(c *types.Config) error {
 		fmt.Println("Initializing User Auditor database [OK]")
 	}
 
+	fmt.Println("Checking OpenSearch status")
+
 	indexURL := "http://localhost:9200/.utm-geoip?pretty"
 	indexExists, err := utils.CheckIndexExistsWithRetry(indexURL)
 	if err != nil {
@@ -216,6 +218,8 @@ func Master(c *types.Config) error {
 			return err
 		}
 		fmt.Println("Initializing OpenSearch [OK]")
+	} else {
+		fmt.Println("OpenSearch status  [OK]")
 	}
 
 	fmt.Println("Waiting for Backend to be ready. This may take a while.")
