@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 type CollectorConfig struct {

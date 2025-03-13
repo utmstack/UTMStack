@@ -2,7 +2,7 @@ package serv
 
 import (
 	"github.com/kardianos/service"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 func RunService() {

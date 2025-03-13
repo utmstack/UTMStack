@@ -3,7 +3,7 @@ package config
 import (
 	"path/filepath"
 
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 const REPLACE_KEY string = ""

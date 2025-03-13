@@ -12,10 +12,10 @@ import (
 	"github.com/tehmaze/netflow"
 	"github.com/tehmaze/netflow/session"
 	"github.com/threatwinds/validations"
-	"github.com/utmstack/UTMStack/agent/agent/config"
-	"github.com/utmstack/UTMStack/agent/agent/logservice"
-	"github.com/utmstack/UTMStack/agent/agent/parser"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/logservice"
+	"github.com/utmstack/UTMStack/agent/parser"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 var (

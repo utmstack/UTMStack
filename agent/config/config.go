@@ -7,7 +7,7 @@ import (
 
 	aesCrypt "github.com/AtlasInsideCorp/AtlasInsideAES"
 	"github.com/google/uuid"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 type InstallationUUID struct {

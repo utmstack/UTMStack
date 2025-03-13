@@ -1,7 +1,7 @@
 package serv
 
 import (
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 func UninstallService() {

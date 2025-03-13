@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/config"
 )
 
 func Dump(metrics []Metric, remote string) []string {

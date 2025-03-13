@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/utmstack/UTMStack/agent/agent/config"
+	"github.com/utmstack/UTMStack/agent/config"
 )
 
 var (

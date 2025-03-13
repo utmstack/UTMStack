@@ -7,7 +7,7 @@
 package logservice
 
 import (
-	agent "github.com/utmstack/UTMStack/agent/agent/agent"
+	agent "github.com/utmstack/UTMStack/agent/agent"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

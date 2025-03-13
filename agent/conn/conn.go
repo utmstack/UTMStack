@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/utmstack/UTMStack/agent/agent/config"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/utils"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"

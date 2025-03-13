@@ -11,7 +11,7 @@ import (
 	"github.com/tehmaze/netflow/netflow6"
 	"github.com/tehmaze/netflow/netflow7"
 	"github.com/tehmaze/netflow/netflow9"
-	pnf "github.com/utmstack/UTMStack/agent/agent/parser/netflow"
+	pnf "github.com/utmstack/UTMStack/agent/parser/netflow"
 )
 
 var (

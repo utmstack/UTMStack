@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/utmstack/UTMStack/agent/agent/agent"
-	"github.com/utmstack/UTMStack/agent/agent/config"
-	"github.com/utmstack/UTMStack/agent/agent/conn"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/agent"
+	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/conn"
+	"github.com/utmstack/UTMStack/agent/utils"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 )

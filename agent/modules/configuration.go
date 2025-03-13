@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/utmstack/UTMStack/agent/agent/config"
-	"github.com/utmstack/UTMStack/agent/agent/utils"
+	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 type Port struct {
