@@ -30,7 +30,7 @@ func CheckIndexExists(url string) (bool, error) {
 
 // retrying every 5 seconds up to a total duration of 1 minute.
 func CheckIndexExistsWithRetry(url string) (bool, error) {
-	timeout := time.Minute
+	timeout := 5 * time.Minute
 	interval := 5 * time.Second
 	deadline := time.Now().Add(timeout)
 
@@ -41,8 +41,7 @@ func CheckIndexExistsWithRetry(url string) (bool, error) {
 			return exists, nil
 		}
 		lastErr = err
-		fmt.Printf("Attempt failed: %v. Retrying in %v...\n", err, interval)
 		time.Sleep(interval)
 	}
-	return false, fmt.Errorf("failed after retries: %v", lastErr)
+	return false, fmt.Errorf("OpenSearch status check failed after retries: %v", lastErr)
 }
