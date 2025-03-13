@@ -4,10 +4,7 @@ go 1.22.4
 
 toolchain go1.23.4
 
-require (
-	github.com/threatwinds/logger v1.1.12
-	gopkg.in/yaml.v2 v2.4.0
-)
+require github.com/threatwinds/logger v1.1.12
 
 require (
 	github.com/bytedance/sonic v1.12.1 // indirect
