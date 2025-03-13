@@ -107,8 +107,8 @@ github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsT
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068 h1:1B+EAUqxEyPByCfk55tB21DtR7WF7Q2w71g7+uVkvIg=
 github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068/go.mod h1:QRP5wJOf7gGMGL2fCAfmh/5CMZQspRxT5DqghaPRrjM=
-github.com/threatwinds/logger v1.1.12 h1:3TzwO2+m5XwSHDc3QOYvg0nUnsj/U2yJppULndRzL/4=
-github.com/threatwinds/logger v1.1.12/go.mod h1:eevkhjP9wSpRekRIgi4ZAq7DMdlUMy+Shwx/QNDvOHg=
+github.com/threatwinds/logger v1.2.1 h1:uN7efZaHobMX3DRi6GOPtxESPxt5xj0bNflnmgklwII=
+github.com/threatwinds/logger v1.2.1/go.mod h1:eevkhjP9wSpRekRIgi4ZAq7DMdlUMy+Shwx/QNDvOHg=
 github.com/threatwinds/validations v1.0.5 h1:kY/Y1g3urTqTNAL/80wWkxPrCHhcbISGduBuVz99d00=
 github.com/threatwinds/validations v1.0.5/go.mod h1:vedgpo8crNfHtCMoTlimBlbsFMalXpoTSuSfQh4gU48=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
