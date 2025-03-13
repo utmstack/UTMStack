@@ -4,9 +4,7 @@ on:
   release:
     types: [ 'released' ]
   push:
-    branches: [ 'main', 'feature/**' ]
-  pull_request_review:
-    types: [submitted]
+    branches: [ 'main' ]
 
 jobs:
   setup_deployment:
@@ -19,13 +17,7 @@ jobs:
       - name: Determine Build Environment
         id: set-env
         run: |
-          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') }}; then
-            echo "DEV environment"
-            echo "env_version=v10-dev" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main' && startsWith(github.event.pull_request.head.ref, 'feature/') }}; then
-            echo "QA environment"
-            echo "env_version=v10-qa" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}; then
+          if ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}; then
             echo "RC environment"
             echo "env_version=v10-rc" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'release' }}; then
@@ -33,48 +25,70 @@ jobs:
             echo "env_version=v10" >> $GITHUB_OUTPUT
           fi
 
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            agent-manager: agent-manager/**
-            aws: aws/**
-            backend:
-              - 'backend/**'
-              - 'version.yml'
-            correlation: correlation/**
-            frontend: frontend/**
-            bitdefender: bitdefender/**
-            mutate: mutate/**
-            office365: office365/**
-            log-auth-proxy: log-auth-proxy/**
-            sophos: sophos/**
-            user-auditor: user-auditor/**
-            web-pdf: web-pdf/**
-  
-  runner:
-    name: Deployment
+  build_agent:
+    name: Build Agent-Manager Image & Agent & Dependencies
     needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.microservices != '[]' && needs.setup_deployment.outputs.env_version != ''}}
-    strategy:
-      fail-fast: false
-      matrix: 
-        service: ${{ fromJson(needs.setup_deployment.outputs.microservices) }} 
-    uses: ./.github/workflows/used-runner.yml
-    with:
-      microservice: ${{ matrix.service }}
-      environment: ${{ needs.setup_deployment.outputs.env_version }}
-    secrets: inherit
-  
+    if: ${{ needs.setup_deployment.outputs.env_version != '' }}
+    runs-on: signing
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        run: |
+          docker login ghcr.io -u utmstack -p ${{ secrets.GITHUB_TOKEN }}
+          echo "Logged in to GitHub Container Registry"
+
+      - name: Build Agent
+        run: |
+          cd ${{ github.workspace }}/agent/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          cd ${{ github.workspace }}/agent
+
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          go build -o utmstack_agent_service -v .
+          $env:GOARCH = "arm64"
+          go build -o utmstack_agent_service_arm64 -v .
+
+          $env:GOOS = "windows"
+          $env:GOARCH = "amd64"
+          go build -o utmstack_agent_service.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
+          $env:GOARCH = "arm64"
+          go build -o utmstack_agent_service_arm64.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
+
+          echo "Agent build completed"
+        
+      - name: Build & Push Agent Manager Image
+        run: |
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          cd ${{ github.workspace }}/agent-manager; go build -o agent-manager -v .
+          
+          New-Item -ItemType Directory -Force -Path "./dependencies/collector/"
+          Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.env_version }}/collector/*" -Destination "./dependencies/collector/"
+
+          New-Item -ItemType Directory -Force -Path "./dependencies/agent/"
+          Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.env_version }}/agent/*" -Destination "./dependencies/agent/"
+          Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service" -Destination "./dependencies/agent/"
+          Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64" -Destination "./dependencies/agent/"
+          Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service.exe" -Destination "./dependencies/agent/"
+          Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" -Destination "./dependencies/agent/"
+          Copy-Item -Path "${{ github.workspace }}/agent/version.json" -Destination "./dependencies/agent/"
+
+          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.env_version }} .
+          docker push ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.env_version }}
+          echo "Agent Manager image built and pushed"
+    
   runner_release:
-    name: Deployment for Release
+    name: Images deployment
     needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.env_version == 'v10' }}
+    if: ${{ needs.setup_deployment.outputs.env_version != '' }}
     strategy:
       fail-fast: false
       matrix: 
-        service: ['agent-manager', 'aws', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'sophos', 'user-auditor', 'web-pdf'] 
+        service: ['aws', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'sophos', 'user-auditor', 'web-pdf'] 
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}

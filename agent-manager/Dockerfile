@@ -1,8 +1,8 @@
 FROM ubuntu:22.04
 
-COPY ./agent-manager/agent-manager /app/
-COPY ./agent/dependencies/ /dependencies/agent/
-COPY ./collector/dependencies/ /dependencies/collector/
+COPY agent-manager /app/
+COPY ./dependencies/agent/ /dependencies/agent/
+COPY ./dependencies/collector/ /dependencies/collector/
 
 # Install jq
 RUN apt-get update && \
