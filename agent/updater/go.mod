@@ -6,7 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/kardianos/service v1.2.2
-	github.com/threatwinds/logger v1.1.12
+	github.com/threatwinds/logger v1.2.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
