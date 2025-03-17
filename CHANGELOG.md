@@ -1,12 +1,7 @@
-# UTMStack 10.6.1 Release Notes
+# UTMStack 10.6.2 Release Notes
 ## Bug Fixes
-- Fixed ISM policy to ensure snapshots include only indices older than 24 hours.
+- Enhanced the Log Explorer UI to improve usability by refining the display of Refresh, Save Query, Load Query, and Add Filter actions for a more intuitive user experience..
 
-## Features
-- Additional Compliance Reports.
-- Updated Sophos Central Integration Guide: The guide was updated due to significant changes in Sophos’s API authentication process.
+- Updating installer to address missing GeoIP index
 
-- Important Notice: Sophos Integration Update
-  Sophos recently implemented a major change in how their APIs handle authentication for log retrieval. As a result, upgrading to UTMStack 10.6.1 will require reconfiguring the Sophos credentials to ensure continued functionality.
-
-
+- Retag docker images to github registry

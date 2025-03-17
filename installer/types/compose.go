@@ -83,7 +83,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	LSMem := stack.ServiceResources["logstash"].AssignedMemory
 	LSMin := stack.ServiceResources["logstash"].MinMemory
 	c.Services["logstash"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/logstash:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/logstash:" + conf.Branch),
 		Environment: []string{
 			"CONFIG_RELOAD_AUTOMATIC=true",
 			fmt.Sprintf("LS_JAVA_OPTS=-Xms%dm -Xmx%dm -Xss100m", LSMem/2, LSMem/2),
@@ -183,7 +183,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
-		Image: utils.Str("utmstack.azurecr.io/postgres:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/postgres:" + conf.Branch),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
@@ -463,7 +463,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
-			Image: utils.Str("utmstack.azurecr.io/opensearch:" + conf.Branch),
+			Image: utils.Str("ghcr.io/utmstack/utmstack/opensearch:" + conf.Branch),
 			Ports: []string{
 				"9200:9200",
 			},

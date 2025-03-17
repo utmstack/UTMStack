@@ -381,6 +381,10 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
     this.setInitialWidth();
   }
 
+  loadQuery() {
+    this.router.navigate(['/discover/log-analyzer-queries']);
+  }
+
   ngOnDestroy(): void {
     this.filters = [];
     this.utmFilterBehavior.$filterChange.next(null);
