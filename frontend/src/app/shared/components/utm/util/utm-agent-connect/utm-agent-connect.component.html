@@ -32,7 +32,7 @@
 </div>
 <div *ngIf="agent && agent.status === 'OFFLINE'" class="alert alert-info alert-styled-right mt-3 info-dismissible">
   <span class="font-weight-semibold">Info! </span>
-  <span>Offline agent, data based on the last sync.</span>
+  <span>The agent is offline. Data shown is from the last successful sync.</span>
 </div>
 <app-utm-agent-console *ngIf="agent && connectToAgent" [websocketCommand]="websocketCommand"
                        (close)="connectToAgent = false"
