@@ -1,7 +1,9 @@
-# UTMStack 10.6.2 Release Notes
-## Bug Fixes
-- Enhanced the Log Explorer UI to improve usability by refining the display of Refresh, Save Query, Load Query, and Add Filter actions for a more intuitive user experience..
+# UTMStack 10.6.3 Release Notes
+## New Features and Improvements
+- **Agent & Collector Dependencies**: agents and collectors now fetch their dependencies from the **agent-manager**, improving consistency and centralizing dependency management.
 
-- Updating installer to address missing GeoIP index
+- **Agent Installation**: improved the installation messages for the agent to provide clearer instructions during the setup process.
 
-- Retag docker images to github registry
+- **Agent Service Cleanup**: removed unnecessary services to streamline the system and reduce overhead.
+
+- **Error Recovery**: enhanced the agent's ability to recover from certain data streaming errors when interacting with the agent-manager, improving stability and fault tolerance.
