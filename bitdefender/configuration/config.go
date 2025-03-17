@@ -12,6 +12,7 @@ import (
 
 	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/bitdefender/constants"
+	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 
@@ -29,7 +30,6 @@ const delayCheckConfig = 30 * time.Second
 
 var configsSent = make(map[string]ModuleConfig)
 
-// ConfigureModules updates the module configuration every 30 seconds.
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *logger.Logger) {
 	intKey := constants.GetInternalKey()
 	panelServ := constants.GetPanelServiceName()
@@ -37,7 +37,10 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 	for {
 		time.Sleep(delayCheckConfig)
 
-		// Get Bitdefender module configs
+		if err := utils.ConnectionChecker(constants.URL_CHECK_CONNECTION, h); err != nil {
+			h.ErrorF("Failed to establish connection: %v", err)
+		}
+
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
@@ -52,7 +55,6 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 		*cnf = *tempModuleConfig
 		mutex.Unlock()
 
-		// Configure the group to send data to the syslog server if it is not already configured
 		for _, group := range (*cnf).ConfigurationGroups {
 			isNecessaryConfig := compareConfigs(configsSent, group)
 			if isNecessaryConfig {
@@ -84,9 +86,6 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 	}
 }
 
-// confBDGZApiPush configures the Bitdefender API.
-// It checks to check that everything has been configured correctly.
-// Send test logs
 func confBDGZApiPush(config types.ModuleGroup, operation string, h *logger.Logger) error {
 	operationFunc := map[string]func(types.ModuleGroup, *logger.Logger) (*http.Response, error){
 		"sendConf": sendPushEventSettings,
@@ -112,7 +111,6 @@ func confBDGZApiPush(config types.ModuleGroup, operation string, h *logger.Logge
 		h.Info(string(myBody))
 
 		if operation == "sendConf" {
-			// Check if config was sent correctly
 			regex := regexp.MustCompile(`result":true`)
 			match := regex.Match([]byte(string(myBody)))
 			if match {
@@ -124,7 +122,6 @@ func confBDGZApiPush(config types.ModuleGroup, operation string, h *logger.Logge
 	return fmt.Errorf("error sending configuration")
 }
 
-// setPushEventSettings sends the configuration to the Bitdefender API
 func sendPushEventSettings(config types.ModuleGroup, h *logger.Logger) (*http.Response, error) {
 	h.Info("Sending configuration...")
 	byteTemplate := getTemplateSetPush(config)
@@ -136,7 +133,6 @@ func sendPushEventSettings(config types.ModuleGroup, h *logger.Logger) (*http.Re
 	return sendRequest(body, config)
 }
 
-// getPushEventSettings gets the Bitdefender API settings
 func getPushEventSettings(config types.ModuleGroup, h *logger.Logger) (*http.Response, error) {
 	h.Info("Checking configuration...")
 	byteTemplate := getTemplateGet()
@@ -148,7 +144,6 @@ func getPushEventSettings(config types.ModuleGroup, h *logger.Logger) (*http.Res
 	return sendRequest(body, config)
 }
 
-// sendTestPushEvent sends a test event to the connector
 func sendTestPushEvent(config types.ModuleGroup, h *logger.Logger) (*http.Response, error) {
 	h.Info("Sending Event Test...")
 	byteTemplate := getTemplateTest()

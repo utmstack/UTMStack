@@ -442,6 +442,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 			"ELASTICSEARCH_HOST=node1",
 			"ELASTICSEARCH_PORT=9200",
 			"ERROR_LEVEL=info",
+			"CONNECTION_MODE=ONLINE",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
