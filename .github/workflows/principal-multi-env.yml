@@ -47,16 +47,16 @@ jobs:
           $env:GOOS = "linux"
           $env:GOARCH = "amd64"
           go build -o utmstack_agent_service -v .
-          $env:GOARCH = "arm64"
-          go build -o utmstack_agent_service_arm64 -v .
+          # $env:GOARCH = "arm64"
+          # go build -o utmstack_agent_service_arm64 -v .
 
           $env:GOOS = "windows"
           $env:GOARCH = "amd64"
           go build -o utmstack_agent_service.exe -v .
           signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service.exe"
-          $env:GOARCH = "arm64"
-          go build -o utmstack_agent_service_arm64.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
+          # $env:GOARCH = "arm64"
+          # go build -o utmstack_agent_service_arm64.exe -v .
+          # signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent_service_arm64.exe"
 
           echo "Agent build completed"
         
@@ -72,9 +72,9 @@ jobs:
           New-Item -ItemType Directory -Force -Path "./dependencies/agent/"
           Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.env_version }}/agent/*" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service" -Destination "./dependencies/agent/"
-          Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64" -Destination "./dependencies/agent/"
+          # Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service.exe" -Destination "./dependencies/agent/"
-          Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" -Destination "./dependencies/agent/"
+          # Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/version.json" -Destination "./dependencies/agent/"
 
           docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.env_version }} .
