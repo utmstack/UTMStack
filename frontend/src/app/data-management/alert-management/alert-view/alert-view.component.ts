@@ -472,24 +472,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     // });
   }
 
-  /*setInitialWidth() {
-    if (this.pageWidth > 1980) {
-      this.filterWidth = 350;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    } else {
-      this.filterWidth = 300;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    }
-    if (this.pageWidth > 2500) {
-      this.filterWidth = 350;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    }
-    if (this.pageWidth > 4000) {
-      this.filterWidth = 400;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    }
-  }*/
-
   @HostListener('window:resize', ['$event'])
   onResizeWindows(event: any) {
     this.pageWidth = event.target.innerWidth;
