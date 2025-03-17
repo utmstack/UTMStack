@@ -1,8 +1,6 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateService} from '@ngx-translate/core';
 import {ResizeEvent} from 'angular-resizable-element';
@@ -32,7 +30,7 @@ import {
   FALSE_POSITIVE_OBJECT,
   INCIDENT_FIELDS
 } from '../../../shared/constants/alert/alert-field.constant';
-import {IGNORED} from '../../../shared/constants/alert/alert-status.constant';
+import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
@@ -58,10 +56,6 @@ import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
-import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enum';
 
 @Component({
   selector: 'app-alert-view',
