@@ -1,4 +1,3 @@
-import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -9,8 +8,7 @@ import {
   ALERT_CASE_ID_FIELD,
   ALERT_CATEGORY_FIELD,
   ALERT_FIELDS,
-  ALERT_GENERATED_BY_FIELD,
-  ALERT_ID_FIELD,
+  ALERT_GENERATED_BY_FIELD, ALERT_IMPACT_FIELD,
   ALERT_NAME_FIELD,
   ALERT_OBSERVATION_FIELD,
   ALERT_PROTOCOL_FIELD,
@@ -32,7 +30,7 @@ import {AlertUpdateHistoryBehavior} from '../../behavior/alert-update-history.be
 import {AlertUpdateTagBehavior} from '../../behavior/alert-update-tag.behavior';
 import {AlertHistoryActionEnum} from '../../enums/alert-history-action.enum';
 import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
-import {AlertFieldService} from "../../services/alert-field.service";
+import {AlertFieldService} from '../../services/alert-field.service';
 
 @Component({
   selector: 'app-alert-view-detail',
@@ -59,6 +57,7 @@ export class AlertViewDetailComponent implements OnInit {
   GENERATED_BY_FIELD = ALERT_GENERATED_BY_FIELD;
   ALERT_TACTIC_FIELD = ALERT_TACTIC_FIELD;
   ALERT_TECHNIQUE_FIELD = ALERT_TECHNIQUE_FIELD;
+  IMPACT_FIELD = ALERT_IMPACT_FIELD;
   countRelatedEvents: number;
   viewHistory = false;
   viewLog = false;

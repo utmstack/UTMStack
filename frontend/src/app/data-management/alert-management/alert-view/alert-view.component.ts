@@ -30,7 +30,7 @@ import {
   FALSE_POSITIVE_OBJECT,
   INCIDENT_FIELDS
 } from '../../../shared/constants/alert/alert-field.constant';
-import {IGNORED} from '../../../shared/constants/alert/alert-status.constant';
+import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
 import {ADMIN_ROLE} from '../../../shared/constants/global.constant';
 import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
@@ -85,7 +85,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   itemsPerPage = ITEMS_PER_PAGE;
   // By default all alert will contain all except alerts in review
   filters: ElasticFilterType[] = [
-    /*{field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},*/
+    {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
     {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
     {field: ALERT_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
   ];
@@ -471,24 +471,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     //   this.getAlert();
     // });
   }
-
-  /*setInitialWidth() {
-    if (this.pageWidth > 1980) {
-      this.filterWidth = 350;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    } else {
-      this.filterWidth = 300;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    }
-    if (this.pageWidth > 2500) {
-      this.filterWidth = 350;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    }
-    if (this.pageWidth > 4000) {
-      this.filterWidth = 400;
-      this.tableWidth = this.pageWidth - this.filterWidth - 51;
-    }
-  }*/
 
   @HostListener('window:resize', ['$event'])
   onResizeWindows(event: any) {

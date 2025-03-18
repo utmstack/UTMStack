@@ -1,8 +1,12 @@
+# UTMStack 10.6.1 Release Notes
+## Bug Fixes
+- Fixed ISM policy to ensure snapshots include only indices older than 24 hours.
 
-# UTMStack 11.0.3 Release Notes
+## Features
+- Additional Compliance Reports.
+- Updated Sophos Central Integration Guide: The guide was updated due to significant changes in Sophos’s API authentication process.
 
-fixed: sync filter time value with timestamp field changes
-fixed: enhance filter actions layout and improve usability
-fixed: timestamp field mandatory and non-removable from the view
-fixed: update browser URL when index pattern changes
-fixed: sync filter time value with timestamp field changes
+- Important Notice: Sophos Integration Update
+  Sophos recently implemented a major change in how their APIs handle authentication for log retrieval. As a result, upgrading to UTMStack 10.6.1 will require reconfiguring the Sophos credentials to ensure continued functionality.
+
+

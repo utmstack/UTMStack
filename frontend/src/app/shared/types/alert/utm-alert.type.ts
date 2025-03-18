@@ -27,6 +27,7 @@ export class UtmAlertType {
   adversary: any;
   events?: any[];
   technique: string;
+  impact?: { [key: string]: number };
 }
 
 export enum AlertStatusLabelEnum {

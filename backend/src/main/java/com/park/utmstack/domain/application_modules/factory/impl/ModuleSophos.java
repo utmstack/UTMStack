@@ -41,7 +41,7 @@ public class ModuleSophos implements IModule {
     public List<ModuleConfigurationKey> getConfigurationKeys(Long groupId) throws Exception {
         List<ModuleConfigurationKey> keys = new ArrayList<>();
 
-        // sophos_api_client_id
+        // sophos_api_url
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
             .withConfKey("sophos_client_id")

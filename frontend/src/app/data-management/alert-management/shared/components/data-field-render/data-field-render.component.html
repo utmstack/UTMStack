@@ -6,7 +6,8 @@
                     [showDrop]="showStatusChange"
                     [statusField]="STATUS_FIELD">
   </app-alert-status>
-  <app-alert-ip *ngSwitchCase="SOURCE_IP_FIELD" [alert]="data" [type]="'source'"></app-alert-ip>
+  <app-alert-ip *ngSwitchCase="ALERT_TARGET_IP_FIELD" [alert]="data" [type]="'target'"></app-alert-ip>
+  <app-alert-ip *ngSwitchCase="ALERT_ADVERSARY_IP_FIELD" [alert]="data" [type]="'adversary'"></app-alert-ip>
   <app-alert-ip *ngSwitchCase="DESTINATION_IP_FIELD" [alert]="data" [type]="'destination'"></app-alert-ip>
   <app-alert-severity *ngSwitchCase="SEVERITY_LABEL_FIELD"
                       [severity]="resolveSeverity(data)"></app-alert-severity>
@@ -16,6 +17,7 @@
   <app-alert-apply-note *ngSwitchCase="NOTE_FIELD" [alert]="data" [showNote]="true"></app-alert-apply-note>
   <app-alert-entity-display [field]="field" [key]="ALERT_TARGET_FIELD" [alert]="data" *ngSwitchCase="ALERT_TARGET_FIELD"></app-alert-entity-display>
   <app-alert-entity-display [field]="field" [key]="ALERT_ADVERSARY_FIELD" [alert]="data" *ngSwitchCase="ALERT_ADVERSARY_FIELD"></app-alert-entity-display>
+  <app-alert-impact *ngSwitchCase="ALERT_IMPACT_FIELD" [impact]="data[field.field]"></app-alert-impact>
   <span *ngSwitchDefault [ngClass]="field.customStyle">
     <span *ngIf="field.type!=='date';else dateValue"
           [openDelay]="3000" ngbTooltip="{{resolveValue(data, field)}}">
