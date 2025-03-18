@@ -12,8 +12,8 @@ func Load() {
 
 	var files = []string{
 		"ip_blocklist.list",
-		"domain_blocklist.list",
-		"hostname_blocklist.list",
+		//"domain_blocklist.list",
+		//"hostname_blocklist.list",
 	}
 
 	for _, file := range files {
@@ -22,10 +22,10 @@ func Load() {
 		switch file {
 		case "ip_blocklist.list":
 			t = "IP"
-		case "domain_blocklist.list":
-			t = "domain"
-		case "hostname_blocklist.list":
-			t = "hostname"
+			//case "domain_blocklist.list":
+			//	t = "domain"
+			//case "hostname_blocklist.list":
+			//	t = "hostname"
 		}
 
 		f, err := os.Open(filepath.Join("/app", file))
