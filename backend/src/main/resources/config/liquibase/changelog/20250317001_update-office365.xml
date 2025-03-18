@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250317001" author="Manuel">
+
+        <createProcedure dbms="postgresql">
+            <![CDATA[
+            CREATE
+            OR REPLACE FUNCTION public.register_integration_o365(srv_id integer)
+             RETURNS void
+             LANGUAGE plpgsql
+            AS
+            $function$
+            declare
+            grp_id integer;
+                mod_id
+            bigint;
+
+            begin
+            INSERT INTO "public"."utm_module"("pretty_name", "module_active", "module_icon", "module_name", "server_id",
+                                              "needs_restart", "module_category", "lite_version", "module_description",
+                                              is_activatable)
+            VALUES ('Microsoft 365', 'f', 'office.svg', 'O365', srv_id, 'f', 'Cloud', 't',
+                    'Microsoft 365 is a comprehensive suite of subscription-based services offered by Microsoft. This service expands and includes the traditional line of Microsoft Office products and adds additional capabilities with cloud-based services and advanced features (such as OneDrive, Exchange Online, Microsoft Teams, and SharePoint).',
+                    TRUE)
+                ON CONFLICT (module_name,server_id) DO UPDATE SET pretty_name        = 'Microsoft 365',
+                                                           module_icon        = 'office.svg',
+                                                           module_name        = 'O365',
+                                                           module_category    = 'Cloud',
+                                                           module_description = 'Microsoft 365 is a comprehensive suite of subscription-based services offered by Microsoft. This service expands and includes the traditional line of Microsoft Office products and adds additional capabilities with cloud-based services and advanced features (such as OneDrive, Exchange Online, Microsoft Teams, and SharePoint).',
+                                                           lite_version       = TRUE,
+                                                           is_activatable     = TRUE,
+                                                           server_id          = srv_id;
+            end;
+
+            $function$
+            ;
+            ]]>
+        </createProcedure>
+
+        <createProcedure dbms="postgresql">
+            do $$
+            begin
+            perform public.execute_register_integration_function();
+            end;
+            $$ language plpgsql;
+        </createProcedure>
+    </changeSet>
+</databaseChangeLog>
