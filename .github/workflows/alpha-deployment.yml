@@ -22,23 +22,32 @@ jobs:
           if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+$ ]]; then
             echo "✅ Version tag format is correct."
 
-            if [[ "${ github.ref }" =~ ^refs/heads/(release/|feature/) ]]; then
-              echo "✅ Base branch ${ github.ref } is valid."
+            if [[ "${{ github.ref }}" =~ ^refs/heads/(release/|feature/) ]]; then
+              echo "✅ Base branch ${{ github.ref }} is valid."
             else
-              echo "⛔ ERROR: Base branch ${ github.ref } is not valid. It should be release/ or feature/."
+              echo "⛔ ERROR: Base branch ${{ github.ref }} is not valid. It should be release/ or feature/."
               exit 1
             fi
 
             echo "Validating user permissions..."
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
             -H "Accept: application/vnd.github.json" \
             "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
 
             if echo "$RESPONSE" | grep -q '"state": "active"'; then
               echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
             else
-              echo "⛔ ERROR: User ${{ github.actor }} is not a member of the integration-developers team."
-             exit 1
+              RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+              -H "Accept: application/vnd.github.json" \
+              "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
+
+              if echo "$RESPONSE" | grep -q '"state": "active"'; then
+                echo "✅ User ${{ github.actor }} is a member of the core-developers team."
+              else
+                echo "⛔ ERROR: User ${{ github.actor }} is not a member of the core-developers or integration-developers team."
+                echo $RESPONSE
+                exit 1
+              fi
             fi
 
           else
@@ -47,17 +56,16 @@ jobs:
           fi
 
   deploy:
-    name: Deploy
+    name: Deploy to Alpha
     needs: validations
     uses: ./.github/workflows/build.yml
     with:
       version_tag: ${{ github.event.inputs.version_tag }}
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
       environment: alpha
-      ghcr_token: ${{ secrets.GITHUB_TOKEN }}
-      sign_cert: ${{ vars.SIGN_CERT }}
-      sign_key: ${{ secrets.SIGN_KEY }}
-      sign_container: ${{ secrets.SIGN_CONTAINER }}
-    env:
+    secrets:
+      AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
       CM_AUTH: ${{ secrets.CM_AUTH_ALPHA }}
     

@@ -11,6 +11,7 @@ import (
 const delayCheck = 300
 
 var timeGroups = make(map[int]int)
+var nextKeys = make(map[int]string)
 
 func PullLogs(group types.ModuleGroup) *logger.Error {
 	utils.Logger.Info("starting log sync for : %s", group.GroupName)
@@ -26,12 +27,14 @@ func PullLogs(group types.ModuleGroup) *logger.Error {
 		timeGroups[group.ModuleID] = epoch + 1
 	}()
 
-	agent := GetSophosCentralProcessor(group)
+	agent := getSophosCentralProcessor(group)
 
-	logs, err := agent.GetLogs(group, timeGroups[group.ModuleID])
+	logs, newNextKey, err := agent.getLogs(timeGroups[group.ModuleID], nextKeys[group.ModuleID], group)
 	if err != nil {
 		return err
 	}
+
+	nextKeys[group.ModuleID] = newNextKey
 
 	err = SendToCorrelation(logs)
 	if err != nil {

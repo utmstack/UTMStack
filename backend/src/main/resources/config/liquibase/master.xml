@@ -73,6 +73,8 @@
 
     <include file="/config/liquibase/changelog/20250127001_add_compliance_data.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250227001_add_compliance_report.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250303001_udpate_sophos_guide.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

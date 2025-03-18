@@ -124,9 +124,9 @@ type AuthResponse struct {
 }
 
 func getAuthCache(method string) []AuthResponse {
-	if strings.Contains(method, "agent.AgentService") {
+	if strings.Contains(method, "agent.AgentService") || strings.Contains(method, "/dependencies/agent") {
 		return convertMapToAuthResponses(agent.CacheAgent)
-	} else if strings.Contains(method, "agent.CollectorService") {
+	} else if strings.Contains(method, "agent.CollectorService") || strings.Contains(method, "/dependencies/collector") {
 		return convertMapToAuthResponses(agent.CacheCollector)
 	} else if strings.Contains(method, "agent.PingService") {
 		return append(convertMapToAuthResponses(agent.CacheAgent), convertMapToAuthResponses(agent.CacheCollector)...)

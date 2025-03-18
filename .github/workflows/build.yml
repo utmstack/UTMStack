@@ -12,18 +12,16 @@ on:
       environment:
         required: true
         type: string
-      ghcr_token:
+    secrets:
+      AGENT_SECRET_PREFIX:
         required: true
-        type: string
-      sign_cert:
+      SIGN_KEY:
         required: true
-        type: string
-      sign_key:
+      SIGN_CONTAINER:
         required: true
-        type: string
-      sign_container:
+      CM_AUTH:
         required: true
-        type: string
+
 
 jobs:
   build_images:
@@ -49,7 +47,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         run: |
-          docker login ghcr.io -u utmstack -p ${{ inputs.ghcr_token }}
+          docker login ghcr.io -u utmstack -p ${{ secrets.GITHUB_TOKEN }}
           echo "Logged in to GitHub Container Registry"
       
       - name: Download base images
@@ -59,47 +57,53 @@ jobs:
 
       - name: Build Agent
         run: |
-          cd ${{ github.workspace }}/agent/service/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
+          cd ${{ github.workspace }}/agent/config; (Get-Content const.go) | Foreach-Object { $_ -replace 'const REPLACE_KEY string = ""', 'const REPLACE_KEY string = "${{ secrets.AGENT_SECRET_PREFIX }}"' } | Set-Content const.go
           
-          $env:GOOS = "linux"
           $env:GOARCH = "amd64"
-          cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service -v .
-          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer -v .
-          
+          $env:GOOS = "linux"
+          cd ${{ github.workspace }}/agent
+          go build -o utmstack_agent -v .
+      
           $env:GOOS = "windows"
-          cd ${{ github.workspace }}/agent/service; go build -o utmstack_agent_service.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ inputs.sign_cert }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ inputs.sign_key }}}}]=${{ inputs.sign_container }}" "utmstack_agent_service.exe"
-          cd ${{ github.workspace }}/agent/installer; go build -o utmstack_agent_installer.exe -v .
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ inputs.sign_cert }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ inputs.sign_key }}}}]=${{ inputs.sign_container }}" "utmstack_agent_installer.exe"
+          go build -o utmstack_agent.exe -v .
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f "${{ vars.SIGN_CERT }}" /csp "eToken Base Cryptographic Provider" /k "[{{${{ secrets.SIGN_KEY }}}}]=${{ secrets.SIGN_CONTAINER }}" "utmstack_agent.exe"
 
+          New-Item -ItemType Directory -Force -Path "./dependencies/"
           Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/agent/*" -Destination "./dependencies/"
 
           echo "Agent build completed"
       
       - name: Build Plugins
         run: |
-          export GOOS=linux
-          export GOARCH=amd64
-          cd ${{ github.workspace }}/plugins
-          make build
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          cd ${{ github.workspace }}/plugins/alerts; go build -o com.utmstack.alerts.plugin -v .
+          cd ${{ github.workspace }}/plugins/aws; go build -o com.utmstack.aws.plugin -v .
+          cd ${{ github.workspace }}/plugins/azure; go build -o com.utmstack.azure.plugin -v .
+          cd ${{ github.workspace }}/plugins/bitdefender; go build -o com.utmstack.bitdefender.plugin -v .
+          cd ${{ github.workspace }}/plugins/config; go build -o com.utmstack.config.plugin -v .
+          cd ${{ github.workspace }}/plugins/events; go build -o com.utmstack.events.plugin -v .
+          cd ${{ github.workspace }}/plugins/gcp; go build -o com.utmstack.gcp.plugin -v .
+          cd ${{ github.workspace }}/plugins/geolocation; go build -o com.utmstack.geolocation.plugin -v .
+          cd ${{ github.workspace }}/plugins/inputs; go build -o com.utmstack.inputs.plugin -v .
+          cd ${{ github.workspace }}/plugins/o365; go build -o com.utmstack.o365.plugin -v .
+          cd ${{ github.workspace }}/plugins/sophos; go build -o com.utmstack.sophos.plugin -v .
+          cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
       
       - name: Build Event Processor Image
         run: |
           New-Item -ItemType Directory -Force -Path "./geolocation/"
           Copy-Item -Path "C:/dependencies/${{ inputs.environment }}/geolocation/*" -Destination "./geolocation/"
-
-          docker build -t ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community \
-            --build-arg BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }} \
-            -f ./event_processor.Dockerfile \
-            .
+          docker build -t ghcr.io/utmstack/utmstack/eventprocessor:${{ inputs.version_tag }}-community --build-arg BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }} -f ./event_processor.Dockerfile .
           echo "Event Processor image built"
 
       - name: Build Agent Manager Image
         run: |
-          go build -o ./agent-manager/agent-manager -v ./agent-manager
-          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community \
-            -f ./agent-manager/Dockerfile \
-            .
+          $env:GOOS = "linux"
+          $env:GOARCH = "amd64"
+          cd ${{ github.workspace }}/agent-manager; go build -o agent-manager -v .
+          cd ${{ github.workspace }}
+          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ inputs.version_tag }}-community -f ./agent-manager/Dockerfile .
           echo "Agent Manager image built"
 
       - name: Push images with dependencies
@@ -112,11 +116,12 @@ jobs:
         run: |
           echo "Pushing new release..."
           $changelog = Get-Content -Path "CHANGELOG.md" -Raw
+          $changelog = [string]$changelog
 
-          $cmAuth = $env:CM_AUTH | ConvertFrom-Json
+          $cmAuth = '${{ secrets.CM_AUTH }}' | ConvertFrom-Json
 
           $body = @{
-              version   = ${{ inputs.version_tag }}
+              version   = '${{ inputs.version_tag }}'
               changelog = $changelog
               images    = "ghcr.io/utmstack/utmstack/backend,ghcr.io/utmstack/utmstack/frontend,ghcr.io/utmstack/utmstack/user-auditor,ghcr.io/utmstack/utmstack/web-pdf,ghcr.io/utmstack/utmstack/eventprocessor,ghcr.io/utmstack/utmstack/agent-manager"
               edition   = "community"

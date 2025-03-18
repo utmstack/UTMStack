@@ -1,10 +1,9 @@
-# UTMStack 10.5.20 Release Notes
-## Bug Fixes
-- Fixed the IP location component to accurately determine whether an IP address is public or private.
-- Fixed communication from/to agents using secure connections.
-- Fixed negative operator evaluation matching on wrong input value due to insufficient checking in correlation engine.
+# UTMStack 10.6.3 Release Notes
+## New Features and Improvements
+- **Agent & Collector Dependencies**: agents and collectors now fetch their dependencies from the **agent-manager**, improving consistency and centralizing dependency management.
 
-## New Features
-- Introduced new standards, sections, dashboards, and visualizations to compliance reports.
-- Update ip address to agent.
-- Alert generation for down data sources.
+- **Agent Installation**: improved the installation messages for the agent to provide clearer instructions during the setup process.
+
+- **Agent Service Cleanup**: removed unnecessary services to streamline the system and reduce overhead.
+
+- **Error Recovery**: enhanced the agent's ability to recover from certain data streaming errors when interacting with the agent-manager, improving stability and fault tolerance.

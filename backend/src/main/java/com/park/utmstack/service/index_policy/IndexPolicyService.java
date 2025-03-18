@@ -162,7 +162,7 @@ public class IndexPolicyService {
                     .ifPresent(state -> {
                         Transition transition = state.getTransitions().get(0);
                         transition.setStateName(Constants.STATE_BACKUP);
-                        transition.setConditions(null);
+                        transition.setConditions(new TransitionCondition("24h"));
                     });
 
                 // open -> safe_delete
@@ -178,6 +178,7 @@ public class IndexPolicyService {
                     .ifPresent(state -> {
                         Transition transition = state.getTransitions().get(0);
                         transition.setStateName(Constants.STATE_OPEN);
+                        transition.setConditions(new TransitionCondition("24h"));
                     });
 
                 // open -> delete

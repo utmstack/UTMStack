@@ -94,7 +94,7 @@ func IsBlocklisted() {
 
 					/*if strings.Contains(log, key) {
 						correlation.Alert(
-							fmt.Sprintf("Maliciuos %s found in log", value),
+							fmt.Sprintf("Malicious %s found in log: %s", value, key),
 							"Low",
 							"A blocklisted element has been identified in the logs. Further investigation is recommended.",
 							"",
