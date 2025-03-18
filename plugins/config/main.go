@@ -312,7 +312,7 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 }
 
 func getAssets(db *sql.DB) ([]Asset, error) {
-	rows, err := db.Query("SELECT * FROM utm_tenant_config")
+	rows, err := db.Query("id,asset_name,asset_hostname_list_def,asset_ip_list_def,asset_confidentiality,asset_integrity,asset_availability,last_update FROM utm_tenant_config")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get assets: %v", err)
 	}
