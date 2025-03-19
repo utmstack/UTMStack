@@ -1,9 +1,4 @@
-# UTMStack 10.6.3 Release Notes
+# UTMStack 10.6.4 Release Notes
 ## New Features and Improvements
-- **Agent & Collector Dependencies**: agents and collectors now fetch their dependencies from the **agent-manager**, improving consistency and centralizing dependency management.
-
-- **Agent Installation**: improved the installation messages for the agent to provide clearer instructions during the setup process.
-
-- **Agent Service Cleanup**: removed unnecessary services to streamline the system and reduce overhead.
-
-- **Error Recovery**: enhanced the agent's ability to recover from certain data streaming errors when interacting with the agent-manager, improving stability and fault tolerance.
+-- Added organization name in app settings to distinguish alert and notification emails.
+-- Improved email notification system to include organization name for better identification.
