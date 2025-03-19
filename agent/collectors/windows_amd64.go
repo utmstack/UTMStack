@@ -1,3 +1,6 @@
+//go:build windows && amd64
+// +build windows,amd64
+
 package collectors
 
 import (
@@ -10,9 +13,9 @@ import (
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
-type Winlogbeat struct{}
+type Windows struct{}
 
-func (w Winlogbeat) Install() error {
+func (w Windows) Install() error {
 	path := utils.GetMyPath()
 
 	winlogPath := filepath.Join(path, "beats", "winlogbeat")
@@ -59,7 +62,7 @@ func (w Winlogbeat) Install() error {
 	return nil
 }
 
-func (w Winlogbeat) SendSystemLogs() {
+func (w Windows) SendSystemLogs() {
 	logLinesChan := make(chan []string)
 	path := utils.GetMyPath()
 	winbLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
@@ -82,7 +85,7 @@ func (w Winlogbeat) SendSystemLogs() {
 	}
 }
 
-func (w Winlogbeat) Uninstall() error {
+func (w Windows) Uninstall() error {
 	if isInstalled, err := utils.CheckIfServiceIsInstalled(config.WinServName); err != nil {
 		return fmt.Errorf("error checking if %s is running: %v", config.WinServName, err)
 	} else if isInstalled {
