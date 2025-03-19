@@ -74,36 +74,29 @@ func (f Filebeat) Install() error {
 				return fmt.Errorf("error reloading daemon: %v", err)
 			}
 
-			family, err := utils.DetectLinuxFamily()
+			err := utils.Execute("systemctl", filebLogPath, "enable", config.ModulesServName)
 			if err != nil {
-				return err
+				return fmt.Errorf("%s", err)
 			}
 
-			if family == "debian" || family == "rhel" {
-				err := utils.Execute("systemctl", filebLogPath, "enable", config.ModulesServName)
-				if err != nil {
-					return fmt.Errorf("%s", err)
-				}
+			err = utils.Execute("systemctl", filebLogPath, "start", config.ModulesServName)
+			if err != nil {
+				return fmt.Errorf("%s", err)
+			}
 
-				err = utils.Execute("systemctl", filebLogPath, "start", config.ModulesServName)
-				if err != nil {
-					return fmt.Errorf("%s", err)
-				}
+			err = utils.Execute("./filebeat", filebLogPath, "modules", "enable", "system")
+			if err != nil {
+				return fmt.Errorf("%s", err)
+			}
 
-				err = utils.Execute("./filebeat", filebLogPath, "modules", "enable", "system")
-				if err != nil {
-					return fmt.Errorf("%s", err)
-				}
+			err = utils.Execute("sed", filepath.Join(filebLogPath, "modules.d"), "-i", "s/enabled: false/enabled: true/g", "system.yml")
+			if err != nil {
+				return fmt.Errorf("%s", err)
+			}
 
-				err = utils.Execute("sed", filepath.Join(filebLogPath, "modules.d"), "-i", "s/enabled: false/enabled: true/g", "system.yml")
-				if err != nil {
-					return fmt.Errorf("%s", err)
-				}
-
-				err = utils.Execute("systemctl", filebLogPath, "restart", config.ModulesServName)
-				if err != nil {
-					return fmt.Errorf("%s", err)
-				}
+			err = utils.Execute("systemctl", filebLogPath, "restart", config.ModulesServName)
+			if err != nil {
+				return fmt.Errorf("%s", err)
 			}
 		}
 	}
