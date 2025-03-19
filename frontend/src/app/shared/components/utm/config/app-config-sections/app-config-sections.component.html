@@ -21,7 +21,7 @@
         Delete config
       </button>
 
-      <app-utm-email-conf-check [validConfig]="(!checkConfigValid() || saving || configToSave.length === 0) && isCheckedEmailConfig"
+      <app-utm-email-conf-check [validConfig]="(!checkConfigValid() || saving)"
                                 [configToSave]="configToSave"
                                 [emailConfig]="configs"
                                 (isChecked) = "checkedEmailConfig($event)"
@@ -40,7 +40,7 @@
   </div>
   <p *ngIf="section.description" class="mb-3 mt-3">{{section.description}}</p>
   <div *ngIf="configs.length>0 && !loading"
-       class="d-flex justify-content-between align-items-center flex-wrap w-100">
+       class="d-flex gap-3 align-items-center flex-wrap w-100">
     <div *ngFor="let conf of configs" [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList ?'w-100 order-8':'w-30'"
          class="form-group mb-4">
       <label [for]="'sectionParam'+conf.id"
