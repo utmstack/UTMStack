@@ -18,6 +18,7 @@ public final class Constants {
     public static final String PROP_MAIL_PORT = "utmstack.mail.port";
     public static final String PROP_MAIL_PASSWORD = "utmstack.mail.password";
     public static final String PROP_MAIL_USERNAME = "utmstack.mail.username";
+    public static final String PROP_MAIL_ORGNAME = "utmstack.mail.organization";
     public static final String PROP_MAIL_SMTP_AUTH = "utmstack.mail.properties.mail.smtp.auth";
 
     public static final String PROP_EMAIL_PROTOCOL_VALUE = "smtp";
