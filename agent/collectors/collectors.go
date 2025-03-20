@@ -2,7 +2,6 @@ package collectors
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/utmstack/UTMStack/agent/utils"
 )
@@ -16,19 +15,6 @@ type Collector interface {
 	Install() error
 	SendSystemLogs()
 	Uninstall() error
-}
-
-func getCollectorsInstances() []Collector {
-	var collectors []Collector
-	switch runtime.GOOS {
-	case "windows":
-		collectors = append(collectors, Winlogbeat{})
-		collectors = append(collectors, Filebeat{})
-	case "linux":
-		collectors = append(collectors, Filebeat{})
-	}
-
-	return collectors
 }
 
 func InstallCollectors() error {

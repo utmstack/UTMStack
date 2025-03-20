@@ -1,12 +1,10 @@
 package ti
 
 import (
-	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/correlation"
 	"github.com/utmstack/UTMStack/correlation/utils"
 	"runtime"
-	"strings"
 )
 
 var blockList map[string]string
@@ -47,14 +45,14 @@ func IsBlocklisted() {
 			for {
 				log := <-channel
 
+				sourceIp := gjson.Get(log, "logx.*.src_ip")
+				destinationIp := gjson.Get(log, "logx.*.dest_ip")
+
 				for key, value := range blockList {
 					var stop bool
 
 					switch value {
 					case "IP":
-						sourceIp := gjson.Get(log, "logx.*.src_ip")
-						destinationIp := gjson.Get(log, "logx.*.dest_ip")
-
 						if sourceIp.String() == key {
 							correlation.Alert(
 								"Connection attempt from a malicious IP",
@@ -94,7 +92,7 @@ func IsBlocklisted() {
 						break
 					}
 
-					if strings.Contains(log, key) {
+					/*if strings.Contains(log, key) {
 						correlation.Alert(
 							fmt.Sprintf("Malicious %s found in log: %s", value, key),
 							"Low",
@@ -109,7 +107,7 @@ func IsBlocklisted() {
 						)
 
 						break
-					}
+					}*/
 				}
 			}
 		}()
