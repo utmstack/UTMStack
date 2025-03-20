@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"sync"
 	"syscall"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 
 	"github.com/utmstack/UTMStack/plugins/bitdefender/configuration"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/processor"
@@ -45,10 +46,13 @@ func main() {
 
 func loadCerts() (string, string, error) {
 	utmConfig := plugins.PluginCfg("com.utmstack", false)
-	certsFolder := utmConfig.Get("certsFolder").String()
+	certsFolder, err := utils.MkdirJoin(utmConfig.Get("certsFolder").String())
+	if err != nil {
+		return "", "", fmt.Errorf("cannot create certificates directory: %v", err)
+	}
 
-	certPath := filepath.Join(certsFolder, configuration.UtmCertFileName)
-	keyPath := filepath.Join(certsFolder, configuration.UtmCertFileKey)
+	certPath := certsFolder.FileJoin(configuration.UtmCertFileName)
+	keyPath := certsFolder.FileJoin(configuration.UtmCertFileKey)
 
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("certificate file does not exist: %s", certPath)

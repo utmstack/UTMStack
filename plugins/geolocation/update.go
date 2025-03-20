@@ -1,40 +1,35 @@
 package main
 
 import (
+	"net"
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-	"net"
-	"os"
-	"path"
-	"path/filepath"
-	"strconv"
-	"time"
 )
 
 func update() {
 	first := true
 	for {
-		workdir := path.Join(plugins.GetCfg().Env.Workdir, "geolocation")
-		var files = map[string]string{
-			filepath.Join(workdir, "asn-blocks-v4.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v4.csv",
-			filepath.Join(workdir, "asn-blocks-v6.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v6.csv",
-			filepath.Join(workdir, "blocks-v4.csv"):     "https://cdn.utmstack.com/geoip/blocks-v4.csv",
-			filepath.Join(workdir, "blocks-v6.csv"):     "https://cdn.utmstack.com/geoip/blocks-v6.csv",
-			filepath.Join(workdir, "locations-en.csv"):  "https://cdn.utmstack.com/geoip/locations-en.csv",
+		workdir, err := utils.MkdirJoin(plugins.WorkDir, "geolocation")
+		if err != nil {
+			_ = catcher.Error("could not create geolocation directory", err, nil)
+			continue
 		}
-
-		if _, err := os.Stat(workdir); os.IsNotExist(err) {
-			err := os.MkdirAll(workdir, os.ModeDir)
-			if err != nil {
-				_ = catcher.Error("could not create geolocation directory", err, nil)
-				continue
-			}
+		var files = map[string]string{
+			workdir.FileJoin("asn-blocks-v4.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v4.csv",
+			workdir.FileJoin("asn-blocks-v6.csv"): "https://cdn.utmstack.com/geoip/asn-blocks-v6.csv",
+			workdir.FileJoin("blocks-v4.csv"):     "https://cdn.utmstack.com/geoip/blocks-v4.csv",
+			workdir.FileJoin("blocks-v6.csv"):     "https://cdn.utmstack.com/geoip/blocks-v6.csv",
+			workdir.FileJoin("locations-en.csv"):  "https://cdn.utmstack.com/geoip/locations-en.csv",
 		}
 
 		mode := os.Getenv("MODE")
 		if mode == "manager" {
-			if _, err := os.Stat(filepath.Join(workdir, "locations-en.csv")); os.IsNotExist(err) || !first {
+			if _, err := os.Stat(workdir.FileJoin("locations-en.csv")); os.IsNotExist(err) || !first {
 				for file, url := range files {
 					if err := utils.Download(url, file); err != nil {
 						_ = catcher.Error("could not download geolocation file", err, nil)
@@ -60,15 +55,15 @@ func update() {
 			}
 
 			switch file {
-			case filepath.Join(workdir, "asn-blocks-v4.csv"):
+			case workdir.FileJoin("asn-blocks-v4.csv"):
 				populateASNBlocks(csv)
-			case filepath.Join(workdir, "asn-blocks-v6.csv"):
+			case workdir.FileJoin("asn-blocks-v6.csv"):
 				populateASNBlocks(csv)
-			case filepath.Join(workdir, "blocks-v4.csv"):
+			case workdir.FileJoin("blocks-v4.csv"):
 				populateCityBlocks(csv)
-			case filepath.Join(workdir, "blocks-v6.csv"):
+			case workdir.FileJoin("blocks-v6.csv"):
 				populateCityBlocks(csv)
-			case filepath.Join(workdir, "locations-en.csv"):
+			case workdir.FileJoin("locations-en.csv"):
 				populateCityLocations(csv)
 			}
 		}

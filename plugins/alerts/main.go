@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"net"
+	"os"
+	"time"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/opensearch"
 	"github.com/threatwinds/go-sdk/plugins"
-	"net"
-	"os"
-	"path"
-	"time"
+	"github.com/threatwinds/go-sdk/utils"
 
 	"github.com/google/uuid"
 
@@ -56,11 +57,16 @@ type AlertFields struct {
 }
 
 func main() {
-	_ = os.Remove(path.Join(plugins.GetCfg().Env.Workdir,
-		"sockets", "com.utmstack.alerts_correlation.sock"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
+	if err != nil {
+		_ = catcher.Error("cannot create socket directory", err, nil)
+		os.Exit(1)
+	}
 
-	unixAddress, err := net.ResolveUnixAddr(
-		"unix", path.Join(plugins.GetCfg().Env.Workdir, "sockets", "com.utmstack.alerts_correlation.sock"))
+	socketPath := filePath.FileJoin("com.utmstack.alerts_correlation.sock")
+	_ = os.Remove(socketPath)
+
+	unixAddress, err := net.ResolveUnixAddr("unix", socketPath)
 	if err != nil {
 		_ = catcher.Error("cannot resolve unix address", err, nil)
 		os.Exit(1)

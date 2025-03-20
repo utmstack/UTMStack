@@ -3,13 +3,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 
 	_ "github.com/lib/pq"
 	"github.com/tidwall/gjson"
@@ -451,7 +452,13 @@ func listFiles(folder string) ([]string, error) {
 }
 
 func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
-	files, e := listFiles(filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
+	if err != nil {
+		_ = catcher.Error("cannot create filters directory", err, nil)
+		os.Exit(1)
+	}
+
+	files, e := listFiles(string(filePath))
 	if e != nil {
 		os.Exit(1)
 	}
@@ -459,7 +466,8 @@ func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
 	for _, file := range files {
 		var keep bool
 		for _, filter := range filters {
-			if file == filepath.Join(gCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)) {
+			filePath := filePath.FileJoin(fmt.Sprintf("%d.yaml", filter.Id))
+			if file == filePath {
 				keep = true
 				break
 			}
@@ -477,7 +485,13 @@ func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
 }
 
 func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
-	files, err := listFiles(filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
+	if err != nil {
+		_ = catcher.Error("cannot create filters directory", err, nil)
+		os.Exit(1)
+	}
+
+	files, err := listFiles(string(filePath))
 	if err != nil {
 		_ = catcher.Error("failed to list files", err, map[string]any{})
 		os.Exit(1)
@@ -486,7 +500,8 @@ func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
 	for _, file := range files {
 		var keep bool
 		for _, rule := range rules {
-			if file == filepath.Join(gCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)) {
+			filePath := filePath.FileJoin(fmt.Sprintf("%d.yaml", rule.Id))
+			if file == filePath {
 				keep = true
 				break
 			}
@@ -505,7 +520,13 @@ func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
 
 func writeFilters(pCfg *plugins.Config, filters []Filter) error {
 	for _, filter := range filters {
-		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "filters", fmt.Sprintf("%d.yaml", filter.Id)))
+		filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
+		if err != nil {
+			_ = catcher.Error("cannot create filters directory", err, nil)
+			os.Exit(1)
+		}
+
+		file, err := os.Create(filePath.FileJoin(fmt.Sprintf("%d.yaml", filter.Id)))
 		if err != nil {
 			return fmt.Errorf("failed to create file: %v", err)
 		}
@@ -525,7 +546,13 @@ func writeFilters(pCfg *plugins.Config, filters []Filter) error {
 }
 
 func writeTenant(pCfg *plugins.Config, tenant Tenant) error {
-	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "tenant.yaml"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
+	if err != nil {
+		_ = catcher.Error("cannot create pipeline directory", err, nil)
+		os.Exit(1)
+	}
+
+	file, err := os.Create(filePath.FileJoin("tenants.yaml"))
 	if err != nil {
 		return fmt.Errorf("failed to create file: %v", err)
 	}
@@ -556,7 +583,13 @@ func writeTenant(pCfg *plugins.Config, tenant Tenant) error {
 
 func writeRules(pCfg *plugins.Config, rules []Rule) error {
 	for _, rule := range rules {
-		file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "rules", "utmstack", fmt.Sprintf("%d.yaml", rule.Id)))
+		filePath, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
+		if err != nil {
+			_ = catcher.Error("cannot create rules directory", err, nil)
+			os.Exit(1)
+		}
+
+		file, err := os.Create(filePath.FileJoin(fmt.Sprintf("%d.yaml", rule.Id)))
 		if err != nil {
 			return fmt.Errorf("failed to create file: %v", err)
 		}
@@ -581,7 +614,12 @@ func writeRules(pCfg *plugins.Config, rules []Rule) error {
 }
 
 func writePatterns(pCfg *plugins.Config, patterns map[string]string) error {
-	file, err := os.Create(filepath.Join(pCfg.Env.Workdir, "pipeline", "patterns.yaml"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
+	if err != nil {
+		_ = catcher.Error("cannot create pipeline directory", err, nil)
+		os.Exit(1)
+	}
+	file, err := os.Create(filePath.FileJoin("patterns.yaml"))
 	if err != nil {
 		return fmt.Errorf("failed to create file: %v", err)
 	}
@@ -610,10 +648,10 @@ func writePatterns(pCfg *plugins.Config, patterns map[string]string) error {
 
 func createFolderStructure(gCfg *plugins.Config) error {
 	folders := []string{
-		filepath.Join(gCfg.Env.Workdir, "rules"),
-		filepath.Join(gCfg.Env.Workdir, "rules", "utmstack"),
-		filepath.Join(gCfg.Env.Workdir, "pipeline"),
-		filepath.Join(gCfg.Env.Workdir, "pipeline", "filters"),
+		filepath.Join(plugins.WorkDir, "rules"),
+		filepath.Join(plugins.WorkDir, "rules", "utmstack"),
+		filepath.Join(plugins.WorkDir, "pipeline"),
+		filepath.Join(plugins.WorkDir, "pipeline", "filters"),
 	}
 
 	for _, folder := range folders {

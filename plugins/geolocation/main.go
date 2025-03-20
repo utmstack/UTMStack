@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"net"
+	"os"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-	"net"
-	"os"
-	"path"
 
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -19,9 +19,15 @@ type parsingServer struct {
 }
 
 func main() {
-	_ = os.Remove(path.Join(plugins.GetCfg().Env.Workdir, "sockets", "com.utmstack.geolocation_parsing.sock"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
+	if err != nil {
+		_ = catcher.Error("cannot create directory", err, nil)
+		os.Exit(1)
+	}
+	socketPath := filePath.FileJoin("com.utmstack.geolocation_parsing.sock")
+	_ = os.Remove(socketPath)
 
-	unixAddress, err := net.ResolveUnixAddr("unix", path.Join(plugins.GetCfg().Env.Workdir, "sockets", "com.utmstack.geolocation_parsing.sock"))
+	unixAddress, err := net.ResolveUnixAddr("unix", socketPath)
 	if err != nil {
 		_ = catcher.Error("cannot resolve unix address", err, nil)
 		os.Exit(1)

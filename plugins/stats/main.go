@@ -4,17 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
 	"net"
 	"os"
 	"os/signal"
-	"path"
 	"runtime"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/opensearch"
@@ -35,12 +35,16 @@ var successLock sync.Mutex
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	_ = os.Remove(path.Join(plugins.GetCfg().Env.Workdir,
-		"sockets", "com.utmstack.stats_notification.sock"))
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
+	if err != nil {
+		_ = catcher.Error("cannot create directory", err, nil)
+		os.Exit(1)
+	}
 
-	unixAddress, err := net.ResolveUnixAddr(
-		"unix", path.Join(plugins.GetCfg().Env.Workdir,
-			"sockets", "com.utmstack.stats_notification.sock"))
+	socketPath := filePath.FileJoin("com.utmstack.stats_notification.sock")
+	_ = os.Remove(socketPath)
+
+	unixAddress, err := net.ResolveUnixAddr("unix", socketPath)
 
 	if err != nil {
 		_ = catcher.Error("cannot resolve unix address", err, nil)
