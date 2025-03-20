@@ -22,8 +22,10 @@ func getCollectorsInstances() []Collector {
 	var collectors []Collector
 	switch runtime.GOOS {
 	case "windows":
-		collectors = append(collectors, Winlogbeat{})
-		collectors = append(collectors, Filebeat{})
+		collectors = append(collectors, Windows{})
+		if runtime.GOARCH == "amd64" {
+			collectors = append(collectors, Filebeat{})
+		}
 	case "linux":
 		collectors = append(collectors, Filebeat{})
 	}
