@@ -71,16 +71,16 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 
 		client := NewLogServiceClient(connection)
 		l.connErrWritten = false
-		l.processLogs(client, ctxEof, cancelEof)
+		l.processLogs(client, ctx, ctxEof, cancelEof)
 	}
 }
 
-func (l *LogProcessor) processLogs(client LogServiceClient, ctx context.Context, cancel context.CancelFunc) {
+func (l *LogProcessor) processLogs(client LogServiceClient, ctx context.Context, ctxEof context.Context, cancel context.CancelFunc) {
 	invalidKeyCounter := 0
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-ctxEof.Done():
 			utils.Logger.Info("LogProcessor: Context done, exiting...")
 			return
 		case newLog := <-LogQueue:

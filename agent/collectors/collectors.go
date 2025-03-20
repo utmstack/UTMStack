@@ -41,7 +41,7 @@ func InstallCollectors() error {
 		}
 	}
 
-	utils.Logger.Info("collector installed correctly")
+	utils.Logger.LogF(100, "collectors installed correctly")
 
 	return nil
 }
@@ -63,6 +63,6 @@ func UninstallCollectors() error {
 		}
 	}
 
-	utils.Logger.Info("collectors uninstalled correctly")
+	utils.Logger.LogF(100, "collectors uninstalled correctly")
 	return nil
 }

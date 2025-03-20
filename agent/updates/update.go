@@ -48,7 +48,7 @@ func UpdateDependencies(cnf *config.Config) {
 
 		if newVersion.Version != currentVersion.Version {
 			utils.Logger.Info("New version of agent found: %s", newVersion.Version)
-			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, fmt.Sprintf(config.ServiceFile, "")), headers, fmt.Sprintf(config.ServiceFile, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.ServiceFile, "")), headers, fmt.Sprintf(config.ServiceFile, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
 				utils.Logger.ErrorF("error downloading agent: %v", err)
 				continue
 			}
@@ -59,7 +59,6 @@ func UpdateDependencies(cnf *config.Config) {
 				utils.Logger.ErrorF("error writing version file: %v", err)
 				continue
 			}
-			os.Remove(filepath.Join(utils.GetMyPath(), "version_new.json"))
 
 			if runtime.GOOS == "linux" {
 				if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "777", filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "_new"))); err != nil {
@@ -69,5 +68,7 @@ func UpdateDependencies(cnf *config.Config) {
 
 			utils.Execute(fmt.Sprintf(config.UpdaterSelf, ""), utils.GetMyPath())
 		}
+
+		os.Remove(filepath.Join(utils.GetMyPath(), "version_new.json"))
 	}
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
@@ -46,20 +45,6 @@ func main() {
 			fmt.Print("Checking server connection ... ")
 			if err := utils.ArePortsReachable(cnf.Server, config.AgentManagerPort, config.LogAuthProxyPort, config.DependenciesPort); err != nil {
 				fmt.Println("\nError trying to connect to server: ", err)
-				os.Exit(1)
-			}
-			fmt.Println("[OK]")
-
-			fmt.Print("Creating certificates ... ")
-			certsPath := filepath.Join(utils.GetMyPath(), "certs")
-			err = utils.CreatePathIfNotExist(certsPath)
-			if err != nil {
-				fmt.Println("\nError creating certs path: ", err)
-				os.Exit(1)
-			}
-			err = utils.GenerateCerts(certsPath)
-			if err != nil {
-				fmt.Println("\nError generating certs: ", err)
 				os.Exit(1)
 			}
 			fmt.Println("[OK]")
