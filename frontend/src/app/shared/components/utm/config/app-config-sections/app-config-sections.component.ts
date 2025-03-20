@@ -152,8 +152,16 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         return this.isValid(config);
 
       default:
-        return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
+        return this.isValidConfig(config);
     }
+  }
+
+  isValidConfig(config: SectionConfigParamType): boolean {
+    if (config.confParamRegexp) {
+      return this.isValid(config);
+    }
+
+    return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
   }
 
   save($event: any, conf: SectionConfigParamType) {
