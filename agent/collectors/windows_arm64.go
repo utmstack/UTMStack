@@ -4,19 +4,26 @@
 package collectors
 
 import (
-	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/logservice"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/logservice"
+
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 type Windows struct{}
+
+func getCollectorsInstances() []Collector {
+	var collectors []Collector
+	collectors = append(collectors, Windows{})
+	return collectors
+}
 
 const PowerShellScript = `
 <#
@@ -172,10 +179,10 @@ func (w Windows) SendSystemLogs() {
 
 				validatedLogs := make([]string, 0, len(logLines))
 
-				for logLine := range logLines {
+				for _, logLine := range logLines {
 					validatedLog, _, err := validations.ValidateString(logLine, false)
 					if err != nil {
-						_ = utils.Logger.ErrorF("error validating log: %s: %v", logLine, err)
+						utils.Logger.LogF(100, "error validating log: %s: %v", logLine, err)
 						continue
 					}
 

@@ -15,6 +15,14 @@ import (
 
 type Windows struct{}
 
+func getCollectorsInstances() []Collector {
+	var collectors []Collector
+	collectors = append(collectors, Windows{})
+	collectors = append(collectors, Filebeat{})
+
+	return collectors
+}
+
 func (w Windows) Install() error {
 	path := utils.GetMyPath()
 

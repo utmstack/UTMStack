@@ -24,9 +24,13 @@ func UpdateAgent(cnf *config.Config, ctx context.Context) error {
 	}
 
 	version := models.Version{}
-	err = utils.ReadJson(config.VersionPath, &version)
-	if err != nil {
-		utils.Logger.Fatal("error reading version file: %v", err)
+	if utils.CheckIfPathExist(config.VersionPath) {
+		err = utils.ReadJson(config.VersionPath, &version)
+		if err != nil {
+			utils.Logger.Fatal("error reading version file: %v", err)
+		}
+	} else {
+		version.Version = "10.6.0"
 	}
 
 	request := &AgentRequest{

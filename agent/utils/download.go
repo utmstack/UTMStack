@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func DownloadFile(url string, headers map[string]string, fileName string, path string, skipTls bool) error {
+func DownloadFile(url string, headers map[string]string, fileName string, path string, skipTlsVerification bool) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("error creating new request: %v", err)
@@ -18,14 +19,8 @@ func DownloadFile(url string, headers map[string]string, fileName string, path s
 	}
 
 	client := &http.Client{}
-	if !skipTls {
-		tlsConfig, err := LoadHTTPTLSCredentials(filepath.Join(GetMyPath(), "certs", "utm.crt"))
-		if err != nil {
-			return fmt.Errorf("failed to load TLS credentials: %v", err)
-		}
-		client.Transport = &http.Transport{
-			TLSClientConfig: tlsConfig,
-		}
+	client.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTlsVerification},
 	}
 
 	resp, err := client.Do(req)
