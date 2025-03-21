@@ -153,15 +153,25 @@ foreach ($rawEvent in $recentLogs) {
 `
 
 func (w Windows) Install() error {
-	path := utils.GetMyPath()
-	collectorPath := filepath.Join(path, "collector.ps1")
-	err := os.WriteFile(collectorPath, []byte(PowerShellScript), 0644)
-	return err
+	return nil
 }
 
 func (w Windows) SendSystemLogs() {
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "collector.ps1")
+
+	err := os.WriteFile(collectorPath, []byte(PowerShellScript), 0644)
+	if err != nil {
+		_ = utils.Logger.ErrorF("error writing powershell script: %v", err)
+		return
+	}
+
+	cmd := exec.Command("Powershell.exe", "-Command", `"Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force"`)
+	err = cmd.Run()
+	if err != nil {
+		_ = utils.Logger.ErrorF("error setting powershell execution policy: %v", err)
+		return
+	}
 
 	for {
 		select {
