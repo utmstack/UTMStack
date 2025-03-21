@@ -13,7 +13,6 @@ export class GuideLinuxAgentComponent implements OnInit {
   @Input() serverId: number;
   @Input() version: string;
   token: string;
-
   architectures = [];
 
   constructor(private federationConnectionService: FederationConnectionService) { }
