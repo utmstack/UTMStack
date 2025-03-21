@@ -1,17 +1,17 @@
-certifi==2023.7.22; python_version >= '3.6'
-cffi==1.16.0; python_version >= '3.8'
-charset-normalizer==3.3.1; python_full_version >= '3.7.0'
-cryptography==43.0.1
-docker==6.1.3
-idna==3.7; python_version >= '3.5'
-jinja2==3.1.5
-markupsafe==2.1.3; python_version >= '3.7'
-packaging==23.2; python_version >= '3.7'
-psycopg2-binary==2.9.9
-pycparser==2.21
-pycryptodome==3.19.1
-pyjwt==2.8.0
-requests==2.32.0
+certifi==2025.1.31; python_version >= '3.6'
+cffi==1.17.1; python_version >= '3.8'
+charset-normalizer==3.4.1; python_full_version >= '3.7.0'
+cryptography==44.0.2
+docker==7.1.0
+idna==3.10; python_version >= '3.5'
+jinja2==3.1.6
+markupsafe==3.0.2; python_version >= '3.7'
+packaging==24.2; python_version >= '3.7'
+psycopg2-binary==2.9.10
+pycparser==2.22
+pycryptodome==3.22.0
+pyjwt==2.10.1
+requests==2.32.3
 strenum==0.4.15
-urllib3==2.0.7; python_version >= '3.7'
-websocket-client==1.6.4; python_version >= '3.8'
+urllib3==2.3.0; python_version >= '3.7'
+websocket-client==1.8.0; python_version >= '3.8'
