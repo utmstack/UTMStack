@@ -14,6 +14,27 @@ export class GuideLinuxAgentComponent implements OnInit {
   @Input() version: string;
   token: string;
 
+  architectures = [
+    {
+      id: 1, name: 'Ubuntu 16/18/20+',
+      install: this.getCommandUbuntu('utmstack-linux-agent'),
+      uninstall: this.getUninstallCommand('utmstack-linux-agent'),
+      shell: ''
+    },
+    {
+      id: 2, name: 'Centos 7/Red Hat Enterprise Linux',
+      install: this.getCommandCentos7RedHat('utmstack-linux-agent'),
+      uninstall: this.getUninstallCommand('utmstack-linux-agent'),
+      shell: ''
+    },
+    {
+      id: 3, name: 'Centos 8/AlmaLinux',
+      install: this.getCommandCentos8Almalinux('utmstack-linux-agent'),
+      uninstall: this.getUninstallCommand('utmstack-linux-agent'),
+      shell: ''
+    }
+  ];
+
   constructor(private federationConnectionService: FederationConnectionService) { }
 
   ngOnInit() {
@@ -31,33 +52,38 @@ export class GuideLinuxAgentComponent implements OnInit {
     });
   }
 
-  getCommandUbuntu(): string {
+  getCommandUbuntu(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
     return `sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-linux-agent && \
-    wget -P /opt/utmstack-linux-agent https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
-    chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
-    /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
+    wget --no-check-certificate --header='connection-key: ${this.token}' -P /opt/utmstack-linux-agent \
+    https://${ip}:9001/private/dependencies/agent/${installerName} && \
+    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    /opt/utmstack-linux-agent/${installerName} install ${ip} ${this.token} yes"`;
   }
-  getCommandCentos7RedHat(): string {
+
+  getCommandCentos7RedHat(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "yum install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent \
-        https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
-        chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
-        /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
-
+    return `sudo bash -c "yum install wget -y && mkdir -p /opt/utmstack-linux-agent && \
+    wget --no-check-certificate --header='connection-key: ${this.token}' -P /opt/utmstack-linux-agent \
+    https://${ip}:9001/private/dependencies/agent/${installerName} && \
+    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    /opt/utmstack-linux-agent/${installerName} install ${ip} ${this.token} yes"`;
   }
-  getCommandCentos8Almalinux(): string {
+
+  getCommandCentos8Almalinux(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "dnf install wget -y && mkdir /opt/utmstack-linux-agent && \
-        wget -P /opt/utmstack-linux-agent https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
-        chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
-        /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
+    return `sudo bash -c "dnf install wget -y && mkdir -p /opt/utmstack-linux-agent && \
+    wget --no-check-certificate --header='connection-key: ${this.token}' -P /opt/utmstack-linux-agent \
+    https://${ip}:9001/private/dependencies/agent/${installerName} && \
+    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    /opt/utmstack-linux-agent/${installerName} install ${ip} ${this.token} yes"`;
   }
-  getUninstallCommand(): string {
-    return `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_installer uninstall || true; \
+
+  getUninstallCommand(installerName: string): string {
+    return `sudo bash -c "/opt/utmstack-linux-agent/${installerName} uninstall || true; \
       systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; \
       rm /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; systemctl stop UTMStackRedline 2>/dev/null || true; \
       systemctl disable UTMStackRedline 2>/dev/null || true; rm /etc/systemd/system/UTMStackRedline.service 2>/dev/null || true; \
@@ -69,4 +95,5 @@ export class GuideLinuxAgentComponent implements OnInit {
       echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent && \
       echo 'UTMStack Agent dependencies removed successfully.'"`;
   }
+
 }
