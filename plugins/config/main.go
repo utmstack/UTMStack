@@ -458,7 +458,7 @@ func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
 		os.Exit(1)
 	}
 
-	files, e := listFiles(string(filePath))
+	files, e := listFiles(filePath.String())
 	if e != nil {
 		os.Exit(1)
 	}
@@ -491,7 +491,7 @@ func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
 		os.Exit(1)
 	}
 
-	files, err := listFiles(string(filePath))
+	files, err := listFiles(filePath.String())
 	if err != nil {
 		_ = catcher.Error("failed to list files", err, map[string]any{})
 		os.Exit(1)
