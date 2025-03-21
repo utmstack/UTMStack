@@ -109,15 +109,13 @@ func main() {
 			time.Sleep(5 * time.Second)
 
 		case "uninstall":
-			fmt.Println("Uninstalling UTMStackAgent service ...")
+			fmt.Print("Uninstalling UTMStackAgent service ...")
 
 			cnf, err := config.GetCurrentConfig()
 			if err != nil {
 				fmt.Println("Error getting config: ", err)
 				os.Exit(1)
 			}
-
-			fmt.Print("Deleting agent ... ")
 			if err = pb.DeleteAgent(cnf); err != nil {
 				utils.Logger.ErrorF("error deleting agent: %v", err)
 			}
@@ -127,7 +125,9 @@ func main() {
 			os.Remove(config.ConfigurationFile)
 
 			serv.UninstallService()
-			utils.Logger.Info("UTMStackAgent service uninstalled correctly")
+
+			fmt.Println("[OK]")
+			fmt.Println("UTMStackAgent service uninstalled correctly")
 			os.Exit(1)
 		case "help":
 			Help()

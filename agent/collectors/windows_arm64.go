@@ -175,6 +175,8 @@ func (w Windows) SendSystemLogs() {
 					return
 				}
 
+				utils.Logger.LogF(100, "output: %s", string(output))
+
 				logLines := strings.Split(string(output), "\n")
 
 				validatedLogs := make([]string, 0, len(logLines))
