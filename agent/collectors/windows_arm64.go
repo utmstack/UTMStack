@@ -185,6 +185,8 @@ func (w Windows) SendSystemLogs() {
 					return
 				}
 
+				utils.Logger.LogF(100, "output: %s", string(output))
+
 				logLines := strings.Split(string(output), "\n")
 
 				validatedLogs := make([]string, 0, len(logLines))
@@ -192,7 +194,7 @@ func (w Windows) SendSystemLogs() {
 				for _, logLine := range logLines {
 					validatedLog, _, err := validations.ValidateString(logLine, false)
 					if err != nil {
-						_ = utils.Logger.LogF(100, "error validating log: %s: %v", logLine, err)
+						utils.Logger.LogF(100, "error validating log: %s: %v", logLine, err)
 						continue
 					}
 

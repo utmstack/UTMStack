@@ -4,13 +4,13 @@ export const PLATFORM = [
         id: 1,
         name: 'WINDOWS',
         install: `New-Item -ItemType Directory -Force -Path "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
-                 `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
-                 `Invoke-WebRequest -Uri "https://cdn.utmstack.com/collectors/as400/v3.0.1/windows-as400-collector.zip" ` +
-                 `-OutFile ".\\windows-as400-collector.zip"; Expand-Archive -Path ".\\windows-as400-collector.zip" ` +
-                 `-DestinationPath "."; Remove-Item ".\\windows-as400-collector.zip"; Start-Process ".\\utmstack_collectors_installer.exe" ` +
-                 `-ArgumentList 'install', 'as400', 'V_IP', '<secret>V_TOKEN</secret>' -NoNewWindow -Wait`,
+                  `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
+                  `Invoke-WebRequest -Uri "https://V_IP:9001/private/dependencies/collector/windows-as400-collector.zip" ` +
+                  `-OutFile ".\\windows-as400-collector.zip"; Expand-Archive -Path ".\\windows-as400-collector.zip" ` +
+                  `-DestinationPath "."; Remove-Item ".\\windows-as400-collector.zip"; Start-Process ".\\utmstack_collectors_installer.exe" ` +
+                  `-ArgumentList 'install', 'as400', 'V_IP', '<secret>V_TOKEN</secret>' -NoNewWindow -Wait`,
 
-        uninstall: `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
+      uninstall: `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
                    `Start-Process ".\\utmstack_collectors_installer.exe" -ArgumentList ` +
                    ` 'uninstall', 'as400' -NoNewWindow -Wait -ErrorAction SilentlyContinue ` +
                    `| Out-Null; Start-Process -FilePath "sc.exe" -ArgumentList 'stop', ` +
@@ -28,13 +28,15 @@ export const PLATFORM = [
         id: 2,
         name: 'LINUX UBUNTU',
         install: `sudo bash -c "apt update -y && apt install wget unzip -y && mkdir -p ` +
-                 `/opt/utmstack-linux-collectors/as400 && cd /opt/utmstack-linux-collectors/as400 && ` +
-                 `wget https://cdn.utmstack.com/collectors/as400/v3.0.1/linux-as400-collector.zip ` +
-                 `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 777 ` +
-                 `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
-                 `V_IP <secret>V_TOKEN</secret>"`,
+                  `/opt/utmstack-linux-collectors/as400 && cd /opt/utmstack-linux-collectors/as400 && ` +
+                  `wget --no-check-certificate --header='connection-key: V_TOKEN' ` +
+                  `https://V_IP:9001/private/dependencies/collector/linux-as400-collector.zip ` +
+                  `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 777 ` +
+                  `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
+                  `V_IP V_TOKEN"`,
 
-        uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer ` +
+
+      uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer ` +
                    `uninstall as400 && echo 'Removing UTMStack AS400 Collector dependencies...' && sleep 5 && rm ` +
                    `-rf /opt/utmstack-linux-collectors/as400 && echo 'UTMStack AS400 Collector removed successfully.'"`,
 
