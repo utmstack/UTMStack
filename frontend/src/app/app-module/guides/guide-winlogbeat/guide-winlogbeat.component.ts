@@ -14,20 +14,7 @@ export class GuideWinlogbeatComponent implements OnInit {
   token: string;
   @Input() version: string;
 
-  architectures = [
-    {
-      id: 1, name: 'AMD64',
-      install: this.getCommand('utmstack_agent_service.exe'),
-      uninstall: this.getUninstallCommand('utmstack_agent_service.exe'),
-      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
-    },
-    {
-      id: 2, name: 'ARM64',
-      install: this.getCommand('utmstack_agent_service_arm64.exe'),
-      uninstall: this.getUninstallCommand('utmstack_agent_service_arm64.exe'),
-      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
-    }
-  ];
+  architectures = [];
 
   constructor(private federationConnectionService: FederationConnectionService) {
   }
@@ -44,7 +31,25 @@ export class GuideWinlogbeatComponent implements OnInit {
       } else {
         this.token = '';
       }
+      this.loadArchitectures();
     });
+  }
+
+  loadArchitectures(){
+    this.architectures = [
+      {
+        id: 1, name: 'AMD64',
+        install: this.getCommand('utmstack_agent_service.exe'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service.exe'),
+        shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+      },
+      {
+        id: 2, name: 'ARM64',
+        install: this.getCommand('utmstack_agent_service_arm64.exe'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service_arm64.exe'),
+        shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+      }
+    ];
   }
 
   getCommand(arch: string): string {
