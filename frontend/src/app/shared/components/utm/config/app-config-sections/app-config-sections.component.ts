@@ -122,7 +122,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.changesApplied.emit(false);
   }
 
-  checkConfigValid(): boolean {
+  /*checkConfigValid(): boolean {
     let valid = true;
     for (const conf of this.configs) {
       if (conf.confParamRequired || (conf.confParamRegexp && conf.confParamDatatype === ConfigDataTypeEnum.EmailList)) {
@@ -133,6 +133,17 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       }
     }
     return valid;
+  }*/
+
+  checkConfigValid(): boolean {
+    for (const conf of this.configs) {
+      if (conf.confParamRequired || (conf.confParamRegexp && conf.confParamDatatype === ConfigDataTypeEnum.EmailList)) {
+        if (!this.checkConfigValue(conf)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   checkConfigValue(config: SectionConfigParamType): boolean {
@@ -141,8 +152,16 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         return this.isValid(config);
 
       default:
-        return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
+        return this.isValidConfig(config);
     }
+  }
+
+  isValidConfig(config: SectionConfigParamType): boolean {
+    if (config.confParamRegexp) {
+      return this.isValid(config);
+    }
+
+    return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
   }
 
   save($event: any, conf: SectionConfigParamType) {
@@ -187,8 +206,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkedEmailConfig(event: boolean){
-    this.isCheckedEmailConfig = event;
+  checkedEmailConfig(event: boolean) {
+    this.isCheckedEmailConfig = !this.isCheckedEmailConfig;
   }
 
   isPasswordSet() {

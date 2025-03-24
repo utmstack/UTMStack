@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
@@ -46,20 +45,6 @@ func main() {
 			fmt.Print("Checking server connection ... ")
 			if err := utils.ArePortsReachable(cnf.Server, config.AgentManagerPort, config.LogAuthProxyPort, config.DependenciesPort); err != nil {
 				fmt.Println("\nError trying to connect to server: ", err)
-				os.Exit(1)
-			}
-			fmt.Println("[OK]")
-
-			fmt.Print("Creating certificates ... ")
-			certsPath := filepath.Join(utils.GetMyPath(), "certs")
-			err = utils.CreatePathIfNotExist(certsPath)
-			if err != nil {
-				fmt.Println("\nError creating certs path: ", err)
-				os.Exit(1)
-			}
-			err = utils.GenerateCerts(certsPath)
-			if err != nil {
-				fmt.Println("\nError generating certs: ", err)
 				os.Exit(1)
 			}
 			fmt.Println("[OK]")
@@ -124,15 +109,13 @@ func main() {
 			time.Sleep(5 * time.Second)
 
 		case "uninstall":
-			fmt.Println("Uninstalling UTMStackAgent service ...")
+			fmt.Print("Uninstalling UTMStackAgent service ...")
 
 			cnf, err := config.GetCurrentConfig()
 			if err != nil {
 				fmt.Println("Error getting config: ", err)
 				os.Exit(1)
 			}
-
-			fmt.Print("Deleting agent ... ")
 			if err = pb.DeleteAgent(cnf); err != nil {
 				utils.Logger.ErrorF("error deleting agent: %v", err)
 			}
@@ -142,7 +125,9 @@ func main() {
 			os.Remove(config.ConfigurationFile)
 
 			serv.UninstallService()
-			utils.Logger.Info("UTMStackAgent service uninstalled correctly")
+
+			fmt.Println("[OK]")
+			fmt.Println("UTMStackAgent service uninstalled correctly")
 			os.Exit(1)
 		case "help":
 			Help()
