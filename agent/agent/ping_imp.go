@@ -26,6 +26,8 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			if !connErrMsgWritten {
 				utils.Logger.ErrorF("error connecting to Agent Manager: %v", err)
 				connErrMsgWritten = true
+			} else {
+				utils.Logger.LogF(100, "error connecting to Agent Manager: %v", err)
 			}
 			time.Sleep(timeToSleep)
 			continue
@@ -37,11 +39,14 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			if !connErrMsgWritten {
 				utils.Logger.ErrorF("failed to start Ping Stream: %v", err)
 				connErrMsgWritten = true
+			} else {
+				utils.Logger.LogF(100, "failed to start Ping Stream: %v", err)
 			}
 			time.Sleep(timeToSleep)
 			continue
 		}
 
+		utils.Logger.LogF(100, "Ping Stream started")
 		connErrMsgWritten = false
 
 		ticker := time.NewTicker(pingInterval)
@@ -50,6 +55,7 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
 			if err != nil {
 				if strings.Contains(err.Error(), "EOF") {
+					utils.Logger.LogF(100, "error sending Ping request: %v", err)
 					time.Sleep(timeToSleep)
 					break
 				}
@@ -58,6 +64,8 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 					if !errorLogged {
 						utils.Logger.ErrorF("error sending Ping request: %v", err)
 						errorLogged = true
+					} else {
+						utils.Logger.LogF(100, "error sending Ping request: %v", err)
 					}
 					time.Sleep(timeToSleep)
 					break
@@ -65,6 +73,8 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 					if !errorLogged {
 						utils.Logger.ErrorF("error sending Ping request: %v", err)
 						errorLogged = true
+					} else {
+						utils.Logger.LogF(100, "error sending Ping request: %v", err)
 					}
 					time.Sleep(timeToSleep)
 					continue
@@ -72,6 +82,7 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 			}
 
 			errorLogged = false
+			utils.Logger.LogF(100, "Ping request sent")
 		}
 
 		ticker.Stop()

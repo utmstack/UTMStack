@@ -22,12 +22,3 @@ func GetIPAddress() (string, error) {
 
 	return "", errors.New("failed to get IP address")
 }
-
-func IsPortUsed(proto string, port string) bool {
-	conn, err := net.Listen(proto, ":"+port)
-	if err != nil {
-		return true
-	}
-	conn.Close()
-	return false
-}

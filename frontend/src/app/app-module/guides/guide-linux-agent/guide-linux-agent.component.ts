@@ -13,6 +13,7 @@ export class GuideLinuxAgentComponent implements OnInit {
   @Input() serverId: number;
   @Input() version: string;
   token: string;
+  architectures = [];
 
   constructor(private federationConnectionService: FederationConnectionService) { }
 
@@ -28,45 +29,72 @@ export class GuideLinuxAgentComponent implements OnInit {
       } else {
         this.token = '';
       }
+      this.loadArchitectures();
     });
   }
 
-  getCommandUbuntu(): string {
+  getCommandUbuntu(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
     return `sudo bash -c "apt update -y && apt install wget -y && mkdir -p /opt/utmstack-linux-agent && \
-    wget -P /opt/utmstack-linux-agent https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
-    chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
-    /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
+    wget --no-check-certificate --header='connection-key: <secret>${this.token}</secret>' -P /opt/utmstack-linux-agent \
+    https://${ip}:9001/private/dependencies/agent/${installerName} && \
+    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    /opt/utmstack-linux-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
-  getCommandCentos7RedHat(): string {
+
+  getCommandCentos7RedHat(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "yum install wget -y && mkdir /opt/utmstack-linux-agent && wget -P /opt/utmstack-linux-agent \
-        https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
-        chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
-        /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
-
+    return `sudo bash -c "yum install wget -y && mkdir -p /opt/utmstack-linux-agent && \
+    wget --no-check-certificate --header='connection-key: <secret>${this.token}</secret>' -P /opt/utmstack-linux-agent \
+    https://${ip}:9001/private/dependencies/agent/${installerName} && \
+    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    /opt/utmstack-linux-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
-  getCommandCentos8Almalinux(): string {
+
+  getCommandCentos8Almalinux(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "dnf install wget -y && mkdir /opt/utmstack-linux-agent && \
-        wget -P /opt/utmstack-linux-agent https://cdn.utmstack.com/agent_updates/release/installer/v${this.version}/utmstack_agent_installer && \
-        chmod -R 777 /opt/utmstack-linux-agent/utmstack_agent_installer && \
-        /opt/utmstack-linux-agent/utmstack_agent_installer install ${ip} <secret>${this.token}</secret> yes"`;
+    return `sudo bash -c "dnf install wget -y && mkdir -p /opt/utmstack-linux-agent && \
+    wget --no-check-certificate --header='connection-key: <secret>${this.token}</secret>' -P /opt/utmstack-linux-agent \
+    https://${ip}:9001/private/dependencies/agent/${installerName} && \
+    chmod -R 777 /opt/utmstack-linux-agent/${installerName} && \
+    /opt/utmstack-linux-agent/${installerName} install ${ip} <secret>${this.token}</secret> yes"`;
   }
-  getUninstallCommand(): string {
-    return `sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_installer uninstall || true; \
-      systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; \
-      rm /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; systemctl stop UTMStackRedline 2>/dev/null || true; \
-      systemctl disable UTMStackRedline 2>/dev/null || true; rm /etc/systemd/system/UTMStackRedline.service 2>/dev/null || true; \
-      systemctl stop UTMStackUpdater 2>/dev/null || true; systemctl disable UTMStackUpdater 2>/dev/null || true; \
-      rm /etc/systemd/system/UTMStackUpdater.service 2>/dev/null || true; systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true; \
-      systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; \
-      rm /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true; \
-      systemctl daemon-reload 2>/dev/null || true; \
-      echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent && \
-      echo 'UTMStack Agent dependencies removed successfully.'"`;
+
+  getUninstallCommand(installerName: string): string {
+    return `sudo bash -c "/opt/utmstack-linux-agent/${installerName} uninstall || true; \
+    systemctl stop UTMStackAgent 2>/dev/null || true; systemctl disable UTMStackAgent 2>/dev/null || true; \
+    rm -f /etc/systemd/system/UTMStackAgent.service 2>/dev/null || true; \
+    systemctl stop UTMStackModulesLogsCollector 2>/dev/null || true; \
+    systemctl disable UTMStackModulesLogsCollector 2>/dev/null || true; \
+    rm -f /etc/systemd/system/UTMStackModulesLogsCollector.service 2>/dev/null || true; \
+    systemctl daemon-reload 2>/dev/null || true; \
+    echo 'Removing UTMStack Agent dependencies...' && sleep 10 && rm -rf /opt/utmstack-linux-agent 2>/dev/null || true; \
+    echo 'UTMStack Agent dependencies removed successfully.'"`;
+  }
+
+  private loadArchitectures() {
+    this.architectures = [
+      {
+        id: 1, name: 'Ubuntu 16/18/20+',
+        install: this.getCommandUbuntu('utmstack_agent_service'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        shell: ''
+      },
+      {
+        id: 2, name: 'Centos 7/Red Hat Enterprise Linux',
+        install: this.getCommandCentos7RedHat('utmstack_agent_service'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        shell: ''
+      },
+      {
+        id: 3, name: 'Centos 8/AlmaLinux',
+        install: this.getCommandCentos8Almalinux('utmstack_agent_service'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service'),
+        shell: ''
+      }
+    ];
   }
 }
