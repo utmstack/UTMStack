@@ -9,7 +9,7 @@ import {
   TIMEZONES
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
-import {TimezoneFormatService} from "../../../../services/utm-timezone.service";
+import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
@@ -207,7 +207,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   }
 
   checkedEmailConfig(event: boolean) {
-    this.isCheckedEmailConfig = !this.isCheckedEmailConfig;
+    this.isCheckedEmailConfig = event;
   }
 
   isPasswordSet() {
