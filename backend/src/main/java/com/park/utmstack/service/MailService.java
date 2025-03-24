@@ -24,7 +24,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -62,6 +61,8 @@ public class MailService {
 
     private static final String BASE_URL = "baseUrl";
 
+    private static final String ORG_NAME = "orgName";
+
     private final MessageSource messageSource;
     private final SpringTemplateEngine templateEngine;
     private final ApplicationEventService eventService;
@@ -78,22 +79,6 @@ public class MailService {
         this.mailSenders = mailSenders;
         this.templateEngine.addDialect(new Java8TimeDialect());
     }
-
-//    private JavaMailSender getJavaMailSender() {
-//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-//        mailSender.setHost(Constants.CFG.get(Constants.PROP_MAIL_HOST));
-//        mailSender.setPort(Integer.parseInt(Constants.CFG.get(Constants.PROP_MAIL_PORT)));
-//        mailSender.setPassword(Constants.CFG.get(Constants.PROP_MAIL_PASSWORD));
-//        mailSender.setUsername(Constants.CFG.get(Constants.PROP_MAIL_USERNAME));
-//        mailSender.setProtocol(Constants.CFG.get(Constants.PROP_MAIL_PROTOCOL));
-//
-//        Properties props = mailSender.getJavaMailProperties();
-//        props.put("mail.smtp.auth", Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH));
-//        props.put("mail.smtp.starttls.enable", Constants.CFG.get(Constants.PROP_MAIL_SMTP_STARTTLS_ENABLE));
-//        props.put("mail.smtp.ssl.trust", Constants.CFG.get(Constants.PROP_MAIL_SMTP_SSL_TRUST));
-//
-//        return mailSender;
-//    }
 
     private MailSenderStrategy getSender(String type){
         return mailSenders.stream()
@@ -277,11 +262,12 @@ public class MailService {
             context.setVariable("relatedLogs", relatedLogs);
             context.setVariable("timestamp", alert.getTimestampFormatted());
             context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
+            context.setVariable(ORG_NAME, Constants.CFG.get(Constants.PROP_MAIL_ORGNAME));
 
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             message.setSubject(String.format("%1$s[%2$s]: %3$s", alert.getIncident() ? "INFOSEC-" : "", alert.getId().substring(0, 5), alert.getName()));
-            message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
+            message.setFrom(new InternetAddress(Constants.CFG.get(Constants.PROP_MAIL_FROM), Constants.CFG.get(Constants.PROP_MAIL_ORGNAME)));
             message.setTo(emailsTo.toArray(new String[0]));
 
             final String htmlContent = templateEngine.process("mail/alertEmail", context);
@@ -314,9 +300,12 @@ public class MailService {
             context.setVariable("alerts", alerts);
             context.setVariable("incident", incident);
             context.setVariable(BASE_URL, Constants.CFG.get(Constants.PROP_MAIL_BASE_URL));
+            context.setVariable(ORG_NAME, Constants.CFG.get(Constants.PROP_MAIL_ORGNAME));
+
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             message.setSubject(String.format("%1$s[%2$s]: %3$s", "INFOSEC- New Incident ", incident.getId().toString(), incident.getIncidentName()));
+            message.setFrom(new InternetAddress(Constants.CFG.get(Constants.PROP_MAIL_FROM), Constants.CFG.get(Constants.PROP_MAIL_ORGNAME)));
             message.setFrom(Constants.CFG.get(Constants.PROP_MAIL_FROM));
             message.setTo(emailsTo.toArray(new String[0]));
 

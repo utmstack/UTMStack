@@ -1,15 +1,10 @@
-# UTMStack 10.7.0 Release Notes
+# UTMStack 10.7.1 Release Notes
+
+### Bug Fixes
+- Fixed responsive text alignment for action buttons in Log Explorer to enhance visual consistency.
+
 ## New Features and Improvements
-- **Agent & Collector Dependencies**: agents and collectors now fetch their dependencies from the **agent-manager**, improving consistency and centralizing dependency management.
-
-- **Agent Installation**: improved the installation messages for the agent to provide clearer instructions during the setup process.
-
-- **Agent Service Cleanup**: removed unnecessary services to streamline the system and reduce overhead.
-
-- **Error Recovery**: enhanced the agent's ability to recover from certain data streaming errors when interacting with the agent-manager, improving stability and fault tolerance.
-
-- **Debug Mode for Agents**: Added a debug mode for agents, allowing better troubleshooting and logging for debugging purposes.
-
-- **Certificate Verification Improvements**: Improved certificate verification in agents to enhance security and prevent connection issues.
-
-- **Windows ARM64 Agent Support**: Added support for a Windows ARM64 agent, expanding compatibility to more architectures.
+- Added organization name in app settings to distinguish alert and notification emails for better clarity.
+- Enhanced the email notification system by including the organization name to improve recipient identification.
+- Introduced new compliance reports aligned with the PCI DSS standard to expand auditing capabilities.
+- Resolves issues with malformed queries when filtering incidents by id.
