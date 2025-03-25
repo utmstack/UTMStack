@@ -2,6 +2,7 @@
 
 ### Bug Fixes
 --Fixed responsive text alignment for action buttons in Log Explorer to enhance visual consistency.
+- Fixed issues when loading data from saved queries in Log Explorer.
 
 ## New Features and Improvements
 -- Added organization name in app settings to distinguish alert and notification emails for better clarity.
