@@ -8,6 +8,7 @@ import {SortByType} from '../../../shared/types/sort-by.type';
 import {LogAnalyzerQueryService} from '../../shared/services/log-analyzer-query.service';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 import {LogAnalyzerQueryDeleteComponent} from '../log-analyzer-query-delete/log-analyzer-query-delete.component';
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-log-analyzer-query-list',
@@ -65,7 +66,7 @@ export class LogAnalyzerQueryListComponent implements OnInit {
         queryId: query.id,
         queryName: query.name.toLowerCase().replace(' ', '_'),
         patternId: query.pattern.id,
-        indexPattern: query.pattern.pattern
+        indexPattern: query.pattern.pattern,
       }
     });
   }
