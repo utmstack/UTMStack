@@ -10,6 +10,9 @@ import {TabService} from '../../shared/services/tab.service';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 import {TabType} from '../../shared/type/tab.type';
 import {LogAnalyzerViewComponent} from '../log-analyzer-view/log-analyzer-view.component';
+import {
+  ElasticFilterDefaultTime
+} from "../../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component";
 
 @Component({
   selector: 'app-log-analyzer-tabs',
@@ -31,23 +34,6 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
               private router: Router,
               private indexPatternBehavior: IndexPatternBehavior
             ) {}
-
-  /*ngOnInit() {
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.queryId = params.queryId;
-      const tabName = params.active || null;
-      if (this.queryId) {
-        this.logAnalyzerQueryService.find(this.queryId).subscribe(vis => {
-          this.query = vis.body;
-          this.addNewTab(this.query.name, this.query, params);
-        });
-      } else {
-        if (tabName) {
-          this.tabService.deleteActiveTab();
-        }
-        this.addNewTab();
-      }
-    });*/
 
   ngOnInit(): void {
     this.activatedRoute.queryParams
@@ -103,12 +89,28 @@ export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
       new UtmIndexPattern(1, 'log-*', true);
 
     this.tabService.addTab(
-      new TabType(LogAnalyzerViewComponent, (tabName ? tabName : 'New query ' + this.tabNumber),
-        query ? query : {pattern}, true, null, uuid)
+      new TabType(
+        LogAnalyzerViewComponent,
+        (tabName ? tabName : 'New query ' + this.tabNumber),
+        query ? query : {pattern},
+        true,
+        null,
+        uuid,
+        this.getDefaultTime(query))
     );
 
     if (tabName && pattern) {
         this.indexPatternBehavior.changePattern({pattern, tabUUID: uuid});
+    }
+  }
+
+  getDefaultTime(query: LogAnalyzerQueryType): ElasticFilterDefaultTime {
+    if (query) {
+      const timestampFilter = query.filtersType.find(f => f.field === '@timestamp');
+      return timestampFilter ? new ElasticFilterDefaultTime(timestampFilter.value[0], timestampFilter.value[1]) :
+        new ElasticFilterDefaultTime('now-24h', 'now');
+    } else {
+      return new ElasticFilterDefaultTime('now-24h', 'now');
     }
   }
 

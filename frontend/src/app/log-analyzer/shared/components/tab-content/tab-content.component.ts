@@ -24,5 +24,6 @@ export class TabContentComponent implements OnInit {
     const componentRef = this.contentContainer.viewContainerRef.createComponent(componentFactory);
     (componentRef.instance as SkeletonInterface).data = tab.tabData;
     (componentRef.instance as SkeletonInterface).uuid = tab.uuid;
+    (componentRef.instance as SkeletonInterface).defaultTime = tab.defaultTime;
   }
 }
