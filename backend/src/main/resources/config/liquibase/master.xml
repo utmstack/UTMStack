@@ -77,7 +77,7 @@
 
     <include file="/config/liquibase/changelog/20250303001_udpate_sophos_guide.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20250319001_add_organization_field_config_params.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20250319002_add_organization_field_config_params.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250319001_add_compliance_report.xml" relativeToChangelogFile="false"/>
 
