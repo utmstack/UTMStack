@@ -1,8 +1,11 @@
 # UTMStack 10.7.1 Release Notes
 
 ### Bug Fixes
---Fixed responsive text alignment for action buttons in Log Explorer to enhance visual consistency.
-- Fixed issues when loading data from saved queries in Log Explorer.
+- Fixed responsive text alignment for action buttons in Log Explorer to enhance visual consistency.
+- Fixed issues with loading data from saved queries in Log Explorer, ensuring the correct filter values are applied.
+- Fixed issue where tabs remained open when navigating outside the Log Explorer scope to improve user experience.
+- Fixed time filter issue where the date range was not applied correctly.
+
 
 ## New Features and Improvements
 -- Added organization name in app settings to distinguish alert and notification emails for better clarity.
