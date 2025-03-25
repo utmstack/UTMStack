@@ -84,8 +84,8 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
 
   constructor(public activeModal: NgbActiveModal,
               private timeFilterBehavior: TimeFilterBehavior) {
-    this.maxDateFrom = this.maxDate;
-    this.maxDateTo = this.maxDate;
+    /*this.maxDateFrom = this.maxDate;
+    this.maxDateTo = this.maxDate;*/
   }
 
 
