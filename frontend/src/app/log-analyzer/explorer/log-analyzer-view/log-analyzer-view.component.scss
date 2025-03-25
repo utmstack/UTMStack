@@ -12,7 +12,19 @@ app-log-analyzer-field {
 }
 
 .search-container {
-  flex-basis: 65%;
+  flex-basis: 50%;
+}
+
+@media screen and (min-width: 1550px) and (max-width: 1599px) {
+  .search-container {
+    flex-basis: 55%;
+  }
+}
+
+@media screen and (min-width: 1600px)  {
+  .search-container {
+    flex-basis: 65%;
+  }
 }
 
 .btn-refresh {
