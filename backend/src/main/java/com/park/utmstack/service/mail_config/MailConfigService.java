@@ -18,7 +18,7 @@ public class MailConfigService {
         mailConfig.setUsername(getParamValue(parameters, Constants.PROP_MAIL_USERNAME));
         mailConfig.setPassword(getParamValue(parameters, Constants.PROP_MAIL_PASSWORD));
         mailConfig.setAuthType(getParamValue(parameters, Constants.PROP_MAIL_SMTP_AUTH));
-        mailConfig.setFrom(String.valueOf(new InternetAddress(Constants.CFG.get(Constants.PROP_MAIL_FROM), getParamValue(parameters, Constants.PROP_MAIL_ORGNAME))));
+        mailConfig.setFrom(String.valueOf(new InternetAddress(getParamValue(parameters, Constants.PROP_MAIL_FROM), getParamValue(parameters, Constants.PROP_MAIL_ORGNAME))));
         mailConfig.setPort(Integer.parseInt(getParamValue(parameters, Constants.PROP_MAIL_PORT)));
 
         return mailConfig;
@@ -28,7 +28,7 @@ public class MailConfigService {
         return parameters.stream()
                 .filter(p -> p.getConfParamShort().equals(shortName))
                 .findFirst()
-                . map(UtmConfigurationParameter::getConfParamValue)
+                .map(UtmConfigurationParameter::getConfParamValue)
                 .orElse(Constants.CFG.get(shortName));
     }
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250325001" author="Manuel">
+        <sql>
+            <![CDATA[
+
+            INSERT INTO   utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (118, 'New Dashboard', '/creator/dashboard/builder', 100, 1, null, 2, true, true, null, null);
+
+            INSERT INTO   utm_menu (id, name, url, parent_id, type, dashboard_id, position, menu_active, menu_action, menu_icon, module_name_short)
+            VALUES (119, 'New Visualization', '/creator/visualization/list?onInitAction=showCreateModal', 100, 1, null, 3, true, true, null, null);
+
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (118, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (118, 'ROLE_USER');
+
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (119, 'ROLE_ADMIN');
+            INSERT INTO utm_menu_authority (menu_id, authority_name) VALUES (119, 'ROLE_USER');
+
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
