@@ -112,7 +112,7 @@ public class UtmIncidentQueryService extends QueryService<UtmIncident> {
         Specification<UtmIncident> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), UtmIncident_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), UtmIncident_.id));
             }
             if (criteria.getIncidentName() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getIncidentName(), UtmIncident_.incidentName));

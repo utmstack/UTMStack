@@ -5,6 +5,7 @@
 - Fixed issues with loading data from saved queries in Log Explorer, ensuring the correct filter values are applied.
 - Fixed issue where tabs remained open when navigating outside the Log Explorer scope to improve user experience.
 - Fixed time filter issue where the date range was not applied correctly.
+- Fixed malformed queries when filtering incidents by id.
 
 
 ## New Features and Improvements
