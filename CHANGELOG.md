@@ -11,3 +11,5 @@
 -- Added organization name in app settings to distinguish alert and notification emails for better clarity.
 -- Enhanced the email notification system by including the organization name to improve recipient identification.
 -- Introduced new compliance reports aligned with the PCI DSS standard to expand auditing capabilities.
+- Added new menu item **New Dashboard**.
+- Added new menu item **New Visualization**.
