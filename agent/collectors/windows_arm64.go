@@ -13,6 +13,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
@@ -157,6 +158,7 @@ func (w Windows) Install() error {
 }
 
 func (w Windows) SendSystemLogs() {
+	host, _ := os.Hostname()
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "collector.ps1")
 
@@ -189,8 +191,6 @@ func (w Windows) SendSystemLogs() {
 
 				logLines := strings.Split(string(output), "\n")
 
-				validatedLogs := make([]string, 0, len(logLines))
-
 				for _, logLine := range logLines {
 					validatedLog, _, err := validations.ValidateString(logLine, false)
 					if err != nil {
@@ -198,12 +198,11 @@ func (w Windows) SendSystemLogs() {
 						continue
 					}
 
-					validatedLogs = append(validatedLogs, validatedLog)
-				}
-
-				logservice.LogQueue <- logservice.LogPipe{
-					Src:  string(config.DataTypeWindowsAgent),
-					Logs: validatedLogs,
+					logservice.LogQueue <- &plugins.Log{
+						DataType:   string(config.DataTypeWindowsAgent),
+						DataSource: host,
+						Raw:        validatedLog,
+					}
 				}
 			}()
 		}

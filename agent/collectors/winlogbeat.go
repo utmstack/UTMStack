@@ -1,7 +1,6 @@
 package collectors
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -12,56 +11,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
-type Winlogbeat struct{}
-
-func (w Winlogbeat) Install() error {
-	path := utils.GetMyPath()
-
-	winlogbeatPath := filepath.Join(path, "beats", "winlogbeat")
-	beatConfig := CollectorConfig{
-		LogsPath:    filepath.Join(winlogbeatPath, "logs"),
-		LogFileName: "windowscollector",
-	}
-
-	if isInstalled, err := utils.CheckIfServiceIsInstalled(config.WinServName); err != nil {
-		return fmt.Errorf("error checking if %s service is installed: %v", config.WinServName, err)
-	} else if !isInstalled {
-		err = utils.CreatePathIfNotExist(beatConfig.LogsPath)
-		if err != nil {
-			return fmt.Errorf("error creating %s folder", beatConfig.LogsPath)
-		}
-
-		configFile := filepath.Join(winlogbeatPath, "winlogbeat.yml")
-		templateFile := filepath.Join(path, "templates", "winlogbeat.yml")
-		err = utils.GenerateFromTemplate(beatConfig, templateFile, configFile)
-		if err != nil {
-			return fmt.Errorf("error config from %s: %v", templateFile, err)
-		}
-
-		err = utils.Execute("sc",
-			winlogbeatPath,
-			"create",
-			config.WinServName,
-			"binPath=",
-			fmt.Sprintf("\"%s\\winlogbeat.exe\" --environment=windows_service -c \"%s\\winlogbeat.yml\" --path.home \"%s\" --path.data \"C:\\ProgramData\\winlogbeat\" --path.logs \"C:\\ProgramData\\winlogbeat\\logs\" -E logging.files.redirect_stderr=true", winlogbeatPath, winlogbeatPath, winlogbeatPath),
-			"DisplayName=",
-			config.WinServName,
-			"start=",
-			"auto")
-		if err != nil {
-			return fmt.Errorf("error installing %s service: %s", config.WinServName, err)
-		}
-
-		err = utils.Execute("sc", winlogbeatPath, "start", config.WinServName)
-		if err != nil {
-			return fmt.Errorf("error starting %s service: %s", config.WinServName, err)
-		}
-	}
-
-	return nil
-}
-
-func (w Winlogbeat) SendSystemLogs() {
+func SendSystemLogs() {
 	logLinesChan := make(chan string)
 	path := utils.GetMyPath()
 	winlogbeatLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
@@ -84,21 +34,4 @@ func (w Winlogbeat) SendSystemLogs() {
 			Raw:        validatedLog,
 		}
 	}
-}
-
-func (w Winlogbeat) Uninstall() error {
-	if isInstalled, err := utils.CheckIfServiceIsInstalled(config.WinServName); err != nil {
-		return fmt.Errorf("error checking if %s is running: %v", config.WinServName, err)
-	} else if isInstalled {
-		err = utils.StopService(config.WinServName)
-		if err != nil {
-			return fmt.Errorf("error stopping %s: %v", config.WinServName, err)
-		}
-		err = utils.UninstallService(config.WinServName)
-		if err != nil {
-			return fmt.Errorf("error uninstalling %s: %v", config.WinServName, err)
-		}
-	}
-
-	return nil
 }
