@@ -16,16 +16,16 @@ import (
 var LogsChan = make(chan *plugins.Log)
 
 func ProcessLogs() {
-	filePath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
+	socketsPath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
 	if err != nil {
 		_ = catcher.Error("cannot create socket directory", err, nil)
 		os.Exit(1)
 	}
 
-	socketPath := filePath.FileJoin("engine_server.sock")
+	socketFile := socketsPath.FileJoin("engine_server.sock")
 
 	conn, err := grpc.NewClient(
-		fmt.Sprintf("unix://%s", socketPath),
+		fmt.Sprintf("unix://%s", socketFile),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

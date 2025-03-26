@@ -14,14 +14,14 @@ import (
 )
 
 func sendLog() {
-	filePath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
+	socketsFolder, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
 	if err != nil {
 		_ = catcher.Error("cannot create socket directory", err, nil)
 		os.Exit(1)
 	}
-	socketPath := filePath.FileJoin("com.utmstack.events_output.sock")
+	socketFile := socketsFolder.FileJoin("com.utmstack.events_output.sock")
 
-	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", socketPath),
+	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", socketFile),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		_ = catcher.Error("failed to connect to engine server", err, map[string]any{})

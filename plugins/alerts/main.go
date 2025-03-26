@@ -57,16 +57,16 @@ type AlertFields struct {
 }
 
 func main() {
-	filePath, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
+	socketsFolder, err := utils.MkdirJoin(plugins.WorkDir, "sockets")
 	if err != nil {
 		_ = catcher.Error("cannot create socket directory", err, nil)
 		os.Exit(1)
 	}
 
-	socketPath := filePath.FileJoin("com.utmstack.alerts_correlation.sock")
-	_ = os.Remove(socketPath)
+	socketFile := socketsFolder.FileJoin("com.utmstack.alerts_correlation.sock")
+	_ = os.Remove(socketFile)
 
-	unixAddress, err := net.ResolveUnixAddr("unix", socketPath)
+	unixAddress, err := net.ResolveUnixAddr("unix", socketFile)
 	if err != nil {
 		_ = catcher.Error("cannot resolve unix address", err, nil)
 		os.Exit(1)

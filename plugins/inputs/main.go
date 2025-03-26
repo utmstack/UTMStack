@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 	"os"
-	"path/filepath"
 	"runtime"
 )
 
@@ -54,10 +54,15 @@ func main() {
 }
 
 func loadCerts() (string, string, error) {
-	certsFolder := plugins.PluginCfg("com.utmstack", false).Get("certsFolder").String()
+	certsFolderPath := plugins.PluginCfg("com.utmstack", false).Get("certsFolder").String()
 
-	certPath := filepath.Join(certsFolder, utmCertFileName)
-	keyPath := filepath.Join(certsFolder, utmCertFileKey)
+	certsFolder, err := utils.MkdirJoin(certsFolderPath)
+	if err != nil {
+		return "", "", fmt.Errorf("cannot create certificates directory: %v", err)
+	}
+
+	certPath := certsFolder.FileJoin(utmCertFileName)
+	keyPath := certsFolder.FileJoin(utmCertFileKey)
 
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("certificate file does not exist: %s", certPath)
