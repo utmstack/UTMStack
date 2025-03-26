@@ -1,8 +1,14 @@
 package main
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
+	"time"
+
+	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
@@ -10,11 +16,6 @@ import (
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 	"google.golang.org/api/option"
-	"os"
-	"os/signal"
-	"runtime"
-	"syscall"
-	"time"
 )
 
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
@@ -136,6 +137,10 @@ func startGroupModuleManager() {
 
 func (m *GroupModuleManager) SyncConfigs() {
 	for {
+		if err := ConnectionChecker(CHECKCON); err != nil {
+			_ = catcher.Error("External connection failure detected: %v", err, nil)
+		}
+
 		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
