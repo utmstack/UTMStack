@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 
 	utmconf "github.com/utmstack/config-client-go"
 	"github.com/utmstack/config-client-go/enum"
@@ -33,8 +34,8 @@ func main() {
 	}
 
 	for {
-		if err := utils.ConnectionChecker(configuration.CHECKCON); err != nil {
-			utils.Logger.ErrorF("External connection failure detected: %v", err)
+		if err := ConnectionChecker(CHECKCON); err != nil {
+			_ = catcher.Error("External connection failure detected: %v", err, nil)
 		}
 
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
