@@ -103,6 +103,13 @@ func PostInstallation() error {
 		return err
 	}
 
+	if err := utils.RunCmd("docker", "service", "update", "--force", "utmstack_agentmanager"); err != nil {
+		return err
+	}
+	if err := utils.RunCmd("docker", "service", "update", "--force", "utmstack_log-auth-proxy"); err != nil {
+		return err
+	}
+
 	fmt.Println("Restarting Stack [OK]")
 
 	fmt.Println("Cleaning up Docker system")
