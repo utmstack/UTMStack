@@ -49,6 +49,7 @@ import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   @Input() data: LogAnalyzerQueryType;
   @Input() uuid: string;
+  @Input() defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
   fields: UtmFieldType[] = [];
   rows: any[] = [];
   page = 1;
@@ -79,7 +80,6 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   private sortBy = NatureDataPrefixEnum.TIMESTAMP + ',' + 'desc';
   patterns: UtmIndexPattern[];
   paramLoaded = false;
-  defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
   dateFormat$: Observable<DatePipeDefaultOptions>;
   destroy$ = new Subject<void>();
   filterWidth: number;
@@ -96,8 +96,7 @@ export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
               private elasticDataExportService: ElasticDataExportService,
               private timezoneFormatService: TimezoneFormatService,
               private logFilterBehavior: LogFilterBehavior,
-              private router: Router,
-              private tabService: TabService) {
+              private router: Router) {
 
     this.detailWidth = (this.pageWidth - 310);
   }

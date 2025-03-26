@@ -36,6 +36,8 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			if !connErrMsgWritten {
 				utils.Logger.ErrorF("failed to start AgentStream: %v", err)
 				connErrMsgWritten = true
+			} else {
+				utils.Logger.LogF(100, "failed to start AgentStream: %v", err)
 			}
 			time.Sleep(timeToSleep)
 			continue
@@ -47,6 +49,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			in, err := stream.Recv()
 			if err != nil {
 				if strings.Contains(err.Error(), "EOF") {
+					utils.Logger.LogF(100, "error receiving command from server: %v", err)
 					time.Sleep(timeToSleep)
 					break
 				}
@@ -55,6 +58,8 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 					if !errorLogged {
 						utils.Logger.ErrorF("error receiving command from server: %v", err)
 						errorLogged = true
+					} else {
+						utils.Logger.LogF(100, "error receiving command from server: %v", err)
 					}
 					time.Sleep(timeToSleep)
 					break
@@ -62,6 +67,8 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 					if !errorLogged {
 						utils.Logger.ErrorF("error receiving command from server: %v", err)
 						errorLogged = true
+					} else {
+						utils.Logger.LogF(100, "error receiving command from server: %v", err)
 					}
 					time.Sleep(timeToSleep)
 					continue
@@ -73,6 +80,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 				err = commandProcessor(path, stream, cnf, []string{msg.Command.Command, in.GetCommand().CmdId})
 				if err != nil {
 					if strings.Contains(err.Error(), "EOF") {
+						utils.Logger.LogF(100, "error sending result to server: %v", err)
 						time.Sleep(timeToSleep)
 						break
 					}
@@ -81,6 +89,8 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 						if !errorLogged {
 							utils.Logger.ErrorF("error sending result to server: %v", err)
 							errorLogged = true
+						} else {
+							utils.Logger.LogF(100, "error sending result to server: %v", err)
 						}
 						time.Sleep(timeToSleep)
 						break
@@ -88,6 +98,8 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 						if !errorLogged {
 							utils.Logger.ErrorF("error sending result to server: %v", err)
 							errorLogged = true
+						} else {
+							utils.Logger.LogF(100, "error sending result to server: %v", err)
 						}
 						time.Sleep(timeToSleep)
 						continue
@@ -103,7 +115,7 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	var result string
 	var errB bool
 
-	utils.Logger.Info("Received command: %s", commandPair[0])
+	utils.Logger.LogF(100, "Received command: %s", commandPair[0])
 
 	switch runtime.GOOS {
 	case "windows":
@@ -117,10 +129,9 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	if errB {
 		utils.Logger.ErrorF("error executing command %s: %s", commandPair[0], result)
 	} else {
-		utils.Logger.Info("Result when executing the command %s: %s", commandPair[0], result)
+		utils.Logger.LogF(100, "Result when executing the command %s: %s", commandPair[0], result)
 	}
 
-	// Send the result back to the server
 	if err := stream.Send(&BidirectionalStream{
 		StreamMessage: &BidirectionalStream_Result{
 			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: commandPair[1]},
@@ -128,7 +139,7 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	}); err != nil {
 		return err
 	} else {
-		utils.Logger.Info("Result sent to server successfully!!!")
+		utils.Logger.LogF(100, "Result sent to server successfully!!!")
 	}
 	return nil
 }

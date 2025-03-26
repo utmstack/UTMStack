@@ -13,6 +13,11 @@
         </thead>
         <tbody>
 
+        <tr th:if="${orgName != null && !#strings.isEmpty(orgName)}" style="font-family:Roboto, sans-serif;font-size: 13px">
+            <td style="font-weight: bold;vertical-align: top;" th:text="'Organization:'"></td>
+            <td style="vertical-align: top;" th:text="${orgName}"></td>
+        </tr>
+
         <tr style="font-family:Roboto, sans-serif;font-size: 13px">
             <td style="font-weight: bold;vertical-align: top;" th:text="'Name:'"></td>
             <td style="vertical-align: top;" th:text="${alert.getName()}"></td>

@@ -59,7 +59,6 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool) (strin
 	}
 
 	integration := cnf.Integrations[logTyp]
-
 	switch proto {
 	case "tcp":
 		integration.TCP.IsListen = isEnabled
@@ -172,6 +171,5 @@ func WriteCollectorConfigFromModules(mod []Module, filename string) error {
 			},
 		}
 	}
-
 	return WriteCollectorConfig(integrations, filename)
 }

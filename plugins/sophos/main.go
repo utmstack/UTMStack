@@ -33,6 +33,10 @@ func main() {
 	}
 
 	for {
+		if err := utils.ConnectionChecker(configuration.CHECKCON); err != nil {
+			utils.Logger.ErrorF("External connection failure detected: %v", err)
+		}
+
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {

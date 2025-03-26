@@ -88,21 +88,10 @@ func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 			return nil, fmt.Errorf("failed to connect to Server: %v", err)
 		}
 
-		dialOptions := []grpc.DialOption{
+		conn, err = grpc.NewClient(
+			serverAddress,
 			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)),
-		}
-
-		if !skip {
-			tlsCredentials, err := utils.LoadGRPCTLSCredentials(config.CertPath)
-			if err != nil {
-				return nil, fmt.Errorf("failed to load TLS credentials: %v", err)
-			}
-			dialOptions = append(dialOptions, grpc.WithTransportCredentials(tlsCredentials))
-		} else {
-			dialOptions = append(dialOptions, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
-		}
-
-		conn, err = grpc.NewClient(serverAddress, dialOptions...)
+			grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: skip})))
 		if err != nil {
 			connectionAttemps++
 			utils.Logger.ErrorF("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())

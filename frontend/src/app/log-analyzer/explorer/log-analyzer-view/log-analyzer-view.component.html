@@ -45,7 +45,7 @@
                         (onSaveQuery)="saveQuery()"
                         [filters]="filters"
                         [template]="'log-explorer'"
-                        *ngIf="defaultTime && pattern;else loadingPattern"
+                        *ngIf="defaultTime && pattern; else loadingPattern"
                         [pattern]="pattern.pattern"
                         [defaultTime]="defaultTime"
                         class="flex-grow-1"></app-utm-elastic-filter>

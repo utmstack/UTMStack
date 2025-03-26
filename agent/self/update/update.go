@@ -12,8 +12,8 @@ import (
 func RunUpdate() error {
 	path := utils.GetMyPath()
 
-	newbin := config.GetAgentBin("new")
-	oldbin := config.GetAgentBin("old")
+	newbin := fmt.Sprintf(config.ServiceFile, "_new")
+	oldbin := fmt.Sprintf(config.ServiceFile, "")
 	err := os.Remove(filepath.Join(path, oldbin))
 	if err != nil {
 		return fmt.Errorf("error removing old %s: %v", oldbin, err)

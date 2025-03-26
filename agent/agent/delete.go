@@ -39,6 +39,6 @@ func DeleteAgent(cnf *config.Config) error {
 		utils.Logger.ErrorF("error removing UTMStack Agent from Agent Manager %v", err)
 	}
 
-	utils.Logger.Info("UTMStack Agent removed successfully")
+	utils.Logger.LogF(100, "UTMStack Agent removed successfully from agent manager")
 	return nil
 }

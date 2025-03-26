@@ -9,7 +9,7 @@ import {
   TIMEZONES
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
-import {TimezoneFormatService} from "../../../../services/utm-timezone.service";
+import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
 import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-config-delete-confirm.component';
@@ -122,7 +122,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.changesApplied.emit(false);
   }
 
-  checkConfigValid(): boolean {
+  /*checkConfigValid(): boolean {
     let valid = true;
     for (const conf of this.configs) {
       if (conf.confParamRequired || (conf.confParamRegexp && conf.confParamDatatype === ConfigDataTypeEnum.EmailList)) {
@@ -133,6 +133,17 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       }
     }
     return valid;
+  }*/
+
+  checkConfigValid(): boolean {
+    for (const conf of this.configs) {
+      if (conf.confParamRequired || (conf.confParamRegexp && conf.confParamDatatype === ConfigDataTypeEnum.EmailList)) {
+        if (!this.checkConfigValue(conf)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   checkConfigValue(config: SectionConfigParamType): boolean {
@@ -141,8 +152,16 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         return this.isValid(config);
 
       default:
-        return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
+        return this.isValidConfig(config);
     }
+  }
+
+  isValidConfig(config: SectionConfigParamType): boolean {
+    if (config.confParamRegexp) {
+      return this.isValid(config);
+    }
+
+    return config.confParamValue !== null && config.confParamValue !== '' && config.confParamValue !== undefined;
   }
 
   save($event: any, conf: SectionConfigParamType) {
@@ -187,7 +206,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkedEmailConfig(event: boolean){
+  checkedEmailConfig(event: boolean) {
     this.isCheckedEmailConfig = event;
   }
 

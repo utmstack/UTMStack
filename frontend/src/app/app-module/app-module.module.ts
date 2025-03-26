@@ -60,6 +60,8 @@ import {ModuleResolverService} from "./services/module.resolver.service";
 import {GenericConfiguration} from "./conf/int-generic-group-config/int-config-types/generic-configuration";
 import {CollectorConfiguration} from "./conf/int-generic-group-config/int-config-types/collector-configuration";
 import {IntegrationConfigFactory} from "./conf/int-generic-group-config/int-config-types/IntegrationConfigFactory";
+import {LogCollectorComponent} from './guides/shared/components/log-collector.component';
+import {AgentInstallSelectorComponent} from './guides/shared/components/agent-install-selector.component';
 
 
 @NgModule({
@@ -116,6 +118,8 @@ import {IntegrationConfigFactory} from "./conf/int-generic-group-config/int-conf
     StepDirective,
     AgentActionCommandComponent,
     InstallLogCollectorComponent
+    LogCollectorComponent,
+    AgentInstallSelectorComponent
   ],
   imports: [
     CommonModule,

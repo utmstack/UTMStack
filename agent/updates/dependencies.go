@@ -8,27 +8,21 @@ import (
 	"strings"
 
 	"github.com/utmstack/UTMStack/agent/config"
-	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 
 func DownloadFirstDependencies(address string, authKey string, insecure bool) error {
 	headers := map[string]string{"connection-key": authKey}
 
-	version, _, err := utils.DoReq[models.Version](fmt.Sprintf(config.VersionUrl, address, config.DependenciesPort), nil, "GET", headers, insecure)
-	if err != nil {
-		return fmt.Errorf("error getting agent version: %v", err)
+	if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, "version.json"), headers, "version.json", utils.GetMyPath(), insecure); err != nil {
+		return fmt.Errorf("error downloading version.json : %v", err)
 	}
 
-	dependFiles := GetDependFiles()
+	dependFiles := config.DependFiles
 	for _, file := range dependFiles {
 		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, file), headers, file, utils.GetMyPath(), insecure); err != nil {
 			return fmt.Errorf("error downloading file %s: %v", file, err)
 		}
-	}
-
-	if err := utils.WriteJSON(config.VersionPath, &version); err != nil {
-		return fmt.Errorf("error writing version file: %v", err)
 	}
 
 	if err := handleDependenciesPostDownload(dependFiles); err != nil {
@@ -47,8 +41,8 @@ func handleDependenciesPostDownload(dependencies []string) error {
 			}
 
 			if runtime.GOOS == "linux" {
-				if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", config.UpdaterSelfLinux); err != nil {
-					return fmt.Errorf("error executing chmod on %s: %v", config.UpdaterSelfLinux, err)
+				if err := utils.Execute("chmod", utils.GetMyPath(), "-R", "777", fmt.Sprintf(config.UpdaterSelf, "")); err != nil {
+					return fmt.Errorf("error executing chmod on %s: %v", fmt.Sprintf(config.UpdaterSelf, ""), err)
 				}
 			}
 
@@ -62,19 +56,5 @@ func handleDependenciesPostDownload(dependencies []string) error {
 		}
 	}
 
-	return nil
-}
-
-func GetDependFiles() []string {
-	switch runtime.GOOS {
-	case "windows":
-		return []string{
-			"utmstack_agent_dependencies_windows.zip",
-		}
-	case "linux":
-		return []string{
-			"utmstack_agent_dependencies_linux.zip",
-		}
-	}
 	return nil
 }

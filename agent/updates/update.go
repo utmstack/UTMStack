@@ -2,6 +2,7 @@ package updates
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -34,15 +35,20 @@ func UpdateDependencies(cnf *config.Config) {
 			"type": "agent",
 		}
 
-		newVersion, _, err := utils.DoReq[models.Version](fmt.Sprintf(config.VersionUrl, cnf.Server), nil, "GET", headers, cnf.SkipCertValidation)
+		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), headers, "version_new.json", utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+			utils.Logger.ErrorF("error downloading version.json: %v", err)
+			continue
+		}
+		newVersion := models.Version{}
+		err := utils.ReadJson(filepath.Join(utils.GetMyPath(), "version_new.json"), &newVersion)
 		if err != nil {
-			utils.Logger.ErrorF("error getting agent version: %v", err)
+			utils.Logger.ErrorF("error reading version file: %v", err)
 			continue
 		}
 
 		if newVersion.Version != currentVersion.Version {
 			utils.Logger.Info("New version of agent found: %s", newVersion.Version)
-			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.GetAgentBin("")), headers, config.GetAgentBin("new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.ServiceFile, "")), headers, fmt.Sprintf(config.ServiceFile, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
 				utils.Logger.ErrorF("error downloading agent: %v", err)
 				continue
 			}
@@ -55,12 +61,14 @@ func UpdateDependencies(cnf *config.Config) {
 			}
 
 			if runtime.GOOS == "linux" {
-				if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "777", filepath.Join(utils.GetMyPath(), config.GetAgentBin("_new"))); err != nil {
+				if err = utils.Execute("chmod", utils.GetMyPath(), "-R", "777", filepath.Join(utils.GetMyPath(), fmt.Sprintf(config.ServiceFile, "_new"))); err != nil {
 					utils.Logger.ErrorF("error executing chmod: %v", err)
 				}
 			}
 
-			utils.Execute(config.GetSelfUpdaterPath(), utils.GetMyPath())
+			utils.Execute(fmt.Sprintf(config.UpdaterSelf, ""), utils.GetMyPath())
 		}
+
+		os.Remove(filepath.Join(utils.GetMyPath(), "version_new.json"))
 	}
 }

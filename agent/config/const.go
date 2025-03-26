@@ -2,7 +2,6 @@ package config
 
 import (
 	"path/filepath"
-	"runtime"
 
 	"github.com/utmstack/UTMStack/agent/utils"
 )
@@ -18,7 +17,6 @@ type ProtoPort struct {
 
 var (
 	DependUrl        = "https://%s:%s/private/dependencies/agent/%s"
-	VersionUrl       = "https://%s:%s/private/version"
 	AgentManagerPort = "9000"
 	LogAuthProxyPort = "50051"
 	DependenciesPort = "9001"
@@ -100,25 +98,6 @@ var (
 
 	ProhibitedPortsChange = []DataType{DataTypeCiscoGeneric, DataTypeNetflow}
 )
-
-func GetSelfUpdaterPath() string {
-	path := utils.GetMyPath()
-	if runtime.GOOS == "windows" {
-		return filepath.Join(path, "utmstack_updater_self.exe")
-	}
-	return filepath.Join(path, "utmstack_updater_self")
-}
-
-func GetAgentBin(label string) string {
-	bin := "utmstack_agent_service"
-	if label != "" {
-		bin = "utmstack_agent_service_" + label
-	}
-	if runtime.GOOS == "windows" {
-		bin += ".exe"
-	}
-	return bin
-}
 
 func ValidateModuleType(typ string) string {
 	switch DataType(typ) {

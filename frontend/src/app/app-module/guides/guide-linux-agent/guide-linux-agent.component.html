@@ -16,31 +16,14 @@
         <div>
           <p class="step-guide">
             <span class="step_number">1</span>
-            Install according to your operating system:
+            Install or uninstall the UTMStack agent according to your operating system:
           </p>
           <div class="alert alert-warning alert-styled-right">
           The following commands contains sensitive information, don't share it.
         </div>
-          <h6 class="font-weight-semibold mt-3 mb-3">Ubuntu 16/18/20+</h6>
-
-          <app-utm-code-view [code]="getCommandUbuntu()"></app-utm-code-view>
-
-          <h6 class="font-weight-semibold mt-3 mb-3">Centos 7/Red Hat Enterprise Linux</h6>
-          <app-utm-code-view [code]="getCommandCentos7RedHat()"></app-utm-code-view>
-
-
-          <h6 class="font-weight-semibold mt-3 mb-3">Centos 8/AlmaLinux</h6>
-
-          <app-utm-code-view [code]="getCommandCentos8Almalinux()"></app-utm-code-view>
+          <app-agent-install-selector [platforms]="architectures"></app-agent-install-selector>
         </div>
       </li>
     </ol>
-    <div class="alert alert-warning alert-styled-right">
-      The next information is not part of the installation process, is just in case you need to uninstall the agent
-    </div>
-    <p>
-      To uninstall linux agent, run the following command:
-      <app-utm-code-view [code]="getUninstallCommand()"></app-utm-code-view>
-    </p>
   </div>
 </div>

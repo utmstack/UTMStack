@@ -60,5 +60,7 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 	cnf.AgentID = uint(response.Id)
 	cnf.AgentKey = response.Key
 
+	utils.Logger.LogF(100, "Agent registered with ID: %v", cnf.AgentID)
+
 	return nil
 }

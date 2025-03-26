@@ -1,5 +1,5 @@
 <button (click)="testConfig()"
-        [disabled]="validConfig"
+        [disabled]="validConfig || checking"
         class="btn utm-button utm-button-primary font-size-base span-small-icon">
   <i [ngClass]="checking?'icon-spinner2 spinner':'icon-mail-read'"></i>
   Check email config

@@ -96,5 +96,11 @@
     <include file="/config/liquibase/changelog/20250304001_add_field_adversary.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250317001_update-office365.xml" relativeToChangelogFile="false"/>
+    
+    <include file="/config/liquibase/changelog/20250319002_add_organization_field_config_params.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250319001_add_compliance_report.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250325001_add_create_dashboard_visualization_menu.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

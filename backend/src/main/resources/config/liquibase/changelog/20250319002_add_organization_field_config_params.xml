@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250319002" author="Manuel">
+        <sql>
+            <![CDATA[
+                INSERT INTO utm_configuration_parameter (id, section_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, modification_time, modification_user, conf_param_option, conf_param_regexp)
+                VALUES (10, 2, 'utmstack.mail.organization', 'Organization Name', 'This field helps identify the organization name in incident and alert notification emails.', '', false, 'text', null, null, null, null);
+
+                UPDATE public.utm_configuration_parameter
+                SET conf_param_required = true
+                WHERE id = 4 AND section_id = 2;
+
+                UPDATE public.utm_configuration_parameter
+                SET conf_param_required = true
+                WHERE id = 9 AND section_id = 2;
+
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

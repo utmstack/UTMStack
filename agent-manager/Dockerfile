@@ -1,9 +1,7 @@
 FROM ubuntu:22.04
 
-COPY ./agent-manager/agent-manager /app/
-COPY ./agent/utmstack_agent /dependencies/agent/
-COPY ./agent/utmstack_agent.exe /dependencies/agent/
-COPY ./agent/dependencies/ /dependencies/agent/
+COPY agent-manager /app/
+COPY ./dependencies/agent/ /dependencies/agent/
 
 # Install jq
 RUN apt-get update && \
@@ -22,6 +20,7 @@ RUN GRPCURL_VERSION=1.8.1 && \
 
 # Expose the gRPC agent-manager port
 EXPOSE 50051
+EXPOSE 8080
 
 # Set the health check
 HEALTHCHECK --interval=60s --timeout=5s --start-period=5s --retries=3 CMD grpcurl -insecure -plaintext -d '{"service": ""}' localhost:50051 grpc.health.v1.Health/Check | jq -e '.status == "SERVING"' || exit 1

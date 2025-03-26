@@ -1,10 +1,10 @@
 module github.com/utmstack/UTMStack/agent/self
 
-go 1.22.4
+go 1.23.0
 
 toolchain go1.23.1
 
-require github.com/threatwinds/logger v1.1.12
+require github.com/threatwinds/logger v1.2.1
 
 require (
 	github.com/bytedance/sonic v1.12.6 // indirect
