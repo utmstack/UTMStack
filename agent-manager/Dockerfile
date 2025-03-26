@@ -24,7 +24,7 @@ EXPOSE 50051
 EXPOSE 8080
 
 # Set the health check
-HEALTHCHECK --interval=60s --timeout=5s --start-period=5s --retries=3 CMD grpcurl -insecure -plaintext -d '{"service": ""}' localhost:50051 grpc.health.v1.Health/Check | jq -e '.status == "SERVING"' || exit 1
+# HEALTHCHECK --interval=60s --timeout=5s --start-period=5s --retries=3 CMD grpcurl -insecure -plaintext -d '{"service": ""}' localhost:50051 grpc.health.v1.Health/Check | jq -e '.status == "SERVING"' || exit 1
 
 
 # Run the agent-manager binary
