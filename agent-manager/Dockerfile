@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 COPY agent-manager /app/
 COPY ./dependencies/agent/ /dependencies/agent/
@@ -6,8 +6,8 @@ COPY ./dependencies/collector/ /dependencies/collector/
 
 # Install jq
 RUN apt-get update && \
-    apt-get install -y jq && \
-    apt-get install -y wget && \
+    apt-get install -y ca-certificates jq wget && \
+    update-ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
