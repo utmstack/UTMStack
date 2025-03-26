@@ -15,15 +15,24 @@ func InstallDocker() error {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "ca-certificates", "curl"); err != nil {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"); err != nil {
+	if err := utils.RunEnvCmd(env, "install", "-m", "0755", "-d", "/etc/apt/keyrings"); err != nil {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`); err != nil {
+	if err := utils.RunEnvCmd(env, "curl", "-fsSL", "https://download.docker.com/linux/ubuntu/gpg", "-o", "/etc/apt/keyrings/docker.asc"); err != nil {
+		return err
+	}
+
+	if err := utils.RunEnvCmd(env, "chmod", "a+r", "/etc/apt/keyrings/docker.asc"); err != nil {
+		return err
+	}
+
+	repoCmd := `echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null`
+	if err := utils.RunEnvCmd(env, "sh", "-c", repoCmd); err != nil {
 		return err
 	}
 
@@ -31,7 +40,7 @@ func InstallDocker() error {
 		return err
 	}
 
-	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
+	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose", "docker-buildx-plugin", "docker-compose-plugin"); err != nil {
 		return err
 	}
 
