@@ -3,13 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
-	utmconf "github.com/utmstack/config-client-go"
-	"github.com/utmstack/config-client-go/enum"
-	"github.com/utmstack/config-client-go/types"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,6 +10,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
+	utmconf "github.com/utmstack/config-client-go"
+	"github.com/utmstack/config-client-go/enum"
+	"github.com/utmstack/config-client-go/types"
 )
 
 const delayCheck = 300
@@ -61,6 +62,10 @@ func main() {
 	st := time.Now().Add(-delayCheck * time.Second)
 
 	for {
+		if err := ConnectionChecker(loginUrl); err != nil {
+			_ = catcher.Error("External connection failure detected: %v", err, nil)
+		}
+
 		pConfig := plugins.PluginCfg("com.utmstack", false)
 		backend := pConfig.Get("backend").String()
 		internalKey := pConfig.Get("internalKey").String()
