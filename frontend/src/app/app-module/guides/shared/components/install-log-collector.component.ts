@@ -4,7 +4,7 @@ import {
   ModalConfirmationComponent
 } from '../../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
-import {generate} from "rxjs";
+import {generate} from 'rxjs';
 
 @Component({
   selector: 'app-install-log-collector',

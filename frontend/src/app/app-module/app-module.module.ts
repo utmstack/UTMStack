@@ -10,6 +10,9 @@ import {AppModuleViewComponent} from './app-module-view/app-module-view.componen
 import {IntAwsGroupsComponent} from './conf/int-aws-groups/int-aws-groups.component';
 import {IntAzureEventhubComponent} from './conf/int-azure-eventhub/int-azure-eventhub.component';
 import {IntGenericConfigInputComponent} from './conf/int-generic-config-input/int-generic-config-input.component';
+import {CollectorConfiguration} from './conf/int-generic-group-config/int-config-types/collector-configuration';
+import {GenericConfiguration} from './conf/int-generic-group-config/int-config-types/generic-configuration';
+import {IntegrationConfigFactory} from './conf/int-generic-group-config/int-config-types/IntegrationConfigFactory';
 import {IntGenericGroupConfigComponent} from './conf/int-generic-group-config/int-generic-group-config.component';
 import {IntGoogleProjectsComponent} from './conf/int-google-projects/int-google-projects.component';
 import {IntLdapGroupsComponent} from './conf/int-ldap-groups/int-ldap-groups.component';
@@ -50,18 +53,14 @@ import {GuideVulnerabilitiesComponent} from './guides/guide-vulnerabilities/guid
 import {GuideWebrootComponent} from './guides/guide-webroot/guide-webroot.component';
 import {GuideWindowFaaComponent} from './guides/guide-window-faa/guide-window-faa.component';
 import {GuideWinlogbeatComponent} from './guides/guide-winlogbeat/guide-winlogbeat.component';
+import {AgentActionCommandComponent} from './guides/shared/components/agent-action-command.component';
+import {AgentInstallSelectorComponent} from './guides/shared/components/agent-install-selector.component';
+import {InstallLogCollectorComponent} from './guides/shared/components/install-log-collector.component';
 import {StepComponent, StepDirective} from './guides/shared/components/step.component';
 import {UtmListComponent} from './guides/shared/components/utm-list.component';
 import {ModuleIntegrationComponent} from './module-integration/module-integration.component';
+import {ModuleResolverService} from './services/module.resolver.service';
 import {AppModuleSharedModule} from './shared/app-module-shared.module';
-import {AgentActionCommandComponent} from './guides/shared/components/agent-action-command.component';
-import {InstallLogCollectorComponent} from './guides/shared/components/install-log-collector.component';
-import {ModuleResolverService} from "./services/module.resolver.service";
-import {GenericConfiguration} from "./conf/int-generic-group-config/int-config-types/generic-configuration";
-import {CollectorConfiguration} from "./conf/int-generic-group-config/int-config-types/collector-configuration";
-import {IntegrationConfigFactory} from "./conf/int-generic-group-config/int-config-types/IntegrationConfigFactory";
-import {LogCollectorComponent} from './guides/shared/components/log-collector.component';
-import {AgentInstallSelectorComponent} from './guides/shared/components/agent-install-selector.component';
 
 
 @NgModule({
@@ -117,8 +116,7 @@ import {AgentInstallSelectorComponent} from './guides/shared/components/agent-in
     StepComponent,
     StepDirective,
     AgentActionCommandComponent,
-    InstallLogCollectorComponent
-    LogCollectorComponent,
+    InstallLogCollectorComponent,
     AgentInstallSelectorComponent
   ],
   imports: [
