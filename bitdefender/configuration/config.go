@@ -12,7 +12,6 @@ import (
 
 	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/bitdefender/constants"
-	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 
@@ -36,10 +35,6 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 	client := UTMStackConfigurationClient.NewUTMClient(intKey, "http://"+panelServ)
 	for {
 		time.Sleep(delayCheckConfig)
-
-		if err := utils.ConnectionChecker(constants.URL_CHECK_CONNECTION, h); err != nil {
-			h.ErrorF("Failed to establish connection: %v", err)
-		}
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)
 		if err != nil {
