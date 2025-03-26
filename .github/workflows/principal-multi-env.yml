@@ -9,7 +9,7 @@ on:
 jobs:
   setup_deployment:
     name: Setup Deployment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       env_version: ${{ steps.set-env.outputs.env_version }}
       microservices: ${{ steps.filter.outputs.changes }}
