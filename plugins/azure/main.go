@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
@@ -22,6 +23,7 @@ import (
 
 const delayCheck = 300
 const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+const urlCheckConnection = "https://login.microsoftonline.com/"
 
 func main() {
 	mode := plugins.GetCfg().Env.Mode
@@ -34,6 +36,10 @@ func main() {
 	}
 
 	for {
+		if err := ConnectionChecker(urlCheckConnection); err != nil {
+			_ = catcher.Error("External connection failure detected: %v", err, nil)
+		}
+
 		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
