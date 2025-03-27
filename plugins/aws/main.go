@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
@@ -22,8 +23,9 @@ import (
 )
 
 const (
-	delayCheck    = 300
-	defaultTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	delayCheck         = 300
+	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	urlCheckConnection = "https://sts.amazonaws.com"
 )
 
 func main() {
@@ -39,6 +41,10 @@ func main() {
 	startTime := time.Now().UTC().Add(-1 * delayCheck * time.Second)
 	endTime := time.Now().UTC()
 	for {
+		if err := ConnectionChecker(urlCheckConnection); err != nil {
+			_ = catcher.Error("External connection failure detected: %v", err, nil)
+		}
+
 		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
