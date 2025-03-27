@@ -30,9 +30,9 @@ func ServeDependencies() {
 	group := r.Group("/private", auth.HTTPAuthInterceptor())
 	group.StaticFS("/dependencies", http.Dir("/dependencies"))
 
-	util.GetLogger().Info("Starting HTTP server on port 8080")
+	util.Logger.Info("Starting HTTP server on port 8080")
 	if err := r.RunTLS(":8080", "/cert/utm.crt", "/cert/utm.key"); err != nil {
-		util.GetLogger().ErrorF("error starting HTTP server: %v", err)
+		util.Logger.ErrorF("error starting HTTP server: %v", err)
 		return
 	}
 }

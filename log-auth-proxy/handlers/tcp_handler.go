@@ -12,7 +12,6 @@ import (
 )
 
 func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
-	h := utils.GetLogger()
 	defer conn.Close()
 
 	scanner := bufio.NewScanner(conn)
@@ -21,7 +20,7 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 
 		parts := strings.Split(message, ",LOG:")
 		if len(parts) != 2 {
-			h.ErrorF("INVALID FORMAT expecting AUTH:<token>,LOG:<log>")
+			utils.Logger.ErrorF("INVALID FORMAT expecting AUTH:<token>,LOG:<log>")
 			conn.Write([]byte("INVALID FORMAT expecting AUTH:<token>,LOG:<log>\n"))
 			continue
 		}
@@ -40,6 +39,6 @@ func HandleRequest(conn net.Conn, interceptor *middleware.LogAuthInterceptor, lo
 	}
 
 	if err := scanner.Err(); err != nil {
-		h.ErrorF("Error reading from connection: %s", err.Error())
+		utils.Logger.ErrorF("Error reading from connection: %s", err.Error())
 	}
 }

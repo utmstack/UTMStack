@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM debian:bookworm-slim
 
 RUN apt-get update
 RUN apt-get install -y ca-certificates

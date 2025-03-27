@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/bitdefender/constants"
+	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 
@@ -29,12 +29,16 @@ const delayCheckConfig = 30 * time.Second
 
 var configsSent = make(map[string]ModuleConfig)
 
-func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *logger.Logger) {
+func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 	intKey := constants.GetInternalKey()
 	panelServ := constants.GetPanelServiceName()
 	client := UTMStackConfigurationClient.NewUTMClient(intKey, "http://"+panelServ)
 	for {
 		time.Sleep(delayCheckConfig)
+
+		if err := utils.ConnectionChecker(constants.URL_CHECK_CONNECTION); err != nil {
+			utils.Logger.ErrorF("Failed to establish connection: %v", err)
+		}
 
 		tempModuleConfig, err := client.GetUTMConfig(enum.BITDEFENDER)
 		if err != nil {
@@ -42,7 +46,7 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
-				h.ErrorF("error getting configuration of the Bitdefender module: %v", err)
+				utils.Logger.ErrorF("error getting configuration of the Bitdefender module: %v", err)
 			}
 			continue
 		}
@@ -54,18 +58,18 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 			isNecessaryConfig := compareConfigs(configsSent, group)
 			if isNecessaryConfig {
 				if !araAnyEmpty(group.Configurations[0].ConfValue, group.Configurations[1].ConfValue, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue) {
-					h.Info("new configuration found: groupName: %s, master: %s, CompanyIDs: %s", group.GroupName, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue)
-					if err := confBDGZApiPush(group, "sendConf", h); err != nil {
-						h.ErrorF("error sending configuration")
+					utils.Logger.Info("new configuration found: groupName: %s, master: %s, CompanyIDs: %s", group.GroupName, group.Configurations[2].ConfValue, group.Configurations[3].ConfValue)
+					if err := confBDGZApiPush(group, "sendConf"); err != nil {
+						utils.Logger.ErrorF("error sending configuration")
 						continue
 					}
 					time.Sleep(15 * time.Second)
-					if err := confBDGZApiPush(group, "getConf", h); err != nil {
-						h.ErrorF("error getting configuration")
+					if err := confBDGZApiPush(group, "getConf"); err != nil {
+						utils.Logger.ErrorF("error getting configuration")
 						continue
 					}
-					if err := confBDGZApiPush(group, "sendTest", h); err != nil {
-						h.ErrorF("error sending test event")
+					if err := confBDGZApiPush(group, "sendTest"); err != nil {
+						utils.Logger.ErrorF("error sending test event")
 						continue
 					}
 
@@ -81,8 +85,8 @@ func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex, h *log
 	}
 }
 
-func confBDGZApiPush(config types.ModuleGroup, operation string, h *logger.Logger) error {
-	operationFunc := map[string]func(types.ModuleGroup, *logger.Logger) (*http.Response, error){
+func confBDGZApiPush(config types.ModuleGroup, operation string) error {
+	operationFunc := map[string]func(types.ModuleGroup) (*http.Response, error){
 		"sendConf": sendPushEventSettings,
 		"getConf":  getPushEventSettings,
 		"sendTest": sendTestPushEvent,
@@ -94,22 +98,22 @@ func confBDGZApiPush(config types.ModuleGroup, operation string, h *logger.Logge
 	}
 
 	for i := 0; i < 5; i++ {
-		response, err := fn(config, h)
+		response, err := fn(config)
 		if err != nil {
-			h.ErrorF("%v", err)
+			utils.Logger.ErrorF("%v", err)
 			time.Sleep(1 * time.Minute)
 			continue
 		}
 		defer response.Body.Close()
-		h.Info("Status: %s", response.Status)
+		utils.Logger.Info("Status: %s", response.Status)
 		myBody, _ := io.ReadAll(response.Body)
-		h.Info(string(myBody))
+		utils.Logger.Info("%s", string(myBody))
 
 		if operation == "sendConf" {
 			regex := regexp.MustCompile(`result":true`)
 			match := regex.Match([]byte(string(myBody)))
 			if match {
-				h.Info("Configuration sent correctly")
+				utils.Logger.Info("Configuration sent correctly")
 			}
 		}
 		return nil
@@ -117,34 +121,34 @@ func confBDGZApiPush(config types.ModuleGroup, operation string, h *logger.Logge
 	return fmt.Errorf("error sending configuration")
 }
 
-func sendPushEventSettings(config types.ModuleGroup, h *logger.Logger) (*http.Response, error) {
-	h.Info("Sending configuration...")
+func sendPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
+	utils.Logger.Info("Sending configuration...")
 	byteTemplate := getTemplateSetPush(config)
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		h.ErrorF("error when marshaling the request body to send the configuration: %v", err)
+		utils.Logger.ErrorF("error when marshaling the request body to send the configuration: %v", err)
 		return nil, err
 	}
 	return sendRequest(body, config)
 }
 
-func getPushEventSettings(config types.ModuleGroup, h *logger.Logger) (*http.Response, error) {
-	h.Info("Checking configuration...")
+func getPushEventSettings(config types.ModuleGroup) (*http.Response, error) {
+	utils.Logger.Info("Checking configuration...")
 	byteTemplate := getTemplateGet()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		h.ErrorF("error when marshaling the request body to send the configuration: %v", err)
+		utils.Logger.ErrorF("error when marshaling the request body to send the configuration: %v", err)
 		return nil, err
 	}
 	return sendRequest(body, config)
 }
 
-func sendTestPushEvent(config types.ModuleGroup, h *logger.Logger) (*http.Response, error) {
-	h.Info("Sending Event Test...")
+func sendTestPushEvent(config types.ModuleGroup) (*http.Response, error) {
+	utils.Logger.Info("Sending Event Test...")
 	byteTemplate := getTemplateTest()
 	body, err := json.Marshal(byteTemplate)
 	if err != nil {
-		h.ErrorF("error when marshaling the request body to send the configuration: %v", err)
+		utils.Logger.ErrorF("error when marshaling the request body to send the configuration: %v", err)
 		return nil, err
 	}
 	return sendRequest(body, config)

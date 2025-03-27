@@ -19,26 +19,24 @@ var (
 )
 
 func main() {
-	h := utils.GetLogger()
 	path, err := utils.GetMyPath()
 	if err != nil {
-		h.Fatal("failed to get current path: %v", err)
+		utils.Logger.Fatal("failed to get current path: %v", err)
 	}
 
-	// Generate Certificates
 	certsPath := filepath.Join(path, "certs")
 	err = utils.CreatePathIfNotExist(certsPath)
 	if err != nil {
-		h.Fatal("error creating path: %s", err)
+		utils.Logger.Fatal("error creating path: %s", err)
 	}
 
 	err = utils.GenerateCerts(certsPath)
 	if err != nil {
-		h.Fatal("error generating certificates: %v", err)
+		utils.Logger.Fatal("error generating certificates: %v", err)
 	}
 
-	server.ServerUp(&moduleConfig, certsPath, h)
-	go configuration.ConfigureModules(&moduleConfig, mutex, h)
+	server.ServerUp(&moduleConfig, certsPath)
+	go configuration.ConfigureModules(&moduleConfig, mutex)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT)

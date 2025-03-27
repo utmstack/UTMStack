@@ -6,8 +6,8 @@ import (
 	"time"
 
 	syslog "github.com/RackSec/srslog"
-	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/bitdefender/constants"
+	"github.com/utmstack/UTMStack/bitdefender/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
@@ -30,7 +30,7 @@ func (g *EpsSyslogHelper) Init() {
 }
 
 // SentToSyslog send event by event to syslog server
-func (g *EpsSyslogHelper) SentToSyslog(config *types.ConfigurationSection, events []string, h *logger.Logger) {
+func (g *EpsSyslogHelper) SentToSyslog(config *types.ConfigurationSection, events []string) {
 	for _, syslogMessage := range events {
 		for _, cnf := range config.ConfigurationGroups {
 			companiesIDs := strings.Split(cnf.Configurations[3].ConfValue, ",")
@@ -38,16 +38,16 @@ func (g *EpsSyslogHelper) SentToSyslog(config *types.ConfigurationSection, event
 				pattern := "BitdefenderGZCompanyId=" + compID
 				match, err := regexp.MatchString(pattern, syslogMessage)
 				if err != nil {
-					h.ErrorF("error matching pattern: %v", err)
+					utils.Logger.ErrorF("error matching pattern: %v", err)
 					continue
 				}
 				if match {
 					syslogMessage += " UTM_TENANT=" + cnf.GroupName
 					g.clientSyslog.Warning(syslogMessage)
-					h.Info("message recived: %s", syslogMessage)
+					utils.Logger.Info("message recived: %s", syslogMessage)
 					break
 				} else {
-					h.Info("Event received that is not within the configured CompanyId: %s", syslogMessage)
+					utils.Logger.Info("Event received that is not within the configured CompanyId: %s", syslogMessage)
 				}
 			}
 		}

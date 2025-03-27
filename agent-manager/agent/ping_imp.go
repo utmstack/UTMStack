@@ -10,8 +10,6 @@ import (
 )
 
 func (s *Grpc) Ping(stream PingService_PingServer) error {
-	h := util.GetLogger()
-
 	authResponse, err := s.GetStreamAuth(stream)
 	if err != nil {
 		return err
@@ -31,7 +29,7 @@ func (s *Grpc) Ping(stream PingService_PingServer) error {
 		}
 		err = lastSeenService.Set(key, time.Now())
 		if err != nil {
-			h.ErrorF("unable to update last seen for: %s with error:%s", key, err)
+			util.Logger.ErrorF("unable to update last seen for: %s with error:%s", key, err)
 		}
 	}
 }

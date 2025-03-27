@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	utils.Logger.Info("Starting Log Auth Proxy...")
 	autService := logservice.NewLogAuthService()
 	go autService.SyncAuth()
 	authInterceptor := middleware.NewLogAuthInterceptor(autService)
@@ -31,8 +32,6 @@ func main() {
 }
 
 func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
-	h := utils.GetLogger()
-
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.POST("/v1/log", interceptor.HTTPAuthInterceptor(), handlers.HttpLog(logOutputService))
@@ -42,7 +41,7 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		h.Fatal("failed to load server certificates: %v", err)
+		utils.Logger.Fatal("failed to load server certificates: %v", err)
 	}
 
 	tlsConfig := &tls.Config{
@@ -56,19 +55,17 @@ func startHTTPServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 		TLSConfig: tlsConfig,
 	}
 
-	h.Info("Starting HTTP server on 0.0.0.0:8080")
+	utils.Logger.Info("Starting HTTP server on 0.0.0.0:8080")
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		h.Fatal("Failed to start HTTP server: %v", err)
+		utils.Logger.Fatal("Failed to start HTTP server: %v", err)
 	}
 }
 
 func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputService *logservice.LogOutputService) {
-	h := utils.GetLogger()
-
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		h.Fatal("failed to load server certificates: %v", err)
+		utils.Logger.Fatal("failed to load server certificates: %v", err)
 	}
 
 	tlsConfig := &tls.Config{
@@ -96,11 +93,11 @@ func startGRPCServer(interceptor *middleware.LogAuthInterceptor, logOutputServic
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		h.Fatal("failed to listen grpc server: %v", err)
+		utils.Logger.Fatal("failed to listen grpc server: %v", err)
 	}
 
-	h.Info("Starting gRPC server on 0.0.0.0:50051")
+	utils.Logger.Info("Starting gRPC server on 0.0.0.0:50051")
 	if err := grpcServer.Serve(lis); err != nil {
-		h.Fatal("Failed to serve grpc: %v", err)
+		utils.Logger.Fatal("Failed to serve grpc: %v", err)
 	}
 }
