@@ -21,7 +21,7 @@ func init() {
 			log.Fatalln(err)
 		}
 	} else {
-		level = 400
+		level = 200
 	}
 
 	Logger = logger.NewLogger(&logger.Config{
