@@ -158,11 +158,16 @@ func (w Windows) Install() error {
 }
 
 func (w Windows) SendSystemLogs() {
-	host, _ := os.Hostname()
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "collector.ps1")
 
-	err := os.WriteFile(collectorPath, []byte(PowerShellScript), 0644)
+	host, err := os.Hostname()
+	if err != nil {
+		utils.Logger.ErrorF("error getting hostname: %v", err)
+		host = "unknown"
+	}
+
+	err = os.WriteFile(collectorPath, []byte(PowerShellScript), 0644)
 	if err != nil {
 		_ = utils.Logger.ErrorF("error writing powershell script: %v", err)
 		return
