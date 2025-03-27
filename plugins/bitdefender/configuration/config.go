@@ -3,13 +3,15 @@ package configuration
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/threatwinds/go-sdk/plugins"
+
+	"github.com/utmstack/UTMStack/plugins/bitdefender/utils"
 	"github.com/utmstack/config-client-go/enum"
 	"github.com/utmstack/config-client-go/types"
 
@@ -29,6 +31,9 @@ var configsSent = make(map[string]ModuleConfig)
 
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 	for {
+		if err := utils.ConnectionChecker(URL_CHECK_CONNECTION); err != nil {
+			_ = catcher.Error("External connection failure detected: %v", err, nil)
+		}
 		utmConfig := plugins.PluginCfg("com.utmstack", false)
 		internalKey := utmConfig.Get("internalKey").String()
 		backendUrl := utmConfig.Get("backend").String()
