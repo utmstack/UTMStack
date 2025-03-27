@@ -22,26 +22,28 @@ import (
 )
 
 func main() {
-	h := util.GetLogger()
+	util.Logger.Info("Starting UTMStack Agent Manager")
 
 	defer func() {
 		if r := recover(); r != nil {
 			// Handle the panic here
-			h.ErrorF("Panic occurred: %v", r)
+			util.Logger.ErrorF("Panic occurred: %v", r)
 		}
 	}()
 
+	util.Logger.Info("Initializing database...")
 	config.InitDb()
-	migration.MigrateDatabase(h)
+	migration.MigrateDatabase()
+	util.Logger.Info("[OK] Database initialized")
 
 	s, err := pb.InitGrpc()
 	if err != nil {
-		h.Fatal("Failed to inititialize gRPC: %v", err)
+		util.Logger.Fatal("Failed to inititialize gRPC: %v", err)
 	}
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
 	if err != nil {
-		h.Fatal("failed to load server certificates: %v", err)
+		util.Logger.Fatal("failed to load server certificates: %v", err)
 	}
 
 	tlsConfig := &tls.Config{
@@ -77,15 +79,14 @@ func main() {
 	s.InitPingSync()
 	updates.InitUpdatesManager()
 
-	// Start the gRPC server
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
-		h.Fatal("Failed to listen: %v", err)
+		util.Logger.Fatal("Failed to listen: %v", err)
 	}
 
-	h.Info("Starting gRPC server on 0.0.0.0:50051")
+	util.Logger.Info("Starting gRPC server on 0.0.0.0:50051")
 	if err := grpcServer.Serve(lis); err != nil {
-		h.Fatal("Failed to serve: %v", err)
+		util.Logger.Fatal("Failed to serve: %v", err)
 	}
 }
 
@@ -97,13 +98,10 @@ func recoverInterceptor(
 ) (resp interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			// Handle the panic here
-			h := util.GetLogger()
-			h.ErrorF("Panic occurred: %v", r)
+			util.Logger.ErrorF("Panic occurred: %v", r)
 			err = status.Errorf(codes.Internal, "Internal server error")
 		}
 	}()
 
-	// Call the gRPC handler
 	return handler(ctx, req)
 }

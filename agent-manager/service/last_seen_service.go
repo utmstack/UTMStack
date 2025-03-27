@@ -29,11 +29,9 @@ func NewLastSeenService() *LastSeenService {
 }
 
 func (s *LastSeenService) Start() {
-	h := util.GetLogger()
-	// Populate cache from the database
 	pings, err := s.repo.GetAll()
 	if err != nil {
-		h.ErrorF("Failed to populate LastSeen cache: %v", err)
+		util.Logger.ErrorF("Failed to populate LastSeen cache: %v", err)
 	} else {
 		s.Populate(pings)
 	}
@@ -67,14 +65,13 @@ func (s *LastSeenService) flushCacheToDB() error {
 }
 
 func (s *LastSeenService) flushCachePeriodically() {
-	h := util.GetLogger()
 	for {
 		select {
 		case <-s.ticker.C:
 			// Flush the cache to the database
 			err := s.flushCacheToDB()
 			if err != nil {
-				h.ErrorF("Failed to flush LastSeen cache to database: %v", err)
+				util.Logger.ErrorF("Failed to flush LastSeen cache to database: %v", err)
 			}
 		case <-s.stopCh:
 			return

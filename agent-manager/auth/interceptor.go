@@ -96,10 +96,9 @@ func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamS
 }
 
 func checkKeyAuth(token string, id uint64, fullMethod string) error {
-	h := util.GetLogger()
 	authCache := getAuthCache(fullMethod)
 	if authCache == nil {
-		h.ErrorF("unable to resolve auth cache")
+		util.Logger.ErrorF("unable to resolve auth cache")
 		return status.Error(codes.Unauthenticated, "unable to resolve auth cache")
 	}
 
@@ -146,23 +145,22 @@ func convertMapToAuthResponses(m map[uint]string) []AuthResponse {
 }
 
 func authenticateRequest(md metadata.MD, authName string) error {
-	h := util.GetLogger()
 	authHeader := md.Get(authName)
 
 	if len(authHeader) == 0 {
-		h.ErrorF("%s must be provided", authName)
+		util.Logger.ErrorF("%s must be provided", authName)
 		return status.Error(codes.Unauthenticated, fmt.Sprintf("%s must be provided", authName))
 	}
 
 	if authName == "connection-key" && authHeader[0] != "" {
 		if !validateToken(authHeader[0]) {
-			h.ErrorF("unable to connect with the panel to check the connection-key")
+			util.Logger.ErrorF("unable to connect with the panel to check the connection-key")
 			return status.Error(codes.Unauthenticated, "unable to connect with the panel to check the connection-key")
 		}
 	} else if authName == "internal-key" && authHeader[0] != "" {
 		internalKey := os.Getenv(config.UTMSharedKeyEnv)
 		if authHeader[0] != internalKey {
-			h.ErrorF("internal key does not match")
+			util.Logger.ErrorF("internal key does not match")
 			return status.Error(codes.Unauthenticated, "internal key does not match")
 		}
 	} else {

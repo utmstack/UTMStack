@@ -14,7 +14,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, Logger.ErrorF("%s", err.Error())
 	}
 
 	for k, v := range headers {
@@ -25,13 +25,13 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, Logger.ErrorF("%s", err.Error())
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, Logger.ErrorF("%s", err.Error())
 	}
 
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
@@ -40,7 +40,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return result, http.StatusInternalServerError, Logger.ErrorF(err.Error())
+		return result, http.StatusInternalServerError, Logger.ErrorF("%s", err.Error())
 	}
 
 	return result, resp.StatusCode, nil

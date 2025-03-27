@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM debian:bookworm-slim
 
 COPY log-auth-proxy /app/
 

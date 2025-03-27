@@ -41,12 +41,11 @@ func NewLogOutputService() *LogOutputService {
 }
 
 func (out *LogOutputService) SendLog(logType config.LogType, logData string) {
-	h := utils.GetLogger()
 	out.Mutex.Lock()
 	defer out.Mutex.Unlock()
 	port, err := out.getConnectionPort(logType)
 	if err != nil {
-		h.ErrorF("error getting connection port: %v", err)
+		utils.Logger.ErrorF("error getting connection port: %v", err)
 		return
 	}
 	singleLog := logData + config.UTMLogSeparator
@@ -54,7 +53,6 @@ func (out *LogOutputService) SendLog(logType config.LogType, logData string) {
 }
 
 func (out *LogOutputService) SendBulkLog(logType config.LogType, logDataArray []string) {
-	h := utils.GetLogger()
 	out.Mutex.Lock()
 	defer out.Mutex.Unlock()
 
@@ -65,7 +63,7 @@ func (out *LogOutputService) SendBulkLog(logType config.LogType, logDataArray []
 
 	port, err := out.getConnectionPort(logType)
 	if err != nil {
-		h.ErrorF("error getting connection port: %v", err)
+		utils.Logger.ErrorF("error getting connection port: %v", err)
 		return
 	}
 
@@ -89,22 +87,21 @@ func (out *LogOutputService) getConnectionPort(logType config.LogType) (string, 
 }
 
 func (out *LogOutputService) sendLogsToLogstash(port string, logs string) {
-	h := utils.GetLogger()
 	url := fmt.Sprintf(config.LogstashPipelinesEndpoint, config.LogstashHost(), port)
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
 	if err != nil {
-		h.ErrorF("error creating request: %v", err)
+		utils.Logger.ErrorF("error creating request: %v", err)
 	}
 
 	resp, err := out.Client.Do(req)
 	if err != nil {
 		if !strings.Contains(err.Error(), "Client.Timeout exceeded while awaiting headers") {
-			h.ErrorF("error sending logs with error: %v", err.Error())
+			utils.Logger.ErrorF("error sending logs with error: %v", err.Error())
 		}
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		h.ErrorF("error sending logs with http code %d", resp.StatusCode)
+		utils.Logger.ErrorF("error sending logs with http code %d", resp.StatusCode)
 		return
 	}
 }
@@ -122,13 +119,12 @@ func getServiceMap() (map[config.LogType]string, error) {
 }
 
 func (out *LogOutputService) SyncOutputs() {
-	h := utils.GetLogger()
 	out.Ticker = time.NewTicker(60 * time.Second)
 	go func() {
 		for range out.Ticker.C {
 			serviceMap, err := getServiceMap()
 			if err != nil {
-				h.ErrorF("error getting service map: %v", err)
+				utils.Logger.ErrorF("error getting service map: %v", err)
 				continue
 			}
 			out.Mutex.Lock()

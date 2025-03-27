@@ -9,14 +9,13 @@ import (
 )
 
 func (s *Grpc) ListAgentCommands(ctx context.Context, req *ListRequest) (*ListAgentsCommandsResponse, error) {
-	h := util.GetLogger()
 	page := util.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 
 	filter := util.NewFilter(req.SearchQuery)
 
 	commands, total, err := agentCommandService.ListAgentCommands(page, filter)
 	if err != nil {
-		h.ErrorF("failed to fetch agents: %v", err)
+		util.Logger.ErrorF("failed to fetch agents: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
 	}
 

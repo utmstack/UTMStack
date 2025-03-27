@@ -16,6 +16,7 @@ import (
 const delayCheck = 300
 
 func main() {
+	utils.Logger.Info("Starting aws module...")
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
@@ -23,10 +24,15 @@ func main() {
 	st := time.Now().Add(-600 * time.Second)
 
 	for {
+		if err := utils.ConnectionChecker(configuration.URL_CHECK_CONNECTION); err != nil {
+			utils.Logger.ErrorF("Failed to establish connection: %v", err)
+		}
+
 		et := st.Add(299 * time.Second)
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
+				utils.Logger.LogF(100, "error getting configuration of the AWS module: %v", err)
 				time.Sleep(time.Second * delayCheck)
 				continue
 			}

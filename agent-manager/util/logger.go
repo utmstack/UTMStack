@@ -1,21 +1,31 @@
 package util
 
 import (
-	"sync"
+	"log"
+	"os"
+	"strconv"
 
 	"github.com/threatwinds/logger"
 )
 
-var (
-	aLogger            *logger.Logger
-	loggerOnceInstance sync.Once
-)
+var Logger *logger.Logger
 
-func GetLogger() *logger.Logger {
-	loggerOnceInstance.Do(func() {
-		aLogger = logger.NewLogger(
-			&logger.Config{Format: "text", Level: 200, Output: "stdout"},
-		)
+func init() {
+	lenv := os.Getenv("LOG_LEVEL")
+	var level int
+	var err error
+
+	if lenv != "" && lenv != " " {
+		level, err = strconv.Atoi(lenv)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		level = 200
+	}
+
+	Logger = logger.NewLogger(&logger.Config{
+		Format: "text",
+		Level:  level,
 	})
-	return aLogger
 }

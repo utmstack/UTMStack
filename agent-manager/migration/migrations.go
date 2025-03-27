@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/threatwinds/logger"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/util"
@@ -18,11 +17,11 @@ type Changeset struct {
 	RanAt      time.Time // When the migration was applied
 }
 
-func MigrateDatabase(h *logger.Logger) {
+func MigrateDatabase() {
 	db := config.GetDB()
 	err := db.AutoMigrate(&Changeset{})
 	if err != nil {
-		h.ErrorF("failed to auto-migrate MigrationRecord table: %v", err)
+		util.Logger.ErrorF("failed to auto-migrate MigrationRecord table: %v", err)
 		return
 	}
 	performMigration(db, "performInitialMigrations_15022024_001", "jdieguez89", performInitialMigrations)
@@ -42,31 +41,27 @@ func MigrateDatabase(h *logger.Logger) {
 // - executedBy string: Identifier for who or what executed the migration.
 // - migrationFunc func(*gorm.DB) error: The function to execute for the migration.
 func performMigration(db *gorm.DB, migrationName string, executedBy string, migrationFunc func(*gorm.DB) error) {
-	h := util.GetLogger()
 	var migrationRecord Changeset
 	result := db.Where("name = ?", migrationName).First(&migrationRecord)
 	// If migration hasn't been recorded, perform it
 	if result.RowsAffected == 0 {
 		err := migrationFunc(db)
 		if err != nil {
-			h.ErrorF("Migration failed (%s): %v\n", migrationName, err)
+			util.Logger.ErrorF("Migration failed (%s): %v\n", migrationName, err)
 			return
 		}
 
 		// Record successful migration
 		db.Create(&Changeset{Name: migrationName, RanAt: time.Now(), ExecutedBy: executedBy})
-		h.Info("Migration executed and recorded: %s\n", migrationName)
-	} else {
-		h.Info("Migration already executed: %s\n", migrationName)
+		util.Logger.Info("Migration executed and recorded: %s\n", migrationName)
 	}
 }
 
 // executeSQLCommands execute sql statements
 func executeSQLCommands(db *gorm.DB, sqlCommands []string) error {
-	h := util.GetLogger()
 	for _, sql := range sqlCommands {
 		if err := db.Exec(sql).Error; err != nil {
-			h.ErrorF("Failed to execute SQL command: %v\n", err)
+			util.Logger.ErrorF("Failed to execute SQL command: %v\n", err)
 			return err
 		}
 	}
@@ -77,16 +72,15 @@ func executeSQLCommands(db *gorm.DB, sqlCommands []string) error {
 // tableName is the name of the table from which the column will be deleted.
 // columnName is the name of the column to be deleted.
 func deleteColumnFromTable(db *gorm.DB, table interface{}, columnName string) error {
-	h := util.GetLogger()
 	// Check if the column exists before trying to delete it
 	if db.Migrator().HasColumn(table, columnName) {
 		err := db.Migrator().DropColumn(table, columnName)
 		if err != nil {
-			h.ErrorF("Failed to delete column '%s' from table '%s': %v", columnName, table, err)
+			util.Logger.ErrorF("Failed to delete column '%s' from table '%s': %v", columnName, table, err)
 			return err
 		}
 	} else {
-		h.ErrorF("Column '%s' does not exist in table '%s'.", columnName, table)
+		util.Logger.ErrorF("Column '%s' does not exist in table '%s'.", columnName, table)
 		return nil
 	}
 	return nil
@@ -119,17 +113,16 @@ func performInitialMigrations(db *gorm.DB) error {
 // renameLastSeenTableAndColumn renaming `agent_last_seens` table to `last_seen`
 // and the `agent_key` column to `key`. This table will be used by agents and collectors
 func renameLastSeenTableAndColumnOrCreateTable(db *gorm.DB) error {
-	h := util.GetLogger()
 	// Rename the table from `agent_last_seens` to `last_seen`
 	newName := "last_seens"
 	oldName := "agent_last_seens"
 	if db.Migrator().HasTable(oldName) {
 		if err := db.Migrator().RenameTable("agent_last_seens", newName); err != nil {
-			h.ErrorF("Failed to rename table: %v\n", err)
+			util.Logger.ErrorF("Failed to rename table: %v\n", err)
 			return err
 		}
 		if err := db.Migrator().RenameColumn(&models.LastSeen{}, "agent_key", "key"); err != nil {
-			h.ErrorF("Failed to rename column: %v\n", err)
+			util.Logger.ErrorF("Failed to rename column: %v\n", err)
 			return err
 		}
 		sqlCommands := []string{
@@ -139,7 +132,7 @@ func renameLastSeenTableAndColumnOrCreateTable(db *gorm.DB) error {
 		}
 		err := executeSQLCommands(db, sqlCommands)
 		if err == nil {
-			h.Info("Renamed table and column successfully.")
+			util.Logger.Info("Renamed table and column successfully.")
 		}
 		return err
 

@@ -16,6 +16,7 @@ import (
 const delayCheck = 300
 
 func main() {
+	utils.Logger.Info("Starting O365 module")
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
@@ -23,6 +24,10 @@ func main() {
 	st := time.Now().Add(-600 * time.Second)
 
 	for {
+		if err := utils.ConnectionChecker(configuration.LoginUrl); err != nil {
+			utils.Logger.ErrorF("External connection failure detected: %v", err)
+		}
+
 		et := st.Add(299 * time.Second)
 		startTime := st.UTC().Format("2006-01-02T15:04:05")
 		endTime := et.UTC().Format("2006-01-02T15:04:05")

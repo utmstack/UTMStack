@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM debian:bookworm-slim
 
 COPY agent-manager /app/
 COPY ./dependencies/agent/ /dependencies/agent/

@@ -62,11 +62,10 @@ func (interceptor *LogAuthInterceptor) GrpcRecoverInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
-	h := utils.GetLogger()
 	defer func() {
 		if r := recover(); r != nil {
 			// Handle the panic here
-			h.ErrorF("Panic occurred: %v", r)
+			utils.Logger.ErrorF("Panic occurred: %v", r)
 			err = status.Errorf(codes.Internal, "Internal server error")
 		}
 	}()
@@ -91,11 +90,10 @@ func (interceptor *LogAuthInterceptor) HTTPAuthInterceptor() gin.HandlerFunc {
 	}
 }
 func (interceptor *LogAuthInterceptor) HTTPGitHubAuthInterceptor() gin.HandlerFunc {
-	h := utils.GetLogger()
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			h.ErrorF("error reading request body: %v", err)
+			utils.Logger.ErrorF("error reading request body: %v", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, "error reading request body")
 			return
 		}
