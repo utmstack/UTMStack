@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/utmstack/UTMStack/correlation/ti"
 	"io"
 	"log"
 	"net/http"
@@ -75,7 +74,7 @@ func NewLog(c *gin.Context) {
 	}
 
 	cache.AddToCache(l)
-	ti.Enqueue(l)
+	//ti.Enqueue(l)
 	search.AddToQueue(l)
 	response["status"] = "queued"
 	c.JSON(http.StatusOK, response)
