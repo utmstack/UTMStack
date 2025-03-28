@@ -5,8 +5,10 @@ package collectors
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
@@ -71,24 +73,26 @@ func (w Windows) Install() error {
 }
 
 func (w Windows) SendSystemLogs() {
-	logLinesChan := make(chan []string)
+	logLinesChan := make(chan string)
 	path := utils.GetMyPath()
 	winbLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
+	host, err := os.Hostname()
+	if err != nil {
+		utils.Logger.ErrorF("error getting hostname: %v", err)
+		host = "unknown"
+	}
 
-	go utils.WatchFolder("windowscollector", winbLogPath, logLinesChan, config.BatchCapacity)
+	go utils.WatchFolder("windowscollector", winbLogPath, logLinesChan)
 	for logLine := range logLinesChan {
-		validatedLogs := []string{}
-		for _, log := range logLine {
-			validatedLog, _, err := validations.ValidateString(log, false)
-			if err != nil {
-				utils.Logger.ErrorF("error validating log: %s: %v", log, err)
-				continue
-			}
-			validatedLogs = append(validatedLogs, validatedLog)
+		validatedLog, _, err := validations.ValidateString(logLine, false)
+		if err != nil {
+			utils.Logger.ErrorF("error validating log: %s: %v", logLine, err)
+			continue
 		}
-		logservice.LogQueue <- logservice.LogPipe{
-			Src:  string(config.DataTypeWindowsAgent),
-			Logs: validatedLogs,
+		logservice.LogQueue <- &plugins.Log{
+			DataType:   string(config.DataTypeWindowsAgent),
+			DataSource: host,
+			Raw:        validatedLog,
 		}
 	}
 }
