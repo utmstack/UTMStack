@@ -1,4 +1,4 @@
-FROM FROM ubuntu:24.04
+FROM ubuntu:24.04
 
 COPY agent-manager /app/
 COPY ./dependencies/agent/ /dependencies/agent/
