@@ -6,8 +6,6 @@
 -- Fixed issue where tabs remained open when navigating outside the Log Explorer scope to improve user experience.
 -- Fixed time filter issue where the date range was not applied correctly.
 -- Fixed incorrect query behavior when filtering incidents by ID.
--- Agent Services force update opening necessary ports
-
 
 ## New Features and Improvements
 -- Added organization name in app settings to distinguish alert and notification emails for better clarity.
