@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -17,121 +18,166 @@ type ServiceConfig struct {
 	MaxMemory      int
 }
 
-type serviceLevel struct {
-	Priority int
-	Children []*ServiceConfig
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
-func (s *serviceLevel) balanceMemory(targetMemory int) (int, error) {
-	totalMemory := targetMemory
-	usedMemory := 0
-
-	for _, child := range s.Children {
-		if child.MinMemory > totalMemory {
-			return usedMemory, fmt.Errorf("not enough memory to satisfy minimum for service: %s", child.Name)
-		}
-		child.AssignedMemory = child.MinMemory
-		totalMemory -= child.MinMemory
-		usedMemory += child.MinMemory
+func maxInt(a, b int) int {
+	if a > b {
+		return a
 	}
-
-	averageMemory := totalMemory / len(s.Children)
-
-	for _, child := range s.Children {
-		assignableMemory := min(averageMemory, child.MaxMemory-child.AssignedMemory)
-		child.AssignedMemory += assignableMemory
-		totalMemory -= assignableMemory
-		usedMemory += assignableMemory
-	}
-
-	noLimitChildren := []*ServiceConfig{}
-	for _, child := range s.Children {
-		if child.MaxMemory == 0 {
-			noLimitChildren = append(noLimitChildren, child)
-		}
-	}
-	if len(noLimitChildren) > 0 {
-		memoryPerChild := totalMemory / len(noLimitChildren)
-		for _, child := range noLimitChildren {
-			child.AssignedMemory += memoryPerChild
-			totalMemory -= memoryPerChild
-			usedMemory += memoryPerChild
-		}
-	}
-
-	return usedMemory, nil
+	return b
 }
 
-func (s *serviceLevel) getMinimum() int {
-	totalMinMemory := 0
-	for _, child := range s.Children {
-		totalMinMemory += child.MinMemory
-	}
-
-	return totalMinMemory
+var priorityWeight = map[int]float64{
+	1: 4.0,
+	2: 3.0,
+	3: 2.0,
 }
 
-func balanceMemoryAcrossTrees(trees []*serviceLevel, totalMemory int) error {
-	totalMinMemory := 0
-	for _, tree := range trees {
-		totalMinMemory += tree.getMinimum()
+func getWeight(priority int) float64 {
+	if weight, ok := priorityWeight[priority]; ok {
+		return weight
 	}
-	if totalMemory < totalMinMemory {
-		return fmt.Errorf("your system does not have the minimum required memory: %dMB", totalMinMemory+SYSTEM_RESERVED_MEMORY)
-	}
-
-	sort.Slice(trees, func(i, j int) bool {
-		return trees[i].Priority < trees[j].Priority
-	})
-
-	targetPercentages := []float64{0.7, 0.2, 0.1}
-
-	for i, tree := range trees {
-		targetMemory := int(float64(totalMemory-totalMinMemory) * targetPercentages[i])
-		if targetMemory > totalMemory {
-			targetMemory = totalMemory
-		}
-
-		_, err := tree.balanceMemory(tree.getMinimum() + targetMemory)
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-		}
-	}
-
-	return nil
+	return 1.0
 }
 
-func createServiceLevels(services []ServiceConfig) []*serviceLevel {
-	levelTrees := make(map[int]*serviceLevel)
+func BalanceMemory(services []ServiceConfig, totalSystemMemory int) (map[string]*ServiceConfig, error) {
+	if totalSystemMemory <= SYSTEM_RESERVED_MEMORY {
+		return nil, fmt.Errorf("total system memory (%dMB) is not greater than reserved memory (%dMB)", totalSystemMemory, SYSTEM_RESERVED_MEMORY)
+	}
+	availableMemory := totalSystemMemory - SYSTEM_RESERVED_MEMORY
 
-	for _, sv := range services {
-		sv := sv
-		if _, ok := levelTrees[sv.Priority]; !ok {
-			levelTrees[sv.Priority] = &serviceLevel{Priority: sv.Priority, Children: []*ServiceConfig{}}
+	workingServices := make([]*ServiceConfig, len(services))
+	for i := range services {
+		s := services[i]
+		workingServices[i] = &s
+		workingServices[i].AssignedMemory = 0
+	}
+
+	totalMinMemoryNeeded := 0
+	for _, s := range workingServices {
+		if s.MinMemory < 0 {
+			return nil, fmt.Errorf("service %s has negative MinMemory: %dMB", s.Name, s.MinMemory)
 		}
-		levelTrees[sv.Priority].Children = append(levelTrees[sv.Priority].Children, &sv)
+		if s.MaxMemory != 0 && s.MinMemory > s.MaxMemory {
+			return nil, fmt.Errorf("service %s has MinMemory (%dMB) greater than MaxMemory (%dMB)", s.Name, s.MinMemory, s.MaxMemory)
+		}
+		totalMinMemoryNeeded += s.MinMemory
 	}
 
-	trees := []*serviceLevel{}
-	for _, tree := range levelTrees {
-		trees = append(trees, tree)
+	if totalMinMemoryNeeded > availableMemory {
+		return nil, fmt.Errorf("insufficient memory: Available %dMB < Total Minimum Required %dMB. (System requires %dMB)",
+			availableMemory, totalMinMemoryNeeded, totalMinMemoryNeeded+SYSTEM_RESERVED_MEMORY)
 	}
 
-	return trees
-}
+	memoryUsed := 0
+	for _, s := range workingServices {
+		s.AssignedMemory = s.MinMemory
+		memoryUsed += s.MinMemory
+	}
+	remainingMemory := availableMemory - memoryUsed
 
-func BalanceMemory(services []ServiceConfig, totalMemory int) (map[string]*ServiceConfig, error) {
-	trees := createServiceLevels(services)
-	err := balanceMemoryAcrossTrees(trees, totalMemory)
-	if err != nil {
-		return nil, fmt.Errorf("error distributing memory: %v", err)
+	for remainingMemory > 0 {
+		distributableInThisPass := remainingMemory
+		candidates := []*ServiceConfig{}
+		totalWeight := 0.0
+
+		for _, s := range workingServices {
+			canTakeMore := (s.MaxMemory == 0) || (s.AssignedMemory < s.MaxMemory)
+			if canTakeMore {
+				candidates = append(candidates, s)
+				totalWeight += getWeight(s.Priority)
+			}
+		}
+
+		if len(candidates) == 0 || totalWeight <= 0 {
+			break
+		}
+
+		memoryAssignedInPass := 0
+		sort.SliceStable(candidates, func(i, j int) bool {
+			return candidates[i].Priority < candidates[j].Priority
+		})
+
+		tempAssignments := make(map[string]int)
+		for _, s := range candidates {
+			weight := getWeight(s.Priority)
+			proportionalShare := float64(distributableInThisPass) * (weight / totalWeight)
+
+			remainingCapacity := math.MaxInt
+			if s.MaxMemory != 0 {
+				remainingCapacity = s.MaxMemory - s.AssignedMemory
+			}
+
+			assignAmount := int(math.Floor(proportionalShare))
+			assignAmount = minInt(assignAmount, remainingCapacity)
+			assignAmount = maxInt(0, assignAmount)
+
+			tempAssignments[s.Name] = assignAmount
+			memoryAssignedInPass += assignAmount
+		}
+
+		for _, s := range candidates {
+			s.AssignedMemory += tempAssignments[s.Name]
+		}
+
+		remainingMemory -= memoryAssignedInPass
+
+		if memoryAssignedInPass == 0 && remainingMemory > 0 {
+			break
+		}
 	}
 
+	if remainingMemory > 0 {
+		sort.SliceStable(workingServices, func(i, j int) bool {
+			if workingServices[i].Priority != workingServices[j].Priority {
+				return workingServices[i].Priority < workingServices[j].Priority
+			}
+			if workingServices[i].MaxMemory == 0 && workingServices[j].MaxMemory != 0 {
+				return true
+			}
+			if workingServices[i].MaxMemory != 0 && workingServices[j].MaxMemory == 0 {
+				return false
+			}
+			return workingServices[i].Name < workingServices[j].Name
+		})
+
+		for remainingMemory > 0 {
+			memoryDistributedInSweep := false
+			for _, s := range workingServices {
+				if remainingMemory == 0 {
+					break
+				}
+				canTakeMore := (s.MaxMemory == 0) || (s.AssignedMemory < s.MaxMemory)
+				if canTakeMore {
+					s.AssignedMemory++
+					remainingMemory--
+					memoryDistributedInSweep = true
+				}
+			}
+			if !memoryDistributedInSweep && remainingMemory > 0 {
+				fmt.Printf("WARNING: Unable to distribute final %dMB in sweep phase. Memory might be underutilized.\n", remainingMemory)
+				break
+			}
+		}
+	}
+
+	finalAssignedMemory := 0
 	serviceMap := make(map[string]*ServiceConfig)
-	for _, tree := range trees {
-		for _, service := range tree.Children {
-			serviceMap[service.Name] = service
-		}
+	for _, s := range workingServices {
+		serviceMap[s.Name] = s
+		finalAssignedMemory += s.AssignedMemory
+	}
+
+	if finalAssignedMemory != availableMemory {
+		fmt.Printf("WARNING: Final memory validation failed. Expected %dMB, Assigned %dMB. Discrepancy: %dMB\n",
+			availableMemory, finalAssignedMemory, availableMemory-finalAssignedMemory)
+	} else {
+		fmt.Printf("Memory distribution successful. Total Assigned: %dMB (Available: %dMB)\n", finalAssignedMemory, availableMemory)
 	}
 
 	return serviceMap, nil
