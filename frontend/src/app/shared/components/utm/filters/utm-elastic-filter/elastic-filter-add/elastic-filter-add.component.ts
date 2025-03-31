@@ -250,7 +250,8 @@ export class ElasticFilterAddComponent implements OnInit {
    */
   operatorFieldSelectable(): boolean {
     return this.operator === this.operatorEnum.IS || this.operator === this.operatorEnum.IS_NOT ||
-      this.operator === this.operatorEnum.IS_ONE_OF || this.operator === this.operatorEnum.IS_NOT_ONE_OF;
+      this.operator === this.operatorEnum.IS_ONE_OF || this.operator === this.operatorEnum.IS_NOT_ONE_OF ||
+      this.operator === this.operatorEnum.CONTAIN_ONE_OF || this.operator === this.operatorEnum.DOES_NOT_CONTAIN_ONE_OF;
   }
 
   /**
