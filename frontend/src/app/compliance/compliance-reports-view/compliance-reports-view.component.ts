@@ -79,10 +79,7 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
         })),
         tap(res => this.totalItems = Number(res.headers.get('X-Total-Count'))),
         map((res) => {
-          return res.body.filter(r => r.dashboard.length > 0 && r.dashboard.every(v => v.visualization.pattern.active));
-        }),
-        map((res) => {
-          return res.map((r, index) => {
+          return res.body.map((r, index) => {
             return {
               ...r,
               selected: index === this.selected
