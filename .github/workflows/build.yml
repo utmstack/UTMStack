@@ -131,12 +131,10 @@ jobs:
           $body = @{
               version   = '${{ inputs.version_tag }}'
               changelog = $changelog
-              images    = "ghcr.io/utmstack/utmstack/backend,ghcr.io/utmstack/utmstack/frontend,ghcr.io/utmstack/utmstack/user-auditor,ghcr.io/utmstack/utmstack/web-pdf,ghcr.io/utmstack/utmstack/eventprocessor,ghcr.io/utmstack/utmstack/agent-manager"
-              edition   = "community"
           } | ConvertTo-Json -Depth 3
 
           $response = Invoke-RestMethod -Method Post `
-              -Uri "https://customermanager.utmstack.com/${{ inputs.environment }}/api/v1/releases/register" `
+              -Uri "https://customermanager.utmstack.com/${{ inputs.environment }}/api/v1/versions/register" `
               -Headers @{
                   id  = $cmAuth.id
                   key = $cmAuth.key
