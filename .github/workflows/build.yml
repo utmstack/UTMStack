@@ -53,17 +53,7 @@ jobs:
       - name: Download base images
         run: |
           docker pull ghcr.io/threatwinds/eventprocessor/base:${{ inputs.event_processor_tag }}
-          docker pull ghcr.io/utmstack/utmstack/postgres:base
-          docker pull ghcr.io/utmstack/utmstack/opensearch:base
-          echo "Downloaded base images"
-        
-      - name: Build Opensearch and Postgres image
-        run: |
-          docker tag ghcr.io/utmstack/utmstack/postgres:base ghcr.io/utmstack/utmstack/postgres:${{ inputs.version_tag }}-community
-          docker push ghcr.io/utmstack/utmstack/postgres:${{ inputs.version_tag }}-community
-          docker tag ghcr.io/utmstack/utmstack/opensearch:base ghcr.io/utmstack/utmstack/opensearch:${{ inputs.version_tag }}-community
-          docker push ghcr.io/utmstack/utmstack/opensearch:${{ inputs.version_tag }}-community
-          echo "Postgres and Opensearch images built and pushed"          
+          echo "Downloaded base images"      
 
       - name: Build Agent
         run: |

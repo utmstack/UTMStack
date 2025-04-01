@@ -147,7 +147,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/postgres:${UTMSTACK_TAG}"),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/postgres:latest"),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
@@ -342,7 +342,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
-			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:${UTMSTACK_TAG}"),
+			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:latest"),
 			Ports: []string{
 				"9200:9200",
 			},
