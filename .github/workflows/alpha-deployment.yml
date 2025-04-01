@@ -68,4 +68,13 @@ jobs:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
       CM_AUTH: ${{ secrets.CM_AUTH_ALPHA }}
+
+  schedule:
+    name: Schedule release to alpha
+    needs: deploy
+    runs-on: signing
+    steps:
+      - name: Run publisher
+        run: |
+          Start-Process "C:\dependencies\alpha\version-publisher.exe" -ArgumentList '88.196.79.239', '${{ github.event.inputs.version_tag }}' -Wait
     
