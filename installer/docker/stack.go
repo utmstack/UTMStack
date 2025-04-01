@@ -3,6 +3,7 @@ package docker
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -116,6 +117,30 @@ func StackUP(tag string) error {
 	env := []string{"UTMSTACK_TAG=" + tag}
 	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", "compose.yml", "utmstack"); err != nil {
 		return err
+	}
+
+	err = utils.MoveFolderContents(
+		filepath.Join(GetStackConfig().EventsEngineWorkdir, "build-data", "plugins"),
+		filepath.Join(GetStackConfig().EventsEngineWorkdir, "plugins"),
+	)
+	if err != nil {
+		return fmt.Errorf("error copying plugins: %w", err)
+	}
+
+	err = utils.MoveFolderContents(
+		filepath.Join(GetStackConfig().EventsEngineWorkdir, "build-data", "pipeline"),
+		filepath.Join(GetStackConfig().EventsEngineWorkdir, "pipeline"),
+	)
+	if err != nil {
+		return fmt.Errorf("error copying pipeline: %w", err)
+	}
+
+	err = utils.MoveFolderContents(
+		filepath.Join(GetStackConfig().EventsEngineWorkdir, "build-data", "geolocation"),
+		filepath.Join(GetStackConfig().EventsEngineWorkdir, "geolocation"),
+	)
+	if err != nil {
+		return fmt.Errorf("error copying geolocation: %w", err)
 	}
 
 	return nil

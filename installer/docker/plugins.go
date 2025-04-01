@@ -71,3 +71,7 @@ func (c *PluginsConfig) Set(conf *config.Config, stack *StackConfig) error {
 
 	return nil
 }
+
+func (c *PluginsConfig) UpdatePlugings() error {
+	return nil
+}

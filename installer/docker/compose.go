@@ -147,7 +147,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
 	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
-		Image: utils.PointerOf[string]("postgres:13"),
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/postgres:${UTMSTACK_TAG}"),
 		Environment: []string{
 			"POSTGRES_PASSWORD=" + conf.Password,
 			"PGDATA=/var/lib/postgresql/data/pgdata",
@@ -286,7 +286,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	// TODO: Get eventprocessor version from Customer Manager
 	c.Services["event-processor-manager"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/eventprocessor:${UTMSTACK_TAG}"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
@@ -305,10 +304,11 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"8000:8000",
 		},
 		Volumes: []string{
-			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
-			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "build-data") + ":/build-data",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "geolocation") + ":/workdir/geolocation",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
-			// utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "plugins") + ":/workdir/plugins/utmstack",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
@@ -342,7 +342,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	// temporary create node1 always
 	if true {
 		c.Services["node1"] = Service{
-			Image: utils.PointerOf[string]("opensearchproject/opensearch:2"),
+			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:${UTMSTACK_TAG}"),
 			Ports: []string{
 				"9200:9200",
 			},
