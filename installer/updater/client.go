@@ -50,7 +50,7 @@ func (c *UpdaterClient) CheckUpdate(wait bool) error {
 	if wait {
 		time.Sleep(time.Second * 20)
 	}
-	resp, status, err := utils.DoReq[[]Release](
+	resp, status, err := utils.DoReq[[]UpdateDTO](
 		c.Config.Server+config.GetUpdatesInfoEndpoint,
 		nil,
 		http.MethodGet,
@@ -61,21 +61,21 @@ func (c *UpdaterClient) CheckUpdate(wait bool) error {
 	}
 
 	currentVersion := GetVersion()
-	for _, release := range resp {
-		if release.Version != currentVersion.Version || release.Edition != currentVersion.Edition {
-			fmt.Printf("Updating UTMStack to version %s-%s...\n", release.Version, release.Edition)
-			config.Logger().Info("Updating UTMStack to version %s-%s...", release.Version, release.Edition)
-			err := docker.StackUP(release.Version + "-" + release.Edition)
+	for _, update := range resp {
+		if update.Version.Version != currentVersion.Version || update.Instance.Edition != currentVersion.Edition {
+			fmt.Printf("Updating UTMStack to version %s-%s...\n", update.Version.Version, update.Instance.Edition)
+			config.Logger().Info("Updating UTMStack to version %s-%s...", update.Version.Version, update.Instance.Edition)
+			err := docker.StackUP(update.Version.Version + "-" + update.Instance.Edition)
 			if err != nil {
 				return fmt.Errorf("error updating UTMStack: %v", err)
 			}
 		}
 
-		err := SaveVersion(release)
+		err := SaveVersion(update)
 		if err != nil {
 			return fmt.Errorf("error saving new version: %v", err)
 		}
-		config.Logger().Info("UTMStack updated to version %s-%s", release.Version, release.Edition)
+		config.Logger().Info("UTMStack updated to version %s-%s", update.Version.Version, update.Instance.Edition)
 	}
 
 	return nil

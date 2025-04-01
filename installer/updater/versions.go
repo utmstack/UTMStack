@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	version     = Release{}
+	version     = VersionFile{}
 	versionOnce sync.Once
 )
 
-func GetVersion() Release {
+func GetVersion() VersionFile {
 	versionOnce.Do(func() {
 		if !utils.CheckIfPathExist(config.VersionFilePath) {
 			err := utils.WriteJSON(config.VersionFilePath, &version)
@@ -30,7 +30,10 @@ func GetVersion() Release {
 	return version
 }
 
-func SaveVersion(vers Release) error {
-	version = vers
+func SaveVersion(vers UpdateDTO) error {
+	version.Changelog = vers.Version.Changelog
+	version.Edition = vers.Instance.Edition
+	version.Version = vers.Version.Version
+
 	return utils.WriteJSON(config.VersionFilePath, &version)
 }
