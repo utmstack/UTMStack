@@ -65,7 +65,7 @@ func (s *StackConfig) Populate(c *Config) error {
 		{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 512},
 	}
 
-	total := int(mem.Total/1024/1024) - utils.SYSTEM_RESERVED_MEMORY
+	total := int(mem.Total / 1024 / 1024)
 
 	rsrcs, err := utils.BalanceMemory(services, total)
 	if err != nil {
