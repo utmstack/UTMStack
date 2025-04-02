@@ -1,5 +1,0 @@
-plugins:
-  analysis:
-    order:
-    - com.utmstack.events
-    - cel

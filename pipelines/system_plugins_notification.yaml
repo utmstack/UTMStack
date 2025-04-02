@@ -1,4 +1,0 @@
-plugins:
-  notification:
-    order:
-    - com.utmstack.stats

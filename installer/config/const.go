@@ -7,8 +7,8 @@ import (
 
 const (
 	RegisterInstanceEndpoint   = "/api/v1/instances/register"
-	GetInstanceDetailsEndpoint = "/api/v1/instances/"
-	GetUpdatesInfoEndpoint     = "/api/v1/updates/"
+	GetInstanceDetailsEndpoint = "/api/v1/instances"
+	GetUpdatesInfoEndpoint     = "/api/v1/updates"
 
 	CMAlpha = "https://customermanager.utmstack.com/alpha"
 	CMBeta  = "https://customermanager.utmstack.com/beta"

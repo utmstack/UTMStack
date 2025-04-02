@@ -1,4 +1,0 @@
-plugins:
-  correlation:
-    order:
-    - com.utmstack.alerts

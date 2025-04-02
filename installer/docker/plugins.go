@@ -1,12 +1,11 @@
 package docker
 
 import (
-	"os"
+	"fmt"
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
-	"gopkg.in/yaml.v3"
 )
 
 type PluginsConfig struct {
@@ -14,16 +13,17 @@ type PluginsConfig struct {
 }
 
 type PluginConfig struct {
-	RulesFolder   string        `yaml:"rulesFolder"`
-	GeoIPFolder   string        `yaml:"geoipFolder"`
-	Elasticsearch string        `yaml:"elasticsearch"`
-	PostgreSQL    PostgreConfig `yaml:"postgresql"`
-	ServerName    string        `yaml:"serverName"`
-	InternalKey   string        `yaml:"internalKey"`
-	AgentManager  string        `yaml:"agentManager"`
-	Backend       string        `yaml:"backend"`
-	CertsFolder   string        `yaml:"certsFolder"`
-	BdgzPort      string        `yaml:"bdgzPort"`
+	Order         []string      `yaml:"order,omitempty"`
+	Port          int           `yaml:"port,omitempty"`
+	RulesFolder   string        `yaml:"rulesFolder,omitempty"`
+	GeoIPFolder   string        `yaml:"geoipFolder,omitempty"`
+	Elasticsearch string        `yaml:"elasticsearch,omitempty"`
+	PostgreSQL    PostgreConfig `yaml:"postgresql,omitempty"`
+	ServerName    string        `yaml:"serverName,omitempty"`
+	InternalKey   string        `yaml:"internalKey,omitempty"`
+	AgentManager  string        `yaml:"agentManager,omitempty"`
+	Backend       string        `yaml:"backend,omitempty"`
+	CertsFolder   string        `yaml:"certsFolder,omitempty"`
 }
 
 type PostgreConfig struct {
@@ -34,10 +34,37 @@ type PostgreConfig struct {
 	Database string `yaml:"database"`
 }
 
-func (c *PluginsConfig) Set(conf *config.Config, stack *StackConfig) error {
-	c.Plugins = make(map[string]PluginConfig)
+func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
+	analysisPipeline := PluginsConfig{}
+	analysisPipeline.Plugins = make(map[string]PluginConfig)
+	analysisPipeline.Plugins["analysis"] = PluginConfig{
+		Order: []string{"com.utmstack.events", "cel"},
+	}
 
-	c.Plugins["com.utmstack"] = PluginConfig{
+	correlationPipeline := PluginsConfig{}
+	correlationPipeline.Plugins = make(map[string]PluginConfig)
+	correlationPipeline.Plugins["correlation"] = PluginConfig{
+		Order: []string{"com.utmstack.events"},
+	}
+
+	inputPipeline := PluginsConfig{}
+	inputPipeline.Plugins = make(map[string]PluginConfig)
+	inputPipeline.Plugins["http-input"] = PluginConfig{
+		Port: 8082,
+	}
+	inputPipeline.Plugins["grpc-input"] = PluginConfig{
+		Port: 8083,
+	}
+
+	notificationPipeline := PluginsConfig{}
+	notificationPipeline.Plugins = make(map[string]PluginConfig)
+	notificationPipeline.Plugins["notification"] = PluginConfig{
+		Order: []string{"com.utmstack.stats"},
+	}
+
+	utmstackPipeline := PluginsConfig{}
+	utmstackPipeline.Plugins = make(map[string]PluginConfig)
+	utmstackPipeline.Plugins["com.utmstack"] = PluginConfig{
 		RulesFolder:   "/workdir/rules",
 		GeoIPFolder:   "/workdir/geolocation",
 		Elasticsearch: "http://node1:9200",
@@ -55,23 +82,33 @@ func (c *PluginsConfig) Set(conf *config.Config, stack *StackConfig) error {
 		CertsFolder:  "/cert",
 	}
 
-	config, err := yaml.Marshal(c)
-	if err != nil {
-		return err
-	}
-
 	pipelineDir := filepath.Join(stack.EventsEngineWorkdir, "pipeline")
-
 	utils.CreatePathIfNotExist(pipelineDir)
 
-	err = os.WriteFile(filepath.Join(pipelineDir, "utmstack_plugins.yaml"), config, 0644)
+	err := utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_analysis.yaml"), analysisPipeline)
 	if err != nil {
-		return err
+		return fmt.Errorf("error writing analysis pipeline config: %w", err)
 	}
 
-	return nil
-}
+	err = utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_correlation.yaml"), correlationPipeline)
+	if err != nil {
+		return fmt.Errorf("error writing correlation pipeline config: %w", err)
+	}
 
-func (c *PluginsConfig) UpdatePlugings() error {
+	err = utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_input.yaml"), inputPipeline)
+	if err != nil {
+		return fmt.Errorf("error writing input pipeline config: %w", err)
+	}
+
+	err = utils.WriteYAML(filepath.Join(pipelineDir, "system_plugins_notification.yaml"), notificationPipeline)
+	if err != nil {
+		return fmt.Errorf("error writing notification pipeline config: %w", err)
+	}
+
+	err = utils.WriteYAML(filepath.Join(pipelineDir, "utmstack_plugins.yaml"), utmstackPipeline)
+	if err != nil {
+		return fmt.Errorf("error writing UTMStack pipeline config: %w", err)
+	}
+
 	return nil
 }

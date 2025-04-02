@@ -11,6 +11,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func GetMyPath() string {
+	ex, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+	exPath := filepath.Dir(ex)
+	return exPath
+}
+
 func RunEnvCmd(env []string, command string, arg ...string) error {
 	cmd := exec.Command(command, arg...)
 	cmd.Env = append(os.Environ(), env...)
