@@ -5,6 +5,9 @@ import {UUID} from 'angular2-uuid';
 import {debounceTime} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {
+  OperatorService
+} from '../../../../../shared/components/utm/filters/utm-elastic-filter/shared/util/operator.service';
+import {
   ALERT_CATEGORY_DESCRIPTION_FIELD,
   ALERT_DESCRIPTION_FIELD,
   ALERT_FIELDS,
@@ -36,6 +39,7 @@ import {AlertTags} from '../../../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {OperatorsType} from '../../../../../shared/types/filter/operators.type';
+import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../../shared/util/input-class-resolve';
 import {AlertRuleType} from '../../../alert-rules/alert-rule.type';
@@ -45,6 +49,7 @@ import {AlertManagementService} from '../../services/alert-management.service';
 import {AlertRulesService} from '../../services/alert-rules.service';
 import {AlertTagService} from '../../services/alert-tag.service';
 import {setAlertPropertyValue} from '../../util/alert-util-function';
+import {ElasticSearchFieldInfoType} from "../../../../../shared/types/elasticsearch/elastic-search-field-info.type";
 
 @Component({
   selector: 'app-alert-rule-create',
@@ -104,7 +109,8 @@ export class AlertRuleCreateComponent implements OnInit {
               private utmToastService: UtmToastService,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private alertServiceManagement: AlertManagementService,
-              private alertTagService: AlertTagService) {
+              private alertTagService: AlertTagService,
+              private operatorService: OperatorService) {
     this.fields = ALERT_FIELDS.filter(value => !this.excludeFields.includes(value.field));
     this.operators = FILTER_OPERATORS.filter(value => !this.excludeOperators.includes(value.operator));
   }
@@ -240,5 +246,13 @@ export class AlertRuleCreateComponent implements OnInit {
 
   isFalsePositive() {
     return this.selected.findIndex(value => value.tagName.includes('False positive')) !== -1;
+  }
+
+  getOperators(filter: ElasticFilterType) {
+    const field  = this.fields.find(f => f.field === filter.field);
+    if (field) {
+      return this.operatorService.getOperators({name: field.field, type: field.type}, this.operators);
+    }
+    return this.operators;
   }
 }

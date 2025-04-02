@@ -13,6 +13,7 @@ import {ElasticFilterType} from '../../../../../types/filter/elastic-filter.type
 import {OperatorsType} from '../../../../../types/filter/operators.type';
 import {TimeFilterType} from '../../../../../types/time-filter.type';
 import {resolveIcon} from '../../../../../util/elastic-fields.util';
+import {OperatorService} from '../shared/util/operator.service';
 
 @Component({
   selector: 'app-elastic-filter-add',
@@ -63,7 +64,8 @@ export class ElasticFilterAddComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
               private fieldDataBehavior: FieldDataService,
-              private elasticSearchIndexService: ElasticSearchIndexService) {
+              private elasticSearchIndexService: ElasticSearchIndexService,
+              private operatorService: OperatorService) {
   }
 
   ngOnInit() {
@@ -289,14 +291,15 @@ export class ElasticFilterAddComponent implements OnInit {
     }
   }
 
-  /**
+  /*/!**
    * Return operators based on field type
-   */
+   *!/
   getOperators() {
     const index = this.getIndexField();
     if (index !== -1) {
       const fieldType = this.fields[index].type;
-      if (fieldType === ElasticDataTypesEnum.TEXT || fieldType === ElasticDataTypesEnum.STRING) {
+      if (fieldType === ElasticDataTypesEnum.TEXT || fieldType === ElasticDataTypesEnum.STRING ||
+        fieldType === ElasticDataTypesEnum.KEYWORD) {
         if (!this.field.name.includes('.keyword')) {
           this.operators = FILTER_OPERATORS.filter(value =>
             value.operator !== ElasticOperatorsEnum.IS_BETWEEN &&
@@ -306,17 +309,30 @@ export class ElasticFilterAddComponent implements OnInit {
             value.operator !== ElasticOperatorsEnum.IS_BETWEEN &&
             value.operator !== ElasticOperatorsEnum.CONTAIN &&
             value.operator !== ElasticOperatorsEnum.DOES_NOT_CONTAIN &&
-            value.operator !== ElasticOperatorsEnum.IS_NOT_BETWEEN);
+            value.operator !== ElasticOperatorsEnum.IS_NOT_BETWEEN &&
+            value.operator !== ElasticOperatorsEnum.ENDS_WITH &&
+            value.operator !== ElasticOperatorsEnum.NOT_ENDS_WITH &&
+            value.operator !== ElasticOperatorsEnum.START_WITH &&
+            value.operator !== ElasticOperatorsEnum.NOT_START_WITH);
         }
 
       } else if (fieldType === ElasticDataTypesEnum.LONG ||
         fieldType === ElasticDataTypesEnum.NUMBER || fieldType === ElasticDataTypesEnum.DATE) {
         this.operators = FILTER_OPERATORS.filter(value =>
           value.operator !== ElasticOperatorsEnum.CONTAIN &&
-          value.operator !== ElasticOperatorsEnum.DOES_NOT_CONTAIN);
+          value.operator !== ElasticOperatorsEnum.DOES_NOT_CONTAIN &&
+          value.operator !== ElasticOperatorsEnum.START_WITH &&
+          value.operator !== ElasticOperatorsEnum.NOT_START_WITH);
       } else {
         this.operators = FILTER_OPERATORS;
       }
+    }
+  }*/
+
+  getOperators() {
+    const index = this.getIndexField();
+    if (index !== -1) {
+      this.operators = this.operatorService.getOperators(this.fields[index], this.operators);
     }
   }
 

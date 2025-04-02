@@ -86,7 +86,7 @@
       <span class="text-blue-800 rule-label">{{getFieldName(filter.field)}}:&nbsp;</span>
       <ng-select
         [clearable]="false"
-        [items]="operators"
+        [items]="getOperators(filter)"
         [(ngModel)]="filter.operator"
         [loadingText]="'Loading operators....'"
         [loading]="!operators"
