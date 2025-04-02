@@ -76,5 +76,6 @@ jobs:
     steps:
       - name: Run publisher
         run: |
-          Start-Process "C:\dependencies\alpha\version-publisher.exe" -ArgumentList '88.196.79.239', '${{ github.event.inputs.version_tag }}' -Wait
+          Start-Process "C:\dependencies\alpha\version-publisher.exe" -ArgumentList '88.196.79.239', '${{ github.event.inputs.version_tag }}' -Wait -NoNewWindow
+          echo "Scheduled release to alpha for version ${{ github.event.inputs.version_tag }}."
     
