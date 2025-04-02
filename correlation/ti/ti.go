@@ -93,7 +93,7 @@ func IsBlocklisted() {
 		},
 	}
 
-	numCPU := runtime.NumCPU() * 2
+	numCPU := runtime.NumCPU()
 	for i := 0; i < numCPU; i++ {
 		go func() {
 			for {
