@@ -119,7 +119,7 @@ func IsBlocklisted() {
 
 					}
 
-					cache.Add(sourceIp.String(), "true")
+					cache.Add(sourceIp.String(), "false")
 				}
 
 				if !cache.IsCached(destinationIp.String()) {
@@ -138,7 +138,7 @@ func IsBlocklisted() {
 						)
 					}
 
-					cache.Add(destinationIp.String(), "true")
+					cache.Add(destinationIp.String(), "false")
 				}
 			}
 		}()
