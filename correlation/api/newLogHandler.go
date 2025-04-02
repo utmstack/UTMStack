@@ -68,7 +68,7 @@ func NewLog(c *gin.Context) {
 	if !gjson.Get(l, "dataType").Exists() ||
 		!gjson.Get(l, "dataSource").Exists() {
 		response["status"] = "error"
-		response["error"] = "The log does't have the required fields. Please be sure that you are sending the @timestamp in RFC3339Nano format, the dataType that could be windows, linux, iis, macos, ... and the dataSource that could be the Hostname or IP of the log source."
+		response["error"] = "The log doesn't have the required fields. Please be sure that you are sending the @timestamp in RFC3339Nano format, the dataType that could be windows, linux, iis, macos, ... and the dataSource that could be the Hostname or IP of the log source."
 		log.Printf("%s LOG: %s", response["error"], l)
 		c.JSON(http.StatusBadRequest, response)
 		return
