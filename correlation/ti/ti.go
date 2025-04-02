@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type Cache map[string]string
+type Cache map[string]bool
 
 var blockList map[string]string
 var channel chan string
@@ -45,10 +45,10 @@ func blocked(log string) bool {
 	return false
 }
 
-func (c *Cache) Add(k, v string) {
+func (c *Cache) Add(k string) {
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
-	(*c)[k] = v
+	(*c)[k] = false
 }
 
 func (c *Cache) IsCached(k string) bool {
@@ -119,7 +119,7 @@ func IsBlocklisted() {
 
 					}
 
-					cache.Add(sourceIp.String(), "false")
+					cache.Add(sourceIp.String())
 				}
 
 				if !cache.IsCached(destinationIp.String()) {
@@ -138,7 +138,7 @@ func IsBlocklisted() {
 						)
 					}
 
-					cache.Add(destinationIp.String(), "false")
+					cache.Add(destinationIp.String())
 				}
 			}
 		}()
