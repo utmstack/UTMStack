@@ -210,7 +210,7 @@ public class UtmDataInputStatusService {
                                     .source(dataSource)
                                     .timestamp(timestamp)
                                     .median(86400L)
-                                    .id(dataType + dataSource)
+                                    .id(String.join("-", dataType, dataSource))
                                     .build());
 
                     dataInputStatusRepository.save(dataInputStatus);
