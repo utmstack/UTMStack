@@ -21,6 +21,26 @@ type StackConfig struct {
 	ShmFolder         string
 }
 
+var Services = []utils.ServiceConfig{
+	{Name: "correlation", Priority: 1, MinMemory: 3 * 1024, MaxMemory: 60 * 1024},
+	{Name: "logstash", Priority: 1, MinMemory: 2700, MaxMemory: 60 * 1024},
+	{Name: "opensearch", Priority: 1, MinMemory: 4500, MaxMemory: 60 * 1024},
+	{Name: "log-auth-proxy", Priority: 1, MinMemory: 1 * 1024, MaxMemory: 4 * 1024},
+	{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 8 * 1024},
+	{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
+	{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 1 * 1024},
+	{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
+	{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
+	{Name: "mutate", Priority: 3, MinMemory: 50, MaxMemory: 1024},
+	{Name: "aws", Priority: 3, MinMemory: 50, MaxMemory: 1024},
+	{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 512},
+	{Name: "sophos", Priority: 3, MinMemory: 50, MaxMemory: 1024},
+	{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
+	{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 512},
+	{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 100},
+	{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 100},
+}
+
 func (s *StackConfig) Populate(c *Config) error {
 	cores, err := cpu.Counts(false)
 	if err != nil {
@@ -45,29 +65,9 @@ func (s *StackConfig) Populate(c *Config) error {
 	s.LocksDir = utils.MakeDir(0777, c.DataDir, "locks")
 	s.ShmFolder = utils.MakeDir(0777, c.DataDir, "tmpfs")
 
-	services := []utils.ServiceConfig{
-		{Name: "correlation", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
-		{Name: "logstash", Priority: 1, MinMemory: 2700, MaxMemory: 60 * 1024},
-		{Name: "opensearch", Priority: 1, MinMemory: 4500, MaxMemory: 60 * 1024},
-		{Name: "log-auth-proxy", Priority: 1, MinMemory: 128, MaxMemory: 512},
-		{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
-		{Name: "web-pdf", Priority: 2, MinMemory: 1024, MaxMemory: 2 * 1024},
-		{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 1 * 1024},
-		{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
-		{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
-		{Name: "mutate", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "aws", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "filebrowser", Priority: 3, MinMemory: 50, MaxMemory: 512},
-		{Name: "sophos", Priority: 3, MinMemory: 50, MaxMemory: 1024},
-		{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
-		{Name: "socai", Priority: 3, MinMemory: 30, MaxMemory: 1024},
-		{Name: "bitdefender", Priority: 3, MinMemory: 30, MaxMemory: 512},
-		{Name: "office365", Priority: 3, MinMemory: 30, MaxMemory: 512},
-	}
+	total := int(mem.Total / 1024 / 1024)
 
-	total := int(mem.Total/1024/1024) - utils.SYSTEM_RESERVED_MEMORY
-
-	rsrcs, err := utils.BalanceMemory(services, total)
+	rsrcs, err := utils.BalanceMemory(Services, total)
 	if err != nil {
 		return err
 	}
