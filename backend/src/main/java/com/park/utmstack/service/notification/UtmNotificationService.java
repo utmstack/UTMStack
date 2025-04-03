@@ -1,5 +1,6 @@
 package com.park.utmstack.service.notification;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.notification.*;
 import com.park.utmstack.repository.notification.UtmNotificationRepository;
 import com.park.utmstack.service.MailService;
@@ -17,6 +18,7 @@ import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -107,7 +109,9 @@ public class UtmNotificationService {
     @Scheduled(fixedDelay = 4320000)
     public void checkEmailConfig() {
         try {
-            this.mailService.getJavaMailSender();
+            if(Objects.nonNull(Constants.CFG.get(Constants.PROP_MAIL_SMTP_AUTH))){
+                this.mailService.getJavaMailSender();
+            }
         } catch (MessagingException e) {
             this.sendNotification(e.getMessage(), NotificationSource.EMAIL_SETTING, NotificationType.ERROR);
         }
