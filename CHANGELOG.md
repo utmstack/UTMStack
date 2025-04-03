@@ -2,3 +2,4 @@
 
 ## New Features and Improvements
 -- Significant improvement in CPU performance
+-- Improved memory distribution
