@@ -11,5 +11,6 @@ export enum ElasticDataTypesEnum {
   IP = 'ip',
   GEO = 'GEO',
   OBJECT = 'object',
-  BOOLEAN = 'boolean'
+  BOOLEAN = 'boolean',
+  KEYWORD = 'keyword'
 }
