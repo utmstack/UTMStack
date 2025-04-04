@@ -7,6 +7,7 @@ import {CpReportsService} from '../../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../../shared/type/compliance-standard-section.type';
 import {UtmCpReportDeleteComponent} from './utm-cp-report-delete/utm-cp-report-delete.component';
+import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-utm-cp-reports',
@@ -28,6 +29,7 @@ export class UtmCpReportsComponent implements OnInit {
   constructor(private cpReportsService: CpReportsService,
               public cpStandardSectionBehavior: CpStandardSectionBehavior,
               private cpReportBehavior: CpReportBehavior,
+              private environment: EnvironmentService,
               private modalService: NgbModal) {
   }
 
@@ -49,6 +51,10 @@ export class UtmCpReportsComponent implements OnInit {
       }
     });
 
+  }
+
+  isDev(){
+    return this.environment.isDev();
   }
 
   getReports() {

@@ -17,6 +17,7 @@ import {DashboardImportComponent} from '../dashboard-import/dashboard-import.com
 import {UtmDashboardVisualizationService} from '../shared/services/utm-dashboard-visualization.service';
 import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 import {buildDashboardUrl} from '../shared/util/get-menu-url';
+import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-dashboard-list',
@@ -51,6 +52,7 @@ export class DashboardListComponent implements OnInit {
               private dashboardService: UtmDashboardService,
               private utmToastService: UtmToastService,
               private spinner: NgxSpinnerService,
+              private environment: EnvironmentService,
               private dashboardVisualizationService: UtmDashboardVisualizationService,
               private router: Router) {
   }
@@ -62,6 +64,10 @@ export class DashboardListComponent implements OnInit {
       sort: this.sortBy,
     };
     this.getDashboardList();
+  }
+
+  isDev(){
+    return this.environment.isDev();
   }
 
   onSortBy($event) {
