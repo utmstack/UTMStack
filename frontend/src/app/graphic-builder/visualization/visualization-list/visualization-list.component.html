@@ -126,11 +126,11 @@
               </td>
               <td class="td-action">
                 <div class="d-flex justify-content-end align-items-center medium-icon">
-                  <i *ngIf="!vis.systemOwner"  (click)="editVisualization(vis)"
+                  <i *ngIf="!vis.systemOwner || isDev()"  (click)="editVisualization(vis)"
                      class="icon-pencil3 cursor-pointer mr-3"
                      ngbTooltip="Edit visualization" tooltipClass="utm-tooltip-top"></i>
 
-                  <i *ngIf="!vis.systemOwner" (click)="deleteVisualization(vis)" class="icon-cross2 cursor-pointer"
+                  <i *ngIf="!vis.systemOwner || isDev()" (click)="deleteVisualization(vis)" class="icon-cross2 cursor-pointer"
                      ngbTooltip="Delete visualization"
                      placement="left"
                      tooltipClass="utm-tooltip"></i>

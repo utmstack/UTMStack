@@ -52,12 +52,12 @@
                       Generate Report
         </span>
         <span *ngIf="manage" class="d-flex span-small-icon">
-           <i (click)="editSection(section)"
+           <i *ngIf="!section.standard.systemOwner || isDev()" (click)="editSection(section)"
               class="icon-pencil mr-2 cursor-pointer"
               container="body"
               ngbTooltip="Edit section"
               placement="bottom" tooltipClass="utm-tooltip-bottom"></i>
-           <i (click)="deleteSection(section)"
+           <i *ngIf="!section.standard.systemOwner || isDev()" (click)="deleteSection(section)"
               class="icon-cross2 cursor-pointer"
               container="body"
               ngbTooltip="Delete section"
