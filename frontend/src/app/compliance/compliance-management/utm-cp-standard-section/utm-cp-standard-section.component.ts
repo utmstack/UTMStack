@@ -8,7 +8,6 @@ import {CpStandardSectionService} from '../../shared/services/cp-standard-sectio
 import {ComplianceStandardSectionType} from '../../shared/type/compliance-standard-section.type';
 import {ComplianceStandardType} from '../../shared/type/compliance-standard.type';
 import {UtmCpStandardSectionDeleteComponent} from './utm-cp-standard-section-delete/utm-cp-standard-section-delete.component';
-import {EnvironmentService} from '../../../shared/services/util/enviroment.service';
 
 @Component({
   selector: 'app-utm-cp-standard-section',
@@ -29,7 +28,6 @@ export class UtmCpStandardSectionComponent implements OnInit {
   constructor(private cpStandardSectionService: CpStandardSectionService,
               private cpStandardBehavior: CpStandardBehavior,
               public cpStandardSectionBehavior: CpStandardSectionBehavior,
-              private environment: EnvironmentService,
               private modalService: NgbModal) {
   }
 
@@ -50,10 +48,6 @@ export class UtmCpStandardSectionComponent implements OnInit {
         this.getSections();
       }
     });
-  }
-
-  isDev(){
-    return this.environment.isDev();
   }
 
   getSections() {
