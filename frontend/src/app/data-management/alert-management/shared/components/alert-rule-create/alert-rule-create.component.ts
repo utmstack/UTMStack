@@ -29,17 +29,18 @@ import {
   ALERT_STATUS_LABEL_FIELD,
   ALERT_TAGS_FIELD,
   ALERT_TIMESTAMP_FIELD,
-  EVENT_IS_ALERT,
+  EVENT_IS_ALERT, INCIDENT_AUTOMATION_ALERT_FIELDS,
   LOG_RELATED_ID_EVENT_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {CLOSED} from '../../../../../shared/constants/alert/alert-status.constant';
 import {FILTER_OPERATORS} from '../../../../../shared/constants/filter-operators.const';
+import {ALERT_INDEX_PATTERN} from "../../../../../shared/constants/main-index-pattern.constant";
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
+import {ElasticSearchIndexService} from "../../../../../shared/services/elasticsearch/elasticsearch-index.service";
 import {AlertTags} from '../../../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {OperatorsType} from '../../../../../shared/types/filter/operators.type';
-import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../../shared/util/input-class-resolve';
 import {AlertRuleType} from '../../../alert-rules/alert-rule.type';
@@ -49,7 +50,8 @@ import {AlertManagementService} from '../../services/alert-management.service';
 import {AlertRulesService} from '../../services/alert-rules.service';
 import {AlertTagService} from '../../services/alert-tag.service';
 import {setAlertPropertyValue} from '../../util/alert-util-function';
-import {ElasticSearchFieldInfoType} from "../../../../../shared/types/elasticsearch/elastic-search-field-info.type";
+import {sanitizeFilters} from "../../../../../shared/util/elastic-filter.util";
+import {HttpResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-alert-rule-create',
@@ -100,6 +102,8 @@ export class AlertRuleCreateComponent implements OnInit {
   uuid = UUID.UUID();
   tagging = false;
   ElasticOperatorsEnum = ElasticOperatorsEnum;
+  alerts = [];
+  loadingAlerts: boolean = false;
 
   constructor(public activeModal: NgbActiveModal,
               public inputClass: InputClassResolve,
@@ -110,12 +114,17 @@ export class AlertRuleCreateComponent implements OnInit {
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private alertServiceManagement: AlertManagementService,
               private alertTagService: AlertTagService,
-              private operatorService: OperatorService) {
+              private operatorService: OperatorService,
+              private elasticDataService: ElasticSearchIndexService) {
+
     this.fields = ALERT_FIELDS.filter(value => !this.excludeFields.includes(value.field));
     this.operators = FILTER_OPERATORS.filter(value => !this.excludeOperators.includes(value.operator));
   }
 
   ngOnInit() {
+    if ( !this.alert) {
+      this.getAlerts();
+    }
     this.getTags();
     this.initForm();
     this.createDefaultFilters();
@@ -254,5 +263,23 @@ export class AlertRuleCreateComponent implements OnInit {
       return this.operatorService.getOperators({name: field.field, type: field.type}, this.operators);
     }
     return this.operators;
+  }
+
+  getAlert() {
+    this.elasticDataService.search(
+      this.page,
+      this.itemsPerPage,
+      100000000,
+      this.dataNature,
+      sanitizeFilters(this.filters), this.sortBy).subscribe(
+      (res: HttpResponse<any>) => {
+        this.alerts = res.body;
+        this.loading = false;
+        this.refreshingAlert = false;
+      },
+      (res: HttpResponse<any>) => {
+        this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
+      }
+    );
   }
 }
