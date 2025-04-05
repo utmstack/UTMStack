@@ -7,7 +7,6 @@ import {CpStandardService} from '../../shared/services/cp-standard.service';
 import {ComplianceStandardType} from '../../shared/type/compliance-standard.type';
 import {UtmCpExportComponent} from '../utm-cp-export/utm-cp-export.component';
 import {UtmCpStandardDeleteComponent} from './utm-cp-standard-delete/utm-cp-standard-delete.component';
-import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-utm-cp-standard',
@@ -23,7 +22,6 @@ export class UtmCpStandardComponent implements OnInit {
 
   constructor(private cpStandardService: CpStandardService,
               private modalService: NgbModal,
-              private environment: EnvironmentService,
               private cpStandardBehavior: CpStandardBehavior) {
   }
 
@@ -94,10 +92,6 @@ export class UtmCpStandardComponent implements OnInit {
   }
 
   private onError(body: any) {
-  }
-
-  isDev(){
-    return this.environment.isDev();
   }
 
   exportStandard(st: ComplianceStandardType) {
