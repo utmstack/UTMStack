@@ -18,7 +18,6 @@ import {VisualizationService} from '../shared/services/visualization.service';
 import {VisualizationCreateComponent} from '../visualization-create/visualization-create.component';
 import {VisualizationDeleteComponent} from '../visualization-delete/visualization-delete.component';
 import {VisualizationImportComponent} from '../visualization-import/visualization-import.component';
-import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-visualization-list',
@@ -53,7 +52,6 @@ export class VisualizationListComponent implements OnInit {
               private visualizationService: VisualizationService,
               private spinner: NgxSpinnerService,
               private router: Router,
-              private environment: EnvironmentService,
               private activatedRoute: ActivatedRoute) {
   }
 
@@ -70,10 +68,6 @@ export class VisualizationListComponent implements OnInit {
         this.newVisualization();
       }
     });
-  }
-
-  isDev(){
-    return this.environment.isDev();
   }
 
   editVisualization(vis: VisualizationType) {
@@ -205,5 +199,5 @@ export class VisualizationListComponent implements OnInit {
     // this.alertService.error(error.error, error.message, null);
   }
 
-  protected readonly isDevMode = isDevMode;
+  isDevMode = isDevMode;
 }
