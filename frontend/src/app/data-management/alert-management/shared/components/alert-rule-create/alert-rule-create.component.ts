@@ -52,6 +52,7 @@ import {AlertTagService} from '../../services/alert-tag.service';
 import {setAlertPropertyValue} from '../../util/alert-util-function';
 import {sanitizeFilters} from "../../../../../shared/util/elastic-filter.util";
 import {HttpResponse} from "@angular/common/http";
+import {ElasticDataService} from "../../../../../shared/services/elasticsearch/elastic-data.service";
 
 @Component({
   selector: 'app-alert-rule-create',
@@ -103,7 +104,20 @@ export class AlertRuleCreateComponent implements OnInit {
   tagging = false;
   ElasticOperatorsEnum = ElasticOperatorsEnum;
   alerts = [];
-  loadingAlerts: boolean = false;
+  alertRequest = {
+    page: 0,
+    size: 100,
+    sort: '@timestamp,desc',
+    index: ALERT_INDEX_PATTERN,
+    filters: [
+      {field: 'status', operator: 'IS_NOT', value: 1},
+      {field: 'tags', operator: 'IS_NOT', value: 'False positive'},
+      {field: '@timestamp', operator: 'IS_BETWEEN', value: ['now-30d', 'now']}
+    ],
+    dataNature: null,
+  };
+  loading = false;
+  refreshingAlert = false;
 
   constructor(public activeModal: NgbActiveModal,
               public inputClass: InputClassResolve,
@@ -115,7 +129,7 @@ export class AlertRuleCreateComponent implements OnInit {
               private alertServiceManagement: AlertManagementService,
               private alertTagService: AlertTagService,
               private operatorService: OperatorService,
-              private elasticDataService: ElasticSearchIndexService) {
+              private elasticDataService: ElasticDataService) {
 
     this.fields = ALERT_FIELDS.filter(value => !this.excludeFields.includes(value.field));
     this.operators = FILTER_OPERATORS.filter(value => !this.excludeOperators.includes(value.operator));
@@ -252,7 +266,6 @@ export class AlertRuleCreateComponent implements OnInit {
     });
   }
 
-
   isFalsePositive() {
     return this.selected.findIndex(value => value.tagName.includes('False positive')) !== -1;
   }
@@ -265,13 +278,48 @@ export class AlertRuleCreateComponent implements OnInit {
     return this.operators;
   }
 
-  getAlert() {
+  onDataTypeChange(selectedDataTypes: DataType[]) {
+    this.ruleForm.get('dataTypes').patchValue(selectedDataTypes);
+    this.dataTypeService.resetTypes();
+    this.daTypeRequest.page = -1;
+    this.loadDataTypes();
+  }
+
+  onSearch(event: { term: string; items: any[] }) {
+    this.alertRequest = {
+      ...this.alertRequest,
+      filters: [
+        ...this.alertRequest.filters.filter(f => f.operator !== ElasticOperatorsEnum.IS_IN_FIELD),
+        {field: 'name', operator: ElasticOperatorsEnum.IS_IN_FIELD, value: event.term}
+      ]
+    };
+
+    this.getAlerts();
+  }
+
+  loadDataTypes() {
+    this.daTypeRequest.page = this.daTypeRequest.page + 1;
+    this.loadingDataTypes = true;
+
+    this.dataTypeService.getAll(this.daTypeRequest)
+      .subscribe(data => {
+        this.loadingDataTypes = false;
+      });
+  }
+
+
+  trackByFn(alert: any) {
+    return alert.id;
+  }
+
+  getAlerts() {
     this.elasticDataService.search(
-      this.page,
-      this.itemsPerPage,
+      this.alertRequest.page,
+      this.alertRequest.size,
       100000000,
-      this.dataNature,
-      sanitizeFilters(this.filters), this.sortBy).subscribe(
+      this.alertRequest.dataNature,
+      sanitizeFilters(this.alertRequest.filters),
+      this.alertRequest.sort).subscribe(
       (res: HttpResponse<any>) => {
         this.alerts = res.body;
         this.loading = false;

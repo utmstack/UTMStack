@@ -77,19 +77,20 @@
   <div class="w-100">
     <label class="pb-1">Alerts</label>
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <ng-select [addTagText]="'Add value'"
-                 [addTag]="true"
-                 [clearable]="false"
-                 [hideSelected]="true"
-                 [items]="alerts"
-                 [notFoundText]="'There aren\'t any options available, write to add new one'"
-                 [loadingText]="'Loading field values....'"
-                 [loading]="loadingAlerts"
-                 [multiple]="false"
-                 [searchable]="true"
-                 class="flex-grow-1 w-30"
-                 formControlName="value"
-                 id="values">
+      <ng-select (change)="onDataTypeChange($event)"
+                 (search)="onSearch($event)"
+                 (scrollToEnd)="loadDataTypes()"
+                 [items]="(types$ | async)"
+                 [loading]="loadingDataTypes"
+                 [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}"
+                 [trackByFn]="trackByFn"
+                 [virtualScroll]="true"
+                 addTagText="Create New"
+                 bindLabel="dataType"
+                 class="flex-item type-select"
+                 formControlName="dataTypes"
+                 multiple="true"
+                 placeholder="Choose an alert">
       </ng-select>
     </div>
   </div>
