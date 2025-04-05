@@ -74,6 +74,26 @@
     </div>
   </div>
 
+  <div class="w-100">
+    <label class="pb-1">Alerts</label>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <ng-select [addTagText]="'Add value'"
+                 [addTag]="true"
+                 [clearable]="false"
+                 [hideSelected]="true"
+                 [items]="alerts"
+                 [notFoundText]="'There aren\'t any options available, write to add new one'"
+                 [loadingText]="'Loading field values....'"
+                 [loading]="loadingAlerts"
+                 [multiple]="false"
+                 [searchable]="true"
+                 class="flex-grow-1 w-30"
+                 formControlName="value"
+                 id="values">
+      </ng-select>
+    </div>
+  </div>
+
   <div class="d-flex justify-content-start align-items-center mt-3">
         <span (click)="viewFieldDetail=!viewFieldDetail"
               class="text-center cursor-pointer">
