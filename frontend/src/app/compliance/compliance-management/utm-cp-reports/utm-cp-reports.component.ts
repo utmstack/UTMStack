@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, isDevMode, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpReportBehavior} from '../../shared/behavior/cp-report.behavior';
 import {CpStandardSectionBehavior} from '../../shared/behavior/cp-standard-section.behavior';
@@ -7,7 +7,6 @@ import {CpReportsService} from '../../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../../shared/type/compliance-standard-section.type';
 import {UtmCpReportDeleteComponent} from './utm-cp-report-delete/utm-cp-report-delete.component';
-import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-utm-cp-reports',
@@ -24,11 +23,11 @@ export class UtmCpReportsComponent implements OnInit {
   solution: string;
   loadingMore: false;
   showDetailFor = 0;
+  isDevMode = isDevMode;
 
   constructor(private cpReportsService: CpReportsService,
               public cpStandardSectionBehavior: CpStandardSectionBehavior,
               private cpReportBehavior: CpReportBehavior,
-              private environment: EnvironmentService,
               private modalService: NgbModal) {
   }
 
@@ -50,10 +49,6 @@ export class UtmCpReportsComponent implements OnInit {
       }
     });
 
-  }
-
-  isDev(){
-    return this.environment.isDev();
   }
 
   getReports() {
@@ -99,4 +94,5 @@ export class UtmCpReportsComponent implements OnInit {
   toggleDetail(id: number) {
     this.showDetailFor = this.showDetailFor === id ? 0 : id;
   }
+
 }

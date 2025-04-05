@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import {Component, isDevMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
@@ -17,7 +17,6 @@ import {DashboardImportComponent} from '../dashboard-import/dashboard-import.com
 import {UtmDashboardVisualizationService} from '../shared/services/utm-dashboard-visualization.service';
 import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 import {buildDashboardUrl} from '../shared/util/get-menu-url';
-import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-dashboard-list',
@@ -46,12 +45,12 @@ export class DashboardListComponent implements OnInit {
   checkbox: boolean;
   selected: number[] = [];
   exporting = false;
+  isDevMode = isDevMode;
 
   constructor(private modalService: NgbModal,
               private dashboardService: UtmDashboardService,
               private utmToastService: UtmToastService,
               private spinner: NgxSpinnerService,
-              private environment: EnvironmentService,
               private dashboardVisualizationService: UtmDashboardVisualizationService,
               private router: Router) {
   }
@@ -63,10 +62,6 @@ export class DashboardListComponent implements OnInit {
       sort: this.sortBy,
     };
     this.getDashboardList();
-  }
-
-  isDev(){
-    return this.environment.isDev();
   }
 
   onSortBy($event) {
@@ -216,4 +211,5 @@ export class DashboardListComponent implements OnInit {
     this.searching = false;
     this.loading = false;
   }
+
 }

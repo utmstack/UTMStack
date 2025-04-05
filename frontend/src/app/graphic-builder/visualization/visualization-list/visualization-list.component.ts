@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, isDevMode, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
@@ -18,7 +18,6 @@ import {VisualizationService} from '../shared/services/visualization.service';
 import {VisualizationCreateComponent} from '../visualization-create/visualization-create.component';
 import {VisualizationDeleteComponent} from '../visualization-delete/visualization-delete.component';
 import {VisualizationImportComponent} from '../visualization-import/visualization-import.component';
-import {EnvironmentService} from "../../../shared/services/util/enviroment.service";
 
 @Component({
   selector: 'app-visualization-list',
@@ -48,12 +47,12 @@ export class VisualizationListComponent implements OnInit {
   allPageSelected: boolean;
   sort: SortEvent;
   private requestParams: any;
+  isDevMode = isDevMode;
 
   constructor(private modalService: NgbModal,
               private visualizationService: VisualizationService,
               private spinner: NgxSpinnerService,
               private router: Router,
-              private environment: EnvironmentService,
               private activatedRoute: ActivatedRoute) {
   }
 
@@ -70,10 +69,6 @@ export class VisualizationListComponent implements OnInit {
         this.newVisualization();
       }
     });
-  }
-
-  isDev(){
-    return this.environment.isDev();
   }
 
   editVisualization(vis: VisualizationType) {
@@ -204,4 +199,5 @@ export class VisualizationListComponent implements OnInit {
   private onError(error) {
     // this.alertService.error(error.error, error.message, null);
   }
+
 }
