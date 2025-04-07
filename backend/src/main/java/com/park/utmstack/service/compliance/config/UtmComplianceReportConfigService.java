@@ -125,7 +125,7 @@ public class UtmComplianceReportConfigService {
                 .filter(cp -> !cp.getDashboard().isEmpty() && cp.getDashboard().stream().allMatch(v -> v.getVisualization().getPattern().getActive()))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(activeCompliance, pageable, activeCompliance.size());
+        return new PageImpl<>(activeCompliance, pageable, page.getTotalElements());
 
     }
 

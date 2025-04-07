@@ -83,4 +83,6 @@
 
     <include file="/config/liquibase/changelog/20250325001_add_create_dashboard_visualization_menu.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250407001_add_compliance_report.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
