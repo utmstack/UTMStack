@@ -77,7 +77,9 @@
         </td>
         <td (click)="viewRule=rule" class="cursor-pointer">{{rule.lastModifiedDate | date:'short' }}</td>
         <td (click)="viewRule=rule" class="cursor-pointer">{{rule.createdBy }}</td>
-        <td style="width: 15px" class="text-center">
+        <td style="width: 15px" class="text-center medium-icon">
+          <i (click)="editRuleAction(rule)"
+             class="icon-pencil3 utm-submenu-table-actions cursor-pointer mr-2"></i>
           <i (click)="deleteRuleAction(rule)"
              class="icon-cross2 utm-submenu-table-actions cursor-pointer"></i>
         </td>
