@@ -1,6 +1,6 @@
-<app-utm-modal-header [name]="'Add new tag rule'" class="w-100"></app-utm-modal-header>
+<app-utm-modal-header [name]="(action === 'update' ? 'Update' : 'Add  new') + ' tag rule'" class="w-100"></app-utm-modal-header>
 <div class="container-fluid p-3" style="z-index: 99999999">
-  <div class="w-100" *ngIf="!isForComplete">
+  <div class="w-100">
     <div *ngIf="!tags"
          class="mb-3 d-flex justify-content-center align-items-center text-blue-800">
       <app-utm-spinner [height]="'15px'"
@@ -19,7 +19,7 @@
                  [value]="tag.tagName"
                  class="form-check-input magic-checkbox"
                  type="checkbox">
-          <label [for]="'g-check-box-alert-tag-'+ tag.id +'-'+ uuid" class="mb-0"> {{tag.tagName }}
+          <label [for]="'g-check-box-alert-tag-'+ tag.id +'-'+ uuid" class="mb-0"> {{ tag.tagName }}
           </label>
         </div>
       </div>
@@ -29,6 +29,23 @@
     </span>
     </div>
   </div>
+
+<ng-container *ngIf="action !== 'select'">
+  <label class="pb-1">Alerts</label>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <ng-select (change)="onAlertChange($event)"
+               (search)="onSearch($event)"
+               (scrollToEnd)="loadMoreAlerts()"
+               [items]="(alerts$ | async)"
+               [loading]="loading"
+               [trackByFn]="trackByFn"
+               [virtualScroll]="true"
+               bindLabel="name"
+               class="flex-item type-select w-100"
+               placeholder="Choose an alert">
+    </ng-select>
+  </div>
+</ng-container>
 
   <form [formGroup]="formRule">
     <div class="form-group">
@@ -56,7 +73,7 @@
     </div>
     <div class="form-group">
       <label class="pb-1" for="description">Description
-        ({{512 - formRule.get('description').value.length}})</label>
+        ({{ 512 - formRule.get('description').value.length }})</label>
       <textarea [ngClass]="inputClass.resolveClassInput(formRule.get('description'))"
                 class="border-1 border-grey-600 form-control" formControlName="description"
                 id="description"
@@ -74,27 +91,6 @@
     </div>
   </div>
 
-  <div class="w-100">
-    <label class="pb-1">Alerts</label>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <ng-select (change)="onDataTypeChange($event)"
-                 (search)="onSearch($event)"
-                 (scrollToEnd)="loadDataTypes()"
-                 [items]="(types$ | async)"
-                 [loading]="loadingDataTypes"
-                 [ngClass]="{'is-invalid': ruleForm.get('dataTypes').invalid && ruleForm.get('dataTypes').touched}"
-                 [trackByFn]="trackByFn"
-                 [virtualScroll]="true"
-                 addTagText="Create New"
-                 bindLabel="dataType"
-                 class="flex-item type-select"
-                 formControlName="dataTypes"
-                 multiple="true"
-                 placeholder="Choose an alert">
-      </ng-select>
-    </div>
-  </div>
-
   <div class="d-flex justify-content-start align-items-center mt-3">
         <span (click)="viewFieldDetail=!viewFieldDetail"
               class="text-center cursor-pointer">
@@ -104,7 +100,7 @@
   </div>
   <div *ngIf="viewFieldDetail" class="alert-history mt-2">
     <div class="d-flex justify-content-between align-items-center pb-2" *ngFor="let filter of filters">
-      <span class="text-blue-800 rule-label">{{getFieldName(filter.field)}}:&nbsp;</span>
+      <span class="text-blue-800 rule-label">{{ getFieldName(filter.field) }}:&nbsp;</span>
       <ng-select
         [clearable]="false"
         [items]="getOperators(filter)"
@@ -118,8 +114,9 @@
         bindValue="operator"
         id="operators">
       </ng-select>
-      <input [style.visibility]="filter.operator == ElasticOperatorsEnum.EXIST || filter.operator == ElasticOperatorsEnum.DOES_NOT_EXIST ? 'hidden' : 'visible'"
-             [(ngModel)]="filter.value" class="form-control">
+      <input
+        [style.visibility]="filter.operator == ElasticOperatorsEnum.EXIST || filter.operator == ElasticOperatorsEnum.DOES_NOT_EXIST ? 'hidden' : 'visible'"
+        [(ngModel)]="filter.value" class="form-control">
       <i class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete filter field"
          placement="left"
          (click)="deleteFilter(filter)"></i>
@@ -132,7 +129,7 @@
       <i class="icon-cancel-circle2"></i>&nbsp;
       Cancel
     </button>
-    <button (click)="createRule()" class="btn utm-button utm-button-primary"
+    <button (click)="saveRule()" class="btn utm-button utm-button-primary"
             [disabled]="!formRule.valid || exist || selected.length === 0">
       <i class="icon-stack-text"></i>&nbsp;
       Add rule & Tag
