@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, isDevMode, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
@@ -47,6 +47,7 @@ export class VisualizationListComponent implements OnInit {
   allPageSelected: boolean;
   sort: SortEvent;
   private requestParams: any;
+  isDevMode = isDevMode;
 
   constructor(private modalService: NgbModal,
               private visualizationService: VisualizationService,
@@ -198,4 +199,5 @@ export class VisualizationListComponent implements OnInit {
   private onError(error) {
     // this.alertService.error(error.error, error.message, null);
   }
+
 }

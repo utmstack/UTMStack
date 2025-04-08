@@ -52,6 +52,7 @@ export class AlertTagsApplyComponent implements OnInit, OnChanges {
   addNewTagRule() {
     const modalRef = this.modalService.open(AlertRuleCreateComponent, {centered: true, size: 'lg'});
     modalRef.componentInstance.alert = this.alert;
+    modalRef.componentInstance.action = 'select';
     modalRef.componentInstance.ruleAdd.subscribe((created) => {
       this.icon = this.getTagIcon();
       this.color = this.getColor();

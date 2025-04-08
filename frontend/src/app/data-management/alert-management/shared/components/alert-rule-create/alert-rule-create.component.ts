@@ -1,9 +1,15 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UUID} from 'angular2-uuid';
-import {debounceTime} from 'rxjs/operators';
+import {Observable, Subject} from 'rxjs';
+import {concatMap, debounceTime, filter, takeUntil, tap} from 'rxjs/operators';
+import {AlertService} from '../../../../../incident-response/shared/services/alert.service';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
+import {
+  OperatorService
+} from '../../../../../shared/components/utm/filters/utm-elastic-filter/shared/util/operator.service';
 import {
   ALERT_CATEGORY_DESCRIPTION_FIELD,
   ALERT_DESCRIPTION_FIELD,
@@ -26,16 +32,18 @@ import {
   ALERT_STATUS_LABEL_FIELD,
   ALERT_TAGS_FIELD,
   ALERT_TIMESTAMP_FIELD,
-  EVENT_IS_ALERT,
-  LOG_RELATED_ID_EVENT_FIELD
+  EVENT_IS_ALERT, FALSE_POSITIVE_OBJECT, LOG_RELATED_ID_EVENT_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
-import {CLOSED} from '../../../../../shared/constants/alert/alert-status.constant';
+import {AUTOMATIC_REVIEW, CLOSED} from '../../../../../shared/constants/alert/alert-status.constant';
 import {FILTER_OPERATORS} from '../../../../../shared/constants/filter-operators.const';
+import {ALERT_INDEX_PATTERN} from '../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
+import {ElasticDataService} from '../../../../../shared/services/elasticsearch/elastic-data.service';
 import {AlertTags} from '../../../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filter.type';
 import {OperatorsType} from '../../../../../shared/types/filter/operators.type';
+import {sanitizeFilters} from '../../../../../shared/util/elastic-filter.util';
 import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../../shared/util/input-class-resolve';
 import {AlertRuleType} from '../../../alert-rules/alert-rule.type';
@@ -51,9 +59,11 @@ import {setAlertPropertyValue} from '../../util/alert-util-function';
   templateUrl: './alert-rule-create.component.html',
   styleUrls: ['./alert-rule-create.component.scss']
 })
-export class AlertRuleCreateComponent implements OnInit {
+export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   @Input() alert: UtmAlertType;
   @Input() isForComplete = false;
+  @Input() action: 'create' | 'update' | 'select' = 'create';
+  @Input() rule: AlertRuleType;
   @Output() ruleAdd = new EventEmitter<AlertRuleType>();
   tags: AlertTags[];
   selected: AlertTags[] = [];
@@ -95,6 +105,22 @@ export class AlertRuleCreateComponent implements OnInit {
   uuid = UUID.UUID();
   tagging = false;
   ElasticOperatorsEnum = ElasticOperatorsEnum;
+  alerts = [];
+  alertRequest = {
+    page: 0,
+    size: 10,
+    sort: '@timestamp,desc',
+    filters: [
+      {field: ALERT_STATUS_FIELD_AUTO, operator: ElasticOperatorsEnum.IS_NOT, value: AUTOMATIC_REVIEW},
+      {field: ALERT_TAGS_FIELD, operator: ElasticOperatorsEnum.IS_NOT, value: FALSE_POSITIVE_OBJECT.tagName},
+      {field: '@timestamp', operator: 'IS_BETWEEN', value: ['now-30d', 'now']}
+    ],
+    dataNature: ALERT_INDEX_PATTERN,
+  };
+  loading = false;
+  refreshingAlert = false;
+  alerts$: Observable<any[]>;
+  destroy$ = new Subject<void>();
 
   constructor(public activeModal: NgbActiveModal,
               public inputClass: InputClassResolve,
@@ -104,27 +130,51 @@ export class AlertRuleCreateComponent implements OnInit {
               private utmToastService: UtmToastService,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private alertServiceManagement: AlertManagementService,
-              private alertTagService: AlertTagService) {
+              private alertTagService: AlertTagService,
+              private operatorService: OperatorService,
+              private elasticDataService: ElasticDataService,
+              private alertService: AlertService) {
+
     this.fields = ALERT_FIELDS.filter(value => !this.excludeFields.includes(value.field));
     this.operators = FILTER_OPERATORS.filter(value => !this.excludeOperators.includes(value.operator));
   }
 
   ngOnInit() {
-    this.getTags();
+
     this.initForm();
-    this.createDefaultFilters();
+    this.getTags();
     this.formRule.get('name').valueChanges.pipe(debounceTime(3000)).subscribe(ruleName => {
       this.searchRule(ruleName);
     });
+
+    if (!this.alert) {
+      this.loading = true;
+      this.alertService.notifyRefresh(true);
+    } else {
+      this.createDefaultFilters();
+    }
+
+    if (this.rule) {
+      this.filters = [... this.rule.conditions];
+      this.selected = this.rule.tags.length > 0 ? [...this.rule.tags] : [];
+    }
+
+    this.alerts$ = this.alertService.onRefresh$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(loading => loading),
+        concatMap(() => this.alertService.fetchData(this.alertRequest)))
+      .pipe(
+        tap((res) => this.loading = !this.loading));
   }
 
   initForm() {
     this.formRule = this.fb.group({
-      id: [],
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      conditions: [[], Validators.required],
-      tags: [null, Validators.required],
+      id: [this.rule ? this.rule.id : null],
+      name: [ this.rule ? this.rule.name : '', Validators.required],
+      description: [this.rule ? this.rule.description : '', Validators.required],
+      conditions: [ this.rule ? this.rule.conditions : [], Validators.required],
+      tags: [this.rule ? this.rule.tags : null, Validators.required],
     });
   }
 
@@ -143,6 +193,41 @@ export class AlertRuleCreateComponent implements OnInit {
 
   getFieldName(field: string): string {
     return this.fields.filter(value => value.field === field)[0].label;
+  }
+
+  saveRule() {
+    const request$ = this.action === 'update'
+      ? this.alertRulesService.update(this.formRule.value)
+      : this.alertRulesService.create(this.formRule.value);
+
+    const tags = this.selected.map(t => t.tagName);
+
+    request$.subscribe(() => {
+      const action = this.action === 'update' ? 'updated' : 'created';
+      this.utmToastService.showSuccessBottom(`Rule ${this.formRule.get('name').value} ${action} successfully`);
+
+      if (this.alert) {
+        const alertId = this.alert.id;
+        this.alertServiceManagement.updateAlertTags([alertId], tags, true).subscribe(() => {
+          this.alertUpdateTagBehavior.$tagRefresh.next(true);
+          this.utmToastService.showSuccessBottom('Tags updated successfully');
+          this.tagging = false;
+
+          this.alert = setAlertPropertyValue(ALERT_TAGS_FIELD, tags, this.alert);
+
+          if (this.isFalsePositive()) {
+            const observation = `Tag rule ${this.formRule.get('name').value} applied`;
+            this.alertServiceManagement.updateAlertStatus([alertId], CLOSED, observation).subscribe(() => {
+              this.finalizeRule();
+            });
+          } else {
+            this.finalizeRule();
+          }
+        });
+      } else {
+        this.finalizeRule();
+      }
+    });
   }
 
   createRule() {
@@ -214,12 +299,12 @@ export class AlertRuleCreateComponent implements OnInit {
     return this.selected.findIndex(value => value.id === tag.id) !== -1;
   }
 
-  selectValue(tag: AlertTags) {
+  selectValue( tag: AlertTags) {
     const index = this.selected.findIndex(value => value.id === tag.id);
     if (index === -1) {
       this.selected.push(tag);
     } else {
-      this.selected.splice(index, 1);
+      this.selected = this.selected.filter(value => value.id !== tag.id);
     }
     this.formRule.get('tags').setValue(this.selected);
   }
@@ -237,8 +322,77 @@ export class AlertRuleCreateComponent implements OnInit {
     });
   }
 
-
   isFalsePositive() {
     return this.selected.findIndex(value => value.tagName.includes('False positive')) !== -1;
+  }
+
+  getOperators(filter: ElasticFilterType) {
+    const field  = this.fields.find(f => f.field === filter.field);
+    if (field) {
+      return this.operatorService.getOperators({name: field.field, type: field.type}, this.operators);
+    }
+    return this.operators;
+  }
+
+  onSearch(event: { term: string; items: any[] }) {
+    this.alertRequest = {
+      ...this.alertRequest,
+      filters: [
+        ...this.alertRequest.filters.filter(f => f.operator !== ElasticOperatorsEnum.IS_IN_FIELD),
+        {field: 'name', operator: ElasticOperatorsEnum.IS_IN_FIELD, value: event.term}
+      ]
+    };
+
+    this.getAlerts();
+  }
+
+  onAlertChange(alert: any){
+    this.alert = alert;
+    this.filters = [];
+    this.formRule.get('conditions').reset();
+    this.createDefaultFilters();
+  }
+
+  loadMoreAlerts() {
+    this.alertRequest = {
+      ...this.alertRequest,
+      size: this.alertRequest.size + 5
+    };
+    this.loading = true;
+    this.alertService.notifyRefresh(true);
+  }
+
+
+  trackByFn(alert: any) {
+    return alert.id;
+  }
+
+  getAlerts() {
+    this.elasticDataService.search(
+      this.alertRequest.page,
+      this.alertRequest.size,
+      100000000,
+      this.alertRequest.dataNature,
+      sanitizeFilters(this.alertRequest.filters),
+      this.alertRequest.sort).subscribe(
+      (res: HttpResponse<any>) => {
+        this.alerts = res.body;
+        this.loading = false;
+        this.refreshingAlert = false;
+      },
+      (res: HttpResponse<any>) => {
+        this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
+      }
+    );
+  }
+
+  private finalizeRule(): void {
+    this.ruleAdd.emit(this.formRule.value);
+    this.activeModal.close();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

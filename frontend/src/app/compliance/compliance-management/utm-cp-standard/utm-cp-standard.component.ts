@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, isDevMode, OnInit, Output} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpStandardBehavior} from '../../shared/behavior/cp-standard.behavior';
 import {UtmCpStandardCreateComponent} from '../../shared/components/utm-cp-standard-create/utm-cp-standard-create.component';
@@ -19,6 +19,7 @@ export class UtmCpStandardComponent implements OnInit {
   @Input() standardId: number;
   @Output() standardChange = new EventEmitter<ComplianceStandardType>();
   @Input() manage: boolean;
+  isDevMode = isDevMode;
 
   constructor(private cpStandardService: CpStandardService,
               private modalService: NgbModal,

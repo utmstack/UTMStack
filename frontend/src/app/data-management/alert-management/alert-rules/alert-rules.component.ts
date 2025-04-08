@@ -12,6 +12,8 @@ import {TimeFilterType} from '../../../shared/types/time-filter.type';
 import {AlertRulesService} from '../shared/services/alert-rules.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {AlertRuleType} from './alert-rule.type';
+import {AlertRuleCreateComponent} from '../shared/components/alert-rule-create/alert-rule-create.component';
+import {FALSE_POSITIVE_OBJECT} from '../../../shared/constants/alert/alert-field.constant';
 
 @Component({
   selector: 'app-rules',
@@ -35,6 +37,7 @@ export class AlertRulesComponent implements OnInit {
   };
   viewRule: AlertRuleType;
   tags: AlertTags[];
+  rule: AlertRuleType;
 
 
   constructor(private sourcesService: SourcesService,
@@ -126,5 +129,25 @@ export class AlertRulesComponent implements OnInit {
   filterByTags($event: any) {
     this.request.tagIds = $event.length === 0 ? null : $event.map(value => value.id);
     this.getRules();
+  }
+
+  createRule(rule?: AlertRuleType) {
+    const modal = this.modalService.open(AlertRuleCreateComponent, {centered: true, size: 'lg'});
+    const falsePositive: AlertTags[] = [FALSE_POSITIVE_OBJECT];
+    if (rule) {
+      modal.componentInstance.rule = rule;
+    }
+    modal.componentInstance.isForComplete = rule;
+    modal.componentInstance.action = rule ? 'update' : 'create';
+    modal.componentInstance.tags = falsePositive;
+    modal.componentInstance.ruleAdd.subscribe(rule => {
+      this.rule = null;
+      this.getRules();
+      this.getTags();
+    });
+  }
+
+  editRuleAction(rule: AlertRuleType) {
+    this.createRule(rule);
   }
 }
