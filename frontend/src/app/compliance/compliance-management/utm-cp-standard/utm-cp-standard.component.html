@@ -10,7 +10,7 @@
           {{st.standardName}}&nbsp;
         </span>
         <span *ngIf="manage" class="d-flex span-small-icon">
-           <i *ngIf="!st.systemOwner || isDev()" (click)="editStandard(st)"
+           <i *ngIf="!st.systemOwner || isDevMode()" (click)="editStandard(st)"
               class="icon-pencil mr-2"
               container="body"
               ngbTooltip="Edit standard"
@@ -20,7 +20,7 @@
                 container="body"
                 ngbTooltip="Export standard"
                 placement="auto" tooltipClass="utm-tooltip-bottom"></i>
-           <i *ngIf="!st.systemOwner || isDev()" (click)="deleteStandard(st)"
+           <i *ngIf="!st.systemOwner || isDevMode()" (click)="deleteStandard(st)"
               class="icon-cross2"
               container="body"
               ngbTooltip="Delete standard"

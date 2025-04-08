@@ -17,7 +17,7 @@ import {SortByType} from '../../shared/types/sort-by.type';
 import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
-import {ComplianceStatusEnum} from "../shared/enums/compliance-status.enum";
+import {ComplianceStatusEnum} from '../shared/enums/compliance-status.enum';
 
 @Component({
   selector: 'app-compliance-reports-view',
@@ -149,4 +149,6 @@ export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDest
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  protected readonly ComplianceStatus = ComplianceStatusEnum;
 }
