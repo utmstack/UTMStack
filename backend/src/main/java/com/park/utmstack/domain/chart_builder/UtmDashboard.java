@@ -9,6 +9,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A UtmDashboard.
@@ -62,6 +64,14 @@ public class UtmDashboard implements Serializable {
 
     @Column(name = "system_owner")
     private Boolean systemOwner;
+
+    @ManyToMany
+    @JoinTable(
+            name = "utm_dashboard_visualization",
+            joinColumns = @JoinColumn(name = "id_dashboard"),
+            inverseJoinColumns = @JoinColumn(name = "id_visualization")
+    )
+    private Set<UtmVisualization> visualizations = new HashSet<>();
 
     public Long getId() {
         return id;
