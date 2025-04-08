@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, isDevMode, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpReportBehavior} from '../../shared/behavior/cp-report.behavior';
 import {CpStandardSectionBehavior} from '../../shared/behavior/cp-standard-section.behavior';
@@ -23,6 +23,7 @@ export class UtmCpReportsComponent implements OnInit {
   solution: string;
   loadingMore: false;
   showDetailFor = 0;
+  isDevMode = isDevMode;
 
   constructor(private cpReportsService: CpReportsService,
               public cpStandardSectionBehavior: CpStandardSectionBehavior,
@@ -93,4 +94,5 @@ export class UtmCpReportsComponent implements OnInit {
   toggleDetail(id: number) {
     this.showDetailFor = this.showDetailFor === id ? 0 : id;
   }
+
 }

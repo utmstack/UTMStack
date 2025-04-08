@@ -17,24 +17,19 @@
         <i class="icon-reload-alt"></i>
       </button>
     </div>
-    <div class="log-analyzer-actions d-flex flex-grow-1 justify-content-between align-items-center gap-2">
-      <div class="d-flex  justify-content-center gap-1 flex-grow-1">
+    <div class="log-analyzer-actions d-flex flex-grow-1 justify-content-end gap-2">
         <button (click)="saveQuery()" [ngbTooltip]="'Save query'" class="btn utm-button utm-button-primary">
           <i class="icon-floppy-disk"></i>&nbsp;Save
         </button>
         <button (click)="loadQuery()" [ngbTooltip]="'Load query'" class="btn utm-button utm-button-primary">
           <i class="icon-zoomin3"></i>&nbsp;Load
         </button>
-      </div>
-
-      <div class="d-flex justify-content-start">
         <button (click)="exportToCsv()"
                 [disabled]="(fields && fields.length === 0) || !rows || csvExport"
                 class="btn utm-button utm-button-primary">
           <i [ngClass]="csvExport ? 'icon-download10' : 'icon-table2'"></i>
           {{csvExport ? 'Generating...' : 'Export to CSV'}}
         </button>
-      </div>
     </div>
   </div>
 </div>

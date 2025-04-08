@@ -130,7 +130,9 @@ export class TableViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   runVisualization() {
     this.loadingOption = true;
-    this.runVisualizationService.run(this.visualization).subscribe(data => {
+    const request = this.visualization.page ? this.visualization.page : {};
+    console.log(request);
+    this.runVisualizationService.run(this.visualization, request).subscribe(data => {
       this.empty = data.length === 0 || data[0].rows.length === 0;
       this.data = data.length > 0 ? data[0] : [];
       if (!this.empty) {
