@@ -32,7 +32,7 @@ import {
   ALERT_STATUS_LABEL_FIELD,
   ALERT_TAGS_FIELD,
   ALERT_TIMESTAMP_FIELD,
-  EVENT_IS_ALERT, FALSE_POSITIVE_OBJECT, INCIDENT_AUTOMATION_ALERT_FIELDS, LOG_RELATED_ID_EVENT_FIELD
+  EVENT_IS_ALERT, FALSE_POSITIVE_OBJECT, LOG_RELATED_ID_EVENT_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, CLOSED} from '../../../../../shared/constants/alert/alert-status.constant';
 import {FILTER_OPERATORS} from '../../../../../shared/constants/filter-operators.const';
