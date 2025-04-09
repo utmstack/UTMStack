@@ -201,7 +201,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
       this.ruleConditions.push(this.createConditionGroup(condition));
     } else if (this.action === 'update') {
       this.filters = [...this.rule.conditions];
-      this.filters.forEach(condition => {
+      this.rule.conditions.forEach(condition => {
         this.ruleConditions.push(this.createConditionGroup(condition));
       });
     }
@@ -427,11 +427,11 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     this.ruleConditions.removeAt(index);
   }
 
-  createConditionGroup(condition: { field: any; operator: any; value: any; }): FormGroup {
+  createConditionGroup(condition: any): FormGroup {
     return this.fb.group({
       field: [condition.field, Validators.required],
       operator: [condition.operator, Validators.required],
-      value: [condition.value, Validators.required]
+      value: [condition.value]
     });
   }
 

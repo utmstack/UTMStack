@@ -37,6 +37,7 @@ export class AlertRulesComponent implements OnInit {
   };
   viewRule: AlertRuleType;
   tags: AlertTags[];
+  rule: AlertRuleType;
 
 
   constructor(private sourcesService: SourcesService,

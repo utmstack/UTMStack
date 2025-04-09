@@ -155,7 +155,7 @@
     <button (click)="saveRule()" class="btn utm-button utm-button-primary"
             [disabled]="!formRule.valid || exist || selected.length === 0">
       <i class="icon-stack-text"></i>&nbsp;
-      Add rule & Tag
+      {{ (action === 'update' ? 'Update ' : 'Add ')  + 'rule & Tag' }}
     </button>
   </div>
 </div>
