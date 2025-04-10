@@ -14,8 +14,6 @@ import {AlertRuleCreateComponent} from '../shared/components/alert-rule-create/a
 import {AlertRulesService} from '../shared/services/alert-rules.service';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {AlertRuleType} from './alert-rule.type';
-import {AlertRuleCreateComponent} from '../shared/components/alert-rule-create/alert-rule-create.component';
-import {FALSE_POSITIVE_OBJECT} from '../../../shared/constants/alert/alert-field.constant';
 
 @Component({
   selector: 'app-rules',
