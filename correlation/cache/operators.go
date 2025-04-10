@@ -88,7 +88,7 @@ func compare(operator, val1, val2 string) bool {
 		return !lowerEqual(val1, val2)
 	case "contains":
 		return contain(val1, val2)
-	case "not contain":
+	case "not contain", "not contains":
 		return !contain(val1, val2)
 	case "in":
 		return in(val1, val2)
