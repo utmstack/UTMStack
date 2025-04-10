@@ -1,4 +1,5 @@
-<app-utm-modal-header [name]="(action === 'update' ? 'Update' : 'Add  new') + ' tag rule'" class="w-100"></app-utm-modal-header>
+<app-utm-modal-header [name]="(action === 'update' ? 'Update' : 'Add  new') + ' tag rule'"
+                      class="w-100"></app-utm-modal-header>
 <div class="container-fluid p-3" style="z-index: 99999999">
   <div class="w-100">
     <div *ngIf="!tags"
@@ -30,22 +31,22 @@
     </div>
   </div>
 
-<ng-container *ngIf="action !== 'select'">
-  <label class="pb-1">Alerts</label>
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <ng-select (change)="onAlertChange($event)"
-               (search)="onSearch($event)"
-               (scrollToEnd)="loadMoreAlerts()"
-               [items]="(alerts$ | async)"
-               [loading]="loading"
-               [trackByFn]="trackByFn"
-               [virtualScroll]="true"
-               bindLabel="name"
-               class="flex-item type-select w-100"
-               placeholder="Choose an alert">
-    </ng-select>
-  </div>
-</ng-container>
+  <!--<ng-container *ngIf="action !== 'select'">
+    <label class="pb-1">Alerts</label>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <ng-select (change)="onAlertChange($event)"
+                 (search)="onSearch($event)"
+                 (scrollToEnd)="loadMoreAlerts()"
+                 [items]="(alerts$ | async)"
+                 [loading]="loading"
+                 [trackByFn]="trackByFn"
+                 [virtualScroll]="true"
+                 bindLabel="name"
+                 class="flex-item type-select w-100"
+                 placeholder="Choose an alert">
+      </ng-select>
+    </div>
+  </ng-container>-->
 
   <form [formGroup]="formRule">
     <div class="form-group">
@@ -81,48 +82,70 @@
                 rows="2"></textarea>
       <app-formcontrol-error [formcontrol]="formRule.get('description')"></app-formcontrol-error>
     </div>
-  </form>
 
-  <div *ngIf="isFalsePositive()" class="w-100">
-    <div class="alert bg-info-400 text-white alert-styled-right mt-3">
+    <div *ngIf="isFalsePositive()" class="w-100">
+      <div class="alert bg-info-400 text-white alert-styled-right mt-3">
       <span>By creating a False Positive rule, future alerts where the fields
         and values match the operator defined will be tagged as <b>False positive</b>.
         The alerts that match with this rule will be marked as <b>Completed</b>.</span>
+      </div>
     </div>
-  </div>
 
-  <div class="d-flex justify-content-start align-items-center mt-3">
+    <div class="d-flex justify-content-start align-items-center mt-3">
         <span (click)="viewFieldDetail=!viewFieldDetail"
               class="text-center cursor-pointer">
                 <i [ngClass]="viewFieldDetail?'icon-arrow-up32':'icon-arrow-down32'"></i>
         <span class="font-weight-semibold">View rule fields</span>&nbsp;
     </span>&nbsp;
-  </div>
-  <div *ngIf="viewFieldDetail" class="alert-history mt-2">
-    <div class="d-flex justify-content-between align-items-center pb-2" *ngFor="let filter of filters">
-      <span class="text-blue-800 rule-label">{{ getFieldName(filter.field) }}:&nbsp;</span>
-      <ng-select
-        [clearable]="false"
-        [items]="getOperators(filter)"
-        [(ngModel)]="filter.operator"
-        [loadingText]="'Loading operators....'"
-        [loading]="!operators"
-        [searchable]="true"
-        bindLabel="name"
-        class="rule-operator"
-        dropdownPosition="top"
-        bindValue="operator"
-        id="operators">
-      </ng-select>
-      <input
-        [style.visibility]="filter.operator == ElasticOperatorsEnum.EXIST || filter.operator == ElasticOperatorsEnum.DOES_NOT_EXIST ? 'hidden' : 'visible'"
-        [(ngModel)]="filter.value" class="form-control">
-      <i class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete filter field"
-         placement="left"
-         (click)="deleteFilter(filter)"></i>
     </div>
-  </div>
-
+    <div *ngIf="viewFieldDetail" class="alert-history mt-2">
+      <div formArrayName="conditions">
+        <div class="d-flex justify-content-between align-items-center pb-2"
+             *ngFor="let condition of ruleConditions.controls; let i = index" [formGroupName]="i">
+          <span *ngIf="action === 'select'"
+                class="text-blue-800 rule-label">{{ getFieldName(condition.get('field').value) }}:&nbsp;</span>
+          <ng-select *ngIf="action !== 'select'"
+                     formControlName="field"
+                     [clearable]="false"
+                     [items]="fields"
+                     [loadingText]="'Loading fields....'"
+                     [loading]="!operators"
+                     [searchable]="true"
+                     bindLabel="label"
+                     class="rule-operator"
+                     dropdownPosition="top"
+                     bindValue="field"
+                     id="fields">
+          </ng-select>
+          <ng-select
+            formControlName="operator"
+            [clearable]="false"
+            [items]="getOperators(condition.get('field').value)"
+            [loadingText]="'Loading operators....'"
+            [loading]="!operators"
+            [searchable]="true"
+            bindLabel="name"
+            class="rule-operator"
+            dropdownPosition="top"
+            bindValue="operator"
+            id="operators">
+          </ng-select>
+          <input formControlName="value"
+            [style.visibility]="condition.get('operator').value == ElasticOperatorsEnum.EXIST || condition.get('operator').value == ElasticOperatorsEnum.DOES_NOT_EXIST ? 'hidden' : 'visible'"
+             class="form-control">
+          <i *ngIf="ruleConditions.length > 1" class="icon-cross2 cursor-pointer ml-3" ngbTooltip="Delete filter field"
+             placement="left"
+             (click)="removeRuleCondition(i)"></i>
+        </div>
+        <div class="d-flex justify-content-end mt-2">
+          <button class="btn utm-button btn-success align-self-end" (click)="addRuleCondition()">
+            <i class="icon-plus22"></i>&nbsp;
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
 
   <div class="button-container d-flex justify-content-end mt-3">
     <button (click)="activeModal.close()" class="btn utm-button utm-button-grey mr-3">
@@ -132,7 +155,7 @@
     <button (click)="saveRule()" class="btn utm-button utm-button-primary"
             [disabled]="!formRule.valid || exist || selected.length === 0">
       <i class="icon-stack-text"></i>&nbsp;
-      Add rule & Tag
+      {{ (action === 'update' ? 'Update ' : 'Add ')  + 'rule & Tag' }}
     </button>
   </div>
 </div>

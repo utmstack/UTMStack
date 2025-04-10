@@ -1,6 +1,6 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UUID} from 'angular2-uuid';
 import {Observable, Subject} from 'rxjs';
@@ -20,7 +20,7 @@ import {
   ALERT_INCIDENT_FLAG_FIELD,
   ALERT_INCIDENT_MODULE_FIELD,
   ALERT_INCIDENT_OBSERVATION_FIELD,
-  ALERT_INCIDENT_USER_FIELD,
+  ALERT_INCIDENT_USER_FIELD, ALERT_NAME_FIELD,
   ALERT_NOTE_FIELD,
   ALERT_OBSERVATION_FIELD,
   ALERT_REFERENCE_FIELD,
@@ -142,17 +142,11 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.initForm();
+    this.createDefaultFilters();
     this.getTags();
     this.formRule.get('name').valueChanges.pipe(debounceTime(3000)).subscribe(ruleName => {
       this.searchRule(ruleName);
     });
-
-    if (!this.alert) {
-      this.loading = true;
-      this.alertService.notifyRefresh(true);
-    } else {
-      this.createDefaultFilters();
-    }
 
     if (this.rule) {
       this.filters = [... this.rule.conditions];
@@ -173,18 +167,52 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
       id: [this.rule ? this.rule.id : null],
       name: [ this.rule ? this.rule.name : '', Validators.required],
       description: [this.rule ? this.rule.description : '', Validators.required],
-      conditions: [ this.rule ? this.rule.conditions : [], Validators.required],
+      conditions: this.fb.array([], Validators.required),
       tags: [this.rule ? this.rule.tags : null, Validators.required],
     });
   }
 
   createDefaultFilters() {
+    if (this.alert) {
+      this.initConditionsFromAlert();
+    } else {
+      this.initConditionsFromAction();
+    }
+
+    this.subscribeToFieldChanges();
+  }
+
+  private initConditionsFromAlert() {
     for (const field of this.fields) {
-      if (this.getFieldValue(field.field)) {
-        this.filters.push({field: field.field, operator: ElasticOperatorsEnum.IS, value: this.getFieldValue(field.field)});
+      const value = this.getFieldValue(field.field);
+      if (value) {
+        const condition = this.buildCondition(field.field, value);
+        this.filters.push(condition);
+        this.ruleConditions.push(this.createConditionGroup(condition));
       }
     }
-    this.formRule.get('conditions').setValue(this.filters);
+  }
+
+  private initConditionsFromAction() {
+    if (this.action === 'create') {
+      const field = this.fields[0];
+      const condition = this.buildCondition(field.field, '');
+      this.filters.push(condition);
+      this.ruleConditions.push(this.createConditionGroup(condition));
+    } else if (this.action === 'update') {
+      this.filters = [...this.rule.conditions];
+      this.rule.conditions.forEach(condition => {
+        this.ruleConditions.push(this.createConditionGroup(condition));
+      });
+    }
+  }
+
+  private buildCondition(field: string, value: any) {
+    return {
+      field,
+      operator: ElasticOperatorsEnum.IS,
+      value
+    };
   }
 
   getFieldValue(field: string): any {
@@ -262,8 +290,8 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
 
   }
 
-  deleteFilter(filter: ElasticFilterType) {
-    const index = this.filters.indexOf(filter);
+  deleteFilter(elasticFilterType: ElasticFilterType) {
+    const index = this.filters.indexOf(elasticFilterType);
     if (index !== -1) {
       this.filters.splice(index, 1);
       this.formRule.get('conditions').setValue(this.filters);
@@ -326,8 +354,8 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     return this.selected.findIndex(value => value.tagName.includes('False positive')) !== -1;
   }
 
-  getOperators(filter: ElasticFilterType) {
-    const field  = this.fields.find(f => f.field === filter.field);
+  getOperators(conditionField: string) {
+    const field  = this.fields.find(f => f.field === conditionField);
     if (field) {
       return this.operatorService.getOperators({name: field.field, type: field.type}, this.operators);
     }
@@ -389,6 +417,48 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   private finalizeRule(): void {
     this.ruleAdd.emit(this.formRule.value);
     this.activeModal.close();
+  }
+
+  get ruleConditions() {
+    return this.formRule.get('conditions') as FormArray;
+  }
+
+  removeRuleCondition(index: number) {
+    this.ruleConditions.removeAt(index);
+  }
+
+  createConditionGroup(condition: any): FormGroup {
+    return this.fb.group({
+      field: [condition.field, Validators.required],
+      operator: [condition.operator, Validators.required],
+      value: [condition.value]
+    });
+  }
+
+  subscribeToFieldChanges() {
+    this.ruleConditions.controls.forEach((group: AbstractControl, index: number) => {
+      const fieldControl = group.get('field');
+      const operatorControl = group.get('operator');
+
+      fieldControl.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(newField => {
+        const validOperators = this.getOperators(newField).map(op => op.operator);
+        if (!validOperators.includes(operatorControl.value)) {
+          operatorControl.setValue(null);
+        }
+      });
+    });
+  }
+
+  addRuleCondition() {
+    this.ruleConditions.push(
+      this.createConditionGroup({
+        field: this.fields[0].field,
+        operator: null,
+        value: null
+      }));
+    this.subscribeToFieldChanges();
   }
 
   ngOnDestroy(): void {
