@@ -192,37 +192,40 @@ public class UtmDataInputStatusService {
         try {
             Map<String, StatisticDocument> result = getLatestStatisticsByDataSource();
 
-            result.forEach((dataType, statisticDoc) -> {
+            result.forEach((key, statisticDoc) -> {
                 try {
-                    // Check if the document exists in the database by its unique identifier or datatype
-                    Optional<UtmDataInputStatus> existingDataInput = dataInputStatusRepository.findBySourceAndDataType(statisticDoc.getDataSource(), statisticDoc.getDataType());
+                    String dataType = statisticDoc.getDataType();
+                    String dataSource = statisticDoc.getDataSource();
+                    long timestamp = Instant.parse(statisticDoc.getTimestamp()).getEpochSecond();
 
-                    if (existingDataInput.isPresent()) {
-                        UtmDataInputStatus dataInputToUpdate = existingDataInput.get();
-                        dataInputToUpdate.setTimestamp(Instant.parse(statisticDoc.getTimestamp()).getEpochSecond());
-                        dataInputStatusRepository.save(dataInputToUpdate);
-                    } else {
-                        // Insert a new document if it doesn't exist
-                        dataInputStatusRepository.save(UtmDataInputStatus.builder()
-                                        .dataType(statisticDoc.getDataType())
-                                        .source(statisticDoc.getDataSource())
-                                        .timestamp(Instant.parse(statisticDoc.getTimestamp()).getEpochSecond())
-                                        .median(86400L)
-                                        .id(statisticDoc.getDataType().concat(statisticDoc.getDataSource()))
-                                .build());
-                    }
+                    Optional<UtmDataInputStatus> existingOpt = dataInputStatusRepository.findBySourceAndDataType(dataSource, dataType);
+
+                    UtmDataInputStatus dataInputStatus = existingOpt
+                            .map(existing -> {
+                                existing.setTimestamp(timestamp);
+                                return existing;
+                            })
+                            .orElseGet(() -> UtmDataInputStatus.builder()
+                                    .dataType(dataType)
+                                    .source(dataSource)
+                                    .timestamp(timestamp)
+                                    .median(86400L)
+                                    .id(String.join("-", dataType, dataSource))
+                                    .build());
+
+                    dataInputStatusRepository.save(dataInputStatus);
+
                 } catch (Exception e) {
-                    log.error(ctx + ": Error processing dataType " + dataType + " - " + e.getMessage());
+                    log.error("{}: Error processing dataType {} - {}", ctx, statisticDoc.getDataType(), e.getMessage(), e);
                 }
             });
 
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
+            log.error(msg, e);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
         }
     }
-
 
     /**
      * Gets the sources from utm_data_input_status that are not registered in utm_network_scan table
@@ -415,14 +418,14 @@ public class UtmDataInputStatusService {
     private Map<String, StatisticDocument> getLatestStatisticsByDataSource() {
         ArrayList<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType("type", OperatorType.IS, "enqueue_success"));
+        filters.add(new FilterType("@timestamp", OperatorType.IS_BETWEEN, List.of("now-24h", "now")));
 
         SearchRequest sr = SearchRequest.of(s -> s
                 .query(SearchUtil.toQuery(filters))
                 .index(Constants.STATISTICS_INDEX_PATTERN)
-                .aggregations("by_dataType", agg -> agg
-                        .terms(t -> t.field("dataType.keyword")
-                                .size(100)
-                        )
+                .aggregations("by_dataSource", agg -> agg
+                        .terms(t -> t.field("dataSource.keyword")
+                                .size(10000))
                         .aggregations("latest", latest -> latest
                                 .topHits(th -> th.sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
                                         .size(1))
@@ -434,7 +437,7 @@ public class UtmDataInputStatusService {
         SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
         Map<String, StatisticDocument> result = new HashMap<>();
 
-        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataType"));
+        List<BucketAggregation> dataTypeBuckets = TermAggregateParser.parse(response.aggregations().get("by_dataSource"));
 
         for (BucketAggregation bucket : dataTypeBuckets) {
             TopHitsAggregate topHitsAgg = bucket.getSubAggregations().get("latest").topHits();

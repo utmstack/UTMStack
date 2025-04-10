@@ -165,6 +165,7 @@ public class UtmNetworkScan implements Serializable {
         this.discoveredAt = LocalDateTime.now().toInstant(ZoneOffset.UTC);
         this.assetSeverityMetric = -1F;
         this.assetAlive = alive;
+        this.isAgent = false;
     }
 
     public UtmNetworkScan(NetworkScanDTO assetDto) {

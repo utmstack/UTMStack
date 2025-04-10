@@ -28,9 +28,11 @@ func Install() error {
 	cnf := config.GetConfig()
 
 	fmt.Print("Checking system requirements")
-	if err := system.CheckDistro(config.RequiredDistro); err != nil {
+	distro, err := system.CheckDistro()
+	if err != nil {
 		return err
 	}
+
 	if err := system.CheckCPU(config.RequiredMinCPUCores); err != nil {
 		return err
 	}
@@ -82,10 +84,10 @@ func Install() error {
 		if err != nil {
 			return err
 		}
-		if err := network.InstallVlan(); err != nil {
+		if err := network.InstallVlan(distro); err != nil {
 			return err
 		}
-		if err := network.ConfigureVLAN(iface); err != nil {
+		if err := network.ConfigureVLAN(iface, distro); err != nil {
 			return err
 		}
 		if err := utils.SetLock(202402081553, stack.LocksDir); err != nil {
@@ -96,7 +98,7 @@ func Install() error {
 
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Print("Installing Docker")
-		if err := docker.InstallDocker(); err != nil {
+		if err := docker.InstallDocker(distro); err != nil {
 			return err
 		}
 		if err := utils.SetLock(3, stack.LocksDir); err != nil {
@@ -154,11 +156,11 @@ func Install() error {
 
 	fmt.Print("Installing reverse proxy. This may take a while.")
 
-	if err := network.InstallNginx(); err != nil {
+	if err := network.InstallNginx(distro); err != nil {
 		return err
 	}
 
-	if err := network.ConfigureNginx(cnf, stack); err != nil {
+	if err := network.ConfigureNginx(cnf, stack, distro); err != nil {
 		return err
 	}
 
@@ -166,7 +168,7 @@ func Install() error {
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Print("Installing Administration Tools")
-		if err := system.InstallTools(); err != nil {
+		if err := system.InstallTools(distro); err != nil {
 			return err
 		}
 
