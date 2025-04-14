@@ -5,6 +5,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/templates"
 	"github.com/utmstack/UTMStack/installer/utils"
 )
@@ -38,38 +39,70 @@ func checkRenderer() (string, error) {
 	return "networkd", nil
 }
 
-func ConfigureVLAN(mainIface string) error {
-	renderer, err := checkRenderer()
-	if err != nil {
-		return err
-	}
+func ConfigureVLAN(mainIface string, distro string) error {
 
-	c := Vlan{
-		Renderer: renderer,
-		Iface:    mainIface,
-	}
+	c := Vlan{Iface: mainIface}
 
-	err = utils.GenerateConfig(c, templates.Vlan, path.Join("/etc", "netplan", "99-vlan.yaml"))
-	if err != nil {
-		return err
-	}
+	switch distro {
+	case config.RequiredDistroUbuntu:
+		renderer, err := checkRenderer()
+		if err != nil {
+			return err
+		}
 
-	if err := utils.RunCmd("netplan", "apply"); err != nil {
-		return err
+		c.Renderer = renderer
+
+		err = utils.GenerateConfig(c, templates.VlanUbuntu, path.Join("/etc", "netplan", "99-vlan.yaml"))
+		if err != nil {
+			return err
+		}
+
+		if err := utils.RunCmd("netplan", "apply"); err != nil {
+			return err
+		}
+
+	case config.RequiredDistroRHEL:
+		err := utils.GenerateConfig(c, templates.VlanRedHat, "/etc/sysconfig/network-scripts/ifcfg-vlan10")
+		if err != nil {
+			return err
+		}
+
+		if err := utils.RunCmd("modprobe", "8021q"); err != nil {
+			return err
+		}
+
+		if err := os.WriteFile("/etc/modules-load.d/8021q.conf", []byte("8021q\n"), 0644); err != nil {
+			return err
+		}
+
+		if err := utils.RunCmd("systemctl", "restart", "NetworkManager"); err != nil {
+			return err
+		}
+
 	}
 
 	return nil
 }
 
-func InstallVlan() error {
-	env := []string{"DEBIAN_FRONTEND=noninteractive"}
+func InstallVlan(distro string) error {
+	switch distro {
+	case config.RequiredDistroUbuntu:
+		env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
-	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
-		return err
-	}
+		if err := utils.RunEnvCmd(env, "apt-get", "update", "-y"); err != nil {
+			return err
+		}
 
-	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "vlan"); err != nil {
-		return err
+		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "vlan"); err != nil {
+			return err
+		}
+
+	case config.RequiredDistroRHEL:
+		env := []string{"DNF_YUM_AUTO_YES=1"}
+
+		if err := utils.RunEnvCmd(env, "dnf", "update", "-y"); err != nil {
+			return err
+		}
 	}
 
 	return nil
