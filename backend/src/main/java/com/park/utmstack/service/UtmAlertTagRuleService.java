@@ -104,7 +104,7 @@ public class UtmAlertTagRuleService {
             TypedParameterValue isDeleted = new TypedParameterValue(new BooleanType(), filters.getRuleDeleted());
 
             return alertTagRuleRepository.findByFilter(id, name, conditionField,
-                conditionValue, tagIds, isActive, isDeleted, pageable);
+                    conditionValue, tagIds, isActive, isDeleted, pageable);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
@@ -145,7 +145,7 @@ public class UtmAlertTagRuleService {
         final String ctx = CLASSNAME + ".automaticReview";
         try {
             // If no new alerts have been received, stop execution
-            if (alertUtil.countAlertsByStatus(AlertStatus.AUTOMATIC_REVIEW.getCode()) == 0)
+            if (alertUtil.countAlertsByStatus(AlertStatus.OPEN.getCode()) == 0)
                 return;
 
             // Getting all registered rules
@@ -154,12 +154,12 @@ public class UtmAlertTagRuleService {
             // Getting rules that are actives and are not deleted
             if (!CollectionUtils.isEmpty(tagRules))
                 tagRules = tagRules.stream()
-                    .filter(rule -> rule.getRuleActive() && !rule.getRuleDeleted())
-                    .collect(Collectors.toList());
+                        .filter(rule -> rule.getRuleActive() && !rule.getRuleDeleted())
+                        .collect(Collectors.toList());
 
             // Getting rule evaluation start time
             Instant rulesEvaluationStart = LocalDateTime.now().toInstant(ZoneOffset.UTC)
-                .truncatedTo(ChronoUnit.SECONDS);
+                    .truncatedTo(ChronoUnit.SECONDS);
 
             // If there is any rule
             if (!CollectionUtils.isEmpty(tagRules))
@@ -174,17 +174,17 @@ public class UtmAlertTagRuleService {
         }
     }
 
-    private void releaseToOpen(Instant rulesEvaluationStart) throws Exception {
+    private void releaseToOpen(Instant rulesEvaluationStart) {
         final String ctx = CLASSNAME + ".releaseToOpen";
         try {
             String ruleScript = "ctx._source.status=%1$s;" +
-                "ctx._source.statusLabel='%2$s';" +
-                "ctx._source.statusObservation='%3$s';";
+                    "ctx._source.statusLabel='%2$s';" +
+                    "ctx._source.statusObservation='%3$s';";
 
             String statusObservation = "This alert has been evaluated by the tag rules engine";
 
             String script = String.format(ruleScript, AlertStatus.OPEN.getCode(), AlertStatus.OPEN.getName(),
-                statusObservation);
+                    statusObservation);
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.AUTOMATIC_REVIEW.getCode()));
@@ -196,16 +196,18 @@ public class UtmAlertTagRuleService {
             elasticsearchService.updateByQuery(query, indexPattern, script);
 
             alertPointcut.automaticAlertStatusChangePointcut(query, AlertStatus.OPEN.getCode(),
-                statusObservation, indexPattern);
+                    statusObservation, indexPattern);
         } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
+            String msg = ctx + ": " + e.getMessage();
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            log.error(msg, e.getMessage(), e);
         }
     }
 
-    private void applyTagRule(List<UtmAlertTagRule> rules, Instant rulesEvaluationStart) throws Exception {
+    private void applyTagRule(List<UtmAlertTagRule> rules, Instant rulesEvaluationStart) {
         final String ctx = CLASSNAME + ".applyTagRule";
-        try {
-            for (UtmAlertTagRule rule : rules) {
+        for (UtmAlertTagRule rule : rules) {
+            try {
                 List<FilterType> filters = rule.getConditions();
                 filters.add(new FilterType(Constants.alertStatus, OperatorType.IS, AlertStatus.AUTOMATIC_REVIEW.getCode()));
                 filters.add(new FilterType(Constants.timestamp, OperatorType.IS_LESS_THAN_OR_EQUALS, rulesEvaluationStart.toString()));
@@ -213,20 +215,20 @@ public class UtmAlertTagRuleService {
                 Query query = SearchUtil.toQuery(filters);
 
                 String script = "if (!ctx._source.containsKey('tags') || ctx._source.tags == null || ctx._source.tags.empty)\n" +
-                    "\tctx._source.tags = new ArrayList();\n" +
-                    "ctx._source.tags.addAll([%1$s]);\n" +
-                    "ctx._source.tags = ctx._source.tags.stream().distinct().collect(Collectors.toList());\n" +
-                    "\n" +
-                    "if (!ctx._source.containsKey('TagRulesApplied') || ctx._source.TagRulesApplied == null || ctx._source.TagRulesApplied.empty)\n" +
-                    "\tctx._source.TagRulesApplied = new ArrayList();\n" +
-                    "ctx._source.TagRulesApplied.add(%2$s);\n" +
-                    "ctx._source.TagRulesApplied = ctx._source.TagRulesApplied.stream().distinct().collect(Collectors.toList());" +
-                    "\n" +
-                    "if (ctx._source.tags.contains('False positive')) {\n" +
-                    "\tctx._source.status=%3$s;\n" +
-                    "\tctx._source.statusLabel='%4$s';\n" +
-                    "\tctx._source.statusObservation='Status changed to completed because alert was tagged as False positive';\n" +
-                    "\n}";
+                        "\tctx._source.tags = new ArrayList();\n" +
+                        "ctx._source.tags.addAll([%1$s]);\n" +
+                        "ctx._source.tags = ctx._source.tags.stream().distinct().collect(Collectors.toList());\n" +
+                        "\n" +
+                        "if (!ctx._source.containsKey('TagRulesApplied') || ctx._source.TagRulesApplied == null || ctx._source.TagRulesApplied.empty)\n" +
+                        "\tctx._source.TagRulesApplied = new ArrayList();\n" +
+                        "ctx._source.TagRulesApplied.add(%2$s);\n" +
+                        "ctx._source.TagRulesApplied = ctx._source.TagRulesApplied.stream().distinct().collect(Collectors.toList());" +
+                        "\n" +
+                        "if (ctx._source.tags.contains('False positive')) {\n" +
+                        "\tctx._source.status=%3$s;\n" +
+                        "\tctx._source.statusLabel='%4$s';\n" +
+                        "\tctx._source.statusObservation='Status changed to completed because alert was tagged as False positive';\n" +
+                        "\n}";
 
                 List<UtmAlertTag> tags = alertTagService.findAllByIdIn(rule.getAppliedTagsAsListOfLong());
                 String indexPattern = Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS);
@@ -234,13 +236,15 @@ public class UtmAlertTagRuleService {
                 String tagsForInsert = tags.stream().map(tag -> "'" + tag.getTagName() + "'").collect(Collectors.joining(","));
 
                 elasticsearchService.updateByQuery(query, indexPattern, String.format(script, tagsForInsert, rule.getId(),
-                    AlertStatus.COMPLETED.getCode(), AlertStatus.COMPLETED.getName()));
+                        AlertStatus.COMPLETED.getCode(), AlertStatus.COMPLETED.getName()));
 
                 String tagsForLogs = tags.stream().map(UtmAlertTag::getTagName).collect(Collectors.joining(","));
                 alertPointcut.automaticAlertTagsChangePointcut(query, tagsForLogs, rule.getRuleName(), indexPattern);
+            } catch (Exception e) {
+                String msg = String.format("%s: Error applying rule '%s' - %s", ctx, rule.getRuleName(), e.getMessage());
+                eventService.createEvent(msg, ApplicationEventType.ERROR);
+                log.error(msg, e.getMessage(), e);
             }
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
         }
     }
 }

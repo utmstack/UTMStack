@@ -12,7 +12,7 @@ on:
 jobs:
   prepare_deployment:
     name: Prepare deployment - ${{inputs.microservice}}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       tech: ${{ steps.get_tech.outputs.tech }}
     steps:

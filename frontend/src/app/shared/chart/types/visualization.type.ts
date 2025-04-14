@@ -22,5 +22,7 @@ export class VisualizationType {
   chartAction?: any;
   showTime?: boolean;
   systemOwner?: boolean;
+  page?: any;
+
 }
 

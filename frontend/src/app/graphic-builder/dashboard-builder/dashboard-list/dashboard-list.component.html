@@ -99,11 +99,11 @@
                      class="icon-copy3 cursor-pointer mr-2"
                      ngbTooltip="Copy dashboard URL" tooltipClass="utm-tooltip-top"></i>
 
-                  <i *ngIf="!dashboard.systemOwner || isDevMode()" (click)="editDashboard(dashboard)"
+                  <i *ngIf="!dashboard.systemOwner || isDevMode" (click)="editDashboard(dashboard)"
                      class="icon-pencil3 cursor-pointer mr-2"
                      ngbTooltip="Edit dashboard" tooltipClass="utm-tooltip-top"></i>
 
-                  <i *ngIf="!dashboard.systemOwner || isDevMode()" (click)="deleteDashboard(dashboard)" class="icon-cross2 cursor-pointer"
+                  <i *ngIf="!dashboard.systemOwner || isDevMode" (click)="deleteDashboard(dashboard)" class="icon-cross2 cursor-pointer"
                      ngbTooltip="Delete dashboard"
                      placement="left"
                      tooltipClass="utm-tooltip"></i>

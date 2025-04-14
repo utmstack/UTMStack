@@ -145,6 +145,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
 
   runVisualization() {
     this.loadingOption = true;
+    const request = this.visualization.page ? this.visualization.page : {};
     /*this.runVisualizationService.run(this.visualization).subscribe(data => {
       this.empty = data.length === 0 || data[0].rows.length === 0;
       this.data = data.length > 0 ? data[0] : [];
@@ -171,7 +172,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
         'Error occurred while running visualization');
     });*/
 
-    return this.runVisualizationService.run(this.visualization)
+    return this.runVisualizationService.run(this.visualization, request)
       .pipe(
         tap((data) => {
           this.empty = data.length === 0 || data[0].rows.length === 0;

@@ -59,6 +59,13 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   }
 
   onVisualizationChange(visualization: any, report: ComplianceReportType) {
+    visualization.visualization = {
+      ...visualization.visualization,
+      page: {
+        size: 5,
+        page: 0
+      }
+    };
     report.visualization = visualization;
   }
 
