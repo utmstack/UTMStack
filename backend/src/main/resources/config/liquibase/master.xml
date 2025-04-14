@@ -103,4 +103,6 @@
 
     <include file="/config/liquibase/changelog/20250325001_add_create_dashboard_visualization_menu.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250411001_add_instance_licence_sections.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

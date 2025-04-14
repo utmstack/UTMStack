@@ -5,6 +5,8 @@ public enum SectionType {
     EMAIL,
     TFA,
     ALERTS,
-    DATE_SETTINGS
+    DATE_SETTINGS,
+    INSTANCE_REGISTRATION,
+    SYSTEM_LICENSE
 
 }
