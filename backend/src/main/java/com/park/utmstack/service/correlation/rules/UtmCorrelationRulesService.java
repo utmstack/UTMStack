@@ -65,10 +65,13 @@ public class UtmCorrelationRulesService {
         final String ctx = CLASSNAME + ".saveRule";
         log.debug("Request to save UtmCorrelationRules : {}", rule);
 
-        Optional<UtmCorrelationRules> existingRule = utmCorrelationRulesRepository.findById(rule.getId());
-        if (existingRule.isPresent()) {
-            throw new RuntimeException(ctx + ": " + String.format("Rule with %1$s already exist", rule.getId()));
+        if (Objects.nonNull(rule.getId())) {
+            Optional<UtmCorrelationRules> existingRule = utmCorrelationRulesRepository.findById(rule.getId());
+            if (existingRule.isPresent()) {
+                throw new RuntimeException(ctx + ": " + String.format("Rule with %1$s already exist", rule.getId()));
+            }
         }
+
         rule.setDataTypes(this.saveDataTypes(rule));
         rule.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
         return utmCorrelationRulesRepository.save(rule);
@@ -216,17 +219,17 @@ public class UtmCorrelationRulesService {
     }
 
     private Set<UtmDataTypes> saveDataTypes(UtmCorrelationRules rule) {
-        Set<UtmDataTypes> existingDataTypes = new HashSet<>();
+        Set<UtmDataTypes> managedDataTypes = new HashSet<>();
         Set<UtmDataTypes> newDataTypes = new HashSet<>();
 
         for (UtmDataTypes dataType : rule.getDataTypes()) {
-            dataType.setLastUpdate();
             if (dataType.getId() == null || !utmDataTypesRepository.existsById(dataType.getId())) {
                 dataType.setSystemOwner(false);
+                dataType.setLastUpdate();
                 newDataTypes.add(dataType);
             } else {
-                dataType.setSystemOwner(utmDataTypesRepository.findById(dataType.getId()).get().getSystemOwner());
-                existingDataTypes.add(dataType);
+                UtmDataTypes existing = utmDataTypesRepository.findById(dataType.getId()).orElseThrow();
+                managedDataTypes.add(existing);
             }
         }
 
@@ -234,9 +237,9 @@ public class UtmCorrelationRulesService {
             newDataTypes = new HashSet<>(utmDataTypesRepository.saveAll(newDataTypes));
         }
 
-        existingDataTypes.addAll(newDataTypes);
+        managedDataTypes.addAll(newDataTypes);
 
-        return existingDataTypes;
+        return managedDataTypes;
     }
 
     public Long getSystemSequenceNextValue() {
