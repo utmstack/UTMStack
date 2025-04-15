@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Check out code into the right branch
       uses: actions/checkout@v4

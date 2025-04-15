@@ -45,6 +45,7 @@ export class DashboardListComponent implements OnInit {
   checkbox: boolean;
   selected: number[] = [];
   exporting = false;
+  isDevMode = isDevMode;
 
   constructor(private modalService: NgbModal,
               private dashboardService: UtmDashboardService,
@@ -211,5 +212,4 @@ export class DashboardListComponent implements OnInit {
     this.loading = false;
   }
 
-  protected readonly isDevMode = isDevMode;
 }

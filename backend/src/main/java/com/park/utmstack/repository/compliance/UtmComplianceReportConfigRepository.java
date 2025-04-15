@@ -30,13 +30,15 @@ public interface UtmComplianceReportConfigRepository extends JpaRepository<UtmCo
     @Query("delete from UtmComplianceReportConfig r where r.standardSectionId in (select s.id from UtmComplianceStandardSection s where s.standardId = :standardId) and r.id not in :reportIds")
     void deleteReportsByStandardIdAndIdNotIn(@Param("standardId") Long standardId, @Param("reportIds") List<Long> reportIds);
 
-    @Query(value = "SELECT cfg FROM UtmComplianceReportConfig cfg " +
+    @Query(value = "SELECT DISTINCT cfg FROM UtmComplianceReportConfig cfg " +
             "JOIN cfg.section sec " +
             "LEFT JOIN cfg.associatedDashboard d " +
+            "LEFT JOIN d.visualizations v " +
             "WHERE (:standardId IS NULL OR sec.standardId = :standardId) " +
             "AND (:solution IS NULL OR lower(cfg.configSolution) LIKE %:solution%) " +
             "AND (:sectionId IS NULL OR sec.id = :sectionId) " +
-            "AND (:search IS NULL OR lower(cfg.configReportName) LIKE %:search% OR d.name LIKE %:search%)")
+            "AND (:search IS NULL OR lower(cfg.configReportName) LIKE %:search% OR d.name LIKE %:search%) " +
+            "AND (v.pattern.isActive = true)")
     Page<UtmComplianceReportConfig> getReportsByFilters(
             @Param("standardId") Long standardId,
             @Param("solution") String solution,

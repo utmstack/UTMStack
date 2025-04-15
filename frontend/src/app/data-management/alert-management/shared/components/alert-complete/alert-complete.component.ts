@@ -67,6 +67,7 @@ export class AlertCompleteComponent implements OnInit {
       modal.componentInstance.rule = this.rule;
     }
     modal.componentInstance.alert = this.alert;
+    modal.componentInstance.action = 'select';
     modal.componentInstance.isForComplete = true;
     modal.componentInstance.tags = falsePositive;
     modal.componentInstance.ruleAdd.subscribe(rule => {

@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.park.utmstack.domain.UtmAlertTag;
 import com.park.utmstack.domain.UtmAlertTagRule;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing UtmTagRule.
@@ -41,12 +43,16 @@ public class UtmAlertTagRuleResource {
     private final ApplicationEventService applicationEventService;
     private final UtmAlertTagService alertTagService;
 
+    private final ObjectMapper objectMapper;
+
+
     public UtmAlertTagRuleResource(UtmAlertTagRuleService tagRuleService,
                                    ApplicationEventService applicationEventService,
-                                   UtmAlertTagService alertTagService) {
+                                   UtmAlertTagService alertTagService, ObjectMapper objectMapper) {
         this.tagRuleService = tagRuleService;
         this.applicationEventService = applicationEventService;
         this.alertTagService = alertTagService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/alert-tag-rules")
@@ -80,13 +86,16 @@ public class UtmAlertTagRuleResource {
     public ResponseEntity<AlertTagRuleVM> updateAlertTagRule(@Valid @RequestBody AlertTagRuleVM ruleVM) throws URISyntaxException {
         final String ctx = CLASSNAME + ".updateAlertTagRule";
         try {
-            if (Objects.isNull(ruleVM.getId()))
-                throw new Exception("ID can't be null");
+              UtmAlertTagRule utmAlertTagRule = this.tagRuleService.findOne(ruleVM.getId())
+                      .orElseThrow(() -> new RuntimeException("Tag rule with" + ruleVM.getId() + "not found"));
 
-            UtmAlertTagRule alertTagRule = tagRuleService.save(new UtmAlertTagRule(ruleVM));
+              utmAlertTagRule.setRuleConditions(this.objectMapper.writeValueAsString(ruleVM.getConditions()));
+              utmAlertTagRule.setRuleDescription(ruleVM.getDescription());
+              utmAlertTagRule.setRuleName(ruleVM.getName());
+              utmAlertTagRule.setRuleAppliedTags(ruleVM.getTags().stream().map(tag -> String.valueOf(tag.getId()))
+                      .collect(Collectors.joining(",")));
 
-            ruleVM.setLastModifiedBy(alertTagRule.getLastModifiedBy());
-            ruleVM.setLastModifiedDate(alertTagRule.getLastModifiedDate());
+              this.tagRuleService.save(utmAlertTagRule);
 
             return ResponseEntity.ok(ruleVM);
         } catch (Exception e) {
