@@ -1,10 +1,8 @@
 # UTMStack 10.7.3 Release Notes
-
-### Features
--- Implemented backend support for filtering compliance reports based on active integrations.
--- Introduced new PCI DSS compliance reports.
--- Enabled creation and update of tag-based rules with dynamic conditions.
+-- Implemented backend support for filtering compliance reports based on active integrations, optimizing query performance and data retrieval.
+-- Introduced new compliance reports aligned with the PCI DSS standard to expand auditing capabilities.
+-- Added support for creating and updating tag-based rules with dynamic conditions.
 
 ### Bug Fixes
--- Improved exception handling in `automaticReview`.
--- Improved operator selection accuracy for filtering.
+-- Improved exception handling in `automaticReview` to prevent the process from stopping due to errors, ensuring the system continues evaluating alerts even if a specific rule fails.
+-- Improved operator selection for more accurate and consistent filtering.
