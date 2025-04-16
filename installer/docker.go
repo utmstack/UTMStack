@@ -9,33 +9,57 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func InstallDocker() error {
-	env := []string{"DEBIAN_FRONTEND=noninteractive"}
+func InstallDocker(distro string) error {
+	switch distro {
+	case "ubuntu":
+		env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
-	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
-		return err
+		if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
+			return err
+		}
+	case "redhat":
+		env := []string{"DNF_YUM_AUTO_YES=1"}
+
+		if err := utils.RunEnvCmd(env, "dnf", "install", "-y", "dnf-plugins-core", "ca-certificates", "curl"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "dnf", "config-manager", "--add-repo", "https://download.docker.com/linux/centos/docker-ce.repo"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "dnf", "makecache"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "dnf", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose-plugin", "docker-buildx-plugin"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "systemctl", "enable", "--now", "docker"); err != nil {
+			return err
+		}
 	}
-
-	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "apt-transport-https", "ca-certificates", "curl", "gnupg-agent", "software-properties-common"); err != nil {
-		return err
-	}
-
-	if err := utils.RunEnvCmd(env, "sh", "-c", "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"); err != nil {
-		return err
-	}
-
-	if err := utils.RunEnvCmd(env, "sh", "-c", `add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`); err != nil {
-		return err
-	}
-
-	if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
-		return err
-	}
-
-	if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose"); err != nil {
-		return err
-	}
-
 	return nil
 }
 

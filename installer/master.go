@@ -9,7 +9,7 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Master(c *types.Config) error {
+func Master(c *types.Config, distro string) error {
 	if err := utils.CheckCPU(2); err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func Master(c *types.Config) error {
 
 	if utils.GetLock(2, stack.LocksDir) {
 		fmt.Println("Preparing system to run UTMStack")
-		if err := PrepareSystem(); err != nil {
+		if err := PrepareSystem(distro); err != nil {
 			return err
 		}
 
@@ -72,11 +72,11 @@ func Master(c *types.Config) error {
 			return err
 		}
 
-		if err := InstallVlan(); err != nil {
+		if err := InstallVlan(distro); err != nil {
 			return err
 		}
 
-		if err := ConfigureVLAN(iface); err != nil {
+		if err := ConfigureVLAN(iface, distro); err != nil {
 			return err
 		}
 
@@ -101,7 +101,7 @@ func Master(c *types.Config) error {
 
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Println("Installing Docker")
-		if err := InstallDocker(); err != nil {
+		if err := InstallDocker(distro); err != nil {
 			return err
 		}
 
@@ -138,11 +138,11 @@ func Master(c *types.Config) error {
 
 	fmt.Println("Installing reverse proxy. This may take a while.")
 
-	if err := InstallNginx(); err != nil {
+	if err := InstallNginx(distro); err != nil {
 		return err
 	}
 
-	if err := ConfigureNginx(c, stack); err != nil {
+	if err := ConfigureNginx(c, stack, distro); err != nil {
 		return err
 	}
 
@@ -150,7 +150,7 @@ func Master(c *types.Config) error {
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Println("Installing Administration Tools")
-		if err := InstallTools(); err != nil {
+		if err := InstallTools(distro); err != nil {
 			return err
 		}
 
