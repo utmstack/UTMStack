@@ -1,16 +1,20 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {fromEvent, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {fromEvent, of, Subject} from 'rxjs';
+import {catchError, map, takeUntil, tap} from 'rxjs/operators';
 import {GettingStartedBehavior} from 'src/app/shared/behaviors/getting-started.behavior';
 import {AccountService} from '../../../../core/auth/account.service';
+import {UtmToastService} from '../../../alert/utm-toast.service';
 import {ONLINE_DOCUMENTATION_BASE} from '../../../constants/global.constant';
+import {UtmConfigParamsService} from '../../../services/config/utm-config-params.service';
 import {GettingStartedService} from '../../../services/getting-started/getting-started.service';
-import {ApplicationConfigSectionEnum} from "../../../types/configuration/section-config.type";
+import {SectionConfigParamType} from '../../../types/configuration/section-config-param.type';
+import {ApplicationConfigSectionEnum} from '../../../types/configuration/section-config.type';
 import {GettingStartedStepEnum} from '../../../types/getting-started/getting-started.type';
 import {isSubdomainOfUtmstack} from '../../../util/url.util';
 import {UtmAdminChangeEmailComponent} from '../utm-admin-change-email/utm-admin-change-email.component';
+import {UtmInstanceInfoComponent} from '../utm-instance-info/utm-instance-info.component';
 
 @Component({
   selector: 'app-welcome-to-utmstack',
@@ -22,17 +26,15 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
   accountSetup = true;
   onlineDoc = ONLINE_DOCUMENTATION_BASE;
   inSass: boolean;
-
-  ngOnDestroy(): void {
-    this.unsubscriber.next();
-    this.unsubscriber.complete();
-  }
+  isIncompleteConfig = false;
 
   constructor(private router: Router,
               private accountService: AccountService,
               private utmGettingStartedService: GettingStartedService,
               private gettingStartedBehavior: GettingStartedBehavior,
-              private modalService: NgbModal) {
+              private modalService: NgbModal,
+              private utmConfigParamsService: UtmConfigParamsService,
+              private toastService: UtmToastService) {
 
   }
 
@@ -45,10 +47,41 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
     ).subscribe((_) => {
       history.pushState(null, '');
     });
+
+    this.utmConfigParamsService.query({
+      page: 0,
+      size: 10000,
+      'sectionId.equals': ApplicationConfigSectionEnum.INSTANCE_REGISTRATION,
+      sort: 'id,asc'
+    }).pipe(
+      map(res =>
+        res.body.filter(c => c.confParamShort !== 'utmstack.instance.data'
+        && c.confParamShort !== 'utmstack.instance.auth')),
+      tap(config => this.isIncompleteConfig = config.some(c => c.confParamValue === '')),
+      catchError(err => {
+        this.toastService.showError('Error',
+          'Error occurred while fetching instance registration configuration');
+        return of([]);
+      })
+    )
+      .subscribe((response) => {
+        if (this.isIncompleteConfig) {
+          this.loadInstanceForm(response || []);
+        }
+    });
   }
 
   exit() {
     this.setUpAdmin(false);
+  }
+
+  loadInstanceForm(formConfigs: SectionConfigParamType[]) {
+      const modal = this.modalService.open(UtmInstanceInfoComponent, {centered: true});
+      modal.componentInstance.formConfigs = formConfigs;
+
+      modal.result.then((result) => {
+        console.log(result);
+      })
   }
 
   setUpAdmin(gettingStarted: boolean) {
@@ -95,5 +128,14 @@ export class WelcomeToUtmstackComponent implements OnInit, OnDestroy {
         ApplicationConfigSectionEnum.TFA,
         ApplicationConfigSectionEnum.DATE_SETTINGS];
     }
+  }
+
+  isRegister(){
+
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscriber.next();
+    this.unsubscriber.complete();
   }
 }

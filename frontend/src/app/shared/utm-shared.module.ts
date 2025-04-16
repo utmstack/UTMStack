@@ -230,6 +230,7 @@ import {HighlightPipe} from './pipes/text/highlight.pipe';
 import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
+import {UtmInstanceInfoComponent} from "./components/getting-started/utm-instance-info/utm-instance-info.component";
 
 
 
@@ -383,7 +384,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     ModalAddNoteComponent,
     TimePeriodPipe,
     UtmCollapsibleTextComponent,
-    FilterPipe
+    FilterPipe,
+    UtmInstanceInfoComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -486,7 +488,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     TimePeriodPipe,
     ModalAddNoteComponent,
     UtmCollapsibleTextComponent,
-    FilterPipe
+    FilterPipe,
+    UtmInstanceInfoComponent
   ],
   entryComponents: [
     LoginComponent,
@@ -531,7 +534,8 @@ import {UtmNotifier} from './websocket/utm-notifier';
     UtmAdminChangeEmailComponent,
     IrVariableCreateComponent,
     EmailSettingNotificactionComponent,
-    ModalAddNoteComponent],
+    ModalAddNoteComponent,
+    UtmInstanceInfoComponent],
   providers: [
     UtmToastService,
     MenuBehavior,
@@ -540,7 +544,7 @@ import {UtmNotifier} from './websocket/utm-notifier';
     VersionUpdateBehavior,
     AuthServerProvider,
     NgbActiveModal,
-    LocalStorageService],
+    LocalStorageService,],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UtmSharedModule {
