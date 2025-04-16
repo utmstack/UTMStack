@@ -19,7 +19,7 @@ func sendLog() {
 		_ = catcher.Error("cannot create socket directory", err, nil)
 		os.Exit(1)
 	}
-	socketFile := socketsFolder.FileJoin("com.utmstack.events_output.sock")
+	socketFile := socketsFolder.FileJoin("engine_server.sock")
 
 	conn, err := grpc.NewClient(fmt.Sprintf("unix://%s", socketFile),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))

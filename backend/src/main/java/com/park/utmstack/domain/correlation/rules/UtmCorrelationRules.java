@@ -106,7 +106,7 @@ public class UtmCorrelationRules implements Serializable {
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "utm_group_rules_data_type",
             joinColumns = @JoinColumn(name = "rule_id"),
             inverseJoinColumns = @JoinColumn(name = "data_type_id"))

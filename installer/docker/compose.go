@@ -259,6 +259,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"8080:8080",
 		},
 		Volumes: []string{
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
 			stack.Cert + ":/cert",

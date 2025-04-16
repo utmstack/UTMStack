@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, isDevMode, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpStandardSectionBehavior} from '../../shared/behavior/cp-standard-section.behavior';
 import {CpStandardBehavior} from '../../shared/behavior/cp-standard.behavior';
@@ -8,7 +8,6 @@ import {CpStandardSectionService} from '../../shared/services/cp-standard-sectio
 import {ComplianceStandardSectionType} from '../../shared/type/compliance-standard-section.type';
 import {ComplianceStandardType} from '../../shared/type/compliance-standard.type';
 import {UtmCpStandardSectionDeleteComponent} from './utm-cp-standard-section-delete/utm-cp-standard-section-delete.component';
-
 
 @Component({
   selector: 'app-utm-cp-standard-section',
@@ -24,6 +23,7 @@ export class UtmCpStandardSectionComponent implements OnInit {
   page = 1;
   solution: string;
   loadingMore: false;
+  isDevMode = isDevMode;
 
   constructor(private cpStandardSectionService: CpStandardSectionService,
               private cpStandardBehavior: CpStandardBehavior,

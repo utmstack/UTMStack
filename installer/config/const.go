@@ -17,7 +17,8 @@ const (
 
 	RequiredMinCPUCores  = 2
 	RequiredMinDiskSpace = 30
-	RequiredDistro       = "ubuntu"
+	RequiredDistroUbuntu = "ubuntu"
+	RequiredDistroRHEL   = "redhat"
 )
 
 var (

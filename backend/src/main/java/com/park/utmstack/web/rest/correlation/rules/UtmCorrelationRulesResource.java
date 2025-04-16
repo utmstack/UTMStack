@@ -88,7 +88,7 @@ public class UtmCorrelationRulesResource {
 
             // Set the next system sequence value only if the environment is dev
             // All rules created under the development environment are considered as from the system
-            if (utmStackService.isInDevelop()) {
+            if (!utmStackService.isInDevelop()) {
                 utmCorrelationRulesDTO.setId(rulesService.getSystemSequenceNextValue());
                 utmCorrelationRulesDTO.setSystemOwner(true);
             } else {

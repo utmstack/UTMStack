@@ -1,5 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, isDevMode, OnInit, Output} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpStandardBehavior} from '../../shared/behavior/cp-standard.behavior';
 import {UtmCpStandardCreateComponent} from '../../shared/components/utm-cp-standard-create/utm-cp-standard-create.component';
@@ -7,7 +7,6 @@ import {CpStandardService} from '../../shared/services/cp-standard.service';
 import {ComplianceStandardType} from '../../shared/type/compliance-standard.type';
 import {UtmCpExportComponent} from '../utm-cp-export/utm-cp-export.component';
 import {UtmCpStandardDeleteComponent} from './utm-cp-standard-delete/utm-cp-standard-delete.component';
-
 
 @Component({
   selector: 'app-utm-cp-standard',
@@ -20,6 +19,7 @@ export class UtmCpStandardComponent implements OnInit {
   @Input() standardId: number;
   @Output() standardChange = new EventEmitter<ComplianceStandardType>();
   @Input() manage: boolean;
+  isDevMode = isDevMode;
 
   constructor(private cpStandardService: CpStandardService,
               private modalService: NgbModal,
@@ -94,7 +94,6 @@ export class UtmCpStandardComponent implements OnInit {
 
   private onError(body: any) {
   }
-
 
   exportStandard(st: ComplianceStandardType) {
     const modal = this.modalService.open(UtmCpExportComponent, {centered: true});

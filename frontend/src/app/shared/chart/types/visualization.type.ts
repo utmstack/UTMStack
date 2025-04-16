@@ -23,5 +23,6 @@ export class VisualizationType {
   showTime?: boolean;
   systemOwner?: boolean;
   page?: any;
+
 }
 

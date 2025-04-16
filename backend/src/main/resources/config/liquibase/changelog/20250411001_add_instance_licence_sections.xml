@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250407001" author="Manuel">
+        <sql>
+            <![CDATA[
+            INSERT INTO public.utm_configuration_section (
+                id,
+                section,
+                description,
+                short_name,
+                section_active
+            ) VALUES
+                  (
+                      7,
+                      'Instance Registration',
+                      'This section allows you to configure and register a system instance by providing required organizational information such as organization name, country, and contact email.',
+                      'INSTANCE_REGISTRATION',
+                      true
+                  ),
+                  (
+                      8,
+                      'System License',
+                      'This section allows you to store the license key used to activate and validate the system instance. The license must be provided in Base64 format and is securely stored for verification purposes.',
+                      'SYSTEM_LICENSE',
+                      true
+                  );
+
+                INSERT INTO public.utm_configuration_parameter (
+                    id,
+                    section_id,
+                    conf_param_short,
+                    conf_param_large,
+                    conf_param_description,
+                    conf_param_value,
+                    conf_param_required,
+                    conf_param_datatype,
+                    modification_time,
+                    modification_user,
+                    conf_param_option,
+                    conf_param_regexp
+                ) VALUES
+                      (30, 7, 'utmstack.instance.organization', 'Organization Name', 'Name of the customer organization', '', true, 'string', null, null, null, null),
+                      (31, 7, 'utmstack.instance.country', 'Country', 'Country where the organization is located', '', true, 'country_list', null, null, null, null),
+                      (32, 7, 'utmstack.instance.contact_email', 'Contact Email', 'Email address for instance registration and notifications', '', true, 'email', null, null, null, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
+                INSERT INTO public.utm_configuration_parameter (
+                    id,
+                    section_id,
+                    conf_param_short,
+                    conf_param_large,
+                    conf_param_description,
+                    conf_param_value,
+                    conf_param_required,
+                    conf_param_datatype,
+                    modification_time,
+                    modification_user,
+                    conf_param_option,
+                    conf_param_regexp
+                ) VALUES
+                    (33, 8, 'utmstack.instance.license', 'License Key', 'License key in Base64 format used to activate the system instance', '', true, 'text', null, null, null, null);
+
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

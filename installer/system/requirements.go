@@ -6,6 +6,7 @@ import (
 	sigar "github.com/cloudfoundry/gosigar"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/host"
+	"github.com/utmstack/UTMStack/installer/config"
 )
 
 func CheckMem(size uint64) error {
@@ -45,10 +46,14 @@ func CheckCPU(cores int) error {
 	return nil
 }
 
-func CheckDistro(distro string) error {
+func CheckDistro() (string, error) {
 	info, _ := host.Info()
-	if info.Platform != distro {
-		return fmt.Errorf("your Linux distribution (%s) is not %s", info.Platform, distro)
+
+	distro := info.Platform
+	if distro != config.RequiredDistroUbuntu && distro != config.RequiredDistroRHEL {
+		return "", fmt.Errorf("your Linux distribution (%s) is not supported. Supported distributions are: %s, %s",
+			distro, config.RequiredDistroUbuntu, config.RequiredDistroRHEL)
 	}
-	return nil
+
+	return distro, nil
 }

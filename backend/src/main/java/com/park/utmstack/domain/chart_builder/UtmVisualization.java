@@ -18,7 +18,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A UtmVisualization.
@@ -105,6 +107,9 @@ public class UtmVisualization implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_pattern", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmIndexPattern pattern;
+
+    @ManyToMany(mappedBy = "visualizations")
+    private Set<UtmDashboard> dashboards = new HashSet<>();
 
     public Long getId() {
         return id;

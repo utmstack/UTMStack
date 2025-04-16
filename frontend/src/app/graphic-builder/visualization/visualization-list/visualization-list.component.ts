@@ -47,6 +47,7 @@ export class VisualizationListComponent implements OnInit {
   allPageSelected: boolean;
   sort: SortEvent;
   private requestParams: any;
+  isDevMode = isDevMode;
 
   constructor(private modalService: NgbModal,
               private visualizationService: VisualizationService,
@@ -199,5 +200,4 @@ export class VisualizationListComponent implements OnInit {
     // this.alertService.error(error.error, error.message, null);
   }
 
-  isDevMode = isDevMode;
 }
