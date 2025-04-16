@@ -43,10 +43,11 @@
                     conf_param_option,
                     conf_param_regexp
                 ) VALUES
-                      (30, 6, 'utmstack.instance.organization', 'Organization Name', 'Name of the customer organization', '', true, 'string', null, null, null, null),
+                      (30, 6, 'utmstack.instance.organization', 'Organization Name', 'Name of the customer organization', '', true, 'text', null, null, null, null),
                       (31, 6, 'utmstack.instance.country', 'Country', 'Country where the organization is located', '', true, 'country_list', null, null, null, null),
                       (32, 6, 'utmstack.instance.contact_email', 'Contact Email', 'Email address for instance registration and notifications', '', true, 'email', null, null, null, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
-                      (33, 6, 'utmstack.instance.data', 'Request Data', 'Register Data', '', false, 'text', null, null, null, '');
+                      (33, 6, 'utmstack.instance.data', 'Request Data', 'Register Data', '', false, 'text', null, null, null, ''),
+                      (34, 6, 'utmstack.instance.auth', 'Auth Data', 'Auth Data', '', false, 'text', null, null, null, '');
 
                 INSERT INTO public.utm_configuration_parameter (
                     id,
