@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 import {RestartApiBehavior} from '../../../../behaviors/restart-api.behavior';
 import {
@@ -9,6 +11,8 @@ import {
   TIMEZONES
 } from '../../../../constants/date-timezone-date.const';
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
+import {LocationService, SelectOption} from '../../../../services/location.service';
+import {NetworkService} from '../../../../services/network.service';
 import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
@@ -38,23 +42,28 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   dateFormats = DATE_FORMATS;
   isCheckedEmailConfig = false;
   sectionType = ApplicationConfigSectionEnum;
+  selectOptions: { [key: string]: SelectOption[] } = {};
+  isLoading: { [key: string]: boolean } = {};
+  destroy$ = new Subject<void>();
+  isOnline = false;
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private modalService: NgbModal,
               private restartApiBehavior: RestartApiBehavior,
               private toastService: UtmToastService,
-              private timezoneFormatService: TimezoneFormatService) {
+              private timezoneFormatService: TimezoneFormatService,
+              private locationService: LocationService,
+              private networkService: NetworkService) {
   }
 
 
   ngOnInit() {
     this.getConfigurations();
     this.changesApplied.emit(true);
-  }
 
-  ngOnDestroy(): void {
-    if (this.configToSave.length > 0) {
-    }
+    this.networkService.isOnline$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe( isOnline => this.isOnline = isOnline);
   }
 
   getConfigurations() {
@@ -68,6 +77,11 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
       .subscribe(response => {
         this.loading = false;
         this.configs = response.body;
+
+        const countryList = this.configs.find(conf => conf.confParamDatatype === ConfigDataTypeEnum.CountryList);
+        if (countryList) {
+          this.loadSelectOptions(this.getName(countryList.confParamShort));
+        }
         this.validConfigSection.emit(this.checkConfigValid());
       }, error => {
         this.toastService.showError('Error', 'Error getting application configurations');
@@ -215,4 +229,76 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     return this.configToSave.length > 0 &&  conf && conf.confParamValue !== '';
   }
 
+  loadSelectOptions(controlName: string): void {
+    this.isLoading[controlName] = true;
+
+    this.locationService.getCountries().subscribe(
+      (response) => {
+        if (response.body) {
+          this.selectOptions[controlName] = response.body;
+        } else {
+          this.selectOptions[controlName] = [];
+        }
+        this.isLoading[controlName] = false;
+      },
+      (error) => {
+        this.selectOptions[controlName] = [];
+        this.isLoading[controlName] = false;
+      }
+    );
+  }
+
+  getSelectOptions(controlName: string): SelectOption[] {
+    return this.selectOptions[controlName] || [];
+  }
+
+  getName(name: string): string {
+    return name.split('.').pop()!;
+  }
+
+  copyCode(config: SectionConfigParamType) {
+    const selBox = document.createElement('textarea');
+    const copyText = config.confParamValue;
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = copyText;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+
+    document.body.removeChild(selBox);
+    this.toastService.showInfo('Copied!', 'Code is in clipboard');
+  }
+
+  checkDisable(conf: SectionConfigParamType) {
+    if (conf.section.id === this.sectionType.INSTANCE_REGISTRATION) {
+        return conf.confParamShort === 'utmstack.instance.contact_email' || conf.confParamShort === 'utmstack.instance.organization'
+          || conf.confParamShort === 'utmstack.instance.country' || conf.confParamShort === 'utmstack.instance.data';
+
+    } else if (conf.section.id === this.sectionType.SYSTEM_LICENSE){
+        return !this.isOnline;
+    }
+
+    return false;
+  }
+
+  allowCopy(conf: SectionConfigParamType) {
+    return !this.isOnline && conf.confParamShort === 'utmstack.instance.data';
+  }
+
+  getConfigs() {
+    if (this.isOnline && this.section.id === this.sectionType.INSTANCE_REGISTRATION) {
+        return this.configs.filter( c => c.confParamShort !== 'utmstack.instance.data' && c.confParamShort !== 'utmstack.instance.auth');
+    } else {
+      return this.configs;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

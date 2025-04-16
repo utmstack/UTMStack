@@ -3,13 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {UtmConfigParamsService} from '../../../services/config/utm-config-params.service';
-import {LocationService} from '../../../services/location.service';
+import {LocationService, SelectOption} from '../../../services/location.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../types/configuration/section-config-param.type';
-
-interface SelectOption {
-  code: string;
-  name: string;
-}
 
 @Component({
   selector: 'app-utm-admin-change-email',

@@ -40,7 +40,7 @@
   <p *ngIf="section.description" class="mb-3 mt-3">{{section.description}}</p>
   <div *ngIf="configs.length>0 && !loading"
        class="d-flex gap-3 flex-wrap w-100">
-    <div *ngFor="let conf of configs" [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList ?'w-100 order-8':'w-30'"
+    <div *ngFor="let conf of getConfigs()" [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList ?'w-100 order-8':'w-30'"
          class="form-group mb-4">
       <label [for]="'sectionParam'+conf.id"
              class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
@@ -64,16 +64,27 @@
           when we ready to reload a notice show up" placement="auto"></i>
       </span>
       </label>
-      <input (input)="save(conf.confParamValue,conf)"
-             *ngIf="conf.confParamDatatype === configDataTypeEnum.Text ||
+      <div class="position-relative w-100">
+        <input (input)="save(conf.confParamValue,conf)"
+               *ngIf="conf.confParamDatatype === configDataTypeEnum.Text ||
              conf.confParamDatatype === configDataTypeEnum.Tel ||
              conf.confParamDatatype === configDataTypeEnum.Number ||
              conf.confParamDatatype === configDataTypeEnum.Email ||
              conf.confParamDatatype === configDataTypeEnum.Password"
-             [(ngModel)]="conf.confParamValue"
-             [id]="'sectionParam'+conf.id"
-             [required]="conf.confParamRequired"
-             [type]="conf.confParamDatatype" class="form-control">
+               [(ngModel)]="conf.confParamValue"
+               [id]="'sectionParam'+conf.id"
+               [required]="conf.confParamRequired"
+               [disabled]="checkDisable(conf)"
+               [type]="conf.confParamDatatype" class="form-control pr-5">
+
+        <i *ngIf="allowCopy(conf)"
+          (click)="copyCode(conf)"
+          class="icon-copy position-absolute top-25 end-0 translate-middle-y me-2 cursor-pointer"
+          ngbTooltip="Copy"
+          style="z-index: 1;"
+        ></i>
+      </div>
+
       <small *ngIf="conf.confParamRegexp && conf.confParamValue != ''  && !isValid(conf) && conf.confParamDatatype !== configDataTypeEnum.EmailList" class="form-text text-danger">
         {{ conf.confParamLarge }} is invalid
       </small>
@@ -140,6 +151,40 @@
             </div>
           </div>
         </div>
+      </ng-container>
+
+      <ng-container *ngIf="conf.confParamDatatype === configDataTypeEnum.CountryList">
+        <ng-select #countryList="ngModel"
+                   [items]="getSelectOptions(getName(conf.confParamShort))"
+                   bindLabel="name"
+                   bindValue="code"
+                   [disabled]="conf.section.id === sectionType.INSTANCE_REGISTRATION"
+                   [searchable]="true"
+                   [multiple]="false"
+                   [clearable]="false"
+                   [loading]="isLoading[getName(conf.confParamShort)]"
+                   [virtualScroll]="true"
+                   [(ngModel)]="conf.confParamValue"
+                   [ngClass]="{'is-invalid': countryList.invalid,
+                    'is-valid': countryList.valid}">
+
+          <ng-template ng-option-tmp let-item="item">
+            <app-utm-country-flag
+              [showCountry]="true"
+              [country]="item.name"
+              [countryCode]="item.code.toLowerCase()">
+            </app-utm-country-flag>
+          </ng-template>
+
+          <ng-template ng-label-tmp let-item="item">
+            <app-utm-country-flag
+              [showCountry]="true"
+              [country]="item.name"
+              [countryCode]="item.code.toLowerCase()">
+            </app-utm-country-flag>
+          </ng-template>
+
+        </ng-select>
       </ng-container>
 
 
