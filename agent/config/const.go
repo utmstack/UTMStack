@@ -45,6 +45,7 @@ var (
 	// RedlineServName      = "UTMStackRedline"
 	// BatchToSend          = 5
 
+	DataTypeMacOSAgent          DataType = "macos_agent"
 	DataTypeWindowsAgent        DataType = "beats_windows_agent"
 	DataTypeSyslog              DataType = "syslog"
 	DataTypeVmware              DataType = "vmware"
