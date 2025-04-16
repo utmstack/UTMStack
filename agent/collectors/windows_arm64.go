@@ -156,7 +156,7 @@ func (w Windows) Install() error {
 	return nil
 }
 
-func (w Windows) SendSystemLogs() {
+func (w Windows) SendLogs() {
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "collector.ps1")
 

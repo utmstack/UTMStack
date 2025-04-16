@@ -12,6 +12,10 @@ import (
 )
 
 func DownloadFirstDependencies(address string, authKey string, insecure bool) error {
+	if runtime.GOOS == "darwin" {
+		return nil
+	}
+
 	headers := map[string]string{"connection-key": authKey}
 
 	if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, address, config.DependenciesPort, "version.json"), headers, "version.json", utils.GetMyPath(), insecure); err != nil {

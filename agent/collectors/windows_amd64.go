@@ -70,13 +70,14 @@ func (w Windows) Install() error {
 	return nil
 }
 
-func (w Windows) SendSystemLogs() {
+func (w Windows) SendLogs() {
 	logLinesChan := make(chan []string)
 	path := utils.GetMyPath()
 	winbLogPath := filepath.Join(path, "beats", "winlogbeat", "logs")
 
 	go utils.WatchFolder("windowscollector", winbLogPath, logLinesChan, config.BatchCapacity)
-	for logLine := range logLinesChan {
+	for {
+		logLine := <-logLinesChan
 		validatedLogs := []string{}
 		for _, log := range logLine {
 			validatedLog, _, err := validations.ValidateString(log, false)

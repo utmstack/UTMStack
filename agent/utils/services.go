@@ -53,14 +53,13 @@ func CheckIfServiceIsInstalled(serv string) (bool, error) {
 		err = Execute("sc", path, "query", serv)
 	case "linux":
 		err = Execute("systemctl", path, "status", serv)
+	case "darwin":
+		return true, nil
 	default:
 		return false, fmt.Errorf("operative system unknown")
 	}
 
-	if err != nil {
-		return false, nil
-	}
-	return true, nil
+	return err == nil, err
 }
 
 func CreateLinuxService(serviceName string, execStart string) error {

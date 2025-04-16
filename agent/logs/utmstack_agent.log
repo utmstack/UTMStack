@@ -1,0 +1,1 @@
+2025-04-16T13:37:14.854518Z ERROR f18ed04e-83e4-49d7-b82b-b96385b8b0bd /Users/osmany/Projects/UTMStack/agent/serv/service.go 36 error getting config: error reading config file: open /Users/osmany/Projects/UTMStack/agent/config.yml: no such file or directory

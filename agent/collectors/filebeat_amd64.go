@@ -104,7 +104,7 @@ func (f Filebeat) Install() error {
 	return nil
 }
 
-func (f Filebeat) SendSystemLogs() {
+func (f Filebeat) SendLogs() {
 	logLinesChan := make(chan []string)
 	path := utils.GetMyPath()
 	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
@@ -112,12 +112,16 @@ func (f Filebeat) SendSystemLogs() {
 	parser := parser.GetParser("beats")
 
 	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, config.BatchCapacity)
-	for logLine := range logLinesChan {
+
+	for {
+		logLine := <-logLinesChan
+
 		beatsData, err := parser.ProcessData(logLine)
 		if err != nil {
 			utils.Logger.ErrorF("error processing beats data: %v", err)
 			continue
 		}
+
 		for typ, logB := range beatsData {
 			logservice.LogQueue <- logservice.LogPipe{
 				Src:  typ,
