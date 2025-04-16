@@ -15,6 +15,8 @@ import (
 
 func Install() error {
 	fmt.Println("### Installing UTMStack ###")
+	go updater.MonitorConnection(config.GetCMServer(), 30*time.Second, 3, &config.ConnectedToInternet)
+
 	isInstalledAlready, err := utils.CheckIfServiceIsInstalled("UTMStackComponentsUpdater")
 	if err != nil {
 		return fmt.Errorf("error checking if service is installed: %v", err)
@@ -32,7 +34,6 @@ func Install() error {
 	if err != nil {
 		return err
 	}
-
 	if err := system.CheckCPU(config.RequiredMinCPUCores); err != nil {
 		return err
 	}
@@ -69,7 +70,7 @@ func Install() error {
 
 	if utils.GetLock(202402081552, stack.LocksDir) {
 		fmt.Print("Preparing kernel to run UTMStack")
-		if err := system.PrepareSystem(); err != nil {
+		if err := system.PrepareKernel(); err != nil {
 			return err
 		}
 		if err := utils.SetLock(202402081552, stack.LocksDir); err != nil {
@@ -84,6 +85,7 @@ func Install() error {
 		if err != nil {
 			return err
 		}
+		// TODO: Check AirGap
 		if err := network.InstallVlan(distro); err != nil {
 			return err
 		}
@@ -98,6 +100,7 @@ func Install() error {
 
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Print("Installing Docker")
+		// TODO: Check AirGap
 		if err := docker.InstallDocker(distro); err != nil {
 			return err
 		}
@@ -109,6 +112,7 @@ func Install() error {
 
 	if utils.GetLock(4, stack.LocksDir) {
 		fmt.Print("Initializing Swarm")
+		// TODO: Check AirGap
 		mainIP, err := utils.GetMainIP()
 		if err != nil {
 			return err
@@ -134,6 +138,7 @@ func Install() error {
 			"utmstack_mutate",
 			"utmstack_office365",
 			"utmstack_sophos",
+			"utmstack_socai",
 		}); err != nil {
 			return err
 		}
@@ -143,21 +148,24 @@ func Install() error {
 		fmt.Println(" [OK]")
 	}
 
-	fmt.Print("Registering instance")
-	if err := updater.RegisterInstance(); err != nil {
+	fmt.Print("Getting UTMStack Latest Version")
+	version, err := updater.GetVersion()
+	if err != nil {
 		return err
 	}
 	fmt.Println(" [OK]")
 
-	fmt.Println("Installing Stack. This may take a while.")
-	if err := updater.GetUpdaterClient().CheckUpdate(true); err != nil {
+	fmt.Printf("Installing UTMStack version %s-%s. This may take a while.\n", version.Version, version.Edition)
+	err = docker.StackUP(version.Version + "-" + version.Edition)
+	if err != nil {
 		return err
 	}
 
 	fmt.Print("Installing reverse proxy. This may take a while.")
-
-	if err := network.InstallNginx(distro); err != nil {
-		return err
+	if config.ConnectedToInternet {
+		if err := network.InstallNginx(distro); err != nil {
+			return err
+		}
 	}
 
 	if err := network.ConfigureNginx(cnf, stack, distro); err != nil {
@@ -168,6 +176,7 @@ func Install() error {
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Print("Installing Administration Tools")
+		// TODO: Check AirGap
 		if err := system.InstallTools(distro); err != nil {
 			return err
 		}

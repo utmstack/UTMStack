@@ -35,7 +35,7 @@ func GetConfig() *Config {
 			}
 		}
 
-		mainIP, err := utils.GetMainIP()
+		mainIP, err := utils.GetMainIP() // TODO: Check AirGap
 		if err != nil {
 			fmt.Printf("error getting main IP: %v", err)
 			os.Exit(1)

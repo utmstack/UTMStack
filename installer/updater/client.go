@@ -3,6 +3,7 @@ package updater
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -12,7 +13,8 @@ import (
 )
 
 type UpdaterClient struct {
-	Config InstanceConfig
+	Config  InstanceConfig
+	License string
 }
 
 var (
@@ -23,12 +25,33 @@ var (
 func GetUpdaterClient() *UpdaterClient {
 	updaterClientOnce.Do(func() {
 		updaterClient = &UpdaterClient{
-			Config: InstanceConfig{},
+			Config:  InstanceConfig{},
+			License: "",
 		}
 
-		cnf := InstanceConfig{}
-		utils.ReadYAML(config.InstanceConfigPath, &cnf)
-		updaterClient.Config = cnf
+		if !utils.CheckIfPathExist(config.InstanceConfigPath) {
+			err := RegisterInstance()
+			if err != nil {
+				config.Logger().ErrorF("error registering instance: %v", err)
+				return
+			}
+		}
+
+		if !utils.CheckIfPathExist(config.LicenseFilePath) {
+			err := os.WriteFile(config.LicenseFilePath, []byte(""), 0644)
+			if err != nil {
+				config.Logger().ErrorF("error creating license file: %v", err)
+				return
+			}
+		}
+
+		utils.ReadYAML(config.InstanceConfigPath, &updaterClient.Config)
+		licenseBytes, err := os.ReadFile(config.LicenseFilePath)
+		if err != nil {
+			config.Logger().ErrorF("error reading license file: %v", err)
+			return
+		}
+		updaterClient.License = string(licenseBytes)
 	})
 
 	return updaterClient
@@ -38,7 +61,7 @@ func (c *UpdaterClient) UpdateProcess() {
 	for {
 		time.Sleep(config.CheckUpdatesEvery)
 		if IsInMaintenanceWindow() {
-			err := c.CheckUpdate(false)
+			err := c.CheckUpdate()
 			if err != nil {
 				config.Logger().ErrorF("error checking update: %v", err)
 			}
@@ -46,37 +69,71 @@ func (c *UpdaterClient) UpdateProcess() {
 	}
 }
 
-func (c *UpdaterClient) CheckUpdate(wait bool) error {
-	if wait {
-		time.Sleep(time.Second * 20)
-	}
-	resp, status, err := utils.DoReq[[]UpdateDTO](
-		c.Config.Server+config.GetUpdatesInfoEndpoint,
-		nil,
-		http.MethodGet,
-		map[string]string{"id": c.Config.InstanceID, "key": c.Config.InstanceKey},
-	)
-	if err != nil || status != http.StatusOK {
-		return fmt.Errorf("error getting updates: status: %d, error: %v", status, err)
+func (c *UpdaterClient) CheckUpdate() error {
+	updates := make([]map[string]string, 0)
+
+	if config.ConnectedToInternet {
+		resp, status, err := utils.DoReq[[]UpdateDTO](
+			c.Config.Server+config.GetUpdatesInfoEndpoint,
+			nil,
+			http.MethodGet,
+			map[string]string{"id": c.Config.InstanceID, "key": c.Config.InstanceKey},
+		)
+		if err != nil || status != http.StatusOK {
+			return fmt.Errorf("error getting updates: status: %d, error: %v", status, err)
+		}
+		for _, update := range resp {
+			newUpdate := make(map[string]string)
+			newUpdate["version"] = update.Version.Version
+			newUpdate["edition"] = update.Instance.Edition
+			newUpdate["changelog"] = update.Version.Changelog
+			updates = append(updates, newUpdate)
+		}
+	} else {
+		v, err := ExtractVersionFromFolder(config.ImagesPath)
+		if err != nil {
+			return fmt.Errorf("error extracting version from folder: %v", err)
+		}
+		newUpdate := make(map[string]string)
+		newUpdate["version"] = v
+		newUpdate["edition"] = "enterprise"
+		newUpdate["changelog"] = "No changelog available for offline version"
+		updates = append(updates, newUpdate)
 	}
 
-	currentVersion := GetVersion()
-	for _, update := range resp {
-		if update.Version.Version != currentVersion.Version || update.Instance.Edition != currentVersion.Edition {
-			fmt.Printf("Updating UTMStack to version %s-%s...\n", update.Version.Version, update.Instance.Edition)
-			config.Logger().Info("Updating UTMStack to version %s-%s...", update.Version.Version, update.Instance.Edition)
-			err := docker.StackUP(update.Version.Version + "-" + update.Instance.Edition)
+	currentVersion, err := GetVersion()
+	if err != nil {
+		return fmt.Errorf("error getting current version: %v", err)
+	}
+
+	for _, update := range updates {
+		if update["version"] != currentVersion.Version {
+			err := c.UpdateToNewVersion(update["version"], update["edition"], update["changelog"])
 			if err != nil {
-				return fmt.Errorf("error updating UTMStack: %v", err)
+				return fmt.Errorf("error updating to new version: %v", err)
 			}
 		}
-
-		err := SaveVersion(update)
-		if err != nil {
-			return fmt.Errorf("error saving new version: %v", err)
-		}
-		config.Logger().Info("UTMStack updated to version %s-%s", update.Version.Version, update.Instance.Edition)
 	}
+
+	return nil
+}
+
+func (c *UpdaterClient) UpdateToNewVersion(version, edition, changelog string) error {
+	config.Logger().Info("Updating UTMStack to version %s-%s...", version, edition)
+	config.Updating = true
+
+	err := docker.StackUP(version + "-" + edition)
+	if err != nil {
+		return fmt.Errorf("error updating UTMStack: %v", err)
+	}
+
+	err = SaveVersion(version, edition, changelog)
+	if err != nil {
+		return fmt.Errorf("error saving new version: %v", err)
+	}
+
+	config.Logger().Info("UTMStack updated to version %s-%s", version, edition)
+	config.Updating = false
 
 	return nil
 }
