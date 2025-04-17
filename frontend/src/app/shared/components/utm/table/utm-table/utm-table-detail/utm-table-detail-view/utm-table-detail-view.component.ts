@@ -1,7 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IndexFieldController} from '../../../../../../../log-analyzer/shared/behaviors/index-field-controller.behavior';
 import {ElasticOperatorsEnum} from '../../../../../../enums/elastic-operators.enum';
-import {convertObjectToKeyValueArray} from '../../../../../../util/get-value-object-from-property-path.util';
+import { flattenToKeyValueArray,
+} from '../../../../../../util/get-value-object-from-property-path.util';
 import {UtmFilterBehavior} from '../../../../filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
 
 @Component({
@@ -21,7 +22,7 @@ export class UtmTableDetailViewComponent implements OnInit {
   ngOnInit() {
     this.tableData = [];
     if (this.rowDocument) {
-      this.tableData = convertObjectToKeyValueArray(this.rowDocument);
+      this.tableData = flattenToKeyValueArray(this.rowDocument);
     }
   }
 
