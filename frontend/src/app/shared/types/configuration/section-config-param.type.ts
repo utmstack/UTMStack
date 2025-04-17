@@ -27,6 +27,7 @@ export enum ConfigDataTypeEnum {
   Bool = 'bool',
   List = 'list',
   TimezoneList = 'timezone_list',
+  CountryList = 'country_list',
   DateFormatList = 'dateformat_list',
   Radio = 'radio'
 }

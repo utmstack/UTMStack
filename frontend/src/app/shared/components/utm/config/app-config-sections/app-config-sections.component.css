@@ -1,3 +1,10 @@
 .gap-3 {
   column-gap: 3rem;
 }
+
+.top-25 {
+  top: 25%;
+}
+.end-0 {
+  right: 3%;
+}

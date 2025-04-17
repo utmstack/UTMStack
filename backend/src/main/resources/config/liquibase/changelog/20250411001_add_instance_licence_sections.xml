@@ -15,14 +15,14 @@
                 section_active
             ) VALUES
                   (
-                      7,
+                      6,
                       'Instance Registration',
                       'This section allows you to configure and register a system instance by providing required organizational information such as organization name, country, and contact email.',
                       'INSTANCE_REGISTRATION',
                       true
                   ),
                   (
-                      8,
+                      7,
                       'System License',
                       'This section allows you to store the license key used to activate and validate the system instance. The license must be provided in Base64 format and is securely stored for verification purposes.',
                       'SYSTEM_LICENSE',
@@ -43,9 +43,11 @@
                     conf_param_option,
                     conf_param_regexp
                 ) VALUES
-                      (30, 7, 'utmstack.instance.organization', 'Organization Name', 'Name of the customer organization', '', true, 'string', null, null, null, null),
-                      (31, 7, 'utmstack.instance.country', 'Country', 'Country where the organization is located', '', true, 'country_list', null, null, null, null),
-                      (32, 7, 'utmstack.instance.contact_email', 'Contact Email', 'Email address for instance registration and notifications', '', true, 'email', null, null, null, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                      (30, 6, 'utmstack.instance.organization', 'Organization Name', 'Name of the customer organization', '', true, 'text', null, null, null, null),
+                      (31, 6, 'utmstack.instance.country', 'Country', 'Country where the organization is located', '', true, 'country_list', null, null, null, null),
+                      (32, 6, 'utmstack.instance.contact_email', 'Contact Email', 'Email address for instance registration and notifications', '', true, 'email', null, null, null, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+                      (33, 6, 'utmstack.instance.data', 'Request Data', 'Register Data', '', false, 'text', null, null, null, ''),
+                      (34, 6, 'utmstack.instance.auth', 'Auth Data', 'Auth Data', '', false, 'text', null, null, null, '');
 
                 INSERT INTO public.utm_configuration_parameter (
                     id,
@@ -61,7 +63,7 @@
                     conf_param_option,
                     conf_param_regexp
                 ) VALUES
-                    (33, 8, 'utmstack.instance.license', 'License Key', 'License key in Base64 format used to activate the system instance', '', true, 'text', null, null, null, null);
+                    (35, 7, 'utmstack.instance.license', 'License Key', 'License key in Base64 format used to activate the system instance', '', true, 'text', null, null, null, null);
 
             ]]>
         </sql>

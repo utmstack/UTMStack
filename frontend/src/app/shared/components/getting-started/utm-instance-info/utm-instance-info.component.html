@@ -1,0 +1,69 @@
+<app-utm-modal-header [name]="formConfigs[0].section.section" [showCloseButton]="false" class="w-100"></app-utm-modal-header>
+<div class="container-fluid p-3">
+<form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
+  <div *ngIf="formConfigs && formConfigs.length > 0">
+    <p class="mb-3 mt-3">{{ formConfigs[0].section.description }}</p>
+    <div *ngFor="let config of formConfigs" class="form-group">
+      <label [attr.for]="getName(config.confParamShort)">{{ config.confParamLarge }}</label>
+      <input *ngIf="config.confParamDatatype === 'text'"
+        type="text"
+        class="form-control"
+        [id]="getName(config.confParamShort)"
+        [formControlName]="getName(config.confParamShort)"/>
+
+      <input *ngIf="config.confParamDatatype === ConfigDataTypeEnum.Email"
+        type="email"
+        class="form-control"
+        [id]="getName(config.confParamShort)"
+        [formControlName]="getName(config.confParamShort)"/>
+
+      <ng-select *ngIf="config.confParamDatatype === ConfigDataTypeEnum.CountryList"
+        [items]="getSelectOptions(getName(config.confParamShort))"
+        bindLabel="name"
+        bindValue="code"
+        [searchable]="true"
+        [multiple]="false"
+        [clearable]="false"
+        [loading]="isLoading[getName(config.confParamShort)]"
+        [virtualScroll]="true"
+        [formControlName]="getName(config.confParamShort)"
+        [ngClass]="{'is-invalid': dynamicForm.controls[getName(config.confParamShort)]?.invalid,
+                    'is-valid': dynamicForm.controls[getName(config.confParamShort)]?.valid}">
+
+        <ng-template ng-option-tmp let-item="item">
+          <app-utm-country-flag
+            [showCountry]="true"
+            [country]="item.name"
+            [countryCode]="item.code.toLowerCase()">
+          </app-utm-country-flag>
+        </ng-template>
+
+        <ng-template ng-label-tmp let-item="item">
+          <app-utm-country-flag
+            [showCountry]="true"
+            [country]="item.name"
+            [countryCode]="item.code.toLowerCase()">
+          </app-utm-country-flag>
+        </ng-template>
+
+      </ng-select>
+
+      <small *ngIf="dynamicForm.get(getName(config.confParamShort))?.invalid && dynamicForm.get(getName(config.confParamShort))?.touched"
+           class="form-text text-danger">
+        {{ config.confParamLarge }} is required.
+      </small>
+      <small *ngIf="dynamicForm.get(getName(config.confParamShort))?.invalid && dynamicForm.get(getName(config.confParamShort))?.hasError('pattern')"
+           class="form-text text-danger">
+        {{ config.confParamLarge }} is invalid.
+      </small>
+
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button  type="submit" class="btn utm-button utm-button-primary w-50" [disabled]="dynamicForm.invalid">
+      Submit
+    </button>
+  </div>
+</form>
+</div>

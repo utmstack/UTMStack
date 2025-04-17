@@ -6,7 +6,7 @@
   </div>
 
   <div class="card-body w-100">
-    <div *ngFor="let sect of sections" [id]="sect.id" class="w-100 mb-3 card p-3">
+    <div *ngFor="let sect of getActiveSection()" [id]="sect.id" class="w-100 mb-3 card p-3">
       <app-config-sections [section]="sect"></app-config-sections>
     </div>
   </div>

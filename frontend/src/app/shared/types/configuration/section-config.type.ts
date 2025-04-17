@@ -10,5 +10,7 @@ export enum ApplicationConfigSectionEnum {
   EMAIL = 2,
   TFA = 3,
   ALERTS = 4,
-  DATE_SETTINGS = 5
+  DATE_SETTINGS = 5,
+  INSTANCE_REGISTRATION,
+  SYSTEM_LICENSE
 }
