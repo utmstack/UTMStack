@@ -58,7 +58,7 @@ func Install() error {
 
 	if utils.GetLock(2, stack.LocksDir) {
 		fmt.Print("Preparing system to run UTMStack")
-		if err := system.PrepareSystem(); err != nil {
+		if err := system.PrepareSystem(distro); err != nil {
 			return err
 		}
 		if err := utils.SetLock(2, stack.LocksDir); err != nil {
