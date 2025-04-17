@@ -25,7 +25,11 @@ func main() {
 			updater.RunService()
 
 		case "--version", "-v":
-			version := updater.GetVersion()
+			version, err := updater.GetVersion()
+			if err != nil {
+				fmt.Printf("\nerror getting UTMStack version: %v", err)
+				os.Exit(1)
+			}
 			if version.Version == "" || version.Edition == "" {
 				fmt.Println("UTMStack version not found")
 				os.Exit(1)

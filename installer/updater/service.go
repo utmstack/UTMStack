@@ -1,6 +1,8 @@
 package updater
 
 import (
+	"time"
+
 	"github.com/kardianos/service"
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
@@ -29,7 +31,12 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func (p *program) run() {
-	GetUpdaterClient().UpdateProcess()
+	go MonitorConnection(config.GetCMServer(), 30*time.Second, 3, &config.ConnectedToInternet)
+	time.Sleep(5 * time.Second)
+
+	client := GetUpdaterClient()
+	go client.UpdateProcess()
+	client.LicenseProcess()
 }
 
 func InstallService() {

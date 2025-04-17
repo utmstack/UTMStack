@@ -1,4 +1,4 @@
-package utils
+package system
 
 import (
 	"fmt"
@@ -46,6 +46,7 @@ func getWeight(priority int) float64 {
 }
 
 func BalanceMemory(services []ServiceConfig, totalSystemMemory int) (map[string]*ServiceConfig, error) {
+	fmt.Println("  Balancing memory...")
 	if totalSystemMemory <= SYSTEM_RESERVED_MEMORY {
 		return nil, fmt.Errorf("total system memory (%dMB) is not greater than reserved memory (%dMB)", totalSystemMemory, SYSTEM_RESERVED_MEMORY)
 	}
@@ -177,7 +178,7 @@ func BalanceMemory(services []ServiceConfig, totalSystemMemory int) (map[string]
 		fmt.Printf("WARNING: Final memory validation failed. Expected %dMB, Assigned %dMB. Discrepancy: %dMB\n",
 			availableMemory, finalAssignedMemory, availableMemory-finalAssignedMemory)
 	} else {
-		fmt.Printf("Memory distribution successful. Total Assigned: %dMB (Available: %dMB)\n", finalAssignedMemory, availableMemory)
+		fmt.Printf("  Memory distribution successful. Total Assigned: %dMB (Available: %dMB)\n", finalAssignedMemory, availableMemory)
 	}
 
 	return serviceMap, nil

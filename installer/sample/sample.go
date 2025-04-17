@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/utmstack/UTMStack/installer/types"
-	"github.com/utmstack/UTMStack/installer/utils"
+	"github.com/utmstack/UTMStack/installer/docker"
+	"github.com/utmstack/UTMStack/installer/system"
 )
 
 func main() {
@@ -17,8 +17,8 @@ func main() {
 	totals := []int{16000, 20000, 32000, 48000, 64000, 120000, 200000}
 
 	// Create a sorted copy of the services (sorted by Priority then Name).
-	sortedServices := make([]utils.ServiceConfig, len(types.Services))
-	copy(sortedServices, types.Services)
+	sortedServices := make([]system.ServiceConfig, len(docker.Services))
+	copy(sortedServices, docker.Services)
 	sort.Slice(sortedServices, func(i, j int) bool {
 		if sortedServices[i].Priority == sortedServices[j].Priority {
 			return sortedServices[i].Name < sortedServices[j].Name
@@ -53,7 +53,7 @@ func main() {
 		}
 
 		// Balance memory using the utils package.
-		rsrcs, err := utils.BalanceMemory(types.Services, total)
+		rsrcs, err := system.BalanceMemory(docker.Services, total)
 		if err != nil {
 			log.Fatalf("Error balancing memory for total %d MB: %v", total, err)
 		}

@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -15,28 +16,39 @@ type InstanceConfig struct {
 }
 
 func RegisterInstance() error {
-	cnf := config.GetConfig()
-	instanceConf := InstanceConfig{}
+	instanceInfo := getInstanceInfoFromBackend()
 
-	err := utils.ReadYAML(config.InstanceConfigPath, &instanceConf)
-	if err != nil || instanceConf.Server == "" || instanceConf.InstanceID == "" || instanceConf.InstanceKey == "" {
-		switch cnf.Branch {
-		case "alpha":
-			instanceConf.Server = config.CMAlpha
-		case "beta":
-			instanceConf.Server = config.CMBeta
-		case "rc":
-			instanceConf.Server = config.CMRc
-		case "prod":
-			instanceConf.Server = config.CMProd
+	v, err := GetVersion()
+	if err != nil {
+		return fmt.Errorf("error getting version: %v", err)
+	}
+
+	instanceInfo.Version = v.Version
+
+	if config.ConnectedToInternet {
+		instanceConf := InstanceConfig{
+			Server: config.GetCMServer(),
 		}
 
-		url := fmt.Sprintf("%s%s", instanceConf.Server, config.RegisterInstanceEndpoint)
-		resp, status, err := utils.DoReq[Auth](url, nil, http.MethodPost, nil)
+		instanceRegisterReq := InstanceDTOInput{
+			Name:    instanceInfo.Name,
+			Country: instanceInfo.Country,
+			Email:   instanceInfo.Email,
+			Edition: "community",
+			Version: instanceInfo.Version,
+		}
+
+		instanceJSON, err := json.Marshal(instanceRegisterReq)
+		if err != nil {
+			return fmt.Errorf("error marshalling instance register request: %v", err)
+		}
+
+		resp, status, err := utils.DoReq[Auth](fmt.Sprintf("%s%s", instanceConf.Server, config.RegisterInstanceEndpoint), instanceJSON, http.MethodPost, nil, nil)
 		if err != nil || status != http.StatusOK {
 			return fmt.Errorf("error registering instance: status code: %d, error %v", status, err)
 		}
 
+		instanceInfo.InstanceID = resp.ID
 		instanceConf.InstanceID = resp.ID
 		instanceConf.InstanceKey = resp.Key
 
@@ -44,6 +56,11 @@ func RegisterInstance() error {
 		if err != nil {
 			return fmt.Errorf("error writing instance config file: %v", err)
 		}
+	}
+
+	err = updateInstanceInfoInBackend(instanceInfo)
+	if err != nil {
+		return fmt.Errorf("error updating instance info in backend: %v", err)
 	}
 
 	return nil
