@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/utmstack/UTMStack/installer/utils"
 	"github.com/utmstack/UTMStack/installer/types"
+	"github.com/utmstack/UTMStack/installer/utils"
 )
 
 func main() {
@@ -22,7 +22,8 @@ func main() {
 		}
 	}
 
-	if err := utils.CheckDistro("ubuntu"); err != nil {
+	distro, err := utils.CheckDistro()
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -77,13 +78,13 @@ func main() {
 
 	switch config.ServerType {
 	case "aio":
-		err := Master(config)
+		err := Master(config, distro)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	case "cloud":
-		err := Cloud(config, update)
+		err := Cloud(config, update, distro)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -9,7 +9,8 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func Cloud(c *types.Config, update bool) error {
+func Cloud(c *types.Config, update bool, distro string) error {
+
 	if err := utils.CheckCPU(2); err != nil {
 		return err
 	}
@@ -43,7 +44,7 @@ func Cloud(c *types.Config, update bool) error {
 
 	if utils.GetLock(2, stack.LocksDir) {
 		fmt.Println("Preparing system to run UTMStack")
-		if err := PrepareSystem(); err != nil {
+		if err := PrepareSystem(distro); err != nil {
 			return err
 		}
 
@@ -72,11 +73,11 @@ func Cloud(c *types.Config, update bool) error {
 			return err
 		}
 
-		if err := InstallVlan(); err != nil {
+		if err := InstallVlan(distro); err != nil {
 			return err
 		}
 
-		if err := ConfigureVLAN(iface); err != nil {
+		if err := ConfigureVLAN(iface, distro); err != nil {
 			return err
 		}
 
@@ -101,7 +102,7 @@ func Cloud(c *types.Config, update bool) error {
 
 	if utils.GetLock(3, stack.LocksDir) {
 		fmt.Println("Installing Docker")
-		if err := InstallDocker(); err != nil {
+		if err := InstallDocker(distro); err != nil {
 			return err
 		}
 
@@ -145,11 +146,11 @@ func Cloud(c *types.Config, update bool) error {
 	if utils.GetLock(12, stack.LocksDir) || update {
 		fmt.Println("Installing reverse proxy. This may take a while.")
 
-		if err := InstallNginx(); err != nil {
+		if err := InstallNginx(distro); err != nil {
 			return err
 		}
 
-		if err := ConfigureNginx(c, stack); err != nil {
+		if err := ConfigureNginx(c, stack, distro); err != nil {
 			return err
 		}
 
@@ -162,7 +163,7 @@ func Cloud(c *types.Config, update bool) error {
 
 	if utils.GetLock(5, stack.LocksDir) {
 		fmt.Println("Installing Administration Tools")
-		if err := InstallTools(); err != nil {
+		if err := InstallTools(distro); err != nil {
 			return err
 		}
 

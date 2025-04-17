@@ -45,10 +45,13 @@ func CheckCPU(cores int) error {
 	return nil
 }
 
-func CheckDistro(distro string) error {
+func CheckDistro() (string, error) {
 	info, _ := host.Info()
-	if info.Platform != distro {
-		return fmt.Errorf("your Linux distribution (%s) is not %s", info.Platform, distro)
+
+	distro := info.Platform
+	if distro != "ubuntu" && distro != "redhat" {
+		return "", fmt.Errorf("your Linux distribution (%s) is not supported. Supported distributions are: %s, %s",
+			distro, "ubuntu", "redhat")
 	}
-	return nil
+	return distro, nil
 }
