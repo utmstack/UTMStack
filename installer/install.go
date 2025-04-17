@@ -40,11 +40,10 @@ func Install() error {
 	if err := system.CheckDisk(config.RequiredMinDiskSpace); err != nil {
 		return err
 	}
-	fmt.Println("[OK]")
-
-	fmt.Print("Generating Stack configuration")
-	stack := docker.GetStackConfig()
 	fmt.Println(" [OK]")
+
+	fmt.Println("Generating Stack configuration...")
+	stack := docker.GetStackConfig()
 
 	if utils.GetLock(1, stack.LocksDir) {
 		fmt.Print("Generating certificates")
@@ -148,6 +147,7 @@ func Install() error {
 		fmt.Println(" [OK]")
 	}
 
+	time.Sleep(10 * time.Second)
 	fmt.Print("Getting UTMStack Latest Version")
 	version, err := updater.GetVersion()
 	if err != nil {

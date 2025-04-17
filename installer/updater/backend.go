@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,10 @@ import (
 func getInstanceInfoFromBackend() InstanceInfo {
 	var instanceInfo InstanceInfo
 
+	transCfg := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
 	for {
 		time.Sleep(30 * time.Second)
 		resp, status, err := utils.DoReq[[]ConfigBackend](
@@ -21,6 +26,7 @@ func getInstanceInfoFromBackend() InstanceInfo {
 			nil,
 			http.MethodGet,
 			map[string]string{"Utm-Internal-Key": config.GetConfig().InternalKey},
+			transCfg,
 		)
 		if err != nil || status != http.StatusOK {
 			config.Logger().Info("instance info not ready yet, retrying after error: %v", err)
@@ -54,12 +60,16 @@ func getInstanceInfoFromBackend() InstanceInfo {
 }
 
 func getInstanceAuthFromBackend() (string, error) {
+	transCfg := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	auth := ""
 	resp, status, err := utils.DoReq[[]ConfigBackend](
 		fmt.Sprintf(config.BackendConfigEndpoint, 6),
 		nil,
 		http.MethodGet,
 		map[string]string{"Utm-Internal-Key": config.GetConfig().InternalKey},
+		transCfg,
 	)
 	if err != nil || status != http.StatusOK {
 		return auth, fmt.Errorf("error getting instance auth from backend: status code: %d, error: %v", status, err)
@@ -80,11 +90,16 @@ func getInstanceAuthFromBackend() (string, error) {
 }
 
 func getLicenseFromBackend() (string, error) {
+	transCfg := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
 	resp, status, err := utils.DoReq[[]ConfigBackend](
 		fmt.Sprintf(config.BackendConfigEndpoint, 7),
 		nil,
 		http.MethodGet,
 		map[string]string{"Utm-Internal-Key": config.GetConfig().InternalKey},
+		transCfg,
 	)
 	if err != nil || status != http.StatusOK {
 		return "", fmt.Errorf("error getting license from backend: status code: %d, error: %v", status, err)
@@ -94,6 +109,10 @@ func getLicenseFromBackend() (string, error) {
 }
 
 func updateInstanceInfoInBackend(instanceInfo InstanceInfo) error {
+	transCfg := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
 	jsonData, err := json.Marshal(instanceInfo)
 	if err != nil {
 		return fmt.Errorf("error marshalling instance info: %v", err)
@@ -106,6 +125,7 @@ func updateInstanceInfoInBackend(instanceInfo InstanceInfo) error {
 		nil,
 		http.MethodGet,
 		map[string]string{"Utm-Internal-Key": config.GetConfig().InternalKey},
+		transCfg,
 	)
 	if err != nil || status != http.StatusOK {
 		return fmt.Errorf("error getting instance info from backend: status code: %d, error: %v", status, err)
@@ -129,7 +149,11 @@ func updateInstanceInfoInBackend(instanceInfo InstanceInfo) error {
 		fmt.Sprintf(config.BackendConfigEndpoint, 6),
 		jsonData,
 		http.MethodPut,
-		map[string]string{"Utm-Internal-Key": config.GetConfig().InternalKey},
+		map[string]string{
+			"Utm-Internal-Key": config.GetConfig().InternalKey,
+			"Content-Type":     "application/json",
+		},
+		transCfg,
 	)
 	if err != nil || status != http.StatusOK {
 		return fmt.Errorf("error updating instance info in backend: status code: %d, error: %v", status, err)

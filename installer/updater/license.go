@@ -29,18 +29,21 @@ func (c *UpdaterClient) LicenseProcess() {
 func (c *UpdaterClient) CheckLicense() error {
 	newLicense := ""
 
+	url := fmt.Sprintf("%s%s", c.Config.Server, config.GetLicenseEndpoint)
 	if config.ConnectedToInternet {
 		resp, status, err := utils.DoReq[string](
-			c.Config.Server+config.GetLicenseEndpoint,
+			url,
 			nil,
 			http.MethodGet,
 			map[string]string{"id": c.Config.InstanceID, "key": c.Config.InstanceKey},
+			nil,
 		)
 		if err != nil || status != http.StatusOK {
-			return fmt.Errorf("error getting license: status: %d, error: %v", status, err)
+			return fmt.Errorf("error getting license from %s: status: %d, error: %v", url, status, err)
 		}
 		newLicense = resp
 	} else {
+		config.Logger().Info("Not connected to the internet, trying to get license from local instance config")
 		if !utils.CheckIfPathExist(config.InstanceConfigPath) {
 			auth, err := getInstanceAuthFromBackend()
 			if err != nil {
@@ -79,7 +82,7 @@ func (c *UpdaterClient) CheckLicense() error {
 	}
 
 	if newLicense != "" && newLicense != c.License {
-		config.Logger().Info("Updating license...")
+		config.Logger().Info("Updating license from %s to %s", c.License, newLicense)
 		err := os.WriteFile(config.LicenseFilePath, []byte(newLicense), 0644)
 		if err != nil {
 			return fmt.Errorf("error writing new license: %v", err)

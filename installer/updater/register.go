@@ -43,7 +43,7 @@ func RegisterInstance() error {
 			return fmt.Errorf("error marshalling instance register request: %v", err)
 		}
 
-		resp, status, err := utils.DoReq[Auth](fmt.Sprintf("%s%s", instanceConf.Server, config.RegisterInstanceEndpoint), instanceJSON, http.MethodPost, nil)
+		resp, status, err := utils.DoReq[Auth](fmt.Sprintf("%s%s", instanceConf.Server, config.RegisterInstanceEndpoint), instanceJSON, http.MethodPost, nil, nil)
 		if err != nil || status != http.StatusOK {
 			return fmt.Errorf("error registering instance: status code: %d, error %v", status, err)
 		}

@@ -38,19 +38,23 @@ func GetUpdaterClient() *UpdaterClient {
 		}
 
 		if !utils.CheckIfPathExist(config.LicenseFilePath) {
-			err := os.WriteFile(config.LicenseFilePath, []byte(""), 0644)
+			err := os.WriteFile(config.LicenseFilePath, []byte{}, 0644)
 			if err != nil {
 				config.Logger().ErrorF("error creating license file: %v", err)
 				return
 			}
 		}
 
-		utils.ReadYAML(config.InstanceConfigPath, &updaterClient.Config)
+		cnf := InstanceConfig{}
+		utils.ReadYAML(config.InstanceConfigPath, &cnf)
+		updaterClient.Config = cnf
+
 		licenseBytes, err := os.ReadFile(config.LicenseFilePath)
 		if err != nil {
 			config.Logger().ErrorF("error reading license file: %v", err)
 			return
 		}
+
 		updaterClient.License = string(licenseBytes)
 	})
 
@@ -72,15 +76,17 @@ func (c *UpdaterClient) UpdateProcess() {
 func (c *UpdaterClient) CheckUpdate() error {
 	updates := make([]map[string]string, 0)
 
+	url := fmt.Sprintf("%s%s", c.Config.Server, config.GetUpdatesInfoEndpoint)
 	if config.ConnectedToInternet {
 		resp, status, err := utils.DoReq[[]UpdateDTO](
-			c.Config.Server+config.GetUpdatesInfoEndpoint,
+			url,
 			nil,
 			http.MethodGet,
 			map[string]string{"id": c.Config.InstanceID, "key": c.Config.InstanceKey},
+			nil,
 		)
 		if err != nil || status != http.StatusOK {
-			return fmt.Errorf("error getting updates: status: %d, error: %v", status, err)
+			return fmt.Errorf("error getting updates from %s: status: %d, error: %v", url, status, err)
 		}
 		for _, update := range resp {
 			newUpdate := make(map[string]string)

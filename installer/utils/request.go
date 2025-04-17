@@ -30,7 +30,7 @@ import (
 //   - int: The HTTP status code of the response.
 //   - error: An error if any occurred during the request or response
 //     processing, otherwise nil.
-func DoReq[response any](url string, data []byte, method string, headers map[string]string) (response, int, error) {
+func DoReq[response any](url string, data []byte, method string, headers map[string]string, transCfg *http.Transport) (response, int, error) {
 	var result response
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
@@ -42,6 +42,9 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	client := &http.Client{}
+	if transCfg != nil {
+		client.Transport = transCfg
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -55,8 +58,7 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 	}
 
 	if len(body) != 0 {
-		err = json.Unmarshal(body, &result)
-		if err != nil {
+		if err = json.Unmarshal(body, &result); err != nil {
 			return result, resp.StatusCode, fmt.Errorf("error unmarshalling response: %w; response body: %s", err, string(body))
 		}
 	}

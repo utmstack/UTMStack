@@ -23,7 +23,7 @@ func GetVersion() (VersionFile, error) {
 	versionOnce.Do(func() {
 		if !utils.CheckIfPathExist(config.VersionFilePath) {
 			if config.ConnectedToInternet {
-				resp, status, errB := utils.DoReq[VersionDTO](config.GetCMServer()+config.GetLatestVersionEndpoint, nil, http.MethodGet, nil)
+				resp, status, errB := utils.DoReq[VersionDTO](config.GetCMServer()+config.GetLatestVersionEndpoint, nil, http.MethodGet, nil, nil)
 				if errB != nil || status != http.StatusOK {
 					err = fmt.Errorf("error getting latest version: status: %d, error: %v", status, err)
 					return
