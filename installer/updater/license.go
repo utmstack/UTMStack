@@ -15,8 +15,10 @@ import (
 )
 
 func (c *UpdaterClient) LicenseProcess() {
-	for {
-		time.Sleep(config.CheckUpdatesEvery)
+	ticker := time.NewTicker(config.CheckUpdatesEvery)
+	defer ticker.Stop()
+
+	for range ticker.C {
 		if IsInMaintenanceWindow() && !config.Updating {
 			err := c.CheckLicense()
 			if err != nil {
@@ -45,7 +47,7 @@ func (c *UpdaterClient) CheckLicense() error {
 	} else {
 		config.Logger().Info("Not connected to the internet, trying to get license from local instance config")
 		if !utils.CheckIfPathExist(config.InstanceConfigPath) {
-			auth, err := getInstanceAuthFromBackend()
+			auth, err := getInstanceAuth()
 			if err != nil {
 				return fmt.Errorf("error getting instance auth: %v", err)
 			}
@@ -74,7 +76,7 @@ func (c *UpdaterClient) CheckLicense() error {
 			}
 		}
 
-		license, err := getLicenseFromBackend()
+		license, err := getLicense()
 		if err != nil {
 			return fmt.Errorf("error getting license from backend: %v", err)
 		}
@@ -137,4 +139,30 @@ func (c *UpdaterClient) CheckLicense() error {
 	}
 
 	return nil
+}
+
+func getInstanceAuth() (string, error) {
+	auth := ""
+	backConf, err := getConfigFromBackend(6)
+	if err != nil {
+		return "", err
+	}
+
+	for _, c := range backConf {
+		if c.ConfParamShort == "utmstack.instance.auth" {
+			auth = c.ConfParamValue
+			break
+		}
+	}
+
+	return auth, nil
+}
+
+func getLicense() (string, error) {
+	backConf, err := getConfigFromBackend(7)
+	if err != nil {
+		return "", err
+	}
+
+	return backConf[0].ConfParamValue, nil
 }

@@ -41,6 +41,11 @@ func ConfigureNginx(conf *config.Config, stack *docker.StackConfig, distro strin
 		return err
 	}
 
+	err = utils.WriteToFile(path.Join("/", "etc", "nginx", "html", "custom_502.html"), templates.NginxCustomBadGateway)
+	if err != nil {
+		config.Logger().ErrorF("error writing custom 502 page: %v", err)
+	}
+
 	switch distro {
 	case config.RequiredDistroUbuntu:
 		err = utils.GenerateConfig(c, templates.ProxyUbuntu, path.Join("/", "etc", "nginx", "sites-available", "default"))

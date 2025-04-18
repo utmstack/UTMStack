@@ -55,6 +55,14 @@ pipeline:
           to: target.ip
       - rename:
           from:
+            - log.src_ip
+          to: origin.ip
+      - rename:
+          from:
+            - log.dest_ip
+          to: target.ip
+      - rename:
+          from:
             - log.proto
           to: protocol
       - rename:
@@ -63,12 +71,20 @@ pipeline:
           to: origin.port
       - rename:
           from:
+            - log.src_port
+          to: origin.port
+      - rename:
+          from:
             - log.dstPort
           to: taget.port
+      - rename:
+          from:
+            - log.dest_port
+          to: target.port
 
       # Fields conversions
       - cast:
-          to: 'int64'
+          to: 'int'
           fields:
             - origin.port
             - target.port

@@ -24,6 +24,12 @@ server {
         proxy_read_timeout 900;
     }
 
+    error_page 502 /custom_502.html;
+    location = /custom_502.html {
+        root /etc/nginx/html;
+        internal;
+    }
+
     ssl_certificate /utmstack/cert/utm.crt;
     ssl_certificate_key /utmstack/cert/utm.key;
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -70,6 +76,12 @@ server {
         proxy_set_header x-shared-key $shared_key;
         add_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_read_timeout 900;
+    }
+
+    error_page 502 /custom_502.html;
+    location = /custom_502.html {
+        root /etc/nginx/html;
+        internal;
     }
 
     ssl_certificate /utmstack/cert/utm.crt;

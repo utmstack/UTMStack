@@ -1,9 +1,11 @@
 package updater
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/utmstack/UTMStack/installer/config"
 	"github.com/utmstack/UTMStack/installer/utils"
@@ -16,7 +18,7 @@ type InstanceConfig struct {
 }
 
 func RegisterInstance() error {
-	instanceInfo := getInstanceInfoFromBackend()
+	instanceInfo := getInstanceInfo()
 
 	v, err := GetVersion()
 	if err != nil {
@@ -58,7 +60,66 @@ func RegisterInstance() error {
 		}
 	}
 
-	err = updateInstanceInfoInBackend(instanceInfo)
+	err = updateInstanceInfo(instanceInfo)
+	if err != nil {
+		return fmt.Errorf("error updating instance info in backend: %v", err)
+	}
+
+	return nil
+}
+
+func getInstanceInfo() InstanceInfo {
+	var instanceInfo InstanceInfo
+
+	for {
+		time.Sleep(30 * time.Second)
+		backConf, err := getConfigFromBackend(6)
+		if err != nil {
+			config.Logger().Info("instance info not ready yet, retrying after error: %v", err)
+			continue
+		}
+
+		for _, c := range backConf {
+			switch c.ConfParamShort {
+			case "utmstack.instance.organization":
+				instanceInfo.Name = c.ConfParamValue
+			case "utmstack.instance.country":
+				instanceInfo.Country = c.ConfParamValue
+			case "utmstack.instance.contact_email":
+				instanceInfo.Email = c.ConfParamValue
+			}
+		}
+
+		if instanceInfo.Name == "" || instanceInfo.Country == "" || instanceInfo.Email == "" {
+			config.Logger().Info("instance info not ready yet, retrying after incomplete data")
+			continue
+		}
+
+		break
+	}
+
+	return instanceInfo
+}
+
+func updateInstanceInfo(instanceInfo InstanceInfo) error {
+	jsonData, err := json.Marshal(instanceInfo)
+	if err != nil {
+		return fmt.Errorf("error marshalling instance info: %v", err)
+	}
+	instanceInfoBase64 := base64.StdEncoding.EncodeToString(jsonData)
+
+	backConf, err := getConfigFromBackend(6)
+	if err != nil {
+		return fmt.Errorf("error getting instance auth from backend: %v", err)
+	}
+
+	for i, c := range backConf {
+		if c.ConfParamShort == "utmstack.instance.data" {
+			backConf[i].ConfParamValue = instanceInfoBase64
+		}
+	}
+
+	err = updateConfigInBackend(backConf, 6)
 	if err != nil {
 		return fmt.Errorf("error updating instance info in backend: %v", err)
 	}

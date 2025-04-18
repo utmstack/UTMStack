@@ -30,7 +30,7 @@ public class UtmModuleMapper {
         dto.setModuleCategory(entity.getModuleCategory());
         dto.setLiteVersion(entity.getLiteVersion());
         dto.setNeedsRestart(entity.getNeedsRestart());
-        dto.setActivatable(entity.getActivatable());
+        dto.setIsActivatable(entity.getActivatable());
         dto.setModuleGroups(entity.getModuleGroups());
         optionalFilter.ifPresent(filter -> dto.setDataType(filter.getDatatype()));
         return dto;
