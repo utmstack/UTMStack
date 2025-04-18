@@ -15,7 +15,6 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
@@ -209,7 +208,7 @@ func getCollectorsInstances() []Collector {
 	return collectors
 }
 
-func (w Windows) SendSystemLogs() {
+func (w Windows) SendLogs() {
 	errorsChan := make(chan error, 10)
 
 	callback := func(event *Event) {
@@ -218,20 +217,14 @@ func (w Windows) SendSystemLogs() {
 			utils.Logger.ErrorF("error converting event to JSON: %v", err)
 			return
 		}
-		host, err := os.Hostname()
-		if err != nil {
-			utils.Logger.ErrorF("error getting hostname: %v", err)
-			host = "unknown"
-		}
 		validatedLog, _, err := validations.ValidateString(eventJSON, false)
 		if err != nil {
 			utils.Logger.LogF(100, "error validating log: %s: %v", eventJSON, err)
 			return
 		}
-		logservice.LogQueue <- &plugins.Log{
-			DataType:   string(config.DataTypeWindowsAgent),
-			DataSource: host,
-			Raw:        validatedLog,
+		logservice.LogQueue <- logservice.LogPipe{
+			Src:  string(config.DataTypeWindowsAgent),
+			Logs: []string{validatedLog},
 		}
 	}
 
