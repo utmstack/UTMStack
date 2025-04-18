@@ -102,6 +102,7 @@
           <input (input)="addChange(integrationConfig)"
                  *ngIf="integrationConfig.confDataType !== 'bool'
                  && integrationConfig.confDataType !== 'list'
+                 && integrationConfig.confDataType !== 'select'
                  && integrationConfig.confDataType !== 'file'"
                  [(ngModel)]="integrationConfig.confValue"
                  [attr.autocomplete]="'disabled'"
