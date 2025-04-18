@@ -74,7 +74,7 @@ func CreatePathIfNotExist(path string) error {
 	return nil
 }
 
-func writeToFile(fileName string, body string) error {
+func WriteToFile(fileName string, body string) error {
 	dir := filepath.Dir(fileName)
 	if err := CreatePathIfNotExist(dir); err != nil {
 		return err
@@ -98,7 +98,7 @@ func WriteYAML(url string, data any) error {
 		return err
 	}
 
-	err = writeToFile(url, string(config[:]))
+	err = WriteToFile(url, string(config[:]))
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func WriteJSON(path string, data any) error {
 		return err
 	}
 
-	err = writeToFile(path, string(jsonData[:]))
+	err = WriteToFile(path, string(jsonData[:]))
 	if err != nil {
 		return err
 	}
