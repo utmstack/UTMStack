@@ -18,6 +18,11 @@ import {UtmModuleCollectorType} from '../../shared/type/utm-module-collector.typ
 import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.type';
 import {UtmModuleGroupType} from '../../shared/type/utm-module-group.type';
 
+export interface SelectOption {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-int-generic-group-config',
   templateUrl: './int-generic-group-config.component.html',
@@ -66,7 +71,14 @@ export class IntGenericGroupConfigComponent implements OnInit {
     this.loading = true;
     return this.utmModuleGroupService.query({ moduleId: this.moduleId }).pipe(
         tap(response => {
-          this.groups = response.body;
+          this.groups = response.body.map(group => {
+            group.moduleGroupConfigurations.forEach(config => {
+              if (config.confOptions) {
+                config.confOptions = JSON.parse(config.confOptions);
+              }
+            });
+            return group;
+          });
           this.configValidChange.emit(this.tenantGroupConfigValid());
         }),
         switchMap(response => {
@@ -356,7 +368,8 @@ export class IntGenericGroupConfigComponent implements OnInit {
     }
   }
 
-  getOptions(confOptions: string) {
-    return JSON.parse(confOptions);
+  getName(name: string): string {
+    return name.split('.').pop()!;
   }
+
 }
