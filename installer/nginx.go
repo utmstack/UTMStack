@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/utmstack/UTMStack/installer/templates"
@@ -39,6 +40,11 @@ func ConfigureNginx(conf *types.Config, stack *types.StackConfig, distro string)
 	err := utils.GenerateConfig(c, templates.FrontEnd, path.Join(stack.FrontEndNginx, "00_nginx_panel.conf"))
 	if err != nil {
 		return err
+	}
+
+	err = utils.WriteToFile(path.Join("/", "etc", "nginx", "html", "custom_502.html"), templates.NginxCustomBadGateway)
+	if err != nil {
+		fmt.Printf("Error writing custom 502 page: %v\n", err)
 	}
 
 	switch distro {
