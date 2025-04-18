@@ -1,20 +1,21 @@
 module github.com/utmstack/UTMStack/installer
 
-go 1.22.4
-
-toolchain go1.22.6
+go 1.23.4
 
 require (
 	github.com/cloudfoundry/gosigar v1.3.83
 	github.com/kardianos/service v1.2.2
 	github.com/levigross/grequests v0.0.0-20231203190023-9c307ef1f48d
 	github.com/lib/pq v1.10.9
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/threatwinds/logger v1.1.12
+	github.com/utmstack/license-manager-sdk v0.0.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
+	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0 // indirect
 	github.com/bytedance/sonic v1.12.6 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect

@@ -5,7 +5,7 @@
     <p class="mb-3 mt-3">{{ formConfigs[0].section.description }}</p>
     <div *ngFor="let config of formConfigs" class="form-group">
       <label [attr.for]="getName(config.confParamShort)">{{ config.confParamLarge }}</label>
-      <input *ngIf="config.confParamDatatype === 'string'"
+      <input *ngIf="config.confParamDatatype === 'text'"
         type="text"
         class="form-control"
         [id]="getName(config.confParamShort)"

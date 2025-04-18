@@ -286,12 +286,12 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   }
 
   allowCopy(conf: SectionConfigParamType) {
-    return !this.isOnline && conf.confParamShort === 'utmstack.instance.data';
+    return conf.confParamShort === 'utmstack.instance.data';
   }
 
   getConfigs() {
     if (this.isOnline && this.section.id === this.sectionType.INSTANCE_REGISTRATION) {
-        return this.configs.filter( c => c.confParamShort !== 'utmstack.instance.data' && c.confParamShort !== 'utmstack.instance.auth');
+        return this.configs.filter( c => c.confParamShort !== 'utmstack.instance.auth');
     } else {
       return this.configs;
     }

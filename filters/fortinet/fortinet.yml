@@ -73,6 +73,23 @@ pipeline:
             - log.srcport
           to: origin.port
 
+      - rename:
+          from:
+            - log.dest_ip
+          to: target.ip
+      - rename:
+          from:
+            - log.dest_port
+          to: target.port
+      - rename:
+          from:
+            - log.src_ip
+          to: origin.ip
+      - rename:
+          from:
+            - log.src_port
+          to: origin.port
+
       # Removing unused caracters
       - trim:
           function: prefix

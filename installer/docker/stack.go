@@ -32,6 +32,7 @@ type StackConfig struct {
 var (
 	stackConfig     *StackConfig
 	stackConfigOnce sync.Once
+	Services        = []system.ServiceConfig{}
 )
 
 func GetStackConfig() *StackConfig {
@@ -62,7 +63,7 @@ func GetStackConfig() *StackConfig {
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
-		services := []system.ServiceConfig{
+		Services = []system.ServiceConfig{
 			{Name: "event-processor", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
 			{Name: "opensearch", Priority: 1, MinMemory: 4350, MaxMemory: 60 * 1024},
 			{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
@@ -75,7 +76,7 @@ func GetStackConfig() *StackConfig {
 
 		total := int(mem.Total/1024/1024) - system.SYSTEM_RESERVED_MEMORY
 
-		rsrcs, err := system.BalanceMemory(services, total)
+		rsrcs, err := system.BalanceMemory(Services, total)
 		if err != nil {
 			fmt.Printf("error balancing memory: %v\n", err)
 			os.Exit(1)
@@ -104,18 +105,22 @@ func StackUP(tag string) error {
 		return err
 	}
 
-	fmt.Println("  Downloading images:")
-	for _, service := range compose.Services {
-		image := strings.ReplaceAll(*service.Image, "${UTMSTACK_TAG}", tag)
-		fmt.Printf("    Downloading %s...", image)
-		if err := utils.RunCmd("docker", "pull", image); err != nil {
-			return err
+	if config.ConnectedToInternet {
+		fmt.Println("  Downloading images:")
+		for _, service := range compose.Services {
+			image := strings.ReplaceAll(*service.Image, "${UTMSTACK_TAG}", tag)
+			fmt.Printf("    Downloading %s...", image)
+			if err := utils.RunCmd("docker", "pull", image); err != nil {
+				return err
+			}
+			fmt.Println(" [OK]")
 		}
-		fmt.Println(" [OK]")
+	} else {
+		// TODO: Implement unzip images from local folder
 	}
 
 	env := []string{"UTMSTACK_TAG=" + tag}
-	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", "compose.yml", "utmstack"); err != nil {
+	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", filepath.Join(utils.GetMyPath(), "compose.yml"), "utmstack"); err != nil {
 		return err
 	}
 
