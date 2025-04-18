@@ -99,6 +99,38 @@
       </span>
           </label>
 
+          <ng-select *ngIf="integrationConfig.confDataType === 'select'"
+                     #NgModel="select"
+                     [items]="getOptions(integrationConfig.confOptions)"
+                     bindLabel="name"
+                     bindValue="code"
+                     [searchable]="true"
+                     [multiple]="false"
+                     [clearable]="false"
+                     [loading]="isLoading[getName(integrationConfig.confKey)]"
+                     [virtualScroll]="true"
+                     [(ngModel)]="integrationConfig.confValue"
+                     [ngClass]="{'is-invalid': dynamicForm.controls[getName(config.confParamShort)]?.invalid,
+              'is-valid': dynamicForm.controls[getName(config.confParamShort)]?.valid}">
+
+            <ng-template ng-option-tmp let-item="item">
+              <app-utm-country-flag
+                [showCountry]="true"
+                [country]="item.name"
+                [countryCode]="item.code.toLowerCase()">
+              </app-utm-country-flag>
+            </ng-template>
+
+            <ng-template ng-label-tmp let-item="item">
+              <app-utm-country-flag
+                [showCountry]="true"
+                [country]="item.name"
+                [countryCode]="item.code.toLowerCase()">
+              </app-utm-country-flag>
+            </ng-template>
+
+          </ng-select>
+
           <input (input)="addChange(integrationConfig)"
                  *ngIf="integrationConfig.confDataType !== 'bool'
                  && integrationConfig.confDataType !== 'list'

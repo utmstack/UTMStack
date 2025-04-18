@@ -41,6 +41,8 @@ export class IntGenericGroupConfigComponent implements OnInit {
   collectorList: UtmModuleCollectorType[] = [];
   configs: UtmModuleGroupConfType[] = [];
   groupName: string;
+  selectOptions: { [key: string]: SelectOption[] } = {};
+  isLoading: { [key: string]: boolean } = {};
 
   constructor(private utmModuleGroupService: UtmModuleGroupService,
               private toast: UtmToastService,
@@ -352,5 +354,9 @@ export class IntGenericGroupConfigComponent implements OnInit {
     } else {
       return true;
     }
+  }
+
+  getOptions(confOptions: string) {
+    return JSON.parse(confOptions);
   }
 }
