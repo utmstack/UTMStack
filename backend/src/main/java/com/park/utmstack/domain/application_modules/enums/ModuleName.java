@@ -62,5 +62,6 @@ public enum ModuleName {
     SALESFORCE,
     BITDEFENDER,
     SOC_AI,
-    PFSENSE
+    PFSENSE,
+    ORACLE
 }

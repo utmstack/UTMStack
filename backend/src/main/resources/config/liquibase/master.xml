@@ -107,4 +107,6 @@
 
     <include file="/config/liquibase/changelog/20250411001_add_instance_licence_sections.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250418001_adding_oracle.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
