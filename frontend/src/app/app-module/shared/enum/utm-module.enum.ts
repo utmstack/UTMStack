@@ -66,5 +66,6 @@ export enum UtmModulesEnum {
   SALESFORCE = 'SALESFORCE',
   BITDEFENDER = 'BITDEFENDER',
   AS_400 = 'AS_400',
-  SOC_AI = 'SOC_AI'
+  SOC_AI = 'SOC_AI',
+  ORACLE = 'ORACLE'
 }

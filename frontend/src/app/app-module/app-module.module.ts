@@ -43,6 +43,7 @@ import { GuideLinuxAgentComponent } from './guides/guide-linux-agent/guide-linux
 import { GuideMacosAgentComponent } from './guides/guide-macos-agent/guide-macos-agent.component';
 import {GuideNetflowComponent} from './guides/guide-netflow/guide-netflow.component';
 import {GuideOffice365Component} from './guides/guide-office365/guide-office365.component';
+import {OracleComponent} from './guides/guide-oracle/oracle.component';
 import { GuideSalesforceComponent } from './guides/guide-salesforce/guide-salesforce.component';
 import { GuideSentinelOneComponent } from './guides/guide-sentinel-one/guide-sentinel-one.component';
 import { GuideSocAiComponent } from './guides/guide-soc-ai/guide-soc-ai.component';
@@ -117,7 +118,8 @@ import {AppModuleSharedModule} from './shared/app-module-shared.module';
     StepDirective,
     AgentActionCommandComponent,
     InstallLogCollectorComponent,
-    AgentInstallSelectorComponent
+    AgentInstallSelectorComponent,
+    OracleComponent
   ],
   imports: [
     CommonModule,

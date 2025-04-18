@@ -200,6 +200,9 @@
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
 
+      <app-guide-oracle *ngSwitchCase="moduleEnum.ORACLE" [serverId]="serverId"
+                       [integrationId]="module.id"></app-guide-oracle>
+
 
   </div>
   <ng-template #loading>

@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../shared/enum/utm-module.enum';
 import {UtmModuleType} from '../shared/type/utm-module.type';
-import {CheckForUpdatesService} from "../../shared/services/updates/check-for-updates.service";
+import {CheckForUpdatesService} from '../../shared/services/updates/check-for-updates.service';
 
 @Component({
   selector: 'app-module-integration',
