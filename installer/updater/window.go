@@ -1,79 +1,55 @@
 package updater
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"github.com/utmstack/UTMStack/installer/config"
-	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-// MaintenanceWindow struct
-// Frequency: daily, weekend, workday, or comma separated days
-// StartTime: start time in 24 hour format(HH:MM)
-// EndTime: end time in 24 hour format(HH:MM)
-type MaintenanceWindow struct {
-	Frequency string `yaml:"frequency"`
-	StartTime string `yaml:"start_time"`
-	EndTime   string `yaml:"end_time"`
-}
+var windowConfig string
 
-func GetWindowConfig() (*MaintenanceWindow, bool) {
-	if !utils.CheckIfPathExist(config.WindowConfigPath) {
-		windowConfig := &MaintenanceWindow{
-			Frequency: "daily",
-			StartTime: "00:00",
-			EndTime:   "23:00",
+func UpdateWindowConfig() {
+	for {
+		window, err := getWindowMaintaince()
+		if err != nil {
+			config.Logger().ErrorF("Error getting maintenance window config: %v", err)
 		}
-		utils.WriteYAML(config.WindowConfigPath, windowConfig)
-		return windowConfig, false
-	}
 
-	windowConfig := &MaintenanceWindow{}
-	err := utils.ReadYAML(config.WindowConfigPath, windowConfig)
-	if err != nil {
-		fmt.Printf("error reading window config file: %v", err)
-	}
+		if window != "" {
+			windowConfig = window
+			config.Logger().Info("Updated maintenance window config: %s", windowConfig)
+		}
 
-	return windowConfig, true
+		time.Sleep(config.CheckUpdatesEvery)
+	}
 }
 
 func IsInMaintenanceWindow() bool {
-	config, _ := GetWindowConfig()
-
-	now := time.Now()
-	weekday := now.Weekday().String()
-	startTime, _ := time.Parse("15:04", config.StartTime)
-	endTime, _ := time.Parse("15:04", config.EndTime)
-
-	start := time.Date(now.Year(), now.Month(), now.Day(), startTime.Hour(), startTime.Minute(), 0, 0, now.Location())
-	end := time.Date(now.Year(), now.Month(), now.Day(), endTime.Hour(), endTime.Minute(), 0, 0, now.Location())
-
-	if end.Before(start) {
-		end = end.Add(24 * time.Hour)
+	if windowConfig == "" {
+		config.Logger().Info("Maintenance window config not set in backend, presuming 24/7 maintenance window")
+		return true
 	}
 
-	inTimeWindow := now.After(start) && now.Before(end)
+	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 
-	if config.Frequency == "daily" {
-		return inTimeWindow
+	schedule, err := parser.Parse(windowConfig)
+	if err != nil {
+		config.Logger().ErrorF("Error parsing cron expression %s: %v", windowConfig, err)
+		return false
 	}
 
-	if config.Frequency == "weekend" {
-		return (weekday == "Saturday" || weekday == "Sunday") && inTimeWindow
+	now := time.Now().Truncate(time.Minute)
+	prev := schedule.Next(now.Add(-1 * time.Minute))
+
+	return prev.Equal(now)
+}
+
+func getWindowMaintaince() (string, error) {
+	backConf, err := getConfigFromBackend(8)
+	if err != nil {
+		return "", err
 	}
 
-	if config.Frequency == "workday" {
-		return (weekday != "Saturday" && weekday != "Sunday") && inTimeWindow
-	}
-
-	days := strings.Split(config.Frequency, ",")
-	for _, day := range days {
-		if strings.TrimSpace(strings.ToLower(day)) == strings.ToLower(weekday) {
-			return inTimeWindow
-		}
-	}
-
-	return false
+	return backConf[0].ConfParamValue, nil
 }

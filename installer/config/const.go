@@ -30,7 +30,6 @@ var (
 	ConfigPath            = filepath.Join("/root", "utmstack.yml")
 	InstanceConfigPath    = filepath.Join(GetConfig().UpdatesFolder, "instance-config.yml")
 	ServiceLogPath        = filepath.Join(GetConfig().UpdatesFolder, "logs", "utmstack-updater.log")
-	WindowConfigPath      = filepath.Join(GetConfig().UpdatesFolder, "update-window.yml")
 	VersionFilePath       = filepath.Join(GetConfig().UpdatesFolder, "version.json")
 	LicenseFilePath       = filepath.Join(GetConfig().UpdatesFolder, "LICENSE")
 	CheckUpdatesEvery     = 5 * time.Minute

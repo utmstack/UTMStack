@@ -62,8 +62,10 @@ func GetUpdaterClient() *UpdaterClient {
 }
 
 func (c *UpdaterClient) UpdateProcess() {
-	for {
-		time.Sleep(config.CheckUpdatesEvery)
+	ticker := time.NewTicker(config.CheckUpdatesEvery)
+	defer ticker.Stop()
+
+	for range ticker.C {
 		if IsInMaintenanceWindow() {
 			err := c.CheckUpdate()
 			if err != nil {

@@ -35,6 +35,7 @@ func (p *program) run() {
 	time.Sleep(5 * time.Second)
 
 	client := GetUpdaterClient()
+	go UpdateWindowConfig()
 	go client.UpdateProcess()
 	client.LicenseProcess()
 }
