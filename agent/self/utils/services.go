@@ -16,6 +16,8 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 		output, errB = ExecuteWithResult("sc", path, "query", serv)
 	case "linux":
 		output, errB = ExecuteWithResult("systemctl", path, "is-active", serv)
+	case "darwin":
+		output, errB = ExecuteWithResult("launchctl", path, "list", serv)
 	default:
 		return false, fmt.Errorf("unknown operating system")
 	}
@@ -25,13 +27,18 @@ func CheckIfServiceIsActive(serv string) (bool, error) {
 	}
 
 	serviceStatus := strings.ToLower(strings.TrimSpace(output))
-	if runtime.GOOS == "linux" {
-		return serviceStatus == "active", nil
-	} else if runtime.GOOS == "windows" {
-		return strings.Contains(serviceStatus, "running"), nil
-	}
 
-	return false, fmt.Errorf("unsupported operating system")
+	switch runtime.GOOS {
+	case "windows":
+		return strings.Contains(serviceStatus, "running"), nil
+	case "linux":
+		return serviceStatus == "active", nil
+	case "darwin":
+		// launchctl list <serv> returns a JSON-ish block or error.If the service is listed, it's running
+		return true, nil
+	default:
+		return false, fmt.Errorf("unsupported operating system")
+	}
 }
 
 func RestartService(serv string) error {
@@ -66,6 +73,18 @@ func RestartService(serv string) error {
 				return fmt.Errorf("error starting service: %v", err)
 			}
 		}
+	case "darwin":
+		plistPath := fmt.Sprintf("/Library/LaunchDaemons/%s.plist", serv)
+
+		if isRunning {
+			if err := Execute("launchctl", path, "remove", serv); err != nil {
+				return fmt.Errorf("error stopping macOS service: %v", err)
+			}
+		}
+
+		if err := Execute("launchctl", path, "load", plistPath); err != nil {
+			return fmt.Errorf("error starting macOS service: %v", err)
+		}
 	}
 	return nil
 }
@@ -82,6 +101,11 @@ func StopService(name string) error {
 		err := Execute("systemctl", path, "stop", name)
 		if err != nil {
 			return fmt.Errorf("error stoping service: %v", err)
+		}
+	case "darwin":
+		err := Execute("launchctl", path, "remove", name)
+		if err != nil {
+			return fmt.Errorf("error stopping macOS service: %v", err)
 		}
 	}
 	return nil

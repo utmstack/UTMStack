@@ -5,12 +5,13 @@ package collectors
 
 import (
 	"bufio"
+	"os/exec"
+	"path/filepath"
+
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/utils"
-	"os/exec"
-	"path/filepath"
 )
 
 type Darwin struct{}
@@ -62,7 +63,7 @@ func (d Darwin) SendLogs() {
 			}
 
 			logservice.LogQueue <- logservice.LogPipe{
-				Src:  string(config.DataTypeMacOSAgent),
+				Src:  string(config.DataTypeMacOs),
 				Logs: []string{validatedLog},
 			}
 		}

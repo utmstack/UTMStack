@@ -45,7 +45,6 @@ var (
 	// RedlineServName      = "UTMStackRedline"
 	// BatchToSend          = 5
 
-	DataTypeMacOSAgent          DataType = "macos_agent"
 	DataTypeWindowsAgent        DataType = "beats_windows_agent"
 	DataTypeSyslog              DataType = "syslog"
 	DataTypeVmware              DataType = "vmware"
@@ -100,7 +99,6 @@ var (
 		DataTypeSonicwall:      {UDP: "7009", TCP: "7009"},
 		DataTypeDeceptivebytes: {UDP: "7010", TCP: "7010"},
 		DataTypeSentinelOne:    {UDP: "7012", TCP: "7012"},
-		DataTypeMacOs:          {UDP: "7015", TCP: "7015"},
 		DataTypeAix:            {UDP: "7016", TCP: "7016"},
 		DataTypePfsense:        {UDP: "7017", TCP: "7017"},
 		DataTypeFortiweb:       {UDP: "7018", TCP: "7018"},
@@ -117,7 +115,7 @@ func GetMessageFormated(host string, msg string) string {
 func ValidateModuleType(typ string) string {
 	switch DataType(typ) {
 	case DataTypeSyslog, DataTypeVmware, DataTypeEset, DataTypeKaspersky, DataTypeFortinet, DataTypePaloalto,
-		DataTypeMikrotik, DataTypeSophosXG, DataTypeSonicwall, DataTypeSentinelOne, DataTypeCiscoGeneric, DataTypeMacOs,
+		DataTypeMikrotik, DataTypeSophosXG, DataTypeSonicwall, DataTypeSentinelOne, DataTypeCiscoGeneric,
 		DataTypeDeceptivebytes, DataTypeAix, DataTypePfsense, DataTypeFortiweb:
 		return "syslog"
 	case DataTypeNetflow:
