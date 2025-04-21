@@ -46,6 +46,9 @@ public class UtmModuleGroupConfiguration implements Serializable {
     @Column(name = "conf_required", nullable = false)
     private Boolean confRequired;
 
+    @Column(name = "conf_options", nullable = false)
+    private String confOptions;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "group_id", insertable = false, updatable = false)
@@ -133,5 +136,13 @@ public class UtmModuleGroupConfiguration implements Serializable {
 
     public void setModuleGroup(UtmModuleGroup moduleGroup) {
         this.moduleGroup = moduleGroup;
+    }
+
+    public String getConfOptions() {
+        return confOptions;
+    }
+
+    public void setConfOptions(String confOptions) {
+        this.confOptions = confOptions;
     }
 }

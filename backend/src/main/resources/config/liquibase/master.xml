@@ -89,4 +89,7 @@
 
     <include file="/config/liquibase/changelog/20250414002_updating_gcp_filter.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250418001_add_options_module_group_config.xml" relativeToChangelogFile="false"/>
+
+
 </databaseChangeLog>
