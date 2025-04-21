@@ -58,11 +58,10 @@ export class AgentInstallSelectorComponent {
   ];
 
   @Input() platforms = [];
-
   @Input() agent: string;
+  @Input() _selectedPlatform: any;
 
   _selectedProtocol: any;
-  _selectedPlatform: any;
   _selectedAction: any;
   module = UtmModulesEnum;
 
