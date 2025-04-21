@@ -25,6 +25,7 @@ func main() {
 			fmt.Println("Error checking if service is installed: ", err)
 			os.Exit(1)
 		}
+
 		if arg != "install" && !isInstalled {
 			fmt.Println("UTMStackAgent service is not installed")
 			os.Exit(1)
@@ -62,14 +63,17 @@ func main() {
 				fmt.Println("\nError registering agent: ", err)
 				os.Exit(1)
 			}
+
 			if err = config.SaveConfig(cnf); err != nil {
 				fmt.Println("\nError saving config: ", err)
 				os.Exit(1)
 			}
+
 			if err = modules.ConfigureCollectorFirstTime(); err != nil {
 				fmt.Println("\nError configuring collector: ", err)
 				os.Exit(1)
 			}
+
 			if err = collectors.InstallCollectors(); err != nil {
 				fmt.Println("\nError installing collectors: ", err)
 				os.Exit(1)
@@ -80,7 +84,6 @@ func main() {
 			serv.InstallService()
 			fmt.Println("[OK]")
 			fmt.Println("UTMStackAgent service installed correctly")
-
 		case "enable-integration", "disable-integration":
 			fmt.Println("Changing integration status ...")
 			integration := os.Args[2]
@@ -93,7 +96,6 @@ func main() {
 			}
 			fmt.Printf("Action %s %s %s correctly in port %s\n", arg, integration, proto, port)
 			time.Sleep(5 * time.Second)
-
 		case "change-port":
 			fmt.Println("Changing integration port ...")
 			integration := os.Args[2]
@@ -107,7 +109,6 @@ func main() {
 			}
 			fmt.Printf("Port changed correctly from %s to %s\n", old, port)
 			time.Sleep(5 * time.Second)
-
 		case "uninstall":
 			fmt.Print("Uninstalling UTMStackAgent service ...")
 
@@ -125,10 +126,10 @@ func main() {
 			os.Remove(config.ConfigurationFile)
 
 			serv.UninstallService()
-
 			fmt.Println("[OK]")
+
 			fmt.Println("UTMStackAgent service uninstalled correctly")
-			os.Exit(1)
+			os.Exit(0)
 		case "help":
 			Help()
 		default:

@@ -58,7 +58,7 @@ func GetOsInfo() (*OSInfo, error) {
 		aliases = append(aliases, "")
 	}
 	info.Aliases = strings.Join(aliases, ",")
-	info.Addresses = strings.Join(hostInfo.Info().IPs, ",")
+	info.Addresses = CleanIPAddresses(strings.Join(hostInfo.Info().IPs, ","))
 
 	return &info, nil
 }

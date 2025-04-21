@@ -19,6 +19,11 @@ func StopService(name string) error {
 		if err != nil {
 			return fmt.Errorf("error stoping service: %v", err)
 		}
+	case "darwin":
+		err := Execute("launchctl", path, "remove", name)
+		if err != nil {
+			return fmt.Errorf("error stopping macOS service: %v", err)
+		}
 	}
 	return nil
 }
@@ -40,11 +45,15 @@ func UninstallService(name string) error {
 		if err != nil {
 			return fmt.Errorf("error uninstalling service: %v", err)
 		}
+	case "darwin":
+		Execute("launchctl", path, "remove", name)
+		Execute("rm", "/Library/LaunchDaemons/"+name+".plist")
+		Execute("rm", "/Users/"+os.Getenv("USER")+"/Library/LaunchAgents/"+name+".plist")
+
 	}
 	return nil
 }
 
-// CheckIfServiceIsInstalled checks if a service is installed
 func CheckIfServiceIsInstalled(serv string) (bool, error) {
 	path := GetMyPath()
 	var err error
@@ -53,14 +62,13 @@ func CheckIfServiceIsInstalled(serv string) (bool, error) {
 		err = Execute("sc", path, "query", serv)
 	case "linux":
 		err = Execute("systemctl", path, "status", serv)
+	case "darwin":
+		err = Execute("launchctl", path, "list", serv)
 	default:
 		return false, fmt.Errorf("operative system unknown")
 	}
 
-	if err != nil {
-		return false, nil
-	}
-	return true, nil
+	return err == nil, err
 }
 
 func CreateLinuxService(serviceName string, execStart string) error {

@@ -8,7 +8,23 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
-func PrepareSystem() error {
+func PrepareSystem(distro string) error {
+	if distro == "redhat" {
+		if err := utils.RunCmd("setenforce", "0"); err != nil {
+			return fmt.Errorf("failed to disable SELinux immediately: %v", err)
+		}
+
+		if err := utils.RunCmd("sed", "-i", "s/^SELINUX=.*/SELINUX=disabled/", "/etc/selinux/config"); err != nil {
+			return fmt.Errorf("failed to configure permanent SELinux setting: %v", err)
+		}
+
+		if err := utils.RunCmd("systemctl", "disable", "firewalld"); err != nil {
+			return fmt.Errorf("failed to disable firewalld: %v", err)
+		}
+		if err := utils.RunCmd("systemctl", "stop", "firewalld"); err != nil {
+			return fmt.Errorf("failed to stop firewalld: %v", err)
+		}
+	}
 	sysctl := []string{
 		"vm.max_map_count=262144",
 		"net.ipv6.conf.all.disable_ipv6=1",

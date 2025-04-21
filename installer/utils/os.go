@@ -48,7 +48,7 @@ func CreatePathIfNotExist(path string) error {
 	return nil
 }
 
-func writeToFile(fileName string, body string) error {
+func WriteToFile(fileName string, body string) error {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func WriteYAML(url string, data interface{}) error {
 		return err
 	}
 
-	err = writeToFile(url, string(config[:]))
+	err = WriteToFile(url, string(config[:]))
 	if err != nil {
 		return err
 	}

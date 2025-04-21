@@ -119,7 +119,7 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	switch runtime.GOOS {
 	case "windows":
 		result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", commandPair[0])
-	case "linux":
+	case "linux", "darwin":
 		result, errB = utils.ExecuteWithResult("sh", path, "-c", commandPair[0])
 	default:
 		utils.Logger.Fatal("unsupported operating system: %s", runtime.GOOS)

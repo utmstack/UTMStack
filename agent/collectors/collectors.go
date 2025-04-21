@@ -13,7 +13,7 @@ type CollectorConfig struct {
 
 type Collector interface {
 	Install() error
-	SendSystemLogs()
+	SendLogs()
 	Uninstall() error
 }
 
@@ -35,7 +35,7 @@ func InstallCollectors() error {
 func LogsReader() {
 	collectors := getCollectorsInstances()
 	for _, collector := range collectors {
-		go collector.SendSystemLogs()
+		go collector.SendLogs()
 	}
 }
 
