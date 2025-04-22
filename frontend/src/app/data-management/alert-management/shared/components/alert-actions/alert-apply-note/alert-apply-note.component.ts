@@ -17,6 +17,7 @@ export class AlertApplyNoteComponent implements OnInit, OnChanges {
   @Output() applyNote = new EventEmitter<string>();
   note: string;
   creating = false;
+  @Input( )showIcon = true;
 
   constructor(private alertServiceManagement: AlertManagementService,
               private utmToastService: UtmToastService,

@@ -20,6 +20,7 @@ export class AlertTagsApplyComponent implements OnInit, OnChanges {
   @Output() applyTagsEvent = new EventEmitter<{ tags: string[], automatic: boolean }>();
   icon: string;
   color: string;
+  @Input() showIcon = true;
 
   constructor(private modalService: NgbModal,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior) {
@@ -50,6 +51,9 @@ export class AlertTagsApplyComponent implements OnInit, OnChanges {
   }
 
   addNewTagRule() {
+    if (!this.showIcon){
+      return;
+    }
     const modalRef = this.modalService.open(AlertRuleCreateComponent, {centered: true, size: 'lg'});
     modalRef.componentInstance.alert = this.alert;
     modalRef.componentInstance.action = 'select';

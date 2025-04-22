@@ -2,15 +2,16 @@
      placement="top"
      tooltipClass="utm-tooltip-top">
 <span #notePopober=ngbPopover
-      [ngbPopover]="colContent"
+      [ngbPopover]="showIcon ? colContent : ''"
       [popoverTitle]="colTitle"
       autoClose="outside"
-      class="text-blue-800 position-relative cursor-pointer small-md-icon"
+      [ngClass]="{'text-blue-800 position-relative cursor-pointer': showIcon}"
+      class="small-md-icon"
       container="body"
       placement="auto"
       popoverClass="utm-popover"
       triggers="click">
-  <i [ngClass]="creating?'icon-spinner2 spinner':note==='' ? 'icon-pencil3' : 'icon-pencil4'"></i>
+  <i *ngIf="showIcon" [ngClass]="creating?'icon-spinner2 spinner':note==='' ? 'icon-pencil3' : 'icon-pencil4'"></i>
   <span *ngIf="showNote" class="ml-3">
     {{note}}
   </span>
