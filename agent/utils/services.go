@@ -68,7 +68,7 @@ func CheckIfServiceIsInstalled(serv string) (bool, error) {
 		return false, fmt.Errorf("operative system unknown")
 	}
 
-	return err == nil, err
+	return err == nil, nil
 }
 
 func CreateLinuxService(serviceName string, execStart string) error {
