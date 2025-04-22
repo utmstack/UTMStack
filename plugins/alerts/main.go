@@ -29,7 +29,7 @@ type IncidentDetail struct {
 type AlertFields struct {
 	Timestamp         string           `json:"@timestamp"`
 	ID                string           `json:"id"`
-	ParentID          string           `json:"parentId"`
+	ParentID          *string          `json:"parentId,omitempty"`
 	Status            int              `json:"status"`
 	StatusLabel       string           `json:"statusLabel"`
 	StatusObservation string           `json:"statusObservation"`
@@ -208,7 +208,7 @@ func newAlert(alert *plugins.Alert, parentId string) error {
 	a := AlertFields{
 		Timestamp:     alert.Timestamp,
 		ID:            alert.Id,
-		ParentID:      parentId,
+		ParentID:      utils.PointerOf(parentId),
 		Status:        1,
 		StatusLabel:   "Automatic review",
 		Name:          alert.Name,
