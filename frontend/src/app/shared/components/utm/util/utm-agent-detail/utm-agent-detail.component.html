@@ -56,8 +56,12 @@
     <app-assets-apply-note *ngIf="asset" [asset]="asset" class="ml-2"></app-assets-apply-note>
   </div>
   <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.version">
-    <span class="text-blue-800 font-weight-light has-minimum-width">OS Version:</span>&nbsp;
+    <span class="text-blue-800 font-weight-light has-minimum-width">Agent Version:</span>&nbsp;
     {{agent.version}}
+  </div>
+  <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.osMajorVersion && agent.osMinorVersion">
+    <span class="text-blue-800 font-weight-light has-minimum-width">OS Version:</span>&nbsp;
+    {{agent.osMajorVersion + '.' + agent.osMinorVersion}}
   </div>
   <div class="agent-details w-100 d-flex justify-content-start mb-2" *ngIf="agent.lastSeen">
     <span class="text-blue-800 font-weight-light has-minimum-width">Last seen:</span>&nbsp;
