@@ -31,7 +31,7 @@ var configsSent = make(map[string]ModuleConfig)
 
 func ConfigureModules(cnf *types.ConfigurationSection, mutex *sync.Mutex) {
 	for {
-		if err := utils.ConnectionChecker(URL_CHECK_CONNECTION); err != nil {
+		if err := utils.ConnectionChecker(UrlCheckConnection); err != nil {
 			_ = catcher.Error("External connection failure detected: %v", err, nil)
 		}
 		utmConfig := plugins.PluginCfg("com.utmstack", false)

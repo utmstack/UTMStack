@@ -13,15 +13,6 @@ const defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
 var localLogsChannel chan *plugins.Log
 
-type PluginConfig struct {
-	ServerName   string `yaml:"serverName"`
-	InternalKey  string `yaml:"internalKey"`
-	AgentManager string `yaml:"agentManager"`
-	Backend      string `yaml:"backend"`
-	Logstash     string `yaml:"logstash"`
-	CertsFolder  string `yaml:"certsFolder"`
-}
-
 func main() {
 	mode := plugins.GetCfg().Env.Mode
 	if mode != "worker" {

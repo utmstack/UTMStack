@@ -68,9 +68,9 @@ func GetLogs(config *types.ConfigurationSection) http.HandlerFunc {
 	}
 }
 
-func ServerUp(cnf *types.ConfigurationSection, cert string, key string) {
+func StartServer(cnf *types.ConfigurationSection, cert string, key string) {
 	r := mux.NewRouter().StrictSlash(false)
-	r.HandleFunc("/api", (GetLogs(cnf))).Methods("POST")
+	r.HandleFunc("/api", GetLogs(cnf)).Methods("POST")
 	r.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("Server is up and running"))

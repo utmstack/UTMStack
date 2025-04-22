@@ -164,8 +164,6 @@ func main() {
 	}
 
 	for {
-		gCfg := plugins.GetCfg()
-
 		db, err := connect()
 		if err != nil {
 			_ = catcher.Error("failed to connect to database", err, map[string]any{})
@@ -201,37 +199,37 @@ func main() {
 		tenant := Tenant{}
 		tenant.FromVar([]int64{}, assets)
 
-		err = cleanUpFilters(gCfg, filters)
+		err = cleanUpFilters(filters)
 		if err != nil {
 			_ = catcher.Error("failed to clean up filters", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writeFilters(gCfg, filters)
+		err = writeFilters(filters)
 		if err != nil {
 			_ = catcher.Error("failed to write filters", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = cleanUpRules(gCfg, rules)
+		err = cleanUpRules(rules)
 		if err != nil {
 			_ = catcher.Error("failed to clean up rules", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writeRules(gCfg, rules)
+		err = writeRules(rules)
 		if err != nil {
 			_ = catcher.Error("failed to write rules", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writeTenant(gCfg, tenant)
+		err = writeTenant(tenant)
 		if err != nil {
 			_ = catcher.Error("failed to write tenant", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writePatterns(gCfg, patterns)
+		err = writePatterns(patterns)
 		if err != nil {
 			_ = catcher.Error("failed to write patterns", err, map[string]any{})
 			os.Exit(1)
@@ -465,7 +463,7 @@ func listFiles(folder string) ([]string, error) {
 	return files, nil
 }
 
-func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
+func cleanUpFilters(filters []Filter) error {
 	filtersPath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
 	if err != nil {
 		_ = catcher.Error("cannot create filters directory", err, nil)
@@ -498,7 +496,7 @@ func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
 	return nil
 }
 
-func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
+func cleanUpRules(rules []Rule) error {
 	rulesFolder, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
 	if err != nil {
 		_ = catcher.Error("cannot create filters directory", err, nil)
@@ -532,7 +530,7 @@ func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
 	return nil
 }
 
-func writeFilters(pCfg *plugins.Config, filters []Filter) error {
+func writeFilters(filters []Filter) error {
 	for _, filter := range filters {
 		filtersFolder, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
 		if err != nil {
@@ -559,7 +557,7 @@ func writeFilters(pCfg *plugins.Config, filters []Filter) error {
 	return nil
 }
 
-func writeTenant(pCfg *plugins.Config, tenant Tenant) error {
+func writeTenant(tenant Tenant) error {
 	pipelineFolder, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
 	if err != nil {
 		_ = catcher.Error("cannot create pipeline directory", err, nil)
@@ -595,7 +593,7 @@ func writeTenant(pCfg *plugins.Config, tenant Tenant) error {
 	return nil
 }
 
-func writeRules(pCfg *plugins.Config, rules []Rule) error {
+func writeRules(rules []Rule) error {
 	for _, rule := range rules {
 		filePath, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
 		if err != nil {
@@ -627,7 +625,7 @@ func writeRules(pCfg *plugins.Config, rules []Rule) error {
 	return nil
 }
 
-func writePatterns(pCfg *plugins.Config, patterns map[string]string) error {
+func writePatterns(patterns map[string]string) error {
 	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
 	if err != nil {
 		_ = catcher.Error("cannot create pipeline directory", err, nil)

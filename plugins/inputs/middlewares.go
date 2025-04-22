@@ -29,7 +29,7 @@ func NewMiddlewares(authService *LogAuthService) *Middlewares {
 	}
 }
 
-func (m *Middlewares) GrpcAuth(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+func (m *Middlewares) GrpcAuth(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	if err := m.authFromContext(ctx); err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (m *Middlewares) GrpcAuth(ctx context.Context, req any, info *grpc.UnarySer
 	return handler(ctx, req)
 }
 
-func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	if err := m.authFromContext(ss.Context()); err != nil {
 		return err
 	}

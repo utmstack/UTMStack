@@ -34,7 +34,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	server.ServerUp(&moduleConfig, cert, key)
+	server.StartServer(&moduleConfig, cert, key)
 	go configuration.ConfigureModules(&moduleConfig, mutex)
 
 	go processor.ProcessLogs()

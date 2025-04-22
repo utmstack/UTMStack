@@ -1,15 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"net"
-	"os"
-	"time"
-
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
+	"io"
+	"net"
+	"os"
 
 	"google.golang.org/grpc"
 )
@@ -60,8 +57,4 @@ func (p *analysisServer) Analyze(event *plugins.Event, _ grpc.ServerStreamingSer
 	addToQueue(*jLog)
 
 	return io.EOF
-}
-
-func indexBuilder(name string, timestamp time.Time) string {
-	return fmt.Sprintf("%s-%s", name, timestamp.Format("2006.01.02"))
 }
