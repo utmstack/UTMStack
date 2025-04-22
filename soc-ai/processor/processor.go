@@ -37,7 +37,7 @@ func NewProcessor() *Processor {
 func (p *Processor) ProcessData() {
 	utils.Logger.Info("Starting SOC-AI Processor...")
 
-	go configurations.UpdateGPTConfigurations()
+	go configurations.GetGPTConfig().UpdateGPTConfigurations()
 	go p.restRouter()
 	go p.processAlertsInfo()
 

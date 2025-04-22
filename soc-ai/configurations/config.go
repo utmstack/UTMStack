@@ -1,6 +1,7 @@
 package configurations
 
 import (
+	"sync"
 	"time"
 
 	UTMStackConfigurationClient "github.com/utmstack/config-client-go"
@@ -9,7 +10,8 @@ import (
 )
 
 var (
-	gptConfig GPTConfig
+	gptConfig     GPTConfig
+	gptConfigOnce sync.Once
 )
 
 type GPTConfig struct {
@@ -21,10 +23,14 @@ type GPTConfig struct {
 }
 
 func GetGPTConfig() *GPTConfig {
+	gptConfigOnce.Do(func() {
+		gptConfig = GPTConfig{}
+	})
+
 	return &gptConfig
 }
 
-func UpdateGPTConfigurations() {
+func (c *GPTConfig) UpdateGPTConfigurations() {
 	intKey := GetInternalKey()
 	panelServ := GetPanelServiceName()
 	client := UTMStackConfigurationClient.NewUTMClient(intKey, panelServ)
@@ -41,26 +47,26 @@ func UpdateGPTConfigurations() {
 			continue
 		}
 
-		gptConfig.ModuleActive = tempModuleConfig.ModuleActive
+		c.ModuleActive = tempModuleConfig.ModuleActive
 
-		if gptConfig.ModuleActive && tempModuleConfig != nil && len(tempModuleConfig.ConfigurationGroups) > 0 {
+		if c.ModuleActive && tempModuleConfig != nil && len(tempModuleConfig.ConfigurationGroups) > 0 {
 			for _, config := range tempModuleConfig.ConfigurationGroups[0].Configurations {
 				switch config.ConfKey {
 				case "utmstack.socai.key":
 					if config.ConfValue != "" && config.ConfValue != " " {
-						gptConfig.APIKey = config.ConfValue
+						c.APIKey = config.ConfValue
 					}
 				case "utmstack.socai.incidentCreation":
 					if config.ConfValue != "" && config.ConfValue != " " {
-						gptConfig.AutomaticIncidentCreation = config.ConfValue == "true"
+						c.AutomaticIncidentCreation = config.ConfValue == "true"
 					}
 				case "utmstack.socai.changeAlertStatus":
 					if config.ConfValue != "" && config.ConfValue != " " {
-						gptConfig.ChangeAlertStatus = config.ConfValue == "true"
+						c.ChangeAlertStatus = config.ConfValue == "true"
 					}
 				case "utmstack.socai.model":
 					if config.ConfValue != "" && config.ConfValue != " " {
-						gptConfig.Model = config.ConfValue
+						c.Model = config.ConfValue
 					}
 				}
 			}
