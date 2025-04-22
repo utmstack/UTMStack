@@ -507,7 +507,7 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 
 	socAIMem := stack.ServiceResources["socai"].AssignedMemory
 	c.Services["socai"] = Service{
-		Image: utils.Str("ghcr.io/utmstack/soc-ai/soc-ai:" + conf.Branch),
+		Image: utils.Str("ghcr.io/utmstack/utmstack/soc-ai:" + conf.Branch),
 		DependsOn: []string{
 			"node1",
 			"backend",
