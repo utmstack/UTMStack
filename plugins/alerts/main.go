@@ -2,16 +2,14 @@ package main
 
 import (
 	"context"
-	"net"
-	"os"
-	"time"
-
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/opensearch"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-
-	"github.com/google/uuid"
+	"github.com/tidwall/gjson"
+	"net"
+	"os"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -31,6 +29,7 @@ type IncidentDetail struct {
 type AlertFields struct {
 	Timestamp         string           `json:"@timestamp"`
 	ID                string           `json:"id"`
+	ParentID          string           `json:"parentId"`
 	Status            int              `json:"status"`
 	StatusLabel       string           `json:"statusLabel"`
 	StatusObservation string           `json:"statusObservation"`
@@ -51,9 +50,11 @@ type AlertFields struct {
 	Adversary         *plugins.Side    `json:"adversary"`
 	Target            *plugins.Side    `json:"target"`
 	Events            []*plugins.Event `json:"events"`
+	LastEvent         *plugins.Event   `json:"lastEvent"`
 	Tags              []string         `json:"tags"`
 	Notes             string           `json:"notes"`
 	TagRulesApplied   []int            `json:"tagRulesApplied"`
+	DeduplicatedBy    []string         `json:"deduplicatedBy"`
 }
 
 func main() {
@@ -81,10 +82,10 @@ func main() {
 	grpcServer := grpc.NewServer()
 	plugins.RegisterCorrelationServer(grpcServer, &correlationServer{})
 
-	elasticUrl := plugins.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
-	err = opensearch.Connect([]string{elasticUrl})
+	osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
+	err = opensearch.Connect([]string{osUrl})
 	if err != nil {
-		_ = catcher.Error("cannot connect to ElasticSearch/OpenSearch", err, nil)
+		_ = catcher.Error("cannot connect to OpenSearch", err, nil)
 		os.Exit(1)
 	}
 
@@ -97,8 +98,96 @@ func main() {
 func (p *correlationServer) Correlate(_ context.Context,
 	alert *plugins.Alert) (*emptypb.Empty, error) {
 
-	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
+	parentId := getPreviousAlertId(alert)
 
+	return nil, newAlert(alert, parentId)
+}
+
+func getPreviousAlertId(alert *plugins.Alert) string {
+	alertString, err := utils.ToString(alert)
+	if err != nil {
+		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name})
+		return ""
+	}
+
+	var filters []opensearch.Query
+
+	filters = append(filters, opensearch.Query{
+		Term: map[string]map[string]interface{}{
+			"name.keyword": {
+				"value": alert.Name,
+			},
+		},
+	})
+
+	for _, d := range alert.DeduplicateBy {
+		value := gjson.Get(*alertString, d)
+		if value.Type == gjson.Null {
+			continue
+		}
+
+		if value.Type == gjson.String {
+			filters = append(filters, opensearch.Query{
+				Term: map[string]map[string]interface{}{
+					d: {
+						"value": value.String(),
+					},
+				},
+			})
+		}
+
+		if value.Type == gjson.Number {
+			filters = append(filters, opensearch.Query{
+				Term: map[string]map[string]interface{}{
+					d: {
+						"value": value.Float(),
+					},
+				},
+			})
+		}
+
+		if value.IsBool() {
+			filters = append(filters, opensearch.Query{
+				Term: map[string]map[string]interface{}{
+					d: {
+						"value": value.Bool(),
+					},
+				},
+			})
+		}
+	}
+
+	searchQuery := opensearch.SearchRequest{
+		Size:    1,
+		From:    0,
+		Version: true,
+		Query: &opensearch.Query{
+			Bool: &opensearch.Bool{
+				Filter: filters,
+			},
+		},
+		StoredFields: []string{"*"},
+		Source:       &opensearch.Source{Excludes: []string{}},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	defer cancel()
+
+	hits, err := searchQuery.SearchIn(ctx, []string{opensearch.BuildIndexPattern("v11", "alert")})
+	if err != nil {
+		_ = catcher.Error("cannot search for previous alerts", err, map[string]any{"alert": alert.Name})
+		return ""
+	}
+
+	if hits.Hits.Total.Value != 0 {
+		return hits.Hits.Hits[0].ID
+	}
+
+	return ""
+}
+
+func newAlert(alert *plugins.Alert, parentId string) error {
 	var severityN int
 	var severityLabel string
 	switch alert.Severity {
@@ -117,8 +206,9 @@ func (p *correlationServer) Correlate(_ context.Context,
 	}
 
 	a := AlertFields{
-		Timestamp:     timestamp,
+		Timestamp:     alert.Timestamp,
 		ID:            alert.Id,
+		ParentID:      parentId,
 		Status:        1,
 		StatusLabel:   "Automatic review",
 		Name:          alert.Name,
@@ -132,21 +222,29 @@ func (p *correlationServer) Correlate(_ context.Context,
 		DataSource:    alert.DataSource,
 		Adversary:     alert.Adversary,
 		Target:        alert.Target,
-		Events:        alert.Events,
-		Impact:        alert.Impact,
-		ImpactScore:   alert.ImpactScore,
+		LastEvent: func() *plugins.Event {
+			l := len(alert.Events)
+			if l == 0 {
+				return nil
+			}
+			return alert.Events[l-1]
+		}(),
+		Events:         alert.Events,
+		Impact:         alert.Impact,
+		ImpactScore:    alert.ImpactScore,
+		DeduplicatedBy: alert.DeduplicateBy,
 	}
 
 	cancelableContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	defer cancel()
 
-	err := opensearch.IndexDoc(cancelableContext, a, opensearch.BuildCurrentIndex("v11", "alert"), uuid.NewString())
+	err := opensearch.IndexDoc(cancelableContext, a, opensearch.BuildCurrentIndex("v11", "alert"), alert.Id)
 	if err != nil {
-		return nil, catcher.Error("cannot index document", err, map[string]any{
+		return catcher.Error("cannot index document", err, map[string]any{
 			"alert": alert.Name,
 		})
 	}
 
-	return nil, nil
+	return nil
 }

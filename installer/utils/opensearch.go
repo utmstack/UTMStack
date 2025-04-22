@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// CheckIndexExists checks if the given Elasticsearch index exists by sending an HTTP GET
+// CheckIndexExists checks if the given OpenSearch index exists by sending an HTTP GET
 // request to the provided URL. It returns true if the index exists, false otherwise.
 func CheckIndexExists(url string) (bool, error) {
 	resp, err := http.Get(url)

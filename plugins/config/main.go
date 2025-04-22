@@ -28,15 +28,32 @@ type Tenant plugins.Tenant
 type Asset plugins.Asset
 
 type Rule struct {
-	Id          int64          `yaml:"id"`
-	DataTypes   []string       `yaml:"dataTypes"`
-	Name        string         `yaml:"name"`
-	Impact      plugins.Impact `yaml:"impact"`
-	Category    string         `yaml:"category"`
-	Technique   string         `yaml:"technique"`
-	References  []string       `yaml:"references"`
-	Description string         `yaml:"description"`
-	Where       plugins.Where  `yaml:"where"`
+	Id            int64           `yaml:"id"`
+	DataTypes     []string        `yaml:"dataTypes"`
+	Name          string          `yaml:"name"`
+	Impact        plugins.Impact  `yaml:"impact"`
+	Category      string          `yaml:"category"`
+	Technique     string          `yaml:"technique"`
+	Adversary     string          `yaml:"adversary"`
+	References    []string        `yaml:"references"`
+	Description   string          `yaml:"description"`
+	Where         plugins.Where   `yaml:"where"`
+	AfterEvents   []SearchRequest `yaml:"afterEvents"`
+	DeduplicateBy []string        `yaml:"deduplicateBy"`
+}
+
+type SearchRequest struct {
+	IndexPattern string          `yaml:"indexPattern"`
+	With         []Expression    `yaml:"with"`
+	Or           []SearchRequest `yaml:"or"`
+	Within       string          `yaml:"within"`
+	Count        int64           `yaml:"count"`
+}
+
+type Expression struct {
+	Field    string      `yaml:"field"`
+	Operator string      `yaml:"operator"` // possible values: "eq", "neq"
+	Value    interface{} `yaml:"value"`
 }
 
 func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
@@ -81,7 +98,7 @@ func (a *Asset) FromVar(name any, hostnames any, ips any, confidentiality, integ
 
 func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity any,
 	availability any, category any, technique any, description any,
-	references any, where any, dataTypes any) {
+	references any, where any, dataTypes any, adversary any) {
 
 	referencesStr := utils.CastString(references)
 	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
@@ -107,6 +124,7 @@ func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity an
 	r.Technique = utils.CastString(technique)
 	r.References = make([]string, len(referencesList))
 	r.Description = utils.CastString(description)
+	r.Adversary = utils.CastString(adversary)
 
 	for i, dataType := range dataTypesList {
 		r.DataTypes[i] = utils.CastString(dataType)
@@ -346,7 +364,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 }
 
 func getRules(db *sql.DB) ([]Rule, error) {
-	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def FROM utm_correlation_rules WHERE rule_active = true")
+	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get rules: %v", err)
 	}
@@ -367,10 +385,11 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			description     any
 			references      any
 			where           any
+			adversary       any
 		)
 
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
-			&category, &technique, &description, &references, &where)
+			&category, &technique, &description, &references, &where, &adversary)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
@@ -382,7 +401,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			return nil, err
 		}
 
-		rule.FromVar(id, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, dataTypes)
+		rule.FromVar(id, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, dataTypes, adversary)
 
 		rules = append(rules, rule)
 	}

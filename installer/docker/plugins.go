@@ -13,17 +13,17 @@ type PluginsConfig struct {
 }
 
 type PluginConfig struct {
-	Order         []string      `yaml:"order,omitempty"`
-	Port          int           `yaml:"port,omitempty"`
-	RulesFolder   string        `yaml:"rulesFolder,omitempty"`
-	GeoIPFolder   string        `yaml:"geoipFolder,omitempty"`
-	Elasticsearch string        `yaml:"elasticsearch,omitempty"`
-	PostgreSQL    PostgreConfig `yaml:"postgresql,omitempty"`
-	ServerName    string        `yaml:"serverName,omitempty"`
-	InternalKey   string        `yaml:"internalKey,omitempty"`
-	AgentManager  string        `yaml:"agentManager,omitempty"`
-	Backend       string        `yaml:"backend,omitempty"`
-	CertsFolder   string        `yaml:"certsFolder,omitempty"`
+	Order        []string      `yaml:"order,omitempty"`
+	Port         int           `yaml:"port,omitempty"`
+	RulesFolder  string        `yaml:"rulesFolder,omitempty"`
+	GeoIPFolder  string        `yaml:"geoipFolder,omitempty"`
+	OpenSearch   string        `yaml:"opensearch,omitempty"`
+	PostgreSQL   PostgreConfig `yaml:"postgresql,omitempty"`
+	ServerName   string        `yaml:"serverName,omitempty"`
+	InternalKey  string        `yaml:"internalKey,omitempty"`
+	AgentManager string        `yaml:"agentManager,omitempty"`
+	Backend      string        `yaml:"backend,omitempty"`
+	CertsFolder  string        `yaml:"certsFolder,omitempty"`
 }
 
 type PostgreConfig struct {
@@ -65,9 +65,9 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	utmstackPipeline := PluginsConfig{}
 	utmstackPipeline.Plugins = make(map[string]PluginConfig)
 	utmstackPipeline.Plugins["com.utmstack"] = PluginConfig{
-		RulesFolder:   "/workdir/rules",
-		GeoIPFolder:   "/workdir/geolocation",
-		Elasticsearch: "http://node1:9200",
+		RulesFolder: "/workdir/rules",
+		GeoIPFolder: "/workdir/geolocation",
+		OpenSearch:  "http://node1:9200",
 		PostgreSQL: PostgreConfig{
 			Server:   "postgres",
 			Port:     "5432",
@@ -80,6 +80,12 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		AgentManager: "10.21.199.3:9000",
 		Backend:      "http://backend:8080",
 		CertsFolder:  "/cert",
+	}
+
+	openSearchPipeline := PluginsConfig{}
+	openSearchPipeline.Plugins = make(map[string]PluginConfig)
+	openSearchPipeline.Plugins["org.opensearch"] = PluginConfig{
+		OpenSearch: "http://node1:9200",
 	}
 
 	pipelineDir := filepath.Join(stack.EventsEngineWorkdir, "pipeline")
@@ -108,6 +114,11 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	err = utils.WriteYAML(filepath.Join(pipelineDir, "utmstack_plugins.yaml"), utmstackPipeline)
 	if err != nil {
 		return fmt.Errorf("error writing UTMStack pipeline config: %w", err)
+	}
+
+	err = utils.WriteYAML(filepath.Join(pipelineDir, "opensearch_plugins.yaml"), openSearchPipeline)
+	if err != nil {
+		return fmt.Errorf("error writing OpenSearch pipeline config: %w", err)
 	}
 
 	return nil
