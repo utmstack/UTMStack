@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {TimeFrequency} from '../components/utm-cp-cron-editor/models/time-frequency';
+import {TimeFrequency} from '../../../shared/components/utm-cp-cron-editor/models/time-frequency';
 
 @Injectable({
   providedIn: 'root'

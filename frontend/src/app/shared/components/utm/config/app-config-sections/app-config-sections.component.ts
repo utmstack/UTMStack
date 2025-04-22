@@ -301,4 +301,6 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  protected readonly ConfigDataTypeEnum = ConfigDataTypeEnum;
 }
