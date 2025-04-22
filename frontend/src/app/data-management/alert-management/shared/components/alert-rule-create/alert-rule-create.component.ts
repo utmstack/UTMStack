@@ -340,13 +340,6 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   getTags() {
     this.alertTagService.query({page: 0, size: 100}).subscribe(reponse => {
       this.tags = reponse.body;
-      if (this.isForComplete) {
-        const index = this.tags.findIndex(value => value.tagName.includes('False positive'));
-        if (index !== -1) {
-          this.selected.push(this.tags[0]);
-          this.formRule.get('tags').setValue(this.selected);
-        }
-      }
     });
   }
 
