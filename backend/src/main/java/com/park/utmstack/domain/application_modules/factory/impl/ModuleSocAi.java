@@ -50,6 +50,7 @@ public class ModuleSocAi implements IModule {
             .withConfDataType("password")
             .withConfRequired(true)
             .build());
+
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
             .withConfKey("utmstack.socai.incidentCreation")
@@ -58,6 +59,7 @@ public class ModuleSocAi implements IModule {
             .withConfDataType("bool")
             .withConfRequired(false)
             .build());
+
         keys.add(ModuleConfigurationKey.builder()
             .withGroupId(groupId)
             .withConfKey("utmstack.socai.changeAlertStatus")
@@ -67,6 +69,33 @@ public class ModuleSocAi implements IModule {
             .withConfDataType("bool")
             .withConfRequired(false)
             .build());
+
+        keys.add(ModuleConfigurationKey.builder()
+                .withGroupId(groupId)
+                .withConfKey("utmstack.socai.model")
+                .withConfName("Select AI Model")
+                .withConfDescription("Choose the AI model that SOC AI will use to analyze alerts.")
+                .withConfDataType("select")
+                .withConfRequired(true)
+                .withConfOptions(
+                        "[" +
+                                "{\"value\": \"gpt-4\", \"label\": \"GPT-4\"}," +
+                                "{\"value\": \"gpt-4-0613\", \"label\": \"GPT-4 (0613)\"}," +
+                                "{\"value\": \"gpt-4-32k\", \"label\": \"GPT-4 32K\"}," +
+                                "{\"value\": \"gpt-4-32k-0613\", \"label\": \"GPT-4 32K (0613)\"}," +
+                                "{\"value\": \"gpt-4-turbo\", \"label\": \"GPT-4 Turbo\"}," +
+                                "{\"value\": \"gpt-4o\", \"label\": \"GPT-4 Omni\"}," +
+                                "{\"value\": \"gpt-4o-mini\", \"label\": \"GPT-4 Omni Mini\"}," +
+                                "{\"value\": \"gpt-4.1\", \"label\": \"GPT-4.1\"}," +
+                                "{\"value\": \"gpt-4.1-mini\", \"label\": \"GPT-4.1 Mini\"}," +
+                                "{\"value\": \"gpt-4.1-nano\", \"label\": \"GPT-4.1 Nano\"}," +
+                                "{\"value\": \"gpt-3.5-turbo\", \"label\": \"GPT-3.5 Turbo\"}," +
+                                "{\"value\": \"gpt-3.5-turbo-0613\", \"label\": \"GPT-3.5 Turbo (0613)\"}," +
+                                "{\"value\": \"gpt-3.5-turbo-16k\", \"label\": \"GPT-3.5 Turbo 16K\"}," +
+                                "{\"value\": \"gpt-3.5-turbo-16k-0613\", \"label\": \"GPT-3.5 Turbo 16K (0613)\"}" +
+                                "]"
+                )
+                .build());
 
         return keys;
     }
