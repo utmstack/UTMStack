@@ -109,4 +109,6 @@
 
     <include file="/config/liquibase/changelog/20250418001_adding_oracle.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250422001_add_update_instance_sections.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
