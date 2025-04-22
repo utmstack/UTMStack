@@ -88,7 +88,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        service: ['aws', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'sophos', 'user-auditor', 'web-pdf'] 
+        service: ['aws', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'soc-ai', 'sophos', 'user-auditor', 'web-pdf'] 
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}
