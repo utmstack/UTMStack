@@ -35,6 +35,8 @@ func (c *GPTConfig) UpdateGPTConfigurations() {
 	panelServ := GetPanelServiceName()
 	client := UTMStackConfigurationClient.NewUTMClient(intKey, panelServ)
 
+	utils.Logger.Info("Starting to update GPT configurations...")
+
 	for {
 		if err := utils.ConnectionChecker(GPT_API_ENDPOINT); err != nil {
 			utils.Logger.ErrorF("Failed to establish internet connection: %v", err)
@@ -46,10 +48,15 @@ func (c *GPTConfig) UpdateGPTConfigurations() {
 			time.Sleep(TIME_FOR_GET_CONFIG * time.Second)
 			continue
 		}
+		if tempModuleConfig == nil {
+			utils.Logger.LogF(100, "Got nil config from server")
+			time.Sleep(TIME_FOR_GET_CONFIG * time.Second)
+			continue
+		}
 
 		c.ModuleActive = tempModuleConfig.ModuleActive
 
-		if c.ModuleActive && tempModuleConfig != nil && len(tempModuleConfig.ConfigurationGroups) > 0 {
+		if c.ModuleActive && len(tempModuleConfig.ConfigurationGroups) > 0 {
 			for _, config := range tempModuleConfig.ConfigurationGroups[0].Configurations {
 				switch config.ConfKey {
 				case "utmstack.socai.key":
