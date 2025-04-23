@@ -204,6 +204,29 @@
         <app-variables [formGroup]="ruleForm" [rule]="rule"
                        (variablesEmitter)="onChangeVariables($event)"></app-variables>
       </div>
+
+      <div [hidden]="currentStep != RULE_FORM.STEP3">
+        <div formArrayName="afterEvents">
+          <fieldset class="form-fieldset border p-3">
+            <legend>
+              <label>After events</label>
+              <span class="span-small-icon ml-2">
+                  <i (click)="addAfterEvent()"
+                     class="icon-plus2 mr-1 cursor-pointer"
+                     ngbTooltip="Add after event">
+                  </i>
+              </span>
+            </legend>
+            <ng-container *ngFor="let group of afterEvents.controls; let i = index">
+              <div [formGroupName]="i" class="border p-3 mb-3">
+                <app-after-event [form]="asFormGroup(afterEvents.at(i))" (remove)="removeAfterEvent(i)"></app-after-event>
+              </div>
+            </ng-container>
+          </fieldset>
+        </div>
+
+
+      </div>
     </form>
   </div>
   <div *ngIf="ruleForm" class="button-container d-flex justify-content-end pr-3 w-100">

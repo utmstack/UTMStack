@@ -38,10 +38,11 @@ import {AssetManagerService} from './app-correlation-management/services/asset-m
 import {
   AssetDetailComponent
 } from './app-correlation-management/components/assets/components/components/asset-detail/asset-detail.component';
-import {AddReferenceComponent} from "./app-rule/components/reference/add-reference.component";
-import {AddVariableComponent} from "./app-rule/components/add-variable/add-variable.component";
-import {ImportRuleComponent} from "./app-rule/components/import-rules/import-rule.component";
-import {ImportRuleService} from "./app-rule/components/import-rules/import-rule.service";
+import {AddReferenceComponent} from './app-rule/components/reference/add-reference.component';
+import {AddVariableComponent} from './app-rule/components/add-variable/add-variable.component';
+import {ImportRuleComponent} from './app-rule/components/import-rules/import-rule.component';
+import {ImportRuleService} from './app-rule/components/import-rules/import-rule.service';
+import {AddAfterEventComponent} from './app-rule/components/add-after-event/add-after-event.component';
 
 
 @NgModule({
@@ -64,7 +65,8 @@ import {ImportRuleService} from "./app-rule/components/import-rules/import-rule.
       AddAssetComponent,
       AssetDetailComponent,
       AddReferenceComponent,
-      AddVariableComponent
+      AddVariableComponent,
+      AddAfterEventComponent
 
   ],
     imports: [
