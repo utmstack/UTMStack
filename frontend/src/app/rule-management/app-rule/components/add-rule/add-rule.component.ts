@@ -119,7 +119,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       afterEvents: this.fb.array(
         rule && rule.afterEvents && rule.afterEvents.length
           ? rule.afterEvents.map(event => this.buildSearchRequest(event))
-          : []
+          : [this.afterEventService.buildEmptySearchRequest()]
       )
     });
     this.savedVariables = rule ? rule.definition.ruleVariables : [];

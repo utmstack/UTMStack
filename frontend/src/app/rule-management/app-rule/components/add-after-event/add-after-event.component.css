@@ -14,3 +14,9 @@ legend {
 fieldset {
   margin-bottom: 1rem;
 }
+
+.btn-danger .icon-trash,
+.btn-close .icon-trash:before {
+  font-size: 14px!important;
+  color: white!important;
+}

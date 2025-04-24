@@ -18,6 +18,10 @@ export class AfterEventFormService {
     });
   }
 
+  buildEmptySearchRequest(): FormGroup {
+   return  this.buildSearchRequest(this.emptySearchRequest());
+  }
+
   buildSearchRequest(event: SearchRequest): FormGroup {
     return this.fb.group({
       indexPattern: [event.indexPattern || '', Validators.required],
