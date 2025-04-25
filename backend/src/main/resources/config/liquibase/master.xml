@@ -111,4 +111,6 @@
 
     <include file="/config/liquibase/changelog/20250422001_add_update_instance_sections.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250425001_add_fields_after_events_and_deduplicated_bt_to_rules.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

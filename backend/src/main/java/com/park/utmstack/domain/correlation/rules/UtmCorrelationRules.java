@@ -108,7 +108,7 @@ public class UtmCorrelationRules implements Serializable {
     private Boolean systemOwner;
 
     @JsonIgnore
-    @Column(name = "after_events_def")
+    @Column(name = "rule_after_events_def")
     private String afterEventsDef;
 
     @Transient
