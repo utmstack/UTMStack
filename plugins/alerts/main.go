@@ -104,6 +104,10 @@ func (p *correlationServer) Correlate(_ context.Context,
 }
 
 func getPreviousAlertId(alert *plugins.Alert) string {
+	if len(alert.DeduplicateBy) == 0 {
+		return ""
+	}
+
 	alertString, err := utils.ToString(alert)
 	if err != nil {
 		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name})
