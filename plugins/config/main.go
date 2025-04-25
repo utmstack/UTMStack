@@ -28,15 +28,32 @@ type Tenant plugins.Tenant
 type Asset plugins.Asset
 
 type Rule struct {
-	Id          int64          `yaml:"id"`
-	DataTypes   []string       `yaml:"dataTypes"`
-	Name        string         `yaml:"name"`
-	Impact      plugins.Impact `yaml:"impact"`
-	Category    string         `yaml:"category"`
-	Technique   string         `yaml:"technique"`
-	References  []string       `yaml:"references"`
-	Description string         `yaml:"description"`
-	Where       plugins.Where  `yaml:"where"`
+	Id            int64           `yaml:"id"`
+	DataTypes     []string        `yaml:"dataTypes"`
+	Name          string          `yaml:"name"`
+	Impact        plugins.Impact  `yaml:"impact"`
+	Category      string          `yaml:"category"`
+	Technique     string          `yaml:"technique"`
+	Adversary     string          `yaml:"adversary"`
+	References    []string        `yaml:"references"`
+	Description   string          `yaml:"description"`
+	Where         plugins.Where   `yaml:"where"`
+	AfterEvents   []SearchRequest `yaml:"afterEvents"`
+	DeduplicateBy []string        `yaml:"deduplicateBy"`
+}
+
+type SearchRequest struct {
+	IndexPattern string          `yaml:"indexPattern"`
+	With         []Expression    `yaml:"with"`
+	Or           []SearchRequest `yaml:"or"`
+	Within       string          `yaml:"within"`
+	Count        int64           `yaml:"count"`
+}
+
+type Expression struct {
+	Field    string      `yaml:"field"`
+	Operator string      `yaml:"operator"` // possible values: "eq", "neq"
+	Value    interface{} `yaml:"value"`
 }
 
 func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
@@ -81,7 +98,7 @@ func (a *Asset) FromVar(name any, hostnames any, ips any, confidentiality, integ
 
 func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity any,
 	availability any, category any, technique any, description any,
-	references any, where any, dataTypes any) {
+	references any, where any, dataTypes any, adversary any) {
 
 	referencesStr := utils.CastString(references)
 	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
@@ -107,6 +124,7 @@ func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity an
 	r.Technique = utils.CastString(technique)
 	r.References = make([]string, len(referencesList))
 	r.Description = utils.CastString(description)
+	r.Adversary = utils.CastString(adversary)
 
 	for i, dataType := range dataTypesList {
 		r.DataTypes[i] = utils.CastString(dataType)
@@ -146,8 +164,6 @@ func main() {
 	}
 
 	for {
-		gCfg := plugins.GetCfg()
-
 		db, err := connect()
 		if err != nil {
 			_ = catcher.Error("failed to connect to database", err, map[string]any{})
@@ -183,37 +199,37 @@ func main() {
 		tenant := Tenant{}
 		tenant.FromVar([]int64{}, assets)
 
-		err = cleanUpFilters(gCfg, filters)
+		err = cleanUpFilters(filters)
 		if err != nil {
 			_ = catcher.Error("failed to clean up filters", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writeFilters(gCfg, filters)
+		err = writeFilters(filters)
 		if err != nil {
 			_ = catcher.Error("failed to write filters", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = cleanUpRules(gCfg, rules)
+		err = cleanUpRules(rules)
 		if err != nil {
 			_ = catcher.Error("failed to clean up rules", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writeRules(gCfg, rules)
+		err = writeRules(rules)
 		if err != nil {
 			_ = catcher.Error("failed to write rules", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writeTenant(gCfg, tenant)
+		err = writeTenant(tenant)
 		if err != nil {
 			_ = catcher.Error("failed to write tenant", err, map[string]any{})
 			os.Exit(1)
 		}
 
-		err = writePatterns(gCfg, patterns)
+		err = writePatterns(patterns)
 		if err != nil {
 			_ = catcher.Error("failed to write patterns", err, map[string]any{})
 			os.Exit(1)
@@ -346,7 +362,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 }
 
 func getRules(db *sql.DB) ([]Rule, error) {
-	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def FROM utm_correlation_rules WHERE rule_active = true")
+	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get rules: %v", err)
 	}
@@ -367,10 +383,11 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			description     any
 			references      any
 			where           any
+			adversary       any
 		)
 
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
-			&category, &technique, &description, &references, &where)
+			&category, &technique, &description, &references, &where, &adversary)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
@@ -382,7 +399,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			return nil, err
 		}
 
-		rule.FromVar(id, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, dataTypes)
+		rule.FromVar(id, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, dataTypes, adversary)
 
 		rules = append(rules, rule)
 	}
@@ -446,7 +463,7 @@ func listFiles(folder string) ([]string, error) {
 	return files, nil
 }
 
-func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
+func cleanUpFilters(filters []Filter) error {
 	filtersPath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
 	if err != nil {
 		_ = catcher.Error("cannot create filters directory", err, nil)
@@ -479,7 +496,7 @@ func cleanUpFilters(gCfg *plugins.Config, filters []Filter) error {
 	return nil
 }
 
-func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
+func cleanUpRules(rules []Rule) error {
 	rulesFolder, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
 	if err != nil {
 		_ = catcher.Error("cannot create filters directory", err, nil)
@@ -513,7 +530,7 @@ func cleanUpRules(gCfg *plugins.Config, rules []Rule) error {
 	return nil
 }
 
-func writeFilters(pCfg *plugins.Config, filters []Filter) error {
+func writeFilters(filters []Filter) error {
 	for _, filter := range filters {
 		filtersFolder, err := utils.MkdirJoin(plugins.WorkDir, "pipeline", "filters")
 		if err != nil {
@@ -540,7 +557,7 @@ func writeFilters(pCfg *plugins.Config, filters []Filter) error {
 	return nil
 }
 
-func writeTenant(pCfg *plugins.Config, tenant Tenant) error {
+func writeTenant(tenant Tenant) error {
 	pipelineFolder, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
 	if err != nil {
 		_ = catcher.Error("cannot create pipeline directory", err, nil)
@@ -576,7 +593,7 @@ func writeTenant(pCfg *plugins.Config, tenant Tenant) error {
 	return nil
 }
 
-func writeRules(pCfg *plugins.Config, rules []Rule) error {
+func writeRules(rules []Rule) error {
 	for _, rule := range rules {
 		filePath, err := utils.MkdirJoin(plugins.WorkDir, "rules", "utmstack")
 		if err != nil {
@@ -608,7 +625,7 @@ func writeRules(pCfg *plugins.Config, rules []Rule) error {
 	return nil
 }
 
-func writePatterns(pCfg *plugins.Config, patterns map[string]string) error {
+func writePatterns(patterns map[string]string) error {
 	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
 	if err != nil {
 		_ = catcher.Error("cannot create pipeline directory", err, nil)

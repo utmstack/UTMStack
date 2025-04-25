@@ -65,9 +65,9 @@ func main() {
 	plugins.RegisterNotificationServer(grpcServer, &notificationServer{})
 
 	pCfg := plugins.PluginCfg("com.utmstack", false)
-	elasticUrl := pCfg.Get("elasticsearch").String()
+	osUrl := pCfg.Get("opensearch").String()
 
-	if err := opensearch.Connect([]string{elasticUrl}); err != nil {
+	if err := opensearch.Connect([]string{osUrl}); err != nil {
 		_ = catcher.Error("cannot connect to ElasticSearch/OpenSearch", err, nil)
 		os.Exit(1)
 	}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"os"
@@ -21,11 +20,11 @@ func addToQueue(l string) {
 }
 
 func startQueue() {
-	elasticUrl := plugins.PluginCfg("com.utmstack", false).Get("elasticsearch").String()
+	osUrl := plugins.PluginCfg("com.utmstack", false).Get("opensearch").String()
 
-	err := opensearch.Connect([]string{elasticUrl})
+	err := opensearch.Connect([]string{osUrl})
 	if err != nil {
-		_ = catcher.Error("cannot connect to Elasticsearch/OpenSearch", err, nil)
+		_ = catcher.Error("cannot connect to OpenSearch", err, nil)
 		os.Exit(1)
 	}
 
@@ -45,7 +44,7 @@ func startQueue() {
 					ndMutex.Lock()
 					err := opensearch.Bulk(context.Background(), nd)
 					if err != nil {
-						_ = catcher.Error("failed to send logs to Elasticsearch/OpenSearch", err, nil)
+						_ = catcher.Error("failed to send logs to OpenSearch", err, nil)
 					}
 
 					nd = make([]opensearch.BulkItem, 0, 10)
@@ -60,7 +59,7 @@ func startQueue() {
 
 				id := gjson.Get(l, "id").String()
 
-				index := indexBuilder(fmt.Sprintf("v11-log-%s", dataType), time.Now().UTC())
+				index := opensearch.BuildCurrentIndex("v11", "log", dataType)
 
 				ndMutex.Lock()
 				nd = append(nd, opensearch.BulkItem{

@@ -1,10 +1,10 @@
 package configuration
 
 const (
-	DefaultTenant        string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	EndpointPush         string = "/v1.0/jsonrpc/push"
-	UtmCertFileName      string = "utm.crt"
-	UtmCertFileKey       string = "utm.key"
-	BitdefenderGZPort    string = "8000"
-	URL_CHECK_CONNECTION string = "https://cloud.gravityzone.bitdefender.com"
+	DefaultTenant      string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	EndpointPush       string = "/v1.0/jsonrpc/push"
+	UtmCertFileName    string = "utm.crt"
+	UtmCertFileKey     string = "utm.key"
+	BitdefenderGZPort  string = "8000"
+	UrlCheckConnection string = "https://cloud.gravityzone.bitdefender.com"
 )
