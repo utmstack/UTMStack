@@ -1,34 +1,70 @@
 name: Multi Environment Build
 
 on:
-  release:
-    types: [ 'released' ]
   push:
-    branches: [ 'main' ]
+    branches: [ 'v10', 'release/v10**' ]
+    tags: [ 'v10.*' ]
+  pull_request:
+    branches: [ 'v10' ]
 
 jobs:
   setup_deployment:
     name: Setup Deployment
     runs-on: ubuntu-24.04
     outputs:
-      env_version: ${{ steps.set-env.outputs.env_version }}
-      microservices: ${{ steps.filter.outputs.changes }}
+      tag: ${{ steps.set-env.outputs.tag }}
     steps:
       - name: Determine Build Environment
         id: set-env
         run: |
-          if ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}; then
+          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v10') }}; then
+            echo "DEV environment"
+            echo "tag=v10-dev" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'v10' && startsWith(github.event.pull_request.head.ref, 'release/v10') }}; then
+            echo "QA environment"
+            echo "tag=v10-qa" >> $GITHUB_OUTPUT
+          elif ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'v10' && startsWith(github.event.pull_request.head.ref, 'hotfix/v10')) || (github.event_name == 'push' && github.ref == 'refs/heads/v10') }}; then
             echo "RC environment"
-            echo "env_version=v10-rc" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'release' }}; then
+            echo "tag=v10-rc" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v10.') }}; then
             echo "RELEASE environment"
-            echo "env_version=v10" >> $GITHUB_OUTPUT
+            echo "tag=v10" >> $GITHUB_OUTPUT
+          fi
+  
+  validations:
+    name: Validate permissions
+    runs-on: ubuntu-24.04
+    needs: setup_deployment
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    steps:
+      - name: Check permissions
+        run: |
+          echo "Validating user permissions..."
+
+          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+          -H "Accept: application/vnd.github.json" \
+          "https://api.github.com/orgs/utmstack/teams/integration-developers/memberships/${{ github.actor }}")
+          
+          if echo "$RESPONSE" | grep -q '"state": "active"'; then
+            echo "✅ User ${{ github.actor }} is a member of the integration-developers team."
+          else
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+            -H "Accept: application/vnd.github.json" \
+            "https://api.github.com/orgs/utmstack/teams/core-developers/memberships/${{ github.actor }}")
+
+            if echo "$RESPONSE" | grep -q '"state": "active"'; then
+              echo "✅ User ${{ github.actor }} is a member of the core-developers team."
+            else
+              echo "⛔ ERROR: User ${{ github.actor }} is not a member of the core-developers or integration-developers team."
+              echo $RESPONSE
+              exit 1
+            fi
           fi
 
   build_agent:
     name: Build Agent-Manager Image & Agent & Dependencies
-    needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.env_version != '' }}
+    needs: validations
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: signing
     steps:
       - name: Check out code into the right branch
@@ -67,24 +103,24 @@ jobs:
           cd ${{ github.workspace }}/agent-manager; go build -o agent-manager -v .
           
           New-Item -ItemType Directory -Force -Path "./dependencies/collector/"
-          Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.env_version }}/collector/*" -Destination "./dependencies/collector/"
+          Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.tag }}/collector/*" -Destination "./dependencies/collector/"
 
           New-Item -ItemType Directory -Force -Path "./dependencies/agent/"
-          Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.env_version }}/agent/*" -Destination "./dependencies/agent/"
+          Copy-Item -Path "C:/dependencies/${{ needs.setup_deployment.outputs.tag }}/agent/*" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service" -Destination "./dependencies/agent/"
           # Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service.exe" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/utmstack_agent_service_arm64.exe" -Destination "./dependencies/agent/"
           Copy-Item -Path "${{ github.workspace }}/agent/version.json" -Destination "./dependencies/agent/"
 
-          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.env_version }} .
-          docker push ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.env_version }}
+          docker build -t ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }} .
+          docker push ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
           echo "Agent Manager image built and pushed"
     
   runner_release:
     name: Images deployment
-    needs: setup_deployment
-    if: ${{ needs.setup_deployment.outputs.env_version != '' }}
+    needs: validations
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     strategy:
       fail-fast: false
       matrix: 
@@ -92,6 +128,84 @@ jobs:
     uses: ./.github/workflows/used-runner.yml
     with:
       microservice: ${{ matrix.service }}
-      environment: ${{ needs.setup_deployment.outputs.env_version }}
+      environment: ${{ needs.setup_deployment.outputs.tag }}
     secrets: inherit
   
+  deploy_dev:
+    name: Deploy to v10-dev environment 
+    needs: [build_agent, runner_release]
+    if: ${{ needs.setup_deployment.outputs.tag == 'v10-dev' }}
+    runs-on: utmstack-v10-dev
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Build
+        working-directory: ./installer
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -o installer -v .
+          mv installer /home/utmstack/installer
+          chmod +x /home/utmstack/installer
+
+      - name: Run
+        working-directory: /home/utmstack
+        run: |
+          sudo ./installer
+
+      - name: Open ports
+        working-directory: /home/utmstack
+        run: |
+          sudo docker service update --publish-add 9200:9200 utmstack_node1 & docker service update --publish-add 5432:5432 utmstack_postgres
+
+  deploy_qa:
+    name: Deploy to v10-qa environment 
+    needs: [build_agent, runner_release]
+    if: ${{ needs.setup_deployment.outputs.tag == 'v10-qa' }}
+    runs-on: utmstack-v10-qa
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Build
+        working-directory: ./installer
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -o installer -v .
+          mv installer /home/utmstack/installer
+          chmod +x /home/utmstack/installer
+
+      - name: Run
+        working-directory: /home/utmstack
+        run: |
+          sudo ./installer
+
+  deploy_rc:
+    name: Deploy to v10-rc environment 
+    needs: [build_agent, runner_release]
+    if: ${{ needs.setup_deployment.outputs.tag == 'v10-rc' }}
+    runs-on: utmstack-v10-rc
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Build
+        working-directory: ./installer
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -o installer -v .
+          mv installer /home/utmstack/installer
+          chmod +x /home/utmstack/installer
+
+      - name: Run
+        working-directory: /home/utmstack
+        run: |
+          sudo ./installer
+
+
