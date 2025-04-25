@@ -41,6 +41,29 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       name: 'target'
     }
 ];
+  steps = [
+    {
+      id: AddRuleStepEnum.STEP0,
+      label: 'Import',
+      icon: 'icon-upload4'
+    },
+    {
+      id: AddRuleStepEnum.STEP1,
+      label: 'General',
+      icon: 'icon-shield-check'
+    },
+    {
+      id: AddRuleStepEnum.STEP2,
+      label: 'Definition',
+      icon: 'icon-cog7'
+    },
+    {
+      id: AddRuleStepEnum.STEP3,
+      label: 'Events',
+      icon: 'icon-list'
+    }
+  ];
+
 
   constructor(private fb: FormBuilder,
               private dataTypeService: DataTypeService,
@@ -51,9 +74,10 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.currentStep = this.mode !== 'IMPORT' ? AddRuleStepEnum.STEP3 : AddRuleStepEnum.STEP0;
+    this.currentStep = this.mode !== 'IMPORT' ? AddRuleStepEnum.STEP1 : AddRuleStepEnum.STEP0;
 
     if (this.mode !== 'IMPORT') {
+      this.steps = this.steps.filter(step => step.id !== AddRuleStepEnum.STEP0);
       this.initializeForm(this.rule);
     }
 
@@ -163,6 +187,8 @@ export class AddRuleComponent implements OnInit, OnDestroy {
               break;
       case 1: this.currentStep = AddRuleStepEnum.STEP2;
               break;
+      case 2: this.currentStep = AddRuleStepEnum.STEP3;
+              break;
     }
   }
 
@@ -195,6 +221,9 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
       case AddRuleStepEnum.STEP2:
         return this.ruleForm.get('definition').valid;
+
+      case AddRuleStepEnum.STEP3:
+        return this.ruleForm.get('afterEvents').valid;
     }
   }
 

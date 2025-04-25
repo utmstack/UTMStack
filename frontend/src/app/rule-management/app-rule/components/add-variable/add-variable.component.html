@@ -86,7 +86,7 @@
                 <button (click)="saveVariable(i)"
                         [disabled]="variable.invalid || variable.get('of_type').value == null || variable.get('get').value == null"
                         class="btn utm-button utm-button-primary"
-                        type="button">Save
+                        type="button">Add
                 </button>
               </div>
             </div>
@@ -97,7 +97,7 @@
     <div class="form-group">
       <fieldset *ngIf="savedVariables.length > 0" class="border p-3 w-100">
         <legend>
-          <label>Saved Variables:</label>
+          <label>Variables:</label>
         </legend>
         <div class="d-flex flex-wrap justify-content-start">
           <div *ngFor="let savedVariable of savedVariables; let j = index">

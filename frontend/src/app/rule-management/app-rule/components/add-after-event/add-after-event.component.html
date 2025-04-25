@@ -1,4 +1,4 @@
-<div [formGroup]="form" class="p-4">
+<div [formGroup]="form" class="p-2">
   <!-- Index Pattern -->
   <div class="mb-4">
     <label for="indexPattern" class="form-label fw-bold">Index Pattern</label>
@@ -7,6 +7,7 @@
       (change)="changeIndexPattern($event.pattern)"
       [items]="patterns$ | async"
       bindLabel="pattern"
+      bindValue="pattern"
       [closeOnSelect]="true"
       [clearable]="false"
       [markFirst]="true"
@@ -17,22 +18,21 @@
   </div>
 
   <!-- WITH expressions -->
-  <div formArrayName="with" class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h6 class="text-muted fw-bold mb-0">
-        <i class="bi bi-funnel me-2 text-primary"></i>
-        AND Conditions
-      </h6>
-      <button type="button" class="btn btn-sm btn-light-primary" (click)="addExpression()">
-        <i class="bi bi-plus-circle me-1"></i>
-        Add
-      </button>
-    </div>
-
+  <div formArrayName="with" class="mb-4">
+    <fieldset class="form-fieldset border p-3">
+      <legend>
+        <label>Expressions</label>
+        <span class="span-small-icon ml-2">
+                  <i (click)="addExpression()"
+                     class="icon-plus2 mr-1 cursor-pointer"
+                     ngbTooltip="Add">
+                  </i>
+              </span>
+      </legend>
     <div *ngFor="let expr of with.controls; let j = index"
       [formGroupName]="j"
-      class="card border-0 shadow-sm mb-3">
-      <div class="card-body row g-3 align-items-end">
+      class="mb-3">
+      <div class="row g-3 align-items-end">
         <div class="col-md-4">
           <label class="form-label">Field</label>
           <ng-select
@@ -62,17 +62,27 @@
           <input formControlName="value" class="form-control" />
         </div>
         <div class="col-md-1 d-flex justify-content-end">
-          <button type="button" class="btn btn-outline-danger" (click)="removeExpression(j)" ngbTooltip="Remove expression">
+          <button type="button" class="btn btn-outline-danger medium-icon" (click)="removeExpression(j)" ngbTooltip="Remove expression">
             <i class="icon-trash medium-icon"></i>
           </button>
         </div>
       </div>
     </div>
+    </fieldset>
   </div>
 
   <!-- OR nested SearchRequests -->
   <div formArrayName="or" class="mb-4">
-    <label class="form-label fw-bold">OR Conditions (Nested SearchRequests)</label>
+    <fieldset class="form-fieldset border p-3">
+      <legend>
+        <label>Events</label>
+        <span class="span-small-icon ml-2">
+                  <i (click)="addOr()"
+                     class="icon-plus2 mr-1 cursor-pointer"
+                     ngbTooltip="Add">
+                  </i>
+              </span>
+      </legend>
 
     <div *ngFor="let nested of or.controls; let k = index" class="card shadow-sm border-0 mb-3">
       <div class="card-header d-flex justify-content-between align-items-center bg-light">
@@ -93,10 +103,11 @@
       </div>
     </div>
 
-    <div *ngIf="or.controls.length === 0" class="text-center">
+    <!--<div *ngIf="or.controls.length === 0" class="text-center">
       <button type="button" class="btn btn-outline-secondary" (click)="addOr()">
         <i class="bi bi-plus-circle me-1"></i> Add Nested SearchRequest
       </button>
-    </div>
+    </div>-->
+    </fieldset>
   </div>
 </div>

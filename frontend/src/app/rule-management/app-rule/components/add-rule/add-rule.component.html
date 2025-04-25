@@ -3,6 +3,21 @@
   <div class="form-body w-100">
     <div class="d-flex justify-content-center">
       <div class="step-container d-flex justify-content-between mt-2 mb-4 w-75">
+        <ng-container *ngFor="let step of steps; let i = index">
+          <ng-container *ngIf="mode !== 'IMPORT' || step.id !== RULE_FORM.STEP0">
+            <div class="step">
+              <span class="text-blue-800 font-weight-bold">{{ step.label }}</span>
+              <div
+                [ngClass]="isCompleted(step.id) ? 'step-success' : currentStep === step.id ? 'step-active' : 'step-inactive'"
+                class="round-indicator">
+                <i class="text-white font-size-sm top-0" [ngClass]="isCompleted(step.id) ? 'icon-checkmark3' : step.icon"></i>
+              </div>
+            </div>
+            <div class="step-link" *ngIf="i < steps.length - 1"></div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <!--<div class="step-container d-flex justify-content-between mt-2 mb-4 w-75">
         <ng-container *ngIf="mode === 'IMPORT'">
           <div class="step">
             <span class="text-blue-800 font-weight-bold">Import</span>
@@ -30,7 +45,15 @@
             <i class="text-white font-size-sm top-0" [ngClass]="isCompleted(RULE_FORM.STEP2) ? 'icon-checkmark3' : 'icon-cog7'"></i>
           </div>
         </div>
-      </div>
+        <div class="step-link"></div>
+        <div class="step">
+          <span class="text-blue-800 font-weight-bold">Events</span>
+          <div [ngClass]="isCompleted(RULE_FORM.STEP3) ? 'step-success' : currentStep == RULE_FORM.STEP3 ? 'step-active' : 'step-inactive'"
+               class="round-indicator">
+            <i class="text-white font-size-sm top-0" [ngClass]="isCompleted(RULE_FORM.STEP3) ? 'icon-checkmark3' : 'icon-list'"></i>
+          </div>
+        </div>
+      </div>-->
     </div>
     <div [hidden]="currentStep != RULE_FORM.STEP0">
       <div class="d-flex  mt-3 flex-column">
@@ -217,11 +240,31 @@
                   </i>
               </span>
             </legend>
-            <ng-container *ngFor="let group of afterEvents.controls; let i = index">
+            <div *ngFor="let group of afterEvents.controls; let i = index" class="card shadow-sm border-0 mb-3">
+              <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                <span class="fw-semibold">After Event #{{ i + 1 }}</span>
+                <div class="medium-icon">
+                  <a class="mr-1 cursor-pointer" (click)="addAfterEvent()"
+                     ngbTooltip="Add more after event">
+                    <i class="icon-plus2"></i>
+                  </a>
+                  <a class="cursor-pointer" (click)="removeAfterEvent(i)"
+                     ngbTooltip="Remove">
+                    <i class="icon-cross2"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body">
+                <app-after-event [form]="asFormGroup(afterEvents.at(i))" (remove)="removeAfterEvent(i)"></app-after-event>
+              </div>
+            </div>
+
+            <!--<ng-container *ngFor="let group of afterEvents.controls; let i = index">
+
               <div [formGroupName]="i" class="border p-3 mb-3">
                 <app-after-event [form]="asFormGroup(afterEvents.at(i))" (remove)="removeAfterEvent(i)"></app-after-event>
               </div>
-            </ng-container>
+            </ng-container>-->
           </fieldset>
         </div>
 
@@ -234,16 +277,16 @@
             class="btn utm-button utm-button-grey mr-2">
       <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
-    <button *ngIf="currentStep != RULE_FORM.STEP2" [disabled]="currentStep == RULE_FORM.STEP1 && !isValidStep(RULE_FORM.STEP1)" (click)="next()"
-            class="btn utm-button utm-button-primary">
-      Next
-      <i class="icon-arrow-right32"></i>&nbsp;
-    </button>
     <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="back()" class="btn utm-button utm-button-primary mr-2">
       <i class="icon-arrow-left32 top-0"></i>
       Back
     </button>
-    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="saveRule()" [disabled]="ruleForm.invalid"
+    <button *ngIf="currentStep != RULE_FORM.STEP3" [disabled]="(currentStep == RULE_FORM.STEP1 || currentStep == RULE_FORM.STEP2 || currentStep == RULE_FORM.STEP3)  && !isValidStep(currentStep)" (click)="next()"
+            class="btn utm-button utm-button-primary">
+      Next
+      <i class="icon-arrow-right32"></i>&nbsp;
+    </button>
+    <button *ngIf="currentStep == RULE_FORM.STEP3" (click)="saveRule()" [disabled]="ruleForm.invalid"
             class="btn utm-button utm-button-primary">
       <i [ngClass]="loading ? 'icon-spinner spinner' : 'icon-grid-alt top-0'"></i>&nbsp; Save
     </button>
