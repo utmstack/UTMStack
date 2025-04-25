@@ -20,6 +20,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,6 +107,43 @@ public class UtmCorrelationRules implements Serializable {
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
 
+    @JsonIgnore
+    @Column(name = "after_events_def")
+    private String afterEventsDef;
+
+    @Transient
+    @JsonSerialize
+    @JsonDeserialize
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private AfterEvents afterEvents;
+
+    @JsonIgnore
+    @Column(name = "rule_deduplicate_by_def")
+    private String deduplicateByDef;
+
+    @Transient
+    @JsonSerialize
+    @JsonDeserialize
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private List<String> deduplicateBy;
+
+    public List<String> getDeduplicateBy() throws UtmSerializationException {
+        if (StringUtils.hasText(deduplicateByDef))
+            deduplicateBy = UtilSerializer.jsonDeserializeList(String.class, deduplicateByDef);
+        return deduplicateBy == null ? new ArrayList<>() : deduplicateBy;
+    }
+
+    public void setDeduplicateBy(List<String> deduplicateBy) throws UtmSerializationException {
+        if (CollectionUtils.isEmpty(deduplicateBy))
+            this.deduplicateByDef = null;
+        else
+            this.deduplicateByDef = UtilSerializer.jsonSerialize(deduplicateBy);
+
+        this.deduplicateBy = deduplicateBy;
+    }
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "utm_group_rules_data_type",
             joinColumns = @JoinColumn(name = "rule_id"),
@@ -141,5 +179,16 @@ public class UtmCorrelationRules implements Serializable {
             this.ruleDefinitionDef = UtilSerializer.jsonSerialize(ruleDefinition);
 
         this.ruleDefinition = ruleDefinition;
+    }
+
+    public AfterEvents getAfterEvents() throws UtmSerializationException {
+        if (StringUtils.hasText(afterEventsDef))
+            afterEvents = UtilSerializer.jsonDeserialize(AfterEvents.class, afterEventsDef);
+        return afterEvents;
+    }
+
+    public void setAfterEvents(AfterEvents afterEvents) throws UtmSerializationException {
+        this.afterEventsDef = afterEvents == null ? null : UtilSerializer.jsonSerialize(afterEvents);
+        this.afterEvents = afterEvents;
     }
 }

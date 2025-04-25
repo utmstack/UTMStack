@@ -1,9 +1,14 @@
 package com.park.utmstack.domain.correlation.rules;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+@Setter
+@Getter
 public class RuleDefinition {
     @NotEmpty
     private List<RuleVariable> ruleVariables;
@@ -16,19 +21,4 @@ public class RuleDefinition {
     }
     public RuleDefinition(){}
 
-    public List<RuleVariable> getRuleVariables() {
-        return ruleVariables;
-    }
-
-    public void setRuleVariables(List<RuleVariable> ruleVariables) {
-        this.ruleVariables = ruleVariables;
-    }
-
-    public String getRuleExpression() {
-        return ruleExpression;
-    }
-
-    public void setRuleExpression(String ruleExpression) {
-        this.ruleExpression = ruleExpression;
-    }
 }
