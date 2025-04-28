@@ -1,0 +1,17 @@
+<div class="form-group-select">
+  <label>Deduplicated by:</label>
+  <div [formGroup]="formGroup" class="p-2">
+    <ng-select
+      formControlName="deduplicateBy"
+      [items]="fields$ | async"
+      bindLabel="name"
+      [multiple]="true"
+      bindValue="name"
+      [addTag]="addTag"
+      [closeOnSelect]="true"
+      [clearable]="false"
+      [loadingText]="'Loading fields...'"
+      class="w-100"
+    ></ng-select>
+  </div>
+</div>
