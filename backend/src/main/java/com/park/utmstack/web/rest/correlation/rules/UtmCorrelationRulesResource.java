@@ -4,12 +4,12 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRulesFilter;
 import com.park.utmstack.domain.network_scan.Property;
-import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.rules.UtmCorrelationRulesService;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
+import com.park.utmstack.service.dto.correlation.validators.CorrelationRuleValidator;
 import com.park.utmstack.util.UtilResponse;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -50,14 +51,22 @@ public class UtmCorrelationRulesResource {
 
     private UtmStackService utmStackService;
 
+    private final CorrelationRuleValidator correlationRuleValidator;
+
     public UtmCorrelationRulesResource(ApplicationEventService applicationEventService,
                                        UtmCorrelationRulesService rulesService,
                                        UtmCorrelationRulesMapper utmCorrelationRulesMapper,
-                                       UtmStackService utmStackService) {
+                                       UtmStackService utmStackService,
+                                       CorrelationRuleValidator correlationRuleValidator) {
         this.applicationEventService = applicationEventService;
         this.rulesService = rulesService;
         this.utmCorrelationRulesMapper = utmCorrelationRulesMapper;
         this.utmStackService = utmStackService;
+        this.correlationRuleValidator = correlationRuleValidator;
+    }
+    @InitBinder("utmCorrelationRulesDTO")
+    protected void initBinder(WebDataBinder binder) {
+        binder.addValidators(correlationRuleValidator);
     }
 
     /**
@@ -71,23 +80,6 @@ public class UtmCorrelationRulesResource {
         final String ctx = CLASSNAME + ".addCorrelationRule";
 
         try {
-            if(utmCorrelationRulesDTO.getId()!=null) {
-                throw new BadRequestException(ctx + ": A new rule can't have an id.");
-            }
-            if (utmCorrelationRulesDTO.getDataTypes().isEmpty()) {
-                throw new BadRequestException(ctx + ": The rule must have at least one data type.");
-            }
-            if (utmCorrelationRulesDTO.getDefinition() == null) {
-                throw new BadRequestException(ctx + ": The rule's definition field can't be null.");
-            } else {
-                if (utmCorrelationRulesDTO.getDefinition().getRuleVariables().isEmpty()
-                        || !StringUtils.hasText(utmCorrelationRulesDTO.getDefinition().getRuleExpression())) {
-                    throw new BadRequestException(ctx + ": The rule's definition variables or expression field is null or empty, please check.");
-                }
-            }
-
-            // Set the next system sequence value only if the environment is dev
-            // All rules created under the development environment are considered as from the system
             if (!utmStackService.isInDevelop()) {
                 utmCorrelationRulesDTO.setId(rulesService.getSystemSequenceNextValue());
                 utmCorrelationRulesDTO.setSystemOwner(true);

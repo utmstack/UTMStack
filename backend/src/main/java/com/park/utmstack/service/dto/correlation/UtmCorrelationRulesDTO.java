@@ -1,7 +1,10 @@
 package com.park.utmstack.service.dto.correlation;
 
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
+import com.park.utmstack.domain.correlation.rules.AfterEvents;
 import com.park.utmstack.domain.correlation.rules.RuleDefinition;
+import com.park.utmstack.domain.correlation.rules.SearchRequest;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
@@ -11,8 +14,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-@Setter
-@Getter
+@Data
 public class UtmCorrelationRulesDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,6 +57,10 @@ public class UtmCorrelationRulesDTO implements Serializable {
     private Boolean systemOwner;
 
     private Boolean ruleActive;
+
+    private List<SearchRequest> afterEvents;
+
+    private List<String> deduplicateBy;
 
 }
 
