@@ -29,7 +29,7 @@ export class RuleService extends RefreshDataService<boolean, HttpResponse<Rule[]
       .pipe(
         catchError((error: any): Observable<HttpResponse<Rule[]>> => {
           console.error('Error loading rules', error);
-          this.utmToast.showError('Failed to fetch notifications',
+          this.utmToast.showError('Failed to fetch rules',
             'An error occurred while fetching rules data.');
           return of(new HttpResponse({
             headers: new HttpHeaders({'X-Total-Count': '0'}),

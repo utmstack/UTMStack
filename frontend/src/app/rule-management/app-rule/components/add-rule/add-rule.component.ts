@@ -4,10 +4,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {forkJoin, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {AddRuleStepEnum, DataType, Expression, Mode, Rule, SearchRequest} from '../../../models/rule.model';
+import {AddRuleStepEnum, DataType, Mode, Rule, SearchRequest} from '../../../models/rule.model';
+import {AfterEventFormService} from '../../../services/after-event-form.service';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
-import {AfterEventFormService} from "../../../services/after-event-form.service";
 
 @Component({
   selector: 'app-add-rule',
@@ -49,18 +49,18 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     },
     {
       id: AddRuleStepEnum.STEP1,
-      label: 'General',
-      icon: 'icon-shield-check'
+      label: 'General Information',
+      icon: 'icon-file-text'
     },
     {
       id: AddRuleStepEnum.STEP2,
-      label: 'Definition',
-      icon: 'icon-cog7'
+      label: 'Conditions',
+      icon: 'icon-cog'
     },
     {
       id: AddRuleStepEnum.STEP3,
-      label: 'Events',
-      icon: 'icon-list'
+      label: 'Post-Event Actions',
+      icon: 'icon-loop'
     }
   ];
 
@@ -139,7 +139,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       technique: [rule ? rule.technique : '', Validators.required],
       description: [rule ? rule.description : '', Validators.required],
       systemOwner: [rule ? rule.systemOwner : false],
-      deduplicatedBy: [rule ? rule.deduplicateBy || [] : []],
+      deduplicateBy: [rule ? rule.deduplicateBy || [] : []],
       afterEvents: this.fb.array(
         rule && rule.afterEvents && rule.afterEvents.length
           ? rule.afterEvents.map(event => this.buildSearchRequest(event))
