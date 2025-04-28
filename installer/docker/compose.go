@@ -334,10 +334,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	// Calculating the less closed odd value to assign the final memory, because if an even value is returned
-	// opensearch raises an error
 	opensearchMem := system.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
-	// temporary create node1 always
+	// temporarily create node1 always
 	if true {
 		c.Services["node1"] = Service{
 			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:latest"),
