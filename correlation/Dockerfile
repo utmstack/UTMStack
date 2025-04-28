@@ -17,5 +17,5 @@ RUN wget -O /app/locations-en.csv https://cdn.utmstack.com/geoip/locations-en.cs
 RUN wget -O /app/ip_blocklist.list https://intelligence.threatwinds.com/feeds/public/ip/cumulative.list
 RUN wget -O /app/domain_blocklist.list https://intelligence.threatwinds.com/feeds/public/domain/cumulative.list
 RUN wget -O /app/hostname_blocklist.list https://intelligence.threatwinds.com/feeds/public/hostname/cumulative.list
-
+RUN mkdir -p /app/rulesets && git clone --depth 1 https://github.com/utmstack/rules.git /app/rulesets/system
 ENTRYPOINT [ "/run.sh" ]
