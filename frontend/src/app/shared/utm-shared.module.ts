@@ -231,27 +231,28 @@ import {TimePeriodPipe} from './pipes/time-period.pipe';
 import {TimezoneOffsetPipe} from './pipes/timezone-offset.pipe';
 import {UtmNotifier} from './websocket/utm-notifier';
 import {UtmInstanceInfoComponent} from "./components/getting-started/utm-instance-info/utm-instance-info.component";
+import {UtmCpCronEditorComponent} from "./components/utm-cp-cron-editor/utm-cp-cron-editor.component";
 
 
 
 @NgModule({
-  imports: [
-    InlineSVGModule,
-    CommonModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    NgbModule,
-    FormsModule,
-    RouterModule,
-    NgSelectModule,
-    NgxSortableModule,
-    NgxFlagIconCssModule,
-    NgxJsonViewerModule,
-    AssetsApplyTypeModule,
-    AssetsApplyNoteModule,
-    AssetsGroupAddModule,
-    InfiniteScrollModule
-  ],
+    imports: [
+        InlineSVGModule,
+        CommonModule,
+        ReactiveFormsModule,
+        TranslateModule,
+        NgbModule,
+        FormsModule,
+        RouterModule,
+        NgSelectModule,
+        NgxSortableModule,
+        NgxFlagIconCssModule,
+        NgxJsonViewerModule,
+        AssetsApplyTypeModule,
+        AssetsApplyNoteModule,
+        AssetsGroupAddModule,
+        InfiniteScrollModule
+    ],
   declarations: [
     ElasticFilterComponent,
     ElasticFilterAddComponent,
@@ -385,7 +386,8 @@ import {UtmInstanceInfoComponent} from "./components/getting-started/utm-instanc
     TimePeriodPipe,
     UtmCollapsibleTextComponent,
     FilterPipe,
-    UtmInstanceInfoComponent
+    UtmInstanceInfoComponent,
+    UtmCpCronEditorComponent
   ],
   exports: [
     IndexPatternCreateComponent,
@@ -489,7 +491,8 @@ import {UtmInstanceInfoComponent} from "./components/getting-started/utm-instanc
     ModalAddNoteComponent,
     UtmCollapsibleTextComponent,
     FilterPipe,
-    UtmInstanceInfoComponent
+    UtmInstanceInfoComponent,
+    UtmCpCronEditorComponent
   ],
   entryComponents: [
     LoginComponent,

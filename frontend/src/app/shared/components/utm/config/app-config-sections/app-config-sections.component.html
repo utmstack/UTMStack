@@ -187,6 +187,10 @@
         </ng-select>
       </ng-container>
 
+      <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron">
+      <app-utm-cp-cron-editor [(ngModel)]="conf.confParamValue"></app-utm-cp-cron-editor>
+      </ng-container>
+
 
       <small *ngIf="conf.confParamRequired &&
              (conf.confParamValue === '' || conf.confParamValue === null || conf.confParamValue === undefined)"

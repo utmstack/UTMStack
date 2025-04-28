@@ -29,5 +29,6 @@ export enum ConfigDataTypeEnum {
   TimezoneList = 'timezone_list',
   CountryList = 'country_list',
   DateFormatList = 'dateformat_list',
-  Radio = 'radio'
+  Radio = 'radio',
+  Cron = 'cron'
 }

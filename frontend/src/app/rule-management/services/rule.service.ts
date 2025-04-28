@@ -7,6 +7,7 @@ import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {RefreshDataService} from '../../shared/services/util/refresh-data.service';
 import {createRequestOption} from '../../shared/util/request-util';
 import {Mode, Rule} from '../models/rule.model';
+import {AbstractControl, FormGroup} from "@angular/forms";
 
 const resourceUrl = `${SERVER_API_URL}api/correlation-rule`;
 
@@ -28,7 +29,7 @@ export class RuleService extends RefreshDataService<boolean, HttpResponse<Rule[]
       .pipe(
         catchError((error: any): Observable<HttpResponse<Rule[]>> => {
           console.error('Error loading rules', error);
-          this.utmToast.showError('Failed to fetch notifications',
+          this.utmToast.showError('Failed to fetch rules',
             'An error occurred while fetching rules data.');
           return of(new HttpResponse({
             headers: new HttpHeaders({'X-Total-Count': '0'}),
@@ -73,5 +74,9 @@ export class RuleService extends RefreshDataService<boolean, HttpResponse<Rule[]
     } else {
       return this.update(rule);
     }
+  }
+
+  asFormGroup(control: AbstractControl): FormGroup {
+    return control as FormGroup;
   }
 }

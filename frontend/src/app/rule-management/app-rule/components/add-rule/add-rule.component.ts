@@ -1,10 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {forkJoin, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
-import {AddRuleStepEnum, DataType, Mode, Rule} from '../../../models/rule.model';
+import {AddRuleStepEnum, DataType, Mode, Rule, SearchRequest} from '../../../models/rule.model';
+import {AfterEventFormService} from '../../../services/after-event-form.service';
 import {DataTypeService} from '../../../services/data-type.service';
 import {RuleService} from '../../../services/rule.service';
 
@@ -30,7 +31,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   loading: false;
   currentStep: AddRuleStepEnum;
   stepCompleted: number[] = [];
-  adversaryTypes =[
+  adversaryTypes = [
     {
       id: 'ORIGIN',
       name: 'origin'
@@ -40,18 +41,43 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       name: 'target'
     }
 ];
+  steps = [
+    {
+      id: AddRuleStepEnum.STEP0,
+      label: 'Import',
+      icon: 'icon-upload4'
+    },
+    {
+      id: AddRuleStepEnum.STEP1,
+      label: 'General Information',
+      icon: 'icon-file-text'
+    },
+    {
+      id: AddRuleStepEnum.STEP2,
+      label: 'Conditions',
+      icon: 'icon-cog'
+    },
+    {
+      id: AddRuleStepEnum.STEP3,
+      label: 'Post-Event Actions',
+      icon: 'icon-loop'
+    }
+  ];
+
 
   constructor(private fb: FormBuilder,
               private dataTypeService: DataTypeService,
               private ruleService: RuleService,
               private utmToastService: UtmToastService,
-              public activeModal: NgbActiveModal) {
+              public activeModal: NgbActiveModal,
+              private afterEventService: AfterEventFormService) {
   }
 
   ngOnInit() {
     this.currentStep = this.mode !== 'IMPORT' ? AddRuleStepEnum.STEP1 : AddRuleStepEnum.STEP0;
 
     if (this.mode !== 'IMPORT') {
+      this.steps = this.steps.filter(step => step.id !== AddRuleStepEnum.STEP0);
       this.initializeForm(this.rule);
     }
 
@@ -112,7 +138,13 @@ export class AddRuleComponent implements OnInit, OnDestroy {
       category: [rule ? rule.category : '', Validators.required],
       technique: [rule ? rule.technique : '', Validators.required],
       description: [rule ? rule.description : '', Validators.required],
-      systemOwner: [rule ? rule.systemOwner : false]
+      systemOwner: [rule ? rule.systemOwner : false],
+      deduplicateBy: [rule ? rule.deduplicateBy || [] : []],
+      afterEvents: this.fb.array(
+        rule && rule.afterEvents && rule.afterEvents.length
+          ? rule.afterEvents.map(event => this.buildSearchRequest(event))
+          : [this.afterEventService.buildEmptySearchRequest()]
+      )
     });
     this.savedVariables = rule ? rule.definition.ruleVariables : [];
   }
@@ -155,6 +187,8 @@ export class AddRuleComponent implements OnInit, OnDestroy {
               break;
       case 1: this.currentStep = AddRuleStepEnum.STEP2;
               break;
+      case 2: this.currentStep = AddRuleStepEnum.STEP3;
+              break;
     }
   }
 
@@ -187,6 +221,9 @@ export class AddRuleComponent implements OnInit, OnDestroy {
 
       case AddRuleStepEnum.STEP2:
         return this.ruleForm.get('definition').valid;
+
+      case AddRuleStepEnum.STEP3:
+        return this.ruleForm.get('afterEvents').valid;
     }
   }
 
@@ -237,6 +274,25 @@ export class AddRuleComponent implements OnInit, OnDestroy {
     });
   }
 
+  buildSearchRequest(event: SearchRequest): FormGroup {
+    return this.afterEventService.buildSearchRequest(event);
+  }
+
+  get afterEvents(): FormArray {
+    return this.ruleForm.get('afterEvents') as FormArray;
+  }
+
+  addAfterEvent() {
+    this.afterEvents.push(this.buildSearchRequest(this.afterEventService.emptySearchRequest()));
+  }
+
+  removeAfterEvent(index: number) {
+    this.afterEvents.removeAt(index);
+  }
+
+  asFormGroup(control: AbstractControl): FormGroup {
+    return this.ruleService.asFormGroup(control);
+  }
 
   ngOnDestroy() {
     this.dataTypeService.resetTypes();

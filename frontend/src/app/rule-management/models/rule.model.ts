@@ -72,6 +72,22 @@ export interface Rule {
     showDetail?: boolean;
     status?: Status;
     isLoading: boolean;
+    afterEvents: SearchRequest[];
+    deduplicateBy?: string[];
+}
+
+export interface Expression {
+  field: string;
+  operator: string;
+  value: any;
+}
+
+export interface SearchRequest {
+  indexPattern: string;
+  with: Expression[];
+  or?: SearchRequest[];
+  within?: string;
+  count?: number;
 }
 
 export type Mode = 'ADD' | 'EDIT' | 'IMPORT' | 'ERROR';
@@ -82,4 +98,5 @@ export enum AddRuleStepEnum {
   STEP1,
   STEP2,
   STEP3,
+  STEP4,
 }
