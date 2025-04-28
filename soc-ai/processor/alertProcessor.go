@@ -5,6 +5,7 @@ import (
 
 	"github.com/utmstack/soc-ai/elastic"
 	"github.com/utmstack/soc-ai/schema"
+	"github.com/utmstack/soc-ai/utils"
 )
 
 func (p *Processor) processAlertsInfo() {
@@ -15,7 +16,18 @@ func (p *Processor) processAlertsInfo() {
 			continue
 		}
 
+		correlation, err := elastic.FindRelatedAlerts(alertInfo)
+		if err != nil {
+			utils.Logger.ErrorF("error finding related alerts: %v", err)
+		}
+
 		details := schema.ConvertFromAlertToAlertDB(alertInfo)
+
+		if correlation != nil && len(correlation.RelatedAlerts) > 0 {
+			correlationContext := elastic.BuildCorrelationContext(correlation)
+			details.Description = details.Description + "\n\n" + correlationContext
+		}
+
 		p.GPTQueue <- cleanAlerts(&details)
 	}
 }
