@@ -19,18 +19,8 @@ type YamlConfig struct {
 
 type ConnMode string
 
-const (
-	ConnModeOffline ConnMode = "OFFLINE"
-	ConnModeOnline  ConnMode = "ONLINE"
-)
-
-type EnvVarConfig struct {
-	ConnectionMode ConnMode `env:"CONNECTION_MODE"`
-}
-
 type Config struct {
 	YamlConfig
-	EnvVarConfig
 }
 
 var oneConfigRead sync.Once
@@ -38,7 +28,6 @@ var cnf Config
 
 func readConfig() {
 	ReadYaml("config.yml", &cnf.YamlConfig)
-	ReadEnvVars(&cnf.EnvVarConfig)
 }
 
 func GetConfig() Config {
