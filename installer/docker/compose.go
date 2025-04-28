@@ -270,7 +270,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"LOG_LEVEL=200",
 			"GIN_MODE=release",
 			"MODE=worker",
-			"NODE_NAME=worker",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
