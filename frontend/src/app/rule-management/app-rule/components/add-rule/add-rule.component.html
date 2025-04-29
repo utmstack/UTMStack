@@ -229,6 +229,11 @@
       </div>
 
       <div [hidden]="currentStep != RULE_FORM.STEP3">
+        <div class="row">
+          <div class="col-12">
+            <app-deduplicate-fields [rule]="rule" [formGroup]="ruleForm"></app-deduplicate-fields>
+          </div>
+        </div>
         <div formArrayName="afterEvents">
           <fieldset class="form-fieldset border p-3">
             <legend>
@@ -258,19 +263,7 @@
                 <app-after-event [form]="asFormGroup(afterEvents.at(i))" (remove)="removeAfterEvent(i)"></app-after-event>
               </div>
             </div>
-
-            <!--<ng-container *ngFor="let group of afterEvents.controls; let i = index">
-
-              <div [formGroupName]="i" class="border p-3 mb-3">
-                <app-after-event [form]="asFormGroup(afterEvents.at(i))" (remove)="removeAfterEvent(i)"></app-after-event>
-              </div>
-            </ng-container>-->
           </fieldset>
-          <div class="row">
-            <div class="col-6">
-              <app-deduplicate-fields [rule]="rule" [formGroup]="ruleForm"></app-deduplicate-fields>
-            </div>
-          </div>
         </div>
 
 
@@ -282,7 +275,7 @@
             class="btn utm-button utm-button-grey mr-2">
       <i class="icon-cancel-circle2 top-0"></i>&nbsp; Cancel
     </button>
-    <button *ngIf="currentStep == RULE_FORM.STEP2" (click)="back()" class="btn utm-button utm-button-primary mr-2">
+    <button *ngIf="currentStep == RULE_FORM.STEP2 || currentStep == RULE_FORM.STEP3" (click)="back()" class="btn utm-button utm-button-primary mr-2">
       <i class="icon-arrow-left32 top-0"></i>
       Back
     </button>

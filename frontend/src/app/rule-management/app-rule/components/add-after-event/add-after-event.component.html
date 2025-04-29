@@ -1,5 +1,6 @@
+<!--
 <div [formGroup]="form" class="p-2">
-  <!-- Index Pattern -->
+  &lt;!&ndash; Index Pattern &ndash;&gt;
   <div class="mb-4">
     <label for="indexPattern" class="form-label fw-bold">Index Pattern</label>
     <ng-select
@@ -17,7 +18,7 @@
     ></ng-select>
   </div>
 
-  <!-- WITH expressions -->
+  &lt;!&ndash; WITH expressions &ndash;&gt;
   <div formArrayName="with" class="mb-4">
     <fieldset class="form-fieldset border p-3">
       <legend>
@@ -71,7 +72,7 @@
     </fieldset>
   </div>
 
-  <!-- OR nested SearchRequests -->
+  &lt;!&ndash; OR nested SearchRequests &ndash;&gt;
   <div formArrayName="or" class="mb-4">
     <fieldset class="form-fieldset border p-3">
       <legend>
@@ -102,12 +103,97 @@
         <app-after-event [form]="asFormGroup(or.at(k))" (remove)="removeOr(k)"></app-after-event>
       </div>
     </div>
-
-    <!--<div *ngIf="or.controls.length === 0" class="text-center">
-      <button type="button" class="btn btn-outline-secondary" (click)="addOr()">
-        <i class="bi bi-plus-circle me-1"></i> Add Nested SearchRequest
-      </button>
-    </div>-->
     </fieldset>
   </div>
 </div>
+-->
+
+<div [formGroup]="form" class="p-2">
+  <!-- Index Pattern, Within and Count -->
+  <div class="row g-2 mt-2 mb-3">
+    <div class="col-md-5">
+      <label for="indexPattern" class="fw-semibold text-secondary">Index Pattern</label>
+      <ng-select
+        formControlName="indexPattern"
+        (change)="changeIndexPattern($event.pattern)"
+        [items]="patterns$ | async"
+        bindLabel="pattern"
+        bindValue="pattern"
+        [closeOnSelect]="true"
+        [clearable]="false"
+        class="w-100"
+      ></ng-select>
+    </div>
+    <div class="col-md-5">
+      <label class="small text-muted">Within (Time Range)</label>
+      <input formControlName="within" class="form-control form-control-sm" placeholder="e.g. now-8h to now" />
+    </div>
+    <div class="col-md-2">
+      <label class="small text-muted">Count</label>
+      <input type="number" formControlName="count" class="form-control form-control-sm" min="1" />
+    </div>
+  </div>
+
+  <!-- Expressions -->
+  <div formArrayName="with" class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-semibold text-secondary">Expressions</span>
+      <button type="button" class="btn btn-sm btn-outline-info p-1" (click)="addExpression()" ngbTooltip="Add">
+        <i class="icon-plus2 small"></i>
+      </button>
+    </div>
+
+
+
+    <div *ngFor="let expr of with.controls; let j = index" [formGroupName]="j" class="pl-3 ml-1 mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="small text-muted">Field</label>
+          <ng-select
+            formControlName="field"
+            [items]="fields$ | async"
+            bindLabel="name"
+            bindValue="name"
+            class="w-100"
+          ></ng-select>
+        </div>
+        <div class="col-md-3">
+          <label class="small text-muted">Operator</label>
+          <ng-select formControlName="operator" [items]="operators" class="w-100"></ng-select>
+        </div>
+        <div class="col-md-4">
+          <label class="small text-muted">Value</label>
+          <input formControlName="value" class="form-control form-control-sm" />
+        </div>
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-link text-danger p-0" (click)="removeExpression(j)" ngbTooltip="Remove">
+            <i class="icon-trash small"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Events -->
+  <div formArrayName="or">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-semibold text-secondary">After Events</span>
+      <button type="button" class="btn btn-sm btn-outline-info p-1" (click)="addOr()" ngbTooltip="Add">
+        <i class="icon-plus2 small"></i>
+      </button>
+    </div>
+
+    <div *ngFor="let nested of or.controls; let k = index" class="border-left pt-2 pl-3 ml-1 mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-">
+        <span class="small text-muted">Event #{{ k + 1 }}</span>
+        <button type="button" class="btn btn-link text-danger p-0" (click)="removeOr(k)" ngbTooltip="Remove">
+          <i class="icon-cross2 small"></i>
+        </button>
+      </div>
+      <app-after-event [form]="asFormGroup(or.at(k))" (remove)="removeOr(k)"></app-after-event>
+      <hr class="opacity-50 my-2" />
+    </div>
+  </div>
+</div>
+
+

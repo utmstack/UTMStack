@@ -195,6 +195,8 @@ export class AddRuleComponent implements OnInit, OnDestroy {
   back(){
     this.stepCompleted.pop();
     switch (this.currentStep) {
+      case 3: this.currentStep = AddRuleStepEnum.STEP2;
+              break;
       case 2: this.currentStep = AddRuleStepEnum.STEP1;
               break;
       case 1: this.currentStep = AddRuleStepEnum.STEP0;
