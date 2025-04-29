@@ -1,16 +1,16 @@
+import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup} from '@angular/forms';
-import {Rule} from '../../../models/rule.model';
-import {AfterEventFormService} from '../../../services/after-event-form.service';
-import {RuleService} from '../../../services/rule.service';
-import {HttpResponse} from '@angular/common/http';
-import {IndexPatternService} from '../../../../shared/services/elasticsearch/index-pattern.service';
 import {Observable, of} from 'rxjs';
-import {UtmIndexPattern} from '../../../../shared/types/index-pattern/utm-index-pattern';
 import {catchError, map} from 'rxjs/operators';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {FieldDataService} from '../../../../shared/services/elasticsearch/field-data.service';
+import {IndexPatternService} from '../../../../shared/services/elasticsearch/index-pattern.service';
 import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
+import {UtmIndexPattern} from '../../../../shared/types/index-pattern/utm-index-pattern';
+import {Rule} from '../../../models/rule.model';
+import {AfterEventFormService} from '../../../services/after-event-form.service';
+import {RuleService} from '../../../services/rule.service';
 
 
 @Component({

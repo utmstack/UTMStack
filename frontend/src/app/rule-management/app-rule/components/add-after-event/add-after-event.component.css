@@ -20,3 +20,30 @@ fieldset {
   font-size: 14px!important;
   color: white!important;
 }
+
+   .btn-outline-info {
+     color: #4d5b6c;
+   border-color: #dee2e6;
+   background-color: transparent;
+
+     &:hover,
+     &:focus,
+     &:active,
+     &.active {
+       color: #fff;
+       background-color: #232f3e;
+     border-color: #232f3e;
+     }
+
+     &.disabled,
+     &:disabled {
+       color: #b8daff;
+       background-color: transparent;
+       border-color: #b8daff;
+     }
+   }
+
+.border-left {
+  border-left: 1px solid rgba(222, 226, 230, 0.5) !important;
+}
+
