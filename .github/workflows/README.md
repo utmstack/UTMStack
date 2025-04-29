@@ -1,74 +1,72 @@
-# New Workflows
+# 🛠️ Multi-Environment Workflows – UTMStack
 
-### Branches involved
-***main***<br>
-***feature/\*\*/\*\****<br>
-***hotfix/\*\*/\*\****<br>
+> This repository uses a structured, version-based deployment system (`v10`, `v11`) across multiple environments: `dev`, `qa`, `rc`, and `prod`.  
+> Each environment is triggered automatically based on branch patterns and workflow logic.
 
-## Feature:
-1. **Create Branch**: Start a new branch from main for the feature.
-2. **Develop**: All developers related to the feature work on this branch. 
-3. Push Changes: When they finish they push.
-4. **Activate DEV Actions**: This push triggers DEV actions, generates DEV images, binaries, dependencies, and push to to Customer Manager.
-5. **Create PR**: After testing, create a Pull Request (PR) to main.
-6. **Activate QA Actions**: Once the PR is approved, QA actions are triggered, generates QA images, binaries, dependencies, and push to to Customer Manager.
-7. **Merge to Main**: If all tests pass, merging to main activates RC actions and generates RC images, binaries, dependencies, and push to to Customer Manager.
-8. **Release**: After testing in RC, create a new release to activate release actions.
+![alt text](workflow.png)
 
-## Hotfix
-1. **Create Branch**: Start a new branch from main for the hotfix.
-2. **Develop**: All developers related to the hotfix work on this branch.
-3. **Create PR**: Once the hotfix is complete, create a PR to main.
-4. **Activate RC Actions**: After merging the PR, RC actions are triggered, and RC images, binaries and dependencies are generated and pushed to to Customer Manager.
-5. **Release**: If everything is satisfactory, create a new release to activate release actions.
+## 🌿 Branches Involved
 
+- `v10`, `v11` → Main version branches  
+- `release/v10.x.x`, `release/v11.x.x` → Feature/bugfix integration branches  
+- `hotfix/v10.x.x`, `hotfix/v11.x.x` → For urgent production fixes  
+- `feature/...` → Optional; features are typically integrated into `release/*` branches  
 
-## Actions
-**DEV**->on push ***feature/\*\*/\*\**** branch<br>
-**QA**->on pull-request: approved main branch<br>
-**RC**->on push: main branch<br>
-**RELEASE**-> on release<br>
+---
 
-## Service Directory Structure and Versioniong Guidelines
-To ensure consistency and streamline our development workflow, please adhere to the following guidelines for organizing service directories, documentation, and versioning:
+## ✨ Feature Flow (per version)
 
-### Folder Naming Conventions
-- Hyphens (-) in Folder Names alloed only for Docker Image Services
+> Best used for planned feature development.
 
-### Required Documentation for Each Service
-Each service must include the following mandatory documentation files to ensure clarity and maintainability:
-- README.md: Provides an overview of the service, including setup instructions, usage, and other relevant information.
-- CHANGELOG.md: Logs all significant changes, such as new features, bug fixes, and improvements.
-- scripts.json: Contains commands to run after update process, facilitating automation and deployment processes.
+1. Developers work on shared integration branches:  
+   `release/v10.x.x` or `release/v11.x.x`
 
-### Additional Files for Non-Image Services
-For services that are not Docker images, an additional configuration file is required:
+2. On **push**, the `dev` workflow is triggered and deployed to:  
+   `v10-dev` or `v11-dev`
 
-- files.json: Specifies the files associated with the service, including details necessary for compilation and deployment.
-Example Structure for a file.json:
-```
-[
-  {
-    "name": "service-binary.exe",
-    "is_binary": true,
-    "destination_path": "bin/",
-    "os": "windows",
-    "arch": "amd64",
-    "replace_previous": false
-  },
-  {
-    "name": "config.yaml",
-    "is_binary": false,
-    "destination_path": "config/",
-    "os": "linux",
-    "arch": "amd64",
-    "replace_previous": true
-  }
-]
-```
+3. Once stable, a **pull request is opened to `v10` or `v11`**, the `qa` workflow is triggered and deployed to:  
+   `v10-qa` or `v11-qa`
 
-### Versioning and Triggering Actions
-Proper versioning is crucial for tracking changes and triggering automated workflows:
-#### Update versions.json
-- **When to Update**: Every time a change is made to any service.
-- **Purpose**: Updating the version in versions.json serves as a trigger for GitHub Actions, initiating automated processes such as building and deploying services.
+5. After QA validation, the PR is **merged** into the base branch (`v10` or `v11`).
+
+6. This triggers deployment to the **RC environment**:  
+   `v10-rc` or `v11-rc`
+
+7. Once RC validation is complete, a **release tag (`v10.x.x` or `v11.x.x`)** is created to deploy to production.
+
+---
+
+## 🔥 Hotfix Flow (urgent patches)
+
+> Used for emergency fixes in production.
+
+1. Create a branch:  
+   `hotfix/v10.x.x` or `hotfix/v11.x.x` from `v10` or `v11`
+
+2. After development, open a **PR to `v10` or `v11`**
+
+3. On merge, the `rc` workflow is triggered:  
+   `v10-rc` or `v11-rc`
+
+4. If the patch is valid, create a **release tag** to deploy to production.
+
+---
+
+## ⚙️ GitHub Actions Triggers
+
+| Environment | Trigger Condition |
+|-------------|-------------------|
+| `dev`       | Push to `release/v10**` or `release/v11**` |
+| `qa`        | Pull request to `v10` or `v11` from `release/v10**` or `release/v11**`, and approved |
+| `rc`        | Push to `v10` or `v11` from `hotfix/*` or `release/*` |
+| `prod`      | Push of a tag starting with `v10.` or `v11.` |
+
+---
+
+## 🚀 Releasing to Production
+
+A production deployment is triggered only by pushing a version tag:
+
+```bash
+git tag v10.5.0
+git push origin v10.5.0

@@ -1,4 +1,4 @@
-name: "Production Deployment"
+name: "RC Deployment"
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "Checking permissions..."
           
-          if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
             echo "✅ Version tag format is correct."
 
             if [[ "${{ github.ref }}" =~ ^refs/heads/main) ]]; then
@@ -42,19 +42,18 @@ jobs:
             fi
 
           else
-            echo "⛔ Version tag format is incorrect. It should be in the format vX.Y.Z."
+            echo "⛔ Version tag format is incorrect. It should be in the format vX.Y.Z-rc.N."
             exit 1          
           fi
 
   deploy:
-    name: Deploy to Production
+    name: Deploy to RC
     needs: validations
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/v11-used-build.yml
     with:
       version_tag: ${{ github.event.inputs.version_tag }}
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
-      environment: prod
-      ghcr_token: ${{ secrets.GITHUB_TOKEN }}
+      environment: rc
     secrets:
       AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
