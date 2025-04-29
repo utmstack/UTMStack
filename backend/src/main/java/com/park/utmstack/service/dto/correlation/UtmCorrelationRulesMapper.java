@@ -33,6 +33,8 @@ public class UtmCorrelationRulesMapper {
             dto.setSystemOwner(entity.getSystemOwner());
             dto.setAdversary(entity.getRuleAdversary());
             dto.setRuleActive(entity.getRuleActive());
+            dto.setAfterEvents(entity.getAfterEvents());
+            dto.setDeduplicateBy(entity.getDeduplicateBy());
             return dto;
         } catch (UtmSerializationException e) {
             logger.error("Error serializing rule references", e);
@@ -58,6 +60,8 @@ public class UtmCorrelationRulesMapper {
             entity.setSystemOwner(dto.getSystemOwner());
             entity.setRuleAdversary(dto.getAdversary());
             entity.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
+            entity.setAfterEvents(dto.getAfterEvents());
+            entity.setDeduplicateBy(dto.getDeduplicateBy());
 
             return entity;
         } catch (UtmSerializationException e) {

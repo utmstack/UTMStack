@@ -116,7 +116,7 @@ public class UtmCorrelationRules implements Serializable {
     @JsonDeserialize
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    private AfterEvents afterEvents;
+    private List<SearchRequest> afterEvents;
 
     @JsonIgnore
     @Column(name = "rule_deduplicate_by_def")
@@ -181,13 +181,13 @@ public class UtmCorrelationRules implements Serializable {
         this.ruleDefinition = ruleDefinition;
     }
 
-    public AfterEvents getAfterEvents() throws UtmSerializationException {
+    public List<SearchRequest> getAfterEvents() throws UtmSerializationException {
         if (StringUtils.hasText(afterEventsDef))
-            afterEvents = UtilSerializer.jsonDeserialize(AfterEvents.class, afterEventsDef);
+            afterEvents = UtilSerializer.jsonDeserializeList(SearchRequest.class, afterEventsDef);
         return afterEvents;
     }
 
-    public void setAfterEvents(AfterEvents afterEvents) throws UtmSerializationException {
+    public void setAfterEvents(List<SearchRequest> afterEvents) throws UtmSerializationException {
         this.afterEventsDef = afterEvents == null ? null : UtilSerializer.jsonSerialize(afterEvents);
         this.afterEvents = afterEvents;
     }
