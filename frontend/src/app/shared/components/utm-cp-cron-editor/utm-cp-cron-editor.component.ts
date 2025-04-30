@@ -1,5 +1,6 @@
-import {Component, forwardRef} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {Component, forwardRef, OnInit} from '@angular/core';
+import {ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
 import {DaysOfWeek, MonthsOfYear, TimeFrequency} from './models/time-frequency';
 
 const dailyFrequencies: number[] = Array.from({length: 29}, (_, index) => index + 1);
@@ -17,49 +18,50 @@ export const CUSTOM_CONTROL_VALUE_ACCESSOR: any = {
   styleUrls: ['./utm-cp-cron-editor.component.scss'],
   providers: [CUSTOM_CONTROL_VALUE_ACCESSOR],
 })
-export class UtmCpCronEditorComponent implements ControlValueAccessor {
-
+export class UtmCpCronEditorComponent implements ControlValueAccessor, OnInit {
+  form: FormGroup;
   disabled = false;
 
-   TimeFrequency = TimeFrequency;
-   DaysOfWeek = DaysOfWeek;
-
+  TimeFrequency = TimeFrequency;
+  DaysOfWeek = DaysOfWeek;
   months: { name: string, value: string }[] = Object.keys(MonthsOfYear).map(key => ({
     name: key,
     value: MonthsOfYear[key as keyof typeof MonthsOfYear]
   }));
 
-  timeFrequency: TimeFrequency = TimeFrequency.Daily;
-  dailyFrequency = 1;
-  monthlyFrequency = 1;
-  yearlyFrequency = this.months[0].value;
-
-  startDate = new Date();
-  endDate: any;
-  time = {hour: 0, minute: 0};
-  days: string[] = [];
-  cmdCron: string;
+  cmdCron = '';
   onChange: (value: string) => void = () => {};
   onTouched = () => {};
 
-  set cronSentence(cmd: string) {
-    this.cmdCron = cmd;
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit() {
+    this.form = this.fb.group({
+      timeFrequency: [TimeFrequency.Daily],
+      dailyFrequency: [1],
+      monthlyFrequency: [1],
+      yearlyFrequency: [this.months[0].value],
+      time: this.fb.control({ hour: 0, minute: 0, second: 0 } as NgbTimeStruct),
+      days: [[]]
+    });
+
+    this.form.valueChanges.subscribe(() => {
+      this.emitChange();
+    });
   }
 
   get frequenciesByType() {
-    if (this.timeFrequency === TimeFrequency.Daily) {
-      return dailyFrequencies;
-    }
-    return monthlyFrequencies;
+    return this.form.get('timeFrequency').value === TimeFrequency.Daily ? dailyFrequencies : monthlyFrequencies;
   }
 
   get monthlyValue() {
-    if (this.timeFrequency === TimeFrequency.Yearly) {
-      return this.yearlyFrequency;
-    } else if (this.timeFrequency === TimeFrequency.Weekly || this.timeFrequency === TimeFrequency.Daily) {
+    const freq = this.form.get('timeFrequency').value;
+    if (freq === TimeFrequency.Yearly) {
+      return this.form.get('yearlyFrequency').value;
+    } else if (freq === TimeFrequency.Weekly || freq === TimeFrequency.Daily) {
       return '*';
     }
-    return `*/${this.monthlyFrequency}`;
+    return `*/${this.form.get('monthlyFrequency').value}`;
   }
 
   getTimeEnumValues(obj: any): string[] {
@@ -67,44 +69,102 @@ export class UtmCpCronEditorComponent implements ControlValueAccessor {
   }
 
   getTime(position: number): string {
-    /*const formatTime = this.convertTo24Format(this.time);*/
-    const time = position === 1 ? this.time.minute : this.time.hour;
-    return this.time.hour === 0 && this.time.minute === 0 ? '0' : time.toString();
+    const time = this.form.get('time').value;
+    return (time.hour === 0 && time.minute === 0) ? '0' : (position === 1 ? time.minute : time.hour).toString();
   }
 
-  getDay() {
-    return this.timeFrequency === TimeFrequency.Daily && this.dailyFrequency !== 0 ? `*/${this.dailyFrequency}` : '*';
+  getDay(): string {
+    const tf = this.form.get('timeFrequency').value;
+    const df = this.form.get('dailyFrequency').value;
+    return tf === TimeFrequency.Daily && df !== 0 ? `*/${df}` : '*';
   }
 
-  getDays() {
-    return this.days.length > 0 ? this.days.join(',') : '*';
+  getDays(): string {
+    const days = this.form.get('days').value;
+    return days.length > 0 ? days.join(',') : '*';
   }
 
   isSelected(day: string): boolean {
-    return this.days.includes(this.getIndexDay(day));
+    return this.form.get('days').value.includes(this.getIndexDay(day));
   }
 
   setDays(day: string) {
-    if (this.isSelected(day)) {
-      this.days.splice(this.days.indexOf(day), 1);
+    const daysControl = this.form.get('days');
+    const currentDays = daysControl.value || [];
+    const index = currentDays.indexOf(this.getIndexDay(day));
+    if (index >= 0) {
+      currentDays.splice(index, 1);
     } else {
-      this.days.push(this.getIndexDay(day));
+      currentDays.push(this.getIndexDay(day));
     }
-    this.emitChange();
+    daysControl.setValue([...currentDays]);
   }
 
   onChangeFrequency() {
-    if (this.timeFrequency === TimeFrequency.Weekly) {
-      this.days = ['0'];
+    const tf = this.form.get('timeFrequency').value;
+    if (tf === TimeFrequency.Weekly) {
+      this.form.get('days').setValue(['0']);
+    } else {
+      this.form.get('days').setValue([]);
     }
-    if (this.timeFrequency !== TimeFrequency.Weekly) {
-      this.days = [];
+    if (tf === TimeFrequency.Weekly || tf === TimeFrequency.Yearly) {
+      this.form.get('dailyFrequency').setValue(0);
     }
-    if (this.timeFrequency === TimeFrequency.Weekly || this.timeFrequency === TimeFrequency.Yearly) {
-      this.dailyFrequency = 0;
-    }
-    this.emitChange();
   }
+
+  getIndexDay(day: string): string {
+    return Object.values(DaysOfWeek).findIndex(value => value === day).toString();
+  }
+
+  emitChange() {
+    console.log('emitChange');
+    const cron = `0 ${this.getTime(1)} ${this.getTime(0)} ${this.getDay()} ${this.monthlyValue} ${this.getDays()}`;
+    this.cmdCron = cron;
+    this.onChange(cron);
+  }
+
+  writeValue(cron: string): void {
+    if (!cron) { return; }
+    const parts = cron.split(' ');
+    const [_, minute, hour, day, month, weekDays] = parts;
+
+    const time = { hour: Number(hour), minute: Number(minute), second: 0 };
+    let timeFrequency = TimeFrequency.Daily;
+    let dailyFrequency = 1;
+    let monthlyFrequency = 1;
+    let yearlyFrequency = this.months[0].value;
+    let days: string[] = [];
+
+    if (day !== '*') {
+      timeFrequency = TimeFrequency.Daily;
+      dailyFrequency = Number(day.split('*/')[1]);
+    }
+    if (month !== '*') {
+      if (!isNaN(Number(month))) {
+        timeFrequency = TimeFrequency.Yearly;
+        yearlyFrequency = this.months[Number(month) - 1].value;
+      } else {
+        timeFrequency = TimeFrequency.Monthly;
+        monthlyFrequency = Number(month.split('*/')[1]);
+      }
+    }
+    if (weekDays !== '*') {
+      timeFrequency = TimeFrequency.Weekly;
+      days = weekDays.split(',');
+    }
+
+    this.form.patchValue({
+      timeFrequency,
+      dailyFrequency,
+      monthlyFrequency,
+      yearlyFrequency,
+      time,
+      days,
+    }, { emitEvent: false });
+
+    this.cmdCron = cron;
+  }
+
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
@@ -113,47 +173,13 @@ export class UtmCpCronEditorComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  writeValue(cron: string): void {
-    if (cron != null && cron !== '' && cron !== undefined) {
-      const cronParts = cron.split(' ');
-      if (cronParts[1] !== '*') {
-        this.time = {
-          hour: Number(cronParts[2]),
-          minute: Number(cronParts[1])
-        };
-      }
-
-      if (cronParts[3] !== '*') {
-        this.timeFrequency = TimeFrequency.Daily;
-        this.dailyFrequency = Number(cronParts[3].split('*/')[1]);
-      }
-
-      if (cronParts[4] !== '*') {
-        if (Number(cronParts[4])) {
-          this.timeFrequency = TimeFrequency.Yearly;
-          this.yearlyFrequency = this.months[Number(cronParts[4]) - 1].value;
-        } else {
-          this.timeFrequency = TimeFrequency.Monthly;
-          this.monthlyFrequency = Number(cronParts[4].split('*/')[1]);
-        }
-      }
-
-      if (cronParts[5] !== '*') {
-        this.timeFrequency = TimeFrequency.Weekly;
-        this.days = [];
-        cronParts[5].split(',').forEach(value => {
-          this.days.push(value);
-        });
-      }
-
-      this.cronSentence = cron;
-    }
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+    isDisabled ? this.form.disable() : this.form.enable();
   }
-  getIndexDay(day: string) {
-    return Object.values(DaysOfWeek).findIndex(value => value === day).toString();
+
+  get timeFrequency() {
+    return this.form.get('timeFrequency');
   }
-  emitChange() {
-    this.cmdCron = `0 ${this.getTime(1)} ${this.getTime(0)} ${this.getDay()} ${this.monthlyValue} ${this.getDays()}`;
-    this.onChange(this.cmdCron);
-  }
+
 }
