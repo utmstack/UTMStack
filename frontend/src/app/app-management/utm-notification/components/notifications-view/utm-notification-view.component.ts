@@ -6,6 +6,7 @@ import {TimeFilterComponent} from '../../../../shared/components/utm/filters/tim
 import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {resolveRangeByTime} from '../../../../shared/util/resolve-date';
+import {AppLogTypeEnum} from '../../../app-logs/shared/enum/app-log-type.enum';
 import {
   NotificationDTO,
   NotificationRequest,
@@ -14,7 +15,6 @@ import {
 } from '../../models/utm-notification.model';
 import {ComponentType, NotificationRefreshService} from '../../service/notification-refresh.service';
 import {NotificationService} from '../../service/notification.service';
-import {AppLogTypeEnum} from '../../../app-logs/shared/enum/app-log-type.enum';
 
 @Component({
   selector: 'app-utm-notification-view',

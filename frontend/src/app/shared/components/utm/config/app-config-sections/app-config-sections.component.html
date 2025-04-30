@@ -188,7 +188,6 @@
 
       <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron">
         <app-utm-cp-cron-editor [(ngModel)]="conf.confParamValue" (ngModelChange)="save(conf.confParamValue,conf)"></app-utm-cp-cron-editor>
-        {{ conf.confParamValue }}
       </ng-container>
 
 

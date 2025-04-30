@@ -2,6 +2,7 @@
   <span class="font-weight-semibold"> {{label|translate}}</span>
   <span #popover="ngbPopover"
         [ngbPopover]="popContent"
+        [container]="'body'"
         autoClose="outside"
         class="setting-filter
     cursor-pointer text-blue-800 border-grey-100 ml-2"

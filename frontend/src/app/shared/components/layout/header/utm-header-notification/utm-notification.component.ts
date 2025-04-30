@@ -1,4 +1,5 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
 import {NgbDropdown} from '@ng-bootstrap/ng-bootstrap';
 import {Observable, of, Subject} from 'rxjs';
 import {catchError, filter, map, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
@@ -30,7 +31,8 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
 
   constructor(private notificationService: NotificationService,
               private utmToastService: UtmToastService,
-              public notificationRefreshService: NotificationRefreshService) {
+              public notificationRefreshService: NotificationRefreshService,
+              private router: Router) {
   }
 
   ngOnInit(): void {
@@ -77,6 +79,7 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
 
   viewAllNotifications() {
     this.dropNotification.close();
+    this.router.navigate(['app-management/settings/notifications']);
   }
 
   markAllAsRead() {
