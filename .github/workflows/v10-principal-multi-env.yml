@@ -125,7 +125,7 @@ jobs:
       fail-fast: false
       matrix: 
         service: ['aws', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'soc-ai', 'sophos', 'user-auditor', 'web-pdf'] 
-    uses: ./.github/workflows/used-runner.yml
+    uses: ./.github/workflows/v10-used-runner.yml
     with:
       microservice: ${{ matrix.service }}
       environment: ${{ needs.setup_deployment.outputs.tag }}
