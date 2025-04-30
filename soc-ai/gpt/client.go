@@ -58,6 +58,9 @@ func (c *GPTClient) Request(alert schema.AlertGPTDetails) (string, error) {
 		},
 	}
 
+	// Debug log
+	utils.Logger.Info("GPT Request: %s", req.Messages[0].Content)
+
 	requestJson, error := json.Marshal(req)
 	if error != nil {
 		return "", fmt.Errorf("error marshalling request: %v", error)
