@@ -1,4 +1,4 @@
-name: "Beta Deployment"
+name: "Production Deployment"
 
 on:
   workflow_dispatch:
@@ -19,13 +19,13 @@ jobs:
         run: |
           echo "Checking permissions..."
           
-          if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$ ]]; then
+          if [[ "${{ github.event.inputs.version_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "✅ Version tag format is correct."
 
-            if [[ "${{ github.ref }}" =~ ^refs/heads/(release/|feature/) ]]; then
+            if [[ "${{ github.ref }}" =~ ^refs/heads/main) ]]; then
               echo "✅ Base branch ${{ github.ref }} is valid."
             else
-              echo "⛔ ERROR: Base branch ${{ github.ref }} is not valid. It should be release/ or feature/."
+              echo "⛔ ERROR: Base branch ${{ github.ref }} is not valid. It should be main."
               exit 1
             fi
 
@@ -42,18 +42,19 @@ jobs:
             fi
 
           else
-            echo "⛔ Version tag format is incorrect. It should be in the format vX.Y.Z-beta.N."
+            echo "⛔ Version tag format is incorrect. It should be in the format vX.Y.Z."
             exit 1          
           fi
 
   deploy:
-    name: Deploy to Beta
+    name: Deploy to Production
     needs: validations
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/v11-used-build.yml
     with:
       version_tag: ${{ github.event.inputs.version_tag }}
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
-      environment: beta
+      environment: prod
+      ghcr_token: ${{ secrets.GITHUB_TOKEN }}
     secrets:
       AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
       SIGN_KEY: ${{ secrets.SIGN_KEY }}

@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         service: ['backend', 'frontend', 'user-auditor', 'web-pdf'] 
-    uses: ./.github/workflows/images-without-dependencies.yml
+    uses: ./.github/workflows/v11-used-images-without-dependencies.yml
     with:
       microservice: ${{ matrix.service }}
       tag: ${{ inputs.version_tag }}
