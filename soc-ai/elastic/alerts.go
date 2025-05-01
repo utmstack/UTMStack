@@ -73,7 +73,7 @@ type AlertCorrelation struct {
 	Classifications []string
 }
 
-func GetRelatedAlerts() ([]schema.GPTAlertResponse, error) {
+func GetRelatedAlerts() ([]schema.Alert, error) {
 	// Debug log
 	utils.Logger.Info("Getting historical alerts from Elasticsearch")
 
@@ -82,7 +82,7 @@ func GetRelatedAlerts() ([]schema.GPTAlertResponse, error) {
 		return nil, fmt.Errorf("error getting historical alerts: %v", err)
 	}
 
-	var alerts []schema.GPTAlertResponse
+	var alerts []schema.Alert
 	err = json.Unmarshal(result, &alerts)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling alerts: %v", err)
@@ -110,7 +110,7 @@ func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
 
 	var alertIDs []string
 	for _, resp := range historicalResponses {
-		alertIDs = append(alertIDs, resp.ActivityID)
+		alertIDs = append(alertIDs, resp.ID)
 	}
 
 	for _, id := range alertIDs {
@@ -123,8 +123,8 @@ func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
 			correlation.RelatedAlerts = append(correlation.RelatedAlerts, alert)
 
 			for _, resp := range historicalResponses {
-				if resp.ActivityID == alert.ID {
-					correlation.Classifications = append(correlation.Classifications, resp.Classification)
+				if resp.ID == alert.ID {
+					correlation.Classifications = append(correlation.Classifications, resp.Tags...)
 					break
 				}
 			}
