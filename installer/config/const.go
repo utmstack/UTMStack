@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+const INSTALLER_VERSION = ""
 const PUBLIC_KEY = ``
 
 const (
@@ -13,7 +14,6 @@ const (
 	GetInstanceDetailsEndpoint = "/api/v1/instances"
 	GetUpdatesInfoEndpoint     = "/api/v1/updates"
 	GetLicenseEndpoint         = "/api/v1/licenses"
-	GetLatestVersionEndpoint   = "/api/v1/versions/latest"
 	HealthEndpoint             = "/api/v1/health"
 	ImagesPath                 = "/utmstack/images"
 
