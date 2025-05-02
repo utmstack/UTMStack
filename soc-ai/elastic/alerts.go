@@ -91,8 +91,8 @@ func GetRelatedAlerts() ([]schema.Alert, error) {
 func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
 	correlation := &AlertCorrelation{
 		CurrentAlert:    currentAlert,
-		RelatedAlerts:   []schema.Alert{},
-		Classifications: []string{},
+		RelatedAlerts:   make([]schema.Alert, 0),
+		Classifications: make([]string, 0),
 	}
 
 	historicalResponses, err := GetRelatedAlerts()
@@ -100,26 +100,15 @@ func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
 		return nil, err
 	}
 
-	var alertIDs []string
-	for _, resp := range historicalResponses {
-		alertIDs = append(alertIDs, resp.ID)
-	}
+	for _, hist := range historicalResponses {
+		if isAlertRelated(currentAlert, hist) {
+			correlation.RelatedAlerts = append(correlation.RelatedAlerts, hist)
 
-	for _, id := range alertIDs {
-		alert, err := GetAlertsInfo(id)
-		if err != nil {
-			continue
-		}
-
-		if isAlertRelated(currentAlert, alert) {
-			correlation.RelatedAlerts = append(correlation.RelatedAlerts, alert)
-
-			for _, resp := range historicalResponses {
-				if resp.ID == alert.ID {
-					correlation.Classifications = append(correlation.Classifications, resp.Tags...)
-					break
-				}
+			classification := "This alert has not been classified"
+			if len(hist.Tags) > 0 {
+				classification = strings.Join(hist.Tags, ", ")
 			}
+			correlation.Classifications = append(correlation.Classifications, classification)
 		}
 	}
 
@@ -174,7 +163,13 @@ func BuildCorrelationContext(correlation *AlertCorrelation) string {
 		context.WriteString(fmt.Sprintf("- Name: %s\n", alert.Name))
 		context.WriteString(fmt.Sprintf("- Severity: %s\n", alert.SeverityLabel))
 		context.WriteString(fmt.Sprintf("- Category: %s\n", alert.Category))
-		context.WriteString(fmt.Sprintf("- Classification: %s\n", correlation.Classifications[i]))
+
+		classification := "This alert has not been classified"
+		if i < len(correlation.Classifications) {
+			classification = correlation.Classifications[i]
+		}
+		context.WriteString(fmt.Sprintf("- Classification: %s\n", classification))
+
 		context.WriteString(fmt.Sprintf("- Time: %s\n", alert.Timestamp))
 
 		if alert.Source.IP != "" {
