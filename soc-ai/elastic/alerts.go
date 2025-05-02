@@ -74,10 +74,7 @@ type AlertCorrelation struct {
 }
 
 func GetRelatedAlerts() ([]schema.Alert, error) {
-	// Debug log
-	utils.Logger.Info("Getting historical alerts from Elasticsearch")
-
-	result, err := ElasticSearch(configurations.ALERT_INDEX_PATTERN, "*", "*")
+	result, err := ElasticSearch(configurations.ALERT_INDEX_PATTERN, "", "")
 	if err != nil {
 		return nil, fmt.Errorf("error getting historical alerts: %v", err)
 	}
@@ -92,9 +89,6 @@ func GetRelatedAlerts() ([]schema.Alert, error) {
 }
 
 func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
-	// Debug log
-	utils.Logger.Info("Finding related alerts for alert %s", currentAlert.ID)
-
 	correlation := &AlertCorrelation{
 		CurrentAlert:    currentAlert,
 		RelatedAlerts:   []schema.Alert{},
@@ -105,8 +99,6 @@ func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	utils.Logger.Info("Found %d historical alerts to analyze", len(historicalResponses))
 
 	var alertIDs []string
 	for _, resp := range historicalResponses {
@@ -138,43 +130,36 @@ func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
 }
 
 func isAlertRelated(current, historical schema.Alert) bool {
-	utils.Logger.Info("Checking relation between alerts - Current: %s, Historical: %s", current.ID, historical.ID)
+	if current.ID == historical.ID {
+		return false
+	}
 
 	if current.Destination.IP != "" && current.Destination.IP == historical.Destination.IP {
-		utils.Logger.Info("Match found: Destination IP %s", current.Destination.IP)
 		return true
 	}
 	if current.Destination.Port != 0 && current.Destination.Port == historical.Destination.Port {
-		utils.Logger.Info("Match found: Destination Port %d", current.Destination.Port)
 		return true
 	}
 	if current.Destination.Host != "" && current.Destination.Host == historical.Destination.Host {
-		utils.Logger.Info("Match found: Destination Host %s", current.Destination.Host)
 		return true
 	}
 	if current.Destination.User != "" && current.Destination.User == historical.Destination.User {
-		utils.Logger.Info("Match found: Destination User %s", current.Destination.User)
 		return true
 	}
 
 	if current.Source.IP != "" && current.Source.IP == historical.Source.IP {
-		utils.Logger.Info("Match found: Source IP %s", current.Source.IP)
 		return true
 	}
 	if current.Source.Port != 0 && current.Source.Port == historical.Source.Port {
-		utils.Logger.Info("Match found: Source Port %d", current.Source.Port)
 		return true
 	}
 	if current.Source.Host != "" && current.Source.Host == historical.Source.Host {
-		utils.Logger.Info("Match found: Source Host %s", current.Source.Host)
 		return true
 	}
 	if current.Source.User != "" && current.Source.User == historical.Source.User {
-		utils.Logger.Info("Match found: Source User %s", current.Source.User)
 		return true
 	}
 
-	utils.Logger.Info("No match found between alerts %s and %s", current.ID, historical.ID)
 	return false
 }
 
