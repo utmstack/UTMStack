@@ -61,7 +61,6 @@ jobs:
     with:
       image_name: ${{ inputs.microservice }}
       tag: ${{inputs.tag}}-community
-      version: ${{inputs.tag}}
 
   java_deployment:
     name: Java deployment
