@@ -3,7 +3,6 @@ package updater
 import (
 	"bytes"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -23,13 +22,8 @@ func GetVersion() (VersionFile, error) {
 	versionOnce.Do(func() {
 		if !utils.CheckIfPathExist(config.VersionFilePath) {
 			if config.ConnectedToInternet {
-				resp, status, errB := utils.DoReq[VersionDTO](config.GetCMServer()+config.GetLatestVersionEndpoint, nil, http.MethodGet, nil, nil)
-				if errB != nil || status != http.StatusOK {
-					err = fmt.Errorf("error getting latest version: status: %d, error: %v", status, err)
-					return
-				}
-				version.Version = resp.Version
-				version.Changelog = resp.Changelog
+				version.Version = config.INSTALLER_VERSION
+				version.Changelog = ""
 				version.Edition = "community"
 
 			} else {
