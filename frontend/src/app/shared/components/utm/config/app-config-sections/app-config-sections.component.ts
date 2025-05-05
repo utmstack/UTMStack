@@ -13,6 +13,7 @@ import {
 import {UtmConfigParamsService} from '../../../../services/config/utm-config-params.service';
 import {LocationService, SelectOption} from '../../../../services/location.service';
 import {NetworkService} from '../../../../services/network.service';
+import {VersionType, VersionTypeService} from '../../../../services/util/version-type.service';
 import {TimezoneFormatService} from '../../../../services/utm-timezone.service';
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../../types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../../../types/configuration/section-config.type';
@@ -46,6 +47,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   isLoading: { [key: string]: boolean } = {};
   destroy$ = new Subject<void>();
   isOnline = false;
+  ConfigDataTypeEnum = ConfigDataTypeEnum;
+
 
   constructor(private utmConfigParamsService: UtmConfigParamsService,
               private modalService: NgbModal,
@@ -278,7 +281,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
         return conf.confParamShort === 'utmstack.instance.contact_email' || conf.confParamShort === 'utmstack.instance.organization'
           || conf.confParamShort === 'utmstack.instance.country' || conf.confParamShort === 'utmstack.instance.data';
 
-    } else if (conf.section.id === this.sectionType.SYSTEM_LICENSE){
+    } else if (conf.section.id === this.sectionType.SYSTEM_LICENSE) {
         return !this.isOnline;
     }
 
@@ -302,5 +305,5 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  protected readonly ConfigDataTypeEnum = ConfigDataTypeEnum;
+  protected readonly VersionType = VersionType;
 }

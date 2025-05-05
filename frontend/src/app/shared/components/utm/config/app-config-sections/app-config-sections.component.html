@@ -186,7 +186,7 @@
         </ng-select>
       </ng-container>
 
-      <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron">
+      <ng-container *ngIf="conf.confParamDatatype === ConfigDataTypeEnum.Cron && versionType === VersionType.ENTERPRISE">
         <app-utm-cp-cron-editor [(ngModel)]="conf.confParamValue" (ngModelChange)="save(conf.confParamValue,conf)"></app-utm-cp-cron-editor>
       </ng-container>
 

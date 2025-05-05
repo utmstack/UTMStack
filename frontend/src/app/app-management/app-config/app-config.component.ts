@@ -5,6 +5,7 @@ import {takeUntil} from 'rxjs/operators';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {UtmConfigSectionService} from '../../shared/services/config/utm-config-section.service';
 import {NetworkService} from '../../shared/services/network.service';
+import {VersionType, VersionTypeService} from '../../shared/services/util/version-type.service';
 import {SectionConfigParamType} from '../../shared/types/configuration/section-config-param.type';
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../shared/types/configuration/section-config.type';
 
@@ -22,14 +23,17 @@ export class AppConfigComponent implements OnInit, OnDestroy {
   fragment: string | null;
   destroy$ = new Subject<void>();
   isOnline = false;
+  versionType: VersionType = this.versionTypeService.versionType();
 
   constructor(private utmConfigSectionService: UtmConfigSectionService,
               private route: ActivatedRoute,
               private toastService: UtmToastService,
-              private networkService: NetworkService) {
+              private networkService: NetworkService,
+              private versionTypeService: VersionTypeService) {
   }
 
   ngOnInit() {
+    console.log(this.versionType);
     this.route.queryParams.subscribe( params => {
       this.getSections(params.sections ? JSON.parse(params.sections) : []);
       this.fragment = params && params.id ? params.id : null;
@@ -66,13 +70,27 @@ export class AppConfigComponent implements OnInit, OnDestroy {
     });
   }
 
-  getActiveSection(){
-    if (this.isOnline) {
-      return this.sections.filter(section => section.id !== ApplicationConfigSectionEnum.SYSTEM_LICENSE);
-    } else {
-      return this.sections;
+  getActiveSection() {
+    console.log('getActiveSection', this.versionType);
+    let filteredSections = this.sections;
+
+    if (this.versionType === VersionType.COMMUNITY) {
+      filteredSections = filteredSections.filter(
+        section => section.id !== ApplicationConfigSectionEnum.INSTANCE_UPDATE_FREQUENCY
+      );
     }
+
+    if (this.isOnline) {
+      filteredSections = filteredSections.filter(
+        section => section.id !== ApplicationConfigSectionEnum.SYSTEM_LICENSE
+      );
+    }
+
+    console.log('getActiveSection', filteredSections);
+
+    return filteredSections;
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

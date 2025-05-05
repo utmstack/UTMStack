@@ -1,5 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
+import {UtmToastService} from '../../../../../../alert/utm-toast.service';
 import {CheckForUpdatesService} from '../../../../../../services/updates/check-for-updates.service';
+import {VersionType, VersionTypeService} from '../../../../../../services/util/version-type.service';
 import {VersionInfo} from '../../../../../../types/updates/updates.type';
 
 @Component({
@@ -7,23 +11,35 @@ import {VersionInfo} from '../../../../../../types/updates/updates.type';
   templateUrl: './utm-version-info.component.html',
   styleUrls: ['./utm-version-info.component.css']
 })
-export class UtmVersionInfoComponent implements OnInit, OnDestroy {
-  currentVersion: VersionInfo;
+export class UtmVersionInfoComponent implements OnInit {
+  currentVersion$: Observable<VersionInfo> = EMPTY;
+  destroy$ = new Subject<void>();
 
-  constructor(private checkForUpdatesService: CheckForUpdatesService) {
+  constructor(private checkForUpdatesService: CheckForUpdatesService,
+              private utmToastService: UtmToastService,
+              private versionTypeService: VersionTypeService) {
   }
 
   ngOnInit() {
     this.getVersionInfo();
   }
 
-  ngOnDestroy() {
-  }
-
   getVersionInfo() {
-    this.checkForUpdatesService.getVersion().subscribe(response => {
-      this.currentVersion = response.body;
-    });
-  }
+    this.currentVersion$ = this.checkForUpdatesService.getVersion()
+      .pipe(
+        map(response => response.body || null),
+        tap((versionInfo: VersionInfo) => {
+          const version = versionInfo && versionInfo.build && versionInfo.build.version || '';
+          const versionType = version.includes('community') ? VersionType.COMMUNITY : VersionType.ENTERPRISE;
 
+          if (versionType !== this.versionTypeService.versionType()){
+            this.versionTypeService.changeVersionType(versionType);
+          }
+        }),
+        catchError(() => {
+          this.utmToastService.showError('Error fetching version info', 'An error occurred while fetching version info.');
+          return EMPTY;
+        })
+      );
+  }
 }
