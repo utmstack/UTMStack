@@ -92,6 +92,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/o365; go build -o com.utmstack.o365.plugin -v .
           cd ${{ github.workspace }}/plugins/sophos; go build -o com.utmstack.sophos.plugin -v .
           cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
+          cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
       
       - name: Build & Push Event Processor Image
         run: |
