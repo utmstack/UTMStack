@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250506001" author="Manuel">
+        <sql>
+        <![CDATA[
+            INSERT INTO public.utm_configuration_section (
+                id,
+                section,
+                description,
+                short_name,
+                section_active
+            ) VALUES
+                (
+                    10,
+                    'Send Logs',
+                    'This section allows you to configure whether the application sends logs to an external log server.',
+                    'INSTANCE_ENABLE_SEND_LOGS',
+                    true
+                );
+
+            INSERT INTO public.utm_configuration_parameter (
+                id,
+                section_id,
+                conf_param_short,
+                conf_param_large,
+                conf_param_description,
+                conf_param_value,
+                conf_param_required,
+                conf_param_datatype,
+                modification_time,
+                modification_user,
+                conf_param_option,
+                conf_param_regexp)
+            VALUES
+                (38, 10, 'utmstack.intance.send.logs', 'Enable Send Logs', 'Enable or disable sending application logs to a remote server.', 'false', true, 'bool', null, null, null, null)
+            ]]>
+    </sql>
+    </changeSet>
+
+</databaseChangeLog>
