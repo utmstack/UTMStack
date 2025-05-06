@@ -1,17 +1,16 @@
 <div class="w-100 h-100">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h4 class="card-title mb-0 text-primary">
-      Installing filebeat in MacOS
+      Installing MacOS agent
     </h4>
   </div>
   <div class="card-body">
-    <div class="alert alert-warning alert-styled-right">
-      This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you
-      continue.
+    <div class="alert alert-info alert-styled-right">
+      This feature is part of a paid subscription. Please contact our support team to receive the appropriate installation dependencies.
     </div>
     <p class="font-size-base text-justify mb-3">
-      The Syslog daemon (syslog) on MacOS is configured using <strong>rsyslog</strong> through the /etc/syslog.conf configuration file.
-      Follow the steps below to send all Syslog messages from an MacOS machine to UTMStack.
+      The MacOS agent captures system and application logs and sends them to a UTMStack master server or probe/proxy, monitors system activity, and executes incident response commands.
+      The UTMStack agents communicate over ports 9000, 9001 and 50051. Please make sure these ports are open.
     </p>
     <ol class="setup_list">
       <app-utm-list [items]="steps">
@@ -22,27 +21,8 @@
               <div [innerHtml]="step.name"></div>
               <ng-container *ngIf="step.content">
 
-                <ng-template [ngIf]="step.content['commands']">
-                  <app-utm-list [items]="step.content['commands']">
-                    <ng-template stepTemplateRef let-command>
-                      <app-utm-code-view [code]=command></app-utm-code-view>
-                    </ng-template>
-                  </app-utm-list>
-                </ng-template>
-
-                <ng-template [ngIf]="step.content.id === 'stepContent6'">
-                  <app-agent-action-command
-                    [platforms]="platforms"
-                    [agent] = "dataType"
-                  ></app-agent-action-command>
-                </ng-template>
-
-                <ng-template [ngIf]="step.content.id === 'stepContent7'">
-                  <div  class="mt-3">
-                    <app-app-module-activate-button [module]="module.MACOS" [type]="'integration'"
-                                                    [serverId]="serverId">
-                    </app-app-module-activate-button>
-                  </div>
+                <ng-template [ngIf]="step.content.id === 'stepContent3'">
+                  <app-agent-install-selector [platforms]="architectures" [_selectedPlatform]="architectures[0]"></app-agent-install-selector>
                 </ng-template>
               </ng-container>
             </app-step>
