@@ -119,56 +119,138 @@
                 </th>
               </tr>
               </thead>
-              <tbody *ngIf="alerts && alerts.length>0">
-              <tr *ngFor="let alert of alerts" class="cursor-pointer">
-                <td class="text-center">
-                  <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
-                    <div class="list-icons">
-                      <i (click)="addToSelected(alert)"
-                         [ngClass]="isSelected(alert)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
-                         [ngbTooltip]="isSelected(alert)?'Remove from selected':'Add to selected'"
-                         class="cursor-pointer"
-                         container="body"
-                         placement="auto"></i>
-                      <i (click)="getRowToFiltersData(alert)"
-                         [ngbTooltip]="'Row to filter'"
-                         class="cursor-pointer icon-filter4 text-blue-800"
-                         container="body"
-                         placement="top"
-                         tooltipClass="utm-tooltip-top"></i>
-                      <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
-                                                *ngIf="dataType !== eventDataTypeEnum.INCIDENT"
-                                                [alert]="alert"
-                                                [eventType]="dataType"
-                                                [multiple]="false">
-                      </app-alert-apply-incident>
-                      <i (click)="openIncidentResponseAutomationModal(alert)"
-                         [ngbTooltip]="'Create incident response automation'"
-                         class="cursor-pointer icon-terminal text-blue-800"
-                         container="body"
-                         placement="top"
-                         tooltipClass="utm-tooltip-top"></i>
-                      <app-alert-apply-note (applyNote)="onApplyNote(alert, $event)" [alert]="alert"
-                                            class="mr-2"></app-alert-apply-note>
-                      <app-alert-tags-apply [alert]="alert"
-                                            [tags]="tags"
-                                            (applyTagsEvent)="getAlert();getTags()"
-                                            class="mr-2"></app-alert-tags-apply>
-                    </div>
+              <!--<tbody *ngIf="alerts && alerts.length>0">
+                <tr *ngFor="let alert of alerts" class="cursor-pointer">
+                  <td class="text-center">
+                    <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
+                      <div class="list-icons">
+                        <i (click)="addToSelected(alert)"
+                           [ngClass]="isSelected(alert)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                           [ngbTooltip]="isSelected(alert)?'Remove from selected':'Add to selected'"
+                           class="cursor-pointer"
+                           container="body"
+                           placement="auto"></i>
+                        <i (click)="getRowToFiltersData(alert)"
+                           [ngbTooltip]="'Row to filter'"
+                           class="cursor-pointer icon-filter4 text-blue-800"
+                           container="body"
+                           placement="top"
+                           tooltipClass="utm-tooltip-top"></i>
+                        <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
+                                                  *ngIf="dataType !== eventDataTypeEnum.INCIDENT"
+                                                  [alert]="alert"
+                                                  [eventType]="dataType"
+                                                  [multiple]="false">
+                        </app-alert-apply-incident>
+                        <i (click)="openIncidentResponseAutomationModal(alert)"
+                           [ngbTooltip]="'Create incident response automation'"
+                           class="cursor-pointer icon-terminal text-blue-800"
+                           container="body"
+                           placement="top"
+                           tooltipClass="utm-tooltip-top"></i>
+                        <app-alert-apply-note (applyNote)="onApplyNote(alert, $event)" [alert]="alert"
+                                              class="mr-2"></app-alert-apply-note>
+                        <app-alert-tags-apply [alert]="alert"
+                                              [tags]="tags"
+                                              (applyTagsEvent)="getAlert();getTags()"
+                                              class="mr-2"></app-alert-tags-apply>
+                      </div>
 
-                  </div>
-                </td>
-                <ng-container *ngFor="let td of fields">
-                  <td [ngClass]="{'min-width' : td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}" (click)="viewDetailAlert(alert,td)"
-                      *ngIf="(td.visible)">
-                    <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
-                                           [field]="td"
-                                           [dataType]="dataType"
-                                           [showStatusChange]="true"></app-data-field-render>
+                    </div>
                   </td>
+                  <ng-container *ngFor="let td of fields">
+                    <td [ngClass]="{'min-width' : td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}" (click)="viewDetailAlert(alert,td)"
+                        *ngIf="(td.visible)">
+                      <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
+                                             [field]="td"
+                                             [dataType]="dataType"
+                                             [showStatusChange]="true"></app-data-field-render>
+                    </td>
+                  </ng-container>
+                </tr>
+              </tbody>-->
+              <tbody *ngIf="alerts && alerts.length > 0">
+              <ng-container *ngFor="let alert of alerts">
+                <!-- Fila principal (sin parentId) -->
+                <ng-container *ngIf="!alert.parentId">
+                  <tr class="cursor-pointer">
+                    <td class="text-center">
+                      <div class="d-flex justify-content-between align-items-center h-100 w-100 small-md-icon">
+                        <div class="list-icons">
+                          <i *ngIf="alert.children?.length"
+                             (click)="alert.expanded = !alert.expanded"
+                             class="cursor-pointer mr-2"
+                             [ngClass]="alert.expanded ? 'icon-arrow-down32' : 'icon-arrow-right32'"
+                             [ngbTooltip]="alert.expanded ? 'Collapse' : 'Expand'"
+                             container="body"
+                             placement="top"></i>
+
+                          <i (click)="addToSelected(alert)"
+                             [ngClass]="isSelected(alert)?'icon-checkbox-checked':'icon-checkbox-unchecked'"
+                             [ngbTooltip]="isSelected(alert)?'Remove from selected':'Add to selected'"
+                             class="cursor-pointer"
+                             container="body"
+                             placement="auto"></i>
+                          <i (click)="getRowToFiltersData(alert)"
+                             [ngbTooltip]="'Row to filter'"
+                             class="cursor-pointer icon-filter4 text-blue-800"
+                             container="body"
+                             placement="top"
+                             tooltipClass="utm-tooltip-top"></i>
+                          <app-alert-apply-incident (markAsIncident)="onSuccessMarkAsIncident($event)"
+                                                    *ngIf="dataType !== eventDataTypeEnum.INCIDENT"
+                                                    [alert]="alert"
+                                                    [eventType]="dataType"
+                                                    [multiple]="false">
+                          </app-alert-apply-incident>
+                          <i (click)="openIncidentResponseAutomationModal(alert)"
+                             [ngbTooltip]="'Create incident response automation'"
+                             class="cursor-pointer icon-terminal text-blue-800"
+                             container="body"
+                             placement="top"
+                             tooltipClass="utm-tooltip-top"></i>
+                          <app-alert-apply-note (applyNote)="onApplyNote(alert, $event)" [alert]="alert"
+                                                class="mr-2"></app-alert-apply-note>
+                          <app-alert-tags-apply [alert]="alert"
+                                                [tags]="tags"
+                                                (applyTagsEvent)="getAlert();getTags()"
+                                                class="mr-2"></app-alert-tags-apply>
+                        </div>
+                      </div>
+                    </td>
+
+                    <ng-container *ngFor="let td of fields">
+                      <td [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}"
+                          (click)="viewDetailAlert(alert, td)" *ngIf="td.visible">
+                        <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
+                                               [field]="td"
+                                               [dataType]="dataType"
+                                               [showStatusChange]="true"></app-data-field-render>
+                      </td>
+                    </ng-container>
+                  </tr>
+
+                  <!-- Hijos -->
+                  <ng-container *ngIf="alert.expanded">
+                    <tr *ngFor="let child of getAlertById(alert.id)" class="bg-light">
+                      <td class="text-center">
+                        <!-- Espacio vacío o íconos secundarios -->
+                      </td>
+                      <ng-container *ngFor="let td of fields">
+                        <td [ngClass]="{'min-width': td.field === ALERT_ADVERSARY_FIELD || td.field === ALERT_TARGET_FIELD}"
+                            (click)="viewDetailAlert(child, td)" *ngIf="td.visible">
+                          <app-data-field-render (refreshData)="onRefreshData($event)" [data]="child"
+                                                 [field]="td"
+                                                 [dataType]="dataType"
+                                                 [showStatusChange]="true"></app-data-field-render>
+                        </td>
+                      </ng-container>
+                    </tr>
+                  </ng-container>
                 </ng-container>
-              </tr>
+              </ng-container>
               </tbody>
+
               <tbody *ngIf="(alerts && alerts.length===0)  && !loading">
               <tr>
                 <td [attr.colspan]="fields.length +1">

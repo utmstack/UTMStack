@@ -28,6 +28,9 @@ export class UtmAlertType {
   events?: any[];
   technique: string;
   impact?: { [key: string]: number };
+  parentId?: string;
+  children?: string[];
+  expanded: boolean;
 }
 
 export enum AlertStatusLabelEnum {

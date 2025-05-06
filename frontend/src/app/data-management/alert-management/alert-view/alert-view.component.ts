@@ -56,6 +56,7 @@ import {EventDataTypeEnum} from '../shared/enums/event-data-type.enum';
 import {AlertTagService} from '../shared/services/alert-tag.service';
 import {OPEN_ALERTS_KEY, OpenAlertsService} from '../shared/services/open-alerts.service';
 import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-function';
+import {alerts} from "../shared/data-mock";
 
 @Component({
   selector: 'app-alert-view',
@@ -109,6 +110,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   openAlerts = 0;
   ALERT_ADVERSARY_FIELD = ALERT_ADVERSARY_FIELD;
   ALERT_TARGET_FIELD = ALERT_TARGET_FIELD;
+
 
   constructor(private elasticDataService: ElasticDataService,
               private modalService: NgbModal,
@@ -315,8 +317,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       100000000, this.dataNature,
       sanitizeFilters(this.filters), this.sortBy).subscribe(
       (res: HttpResponse<any>) => {
-        this.totalItems = Number(res.headers.get('X-Total-Count'));
-        this.alerts = res.body;
+        // this.totalItems = Number(res.headers.get('X-Total-Count'));
+        // this.alerts = res.body;
+        this.alerts = alerts.filter(alert => !alert.parentId);
+        this.totalItems = this.alerts.length;
         this.loading = false;
         this.refreshingAlert = false;
       },
@@ -564,5 +568,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  getAlertById(parentId: string) {
+    console.log(alerts.filter(alert => alert.parentId === parentId));
+    return alerts.filter(alert => alert.parentId === parentId);
   }
 }
