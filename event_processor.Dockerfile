@@ -15,3 +15,4 @@ COPY ./plugins/inputs/com.utmstack.inputs.plugin /workdir/plugins/utmstack/
 COPY ./plugins/o365/com.utmstack.o365.plugin /workdir/plugins/utmstack/
 COPY ./plugins/sophos/com.utmstack.sophos.plugin /workdir/plugins/utmstack/
 COPY ./plugins/stats/com.utmstack.stats.plugin /workdir/plugins/utmstack/
+COPY ./plugins/soc-ai/com.utmstack.soc-ai.plugin /workdir/plugins/utmstack/
