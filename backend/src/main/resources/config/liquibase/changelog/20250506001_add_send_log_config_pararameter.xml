@@ -15,7 +15,7 @@
                 section_active
             ) VALUES
                 (
-                    10,
+                    9,
                     'Send Logs',
                     'This section allows you to configure whether the application sends logs to an external log server.',
                     'INSTANCE_ENABLE_SEND_LOGS',
@@ -36,7 +36,7 @@
                 conf_param_option,
                 conf_param_regexp)
             VALUES
-                (38, 10, 'utmstack.intance.send.logs', 'Enable Send Logs', 'Enable or disable sending application logs to a remote server.', 'false', true, 'bool', null, null, null, null)
+                (38, 9, 'utmstack.intance.send.logs', 'Enable Send Logs', 'Enable or disable sending application logs to a remote server.', 'false', true, 'bool', null, null, null, null)
             ]]>
     </sql>
     </changeSet>
