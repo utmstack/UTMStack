@@ -55,7 +55,7 @@ func StartModules() {
 			if index == -1 {
 				newModule := GetModule(intType)
 				if newModule == nil {
-					utils.Logger.ErrorF("error getting module %s", intType)
+					utils.Logger.LogF(100, "error getting module %s", intType)
 					continue
 				}
 				moCache = append(moCache, newModule)

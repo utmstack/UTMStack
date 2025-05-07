@@ -6,6 +6,8 @@ public class ModuleConfigurationKey {
     private String confName;
     private String confDescription;
     private String confDataType;
+    private String confOptions;
+
     private Boolean confRequired;
 
     private ModuleConfigurationKey() {
@@ -59,6 +61,14 @@ public class ModuleConfigurationKey {
         this.confRequired = confRequired;
     }
 
+    public String getConfOptions() {
+        return confOptions;
+    }
+
+    public void setConfOptions(String confOptions) {
+        this.confOptions = confOptions;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -70,6 +80,8 @@ public class ModuleConfigurationKey {
         private String confDescription;
         private String confDataType;
         private Boolean confRequired;
+
+        private String confOptions;
 
         public Builder withGroupId(Long groupId) {
             this.groupId = groupId;
@@ -101,6 +113,11 @@ public class ModuleConfigurationKey {
             return this;
         }
 
+        public Builder withConfOptions(String confOptions) {
+            this.confOptions = confOptions;
+            return this;
+        }
+
         public ModuleConfigurationKey build() {
             ModuleConfigurationKey key = new ModuleConfigurationKey();
             key.setGroupId(groupId);
@@ -109,6 +126,7 @@ public class ModuleConfigurationKey {
             key.setConfDescription(confDescription);
             key.setConfDataType(confDataType);
             key.setConfRequired(confRequired);
+            key.setConfOptions(confOptions);
             return key;
         }
     }

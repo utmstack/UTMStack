@@ -105,6 +105,13 @@
 
     <include file="/config/liquibase/changelog/20250407001_add_compliance_report.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250414001_updating_sophos_filter.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250414002_updating_gcp_filter.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250418001_add_options_module_group_config.xml" relativeToChangelogFile="false"/>
+
+
     <include file="/config/liquibase/changelog/20250411001_add_instance_licence_sections.xml" relativeToChangelogFile="false"/>
 
     <include file="/config/liquibase/changelog/20250418001_adding_oracle.xml" relativeToChangelogFile="false"/>

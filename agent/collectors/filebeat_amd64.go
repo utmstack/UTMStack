@@ -2,11 +2,9 @@ package collectors
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
 
-	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/parser"
@@ -106,25 +104,29 @@ func (f Filebeat) Install() error {
 	return nil
 }
 
-func (f Filebeat) SendSystemLogs() {
-	host, _ := os.Hostname()
-	logLinesChan := make(chan string)
+func (f Filebeat) SendLogs() {
+	logLinesChan := make(chan []string)
 	path := utils.GetMyPath()
 	filebLogPath := filepath.Join(path, "beats", "filebeat", "logs")
 
-	beatsParser := parser.GetParser("beats")
+	parser := parser.GetParser("beats")
 
-	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan)
-	for logLine := range logLinesChan {
-		message, _, err := validations.ValidateString(logLine, false)
-		if err != nil {
-			utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
-			continue
-		}
-		err = beatsParser.ProcessData(logLine, host, logservice.LogQueue)
+	go utils.WatchFolder("modulescollector", filebLogPath, logLinesChan, config.BatchCapacity)
+
+	for {
+		logLine := <-logLinesChan
+
+		beatsData, err := parser.ProcessData(logLine)
 		if err != nil {
 			utils.Logger.ErrorF("error processing beats data: %v", err)
 			continue
+		}
+
+		for typ, logB := range beatsData {
+			logservice.LogQueue <- logservice.LogPipe{
+				Src:  typ,
+				Logs: logB,
+			}
 		}
 	}
 }

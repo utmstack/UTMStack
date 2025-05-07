@@ -145,7 +145,7 @@ public class UtmAlertTagRuleService {
         final String ctx = CLASSNAME + ".automaticReview";
         try {
             // If no new alerts have been received, stop execution
-            if (alertUtil.countAlertsByStatus(AlertStatus.OPEN.getCode()) == 0)
+            if (alertUtil.countAlertsByStatus(AlertStatus.AUTOMATIC_REVIEW.getCode()) == 0)
                 return;
 
             // Getting all registered rules

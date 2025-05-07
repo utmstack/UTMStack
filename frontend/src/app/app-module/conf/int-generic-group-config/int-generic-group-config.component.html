@@ -100,9 +100,24 @@
       </span>
           </label>
 
+          <ng-select *ngIf="integrationConfig.confDataType === 'select'"
+                     #options="ngModel"
+                     [items]="integrationConfig.confOptions"
+                     bindLabel="label"
+                     bindValue="value"
+                     [searchable]="true"
+                     [multiple]="false"
+                     [clearable]="false"
+                     [virtualScroll]="true"
+                     [(ngModel)]="integrationConfig.confValue"
+                     [ngClass]="{'is-invalid': options.invalid,
+              'is-valid': options.valid}">
+          </ng-select>
+
           <input (input)="addChange(integrationConfig)"
                  *ngIf="integrationConfig.confDataType !== 'bool'
                  && integrationConfig.confDataType !== 'list'
+                 && integrationConfig.confDataType !== 'select'
                  && integrationConfig.confDataType !== 'file'"
                  [(ngModel)]="integrationConfig.confValue"
                  [attr.autocomplete]="'disabled'"

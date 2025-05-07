@@ -161,11 +161,6 @@ jobs:
         run: |
           sudo ./installer
 
-      - name: Open ports
-        working-directory: /home/utmstack
-        run: |
-          sudo docker service update --publish-add 9200:9200 utmstack_node1 & docker service update --publish-add 5432:5432 utmstack_postgres
-
   deploy_qa:
     name: Deploy to v10-qa environment 
     needs: [build_agent, runner_release, setup_deployment]
@@ -225,5 +220,3 @@ jobs:
         working-directory: /home/utmstack
         run: |
           sudo ./installer
-
-
