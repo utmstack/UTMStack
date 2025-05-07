@@ -42,13 +42,15 @@ export class GuideMacosAgentComponent implements OnInit {
   getCommandARM(installerName: string): string {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
-    return `sudo bash -c "./${installerName} ${ip} <secret>${this.token}</secret> yes"`;
+    return `sudo bash -c "/opt/utmstack/${installerName} ${ip} <secret>${this.token}</secret> yes"`;
   }
 
 
   getUninstallCommand(installerName: string): string {
-    return `sudo bash -c "./utmstack_agent_service uninstall"`;
+    // tslint:disable-next-line:max-line-length
+    return `sudo bash -c "/opt/utmstack/${installerName} uninstall; launchctl bootout system /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null; rm /Library/LaunchDaemons/UTMStackAgent.plist; rm -rf /opt/utmstack"`;
   }
+
 
   private loadArchitectures() {
     this.architectures = [

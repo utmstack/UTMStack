@@ -1,4 +1,4 @@
-name: Installer Release
+name: Installer Release v10
 
 on:
   release:

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/utmstack/soc-ai/configurations"
@@ -67,140 +68,196 @@ func ChangeAlertStatus(id string, status int, observations string) error {
 	return nil
 }
 
-type AlertCorrelation struct {
-	CurrentAlert    schema.Alert
-	RelatedAlerts   []schema.Alert
-	Classifications []string
+type AlertCounts struct {
+	Incidents     int
+	FalsePositive int
+	Standard      int
+	Unclassified  int
 }
 
-func GetRelatedAlerts() ([]schema.GPTAlertResponse, error) {
-	result, err := ElasticSearch(configurations.ALERT_INDEX_PATTERN, "*", "*")
+type MatchTypeCounts struct {
+	SourceIP        AlertCounts
+	DestinationIP   AlertCounts
+	SourceUser      AlertCounts
+	DestinationUser AlertCounts
+}
+
+type AlertCorrelation struct {
+	CurrentAlert  schema.Alert
+	RelatedAlerts []schema.Alert
+	Counts        MatchTypeCounts
+}
+
+func GetRelatedAlerts(alertName string) ([]schema.Alert, error) {
+	result, err := ElasticSearch(configurations.ALERT_INDEX_PATTERN, "name", alertName)
 	if err != nil {
 		return nil, fmt.Errorf("error getting historical alerts: %v", err)
 	}
 
-	var alerts []schema.GPTAlertResponse
-	err = json.Unmarshal(result, &alerts)
-	if err != nil {
+	var alerts []schema.Alert
+	if err := json.Unmarshal(result, &alerts); err != nil {
 		return nil, fmt.Errorf("error unmarshalling alerts: %v", err)
 	}
 
 	return alerts, nil
 }
 
-func FindRelatedAlerts(currentAlert schema.Alert) (*AlertCorrelation, error) {
-	correlation := &AlertCorrelation{
-		CurrentAlert:    currentAlert,
-		RelatedAlerts:   []schema.Alert{},
-		Classifications: []string{},
-	}
-
-	historicalResponses, err := GetRelatedAlerts()
+func FindRelatedAlerts(current schema.Alert) (*AlertCorrelation, error) {
+	alerts, err := GetRelatedAlerts(current.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	var alertIDs []string
-	for _, resp := range historicalResponses {
-		alertIDs = append(alertIDs, resp.ActivityID)
-	}
-
-	for _, id := range alertIDs {
-		alert, err := GetAlertsInfo(id)
-		if err != nil {
+	corr := &AlertCorrelation{CurrentAlert: current}
+	for _, hist := range alerts {
+		if hist.ID == current.ID {
 			continue
 		}
-
-		if isAlertRelated(currentAlert, alert) {
-			correlation.RelatedAlerts = append(correlation.RelatedAlerts, alert)
-
-			for _, resp := range historicalResponses {
-				if resp.ActivityID == alert.ID {
-					correlation.Classifications = append(correlation.Classifications, resp.Classification)
-					break
-				}
+		if related, matches := isAlertRelated(current, hist); related {
+			classif := getAlertClassification(hist)
+			for _, m := range matches {
+				incrementCount(&corr.Counts, m, classif)
 			}
+			corr.RelatedAlerts = append(corr.RelatedAlerts, hist)
 		}
 	}
-
-	return correlation, nil
+	return corr, nil
 }
 
-func isAlertRelated(current, historical schema.Alert) bool {
-	if current.Destination.IP != "" && current.Destination.IP == historical.Destination.IP {
-		return true
+func isAlertRelated(current, historical schema.Alert) (bool, []string) {
+	if current.ID == historical.ID || current.Name != historical.Name {
+		return false, nil
 	}
-	if current.Destination.Port != 0 && current.Destination.Port == historical.Destination.Port {
-		return true
-	}
-	if current.Destination.Host != "" && current.Destination.Host == historical.Destination.Host {
-		return true
-	}
-	if current.Destination.User != "" && current.Destination.User == historical.Destination.User {
-		return true
-	}
+
+	var matches []string
 
 	if current.Source.IP != "" && current.Source.IP == historical.Source.IP {
-		return true
+		matches = append(matches, "SourceIP")
 	}
-	if current.Source.Port != 0 && current.Source.Port == historical.Source.Port {
-		return true
-	}
-	if current.Source.Host != "" && current.Source.Host == historical.Source.Host {
-		return true
+	if current.Destination.IP != "" && current.Destination.IP == historical.Destination.IP {
+		matches = append(matches, "DestinationIP")
 	}
 	if current.Source.User != "" && current.Source.User == historical.Source.User {
-		return true
+		matches = append(matches, "SourceUser")
+	}
+	if current.Destination.User != "" && current.Destination.User == historical.Destination.User {
+		matches = append(matches, "DestinationUser")
 	}
 
-	return false
+	sort.Strings(matches)
+	return len(matches) > 0, matches
 }
 
-func BuildCorrelationContext(correlation *AlertCorrelation) string {
-	var context strings.Builder
+func getAlertClassification(alert schema.Alert) string {
+	if len(alert.Tags) == 0 {
+		return "Unclassified alert"
+	}
+	switch strings.ToLower(alert.Tags[0]) {
+	case "possible incident":
+		return "Possible incident"
+	case "false positive":
+		return "False positive"
+	case "standard alert":
+		return "Standard alert"
+	default:
+		return "Unclassified alert"
+	}
+}
 
-	context.WriteString("\nHistorical Context:\n")
-	context.WriteString(fmt.Sprintf("Found %d related alerts with similar characteristics:\n", len(correlation.RelatedAlerts)))
+func incrementCount(cnts *MatchTypeCounts, matchType, classif string) {
+	var ac *AlertCounts
 
-	for i, alert := range correlation.RelatedAlerts {
-		context.WriteString(fmt.Sprintf("\nRelated Alert %d:\n", i+1))
-		context.WriteString(fmt.Sprintf("- Name: %s\n", alert.Name))
-		context.WriteString(fmt.Sprintf("- Severity: %s\n", alert.SeverityLabel))
-		context.WriteString(fmt.Sprintf("- Category: %s\n", alert.Category))
-		context.WriteString(fmt.Sprintf("- Classification: %s\n", correlation.Classifications[i]))
-		context.WriteString(fmt.Sprintf("- Time: %s\n", alert.Timestamp))
+	switch matchType {
+	case "SourceIP":
+		ac = &cnts.SourceIP
+	case "DestinationIP":
+		ac = &cnts.DestinationIP
+	case "SourceUser":
+		ac = &cnts.SourceUser
+	case "DestinationUser":
+		ac = &cnts.DestinationUser
+	}
+	switch classif {
+	case "Possible incident":
+		ac.Incidents++
+	case "False positive":
+		ac.FalsePositive++
+	case "Standard Alert":
+		ac.Standard++
+	default:
+		ac.Unclassified++
+	}
+}
 
-		if alert.Source.IP != "" {
-			context.WriteString(fmt.Sprintf("- Source IP: %s\n", alert.Source.IP))
-		}
-		if alert.Destination.IP != "" {
-			context.WriteString(fmt.Sprintf("- Destination IP: %s\n", alert.Destination.IP))
-		}
-		if alert.Source.Host != "" {
-			context.WriteString(fmt.Sprintf("- Source Host: %s\n", alert.Source.Host))
-		}
-		if alert.Destination.Host != "" {
-			context.WriteString(fmt.Sprintf("- Destination Host: %s\n", alert.Destination.Host))
-		}
-		if alert.Source.User != "" {
-			context.WriteString(fmt.Sprintf("- Source User: %s\n", alert.Source.User))
-		}
-		if alert.Destination.User != "" {
-			context.WriteString(fmt.Sprintf("- Destination User: %s\n", alert.Destination.User))
-		}
-		if alert.Source.Port != 0 {
-			context.WriteString(fmt.Sprintf("- Source Port: %d\n", alert.Source.Port))
-		}
-		if alert.Destination.Port != 0 {
-			context.WriteString(fmt.Sprintf("- Destination Port: %d\n", alert.Destination.Port))
-		}
-		if alert.Protocol != "" {
-			context.WriteString(fmt.Sprintf("- Protocol: %s\n", alert.Protocol))
-		}
-		if alert.Severity != 0 {
-			context.WriteString(fmt.Sprintf("- Severity: %d\n", alert.Severity))
+func BuildCorrelationContext(corr *AlertCorrelation) string {
+	if corr == nil || len(corr.RelatedAlerts) == 0 {
+		return "No related alerts exist"
+	}
+	// Group alerts by matches and classifications
+	// Example: "SourceIP+DestinationIP" -> { "Possible incident": 2, "False positive": 1 }
+	groups := make(map[string]map[string]int)
+	for _, alert := range corr.RelatedAlerts {
+		if rel, mts := isAlertRelated(corr.CurrentAlert, alert); rel {
+			key := strings.Join(mts, "+")
+			if _, ok := groups[key]; !ok {
+				groups[key] = make(map[string]int)
+			}
+			classif := getAlertClassification(alert)
+			groups[key][classif]++
 		}
 	}
+	// Ordered summary
+	var sb strings.Builder
+	total := len(corr.RelatedAlerts)
+	sb.WriteString("\nHistorical Context: ")
+	sb.WriteString(fmt.Sprintf("In the past, there are %d alerts with the same name", total))
 
-	return context.String()
+	// Ordered keys
+	keys := make([]string, 0, len(groups))
+	for k := range groups {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		sub := groups[k]
+		// Count total for this group
+		n := 0
+		for _, v := range sub {
+			n += v
+		}
+		sb.WriteString(fmt.Sprintf("\n- %d match the same %s", n, translateMatchTypes(strings.Split(k, "+"))))
+		if n > 0 {
+			sb.WriteString(" and of these " + formatClassifications(sub))
+		}
+	}
+	return sb.String()
+}
+
+func translateMatchTypes(types []string) string {
+	sort.Strings(types)
+	var out []string
+
+	for _, t := range types {
+		switch t {
+		case "SourceIP":
+			out = append(out, "Source IP")
+		case "DestinationIP":
+			out = append(out, "Destination IP")
+		case "SourceUser":
+			out = append(out, "Source User")
+		case "DestinationUser":
+			out = append(out, "Destination User")
+		}
+	}
+	return strings.Join(out, " and ")
+}
+
+func formatClassifications(m map[string]int) string {
+	parts := make([]string, 0, len(m))
+	for classif, cnt := range m {
+		parts = append(parts, fmt.Sprintf("%d were classified as %s", cnt, classif))
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, ", ")
 }

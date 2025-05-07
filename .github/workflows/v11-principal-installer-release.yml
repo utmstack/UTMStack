@@ -1,0 +1,46 @@
+name: Installer Release V11
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Version to deploy."
+        required: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Check out code into the right branch
+      uses: actions/checkout@v4
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: ^1.20 
+      id: go
+
+    - name: Build
+      env:
+        GOOS: linux
+        GOARCH: amd64
+      run: |       
+        cd "${{ github.workspace }}/installer/config"
+        sed -i 's|const INSTALLER_VERSION = ""|const INSTALLER_VERSION = "${{ secrets.AGENT_SECRET_PREFIX }}"|' const.go
+        cd "${{ github.workspace }}/installer"
+        go build -o installer -v .
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.inputs.version_tag }}
+        name: ${{ github.event.inputs.version_tag }}
+        body_path: ./CHANGELOG.md
+        draft: false
+        prerelease: false
+        files: |
+          ./installer/installer

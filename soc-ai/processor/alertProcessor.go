@@ -10,11 +10,14 @@ import (
 
 func (p *Processor) processAlertsInfo() {
 	for alert := range p.AlertInfoQueue {
+		utils.Logger.Info("Processing alert info for ID: %s", alert.AlertID)
+
 		alertInfo, err := elastic.GetAlertsInfo(alert.AlertID)
 		if err != nil {
 			p.RegisterError(fmt.Sprintf("error while getting alert %s info: %v", alert.AlertID, err), alert.AlertID)
 			continue
 		}
+		utils.Logger.Info("Alert info retrieved successfully for ID: %s", alert.AlertID)
 
 		correlation, err := elastic.FindRelatedAlerts(alertInfo)
 		if err != nil {

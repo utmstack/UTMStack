@@ -125,7 +125,7 @@ jobs:
       fail-fast: false
       matrix: 
         service: ['aws', 'backend', 'correlation', 'frontend', 'bitdefender', 'mutate', 'office365', 'log-auth-proxy', 'soc-ai', 'sophos', 'user-auditor', 'web-pdf'] 
-    uses: ./.github/workflows/used-runner.yml
+    uses: ./.github/workflows/v10-used-runner.yml
     with:
       microservice: ${{ matrix.service }}
       environment: ${{ needs.setup_deployment.outputs.tag }}
@@ -160,11 +160,6 @@ jobs:
         working-directory: /home/utmstack
         run: |
           sudo ./installer
-
-      - name: Open ports
-        working-directory: /home/utmstack
-        run: |
-          sudo docker service update --publish-add 9200:9200 utmstack_node1 & docker service update --publish-add 5432:5432 utmstack_postgres
 
   deploy_qa:
     name: Deploy to v10-qa environment 
@@ -225,5 +220,3 @@ jobs:
         working-directory: /home/utmstack
         run: |
           sudo ./installer
-
-
