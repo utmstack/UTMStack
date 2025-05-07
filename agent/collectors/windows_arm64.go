@@ -209,7 +209,7 @@ func getCollectorsInstances() []Collector {
 	return collectors
 }
 
-func (w Windows) SendSystemLogs() {
+func (w Windows) SendLogs() {
 	errorsChan := make(chan error, 10)
 
 	callback := func(event *Event) {
