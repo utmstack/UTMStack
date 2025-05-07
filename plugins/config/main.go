@@ -2,10 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -29,31 +29,80 @@ type Asset plugins.Asset
 
 type Rule struct {
 	Id            int64           `yaml:"id"`
-	DataTypes     []string        `yaml:"dataTypes"`
+	DataTypes     []string        `yaml:"dataTypes,omitempty"`
 	Name          string          `yaml:"name"`
-	Impact        plugins.Impact  `yaml:"impact"`
+	Impact        *plugins.Impact `yaml:"impact,omitempty"`
 	Category      string          `yaml:"category"`
 	Technique     string          `yaml:"technique"`
 	Adversary     string          `yaml:"adversary"`
-	References    []string        `yaml:"references"`
+	References    []string        `yaml:"references,omitempty"`
 	Description   string          `yaml:"description"`
-	Where         plugins.Where   `yaml:"where"`
-	AfterEvents   []SearchRequest `yaml:"afterEvents"`
-	DeduplicateBy []string        `yaml:"deduplicateBy"`
+	Where         *plugins.Where  `yaml:"where,omitempty"`
+	AfterEvents   []SearchRequest `yaml:"afterEvents,omitempty"`
+	DeduplicateBy []string        `yaml:"deduplicateBy,omitempty"`
 }
 
 type SearchRequest struct {
 	IndexPattern string          `yaml:"indexPattern"`
-	With         []Expression    `yaml:"with"`
-	Or           []SearchRequest `yaml:"or"`
+	With         []Expression    `yaml:"with,omitempty"`
+	Or           []SearchRequest `yaml:"or,omitempty"`
 	Within       string          `yaml:"within"`
 	Count        int64           `yaml:"count"`
+}
+
+type SearchRequestBackend struct {
+	IndexPattern string                 `yaml:"indexPattern"`
+	With         []ExpressionBackend    `yaml:"with,omitempty"`
+	Or           []SearchRequestBackend `yaml:"or,omitempty"`
+	Within       string                 `yaml:"within"`
+	Count        int64                  `yaml:"count"`
 }
 
 type Expression struct {
 	Field    string      `yaml:"field"`
 	Operator string      `yaml:"operator"` // possible values: "eq", "neq"
 	Value    interface{} `yaml:"value"`
+}
+
+type ExpressionBackend struct {
+	Field    string      `yaml:"field"`
+	Operator Operator    `yaml:"operator"` // possible values: "eq", "neq"
+	Value    interface{} `yaml:"value"`
+}
+
+type Operator struct {
+	Label string `yaml:"label"`
+	Value string `yaml:"value"`
+}
+
+func (b *ExpressionBackend) ToExpression() Expression {
+	return Expression{
+		Field:    b.Field,
+		Operator: b.Operator.Value,
+		Value:    b.Value,
+	}
+}
+
+func (b *SearchRequestBackend) ToSearchRequest() SearchRequest {
+	// Convert With field: convert each ExpressionBackend to Expression
+	with := make([]Expression, 0, len(b.With))
+	for _, expr := range b.With {
+		with = append(with, expr.ToExpression())
+	}
+
+	// Convert Or field: recursively convert each SearchRequestBackend to SearchRequest
+	or := make([]SearchRequest, 0, len(b.Or))
+	for _, req := range b.Or {
+		or = append(or, req.ToSearchRequest())
+	}
+
+	return SearchRequest{
+		IndexPattern: b.IndexPattern,
+		With:         with,
+		Or:           or,
+		Within:       b.Within,
+		Count:        b.Count,
+	}
 }
 
 func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
@@ -68,54 +117,98 @@ func (t *Tenant) FromVar(disabledRules []int64, assets []Asset) {
 	}
 }
 
-func (a *Asset) FromVar(name any, hostnames any, ips any, confidentiality, integrity, availability any) {
+func (a *Asset) FromVar(name any, hostnames any, ipAddresses any, confidentiality, integrity, availability any) {
+	var hostnamesList []string
+
+	if hostnames != nil {
+		hostnamesStr := utils.CastString(hostnames)
+		err := json.Unmarshal([]byte(hostnamesStr), &hostnamesList)
+		if err != nil {
+			_ = catcher.Error("failed to unmarshal hostnames list", err, map[string]any{})
+			return
+		}
+	}
+
+	var ipAddressesList []string
+
+	if ipAddresses != nil {
+		ipAddressesStr := utils.CastString(ipAddresses)
+		err := json.Unmarshal([]byte(ipAddressesStr), &ipAddressesList)
+		if err != nil {
+			_ = catcher.Error("failed to unmarshal ip addresses list", err, map[string]any{})
+			return
+		}
+	}
+
 	a.Name = utils.CastString(name)
-
-	hostnamesStr := utils.CastString(hostnames)
-	hostnamesStr = strings.ReplaceAll(hostnamesStr, "[", "")
-	hostnamesStr = strings.ReplaceAll(hostnamesStr, "]", "")
-	hostnamesStr = strings.ReplaceAll(hostnamesStr, ",", "")
-	hostnamesStr = strings.ReplaceAll(hostnamesStr, "\"", "")
-
-	for _, hostname := range strings.Fields(hostnamesStr) {
-		a.Hostnames = append(a.Hostnames, utils.CastString(hostname))
-	}
-
-	ipsStr := utils.CastString(ips)
-	ipsStr = strings.ReplaceAll(ipsStr, "[", "")
-	ipsStr = strings.ReplaceAll(ipsStr, "]", "")
-	ipsStr = strings.ReplaceAll(ipsStr, ",", "")
-	ipsStr = strings.ReplaceAll(ipsStr, "\"", "")
-
-	for _, ip := range strings.Fields(ipsStr) {
-		a.Ips = append(a.Ips, utils.CastString(ip))
-	}
-
 	a.Confidentiality = int32(utils.CastInt64(confidentiality))
 	a.Integrity = int32(utils.CastInt64(integrity))
 	a.Availability = int32(utils.CastInt64(availability))
+	a.Hostnames = hostnamesList
+	a.Ips = ipAddressesList
 }
 
-func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity any,
+func (r *Rule) FromVar(id int64, dataTypes []string, ruleName any, confidentiality any, integrity any,
 	availability any, category any, technique any, description any,
-	references any, where any, dataTypes any, adversary any) {
+	references any, where any, adversary any, deduplicate any, after any) {
 
-	referencesStr := utils.CastString(references)
-	referencesStr = strings.ReplaceAll(referencesStr, "[", "")
-	referencesStr = strings.ReplaceAll(referencesStr, "]", "")
-	referencesStr = strings.ReplaceAll(referencesStr, ",", "")
-	referencesStr = strings.ReplaceAll(referencesStr, "\"", "")
-	referencesList := strings.Fields(referencesStr)
+	var referencesList []string
 
-	dataTypesStr := utils.CastString(dataTypes)
-	dataTypesStr = strings.ReplaceAll(dataTypesStr, "[", "")
-	dataTypesStr = strings.ReplaceAll(dataTypesStr, "]", "")
-	dataTypesStr = strings.ReplaceAll(dataTypesStr, ",", "")
-	dataTypesStr = strings.ReplaceAll(dataTypesStr, "\"", "")
-	dataTypesList := strings.Fields(dataTypesStr)
+	if references != nil {
+		referencesStr := utils.CastString(references)
+		err := json.Unmarshal([]byte(referencesStr), &referencesList)
+		if err != nil {
+			_ = catcher.Error("failed to unmarshal references list", err, map[string]any{})
+			return
+		}
+	}
+
+	var deduplicateList []string
+
+	if deduplicate != nil {
+		deduplicateStr := utils.CastString(deduplicate)
+		err := json.Unmarshal([]byte(deduplicateStr), &deduplicateList)
+		if err != nil {
+			_ = catcher.Error("failed to unmarshal deduplicate list", err, map[string]any{})
+			return
+		}
+	}
+
+	var afterObj []SearchRequest
+
+	if after != nil {
+		var afterBackendObj []SearchRequestBackend
+		afterStr := utils.CastString(after)
+		err := json.Unmarshal([]byte(afterStr), &afterBackendObj)
+		if err != nil {
+			_ = catcher.Error("failed to unmarshal after list", err, map[string]any{})
+			return
+		}
+
+		// Convert each SearchRequestBackend to SearchRequest
+		for _, req := range afterBackendObj {
+			afterObj = append(afterObj, req.ToSearchRequest())
+		}
+	}
+
+	whereStr := utils.CastString(where)
+
+	whereObj := plugins.Where{
+		Expression: gjson.Get(whereStr, "ruleExpression").String(),
+	}
+
+	for _, variable := range gjson.Get(whereStr, "ruleVariables").Array() {
+		whereObj.Variables = append(whereObj.Variables, &plugins.Variable{
+			Get:    gjson.Get(variable.String(), "get").String(),
+			As:     gjson.Get(variable.String(), "as").String(),
+			OfType: gjson.Get(variable.String(), "ofType").String(),
+		})
+	}
+
+	r.Impact = new(plugins.Impact)
 
 	r.Id = id
-	r.DataTypes = make([]string, len(dataTypesList))
+	r.DataTypes = dataTypes
 	r.Name = utils.CastString(ruleName)
 	r.Impact.Confidentiality = int32(utils.CastInt64(confidentiality))
 	r.Impact.Integrity = int32(utils.CastInt64(integrity))
@@ -125,30 +218,10 @@ func (r *Rule) FromVar(id int64, ruleName any, confidentiality any, integrity an
 	r.References = make([]string, len(referencesList))
 	r.Description = utils.CastString(description)
 	r.Adversary = utils.CastString(adversary)
-
-	for i, dataType := range dataTypesList {
-		r.DataTypes[i] = utils.CastString(dataType)
-	}
-
-	for i, reference := range referencesList {
-		r.References[i] = utils.CastString(reference)
-	}
-
-	w := utils.CastString(where)
-
-	whereObj := plugins.Where{
-		Expression: gjson.Get(w, "ruleExpression").String(),
-	}
-
-	for _, variable := range gjson.Get(w, "ruleVariables").Array() {
-		whereObj.Variables = append(whereObj.Variables, &plugins.Variable{
-			Get:    gjson.Get(variable.String(), "get").String(),
-			As:     gjson.Get(variable.String(), "as").String(),
-			OfType: gjson.Get(variable.String(), "ofType").String(),
-		})
-	}
-
-	r.Where = whereObj
+	r.DeduplicateBy = deduplicateList
+	r.AfterEvents = afterObj
+	r.References = referencesList
+	r.Where = &whereObj
 }
 
 func (f *Filter) FromVar(id int, name any, filter any) {
@@ -362,7 +435,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 }
 
 func getRules(db *sql.DB) ([]Rule, error) {
-	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary FROM utm_correlation_rules WHERE rule_active = true")
+	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary,rule_deduplicate_by_def,rule_after_events_def FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get rules: %v", err)
 	}
@@ -384,10 +457,12 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			references      any
 			where           any
 			adversary       any
+			deduplicate     any
+			after           any
 		)
 
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
-			&category, &technique, &description, &references, &where, &adversary)
+			&category, &technique, &description, &references, &where, &adversary, &deduplicate, &after)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
@@ -399,7 +474,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 			return nil, err
 		}
 
-		rule.FromVar(id, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, dataTypes, adversary)
+		rule.FromVar(id, dataTypes, ruleName, confidentiality, integrity, availability, category, technique, description, references, where, adversary, deduplicate, after)
 
 		rules = append(rules, rule)
 	}
@@ -407,7 +482,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 	return rules, nil
 }
 
-func getRuleDataTypes(db *sql.DB, ruleId int64) ([]any, error) {
+func getRuleDataTypes(db *sql.DB, ruleId int64) ([]string, error) {
 	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type WHERE rule_id = $1", ruleId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get data types: %v", err)
@@ -415,7 +490,7 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]any, error) {
 
 	defer func() { _ = rows.Close() }()
 
-	dataTypes := make([]any, 0, 10)
+	dataTypes := make([]string, 0, 10)
 
 	for rows.Next() {
 		var (
@@ -435,7 +510,7 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]any, error) {
 			return nil, fmt.Errorf("failed to scan row: %v", err)
 		}
 
-		dataTypes = append(dataTypes, dataType)
+		dataTypes = append(dataTypes, utils.CastString(dataType))
 	}
 
 	return dataTypes, nil
