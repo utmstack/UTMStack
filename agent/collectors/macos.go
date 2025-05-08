@@ -5,6 +5,7 @@ package collectors
 
 import (
 	"bufio"
+	"os"
 	"os/exec"
 	"path/filepath"
 
@@ -29,6 +30,11 @@ func getCollectorsInstances() []Collector {
 func (d Darwin) SendLogs() {
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "utmstack-collector-mac")
+	host, err := os.Hostname()
+	if err != nil {
+		utils.Logger.ErrorF("error getting hostname: %v", err)
+		host = "unknown"
+	}
 
 	cmd := exec.Command(collectorPath)
 
@@ -62,9 +68,11 @@ func (d Darwin) SendLogs() {
 				continue
 			}
 
+			messageWithHost := config.GetMessageFormated(host, validatedLog)
+
 			logservice.LogQueue <- logservice.LogPipe{
 				Src:  string(config.DataTypeMacOs),
-				Logs: []string{validatedLog},
+				Logs: []string{messageWithHost},
 			}
 		}
 
