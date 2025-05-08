@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   // SERVER_API_URL: 'https://192.168.1.18/',
-  SERVER_API_URL: 'http://localhost:8080/',
+  SERVER_API_URL: 'https://192.168.1.22/',
   SERVER_API_CONTEXT: '',
   SESSION_AUTH_TOKEN: window.location.host.split(':')[0].toLocaleUpperCase(),
   WEBSOCKET_URL: '//localhost:8080',
