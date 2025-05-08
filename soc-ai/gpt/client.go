@@ -39,6 +39,14 @@ func (c *GPTClient) Request(alert schema.AlertGPTDetails) (string, error) {
 	if alert.Logs == "" || alert.Logs == " " {
 		content += content + ". " + configurations.GPT_FALSE_POSITIVE
 	}
+
+	if alert.Logs != "" && alert.Logs != " " {
+		logs := strings.Split(alert.Logs, configurations.LOGS_SEPARATOR)
+		if len(logs) > 0 {
+			alert.Logs = logs[len(logs)-1]
+		}
+	}
+
 	jsonContent, err := json.Marshal(alert)
 	if err != nil {
 		return "", fmt.Errorf("error marshalling alert: %v", err)

@@ -18,7 +18,7 @@ func PullLogs(startTime time.Time, endTime time.Time, group types.ModuleGroup) *
 		return err
 	}
 
-	err = SendToCorrelation(logs)
+	err = SendToLogstash(logs)
 	if err != nil {
 		return err
 	}

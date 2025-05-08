@@ -234,19 +234,20 @@ func BuildCorrelationContext(corr *AlertCorrelation) string {
 	return sb.String()
 }
 
-var matchTypeNames = map[string]string{
-	"SourceIP":        "Source IP",
-	"DestinationIP":   "Destination IP",
-	"SourceUser":      "Source User",
-	"DestinationUser": "Destination User",
-}
-
 func translateMatchTypes(types []string) string {
 	sort.Strings(types)
 	var out []string
+
 	for _, t := range types {
-		if name, ok := matchTypeNames[t]; ok {
-			out = append(out, name)
+		switch t {
+		case "SourceIP":
+			out = append(out, "Source IP")
+		case "DestinationIP":
+			out = append(out, "Destination IP")
+		case "SourceUser":
+			out = append(out, "Source User")
+		case "DestinationUser":
+			out = append(out, "Destination User")
 		}
 	}
 	return strings.Join(out, " and ")
