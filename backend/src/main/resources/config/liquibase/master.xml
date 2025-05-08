@@ -93,9 +93,9 @@
 
     <include file="/config/liquibase/changelog/20250507001_add_aws_pipeline.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20250507002_add_sophos_central_pipeline.xml" relativeToChangelogFile="false"/>
+    <!--<include file="/config/liquibase/changelog/20250507002_add_sophos_central_pipeline.xml" relativeToChangelogFile="false"/>
 
-    <include file="/config/liquibase/changelog/20250507003_add_o365_pipeline.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20250507003_add_o365_pipeline.xml" relativeToChangelogFile="false"/>-->
 
 
 </databaseChangeLog>
