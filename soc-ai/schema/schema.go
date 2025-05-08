@@ -102,7 +102,7 @@ type AlertDetails []Alert
 type Alert struct {
 	ID                string         `json:"id"`
 	Severity          int            `json:"severity"`
-	TagRulesApplied   string         `json:"TagRulesApplied,omitempty"`
+	TagRulesApplied   []string       `json:"TagRulesApplied,omitempty"`
 	SeverityLabel     string         `json:"severityLabel"`
 	Notes             string         `json:"notes"`
 	DataType          string         `json:"dataType"`

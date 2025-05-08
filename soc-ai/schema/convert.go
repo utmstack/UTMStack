@@ -14,7 +14,7 @@ func ConvertFromAlertToAlertDB(alert Alert) AlertGPTDetails {
 	return AlertGPTDetails{
 		AlertID:                        alert.ID,
 		Severity:                       alert.Severity,
-		TagRulesApplied:                alert.TagRulesApplied,
+		TagRulesApplied:                strings.Join(alert.TagRulesApplied, ","),
 		SeverityLabel:                  alert.SeverityLabel,
 		Notes:                          alert.Notes,
 		DataType:                       alert.DataType,
