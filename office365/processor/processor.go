@@ -146,9 +146,9 @@ func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.
 				if len(details) > 0 {
 					logsCounter += len(details)
 					cleanLogs := ETLProcess(details, group)
-					err = SendToCorrelation(cleanLogs)
+					err := SendToLogstash(cleanLogs)
 					if err != nil {
-						utils.Logger.ErrorF("error sending logs to correlation: %v", err) // Debug
+						utils.Logger.ErrorF("error sending logs to logstash: %v", err) // Debug
 						continue
 					}
 				}

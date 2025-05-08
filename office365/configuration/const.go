@@ -14,7 +14,8 @@ const (
 	endPointStartSubscription = "/activity/feed/subscriptions/start"
 	endPointContent           = "/activity/feed/subscriptions/content"
 	BASEURL                   = "https://manage.office.com/api/v1.0/"
-	CORRELATIONURL            = "http://correlation:8080/v1/newlog"
+	LogstashEndpoint          = "http://%s:%s"
+	UTMLogSeparator           = "<utm-log-separator>"
 )
 
 func GetInternalKey() string {
@@ -35,4 +36,12 @@ func GetStartSubscriptionLink(tenant string) string {
 
 func GetContentLink(tenant string) string {
 	return fmt.Sprintf("%s%s%s", BASEURL, tenant, endPointContent)
+}
+
+func GetLogstashHost() string {
+	return utils.Getenv("UTM_LOGSTASH_HOST")
+}
+
+func GetLogstashPort() string {
+	return utils.Getenv("UTM_LOGSTASH_PORT")
 }

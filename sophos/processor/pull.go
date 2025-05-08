@@ -36,7 +36,7 @@ func PullLogs(group types.ModuleGroup) *logger.Error {
 
 	nextKeys[group.ModuleID] = newNextKey
 
-	err = SendToCorrelation(logs)
+	err = SendToLogstash(logs)
 	if err != nil {
 		return err
 	}
