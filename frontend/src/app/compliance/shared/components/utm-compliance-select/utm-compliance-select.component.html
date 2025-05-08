@@ -18,7 +18,7 @@
                  placeholder="Standard"
                  style="width: 50%"
       ></ng-select>
-      <ng-select (change)="filterBySelect($event,'type')"
+      <ng-select (change)="getDashboardList()"
                  [(ngModel)]="section"
                  [clearable]="true"
                  [items]="standardSections"
@@ -47,7 +47,7 @@
                class="cursor-pointer text-blue-800 d-flex justify-content-between align-items-center">
            <span class="span-small-icon">
               <i [ngClass]="idReport === report.id?'icon-radio-checked':'icon-radio-unchecked'"></i>
-             <span class="text-blue-800 ml-2">{{report.associatedDashboard.name}}</span>
+             <span class="text-blue-800 ml-2">{{report.configReportName ? report.configReportName :report.associatedDashboard.name}}</span>
            </span>
             <span class="span-small-icon">
             <i *ngIf="report.associatedDashboard.description" [ngbTooltip]="report.associatedDashboard.description"
@@ -80,7 +80,7 @@
       </tbody>
     </table>
   </div>
-  <div *ngIf="complianceReports && complianceReports.length>0" class="mb-4 mt-2">
+  <div [hidden]="complianceReports && complianceReports.length === 0" class="mb-4 mt-2">
     <div class="row justify-content-center">
       <ngb-pagination
         (pageChange)="loadPage($event)"

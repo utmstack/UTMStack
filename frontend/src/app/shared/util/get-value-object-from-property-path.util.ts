@@ -69,6 +69,21 @@ export function extractValueFromObjectByPath(row: any, field: UtmFieldType) {
   return tdValue ? tdValue : '-';
 }
 
+export function extractFieldValueFromKvArray(row: any, field: UtmFieldType) {
+  const arrayRow = flattenToKeyValueArray(row);
+  const objectRow = arrayRow
+    .reduce((acc, { key, value }) => {
+      acc[key] = value;
+      return acc;
+    }, {});
+
+  const fieldExtract = field.field.includes('.keyword') ?
+    field.field.replace('.keyword', '') : field.field;
+
+  const tdValue = convertByType(objectRow[fieldExtract]);
+  return tdValue ? tdValue : '-';
+}
+
 export function convertByType(data: any) {
 
   if (data && typeof data === 'object') {
@@ -89,6 +104,41 @@ export function convertObjectToKeyValueArray(object) {
     return target;
   }
 }
+
+export function flattenToKeyValueArray(obj: any, parentKey: string = ''): { key: string, value: any }[] {
+  const result: { key: string, value: any }[] = [];
+
+  for (const key in obj) {
+    if (!obj.hasOwnProperty(key)) { continue; }
+
+    const value = obj[key];
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+    if (Array.isArray(value)) {
+      if (value.length > 0 && typeof value[0] === 'object') {
+        const formattedArray = value.map(item => {
+          if (typeof item === 'object' && item !== null) {
+            return Object.entries(item)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(', ');
+          } else {
+            return String(item);
+          }
+        }).join(' | ');
+        result.push({ key: fullKey, value: formattedArray });
+      } else {
+        result.push({ key: fullKey, value: value.join(', ') });
+      }
+    } else if (value !== null && typeof value === 'object') {
+      result.push(...flattenToKeyValueArray(value, fullKey));
+    } else {
+      result.push({ key: fullKey, value });
+    }
+  }
+
+  return result;
+}
+
 
 export function findInObject(obj, item) {
   for (const key in obj) {

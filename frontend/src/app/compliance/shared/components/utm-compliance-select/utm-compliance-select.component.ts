@@ -29,7 +29,7 @@ export class UtmComplianceSelectComponent implements OnInit {
   section: number;
   loading = true;
   totalItems: any;
-  page = 1;
+  page = 0;
   itemsPerPage = 10;
   complianceReports: ComplianceReportType[] = [];
   searching = false;
@@ -42,8 +42,8 @@ export class UtmComplianceSelectComponent implements OnInit {
 
   ngOnInit() {
     this.requestParams = {
-      page: this.page - 1,
-      size: this.itemsPerPage,
+      page: 0,
+      size: 1000,
       sort: this.sortBy,
       'name.contains': null
     };
@@ -61,14 +61,14 @@ export class UtmComplianceSelectComponent implements OnInit {
   }
 
   loadPage(page: any) {
-    this.requestParams.page = page - 1;
+    this.page = page > 0 ? page - 1 : page;
     this.getDashboardList();
   }
 
   getDashboardList() {
     const query = {
-      page: this.page - 1,
-      size: 1000,
+      page: this.page,
+      size: this.itemsPerPage,
       sort: 'id,asc',
       'standardSectionId.equals': this.section,
       'configSolution.contains': this.solution
@@ -81,7 +81,7 @@ export class UtmComplianceSelectComponent implements OnInit {
 
   getSections() {
     const query = {
-      page: this.page - 1,
+      page: 0,
       size: 1000,
       sort: 'id,asc',
       'standardId.equals': this.standard,
@@ -89,7 +89,7 @@ export class UtmComplianceSelectComponent implements OnInit {
     };
     this.cpStandardSectionService.query(query).subscribe(response => {
       this.standardSections = response.body;
-      this.section = !!this.section ? this.section : this.standardSections[0].id;
+      this.section = this.standardSections.length > 0 ? this.standardSections[0].id : null;
       this.getDashboardList();
       if (this.idReport) {
         this.getSelectedDashboard(this.idReport);
@@ -98,7 +98,8 @@ export class UtmComplianceSelectComponent implements OnInit {
   }
 
   getStandardList() {
-    this.cpStandardService.query({page: 0, size: 1000}).subscribe(
+    this.cpStandardService.query({page: 0, size: 1000})
+      .subscribe(
       (res: HttpResponse<any>) => {
         this.standards = res.body;
         this.standard = !!this.standard ? this.standard : this.standards[0].id;
