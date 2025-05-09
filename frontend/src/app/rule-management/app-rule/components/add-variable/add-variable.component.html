@@ -13,17 +13,7 @@
     <div formArrayName="ruleVariables">
       <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i">
         <div class="input-group">
-          <fieldset class="border p-3 w-100">
-            <legend>
-              <label>{{ variable.valid && variable.value.as ? 'Variable ' + variable.value.as : 'New Variable' }}
-                <span class="span-small-icon ml-2">
-                 <!-- <i (click)="removeVariable(i)"
-                     class="icon-cross2 mr-1 cursor-pointer"
-                     ngbTooltip="Delete variable">
-                  </i>-->
-                </span>
-              </label>
-            </legend>
+          <fieldset class="card p-3 border rounded shadow-sm w-100">
             <div class="row">
               <div class="col-5">
                 <div class="form-group-select">
@@ -95,39 +85,6 @@
       </div>
     </div>
     <div class="form-group">
-      <!--<fieldset *ngIf="savedVariables.length > 0" class="border p-3 w-100">
-        <legend>
-          <label>Variables:</label>
-        </legend>
-        <div class="d-flex flex-wrap justify-content-start">
-          <div *ngFor="let savedVariable of savedVariables; let j = index">
-            <div class="mr-2" *ngIf="!savedVariable.isEditing">
-              <div style="min-width: 100px"
-                   class="d-flex flex-wrap cursor-pointer badge p-2 border-1 badge-flat font-weight-light border-grey-100 text-blue-800">
-                <div (click)="copyVariable(savedVariable.as)" [ngbTooltip]="savedVariable.get">
-                  <i class="mr-1 font-size-sm icon-cog7"></i>
-                  <span>
-                          {{ savedVariable.as }}
-                        </span>
-                </div>
-                <span class="ml-2 badge-actions">
-                        <i (click)="editVariable(j)" class="icon-pencil3 small-icon cursor-pointer mr-1"></i>
-                        <i (click)="removeSavedVariable(j)" class="icon-cross2 small-icon cursor-pointer"></i>
-                      </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </fieldset>-->
-<!--      <label for="expression">Expression:</label>
-      <textarea
-        [ngClass]="{'is-invalid': formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched}"
-        class="form-control" formControlName="ruleExpression" id="expression" rows="6"></textarea>
-      <div
-        *ngIf="formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched"
-        class="invalid-feedback">
-        Expression is required.
-      </div>-->
       <app-expression-console
         [ngClass]="{'is-invalid': formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched}"
         formControlName="ruleExpression"
@@ -140,6 +97,39 @@
            class="invalid-feedback">
         Expression is required.
       </div>
+      <!--<fieldset *ngIf="savedVariables.length > 0" class="border p-3 w-100">
+       <legend>
+         <label>Variables:</label>
+       </legend>
+       <div class="d-flex flex-wrap justify-content-start">
+         <div *ngFor="let savedVariable of savedVariables; let j = index">
+           <div class="mr-2" *ngIf="!savedVariable.isEditing">
+             <div style="min-width: 100px"
+                  class="d-flex flex-wrap cursor-pointer badge p-2 border-1 badge-flat font-weight-light border-grey-100 text-blue-800">
+               <div (click)="copyVariable(savedVariable.as)" [ngbTooltip]="savedVariable.get">
+                 <i class="mr-1 font-size-sm icon-cog7"></i>
+                 <span>
+                         {{ savedVariable.as }}
+                       </span>
+               </div>
+               <span class="ml-2 badge-actions">
+                       <i (click)="editVariable(j)" class="icon-pencil3 small-icon cursor-pointer mr-1"></i>
+                       <i (click)="removeSavedVariable(j)" class="icon-cross2 small-icon cursor-pointer"></i>
+                     </span>
+             </div>
+           </div>
+         </div>
+       </div>
+     </fieldset>-->
+      <!--      <label for="expression">Expression:</label>
+            <textarea
+              [ngClass]="{'is-invalid': formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched}"
+              class="form-control" formControlName="ruleExpression" id="expression" rows="6"></textarea>
+            <div
+              *ngIf="formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched"
+              class="invalid-feedback">
+              Expression is required.
+            </div>-->
     </div>
   </div>
 </fieldset>
