@@ -62,7 +62,7 @@ export class AddVariableComponent implements OnInit {
 
   saveVariable(index: number): void {
     const variable = {...this.variables.at(index).value, isEditing: false};
-    this.savedVariables.push(variable);
+    this.savedVariables = [...this.savedVariables, variable];
     this.variables.removeAt(index);
     this.variablesEmitter.emit(this.savedVariables);
     this.addVariable();
@@ -90,5 +90,17 @@ export class AddVariableComponent implements OnInit {
     this.savedVariables = this.savedVariables.filter((v, i) => i !== index);
     this.variablesEmitter.emit(this.savedVariables);
   }
+
+  insertAlias(alias: string): void {
+    const control = this.formGroup.get('definition.ruleExpression');
+    const current = control.value || '';
+    control.setValue(current + (current && !current.endsWith(' ') ? ' ' : '') + alias + ' ');
+    control.markAsDirty();
+  }
+
+  onVariablesChange(updatedVars: { as: string; of_type: string; get: string }[]) {
+    this.savedVariables = updatedVars;
+  }
+
 
 }

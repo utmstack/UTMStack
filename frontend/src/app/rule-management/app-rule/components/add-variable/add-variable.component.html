@@ -95,7 +95,7 @@
       </div>
     </div>
     <div class="form-group">
-      <fieldset *ngIf="savedVariables.length > 0" class="border p-3 w-100">
+      <!--<fieldset *ngIf="savedVariables.length > 0" class="border p-3 w-100">
         <legend>
           <label>Variables:</label>
         </legend>
@@ -118,14 +118,26 @@
             </div>
           </div>
         </div>
-      </fieldset>
-      <label for="expression">Expression:</label>
+      </fieldset>-->
+<!--      <label for="expression">Expression:</label>
       <textarea
         [ngClass]="{'is-invalid': formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched}"
         class="form-control" formControlName="ruleExpression" id="expression" rows="6"></textarea>
       <div
         *ngIf="formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched"
         class="invalid-feedback">
+        Expression is required.
+      </div>-->
+      <app-expression-console
+        [ngClass]="{'is-invalid': formGroup.get('definition').get('ruleExpression').invalid && formGroup.get('definition').get('ruleExpression').touched}"
+        formControlName="ruleExpression"
+        [variables]="savedVariables"
+        (variablesChange)="onVariablesChange($event)"
+        (touched)="formGroup.get('definition')?.get('ruleExpression').markAsTouched()">
+      </app-expression-console>
+      <div *ngIf="formGroup.get('definition').get('ruleExpression').invalid &&
+                formGroup.get('definition').get('ruleExpression').touched"
+           class="invalid-feedback">
         Expression is required.
       </div>
     </div>

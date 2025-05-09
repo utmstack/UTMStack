@@ -30,6 +30,7 @@ import {AddAfterEventComponent} from './app-rule/components/add-after-event/add-
 import {AddRuleComponent} from './app-rule/components/add-rule/add-rule.component';
 import {AddVariableComponent} from './app-rule/components/add-variable/add-variable.component';
 import {DeduplicateFieldsComponent} from './app-rule/components/deduplicate-fields/deduplicate-fields.component';
+import {ExpressionConsoleComponent} from './app-rule/components/expression-console/expression-console.component';
 import {ImportRuleComponent} from './app-rule/components/import-rules/import-rule.component';
 import {ImportRuleService} from './app-rule/components/import-rules/import-rule.service';
 import {AddReferenceComponent} from './app-rule/components/reference/add-reference.component';
@@ -68,7 +69,8 @@ import {GenericFilterComponent} from './share/generic-filter/generic-filter.comp
       AddReferenceComponent,
       AddVariableComponent,
       AddAfterEventComponent,
-      DeduplicateFieldsComponent
+      DeduplicateFieldsComponent,
+      ExpressionConsoleComponent
 
   ],
     imports: [

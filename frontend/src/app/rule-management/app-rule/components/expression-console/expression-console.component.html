@@ -1,0 +1,35 @@
+<div class="expression-console">
+  <label class="section-label">Build Expression</label>
+
+  <div class="variables-toolbar" *ngIf="variables?.length">
+    <span class="variables-label">Available Variables:</span>
+    <div class="variable-chip"
+         *ngFor="let v of variables; let i = index"
+         ngbTooltip="Click to insert '{{ v.as }}'">
+          <span (click)="insertAlias(v.as)">
+            {{ v.as }}
+          </span>
+      <button class="chip-close-button"
+              (click)="removeVariable(i)"
+              title="Remove">×</button>
+    </div>
+  </div>
+
+  <div class="expression-input-wrapper">
+    <textarea #console class="expression-input"
+              [(ngModel)]="value"
+              (ngModelChange)="onChange($event)"
+              (focus)="onTouched()"
+              (blur)="onTouched()"
+              (keyup)="onKeyup($event)"
+              placeholder="Write your expression using the variables above...">
+    </textarea>
+    <div class="autocomplete-suggestions" *ngIf="suggestions.length" [ngStyle]="suggestionsStyle">
+      <ul>
+        <li *ngFor="let suggestion of suggestions" (click)="insertAlias(suggestion)">
+          {{ suggestion }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

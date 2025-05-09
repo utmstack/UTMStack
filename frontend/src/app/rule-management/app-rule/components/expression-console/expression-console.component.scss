@@ -1,0 +1,116 @@
+.expression-console {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .section-label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .variables-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f9fafb;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+
+    .variables-label {
+      font-weight: 500;
+      margin-right: 0.5rem;
+      color: #333;
+    }
+
+    .variable-chip {
+      position: relative;
+      background-color: #e9edf5;
+      color: #2f3b52;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #d0d7e5;
+
+        .chip-close-button {
+          display: inline;
+        }
+      }
+
+      .chip-close-button {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background-color: #c0c7d6;  // azul-gris neutro
+        border: none;
+        border-radius: 50%;
+        color: red;
+        width: 16px;
+        height: 16px;
+        font-size: 12px;
+        cursor: pointer;
+        display: none;
+        line-height: 16px;
+        padding: 0;
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+          background-color: #a9b3c7;
+        }
+      }
+    }
+  }
+
+
+  .expression-input-wrapper {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.5rem;
+    background-color: #fff;
+
+    .expression-input {
+      width: 100%;
+      height: 120px;
+      resize: vertical;
+      border: none;
+      outline: none;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #222;
+      background-color: transparent;
+    }
+  }
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.autocomplete-suggestions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.autocomplete-suggestions li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.autocomplete-suggestions li:hover {
+  background-color: #f0f0f0;
+}
+
