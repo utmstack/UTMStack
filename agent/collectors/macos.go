@@ -5,9 +5,11 @@ package collectors
 
 import (
 	"bufio"
+	"os"
 	"os/exec"
 	"path/filepath"
 
+	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/validations"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
@@ -29,6 +31,11 @@ func getCollectorsInstances() []Collector {
 func (d Darwin) SendLogs() {
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "utmstack-collector-mac")
+	host, err := os.Hostname()
+	if err != nil {
+		utils.Logger.ErrorF("error getting hostname: %v", err)
+		host = "unknown"
+	}
 
 	cmd := exec.Command(collectorPath)
 
@@ -62,9 +69,10 @@ func (d Darwin) SendLogs() {
 				continue
 			}
 
-			logservice.LogQueue <- logservice.LogPipe{
-				Src:  string(config.DataTypeMacOs),
-				Logs: []string{validatedLog},
+			logservice.LogQueue <- &plugins.Log{
+				DataType:   string(config.DataTypeMacOs),
+				DataSource: host,
+				Raw:        validatedLog,
 			}
 		}
 

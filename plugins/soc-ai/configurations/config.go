@@ -1,6 +1,7 @@
 package configurations
 
 import (
+	"os"
 	"sync"
 	"time"
 
@@ -35,6 +36,11 @@ func GetPluginConfig() *PluginConfig {
 }
 
 func (c *PluginConfig) UpdateGPTConfigurations() {
+	mode := plugins.GetCfg().Env.Mode
+	if mode != "manager" {
+		os.Exit(0)
+	}
+
 	for {
 		if err := utils.ConnectionChecker(GPT_API_ENDPOINT); err != nil {
 			_ = catcher.Error("Failed to establish internet connection: %v", err, nil)
