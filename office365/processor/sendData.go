@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/threatwinds/logger"
@@ -27,37 +26,30 @@ var transport = &http.Transport{
 var client = &http.Client{Transport: transport, Timeout: 2 * time.Second}
 
 func SendToLogstash(data []TransformedLog) *logger.Error {
-	var logStrings []string
-	for _, log := range data {
-		body, err := json.Marshal(log)
+	for _, str := range data {
+		body, err := json.Marshal(str)
 		if err != nil {
 			utils.Logger.ErrorF("error encoding log to JSON: %v", err)
 			continue
 		}
-		logStrings = append(logStrings, string(body))
+		if err := sendLogs(body); err != nil {
+			utils.Logger.ErrorF("error sending logs to logstach: %v", err)
+			continue
+		}
 	}
+	return nil
+}
 
-	if len(logStrings) == 0 {
-		return nil
-	}
-
-	var logs string
-	for _, str := range logStrings {
-		logs += str + configuration.UTMLogSeparator
-	}
-
+func sendLogs(log []byte) error {
 	url := fmt.Sprintf(configuration.LogstashEndpoint, configuration.GetLogstashHost(), configuration.GetLogstashPort())
 
-	req, err := http.NewRequest("POST", url, bytes.NewBufferString(logs))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(log))
 	if err != nil {
 		return utils.Logger.ErrorF("error creating request: %v", err.Error())
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		if !strings.Contains(err.Error(), "Client.Timeout exceeded while awaiting headers") {
-			utils.Logger.ErrorF("error sending logs with error: %v", err.Error())
-		}
 		return utils.Logger.ErrorF("error sending logs: %v", err.Error())
 	}
 	defer resp.Body.Close()
@@ -65,7 +57,5 @@ func SendToLogstash(data []TransformedLog) *logger.Error {
 	if resp.StatusCode != http.StatusOK {
 		return utils.Logger.ErrorF("error sending logs with http code %d", resp.StatusCode)
 	}
-
-	utils.Logger.Info("successfully sent %d logs to Logstash", len(logStrings))
 	return nil
 }
