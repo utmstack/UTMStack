@@ -249,6 +249,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"UTM_LOGSTASH_HOST=logstash",
+			"UTM_LOGSTASH_PORT=10048",
 			"LOG_LEVEL=200",
 		},
 		Logging: &dLogging,
@@ -277,6 +279,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"UTM_LOGSTASH_HOST=logstash",
+			"UTM_LOGSTASH_PORT=10050",
 			"LOG_LEVEL=200",
 		},
 		Logging: &dLogging,
@@ -304,6 +308,8 @@ func (c *Compose) Populate(conf *Config, stack *StackConfig) *Compose {
 		Environment: []string{
 			"PANEL_SERV_NAME=backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,
+			"UTM_LOGSTASH_HOST=logstash",
+			"UTM_LOGSTASH_PORT=10049",
 			"LOG_LEVEL=200",
 		},
 		Logging: &dLogging,

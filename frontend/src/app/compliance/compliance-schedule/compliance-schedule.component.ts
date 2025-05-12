@@ -18,10 +18,10 @@ import {
     UtmComplianceScheduleDeleteComponent
 } from '../shared/components/utm-compliance-schedule-delete/utm-compliance-schedule-delete.component';
 import {ComplianceScheduleService} from '../shared/services/compliance-schedule.service';
+import {CronDescriptionGeneratorService} from '../shared/services/cron-description-generator.service';
 import {ComplianceScheduleFilterType} from '../shared/type/compliance-schedule-filter.type';
 import {ComplianceScheduleType} from '../shared/type/compliance-schedule.type';
 import {ComplianceStandardType} from '../shared/type/compliance-standard.type';
-import {CronDescriptionGeneratorService} from "../shared/services/cron-description-generator.service";
 
 
 @Component({

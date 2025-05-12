@@ -160,6 +160,7 @@
                     *ngIf="(td.visible)">
                   <app-data-field-render (refreshData)="onRefreshData($event)" [data]="alert"
                                          [field]="td"
+                                         [tags]="tags"
                                          [dataType]="dataType"
                                          [showStatusChange]="true"></app-data-field-render>
                 </td>

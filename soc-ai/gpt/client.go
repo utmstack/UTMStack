@@ -71,8 +71,6 @@ func (c *GPTClient) Request(alert schema.AlertGPTDetails) (string, error) {
 		return "", fmt.Errorf("error marshalling request: %v", error)
 	}
 
-	utils.Logger.Info("Complete GPT Request JSON: %s", string(requestJson))
-
 	headers := map[string]string{
 		"Authorization": "Bearer " + configurations.GetGPTConfig().APIKey,
 		"Content-Type":  "application/json",

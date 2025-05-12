@@ -4,7 +4,10 @@ import {SortEvent} from '../../../../../directives/sortable/type/sort-event';
 import {ElasticDataTypesEnum} from '../../../../../enums/elastic-data-types.enum';
 import {UtmDateFormatEnum} from '../../../../../enums/utm-date-format.enum';
 import {UtmFieldType} from '../../../../../types/table/utm-field.type';
-import {convertObjectToKeyValueArray, extractValueFromObjectByPath} from '../../../../../util/get-value-object-from-property-path.util';
+import {
+  convertObjectToKeyValueArray,
+  extractFieldValueFromKvArray
+} from '../../../../../util/get-value-object-from-property-path.util';
 
 @Component({
   selector: 'app-dynamic-table',
@@ -85,7 +88,7 @@ export class UtmDynamicTableComponent implements OnInit {
   }
 
   resolveTdValue(row: any, td: UtmFieldType): any {
-    const value = extractValueFromObjectByPath(row, td);
+    const value = extractFieldValueFromKvArray(row, td);
     return td.type === this.dataTypeEnum.DATE && value === '-' ?
       null : value;
   }

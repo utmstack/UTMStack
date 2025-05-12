@@ -6,3 +6,9 @@
 - Improved log delivery from ARM-based agents on Windows, now sending native system logs.
 - Added support for macOS ARM64; agents can now be installed on that platform.
 - Improved agent information displayed in the Sources panel, providing more accurate OS details and agent versions.
+
+
+### Bug Fixes
+-- Compliance Report Scheduling: Improved the stability of the selection process when creating new report schedules.
+-- Improved field rendering in Log Explorer by consolidating list-based fields into a single entry for better readability and consistency.
+-- Improved field rendering for tags and note fields in Alerts.
