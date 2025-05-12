@@ -11,7 +11,7 @@
             VALUES (57, 'o365', 'Office 365', null, 'up', 'AWS', true, null, false, 0, 0, 0, 0, 0, null, null, null);
 
             INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
-            VALUES (103, 57, 'PIPELINE_FILTER');
+            VALUES (601, 57, 'PIPELINE_FILTER');
 
             INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
             VALUES (70, 57, 'HTTP', 'http', false, true);
