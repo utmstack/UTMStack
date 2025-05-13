@@ -103,10 +103,10 @@ func IsBlocklisted() {
 				destinationIp := gjson.Get(log, "logx.*.dest_ip")
 
 				if !cache.IsCached(sourceIp.String()) {
-					if _, ok := blockList[sourceIp.String()]; ok && !blocked(log) {
+					if severity, ok := blockList[sourceIp.String()]; ok && !blocked(log) {
 						correlation.Alert(
-							"Connection attempt from a malicious IP",
-							"Low",
+							"Connection from a malicious IP",
+							severity,
 							"A blocklisted element has been identified in the logs. Further investigation is recommended.",
 							"",
 							"Threat Intelligence",
@@ -123,10 +123,10 @@ func IsBlocklisted() {
 				}
 
 				if !cache.IsCached(destinationIp.String()) {
-					if _, ok := blockList[destinationIp.String()]; ok && !blocked(log) {
+					if severity, ok := blockList[destinationIp.String()]; ok && !blocked(log) {
 						correlation.Alert(
-							"Connection attempt from a malicious IP",
-							"Low",
+							"Connection to a malicious IP",
+							severity,
 							"A blocklisted element has been identified in the logs. Further investigation is recommended.",
 							"",
 							"Threat Intelligence",

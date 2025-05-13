@@ -11,15 +11,22 @@ func Load() {
 	log.Printf("Loading Threat Intelligence Feeds")
 
 	var files = []string{
-		"ip_blocklist.list",
+		"ip_level1.list",
+		"ip_level2.list",
+		"ip_level3.list",
 	}
 
 	for _, file := range files {
 		var t string
 
 		switch file {
-		case "ip_blocklist.list":
-			t = "IP"
+		case "ip_level1.list":
+			t = "Low"
+		case "ip_level2.list":
+			t = "Medium"
+		case "ip_level3.list":
+			t = "High"
+		default:
 		}
 
 		f, err := os.Open(filepath.Join("/app", file))
