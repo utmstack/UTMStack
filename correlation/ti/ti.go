@@ -4,6 +4,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/correlation/correlation"
 	"github.com/utmstack/UTMStack/correlation/utils"
+	"net"
 	"runtime"
 	"strings"
 	"sync"
@@ -99,10 +100,12 @@ func IsBlocklisted() {
 			for {
 				log := <-channel
 
-				sourceIp := gjson.Get(log, "logx.*.src_ip")
-				destinationIp := gjson.Get(log, "logx.*.dest_ip")
+				sourceIpStr := gjson.Get(log, "logx.*.src_ip")
+				destinationIpStr := gjson.Get(log, "logx.*.dest_ip")
+				sourceIp := net.ParseIP(sourceIpStr.String())
+				destinationIp := net.ParseIP(destinationIpStr.String())
 
-				if !cache.IsCached(sourceIp.String()) {
+				if sourceIp != nil && !cache.IsCached(sourceIp.String()) {
 					if severity, ok := blockList[sourceIp.String()]; ok && !blocked(log) {
 						correlation.Alert(
 							"Connection from a malicious IP",
@@ -122,7 +125,7 @@ func IsBlocklisted() {
 					cache.Add(sourceIp.String())
 				}
 
-				if !cache.IsCached(destinationIp.String()) {
+				if destinationIp != nil && !cache.IsCached(destinationIp.String()) {
 					if severity, ok := blockList[destinationIp.String()]; ok && !blocked(log) {
 						correlation.Alert(
 							"Connection to a malicious IP",
