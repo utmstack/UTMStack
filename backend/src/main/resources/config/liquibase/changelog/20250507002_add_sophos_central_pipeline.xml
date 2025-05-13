@@ -6,12 +6,29 @@
 
     <changeSet id="20250507002" author="Manuel">
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+            INSERT INTO public.utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version)
+            VALUES (1527, 'filter {
+
+# Sophos_Central version 1.0.0
+
+     split {
+      field => "message"
+      terminator => "<utm-log-separator>"
+    }
+}', 'sophos-central', null, true, 'SOPHOS', false, '2.0.1');
+            ]]>
+        </sql>
+
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+
 
             INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
             VALUES (56, 'sophos-central', 'Sophos Central', null, 'up', 'AWS', true, null, false, 0, 0, 0, 0, 0, null, null, null);
 
             INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
-            VALUES (102, 56, 'PIPELINE_FILTER');
+            VALUES (1527, 56, 'PIPELINE_FILTER');
 
             INSERT INTO utm_logstash_input (id, pipeline_id, input_pretty_name, input_plugin, input_with_ssl, system_owner)
             VALUES (69, 56, 'HTTP', 'http', false, true);
