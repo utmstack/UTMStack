@@ -1,6 +1,6 @@
 <ng-container *ngIf="template === 'default'">
   <div>
-    <span [ngClass]="report.configReportStatus === ComplianceStatus.COMPLAINT  ? 'text-success' : 'text-danger'"
+    <span [ngClass]="report.configReportStatus === ComplianceStatus.COMPLIANT  ? 'text-success' : 'text-danger'"
           class="span-small-icon d-flex justify-content-start align-items-center">
       {{ isComplaint() ? 'Compliant' : 'Non compliant' }}
     </span>
@@ -10,7 +10,7 @@
 <ng-container *ngIf="template === 'dropdown'">
   <span (click)="onClick($event)" ngbDropdown container="body" #drop="ngbDropdown">
     <a class="btn btn-light btn-sm"
-       [ngClass]="(report.configReportNote && report.configReportNote !== '') || report.configReportStatus === ComplianceStatus.COMPLAINT ? 'text-success' : 'text-danger'"
+       [ngClass]="(report.configReportNote && report.configReportNote !== '') || report.configReportStatus === ComplianceStatus.COMPLIANT ? 'text-success' : 'text-danger'"
        ngbDropdownToggle>
       <span class="indicator-progress" *ngIf="changing">
         <span class="spinner-border spinner-border-sm align-middle me-2"></span>
@@ -27,11 +27,11 @@
       class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold font-size-sm py-2 px-3"
       ngbDropdownMenu>
       <div *ngIf="!isComplaint()" class="menu-item px-2 cursor-pointer menu-hover"
-           (click)="changeStatusTo(ComplianceStatus.COMPLAINT); drop.close()">
-        <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-success">{{ 'Complaint' }}</a>
+           (click)="changeStatusTo(ComplianceStatus.COMPLIANT); drop.close()">
+        <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-success">{{ 'Compliant' }}</a>
       </div>
       <div *ngIf="isComplaint()" class="menu-item px-2 cursor-pointer menu-hover"
-           (click)="changeStatusTo(ComplianceStatus.NON_COMPLAINT); drop.close()">
+           (click)="changeStatusTo(ComplianceStatus.NON_COMPLIANT); drop.close()">
         <a style="font-size: 12px" class="menu-link px-2 fw-bolder text-danger">{{ 'Non compliant' }}</a>
       </div>
     </div>

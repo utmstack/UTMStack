@@ -49,8 +49,8 @@
             <tr class="cursor-pointer" (click)="reportDetail = report"
                 *ngFor="let report of reports; let index = index" style="position: relative; z-index: 1;">
               <td style="width: 5%; position: relative; z-index: 0;"
-                  [ngClass]="report.configReportStatus === ComplianceStatus.COMPLAINT ? 'border-left-success' : 'border-left-danger'"
-                  [ngStyle]="report.configReportStatus === ComplianceStatus.COMPLAINT ? {'border-left': '5px solid green !important;'} : {'border-left': '5px solid red !important;'}">
+                  [ngClass]="report.configReportStatus === ComplianceStatus.COMPLIANT ? 'border-left-success' : 'border-left-danger'"
+                  [ngStyle]="report.configReportStatus === ComplianceStatus.COMPLIANT ? {'border-left': '5px solid green !important;'} : {'border-left': '5px solid red !important;'}">
                 <div>
                   <app-report-apply-note [report]="report" [showNote]="false"></app-report-apply-note>
                 </div>
@@ -110,7 +110,7 @@
 <div *ngIf="reportDetail" class="utm-right-container">
   <div (click)="reportDetail= undefined" class="overlay overlay-lg col-md-7"></div>
   <div class="card utm-right-action utm-right-action-lg ml-0">
-    <div [ngClass]="reportDetail.configReportStatus === ComplianceStatusEnum.COMPLAINT
+    <div [ngClass]="reportDetail.configReportStatus === ComplianceStatusEnum.COMPLIANT
       || (reportDetail.configReportNote && reportDetail.configReportNote !== '') ? 'border-left-success' : 'border-left-danger'"
       class="title d-flex justify-content-between  align-items-center border-bottom-1
             border-bottom-grey-100  pl-3 pt-3 pr-3 pb-0">
