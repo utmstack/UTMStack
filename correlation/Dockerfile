@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 RUN apt-get update
 RUN apt-get install -y ca-certificates git wget
-COPY correlation /app/correlation
+COPY correlation /app/
 COPY docs/swagger.json /app/docs/
 COPY docs/swagger.yaml /app/docs/
 COPY config.yml.prod /app/config.yml
