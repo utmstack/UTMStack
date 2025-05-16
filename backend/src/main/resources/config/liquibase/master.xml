@@ -101,5 +101,7 @@
 
     <include file="/config/liquibase/changelog/20250515003_update_filter_o365.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250516001_udpate_sophos_name.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>
