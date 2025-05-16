@@ -97,5 +97,11 @@
 
     <include file="/config/liquibase/changelog/20250507003_add_o365_pipeline.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250515001_update_filter_aws.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250515003_update_filter_o365.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250516001_udpate_sophos_name.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

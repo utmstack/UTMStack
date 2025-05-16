@@ -1,4 +1,17 @@
-filter {
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250515001" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='2.0.0',
+	        logstash_filter='filter {
 
 # Amazon Web Service version 2.0.0
 
@@ -37,4 +50,9 @@ filter {
             remove_field => ["headers", "parsed_message", "@version"]
         }
     }
-}
+}'
+	WHERE id=101;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

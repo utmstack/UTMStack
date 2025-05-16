@@ -45,7 +45,9 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
 
             if (bucket != null) {
                 List<BucketAggregation> entries = TermAggregateParser.parse(result.aggregations().get(bucket.getId()));
-                entries = entries.stream().filter(e -> StringUtils.hasText(e.getKey())).collect(Collectors.toList());
+                entries = entries.stream().filter(e -> isValidIP(e.getKey()))
+                        .collect(Collectors.toList());
+
 
                 for (BucketAggregation entry : entries) {
                     GeoIp ipV4Info;
@@ -88,4 +90,25 @@ public class ResponseParserForCoordinateMapChart implements ResponseParser<Coord
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
     }
+
+    public static boolean isValidIP(String ip) {
+        return isValidIPv4(ip) || isValidIPv6(ip);
+    }
+
+
+    public static boolean isValidIPv4(String ip) {
+        if (ip == null || ip.isEmpty()) return false;
+        String regex =
+                "^((25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(\\.|$)){4}$";
+        return ip.matches(regex);
+    }
+
+    public static boolean isValidIPv6(String ip) {
+        if (ip == null || ip.isEmpty()) return false;
+        String regex =
+                "^(?:[\\da-fA-F]{1,4}:){7}[\\da-fA-F]{1,4}$";
+        return ip.matches(regex);
+    }
+
+
 }

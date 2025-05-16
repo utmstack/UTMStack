@@ -12,9 +12,21 @@
 
 # Sophos_Central version 1.0.0
 
-     split {
-      field => "message"
-      terminator => "<utm-log-separator>"
+    json {
+        source => "message"
+    }
+
+    if ([dataType] == "sophos-central") {
+
+        mutate {
+            rename => { "[logx][sophos_central][source_info][ip]" => "[logx][sophos_central][source_ip]"}
+            rename => { "[logx][sophos_central][when]" => "[logx][sophos_central][timestamp_occurred_at]"}
+            rename => { "[logx][sophos_central][created_at]" => "[logx][sophos_central][timestamp_generated_at]"}
+        }
+
+        mutate {
+            remove_field => ["headers", "@version", "global", "[logx][sophos_central][core_remedy_items][totalItems]"]
+        }
     }
 }', 'sophos-central', null, true, 'SOPHOS', false, '2.0.1');
             ]]>
@@ -25,7 +37,7 @@
 
 
             INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
-            VALUES (56, 'sophos-central', 'Sophos Central', null, 'up', 'AWS', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+            VALUES (56, 'sophos-central', 'Sophos Central', null, 'up', 'SOPHOS', true, null, false, 0, 0, 0, 0, 0, null, null, null);
 
             INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
             VALUES (1527, 56, 'PIPELINE_FILTER');
