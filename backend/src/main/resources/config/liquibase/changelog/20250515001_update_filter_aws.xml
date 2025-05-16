@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250515001" author="JocLRojas">
+
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+            UPDATE public.utm_logstash_filter
+            SET filter_version='2.0.0',
+	        logstash_filter='filter {
+
+# Amazon Web Service version 2.0.0
+
+    json {
+        source => "message"
+        target => "parsed_message"
+    }
+
+    if ([parsed_message][logx][type] == "aws") {
+        mutate {
+            add_field => {
+                "dataType" => "aws"
+                "dataSource" => "%{[parsed_message][logx][tenant]}"
+            }
+        }
+
+        json {
+            source => "[parsed_message][logx][aws][message]"
+            target => "[logx][aws]"
+        }
+
+        mutate {
+            rename => { "[logx][aws][eventVersion]" => "[logx][aws][eventVersion]"}
+            rename => { "[logx][aws][userIdentity][accountId]" => "[logx][aws][accountId]"}
+            rename => { "[logx][aws][userIdentity][sessionContext][attributes][creationDate]" => "[logx][aws][creationDate]"}
+            rename => { "[logx][aws][userIdentity][sessionContext][sessionIssuer][accountId]" => "[logx][aws][sessionIssuerAccountId]"}
+            rename => { "[logx][aws][userIdentity][sessionContext][sessionIssuer][arn]" => "[logx][aws][sessionIssuerArn]"}
+            rename => { "[logx][aws][userIdentity][sessionContext][sessionIssuer][principalId]" => "[logx][aws][sessionIssuerPrincipalId]"}
+            rename => { "[logx][aws][userIdentity][sessionContext][sessionIssuer][type]" => "[logx][aws][sessionIssuerType]"}
+            rename => { "[logx][aws][additionalEventData][SignatureVersion]" => "[logx][aws][SignatureVersion]"}
+            rename => { "[logx][aws][additionalEventData][x-amz-id-2]" => "[logx][aws][xamzId2]"}
+            rename => { "[logx][aws][responseElements][x-amz-expiration]" => "[logx][aws][xAmzExpiration]"}
+        }
+
+		mutate {
+            remove_field => ["headers", "parsed_message", "@version"]
+        }
+    }
+}'
+	WHERE id=101;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
