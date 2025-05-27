@@ -23,7 +23,7 @@
       <!--      </button>-->
       <button (click)="exportToCsv()"
               class="btn utm-button utm-button-primary">
-        <i [ngClass]="generateReport?'icon-download10':'icon-table2'" class="mr-1"></i>
+        <i [ngClass]="generateReport?'icon-spinner2 spinner':'icon-table2'" class="mr-1"></i>
         {{generateReport ? 'Generating...' : 'Export to CSV'}}
       </button>
     </div>

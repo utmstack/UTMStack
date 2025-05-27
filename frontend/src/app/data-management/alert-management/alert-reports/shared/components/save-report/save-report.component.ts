@@ -76,7 +76,7 @@ export class SaveAlertReportComponent implements OnInit {
       columns: this.fields,
       indexPattern: ALERT_INDEX_PATTERN,
       filters: this.filters,
-      top: LOG_ANALYZER_TOTAL_ITEMS
+      top: this.limit
     };
     this.elasticDataExportService.exportCsv(params, 'UTM ALERTS').then(() => {
       this.generateReport = false;
