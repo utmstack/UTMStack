@@ -48,7 +48,7 @@ export class GuideMacosAgentComponent implements OnInit {
 
   getUninstallCommand(installerName: string): string {
     // tslint:disable-next-line:max-line-length
-    return `sudo bash -c "/opt/utmstack/${installerName} uninstall; launchctl bootout system /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null; rm /Library/LaunchDaemons/UTMStackAgent.plist; rm -rf /opt/utmstack"`;
+    return `sudo bash -c "/opt/utmstack/${installerName}; launchctl bootout system /Library/LaunchDaemons/UTMStackAgent.plist 2>/dev/null; rm /Library/LaunchDaemons/UTMStackAgent.plist; rm -rf /opt/utmstack"`;
   }
 
 
@@ -57,7 +57,7 @@ export class GuideMacosAgentComponent implements OnInit {
       {
         id: 1, name: 'ARM64',
         install: this.getCommandARM('utmstack_agent_service install'),
-        uninstall: this.getUninstallCommand('utmstack_agent_service install'),
+        uninstall: this.getUninstallCommand('utmstack_agent_service uninstall'),
         shell: ''
       },
     ];
