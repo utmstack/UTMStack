@@ -8,6 +8,9 @@ import {AssetMapFilterFieldEnum} from '../../../enums/asset-map-filter-field.enu
 import {UtmNetScanService} from '../../../services/utm-net-scan.service';
 import {AssetFilterType} from '../../../types/asset-filter.type';
 import {CollectorFieldFilterEnum} from "../../../enums/collector-field-filter.enum";
+import {
+  AlertGenericFilerSort
+} from "../../../../../shared/components/utm/util/generic-filer-sort/generic-filer-sort.component";
 
 @Component({
   selector: 'app-asset-generic-filter',
@@ -24,6 +27,7 @@ export class AssetGenericFilterComponent implements OnInit {
   loadingMore = false;
   searching = false;
   requestParams: any;
+  sort: { orderByCount: boolean, sortAsc: boolean } = {orderByCount: true, sortAsc: false};
 
   constructor(private utmNetScanService: UtmNetScanService,
               private assetTypeChangeBehavior: AssetReloadFilterBehavior,
@@ -61,6 +65,8 @@ export class AssetGenericFilterComponent implements OnInit {
   }
 
   onSortValuesChange($event: { orderByCount: boolean; sortAsc: boolean }) {
+    this.sort = $event;
+    this.getPropertyValues();
   }
 
   onScroll() {

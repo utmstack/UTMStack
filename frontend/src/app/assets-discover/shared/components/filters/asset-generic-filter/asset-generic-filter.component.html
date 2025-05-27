@@ -3,7 +3,7 @@
         <span class="font-weight-light span-small-icon">
           {{fieldFilter.label ? fieldFilter.label : fieldFilter.field}}
         </span>
-    <app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>
+    <!--<app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>-->
   </div>
   <div *ngIf="loading" class="category-list w-100 p-5">
     <app-utm-spinner [height]="'5px'" [loading]="loading"
