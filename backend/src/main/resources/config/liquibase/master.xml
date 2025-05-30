@@ -103,7 +103,6 @@
 
     <include file="/config/liquibase/changelog/20250516001_udpate_sophos_name.xml" relativeToChangelogFile="false"/>
 
-    <!--<include file="/config/liquibase/changelog/20250527001_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
--->
+    <include file="/config/liquibase/changelog/20250530001_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
