@@ -8,7 +8,7 @@
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
 
             INSERT INTO utm_logstash_pipeline (id, pipeline_id, pipeline_name, parent_pipeline, pipeline_status, module_name, system_owner, pipeline_description, pipeline_internal, events_in, events_filtered, events_out, reloads_successes, reloads_failures, reloads_last_failure_timestamp, reloads_last_error, reloads_last_success_timestamp)
-            VALUES (57, 'o365', 'Office 365', null, 'up', 'AWS', true, null, false, 0, 0, 0, 0, 0, null, null, null);
+            VALUES (57, 'o365', 'Office 365', null, 'up', 'O365', true, null, false, 0, 0, 0, 0, 0, null, null, null);
 
             INSERT INTO utm_group_logstash_pipeline_filters (filter_id, pipeline_id, relation)
             VALUES (601, 57, 'PIPELINE_FILTER');
