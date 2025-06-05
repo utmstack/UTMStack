@@ -105,4 +105,7 @@
 
     <include file="/config/liquibase/changelog/20250530001_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250605001_update_typos_config_report_status _values.xml" relativeToChangelogFile="false"/>
+
+
 </databaseChangeLog>
