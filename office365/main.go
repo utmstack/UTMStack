@@ -21,23 +21,26 @@ func main() {
 	panelServ := configuration.GetPanelServiceName()
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
 
-	st := time.Now().Add(-600 * time.Second)
+	ticker := time.NewTicker(time.Second * delayCheck)
+	defer ticker.Stop()
 
-	for {
+	startTime := time.Now().Add(-600 * time.Second).UTC()
+
+	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.LoginUrl); err != nil {
 			utils.Logger.ErrorF("External connection failure detected: %v", err)
 		}
 
-		et := st.Add(299 * time.Second)
-		startTime := st.UTC().Format("2006-01-02T15:04:05")
-		endTime := et.UTC().Format("2006-01-02T15:04:05")
+		endTime := startTime.Add(299 * time.Second).UTC()
+		startTimeStr := startTime.Format("2006-01-02T15:04:05")
+		endTimeStr := endTime.Format("2006-01-02T15:04:05")
 
 		utils.Logger.Info("syncing logs from %s to %s", startTime, endTime)
 
 		moduleConfig, err := client.GetUTMConfig(enum.O365)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				time.Sleep(time.Second * delayCheck)
+				startTime = endTime.Add(time.Second)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
@@ -46,9 +49,7 @@ func main() {
 				utils.Logger.Info("program not configured yet")
 			}
 
-			time.Sleep(time.Second * delayCheck)
-
-			st = et.Add(1)
+			startTime = endTime.Add(time.Second)
 
 			continue
 		}
@@ -72,7 +73,7 @@ func main() {
 				}
 
 				if !skip {
-					processor.PullLogs(startTime, endTime, group)
+					processor.PullLogs(startTimeStr, endTimeStr, group)
 				}
 
 				wg.Done()
@@ -83,8 +84,6 @@ func main() {
 
 		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
 
-		time.Sleep(time.Second * delayCheck)
-
-		st = et.Add(1)
+		startTime = endTime.Add(time.Second)
 	}
 }
