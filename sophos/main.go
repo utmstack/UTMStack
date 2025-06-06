@@ -20,15 +20,24 @@ func main() {
 	panelServ := configuration.GetPanelServiceName()
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
 
-	for {
+	ticker := time.NewTicker(time.Second * delayCheck)
+	defer ticker.Stop()
+
+	startTime := time.Now().Add(-600 * time.Second).UTC()
+
+	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.CHECKCON); err != nil {
 			utils.Logger.ErrorF("External connection failure detected: %v", err)
 		}
 
+		endTime := startTime.Add(299 * time.Second).UTC()
+		startTimeStr := startTime.Format(time.RFC3339)
+		endTimeStr := endTime.Format(time.RFC3339)
+
 		moduleConfig, err := client.GetUTMConfig(enum.SOPHOS)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				time.Sleep(time.Second * delayCheck)
+				startTime = endTime.Add(time.Second)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
@@ -36,7 +45,7 @@ func main() {
 			}
 
 			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
-			time.Sleep(time.Second * delayCheck)
+			startTime = endTime.Add(time.Second)
 			continue
 		}
 
@@ -56,7 +65,7 @@ func main() {
 				}
 
 				if !skip {
-					processor.PullLogs(group)
+					processor.PullLogs(group, startTimeStr, endTimeStr)
 				}
 
 				wg.Done()
@@ -65,6 +74,7 @@ func main() {
 
 		wg.Wait()
 		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
-		time.Sleep(time.Second * delayCheck)
+
+		startTime = endTime.Add(time.Second)
 	}
 }

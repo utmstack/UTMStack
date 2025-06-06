@@ -8,37 +8,30 @@ import (
 	"github.com/utmstack/config-client-go/types"
 )
 
-const delayCheck = 300
-
-var timeGroups = make(map[int]int)
 var nextKeys = make(map[int]string)
 
-func PullLogs(group types.ModuleGroup) *logger.Error {
-	utils.Logger.Info("starting log sync for : %s", group.GroupName)
+func PullLogs(group types.ModuleGroup, startTimeStr, endTimeStr string) *logger.Error {
+	utils.Logger.Info("starting log sync for : %s from %s to %s", group.GroupName, startTimeStr, endTimeStr)
 
-	epoch := int(time.Now().Unix())
-
-	_, ok := timeGroups[group.ModuleID]
-	if !ok {
-		timeGroups[group.ModuleID] = epoch - delayCheck
+	startTime, err := time.Parse(time.RFC3339, startTimeStr)
+	if err != nil {
+		return utils.Logger.ErrorF("error parsing start time: %v", err)
 	}
 
-	defer func() {
-		timeGroups[group.ModuleID] = epoch + 1
-	}()
+	startEpoch := int(startTime.Unix())
 
 	agent := getSophosCentralProcessor(group)
 
-	logs, newNextKey, err := agent.getLogs(timeGroups[group.ModuleID], nextKeys[group.ModuleID], group)
-	if err != nil {
-		return err
+	logs, newNextKey, logErr := agent.getLogs(startEpoch, nextKeys[group.ModuleID], group)
+	if logErr != nil {
+		return logErr
 	}
 
 	nextKeys[group.ModuleID] = newNextKey
 
-	err = SendToLogstash(logs)
-	if err != nil {
-		return err
+	sendErr := SendToLogstash(logs)
+	if sendErr != nil {
+		return sendErr
 	}
 
 	return nil
