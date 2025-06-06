@@ -8,7 +8,7 @@ require (
 	github.com/gin-contrib/gzip v1.2.3
 	github.com/gin-gonic/gin v1.10.1
 	github.com/pkoukk/tiktoken-go v0.1.7
-	github.com/threatwinds/logger v1.2.1
+	github.com/threatwinds/logger v1.2.2
 	github.com/utmstack/config-client-go v1.2.7
 )
 

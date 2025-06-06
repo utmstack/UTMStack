@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os/exec"
 
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
 )
 
 func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
@@ -23,7 +23,7 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 	if string(out[:]) == "" {
 		return "Command executed successfully but no output", false
 	}
-	validUtf8Out, _, err := validations.ValidateString(string(out[:]), false)
+	validUtf8Out, _, err := twsdk.ValidateString(string(out[:]), false)
 	if err != nil {
 		return string(out[:]) + err.Error(), true
 	}

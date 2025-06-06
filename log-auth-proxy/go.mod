@@ -6,7 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/gin-gonic/gin v1.10.1
-	github.com/threatwinds/logger v1.2.1
+	github.com/threatwinds/logger v1.2.2
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 )

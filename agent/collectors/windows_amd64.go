@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/utils"
@@ -80,7 +80,7 @@ func (w Windows) SendLogs() {
 		logLine := <-logLinesChan
 		validatedLogs := []string{}
 		for _, log := range logLine {
-			validatedLog, _, err := validations.ValidateString(log, false)
+			validatedLog, _, err := twsdk.ValidateString(log, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating log: %s: %v", log, err)
 				continue

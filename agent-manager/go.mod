@@ -9,7 +9,7 @@ require (
 	github.com/gin-contrib/gzip v1.2.3
 	github.com/gin-gonic/gin v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/logger v1.2.1
+	github.com/threatwinds/logger v1.2.2
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 	gorm.io/driver/postgres v1.6.0

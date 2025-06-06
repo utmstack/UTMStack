@@ -6,7 +6,7 @@ toolchain go1.24.2
 
 require (
 	github.com/aws/aws-sdk-go v1.55.7
-	github.com/threatwinds/logger v1.2.1
+	github.com/threatwinds/logger v1.2.2
 	github.com/utmstack/config-client-go v1.2.7
 )
 

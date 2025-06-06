@@ -9,7 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
+
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/utils"
@@ -62,7 +63,7 @@ func (d Darwin) SendLogs() {
 
 			utils.Logger.LogF(100, "output: %s", logLine)
 
-			validatedLog, _, err := validations.ValidateString(logLine, false)
+			validatedLog, _, err := twsdk.ValidateString(logLine, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating log: %s: %v", logLine, err)
 				continue

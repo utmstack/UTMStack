@@ -8,8 +8,8 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/logger v1.2.1
-	github.com/threatwinds/validations v1.0.14
+	github.com/threatwinds/go-sdk v1.0.40
+	github.com/threatwinds/logger v1.2.2
 	golang.org/x/sys v0.33.0
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
@@ -37,12 +37,14 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
-	github.com/threatwinds/go-sdk v1.0.40 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.14 // indirect
+	go.opentelemetry.io/otel/metric v1.36.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.36.0 // indirect
+	go.opentelemetry.io/otel/trace v1.36.0 // indirect
 	golang.org/x/arch v0.18.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/net v0.41.0 // indirect

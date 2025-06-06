@@ -7,7 +7,7 @@ toolchain go1.24.2
 require (
 	github.com/RackSec/srslog v0.0.0-20180709174129-a4725f04ec91
 	github.com/gorilla/mux v1.8.1
-	github.com/threatwinds/logger v1.2.1
+	github.com/threatwinds/logger v1.2.2
 	github.com/utmstack/config-client-go v1.2.7
 )
 
