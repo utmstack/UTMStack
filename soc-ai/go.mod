@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/threatwinds/logger v1.2.1
-	github.com/utmstack/config-client-go v1.2.4
+	github.com/utmstack/config-client-go v1.2.7
 )
 
 require (
