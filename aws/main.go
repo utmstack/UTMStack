@@ -21,19 +21,25 @@ func main() {
 	panelServ := configuration.GetPanelServiceName()
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
 
-	st := time.Now().Add(-600 * time.Second)
+	ticker := time.NewTicker(time.Second * delayCheck)
+	defer ticker.Stop()
 
-	for {
+	startTime := time.Now().Add(-600 * time.Second).UTC()
+
+	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.URL_CHECK_CONNECTION); err != nil {
 			utils.Logger.ErrorF("Failed to establish connection: %v", err)
 		}
 
-		et := st.Add(299 * time.Second)
+		endTime := startTime.Add(299 * time.Second).UTC()
+
+		utils.Logger.Info("syncing logs from %s to %s", startTime, endTime)
+
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
 				utils.Logger.LogF(100, "error getting configuration of the AWS module: %v", err)
-				time.Sleep(time.Second * delayCheck)
+				startTime = endTime.Add(time.Second)
 				continue
 			}
 			if (err.Error() != "") && (err.Error() != " ") {
@@ -41,8 +47,7 @@ func main() {
 			}
 
 			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
-			time.Sleep(time.Second * delayCheck)
-			st = et.Add(1)
+			startTime = endTime.Add(time.Second)
 			continue
 		}
 
@@ -62,7 +67,7 @@ func main() {
 				}
 
 				if !skip {
-					processor.PullLogs(st, et, group)
+					processor.PullLogs(startTime, endTime, group)
 				}
 
 				wg.Done()
@@ -71,7 +76,7 @@ func main() {
 
 		wg.Wait()
 		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
-		time.Sleep(time.Second * delayCheck)
-		st = et.Add(1)
+
+		startTime = endTime.Add(time.Second)
 	}
 }
