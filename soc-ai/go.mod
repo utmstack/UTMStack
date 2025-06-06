@@ -6,7 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/gin-contrib/gzip v0.0.6
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/threatwinds/logger v1.2.1
 	github.com/utmstack/config-client-go v1.2.4
