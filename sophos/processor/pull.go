@@ -1,28 +1,26 @@
 package processor
 
 import (
+	"sync"
 	"time"
 
 	"github.com/threatwinds/logger"
-	"github.com/utmstack/UTMStack/sophos/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
-var nextKeys = make(map[int]string)
+var (
+	nextKeys   = make(map[int]string)
+	nextKeysMu sync.RWMutex
+)
 
-func PullLogs(group types.ModuleGroup, startTimeStr, endTimeStr string) *logger.Error {
-	utils.Logger.Info("starting log sync for : %s from %s to %s", group.GroupName, startTimeStr, endTimeStr)
-
-	startTime, err := time.Parse(time.RFC3339, startTimeStr)
-	if err != nil {
-		return utils.Logger.ErrorF("error parsing start time: %v", err)
-	}
-
-	startEpoch := int(startTime.Unix())
+func PullLogs(group types.ModuleGroup, startTime time.Time) *logger.Error {
+	nextKeysMu.RLock()
+	prevKey := nextKeys[group.ModuleID]
+	nextKeysMu.RUnlock()
 
 	agent := getSophosCentralProcessor(group)
 
-	logs, newNextKey, logErr := agent.getLogs(startEpoch, nextKeys[group.ModuleID], group)
+	logs, newNextKey, logErr := agent.getLogs(startTime.Unix(), prevKey, group)
 	if logErr != nil {
 		return logErr
 	}

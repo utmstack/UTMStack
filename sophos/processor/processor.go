@@ -119,7 +119,7 @@ type Pages struct {
 	MaxSize int64  `json:"maxSize"`
 }
 
-func (p *SophosCentralProcessor) getLogs(fromTime int, nextKey string, group types.ModuleGroup) ([]TransformedLog, string, *logger.Error) {
+func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, group types.ModuleGroup) ([]TransformedLog, string, *logger.Error) {
 	accessToken, err := p.getValidAccessToken()
 	if err != nil {
 		return nil, "", utils.Logger.ErrorF("error getting access token: %v", err)
@@ -165,7 +165,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int, nextKey string, group typ
 	return transformedLogs, currentNextKey, nil
 }
 
-func (p *SophosCentralProcessor) buildURL(fromTime int, nextKey string) (*url.URL, *logger.Error) {
+func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.URL, *logger.Error) {
 	baseURL := p.DataRegion + "/siem/v1/events"
 	u, parseErr := url.Parse(baseURL)
 	if parseErr != nil {

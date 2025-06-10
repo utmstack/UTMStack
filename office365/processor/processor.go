@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/utmstack/UTMStack/office365/configuration"
 	"github.com/utmstack/UTMStack/office365/utils"
@@ -97,8 +98,12 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 	return nil
 }
 
-func (o *OfficeProcessor) GetContentList(subscription string, startTime string, endTime string, group types.ModuleGroup) ([]ContentList, error) {
-	url := configuration.GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s", startTime, endTime, subscription)
+func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Time, endTime time.Time, group types.ModuleGroup) ([]ContentList, error) {
+	url := configuration.GetContentLink(o.TenantId) + fmt.Sprintf("?startTime=%s&endTime=%s&contentType=%s",
+		startTime.UTC().Format("2006-01-02T15:04:05"),
+		endTime.UTC().Format("2006-01-02T15:04:05"),
+		subscription,
+	)
 
 	headers := map[string]string{
 		"Content-Type":  "application/json",
@@ -111,7 +116,6 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime string, 
 	}
 
 	return respBody, nil
-
 }
 
 func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse, error) {
@@ -128,11 +132,11 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 	return respBody, nil
 }
 
-func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.ModuleGroup) {
+func (o *OfficeProcessor) GetLogs(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime, group)
 		if err != nil {
-			utils.Logger.ErrorF("error getting content list: %v", err) // Debug
+			utils.Logger.ErrorF("error getting content list: %v", err)
 			continue
 		}
 		logsCounter := 0
@@ -140,7 +144,7 @@ func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					utils.Logger.ErrorF("error getting content details: %v", err) // Debug
+					utils.Logger.ErrorF("error getting content details: %v", err)
 					continue
 				}
 				if len(details) > 0 {
@@ -148,7 +152,7 @@ func (o *OfficeProcessor) GetLogs(startTime string, endTime string, group types.
 					cleanLogs := ETLProcess(details, group)
 					err := SendToLogstash(cleanLogs)
 					if err != nil {
-						utils.Logger.ErrorF("error sending logs to logstash: %v", err) // Debug
+						utils.Logger.ErrorF("error sending logs to logstash: %v", err)
 						continue
 					}
 				}

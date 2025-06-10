@@ -13,70 +13,67 @@ import (
 	"github.com/utmstack/config-client-go/types"
 )
 
-const delayCheck = 300
-
 func main() {
 	utils.Logger.Info("Starting aws module...")
 	intKey := configuration.GetInternalKey()
 	panelServ := configuration.GetPanelServiceName()
+	if intKey == "" || panelServ == "" {
+		utils.Logger.Fatal("Internal key or panel service name is not set. Exiting...")
+	}
 	client := utmconf.NewUTMClient(intKey, "http://"+panelServ)
 
-	ticker := time.NewTicker(time.Second * delayCheck)
+	delay := 5 * time.Minute
+	ticker := time.NewTicker(delay)
 	defer ticker.Stop()
 
-	startTime := time.Now().Add(-600 * time.Second).UTC()
+	startTime := time.Now().UTC().Add(-delay)
 
 	for range ticker.C {
 		if err := utils.ConnectionChecker(configuration.URL_CHECK_CONNECTION); err != nil {
 			utils.Logger.ErrorF("Failed to establish connection: %v", err)
 		}
 
-		endTime := startTime.Add(299 * time.Second).UTC()
+		endTime := time.Now().UTC()
 
-		utils.Logger.Info("syncing logs from %s to %s", startTime, endTime)
+		utils.Logger.Info("Syncing logs from %s to %s", startTime, endTime)
 
 		moduleConfig, err := client.GetUTMConfig(enum.AWS_IAM_USER)
 		if err != nil {
 			if strings.Contains(err.Error(), "invalid character '<'") {
-				utils.Logger.LogF(100, "error getting configuration of the AWS module: %v", err)
-				startTime = endTime.Add(time.Second)
-				continue
+				utils.Logger.LogF(100, "error getting configuration of the AWS module: backend is not available")
 			}
-			if (err.Error() != "") && (err.Error() != " ") {
+			if strings.TrimSpace(err.Error()) != "" {
 				utils.Logger.ErrorF("error getting configuration of the AWS module: %v", err)
 			}
-
-			utils.Logger.Info("sync complete waiting %v seconds", delayCheck)
-			startTime = endTime.Add(time.Second)
 			continue
 		}
 
-		var wg sync.WaitGroup
-		wg.Add(len(moduleConfig.ConfigurationGroups))
+		if moduleConfig.ModuleActive {
+			var wg sync.WaitGroup
+			wg.Add(len(moduleConfig.ConfigurationGroups))
 
-		for _, group := range moduleConfig.ConfigurationGroups {
-			go func(group types.ModuleGroup) {
-				var skip bool
+			for _, grp := range moduleConfig.ConfigurationGroups {
+				go func(group types.ModuleGroup) {
+					defer wg.Done()
+					var skip bool
 
-				for _, cnf := range group.Configurations {
-					if cnf.ConfValue == "" || cnf.ConfValue == " " {
-						utils.Logger.Info("program not configured yet for group: %s", group.GroupName)
-						skip = true
-						break
+					for _, cnf := range group.Configurations {
+						if strings.TrimSpace(cnf.ConfValue) == "" {
+							utils.Logger.LogF(100, "program not configured yet for group: %s", group.GroupName)
+							skip = true
+							break
+						}
 					}
-				}
 
-				if !skip {
-					processor.PullLogs(startTime, endTime, group)
-				}
-
-				wg.Done()
-			}(group)
+					if !skip {
+						processor.PullLogs(startTime, endTime, group)
+					}
+				}(grp)
+			}
+			wg.Wait()
 		}
 
-		wg.Wait()
-		utils.Logger.Info("sync complete waiting %d seconds", delayCheck)
-
-		startTime = endTime.Add(time.Second)
+		utils.Logger.Info("sync completed from %v to %v, waiting 5 minutes", startTime, endTime)
+		startTime = endTime.Add(time.Nanosecond)
 	}
 }
