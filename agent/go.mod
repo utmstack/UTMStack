@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/go-sdk v1.0.40
+	github.com/threatwinds/go-sdk v1.0.43
 	github.com/threatwinds/logger v1.2.2
 	golang.org/x/sys v0.33.0
 	google.golang.org/grpc v1.73.0
