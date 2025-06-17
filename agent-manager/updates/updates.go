@@ -1,6 +1,7 @@
 package updates
 
 import (
+	"crypto/tls"
 	"net/http"
 
 	"github.com/gin-contrib/gzip"
@@ -30,11 +31,28 @@ func ServeDependencies() {
 	group := r.Group("/private", auth.HTTPAuthInterceptor())
 	group.StaticFS("/dependencies", http.Dir("/dependencies"))
 
-	util.Logger.Info("Starting HTTP server on port 8080")
-	if err := r.RunTLS(":8080", "/cert/utm.crt", "/cert/utm.key"); err != nil {
-		util.Logger.ErrorF("error starting HTTP server: %v", err)
-		return
+	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
+	if err != nil {
+		util.Logger.ErrorF("failed to load certificates: %v", err)
 	}
+
+	tlsConfig := &tls.Config{
+		MinVersion:   tls.VersionTLS13,
+		Certificates: []tls.Certificate{cert},
+	}
+
+	server := &http.Server{
+		Addr:      ":8080",
+		Handler:   r,
+		TLSConfig: tlsConfig,
+	}
+
+	util.Logger.Info("Starting HTTP server on port 8080")
+	err = server.ListenAndServeTLS("", "")
+	if err != nil {
+		util.Logger.ErrorF("error starting HTTP server: %v", err)
+	}
+
 }
 
 func notFound(c *gin.Context) {
