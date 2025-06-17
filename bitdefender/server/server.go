@@ -1,6 +1,7 @@
 package server
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
 	"path/filepath"
@@ -80,12 +81,17 @@ func ServerUp(cnf *types.ConfigurationSection, certsPath string) {
 		_, _ = w.Write([]byte("Server is up and running"))
 	}).Methods("GET")
 
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS13,
+	}
+
 	server := &http.Server{
 		Addr:           ":" + constants.GetConnectorPort(),
 		Handler:        r,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		TLSConfig:      tlsConfig,
 	}
 
 	go func() {
