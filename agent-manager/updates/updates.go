@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/UTMStack/agent-manager/auth"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 )
 
@@ -28,7 +27,7 @@ func ServeDependencies() {
 
 	r.NoRoute(notFound)
 
-	group := r.Group("/private", auth.HTTPAuthInterceptor())
+	group := r.Group("/private")
 	group.StaticFS("/dependencies", http.Dir("/dependencies"))
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
