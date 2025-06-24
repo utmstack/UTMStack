@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/UTMStack/agent-manager/auth"
 	"github.com/utmstack/UTMStack/agent-manager/util"
 )
 
@@ -27,7 +28,7 @@ func ServeDependencies() {
 
 	r.NoRoute(notFound)
 
-	group := r.Group("/private")
+	group := r.Group("/private", auth.HTTPAuthInterceptor())
 	group.StaticFS("/dependencies", http.Dir("/dependencies"))
 
 	cert, err := tls.LoadX509KeyPair("/cert/utm.crt", "/cert/utm.key")
@@ -36,8 +37,15 @@ func ServeDependencies() {
 	}
 
 	tlsConfig := &tls.Config{
-		MinVersion:   tls.VersionTLS13,
+		MinVersion:   tls.VersionTLS12,
 		Certificates: []tls.Certificate{cert},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+		},
+
+		PreferServerCipherSuites: true,
 	}
 
 	server := &http.Server{
