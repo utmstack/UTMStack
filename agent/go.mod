@@ -6,11 +6,11 @@ require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/elastic/go-sysinfo v1.15.3
 	github.com/google/uuid v1.6.0
-	github.com/kardianos/service v1.2.2
+	github.com/kardianos/service v1.2.4
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
 	github.com/threatwinds/go-sdk v1.0.40
 	github.com/threatwinds/logger v1.2.2
-	golang.org/x/sys v0.33.0
+	golang.org/x/sys v0.34.0
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v2 v2.4.0
