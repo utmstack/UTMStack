@@ -1,13 +1,14 @@
 package ti
 
 import (
-	"github.com/tidwall/gjson"
-	"github.com/utmstack/UTMStack/correlation/correlation"
-	"github.com/utmstack/UTMStack/correlation/utils"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/tidwall/gjson"
+	"github.com/utmstack/UTMStack/correlation/correlation"
+	"github.com/utmstack/UTMStack/correlation/utils"
 )
 
 type Cache map[string]bool
@@ -34,6 +35,8 @@ func blocked(log string) bool {
 		"drop",
 		"reject",
 		"deny",
+		"timeout",
+		"closed",
 	}
 
 	for _, e := range exclusionList {
