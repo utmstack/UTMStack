@@ -1,3 +1,4 @@
-# UTMStack 10.8.4 Release Notes
+# UTMStack 10.8.5 Release Notes
 
-- Enhanced security and compliance by upgrading several internal components—most notably the update server—to exclusively support TLS 1.3.
+- Expanded the exclusion dictionary for malicious IP connection logs to reduce false positives
+- Automatically close alerts with SOC-AI when the feature is enabled
