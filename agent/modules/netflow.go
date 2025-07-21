@@ -11,7 +11,7 @@ import (
 
 	"github.com/tehmaze/netflow"
 	"github.com/tehmaze/netflow/session"
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/parser"
@@ -176,7 +176,7 @@ func (m *NetflowModule) handleConnection(logsChannel chan []string) {
 			return
 		case messages := <-logsChannel:
 			for _, message := range messages {
-				msg, _, err := validations.ValidateString(message, false)
+				msg, _, err := twsdk.ValidateString(message, false)
 				if err != nil {
 					utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 				}

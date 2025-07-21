@@ -2,7 +2,7 @@ name: Runner
 on:
   workflow_call:
     inputs:
-      tag:
+      environment:
         required: true
         type: string
       microservice:
@@ -21,12 +21,16 @@ jobs:
       - name: Determine Tech
         id: get_tech
         run: |
-          service="${{inputs.microservice}}"
-          if [[ "$service" == "backend" ]]; then
+          folder_changed="${{inputs.microservice}}"
+          if [[ "$folder_changed" == "aws" || "$folder_changed" == "correlation" || "$folder_changed" == "bitdefender" || "$folder_changed" == "office365" || "$folder_changed" == "soc-ai" || "$folder_changed" == "sophos" || "$folder_changed" == "log-auth-proxy" ]]; then
+            tech="golang"
+          elif [[ "$folder_changed" == "backend" ]]; then
             tech="java-11"
-          elif [[ "$service" == "frontend" ]]; then
+          elif [[ "$folder_changed" == "frontend" ]]; then
             tech="frontend"
-          elif [[ "$service" == "user-auditor" || "web-pdf" ]]; then
+          elif [[ "$folder_changed" == "mutate" ]]; then
+            tech="basic"
+          elif [[ "$folder_changed" == "user-auditor" || "web-pdf" ]]; then
             tech="java"
           else
             tech="unknown"
@@ -34,40 +38,48 @@ jobs:
           echo $tech
           echo "::set-output name=tech::$tech"
         shell: bash
+
+  basic_deployment:
+    name: Basic deployment
+    needs: prepare_deployment
+    if: ${{ needs.prepare_deployment.outputs.tech == 'basic' }}
+    uses: ./.github/workflows/v10-used-docker-basic.yml
+    with:
+      image_name: ${{ inputs.microservice }}
+      environment: ${{inputs.environment}}
   
   frontend_deployment:
     name: Frontend deployment
     needs: prepare_deployment
     if: ${{ needs.prepare_deployment.outputs.tech == 'frontend' }}
-    uses: ./.github/workflows/used-docker-frontend.yml
+    uses: ./.github/workflows/v10-v11-used-docker-frontend.yml
     with:
       image_name: ${{ inputs.microservice }}
-      environment: ${{inputs.tag}}-community
+      environment: ${{inputs.environment}}
 
   golang_deployment:
     name: Golang deployment
     needs: prepare_deployment
     if: ${{ needs.prepare_deployment.outputs.tech == 'golang' }}
-    uses: ./.github/workflows/used-docker-golang.yml
+    uses: ./.github/workflows/v10-used-docker-golang.yml
     with:
       image_name: ${{ inputs.microservice }}
-      environment: ${{inputs.tag}}-community
+      environment: ${{inputs.environment}}
 
   java_11_deployment:
     name: Java 11 deployment
     needs: prepare_deployment
     if: ${{ needs.prepare_deployment.outputs.tech == 'java-11' }}
-    uses: ./.github/workflows/used-docker-java-11-new.yml
+    uses: ./.github/workflows/v10-used-docker-java-11.yml
     with:
       image_name: ${{ inputs.microservice }}
-      tag: ${{inputs.tag}}-community
-      version: ${{inputs.tag}}
+      environment: ${{inputs.environment}}
 
   java_deployment:
     name: Java deployment
     needs: prepare_deployment
     if: ${{ needs.prepare_deployment.outputs.tech == 'java' }}
-    uses: ./.github/workflows/used-docker-java.yml
+    uses: ./.github/workflows/v10-v11-used-docker-java.yml
     with:
       image_name: ${{ inputs.microservice }}
-      environment: ${{inputs.tag}}-community
+      environment: ${{inputs.environment}}

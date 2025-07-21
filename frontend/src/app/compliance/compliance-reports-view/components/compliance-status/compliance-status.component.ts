@@ -79,7 +79,7 @@ export class ComplianceStatusComponent implements OnInit {
 
   getModalMessage(status: ComplianceStatusEnum) {
     return !this.isComplaint()
-      ? `You are about to change the compliance status to <b>Complaint (External Tool)</b>.
+      ? `You are about to change the compliance status to <b>Compliant (External Tool)</b>.
        <br><br>
        Please note that you must provide a detailed note explaining where and how this compliance
        is being fulfilled using the external tool.
@@ -95,7 +95,7 @@ export class ComplianceStatusComponent implements OnInit {
   }
 
   isComplaint() {
-    return this.report.configReportStatus === ComplianceStatusEnum.COMPLAINT
+    return this.report.configReportStatus === ComplianceStatusEnum.COMPLIANT
       || (this.report.configReportNote && this.report.configReportNote !== '');
   }
 }

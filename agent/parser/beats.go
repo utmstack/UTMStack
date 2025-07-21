@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
@@ -67,7 +67,7 @@ func (p *BeatsParser) ProcessData(logBatch interface{}) (map[string][]string, er
 			return nil, err
 		} else {
 			if logType != "" {
-				validatedLog, _, err := validations.ValidateString(log, false)
+				validatedLog, _, err := twsdk.ValidateString(log, false)
 				if err != nil {
 					utils.Logger.ErrorF("error validating log: %s: %v", log, err)
 					continue

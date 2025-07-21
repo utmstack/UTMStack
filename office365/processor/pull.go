@@ -1,11 +1,13 @@
 package processor
 
 import (
+	"time"
+
 	"github.com/utmstack/UTMStack/office365/utils"
 	"github.com/utmstack/config-client-go/types"
 )
 
-func PullLogs(startTime string, endTime string, group types.ModuleGroup) {
+func PullLogs(startTime time.Time, endTime time.Time, group types.ModuleGroup) {
 	utils.Logger.Info("starting log sync for : %s from %s to %s", group.GroupName, startTime, endTime)
 
 	agent := GetOfficeProcessor(group)

@@ -10,6 +10,7 @@ import {
   ALERT_TIMESTAMP_FIELD
 } from '../../../../../shared/constants/alert/alert-field.constant';
 import {UtmDateFormatEnum} from '../../../../../shared/enums/utm-date-format.enum';
+import {AlertTags} from '../../../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 import {extractValueFromObjectByPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
@@ -25,6 +26,7 @@ export class DataFieldRenderComponent implements OnInit {
   @Input() field: UtmFieldType;
   @Input() showStatusChange: boolean;
   @Input() dataType: EventDataTypeEnum;
+  @Input() tags: AlertTags[] = [];
   @Output() refreshData = new EventEmitter<boolean>();
   STATUS_FIELD = ALERT_STATUS_FIELD;
   SEVERITY_FIELD = ALERT_SEVERITY_FIELD;

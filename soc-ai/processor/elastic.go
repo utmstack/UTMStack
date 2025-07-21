@@ -27,7 +27,7 @@ func (p *Processor) processAlertToElastic() {
 			continue
 		}
 
-		if gptConfig.ChangeAlertStatus && alert.GPTClassification == "possible false positive" {
+		if gptConfig.ChangeAlertStatus {
 			err = elastic.ChangeAlertStatus(alert.AlertID, configurations.API_ALERT_COMPLETED_STATUS_CODE, alert.GPTClassification+" - "+alert.GPTReasoning)
 			if err != nil {
 				utils.Logger.ErrorF("error while changing alert status in elastic: %v", err)

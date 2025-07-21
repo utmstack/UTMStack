@@ -44,12 +44,15 @@ func ElasticSearch(index, field, value string) ([]byte, error) {
 		"Utm-Internal-Key": configurations.GetInternalKey(),
 	}
 
-	body := schema.SearchDetailsRequest{{Field: field, Operator: "IS", Value: value}}
-	bodyBytes, err := json.Marshal(body)
-	if err != nil {
-		return nil, fmt.Errorf("error marshalling body: %v", err)
+	var bodyBytes []byte
+	var err error
+	if field != "" && value != "" {
+		body := schema.SearchDetailsRequest{{Field: field, Operator: "IS", Value: value}}
+		bodyBytes, err = json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("error marshalling body: %v", err)
+		}
 	}
-
 	resp, statusCode, err := utils.DoReq(url, bodyBytes, "POST", headers, configurations.HTTP_TIMEOUT)
 	if err != nil || statusCode != http.StatusOK {
 		return nil, fmt.Errorf("error while doing request for get Alert Details: %v: %s", err, string(resp))

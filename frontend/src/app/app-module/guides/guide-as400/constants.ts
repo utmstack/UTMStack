@@ -5,9 +5,10 @@ export const PLATFORM = [
         name: 'WINDOWS',
         install: `New-Item -ItemType Directory -Force -Path "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
                   `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
-                  `Invoke-WebRequest -Uri "https://V_IP:9001/private/dependencies/collector/windows-as400-collector.zip" ` +
-                  `-OutFile ".\\windows-as400-collector.zip"; Expand-Archive -Path ".\\windows-as400-collector.zip" ` +
-                  `-DestinationPath "."; Remove-Item ".\\windows-as400-collector.zip"; Start-Process ".\\utmstack_collectors_installer.exe" ` +
+                  `& curl.exe -k -o ".\\windows-as400-collector.zip" ` +
+                  `"https://V_IP:9001/private/dependencies/collector/windows-as400-collector.zip"; ` +
+                  `Expand-Archive -Path ".\\windows-as400-collector.zip" -DestinationPath "."; ` +  
+                  `Remove-Item ".\\windows-as400-collector.zip"; Start-Process ".\\utmstack_collectors_installer.exe" ` +
                   `-ArgumentList 'install', 'as400', 'V_IP', '<secret>V_TOKEN</secret>' -NoNewWindow -Wait`,
 
       uninstall: `cd "C:\\Program Files\\UTMStack\\UTMStack Collectors\\AS400"; ` +
@@ -29,11 +30,11 @@ export const PLATFORM = [
         name: 'LINUX UBUNTU',
         install: `sudo bash -c "apt update -y && apt install wget unzip -y && mkdir -p ` +
                   `/opt/utmstack-linux-collectors/as400 && cd /opt/utmstack-linux-collectors/as400 && ` +
-                  `wget --no-check-certificate --header='connection-key: V_TOKEN' ` +
+                  `wget --no-check-certificate ` +
                   `https://V_IP:9001/private/dependencies/collector/linux-as400-collector.zip ` +
                   `&& unzip linux-as400-collector.zip && rm linux-as400-collector.zip && chmod -R 777 ` +
                   `utmstack_collectors_installer && ./utmstack_collectors_installer install as400 ` +
-                  `V_IP V_TOKEN"`,
+                  `V_IP <secret>V_TOKEN<secret>"`,
 
 
       uninstall: `sudo bash -c " cd /opt/utmstack-linux-collectors/as400 && ./utmstack_collectors_installer ` +

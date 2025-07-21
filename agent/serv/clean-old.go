@@ -51,14 +51,8 @@ func CleanOldServices(cnf *config.Config) {
 
 	if oldVersion {
 		utils.Logger.Info("old version of agent found, downloading new version")
-		headers := map[string]string{
-			"key":  cnf.AgentKey,
-			"id":   fmt.Sprintf("%v", cnf.AgentID),
-			"type": "agent",
-		}
-
 		if runtime.GOOS != "darwin" {
-			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.UpdaterSelf, "")), headers, fmt.Sprintf(config.UpdaterSelf, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.UpdaterSelf, "")), map[string]string{}, fmt.Sprintf(config.UpdaterSelf, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
 				utils.Logger.LogF(100, "error downloading updater: %v", err)
 				return
 			}

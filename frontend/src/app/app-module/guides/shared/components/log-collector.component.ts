@@ -61,12 +61,17 @@ export class LogCollectorComponent {
 
   platforms = [
     {
-      id: 1, name: 'WINDOWS',
+      id: 1, name: 'WINDOWS (ARM64)',
+      command: 'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service_arm64.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
+      shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
+    },
+    {
+      id: 2, name: 'WINDOWS (AMD64)',
       command: 'Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\utmstack_agent_service.exe" -ArgumentList \'ACTION\', \'AGENTNAME\', \'PORT\' -NoNewWindow -Wait\n',
       shell: 'Windows Powershell terminal as “ADMINISTRATOR”'
     },
     {
-      id: 2,
+      id: 3,
       name: 'LINUX', command: 'sudo bash -c "/opt/utmstack-linux-agent/utmstack_agent_service ACTION AGENTNAME PORT"',
       shell: 'Linux bash terminal'
     }

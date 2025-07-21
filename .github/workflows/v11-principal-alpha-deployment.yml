@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: "Version to deploy."
+        description: "Version to deploy.(e.g., v1.0.0-alpha.1)"
         required: true
       event_processor_tag:
-        description: "Event processor version to use for this deployment."
+        description: "Event processor version to use for this deployment.(e.g., 1.0.0-beta)"
         required: true
 
 jobs:
@@ -58,14 +58,27 @@ jobs:
   deploy:
     name: Deploy to Alpha
     needs: validations
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/v11-used-build.yml
     with:
       version_tag: ${{ github.event.inputs.version_tag }}
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
       environment: alpha
     secrets:
       AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      SIGN_CONTAINER: ${{ secrets.SIGN_CONTAINER }}
+      SIGNER_TOKEN: ${{ secrets.SIGNER_TOKEN }}
       CM_AUTH: ${{ secrets.CM_AUTH_ALPHA }}
+
+  schedule:
+    name: Schedule release to alpha
+    needs: deploy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Run publisher
+        run: |
+          curl -sSL -H "Authorization: Bearer ${{ secrets.SIGNER_TOKEN }}" \
+            "http://customermanager.utmstack.com:8081/api/v1/fs/v11-alpha/version-publisher" -o ./version-publisher
+            
+          chmod +x ./version-publisher
+          ./version-publisher '43cb25b3-1426-4c77-8bbe-b2e0b491ce08' '${{ github.event.inputs.version_tag }}'
+          echo "Scheduled release to alpha for version ${{ github.event.inputs.version_tag }}."
     

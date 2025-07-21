@@ -56,8 +56,7 @@ export class GuideWinlogbeatComponent implements OnInit {
     const ip = window.location.host.includes(':') ? window.location.host.split(':')[0] : window.location.host;
 
     return `New-Item -ItemType Directory -Force -Path "C:\\Program Files\\UTMStack\\UTMStack Agent"; ` +
-      `& curl.exe -k -H "connection-key: <secret>${this.token}</secret>" ` +
-      `-o "C:\\Program Files\\UTMStack\\UTMStack Agent\\${arch}" ` +
+      `& curl.exe -k -o "C:\\Program Files\\UTMStack\\UTMStack Agent\\${arch}" ` +
       `"https://${ip}:9001/private/dependencies/agent/${arch}"; ` +
       `Start-Process "C:\\Program Files\\UTMStack\\UTMStack Agent\\${arch}" ` +
       `-ArgumentList 'install', '${ip}', '<secret>${this.token}</secret>', 'yes' -NoNewWindow -Wait`;

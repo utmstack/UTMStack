@@ -97,7 +97,6 @@ export class AgentInstallSelectorComponent {
   }
 
   onChangeAction(action: any) {
-    console.log(action);
     if (this.selectedPlatform &&  action.name === 'UNINSTALL') {
       this.openModal();
     }

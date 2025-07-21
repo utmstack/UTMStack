@@ -21,7 +21,7 @@
               <div [innerHtml]="step.name"></div>
               <ng-container *ngIf="step.content">
 
-                <ng-template [ngIf]="step.content.id === 'stepContent2'">
+                <ng-template [ngIf]="step.content.id === 'stepContent3'">
                   <app-agent-install-selector [platforms]="architectures" [_selectedPlatform]="architectures[0]"></app-agent-install-selector>
                 </ng-template>
               </ng-container>

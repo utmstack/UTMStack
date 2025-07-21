@@ -29,13 +29,7 @@ func UpdateDependencies(cnf *config.Config) {
 	for {
 		time.Sleep(checkEvery)
 
-		headers := map[string]string{
-			"key":  cnf.AgentKey,
-			"id":   fmt.Sprintf("%v", cnf.AgentID),
-			"type": "agent",
-		}
-
-		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), headers, "version_new.json", utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+		if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), map[string]string{}, "version_new.json", utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
 			utils.Logger.ErrorF("error downloading version.json: %v", err)
 			continue
 		}
@@ -48,7 +42,7 @@ func UpdateDependencies(cnf *config.Config) {
 
 		if newVersion.Version != currentVersion.Version {
 			utils.Logger.Info("New version of agent found: %s", newVersion.Version)
-			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.ServiceFile, "")), headers, fmt.Sprintf(config.ServiceFile, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
+			if err := utils.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, fmt.Sprintf(config.ServiceFile, "")), map[string]string{}, fmt.Sprintf(config.ServiceFile, "_new"), utils.GetMyPath(), cnf.SkipCertValidation); err != nil {
 				utils.Logger.ErrorF("error downloading agent: %v", err)
 				continue
 			}

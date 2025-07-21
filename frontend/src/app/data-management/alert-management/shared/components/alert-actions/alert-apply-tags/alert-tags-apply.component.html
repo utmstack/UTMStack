@@ -2,10 +2,10 @@
      placement="auto"
      container="body"
      tooltipClass="utm-tooltip-top" (click)="addNewTagRule()" *ngIf="tags;else loadingTag">
-    <span class="text-blue-800 position-relative cursor-pointer small-md-icon text-center d-inline"
-    >
+    <span [ngClass]="{'text-blue-800 position-relative cursor-pointer': showIcon}"
+      class="small-md-icon text-center d-inline">
 
-      <i [ngClass]="icon" [ngStyle]="{'color':color}"></i>
+      <i *ngIf="showIcon" [ngClass]="icon" [ngStyle]="{'color':color}"></i>
       <span *ngIf="selected.length>1" class="tag-count badge badge-danger">
         {{selected.length <= 5 ? selected.length : '+5'}}
       </span>

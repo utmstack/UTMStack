@@ -35,10 +35,6 @@ func main() {
 	geo.Load()
 	ti.Load()
 
-	ready := make(chan bool, 1)
-	go rules.Update(ready)
-	<-ready
-
 	rulesL := rules.GetRules()
 	for _, rule := range rulesL {
 		go correlation.Finder(rule)

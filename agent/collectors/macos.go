@@ -1,14 +1,16 @@
-//go:build darwin && arm64
-// +build darwin,arm64
+//go:build darwin
+// +build darwin
 
 package collectors
 
 import (
 	"bufio"
+	"os"
 	"os/exec"
 	"path/filepath"
 
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
+
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/utils"
@@ -29,6 +31,11 @@ func getCollectorsInstances() []Collector {
 func (d Darwin) SendLogs() {
 	path := utils.GetMyPath()
 	collectorPath := filepath.Join(path, "utmstack-collector-mac")
+	host, err := os.Hostname()
+	if err != nil {
+		utils.Logger.ErrorF("error getting hostname: %v", err)
+		host = "unknown"
+	}
 
 	cmd := exec.Command(collectorPath)
 
@@ -56,15 +63,17 @@ func (d Darwin) SendLogs() {
 
 			utils.Logger.LogF(100, "output: %s", logLine)
 
-			validatedLog, _, err := validations.ValidateString(logLine, false)
+			validatedLog, _, err := twsdk.ValidateString(logLine, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating log: %s: %v", logLine, err)
 				continue
 			}
 
+			messageWithHost := config.GetMessageFormated(host, validatedLog)
+
 			logservice.LogQueue <- logservice.LogPipe{
 				Src:  string(config.DataTypeMacOs),
-				Logs: []string{validatedLog},
+				Logs: []string{messageWithHost},
 			}
 		}
 

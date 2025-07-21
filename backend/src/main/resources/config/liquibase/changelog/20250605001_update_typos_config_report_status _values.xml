@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250605001" author="Manuel">
+        <sql>
+            UPDATE utm_compliance_report_config
+            SET config_report_status = 'COMPLIANT'
+            WHERE config_report_status = 'COMPLAINT';
+        </sql>
+        <sql>
+            UPDATE utm_compliance_report_config
+            SET config_report_status = 'NON_COMPLIANT'
+            WHERE config_report_status = 'NON_COMPLAINT';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

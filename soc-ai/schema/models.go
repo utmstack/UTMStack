@@ -3,7 +3,7 @@ package schema
 type AlertGPTDetails struct {
 	AlertID                        string `json:"alert_id,omitempty"`
 	Severity                       int    `json:"severity,omitempty"`
-	TagRulesApplied                string `json:"tag_rules_applied,omitempty"`
+	TagRulesApplied                []int  `json:"tag_rules_applied,omitempty"`
 	SeverityLabel                  string `json:"severity_label,omitempty"`
 	Notes                          string `json:"notes,omitempty"`
 	DataType                       string `json:"data_type,omitempty"`

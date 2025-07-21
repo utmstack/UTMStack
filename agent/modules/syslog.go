@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/validations"
+	twsdk "github.com/threatwinds/go-sdk/entities"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/logservice"
 	"github.com/utmstack/UTMStack/agent/parser"
@@ -328,7 +328,7 @@ func (m *SyslogModule) handleMessageTCP(logsChannel chan string) {
 
 		case message := <-logsChannel:
 			message = strings.TrimSuffix(message, "\n")
-			message, _, err := validations.ValidateString(message, false)
+			message, _, err := twsdk.ValidateString(message, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 			}
@@ -393,7 +393,7 @@ func (m *SyslogModule) handleConnectionUDP(logsChannel chan string) {
 
 		case message := <-logsChannel:
 			message = strings.TrimSuffix(message, "\n")
-			message, _, err := validations.ValidateString(message, false)
+			message, _, err := twsdk.ValidateString(message, false)
 			if err != nil {
 				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
 			}

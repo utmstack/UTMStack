@@ -133,7 +133,7 @@ export class ComplianceReportDetailComponent implements OnInit {
   }
 
   isComplaint() {
-    return this.report.configReportStatus === ComplianceStatusEnum.COMPLAINT
+    return this.report.configReportStatus === ComplianceStatusEnum.COMPLIANT
       || (this.report.configReportNote && this.report.configReportNote !== '');
   }
 }

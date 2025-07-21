@@ -91,5 +91,21 @@
 
     <include file="/config/liquibase/changelog/20250418001_add_options_module_group_config.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250507001_add_aws_pipeline.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250507002_add_sophos_central_pipeline.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250507003_add_o365_pipeline.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250515001_update_filter_aws.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250515003_update_filter_o365.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250516001_udpate_sophos_name.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250530001_update_filter_wineventlog.xml" relativeToChangelogFile="false"/>
+
+    <include file="/config/liquibase/changelog/20250605001_update_typos_config_report_status _values.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

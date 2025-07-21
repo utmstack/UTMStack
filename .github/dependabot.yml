@@ -22,15 +22,3 @@ updates:
       - "/web-pdf"
     schedule:
       interval: "daily"
-  - package-ecosystem: 'github-actions'
-    directory: '/'
-    schedule:
-      interval: 'daily'
-  - package-ecosystem: pip
-    directory: "/mutate"
-    schedule:
-      interval: daily
-    groups:
-      python-packages:
-        patterns:
-          - "*"

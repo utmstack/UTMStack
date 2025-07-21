@@ -9,33 +9,26 @@ import com.park.utmstack.domain.compliance.UtmComplianceReportConfig;
 import com.park.utmstack.domain.compliance.UtmComplianceStandard;
 import com.park.utmstack.domain.compliance.UtmComplianceStandardSection;
 import com.park.utmstack.domain.compliance.enums.ComplianceStatus;
-import com.park.utmstack.domain.index_pattern.UtmIndexPattern;
 import com.park.utmstack.repository.compliance.UtmComplianceReportConfigRepository;
 import com.park.utmstack.service.chart_builder.UtmDashboardService;
 import com.park.utmstack.service.chart_builder.UtmDashboardVisualizationService;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
-import com.park.utmstack.service.elasticsearch.SearchUtil;
 import com.park.utmstack.service.index_pattern.UtmIndexPatternService;
-import com.park.utmstack.util.UtilPagination;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UtmComplianceReportConfigService {
@@ -196,9 +189,9 @@ public class UtmComplianceReportConfigService {
         if(Objects.nonNull(visualization)){
             RequestDsl requestQuery = new RequestDsl(visualization);
             SearchResponse<ObjectNode> result = elasticsearchService.search(requestQuery.getSearchSourceBuilderForCount().build(), ObjectNode.class);
-            return result.hits().total().value() > 0 ? ComplianceStatus.COMPLAINT : ComplianceStatus.NON_COMPLAINT;
+            return result.hits().total().value() > 0 ? ComplianceStatus.COMPLIANT : ComplianceStatus.NON_COMPLIANT;
         } else {
-            return ComplianceStatus.NON_COMPLAINT;
+            return ComplianceStatus.NON_COMPLIANT;
         }
     }
 }

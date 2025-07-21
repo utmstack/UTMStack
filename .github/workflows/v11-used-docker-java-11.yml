@@ -9,9 +9,6 @@ on:
       tag:
         required: true
         type: string
-      version:
-        required: true
-        type: string
 jobs:
   build:
     name: Build
@@ -30,8 +27,8 @@ jobs:
         working-directory: ./${{inputs.image_name}}
         run: |
           echo "Building with maven"
-          echo "The configured version is: ${{ inputs.version }}"
-          mvn -B -Drevision=${{ inputs.version }} -Pprod clean package -s settings.xml
+          echo "The configured version is: ${{ inputs.tag }}"
+          mvn -B -Drevision=${{ inputs.tag }} -Pprod clean package -s settings.xml
         env:
           MAVEN_TK: ${{ secrets.GITHUB_TOKEN }}
 

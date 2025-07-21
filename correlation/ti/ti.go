@@ -1,6 +1,7 @@
 package ti
 
 import (
+	"net"
 	"runtime"
 	"strings"
 	"sync"
@@ -102,14 +103,16 @@ func IsBlocklisted() {
 			for {
 				log := <-channel
 
-				sourceIp := gjson.Get(log, "logx.*.src_ip")
-				destinationIp := gjson.Get(log, "logx.*.dest_ip")
+				sourceIpStr := gjson.Get(log, "logx.*.src_ip")
+				destinationIpStr := gjson.Get(log, "logx.*.dest_ip")
+				sourceIp := net.ParseIP(sourceIpStr.String())
+				destinationIp := net.ParseIP(destinationIpStr.String())
 
-				if !cache.IsCached(sourceIp.String()) {
-					if _, ok := blockList[sourceIp.String()]; ok && !blocked(log) {
+				if sourceIp != nil && !cache.IsCached(sourceIp.String()) {
+					if severity, ok := blockList[sourceIp.String()]; ok && !blocked(log) {
 						correlation.Alert(
-							"Connection attempt from a malicious IP",
-							"Low",
+							"Connection from a malicious IP",
+							severity,
 							"A blocklisted element has been identified in the logs. Further investigation is recommended.",
 							"",
 							"Threat Intelligence",
@@ -125,11 +128,11 @@ func IsBlocklisted() {
 					cache.Add(sourceIp.String())
 				}
 
-				if !cache.IsCached(destinationIp.String()) {
-					if _, ok := blockList[destinationIp.String()]; ok && !blocked(log) {
+				if destinationIp != nil && !cache.IsCached(destinationIp.String()) {
+					if severity, ok := blockList[destinationIp.String()]; ok && !blocked(log) {
 						correlation.Alert(
-							"Connection attempt from a malicious IP",
-							"Low",
+							"Connection to a malicious IP",
+							severity,
 							"A blocklisted element has been identified in the logs. Further investigation is recommended.",
 							"",
 							"Threat Intelligence",

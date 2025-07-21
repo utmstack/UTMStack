@@ -3,6 +3,7 @@ package gpt
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/utmstack/soc-ai/configurations"
@@ -26,9 +27,26 @@ func GetGPTClient() *GPTClient {
 
 func (c *GPTClient) Request(alert schema.AlertGPTDetails) (string, error) {
 	content := configurations.GPT_INSTRUCTION
+
+	if alert.Description != "" {
+		correlationContext := strings.Split(alert.Description, "\nHistorical Context:")
+		if len(correlationContext) > 1 {
+			content = fmt.Sprintf("%s%s",
+				content, fmt.Sprintf(configurations.CORRELATION_CONTEXT, correlationContext[1]))
+		}
+	}
+
 	if alert.Logs == "" || alert.Logs == " " {
 		content += content + ". " + configurations.GPT_FALSE_POSITIVE
 	}
+
+	if alert.Logs != "" && alert.Logs != " " {
+		logs := strings.Split(alert.Logs, configurations.LOGS_SEPARATOR)
+		if len(logs) > 0 {
+			alert.Logs = logs[len(logs)-1]
+		}
+	}
+
 	jsonContent, err := json.Marshal(alert)
 	if err != nil {
 		return "", fmt.Errorf("error marshalling alert: %v", err)
