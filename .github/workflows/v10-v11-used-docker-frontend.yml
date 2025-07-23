@@ -32,7 +32,7 @@ jobs:
         working-directory: ./${{inputs.image_name}}
         run: |
           export NODE_OPTIONS=--max_old_space_size=8192
-          npm install
+          npm ci
           npm run-script build
 
       - name: Setup BuildX
