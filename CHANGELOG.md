@@ -1,4 +1,4 @@
-# UTMStack 10.8.5 Release Notes
+# UTMStack 10.8.6 Release Notes
 
 - Expanded the exclusion dictionary for malicious IP connection logs to reduce false positives.
-- Automatically close alerts with SOC-AI when the feature is enabled.
+- Added support for older Linux versions (RedHat 7, RedHat 8, Ubuntu 20.04).

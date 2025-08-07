@@ -85,7 +85,7 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -o utmstack_agent_service.exe -v .
           GOOS=windows GOARCH=arm64 go build -o utmstack_agent_service_arm64.exe -v .
 
-          if [[ {{ needs.setup_deployment.outputs.tag }} != "v10-dev" ]]; then
+          if [[ ${{ needs.setup_deployment.outputs.tag }} != "v10-dev" ]]; then
             echo "Signing Windows Agent..."
             FILES_TO_SIGN=("utmstack_agent_service.exe" "utmstack_agent_service_arm64.exe")
             for file in "${FILES_TO_SIGN[@]}"; do

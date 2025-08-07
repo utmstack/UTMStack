@@ -38,6 +38,9 @@ func blocked(log string) bool {
 		"deny",
 		"timeout",
 		"closed",
+		"close",
+		"client-rst",
+		"server-rst",
 	}
 
 	for _, e := range exclusionList {

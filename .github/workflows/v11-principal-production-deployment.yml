@@ -54,7 +54,6 @@ jobs:
       version_tag: ${{ github.event.inputs.version_tag }}
       event_processor_tag: ${{ github.event.inputs.event_processor_tag }}
       environment: prod
-      ghcr_token: ${{ secrets.GITHUB_TOKEN }}
     secrets:
       AGENT_SECRET_PREFIX: ${{ secrets.AGENT_SECRET_PREFIX }}
       SIGNER_TOKEN: ${{ secrets.SIGNER_TOKEN }}
