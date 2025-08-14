@@ -179,6 +179,11 @@
                         [guideName]="module.prettyName"
                         [integrationId]="module.id"></app-guide-syslog>
 
+      <app-guide-syslog [serverId]="serverId" *ngSwitchCase="moduleEnum.SURICATA"
+                        [moduleEnum]="moduleEnum.SURICATA"
+                        [guideName]="module.prettyName"
+                        [integrationId]="module.id"></app-guide-syslog>
+
 
   </div>
   <ng-template #loading>

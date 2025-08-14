@@ -72,6 +72,9 @@ export class GuideSyslogComponent implements OnInit {
 
     {module: UtmModulesEnum.AIX, port: '7016 TCP'},
     {module: UtmModulesEnum.AIX, port: '7016 UDP'},
+
+    {module: UtmModulesEnum.SURICATA, port: '7019 TCP'},
+    {module: UtmModulesEnum.SURICATA, port: '7019 UDP'},
   ];
 
   steps: Step[] = SYSLOGSTEPS;

@@ -170,6 +170,9 @@ export class LogCollectorComponent {
       case UtmModulesEnum.NETFLOW:
         return 'netflow';
 
+      case UtmModulesEnum.SURICATA:
+        return 'suricata';
+
       case UtmModulesEnum.FIRE_POWER:
       case UtmModulesEnum.CISCO:
       case UtmModulesEnum.CISCO_SWITCH:
