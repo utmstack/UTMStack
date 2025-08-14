@@ -72,6 +72,7 @@ const (
 	AS400                            = "as_400"
 	FirewallPfsense                  = "firewall_pfsense"
 	FirewallFortiweb                 = "firewall_fortiweb"
+	Suricata                         = "suricata"
 )
 
 type ServiceStatus string
