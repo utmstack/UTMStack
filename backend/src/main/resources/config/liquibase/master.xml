@@ -107,5 +107,7 @@
 
     <include file="/config/liquibase/changelog/20250605001_update_typos_config_report_status _values.xml" relativeToChangelogFile="false"/>
 
+    <include file="/config/liquibase/changelog/20250814001_adding_suricata.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

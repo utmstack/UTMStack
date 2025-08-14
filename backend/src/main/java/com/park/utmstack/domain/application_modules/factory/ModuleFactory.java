@@ -67,6 +67,7 @@ public class ModuleFactory {
     private final ModulePfsense modulePfsense;
     private final ModuleFortiWeb moduleFortiWeb;
     private final ModuleAix moduleAix;
+    private final ModuleSuricata moduleSuricata;
 
 
     public ModuleFactory(ModuleFileIntegrity moduleFileIntegrity,
@@ -129,7 +130,8 @@ public class ModuleFactory {
                          ModuleSocAi moduleSocAi,
                          ModulePfsense modulePfsense,
                          ModuleFortiWeb moduleFortiWeb,
-                         ModuleAix moduleAix) {
+                         ModuleAix moduleAix,
+                         ModuleSuricata moduleSuricata) {
         this.moduleFileIntegrity = moduleFileIntegrity;
         this.moduleO365 = moduleO365;
         this.moduleAzure = moduleAzure;
@@ -191,6 +193,7 @@ public class ModuleFactory {
         this.modulePfsense = modulePfsense;
         this.moduleFortiWeb = moduleFortiWeb;
         this.moduleAix = moduleAix;
+        this.moduleSuricata = moduleSuricata;
     }
 
     public IModule getInstance(ModuleName nameShort) {
@@ -316,6 +319,8 @@ public class ModuleFactory {
             return moduleFortiWeb;
         if (nameShort.equals(ModuleName.AIX))
             return moduleAix;
+        if (nameShort.equals(ModuleName.SURICATA))
+            return moduleSuricata;
         throw new RuntimeException("Unrecognized module " + nameShort.name());
     }
 }
