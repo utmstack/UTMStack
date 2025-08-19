@@ -21,7 +21,7 @@
                             VALUES ('Suricata',
                                     'Suricata is an open-source based intrusion detection system (IDS) and intrusion prevention system (IPS).',
                                     FALSE,
-                                    'suricata.svg',
+                                    'suricata.png',
                                     'SURICATA',
                                     srv_id,
                                     'Device',
@@ -29,7 +29,7 @@
                                     TRUE,
                                     TRUE)
                                 ON CONFLICT (module_name, server_id) DO UPDATE SET pretty_name        = 'Suricata',
-                                                                            module_icon        = 'suricata.svg',
+                                                                            module_icon        = 'suricata.png',
                                                                             module_name        = 'SURICATA',
                                                                             module_category    = 'Device',
                                                                             module_description = 'Suricata is an open-source based intrusion detection system (IDS) and intrusion prevention system (IPS).',
@@ -164,9 +164,9 @@
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
                 INSERT INTO utm_logstash_filter (id, logstash_filter, filter_name, filter_group_id, system_owner, module_name, is_active, filter_version)
-                VALUES (1528, 'filter {
+                VALUES (1528, $$filter {
 
-# Suricata filter version 1.0.0
+# Suricata filter version 1.0.4
 # Based on https://suricata.readthedocs.io/en/latest/output/eve/eve-json-format.html (latest 8.0.0) (august 2025)
 # and real events log provided
 # Support json format
@@ -190,11 +190,27 @@
     }
 
     if ![dataType] {
-      if [path] and [path] == "/var/log/suricata/eve.json" {
-          if [message] {
-            json { source => "message" }
+      # Parse Suricata logs from syslog
+      if [message] =~ /suricata\[\d+\]:.*event_type/ {
+        grok {
+          match => {
+            "message" => "<%{POSINT:syslog_pri}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:syslog_host} %{PROG:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:suricata_json}"
           }
-          if [event_type] and ([event_type] == "anomaly" or [event_type] == "tls" or [event_type] == "flow"
+          tag_on_failure => ["_grokparsefailure_suricata"]
+        }
+
+        if [suricata_json] {
+          json {
+            source => "suricata_json"
+          }
+          mutate {
+            remove_field => ["suricata_json", "syslog_pri", "syslog_timestamp", "syslog_program", "syslog_pid"]
+          }
+        }
+
+
+      # Process all Suricata event types (from both syslog and file)
+      if [event_type] and ([event_type] == "anomaly" or [event_type] == "tls" or [event_type] == "flow"
           or [event_type] == "alert" or [event_type] == "dns" or [event_type] == "ssh"
           or [event_type] == "http" or [event_type] == "ftp" or [event_type] == "ftp_data"
           or [event_type] == "tftp" or [event_type] == "smb" or [event_type] == "initial_request"
@@ -215,20 +231,36 @@
                   rename => ["src_port", "[logx][suricata][src_port]"]
                   rename => ["tx_id", "[logx][suricata][tx_id]"]
               }
-          }
-          if (![dataSource]){
-            mutate {
-              add_field => { "dataSource" => "%{host}" }
-            }
-          }
+      }
 
+      # Set dataSource from syslog_host or host
+      if (![dataSource]){
+        if [syslog_host] {
           mutate {
-              add_field => {
-                  "dataType" => "suricata"
-              }
-              remove_field => [ "timestamp", "type", "path"]
-              rename => ["event_type", "[logx][suricata][event_type]"]
+            add_field => { "dataSource" => "%{syslog_host}" }
           }
+        } else if [host] {
+          mutate {
+            add_field => { "dataSource" => "%{host}" }
+          }
+        }
+      }
+
+      # Clean up syslog_host field after using it
+      if [syslog_host] {
+        mutate {
+          remove_field => ["syslog_host"]
+        }
+      }
+
+      # Add dataType and clean up fields
+      mutate {
+          add_field => {
+              "dataType" => "suricata"
+          }
+          remove_field => [ "timestamp", "type", "path"]
+          rename => ["event_type", "[logx][suricata][event_type]"]
+      }
           if [tls] {
               mutate {
                   rename => ["tls", "[logx][suricata][tls]"]
@@ -423,9 +455,9 @@
             if [logx][suricata][src_ip] and [logx][suricata][dest_ip] and [logx][suricata][ftp][completion_code] {
                 ruby {
                   code => "
-                      event.get(''[logx][suricata][ftp][completion_code]'').each_with_index do |value,key|
+                      event.get('[logx][suricata][ftp][completion_code]').each_with_index do |value,key|
                           if value =~ /(2\d\d)|(125)/
-                            event.set(''[logx][utm][action]'', ''Success'')
+                            event.set('[logx][utm][action]', 'Success')
                           end
                       end
                       "
@@ -477,9 +509,9 @@
             ([logx][suricata][http2][response][headers] ) {
               ruby {
                   code => "
-                      event.get(''[logx][suricata][http2][response][headers]'').each_with_index do |value,key|
-                          if (value[''name''] == ''status'' or value[''name''] == '':status'')
-                            event.set(''[logx][utm][action]'', ''Success'')
+                      event.get('[logx][suricata][http2][response][headers]').each_with_index do |value,key|
+                          if (value['name'] == 'status' or value['name'] == ':status')
+                            event.set('[logx][utm][action]', 'Success')
                           end
                       end
                       "
@@ -540,8 +572,12 @@
             }
           }
       }
+      # Remove fields that are not needed
+      mutate {
+        remove_field => ["original_log_message", "suricata_json"]
+      }
     }
-}', 'suricata', null, true, 'SURICATA', false, '2.0.0');
+}$$, 'suricata', null, true, 'SURICATA', false, '2.0.0');
             ]]>
         </sql>
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
