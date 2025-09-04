@@ -52,7 +52,7 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
     this.loading = true;
     from(this.rules).pipe(
       concatMap(rule =>
-        this.ruleService.saveRule('ADD', rule).pipe(
+        this.ruleService.saveRule('ADD', rule.rule).pipe(
           tap(() => rule.isLoading = !rule.isLoading),
           map((response: HttpResponse<any>) => {
             if (response.status === 204) {
