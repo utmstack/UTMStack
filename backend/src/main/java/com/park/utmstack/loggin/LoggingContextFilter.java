@@ -1,5 +1,6 @@
-package com.park.utmstack.config;
+package com.park.utmstack.loggin;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +10,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,11 +29,14 @@ public class LoggingContextFilter extends OncePerRequestFilter {
                     .map(Authentication::getName)
                     .orElse("anonymous");
 
-            MDC.put("username", username);
-            MDC.put("requestId", UUID.randomUUID().toString());
-            MDC.put("path", request.getRequestURI());
-            MDC.put("method", request.getMethod());
-            MDC.put("remoteAddr", request.getRemoteAddr());
+            Map<String, Object> args = new HashMap<>();
+            args.put("username", username);
+            args.put("requestId", UUID.randomUUID().toString());
+            args.put("path", request.getRequestURI());
+            args.put("method", request.getMethod());
+            args.put("remoteAddr", request.getRemoteAddr());
+
+            MDC.put("args", new ObjectMapper().writeValueAsString(args));
 
             filterChain.doFilter(request, response);
         } finally {
