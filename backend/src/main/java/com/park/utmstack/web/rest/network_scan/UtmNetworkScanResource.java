@@ -4,13 +4,12 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.network_scan.NetworkScanFilter;
 import com.park.utmstack.domain.network_scan.Property;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
-import com.park.utmstack.domain.network_scan.enums.PropertyFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 import com.park.utmstack.service.dto.network_scan.UtmNetworkScanCriteria;
 import com.park.utmstack.service.network_scan.UtmNetworkScanQueryService;
 import com.park.utmstack.service.network_scan.UtmNetworkScanService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -284,7 +283,7 @@ public class UtmNetworkScanResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 

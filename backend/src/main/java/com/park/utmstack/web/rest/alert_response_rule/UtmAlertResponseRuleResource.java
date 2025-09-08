@@ -11,7 +11,7 @@ import com.park.utmstack.service.dto.UtmAlertResponseActionTemplateCriteria;
 import com.park.utmstack.service.dto.UtmAlertResponseActionTemplateDTO;
 import com.park.utmstack.service.dto.UtmAlertResponseRuleCriteria;
 import com.park.utmstack.service.dto.UtmAlertResponseRuleDTO;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,14 +58,14 @@ public class UtmAlertResponseRuleResource {
                 String msg = ctx + ": A new rule cannot already have an ID";
                 log.error(msg);
                 eventService.createEvent(msg, ApplicationEventType.ERROR);
-                return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+                return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
             return ResponseEntity.ok(new UtmAlertResponseRuleDTO(alertResponseRuleService.save(new UtmAlertResponseRule(dto))));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -77,14 +77,14 @@ public class UtmAlertResponseRuleResource {
                 String msg = ctx + ": The rule you are trying to update does not have a valid ID";
                 log.error(msg);
                 eventService.createEvent(msg, ApplicationEventType.ERROR);
-                return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+                return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
             return ResponseEntity.ok(new UtmAlertResponseRuleDTO(alertResponseRuleService.save(new UtmAlertResponseRule(dto))));
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -100,7 +100,7 @@ public class UtmAlertResponseRuleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -117,7 +117,7 @@ public class UtmAlertResponseRuleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -130,7 +130,7 @@ public class UtmAlertResponseRuleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -143,7 +143,7 @@ public class UtmAlertResponseRuleResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

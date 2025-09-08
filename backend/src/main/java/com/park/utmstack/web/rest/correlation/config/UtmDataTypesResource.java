@@ -4,8 +4,7 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.correlation.config.UtmDataTypesService;
-import com.park.utmstack.util.UtilResponse;
-import com.park.utmstack.web.rest.errors.BadRequestAlertException;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import io.undertow.util.BadRequestException;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -55,12 +53,12 @@ public class UtmDataTypesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -80,12 +78,12 @@ public class UtmDataTypesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -102,7 +100,7 @@ public class UtmDataTypesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -122,12 +120,12 @@ public class UtmDataTypesResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -163,6 +161,6 @@ public class UtmDataTypesResource {
     public ResponseEntity<UtmDataTypes> getDataType(@PathVariable Long id) {
         log.debug("REST request to get UtmDataTypes : {}", id);
         Optional<UtmDataTypes> datatype = dataTypesService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(datatype);
+        return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(datatype);
     }
 }

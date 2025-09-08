@@ -1,29 +1,25 @@
 package com.park.utmstack.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.federation_service.UtmFederationServiceClient;
-import com.park.utmstack.domain.tfa.TfaMethod;
 import com.park.utmstack.repository.federation_service.UtmFederationServiceClientRepository;
 import com.park.utmstack.security.TooMuchLoginAttemptsException;
 import com.park.utmstack.security.jwt.JWTFilter;
 import com.park.utmstack.security.jwt.TokenProvider;
-import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UserService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.jwt.JWTToken;
 import com.park.utmstack.service.dto.jwt.LoginResponseDTO;
 import com.park.utmstack.service.login_attempts.LoginAttemptService;
-import com.park.utmstack.service.tfa.EmailTotpService;
 import com.park.utmstack.service.tfa.TfaService;
 import com.park.utmstack.util.CipherUtil;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.InvalidConnectionKeyException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.vm.LoginVM;
+import net.logstash.logback.argument.StructuredArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -33,16 +29,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * Controller to authenticate users.
@@ -79,7 +73,7 @@ public class UserJWTController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<LoginResponseDTO> authorize(@Valid @RequestBody LoginVM loginVM) {
+    public ResponseEntity<LoginResponseDTO> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletRequest request) {
         final String ctx = CLASSNAME + ".authorize";
         try {
             if (loginAttemptService.isBlocked())
@@ -107,21 +101,24 @@ public class UserJWTController {
                     .success(true)
                     .tfaRequired(isTfaEnabled)
                     .build(), HttpStatus.OK);
-        } catch (BadCredentialsException e) {
+        } /*catch (BadCredentialsException e) {
+            String msg = ctx + ": " + e.getMessage();
+            Map<String, Object> args = Map.of(
+                    "method", request.getMethod(),
+                    "path", request.getRequestURI(),
+                    "remoteAddr", request.getRemoteAddr()
+            );
+
+            log.error("Authentication failure: {},", msg, StructuredArguments.keyValue("args", args));
+            log.error("Authentication failure: {}, {}", msg, StructuredArguments.keyValue("args", args));
+
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseUtil.buildUnauthorizedResponse(msg);
+        }*/ catch (TooMuchLoginAttemptsException e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildUnauthorizedResponse(msg);
-        } catch (TooMuchLoginAttemptsException e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildLockedResponse(msg);
-        } catch (Exception e) {
-            String msg = ctx + ": " + e.getMessage();
-            log.error(msg);
-            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildLockedResponse(msg);
         }
     }
 
@@ -181,12 +178,12 @@ public class UserJWTController {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildBadRequestResponse(msg);
+            return ResponseUtil.buildBadRequestResponse(msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 }

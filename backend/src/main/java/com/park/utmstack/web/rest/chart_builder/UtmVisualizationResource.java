@@ -10,7 +10,7 @@ import com.park.utmstack.service.chart_builder.UtmVisualizationQueryService;
 import com.park.utmstack.service.chart_builder.UtmVisualizationService;
 import com.park.utmstack.service.dto.chart_builder.UtmVisualizationCriteria;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.requests.RequestDsl;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParser;
 import com.park.utmstack.util.chart_builder.elasticsearch_dsl.responses.ResponseParserFactory;
@@ -31,7 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -238,7 +237,7 @@ public class UtmVisualizationResource {
         final String ctx = CLASSNAME + ".getUtmVisualization";
         try {
             Optional<UtmVisualization> utmVisualization = visualizationService.findOne(id);
-            return ResponseUtil.wrapOrNotFound(utmVisualization);
+            return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmVisualization);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -306,7 +305,7 @@ public class UtmVisualizationResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 

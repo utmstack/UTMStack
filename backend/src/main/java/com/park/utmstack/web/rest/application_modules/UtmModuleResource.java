@@ -14,7 +14,7 @@ import com.park.utmstack.service.application_modules.UtmModuleService;
 import com.park.utmstack.event_processor.EventProcessorManagerService;
 import com.park.utmstack.service.dto.application_modules.ModuleDTO;
 import com.park.utmstack.service.dto.application_modules.UtmModuleCriteria;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -81,7 +81,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -94,7 +94,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -108,7 +108,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -123,7 +123,7 @@ public class UtmModuleResource {
                 String msg = ctx + ": You must provide the header used to communicate internally with this resource";
                 log.error(msg);
                 eventService.createEvent(msg, ApplicationEventType.ERROR);
-                return UtilResponse.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+                return ResponseUtil.buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
             }
 
             return ResponseEntity.ok(module);
@@ -131,7 +131,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -158,7 +158,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -171,7 +171,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -184,7 +184,7 @@ public class UtmModuleResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 

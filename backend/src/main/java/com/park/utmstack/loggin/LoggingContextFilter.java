@@ -1,6 +1,8 @@
 package com.park.utmstack.loggin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import net.logstash.logback.argument.StructuredArguments;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
+/*@Component*/
+@Slf4j
 public class LoggingContextFilter extends OncePerRequestFilter {
 
     @Override
@@ -23,6 +26,7 @@ public class LoggingContextFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+        MDC.clear();
 
         try {
             String username = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
@@ -36,12 +40,12 @@ public class LoggingContextFilter extends OncePerRequestFilter {
             args.put("method", request.getMethod());
             args.put("remoteAddr", request.getRemoteAddr());
 
-            MDC.put("args", new ObjectMapper().writeValueAsString(args));
+            log.debug("Request info: {}", StructuredArguments.keyValue("args", args));
 
             filterChain.doFilter(request, response);
         } finally {
             MDC.clear();
         }
     }
-}
+}/**/
 

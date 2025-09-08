@@ -2,15 +2,12 @@ package com.park.utmstack.web.rest;
 
 
 import com.park.utmstack.config.Constants;
-import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
-import com.park.utmstack.domain.mail_sender.MailConfig;
 import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
-import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.util.CipherUtil;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.info.InfoEndpoint;
@@ -19,9 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
-import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,7 +58,7 @@ public class UtmStackResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -78,7 +72,7 @@ public class UtmStackResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -91,7 +85,7 @@ public class UtmStackResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 
@@ -106,7 +100,7 @@ public class UtmStackResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

@@ -1,11 +1,10 @@
 package com.park.utmstack.web.rest.util;
 
-import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.security.jwt.JWTFilter;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.util.PdfService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
@@ -76,7 +75,7 @@ public class PdfGeneratorResource {
             String msg = ctx + ": " + e.getLocalizedMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
     }
 }

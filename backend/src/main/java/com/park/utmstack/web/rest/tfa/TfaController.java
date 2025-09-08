@@ -1,9 +1,7 @@
 package com.park.utmstack.web.rest.tfa;
 
-import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
-import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.tfa.TfaMethod;
 import com.park.utmstack.security.jwt.JWTFilter;
@@ -18,7 +16,7 @@ import com.park.utmstack.service.dto.tfa.save.TfaSaveRequest;
 import com.park.utmstack.service.dto.tfa.verify.TfaVerifyRequest;
 import com.park.utmstack.service.dto.tfa.verify.TfaVerifyResponse;
 import com.park.utmstack.service.tfa.TfaService;
-import com.park.utmstack.util.UtilResponse;
+import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.park.utmstack.config.Constants.PROP_TFA_METHOD;
 
 @RestController
 @RequiredArgsConstructor
@@ -110,17 +105,17 @@ public class TfaController {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildPreconditionFailedResponse(msg);
+            return ResponseUtil.buildPreconditionFailedResponse(msg);
         } catch (IllegalArgumentException e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildBadRequestResponse(msg);
+            return ResponseUtil.buildBadRequestResponse(msg);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 

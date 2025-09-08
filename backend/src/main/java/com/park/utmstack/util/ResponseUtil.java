@@ -4,7 +4,7 @@ import com.park.utmstack.web.rest.util.HeaderUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class UtilResponse {
+public class ResponseUtil {
     public static <T> ResponseEntity<T> buildErrorResponse(HttpStatus errorCode, String msg) {
         return ResponseEntity.status(errorCode)
             .headers(HeaderUtil.createFailureAlert("", "",
