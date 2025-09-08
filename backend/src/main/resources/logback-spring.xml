@@ -20,6 +20,9 @@
                 <message>
                     <fieldName>msg</fieldName>
                 </message>
+               <!-- <stackTrace>
+                    <fieldName>trace</fieldName>
+                </stackTrace>-->
                 <arguments>
                 </arguments>
             </providers>

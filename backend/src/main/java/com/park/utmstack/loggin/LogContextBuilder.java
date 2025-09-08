@@ -1,45 +1,40 @@
 package com.park.utmstack.loggin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.park.utmstack.domain.User;
+import com.park.utmstack.security.SecurityUtils;
+import com.park.utmstack.service.UserService;
+import lombok.RequiredArgsConstructor;
+import net.logstash.logback.argument.StructuredArgument;
 import org.slf4j.MDC;
+import net.logstash.logback.argument.StructuredArguments;
+import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
+@Component
+@RequiredArgsConstructor
 public class LogContextBuilder {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private final UserService userService;
 
-    public static void init(String traceCode, Map<String, Object> args, Throwable exception) {
-        MDC.put("code", traceCode != null ? traceCode : UUID.randomUUID().toString().replace("-", ""));
-        MDC.put("args", serializeArgs(args));
-        MDC.put("trace", serializeStackTrace(exception));
-    }
+    public Map<String, Object> buildArgs(Exception e, HttpServletRequest request) {
+        Map<String, Object> args = new HashMap<>();
 
-    public static void clear() {
-        MDC.remove("code");
-        MDC.remove("args");
-        MDC.remove("trace");
-    }
+        String userName = SecurityUtils.getCurrentUserLogin().orElse("anonymous");
 
-    private static String serializeArgs(Map<String, Object> args) {
-        try {
-            return args != null ? mapper.writeValueAsString(args) : "{}";
-        } catch (Exception e) {
-            return "{\"error\":\"Failed to serialize args\"}";
+        if (Objects.nonNull(e.getCause())) {
+            args.put("cause", e.getCause().toString());
         }
-    }
 
-    private static String serializeStackTrace(Throwable ex) {
-        if (ex == null) return "[]";
-        List<String> traceList = Arrays.stream(ex.getStackTrace())
-                .map(ste -> ste.getClassName() + "." + ste.getMethodName() + " " + ste.getLineNumber())
-                .collect(Collectors.toList());
-        try {
-            return mapper.writeValueAsString(traceList);
-        } catch (Exception e) {
-            return "[\"Failed to serialize stack trace\"]";
-        }
+        args.put("username", userName);
+        args.put("method", request.getMethod());
+        args.put("path", request.getRequestURI());
+        args.put("remoteAddr", request.getRemoteAddr());
+        args.put("context", MDC.get("context"));
+
+      return args;
     }
 }
-

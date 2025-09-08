@@ -74,7 +74,6 @@ public class UserJWTController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletRequest request) {
-        final String ctx = CLASSNAME + ".authorize";
 
         if (loginAttemptService.isBlocked())
             throw new TooMuchLoginAttemptsException(String.format("Client IP %1$s blocked due to too many failed login attempts", loginAttemptService.getClientIP()));
