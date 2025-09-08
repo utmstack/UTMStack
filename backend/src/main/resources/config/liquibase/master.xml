@@ -249,7 +249,7 @@
 
     <include file="/config/liquibase/changelog/20250828001_add_tfa_method_column.xml" relativeToChangelogFile="false"/>
 
-    <!--<include file="/config/liquibase/changelog/20250805001_add_correlation_rules.xml" relativeToChangelogFile="false"/>-->
+    <include file="/config/liquibase/changelog/20250805001_add_correlation_rules.xml" relativeToChangelogFile="false"/>
 
 
 </databaseChangeLog>
