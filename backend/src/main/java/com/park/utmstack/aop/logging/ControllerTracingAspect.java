@@ -20,11 +20,8 @@ public class ControllerTracingAspect {
                 .map(Authentication::getName)
                 .orElse("anonymous");
         MDC.put("username", username);*/
-        try {
-            return joinPoint.proceed();
-        } finally {
-            MDC.clear();
-        }
+
+        return joinPoint.proceed();
     }
 }
 

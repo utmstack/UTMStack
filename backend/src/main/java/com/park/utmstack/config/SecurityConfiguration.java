@@ -1,11 +1,13 @@
 package com.park.utmstack.config;
 
+import com.park.utmstack.loggin.filter.MdcCleanupFilter;
 import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyConfigurer;
 import com.park.utmstack.security.internalApiKey.InternalApiKeyProvider;
 import com.park.utmstack.security.jwt.JWTConfigurer;
 import com.park.utmstack.security.jwt.TokenProvider;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -71,6 +73,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public FilterRegistrationBean<MdcCleanupFilter> mdcCleanupFilter() {
+        FilterRegistrationBean<MdcCleanupFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new MdcCleanupFilter());
+        registrationBean.setOrder(Integer.MAX_VALUE);
+        registrationBean.addUrlPatterns("/*");
+        return registrationBean;
     }
 
     @Bean

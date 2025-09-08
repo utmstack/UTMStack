@@ -213,19 +213,14 @@ public class UserService {
         }).map(UserDTO::new);
     }
 
-    public void updateUserTfaSecret(String userLogin, String tfaSecret, String tfaMethod) throws Exception {
-        final String ctx = CLASS_NAME + ".updateUserTfaSecret";
-        try {
+    public void updateUserTfaSecret(String userLogin, String tfaSecret, String tfaMethod) {
             User user = userRepository.findOneByLogin(userLogin)
-                .orElseThrow(() -> new Exception(String.format("User %1$s not found", userLogin)));
+                .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", userLogin)));
             user.setTfaMethod(tfaMethod);
             user.setTfaSecret(tfaSecret);
-        } catch (Exception e) {
-            throw new Exception(ctx + ": " + e.getMessage());
-        }
     }
 
-    public void deleteUser(String login) throws Exception {
+    public void deleteUser(String login) {
         String ctx = CLASS_NAME + ".deleteUser";
         User user = userRepository.findOneByLogin(login)
                 .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", login)));

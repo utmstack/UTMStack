@@ -13,6 +13,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.NoSuchElementException;
+
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -20,21 +22,35 @@ public class GlobalExceptionHandler {
 
     private final ApplicationEventService applicationEventService;
 
-
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> handleForbidden(BadCredentialsException e) {
         String msg = String.format("%s: %s", MDC.get("context"), e.getMessage());
+        Map<String, Object> args = Map.of(
+                "method", request.getMethod(),
+                "path", request.getRequestURI(),
+                "remoteAddr", request.getRemoteAddr()
+        );
+
+        log.error("Authentication failure: {},", msg, StructuredArguments.keyValue("args", args));
         log.error(msg, e);
 
         return ResponseUtil.buildUnauthorizedResponse(msg);
     }
 
     @ExceptionHandler(TooMuchLoginAttemptsException.class)
-    public ResponseEntity<?> handleTo(BadCredentialsException e) {
+    public ResponseEntity<?> handleTooManyLoginAttempts(TooMuchLoginAttemptsException e) {
         String msg = String.format("%s: %s", MDC.get("context"), e.getMessage());
         log.error(msg, e);
 
-        return ResponseUtil.buildUnauthorizedResponse(msg);
+        return ResponseUtil.buildLockedResponse(msg);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<?> handleNotFound(NoSuchElementException e) {
+        String msg = String.format("%s: %s", MDC.get("context"), e.getMessage());
+        log.error(msg, e);
+
+        return ResponseUtil.buildNotFoundResponse(msg);
     }
 
     @ExceptionHandler(Exception.class)
