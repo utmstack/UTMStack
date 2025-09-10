@@ -16,10 +16,6 @@ public class ControllerTracingAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String context = signature.getDeclaringType().getSimpleName() + "." + signature.getMethod().getName();
         MDC.put("context", context);
-       /* String username = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(Authentication::getName)
-                .orElse("anonymous");
-        MDC.put("username", username);*/
 
         return joinPoint.proceed();
     }
