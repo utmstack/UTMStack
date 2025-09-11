@@ -2,7 +2,6 @@ package server
 
 import (
 	"crypto/tls"
-	"fmt"
 	"os"
 	"time"
 
@@ -31,18 +30,24 @@ func loadCerts() (tls.Certificate, error) {
 
 	certsFolder, err := utils.MkdirJoin(certsFolderConfig)
 	if err != nil {
-		return tls.Certificate{}, fmt.Errorf("cannot create certificates directory: %v", err)
+		return tls.Certificate{}, catcher.Error("cannot create certificates directory", err, map[string]any{
+			"certsFolder": certsFolderConfig,
+		})
 	}
 
 	certPath := certsFolder.FileJoin("utm.crt")
 	keyPath := certsFolder.FileJoin("utm.key")
 
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
-		return tls.Certificate{}, fmt.Errorf("certificate file does not exist: %s", certPath)
+		return tls.Certificate{}, catcher.Error("certificate file does not exist", err, map[string]any{
+			"certPath": certPath,
+		})
 	}
 
 	if _, err := os.Stat(keyPath); os.IsNotExist(err) {
-		return tls.Certificate{}, fmt.Errorf("key file does not exist: %s", keyPath)
+		return tls.Certificate{}, catcher.Error("key file does not exist", err, map[string]any{
+			"keyPath": keyPath,
+		})
 	}
 
 	return tls.LoadX509KeyPair(certPath, keyPath)

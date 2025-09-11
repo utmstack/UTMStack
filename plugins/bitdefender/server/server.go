@@ -25,14 +25,13 @@ func GetLogs() http.HandlerFunc {
 
 		if conf.ModuleActive {
 			if r.Header.Get("authorization") == "" {
-				message := "401 Missing Authorization Header"
-				_ = catcher.Error("missing authorization header", nil, map[string]any{})
-				j, _ := json.Marshal(message)
-				w.WriteHeader(http.StatusUnauthorized)
-				_, err := w.Write(j)
-				if err != nil {
-					_ = catcher.Error("cannot write response", err, nil)
-				}
+				_ = catcher.Error("missing authorization header", nil, map[string]any{
+					"status":     http.StatusUnauthorized,
+					"endpoint":   r.URL.Path,
+					"method":     r.Method,
+					"remoteAddr": r.RemoteAddr,
+				})
+				http.Error(w, "Missing Authorization Header", http.StatusUnauthorized)
 				return
 			}
 
@@ -44,35 +43,46 @@ func GetLogs() http.HandlerFunc {
 				}
 			}
 			if !isAuth {
-				message := "401 Invalid Authentication Credentials"
-				_ = catcher.Error("invalid authentication credentials", nil, map[string]any{})
-				j, _ := json.Marshal(message)
-				w.WriteHeader(http.StatusUnauthorized)
-				_, err := w.Write(j)
-				if err != nil {
-					_ = catcher.Error("cannot write response", err, nil)
-				}
+				_ = catcher.Error("invalid authentication credentials", nil, map[string]any{
+					"status":     http.StatusUnauthorized,
+					"endpoint":   r.URL.Path,
+					"method":     r.Method,
+					"remoteAddr": r.RemoteAddr,
+				})
+				http.Error(w, "Invalid Authentication Credentials", http.StatusUnauthorized)
 				return
 			}
 
 			var newBody schema.BodyEvents
 			err := json.NewDecoder(r.Body).Decode(&newBody)
 			if err != nil {
-				_ = catcher.Error("error decoding body", err, map[string]any{})
+				_ = catcher.Error("error decoding request body", err, map[string]any{
+					"status":     http.StatusBadRequest,
+					"endpoint":   r.URL.Path,
+					"method":     r.Method,
+					"remoteAddr": r.RemoteAddr,
+				})
+				http.Error(w, "Invalid request body", http.StatusBadRequest)
 				return
 			}
 
 			events := newBody.Events
 			CreateMessage(conf, events)
 
-			j, _ := json.Marshal("HTTP 200 OK")
 			w.WriteHeader(http.StatusOK)
-			_, err = w.Write(j)
-			if err != nil {
-				_ = catcher.Error("cannot write response", err, nil)
+			if _, err := w.Write([]byte("OK")); err != nil {
+				_ = catcher.Error("cannot write response", err, map[string]any{
+					"status": http.StatusOK,
+				})
 			}
 		} else {
-			_ = catcher.Error("bitdefender module disabled", nil, map[string]any{})
+			_ = catcher.Error("bitdefender module disabled", nil, map[string]any{
+				"status":     http.StatusServiceUnavailable,
+				"endpoint":   r.URL.Path,
+				"method":     r.Method,
+				"remoteAddr": r.RemoteAddr,
+			})
+			http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
 		}
 	}
 }
@@ -81,8 +91,21 @@ func StartServer() {
 	r := mux.NewRouter().StrictSlash(false)
 	r.HandleFunc("/api", GetLogs()).Methods("POST")
 	r.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+		catcher.Info("health check requested", map[string]any{
+			"endpoint":   r.URL.Path,
+			"method":     r.Method,
+			"remoteAddr": r.RemoteAddr,
+			"userAgent":  r.UserAgent(),
+		})
+
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("Server is up and running"))
+		if _, err := w.Write([]byte("Server is up and running")); err != nil {
+			_ = catcher.Error("cannot write health check response", err, map[string]any{
+				"status":     http.StatusOK,
+				"endpoint":   r.URL.Path,
+				"remoteAddr": r.RemoteAddr,
+			})
+		}
 	}).Methods("GET")
 
 	loadedCerts, err := loadCerts()
