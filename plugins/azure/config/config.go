@@ -2,8 +2,6 @@ package config
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"strings"
 	sync "sync"
 	"time"
@@ -52,7 +50,7 @@ func StartConfigurationSystem() {
 		modulesConfigHost = pluginConfig.Get("modulesConfig").String()
 
 		if internalKey == "" || modulesConfigHost == "" {
-			fmt.Println("Internal key or Modules Config Host is not set, skipping UTMStack plugin execution")
+			catcher.Info("Internal key or Modules Config Host is not set, skipping UTMStack plugin execution", nil)
 			time.Sleep(reconnectDelay)
 			continue
 		}
@@ -133,7 +131,7 @@ func StartConfigurationSystem() {
 
 			switch message := in.Payload.(type) {
 			case *BiDirectionalMessage_Config:
-				log.Printf("Received configuration update: %v", message.Config)
+				catcher.Info("Received configuration update", map[string]any{"config": message.Config})
 				cnf = message.Config
 			}
 		}
