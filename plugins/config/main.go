@@ -388,7 +388,7 @@ func connect() (*sql.DB, error) {
 func getPatterns(db *sql.DB) (map[string]string, error) {
 	rows, err := db.Query("SELECT pattern_id, pattern_definition FROM utm_regex_pattern")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get patterns: %v", err)
+		return nil, catcher.Error("failed to get patterns", err, map[string]any{})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -401,7 +401,7 @@ func getPatterns(db *sql.DB) (map[string]string, error) {
 
 		err = rows.Scan(&name, &pattern)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{})
 		}
 
 		patterns[name] = pattern
@@ -413,7 +413,7 @@ func getPatterns(db *sql.DB) (map[string]string, error) {
 func getFilters(db *sql.DB) ([]Filter, error) {
 	rows, err := db.Query("SELECT id, filter_name, logstash_filter FROM utm_logstash_filter WHERE is_active = true")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get filters: %v", err)
+		return nil, catcher.Error("failed to get filters", err, map[string]any{})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -429,7 +429,7 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 
 		err = rows.Scan(&id, &name, &body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{})
 		}
 
 		filter := Filter{}
@@ -447,7 +447,7 @@ func getFilters(db *sql.DB) ([]Filter, error) {
 func getAssets(db *sql.DB) ([]Asset, error) {
 	rows, err := db.Query("SELECT id,asset_name,asset_hostname_list_def,asset_ip_list_def,asset_confidentiality,asset_integrity,asset_availability,last_update FROM utm_tenant_config")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get assets: %v", err)
+		return nil, catcher.Error("failed to get assets", err, map[string]any{})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -469,7 +469,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 		err = rows.Scan(&id, &name, &hostnames, &ips, &confidentiality,
 			&integrity, &availability, &lastUpdate)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{})
 		}
 
 		asset := Asset{}
@@ -485,7 +485,7 @@ func getAssets(db *sql.DB) ([]Asset, error) {
 func getRules(db *sql.DB) ([]Rule, error) {
 	rows, err := db.Query("SELECT id,rule_name,rule_confidentiality,rule_integrity,rule_availability,rule_category,rule_technique,rule_description,rule_references_def,rule_definition_def,rule_adversary,rule_deduplicate_by_def,rule_after_events_def FROM utm_correlation_rules WHERE rule_active = true")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get rules: %v", err)
+		return nil, catcher.Error("failed to get rules", err, map[string]any{})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -512,7 +512,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 		err = rows.Scan(&id, &ruleName, &confidentiality, &integrity, &availability,
 			&category, &technique, &description, &references, &where, &adversary, &deduplicate, &after)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{})
 		}
 
 		rule := Rule{}
@@ -533,7 +533,7 @@ func getRules(db *sql.DB) ([]Rule, error) {
 func getRuleDataTypes(db *sql.DB, ruleId int64) ([]string, error) {
 	rows, err := db.Query("SELECT data_type_id FROM utm_group_rules_data_type WHERE rule_id = $1", ruleId)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get data types: %v", err)
+		return nil, catcher.Error("failed to get data types", err, map[string]any{})
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -548,14 +548,14 @@ func getRuleDataTypes(db *sql.DB, ruleId int64) ([]string, error) {
 
 		err = rows.Scan(&dataTypeId)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{})
 		}
 
 		row := db.QueryRow("SELECT data_type FROM utm_data_types WHERE id = $1", dataTypeId)
 
 		err := row.Scan(&dataType)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %v", err)
+			return nil, catcher.Error("failed to scan row", err, map[string]any{})
 		}
 
 		dataTypes = append(dataTypes, utils.CastString(dataType))
@@ -580,7 +580,7 @@ func listFiles(folder string) ([]string, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to list files: %v", err)
+		return nil, catcher.Error("failed to list files", err, nil)
 	}
 
 	return files, nil
@@ -610,7 +610,7 @@ func cleanUpFilters(filters []Filter) error {
 		if !keep {
 			err := os.Remove(file)
 			if err != nil {
-				return fmt.Errorf("failed to remove file: %v", err)
+				return catcher.Error("failed to remove file", err, map[string]any{})
 			}
 		}
 	}
@@ -642,7 +642,7 @@ func cleanUpRules(rules []Rule) error {
 		if !keep {
 			err := os.Remove(file)
 			if err != nil {
-				return fmt.Errorf("failed to remove file: %v", err)
+				return catcher.Error("failed to remove file", err, map[string]any{})
 			}
 		}
 	}
@@ -659,17 +659,17 @@ func writeFilters(filters []Filter) error {
 
 		file, err := os.Create(filtersFolder.FileJoin(fmt.Sprintf("%d.yaml", filter.Id)))
 		if err != nil {
-			return fmt.Errorf("failed to create file: %v", err)
+			return catcher.Error("failed to create file", err, map[string]any{})
 		}
 
 		_, err = file.WriteString(filter.Filter)
 		if err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
+			return catcher.Error("failed to write to file", err, map[string]any{})
 		}
 
 		err = file.Close()
 		if err != nil {
-			return fmt.Errorf("failed to close file: %v", err)
+			return catcher.Error("failed to close file", err, map[string]any{})
 		}
 	}
 
@@ -684,7 +684,7 @@ func writeTenant(tenant Tenant) error {
 
 	file, err := os.Create(pipelineFolder.FileJoin("tenants.yaml"))
 	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
+		return catcher.Error("failed to create file", err, map[string]any{})
 	}
 
 	sdkTenant := plugins.Tenant(tenant)
@@ -695,17 +695,17 @@ func writeTenant(tenant Tenant) error {
 
 	bTenants, err := k8syaml.Marshal(tenants)
 	if err != nil {
-		return fmt.Errorf("failed to marshal tenant: %v", err)
+		return catcher.Error("failed to marshal tenant", err, map[string]any{})
 	}
 
 	_, err = file.Write(bTenants)
 	if err != nil {
-		return fmt.Errorf("failed to write to file: %v", err)
+		return catcher.Error("failed to write to file", err, map[string]any{})
 	}
 
 	err = file.Close()
 	if err != nil {
-		return fmt.Errorf("failed to close file: %v", err)
+		return catcher.Error("failed to close file", err, map[string]any{})
 	}
 
 	return nil
@@ -720,22 +720,22 @@ func writeRules(rules []Rule) error {
 
 		file, err := os.Create(filePath.FileJoin(fmt.Sprintf("%d.yaml", rule.Id)))
 		if err != nil {
-			return fmt.Errorf("failed to create file: %v", err)
+			return catcher.Error("failed to create file", err, map[string]any{})
 		}
 
 		bRule, err := yaml.Marshal([]Rule{rule})
 		if err != nil {
-			return fmt.Errorf("failed to marshal rule: %v", err)
+			return catcher.Error("failed to marshal rule", err, map[string]any{})
 		}
 
 		_, err = file.Write(bRule)
 		if err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
+			return catcher.Error("failed to write to file", err, map[string]any{})
 		}
 
 		err = file.Close()
 		if err != nil {
-			return fmt.Errorf("failed to close file: %v", err)
+			return catcher.Error("failed to close file", err, map[string]any{})
 		}
 	}
 
@@ -749,7 +749,7 @@ func writePatterns(patterns map[string]string) error {
 	}
 	file, err := os.Create(filePath.FileJoin("patterns.yaml"))
 	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
+		return catcher.Error("failed to create file", err, map[string]any{})
 	}
 
 	config := plugins.Config{
@@ -758,17 +758,17 @@ func writePatterns(patterns map[string]string) error {
 
 	bPatterns, err := k8syaml.Marshal(config)
 	if err != nil {
-		return fmt.Errorf("failed to marshal patterns: %v", err)
+		return catcher.Error("failed to marshal patterns", err, map[string]any{})
 	}
 
 	_, err = file.Write(bPatterns)
 	if err != nil {
-		return fmt.Errorf("failed to write to file: %v", err)
+		return catcher.Error("failed to write to file", err, map[string]any{})
 	}
 
 	err = file.Close()
 	if err != nil {
-		return fmt.Errorf("failed to close file: %v", err)
+		return catcher.Error("failed to close file", err, map[string]any{})
 	}
 
 	return nil
