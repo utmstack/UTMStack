@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
@@ -32,7 +33,7 @@ func ValidateO365Config(config *config.ModuleGroup) error {
 	var clientId, clientSecret, tenantId string
 
 	if config == nil {
-		return fmt.Errorf("O365 configuration is nil")
+		return catcher.Error("O365 configuration is nil", nil, nil)
 	}
 
 	for _, cnf := range config.ModuleGroupConfigurations {
@@ -47,13 +48,13 @@ func ValidateO365Config(config *config.ModuleGroup) error {
 	}
 
 	if clientId == "" {
-		return fmt.Errorf("Client ID is required in O365 configuration")
+		return catcher.Error("Client ID is required in O365 configuration", nil, nil)
 	}
 	if clientSecret == "" {
-		return fmt.Errorf("Client Secret is required in O365 configuration")
+		return catcher.Error("Client Secret is required in O365 configuration", nil, nil)
 	}
 	if tenantId == "" {
-		return fmt.Errorf("Tenant ID is required in O365 configuration")
+		return catcher.Error("Tenant ID is required in O365 configuration", nil, nil)
 	}
 
 	// Validate credentials by attempting to get an access token
@@ -71,33 +72,36 @@ func ValidateO365Config(config *config.ModuleGroup) error {
 
 	req, err := http.NewRequest(http.MethodPost, requestUrl, bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return catcher.Error("failed to create request", err, nil)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("O365 authentication request failed: %w", err)
+		return catcher.Error("O365 authentication request failed", err, nil)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("failed to read response: %w", err)
+		return catcher.Error("failed to read response", err, nil)
 	}
 
 	var loginResp MicrosoftLoginResponse
 	if err := json.Unmarshal(body, &loginResp); err != nil {
-		return fmt.Errorf("failed to parse response: %w", err)
+		return catcher.Error("failed to parse response", err, nil)
 	}
 
 	if loginResp.Error != "" {
-		return fmt.Errorf("O365 authentication failed: %s - %s", loginResp.Error, loginResp.ErrorDesc)
+		return catcher.Error("O365 authentication failed", nil, map[string]any{
+			"error":             loginResp.Error,
+			"error_description": loginResp.ErrorDesc,
+		})
 	}
 
 	if loginResp.AccessToken == "" {
-		return fmt.Errorf("O365 authentication failed: no access token received")
+		return catcher.Error("O365 authentication failed: no access token received", nil, nil)
 	}
 
 	return nil

@@ -2,12 +2,12 @@ package validations
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
@@ -15,7 +15,7 @@ func ValidateAzureConfig(config *config.ModuleGroup) error {
 	var eventHubConnection, consumerGroup, storageContainer, storageConnection string
 
 	if config == nil {
-		return fmt.Errorf("AZURE configuration is nil")
+		return catcher.Error("AZURE configuration is nil", nil, nil)
 	}
 
 	for _, cnf := range config.ModuleGroupConfigurations {
@@ -32,28 +32,28 @@ func ValidateAzureConfig(config *config.ModuleGroup) error {
 	}
 
 	if eventHubConnection == "" {
-		return fmt.Errorf("eventHubConnection is required in AZURE configuration")
+		return catcher.Error("eventHubConnection is required in AZURE configuration", nil, nil)
 	}
 	if consumerGroup == "" {
-		return fmt.Errorf("consumerGroup is required in AZURE configuration")
+		return catcher.Error("consumerGroup is required in AZURE configuration", nil, nil)
 	}
 	if storageContainer == "" {
-		return fmt.Errorf("storageContainer is required in AZURE configuration")
+		return catcher.Error("storageContainer is required in AZURE configuration", nil, nil)
 	}
 	if storageConnection == "" {
-		return fmt.Errorf("storageConnection is required in AZURE configuration")
+		return catcher.Error("storageConnection is required in AZURE configuration", nil, nil)
 	}
 
 	eventHubParts := strings.Split(eventHubConnection, ";EntityPath=")
 	if len(eventHubParts) != 2 {
-		return fmt.Errorf("invalid Event Hub connection string format: missing EntityPath")
+		return catcher.Error("invalid Event Hub connection string format: missing EntityPath", nil, nil)
 	}
 	eventHubConnectionBase := eventHubParts[0]
 	eventHubName := eventHubParts[1]
 
 	consumerClient, err := azeventhubs.NewConsumerClientFromConnectionString(eventHubConnectionBase, eventHubName, consumerGroup, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create Event Hub consumer client: %w", err)
+		return catcher.Error("failed to create Event Hub consumer client", err, nil)
 	}
 	defer consumerClient.Close(context.Background())
 
@@ -62,12 +62,12 @@ func ValidateAzureConfig(config *config.ModuleGroup) error {
 
 	_, err = consumerClient.GetEventHubProperties(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("Event Hub connection validation failed: %w", err)
+		return catcher.Error("Event Hub connection validation failed", err, nil)
 	}
 
 	blobClient, err := azblob.NewClientFromConnectionString(storageConnection, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create Storage client: %w", err)
+		return catcher.Error("failed to create Storage client", err, nil)
 	}
 
 	containerClient := blobClient.ServiceClient().NewContainerClient(storageContainer)
@@ -76,7 +76,7 @@ func ValidateAzureConfig(config *config.ModuleGroup) error {
 
 	_, err = containerClient.GetProperties(ctx2, nil)
 	if err != nil {
-		return fmt.Errorf("Storage container validation failed: %w", err)
+		return catcher.Error("Storage container validation failed", err, nil)
 	}
 
 	return nil
