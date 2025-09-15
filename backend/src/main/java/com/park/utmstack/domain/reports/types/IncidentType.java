@@ -1,7 +1,7 @@
 package com.park.utmstack.domain.reports.types;
 
 import com.park.utmstack.domain.incident_response.UtmIncidentJob;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 
 import java.util.List;
 

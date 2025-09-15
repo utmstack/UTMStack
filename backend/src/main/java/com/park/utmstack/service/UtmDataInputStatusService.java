@@ -10,7 +10,7 @@ import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.network_scan.UtmNetworkScan;
 import com.park.utmstack.domain.network_scan.enums.AssetStatus;
 import com.park.utmstack.domain.network_scan.enums.UpdateLevel;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.repository.UtmDataInputStatusRepository;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;

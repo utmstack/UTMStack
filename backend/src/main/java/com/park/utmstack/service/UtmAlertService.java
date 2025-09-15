@@ -1,7 +1,7 @@
 package com.park.utmstack.service;
 
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
-import com.park.utmstack.domain.shared_types.AlertType;
+import com.park.utmstack.domain.shared_types.alert.AlertType;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
 import com.park.utmstack.util.exceptions.DashboardOverviewException;
 import com.park.utmstack.util.exceptions.ElasticsearchIndexDocumentUpdateException;
