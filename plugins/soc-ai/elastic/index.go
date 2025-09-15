@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
@@ -34,7 +35,7 @@ func ElasticQuery(index string, query interface{}, op string) error {
 			method = "POST"
 		}
 	default:
-		return fmt.Errorf("unsupported operation: %s", op)
+		return catcher.Error("unsupported operation", nil, map[string]any{"operation": op})
 	}
 	headers := map[string]string{
 		"Content-Type": "application/json",
@@ -42,12 +43,12 @@ func ElasticQuery(index string, query interface{}, op string) error {
 
 	queryBytes, err := json.Marshal(query)
 	if err != nil {
-		return fmt.Errorf("error marshalling query: %v", err)
+		return catcher.Error("error marshalling query", err, nil)
 	}
 
 	resp, statusCode, err := utils.DoReq(url, queryBytes, method, headers, config.HTTP_TIMEOUT)
 	if err != nil || (statusCode != http.StatusOK && statusCode != http.StatusCreated) {
-		return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
+		return catcher.Error("error while doing request", err, map[string]any{"status": statusCode, "response": string(resp)})
 	}
 
 	return nil
@@ -64,12 +65,12 @@ func ElasticSearch(index, field, value string) ([]byte, error) {
 	body := schema.SearchDetailsRequest{{Field: field, Operator: "IS", Value: value}}
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return nil, fmt.Errorf("error marshalling body: %v", err)
+		return nil, catcher.Error("error marshalling body", err, nil)
 	}
 
 	resp, statusCode, err := utils.DoReq(url, bodyBytes, "POST", headers, config.HTTP_TIMEOUT)
 	if err != nil || statusCode != http.StatusOK {
-		return nil, fmt.Errorf("error while doing request for get Alert Details: %v: %s", err, string(resp))
+		return nil, catcher.Error("error while doing request for get Alert Details", err, map[string]any{"status": statusCode, "response": string(resp)})
 	}
 
 	return resp, nil
@@ -93,15 +94,15 @@ func IndexStatus(id, status, op string) error {
 			if strings.Contains(err.Error(), "index_not_found_exception") || strings.Contains(err.Error(), "no such index") {
 				// Try to create the index first
 				if createErr := CreateIndexIfNotExist(config.SOC_AI_INDEX); createErr != nil {
-					return fmt.Errorf("error creating document in elastic: %v (failed to create index: %v)", err, createErr)
+					return catcher.Error("error creating document in elastic", err, map[string]any{"message": createErr})
 				}
 
 				// Retry the create operation
 				if retryErr := ElasticQuery(config.SOC_AI_INDEX, doc, op); retryErr != nil {
-					return fmt.Errorf("error creating document in elastic after index creation: %v", retryErr)
+					return catcher.Error("error creating document in elastic after index creation", retryErr, nil)
 				}
 			} else {
-				return fmt.Errorf("error creating document in elastic: %v", err)
+				return catcher.Error("error creating document in elastic", err, nil)
 			}
 		}
 		return nil
