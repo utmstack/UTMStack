@@ -90,6 +90,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+github.com/threatwinds/go-sdk v1.0.45 h1:KZ3s3HviNRrOkg5EqjFnoauANFFzTqjNFyshPLY2SoI=
+github.com/threatwinds/go-sdk v1.0.45/go.mod h1:tcWn6r6vqID/W/nL3UKfc5NafA3V/cSkiLvfJnwB58c=
 github.com/threatwinds/logger v1.2.2 h1:sVuT8yhbecPqP4tT8EwHfp1czNC6e1wdkE1ihNnuBdA=
 github.com/threatwinds/logger v1.2.2/go.mod h1:Amq0QI1y7fkTpnBUgeGVu2Z/C4u4ys2pNLUOuj3UAAU=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
