@@ -3,7 +3,6 @@ package validations
 import (
 	"fmt"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
@@ -38,7 +37,7 @@ func ValidateModuleConfig(moduleName string, config *config.ModuleGroup) error {
 		// 	return fmt.Errorf("%v", err)
 		// }
 	default:
-		return catcher.Error("unsupported module", nil, map[string]any{"module": moduleName})
+		return fmt.Errorf("unsupported module: %s", moduleName)
 	}
 
 	return nil

@@ -2,11 +2,11 @@ package validations
 
 import (
 	"context"
+	"fmt"
 
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
@@ -14,7 +14,7 @@ func ValidateAwsConfig(config *config.ModuleGroup) error {
 	var regionName, accessKey, secretAccessKey string
 
 	if config == nil {
-		return catcher.Error("AWS_IAM_USER configuration is nil", nil, nil)
+		return fmt.Errorf("AWS_IAM_USER configuration is nil")
 	}
 
 	for _, cnf := range config.ModuleGroupConfigurations {
@@ -29,13 +29,13 @@ func ValidateAwsConfig(config *config.ModuleGroup) error {
 	}
 
 	if regionName == "" {
-		return catcher.Error("Default Region is required in AWS_IAM_USER configuration", nil, nil)
+		return fmt.Errorf("Default Region is required in AWS_IAM_USER configuration")
 	}
 	if accessKey == "" {
-		return catcher.Error("Access Key is required in AWS_IAM_USER configuration", nil, nil)
+		return fmt.Errorf("Access Key is required in AWS_IAM_USER configuration")
 	}
 	if secretAccessKey == "" {
-		return catcher.Error("Secret Key is required in AWS_IAM_USER configuration", nil, nil)
+		return fmt.Errorf("Secret Key is required in AWS_IAM_USER configuration")
 	}
 
 	cfg, err := awsconfig.LoadDefaultConfig(context.TODO(),
@@ -47,14 +47,14 @@ func ValidateAwsConfig(config *config.ModuleGroup) error {
 		)),
 	)
 	if err != nil {
-		return catcher.Error("failed to load AWS configuration", err, nil)
+		return fmt.Errorf("failed to load AWS configuration: %w", err)
 	}
 
 	stsClient := sts.NewFromConfig(cfg)
 
 	_, err = stsClient.GetCallerIdentity(context.TODO(), &sts.GetCallerIdentityInput{})
 	if err != nil {
-		return catcher.Error("AWS credentials validation failed", err, nil)
+		return fmt.Errorf("AWS credentials validation failed: %w", err)
 	}
 
 	return nil

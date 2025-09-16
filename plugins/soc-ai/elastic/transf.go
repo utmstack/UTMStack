@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
 )
@@ -88,7 +87,7 @@ func buildScriptString(alert schema.GPTAlertResponse) (string, error) {
 				source += fmt.Sprintf("ctx._source['%s'] = params.%s; ", jsonFieldName, jsonFieldName)
 			}
 		default:
-			return "", catcher.Error("unsupported type", nil, map[string]any{"kind": reflect.TypeOf(fieldValue).Kind()})
+			return "", fmt.Errorf("unsupported type: %v", reflect.TypeOf(fieldValue).Kind())
 		}
 	}
 

@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
@@ -40,7 +39,7 @@ func createHistoryCommand(cmd *UtmCommand, cmdID string, agentId uint) *models.A
 func parseAgentToProto(agent models.Agent) *Agent {
 	agentStatus, lastSeen, err := LastSeenServ.GetLastSeenStatus(agent.ID, "agent")
 	if err != nil {
-		catcher.Error("failed to get last seen status for agent", err, map[string]any{"agent_id": agent.ID})
+		utils.ALogger.ErrorF("failed to get last seen status for agent %d: %v", agent.ID, err)
 	}
 	agentResult := &Agent{
 		Id:             uint32(agent.ID),
@@ -108,7 +107,7 @@ func replaceSecretValues(input string) string {
 func modelToProtoCollector(model models.Collector) *Collector {
 	collectorStatus, lastSeen, err := LastSeenServ.GetLastSeenStatus(model.ID, "collector")
 	if err != nil {
-		catcher.Error("failed to get last seen status for collector", err, map[string]any{"collector_id": model.ID})
+		utils.ALogger.ErrorF("failed to get last seen status for collector %d: %v", model.ID, err)
 	}
 	return &Collector{
 		Id:           int32(model.ID),

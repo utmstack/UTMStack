@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
@@ -28,7 +28,7 @@ func ValidateBdgzConfig(config *config.ModuleGroup) error {
 	var connectionKey, accessUrl, masterIp, companiesIDs string
 
 	if config == nil {
-		return catcher.Error("Bitdefender configuration is nil", nil, nil)
+		return fmt.Errorf("Bitdefender configuration is nil")
 	}
 
 	for _, cnf := range config.ModuleGroupConfigurations {
@@ -45,20 +45,20 @@ func ValidateBdgzConfig(config *config.ModuleGroup) error {
 	}
 
 	if connectionKey == "" {
-		return catcher.Error("Connection Key is required in Bitdefender configuration", nil, nil)
+		return fmt.Errorf("Connection Key is required in Bitdefender configuration")
 	}
 	if accessUrl == "" {
-		return catcher.Error("Access URL is required in Bitdefender configuration", nil, nil)
+		return fmt.Errorf("Access URL is required in Bitdefender configuration")
 	}
 	if masterIp == "" {
-		return catcher.Error("Master IP is required in Bitdefender configuration", nil, nil)
+		return fmt.Errorf("Master IP is required in Bitdefender configuration")
 	}
 	if companiesIDs == "" {
-		return catcher.Error("Companies IDs is required in Bitdefender configuration", nil, nil)
+		return fmt.Errorf("Companies IDs is required in Bitdefender configuration")
 	}
 
 	if !strings.HasPrefix(accessUrl, "http://") && !strings.HasPrefix(accessUrl, "https://") {
-		return catcher.Error("Access URL must start with http:// or https://", nil, nil)
+		return fmt.Errorf("Access URL must start with http:// or https://")
 	}
 
 	authCode := generateAuthCode(connectionKey)
@@ -67,17 +67,17 @@ func ValidateBdgzConfig(config *config.ModuleGroup) error {
 		JsonRPC: "2.0",
 		Method:  "getPushEventSettings",
 		ID:      "1",
-		Params:  map[string]any{},
+		Params:  map[string]interface{}{},
 	}
 
 	body, err := json.Marshal(testRequest)
 	if err != nil {
-		return catcher.Error("failed to create test request", err, nil)
+		return fmt.Errorf("failed to create test request: %w", err)
 	}
 
 	req, err := http.NewRequest("POST", accessUrl+endpointPush, bytes.NewBuffer(body))
 	if err != nil {
-		return catcher.Error("failed to create HTTP request", err, nil)
+		return fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -89,20 +89,25 @@ func ValidateBdgzConfig(config *config.ModuleGroup) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return catcher.Error("Bitdefender API request failed", err, nil)
+		return fmt.Errorf("Bitdefender API request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// Read response body
 	bodyBytes, _ := io.ReadAll(resp.Body)
 
-	var respBody map[string]any
+	// Log response for debugging (you can remove this later)
+	if len(bodyBytes) > 0 {
+		fmt.Printf("Response body: %s\n", string(bodyBytes))
+	}
+
+	var respBody map[string]interface{}
 	if err := json.Unmarshal(bodyBytes, &respBody); err == nil {
 		if errorField, ok := respBody["error"]; ok {
-			if errorMap, ok := errorField.(map[string]any); ok {
+			if errorMap, ok := errorField.(map[string]interface{}); ok {
 				if code, ok := errorMap["code"].(float64); ok {
 					details := ""
-					if dataMap, ok := errorMap["data"].(map[string]any); ok {
+					if dataMap, ok := errorMap["data"].(map[string]interface{}); ok {
 						if d, ok := dataMap["details"].(string); ok {
 							details = d
 						}
@@ -113,7 +118,7 @@ func ValidateBdgzConfig(config *config.ModuleGroup) error {
 					}
 
 					if code == -32001 || code == -32002 {
-						return catcher.Error("Bitdefender authentication failed: invalid Connection Key", nil, nil)
+						return fmt.Errorf("Bitdefender authentication failed: invalid Connection Key")
 					}
 
 					if message, ok := errorMap["message"].(string); ok {
@@ -122,40 +127,40 @@ func ValidateBdgzConfig(config *config.ModuleGroup) error {
 							strings.Contains(combinedError, "authentication") ||
 							strings.Contains(combinedError, "invalid api key") ||
 							strings.Contains(combinedError, "access denied") {
-							return catcher.Error("Bitdefender authentication failed", nil, map[string]any{"error": message})
+							return fmt.Errorf("Bitdefender authentication failed: %s", message)
 						}
 					}
 				}
 				if message, ok := errorMap["message"].(string); ok {
-					return catcher.Error("Bitdefender API error", nil, map[string]any{"error": message})
+					return fmt.Errorf("Bitdefender API error: %s", message)
 				}
 			}
-			return catcher.Error("Bitdefender API error", nil, map[string]any{"error": errorField})
+			return fmt.Errorf("Bitdefender API error: %v", errorField)
 		}
 
 		if _, hasResult := respBody["result"]; !hasResult && resp.StatusCode == 200 {
 			if _, hasId := respBody["id"]; !hasId {
-				return catcher.Error("Invalid response format from Bitdefender API", nil, nil)
+				return fmt.Errorf("Invalid response format from Bitdefender API")
 			}
 		}
 	} else if resp.StatusCode == 200 {
-		return catcher.Error("Invalid JSON response from Bitdefender API", nil, nil)
+		return fmt.Errorf("Invalid JSON response from Bitdefender API")
 	}
 
 	if resp.StatusCode == 401 || resp.StatusCode == 403 {
-		return catcher.Error("Bitdefender authentication failed: invalid Connection Key", nil, nil)
+		return fmt.Errorf("Bitdefender authentication failed: invalid Connection Key")
 	}
 
 	if resp.StatusCode == 404 {
-		return catcher.Error("Bitdefender API endpoint not found. Please check the Access URL", nil, nil)
+		return fmt.Errorf("Bitdefender API endpoint not found. Please check the Access URL")
 	}
 
 	if resp.StatusCode >= 400 {
-		return catcher.Error("Bitdefender API returned error status", nil, map[string]any{"status_code": resp.StatusCode})
+		return fmt.Errorf("Bitdefender API returned error status: %d", resp.StatusCode)
 	}
 
 	if resp.StatusCode != 200 {
-		return catcher.Error("Unexpected response status", nil, map[string]any{"status_code": resp.StatusCode})
+		return fmt.Errorf("Unexpected response status: %d", resp.StatusCode)
 	}
 
 	return nil

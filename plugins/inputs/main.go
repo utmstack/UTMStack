@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -74,18 +75,18 @@ func loadCerts() (string, string, error) {
 
 	certsFolder, err := utils.MkdirJoin(certsFolderPath)
 	if err != nil {
-		return "", "", catcher.Error("cannot create certificates directory", err, map[string]any{"path": certsFolderPath})
+		return "", "", fmt.Errorf("cannot create certificates directory: %v", err)
 	}
 
 	certPath := certsFolder.FileJoin(utmCertFileName)
 	keyPath := certsFolder.FileJoin(utmCertFileKey)
 
 	if _, err := os.Stat(certPath); os.IsNotExist(err) {
-		return "", "", catcher.Error("certificate file does not exist", err, map[string]any{"path": certPath})
+		return "", "", fmt.Errorf("certificate file does not exist: %s", certPath)
 	}
 
 	if _, err := os.Stat(keyPath); os.IsNotExist(err) {
-		return "", "", catcher.Error("key file does not exist", err, map[string]any{"path": keyPath})
+		return "", "", fmt.Errorf("key file does not exist: %s", keyPath)
 	}
 
 	return certPath, keyPath, nil

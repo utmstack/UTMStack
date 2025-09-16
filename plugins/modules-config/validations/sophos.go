@@ -3,12 +3,12 @@ package validations
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/modules-config/config"
 )
 
@@ -21,7 +21,7 @@ func ValidateSophosConfig(config *config.ModuleGroup) error {
 	var clientID, clientSecret string
 
 	if config == nil {
-		return catcher.Error("Sophos configuration is nil", nil, nil)
+		return fmt.Errorf("Sophos configuration is nil")
 	}
 
 	for _, cnf := range config.ModuleGroupConfigurations {
@@ -34,10 +34,10 @@ func ValidateSophosConfig(config *config.ModuleGroup) error {
 	}
 
 	if clientID == "" {
-		return catcher.Error("Client ID is required in Sophos configuration", nil, nil)
+		return fmt.Errorf("Client ID is required in Sophos configuration")
 	}
 	if clientSecret == "" {
-		return catcher.Error("Client Secret is required in Sophos configuration", nil, nil)
+		return fmt.Errorf("Client Secret is required in Sophos configuration")
 	}
 
 	data := url.Values{}
@@ -48,7 +48,7 @@ func ValidateSophosConfig(config *config.ModuleGroup) error {
 
 	req, err := http.NewRequest(http.MethodPost, sophosAuthURL, bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		return catcher.Error("failed to create request", err, nil)
+		return fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -59,18 +59,18 @@ func ValidateSophosConfig(config *config.ModuleGroup) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return catcher.Error("Sophos authentication request failed", err, nil)
+		return fmt.Errorf("Sophos authentication request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return catcher.Error("failed to read response", err, nil)
+		return fmt.Errorf("failed to read response: %w", err)
 	}
 
 	var response map[string]interface{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return catcher.Error("failed to parse response", err, nil)
+		return fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -80,29 +80,21 @@ func ValidateSophosConfig(config *config.ModuleGroup) error {
 				message = msg
 			}
 			if errorCode == "oauth.invalid_client_secret" {
-				return catcher.Error("Sophos authentication failed: Invalid Client Secret", nil, nil)
+				return fmt.Errorf("Sophos authentication failed: Invalid Client Secret")
 			}
 			if errorCode == "oauth.invalid_client_id" {
-				return catcher.Error("Sophos authentication failed: Invalid Client ID", nil, nil)
+				return fmt.Errorf("Sophos authentication failed: Invalid Client ID")
 			}
-			return catcher.Error("Sophos authentication failed", nil, map[string]any{
-				"error_code": errorCode,
-				"message":    message,
-			})
+			return fmt.Errorf("Sophos authentication failed: %v - %s", errorCode, message)
 		}
 		if errorCode, hasError := response["error"]; hasError {
 			errorDesc := ""
 			if desc, ok := response["error_description"].(string); ok {
 				errorDesc = desc
 			}
-			return catcher.Error("Sophos authentication failed", nil, map[string]any{
-				"error_code": errorCode,
-				"message":    errorDesc,
-			})
+			return fmt.Errorf("Sophos authentication failed: %v - %s", errorCode, errorDesc)
 		}
-		return catcher.Error("Sophos authentication failed", nil, map[string]any{
-			"status_code": resp.StatusCode,
-		})
+		return fmt.Errorf("Sophos authentication failed with status %d", resp.StatusCode)
 	}
 
 	accessToken, ok := response["access_token"].(string)
@@ -111,9 +103,7 @@ func ValidateSophosConfig(config *config.ModuleGroup) error {
 		for k := range response {
 			fields = append(fields, k)
 		}
-		return catcher.Error("Sophos authentication failed", nil, map[string]any{
-			"response_fields": fields,
-		})
+		return fmt.Errorf("Sophos authentication failed: no access token received. Response fields: %v", fields)
 	}
 
 	return nil
