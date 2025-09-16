@@ -4,12 +4,15 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventSource;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.application_events.types.ApplicationEvent;
 import com.park.utmstack.service.elasticsearch.OpensearchClientBuilder;
+import net.logstash.logback.argument.StructuredArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Service
 public class ApplicationEventService {
@@ -36,9 +39,14 @@ public class ApplicationEventService {
                 .message(message).timestamp(Instant.now().toString())
                 .source(ApplicationEventSource.PANEL.name()).type(type.name())
                 .build();
-            client.getClient().index(".utmstack-logs", applicationEvent);
+            /*client.getClient().index(".utmstack-logs", applicationEvent);*/
         } catch (Exception e) {
-            log.error(ctx + ": " + e.getMessage());
+            log.error(ctx + ": {}", e.getMessage());
         }
+    }
+
+    public void createEvent(String message, ApplicationEventType type, Map<String, Object> details) {
+        String msg = String.format("%s: %s", MDC.get("context"), message);
+        log.info(msg, StructuredArguments.keyValue("args", details));
     }
 }

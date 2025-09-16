@@ -6,8 +6,6 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,25 +20,24 @@ import java.util.NoSuchElementException;
 public class GlobalExceptionHandler {
 
     private final ApplicationEventService applicationEventService;
-    private final ExceptionLogger exceptionLogger;
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> handleForbidden(BadCredentialsException e, HttpServletRequest request) {
-        return exceptionLogger.buildResponse(e, request, HttpStatus.UNAUTHORIZED);
+        return ResponseUtil.buildUnauthorizedResponse(e.getMessage());
     }
 
     @ExceptionHandler(TooMuchLoginAttemptsException.class)
     public ResponseEntity<?> handleTooManyLoginAttempts(TooMuchLoginAttemptsException e, HttpServletRequest request) {
-        return exceptionLogger.buildResponse(e, request, HttpStatus.LOCKED);
+        return ResponseUtil.buildLockedResponse(e.getMessage());
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<?> handleNotFound(NoSuchElementException e, HttpServletRequest request) {
-        return exceptionLogger.buildResponse(e, request, HttpStatus.NOT_FOUND);
+        return ResponseUtil.buildNotFoundResponse(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGenericException(Exception e, HttpServletRequest request) {
-        return exceptionLogger.buildResponse(e, request, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseUtil.buildInternalServerErrorResponse(e.getMessage());
     }
 }

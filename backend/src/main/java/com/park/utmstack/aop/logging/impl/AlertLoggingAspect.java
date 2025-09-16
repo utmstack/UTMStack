@@ -1,4 +1,4 @@
-package com.park.utmstack.aop.logging;
+package com.park.utmstack.aop.logging.impl;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.UtmAlertLog;

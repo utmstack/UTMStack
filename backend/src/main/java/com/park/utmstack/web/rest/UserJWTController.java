@@ -1,9 +1,11 @@
 package com.park.utmstack.web.rest;
 
+import com.park.utmstack.aop.logging.AuditEvent;
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.federation_service.UtmFederationServiceClient;
+import com.park.utmstack.loggin.LogContextBuilder;
 import com.park.utmstack.repository.federation_service.UtmFederationServiceClientRepository;
 import com.park.utmstack.security.TooMuchLoginAttemptsException;
 import com.park.utmstack.security.jwt.JWTFilter;
@@ -19,6 +21,8 @@ import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.InvalidConnectionKeyException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.vm.LoginVM;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.argument.StructuredArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +46,12 @@ import java.util.Map;
  * Controller to authenticate users.
  */
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api")
 public class UserJWTController {
 
     private static final String CLASSNAME = "UserJWTController";
-    private static final String TFA_METHOD = "Tfa-Method";
-    private final Logger log = LoggerFactory.getLogger(UserJWTController.class);
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
@@ -56,51 +60,59 @@ public class UserJWTController {
     private final LoginAttemptService loginAttemptService;
     private final UtmFederationServiceClientRepository fsClientRepository;
     private final TfaService tfaService;
+    private final LogContextBuilder logContextBuilder;
 
-    public UserJWTController(TokenProvider tokenProvider,
-                             AuthenticationManager authenticationManager,
-                             ApplicationEventService applicationEventService,
-                             UserService userService,
-                             LoginAttemptService loginAttemptService,
-                             UtmFederationServiceClientRepository fsClientRepository, TfaService tfaService) {
-        this.tokenProvider = tokenProvider;
-        this.authenticationManager = authenticationManager;
-        this.applicationEventService = applicationEventService;
-        this.userService = userService;
-        this.loginAttemptService = loginAttemptService;
-        this.fsClientRepository = fsClientRepository;
-        this.tfaService = tfaService;
-    }
 
+
+    @AuditEvent(
+            value = ApplicationEventType.AUTH_SUCCESS,
+            message = "Authentication successful: access token issued"
+    )
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletRequest request) {
 
-        if (loginAttemptService.isBlocked())
-            throw new TooMuchLoginAttemptsException(String.format("Client IP %1$s blocked due to too many failed login attempts", loginAttemptService.getClientIP()));
+        if (loginAttemptService.isBlocked()) {
+            String ip = loginAttemptService.getClientIP();
+            throw new TooMuchLoginAttemptsException(String.format("Authentication blocked: IP %s exceeded login attempt threshold", ip));
+        }
 
         boolean isTfaEnabled = Boolean.parseBoolean(Constants.CFG.get(Constants.PROP_TFA_ENABLE));
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
 
-        Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         String tempToken = tokenProvider.createToken(authentication, false, false);
 
         User user = userService.getUserWithAuthoritiesByLogin(loginVM.getUsername())
-                .orElseThrow(() -> new BadCredentialsException("User " + loginVM.getUsername() + " not found"));
+                .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));
 
-        if (isTfaEnabled && (user.getTfaMethod() != null && !user.getTfaMethod().isEmpty())) {
+        boolean tfaRequired = isTfaEnabled && user.getTfaMethod() != null && !user.getTfaMethod().isEmpty();
+
+        if (tfaRequired) {
             tfaService.generateChallenge(user);
+
+            Map<String, Object> args = logContextBuilder.buildArgs(request);
+            args.put("tfaMethod", user.getTfaMethod());
+            applicationEventService.createEvent(
+                    "TFA challenge issued for user '" + user.getLogin() + "' via method '" + user.getTfaMethod() + "'",
+                    ApplicationEventType.TFA_CODE_SENT,
+                    args
+            );
         }
 
-        return new ResponseEntity<>(LoginResponseDTO.builder()
+        LoginResponseDTO response = LoginResponseDTO.builder()
                 .token(tempToken)
                 .method(user.getTfaMethod())
                 .success(true)
-                .tfaRequired(isTfaEnabled)
-                .build(), HttpStatus.OK);
+                .tfaRequired(tfaRequired)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/check-credentials")
     public ResponseEntity<String> checkPassword(@Valid @RequestParam String password, @RequestParam String checkUUID) {

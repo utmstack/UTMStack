@@ -1,12 +1,16 @@
 package com.park.utmstack.domain.correlation.rules;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class UtmGroupRulesDataTypeKey implements Serializable {
+    @Column(name = "rule_id")
     private Long ruleId;
+
+    @Column(name = "data_type_id")
     private Long dataTypeId;
 
     @Override
