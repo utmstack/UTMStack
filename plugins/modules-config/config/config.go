@@ -129,7 +129,7 @@ func (s *ConfigServer) NotifyUpdate(moduleName string, section *ConfigurationSec
 	case "SOPHOS":
 		pluginType = PluginType_SOPHOS
 	default:
-		_ = catcher.Error("unknown module name", fmt.Errorf("module: %s", moduleName), nil)
+		_ = catcher.Error("unknown module name", nil, map[string]any{"module": moduleName})
 		return
 	}
 
@@ -179,7 +179,10 @@ func (s *ConfigServer) SyncConfigs(backend string, internalKey string) {
 				break
 			}
 
-			fmt.Printf("Error fetching configuration for %s: %v, status code: %d. Retrying...\n", name, err, status)
+			_ = catcher.Error("error fetching configuration", err, map[string]any{
+				"module": name,
+				"status": status,
+			})
 			time.Sleep(5 * time.Second)
 		}
 	}

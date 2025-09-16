@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 func GetMyPath() (string, error) {
@@ -19,10 +20,10 @@ func GetMyPath() (string, error) {
 func CreatePathIfNotExist(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
-			return fmt.Errorf("error creating path: %v", err)
+			return catcher.Error("error creating path", err, map[string]any{"path": path})
 		}
 	} else if err != nil {
-		return fmt.Errorf("error checking path: %v", err)
+		return catcher.Error("error checking path", err, map[string]any{"path": path})
 	}
 	return nil
 }

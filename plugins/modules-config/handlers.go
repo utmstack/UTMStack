@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 
@@ -71,7 +70,7 @@ func UpdateModuleConfig(c *gin.Context) {
 	if len(body) != 0 {
 		config.GetConfigServer().NotifyUpdate(moduleName, &body[0])
 	} else {
-		fmt.Println("Received empty configuration body, no updates made")
+		catcher.Info("Received empty configuration body, no updates made", nil)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "Module configuration updated successfully"})

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/utils"
@@ -14,7 +15,7 @@ import (
 
 func CreateNewIncident(alertDetails *schema.AlertFields) error {
 	if alertDetails == nil {
-		return fmt.Errorf("CreateNewIncident: alertDetails is nil")
+		return catcher.Error("CreateNewIncident: alertDetails is nil", nil, nil)
 	}
 
 	url := config.GetConfig().Backend + config.API_INCIDENT_ENDPOINT
@@ -38,22 +39,22 @@ func CreateNewIncident(alertDetails *schema.AlertFields) error {
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return fmt.Errorf("error marshalling body: %v", err)
+		return catcher.Error("error marshalling body", err, nil)
 	}
 
 	resp, statusCode, err := utils.DoReq(url, bodyBytes, "POST", headers, config.HTTP_TIMEOUT)
 	if err != nil || statusCode != http.StatusOK {
-		return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
+		return catcher.Error("error while doing request", err, map[string]any{"status": statusCode, "response": string(resp)})
 	}
 
-	utils.Logger.LogF(100, "Incident %s created successfully", body.IncidentName)
+	catcher.Info("Incident created successfully", map[string]any{"incident_name": body.IncidentName})
 
 	return nil
 }
 
 func AddAlertToIncident(incidentId int, alertDetails *schema.AlertFields) error {
 	if alertDetails == nil {
-		return fmt.Errorf("AddAlertToIncident: alertDetails is nil")
+		return catcher.Error("AddAlertToIncident: alertDetails is nil", nil, nil)
 	}
 
 	url := config.GetConfig().Backend + config.API_INCIDENT_ADD_NEW_ALERT_ENDPOINT
@@ -74,15 +75,15 @@ func AddAlertToIncident(incidentId int, alertDetails *schema.AlertFields) error 
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return fmt.Errorf("error marshalling body: %v", err)
+		return catcher.Error("error marshalling body", err, nil)
 	}
 
 	resp, statusCode, err := utils.DoReq(url, bodyBytes, "POST", headers, config.HTTP_TIMEOUT)
 	if err != nil || (statusCode != http.StatusOK && statusCode != http.StatusCreated) {
-		return fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
+		return catcher.Error("error while doing request", err, map[string]any{"status": statusCode, "response": string(resp)})
 	}
 
-	utils.Logger.LogF(100, "Alert %s added to incident %d successfully", alertDetails.ID, incidentId)
+	catcher.Info("Alert added to incident successfully", map[string]any{"alert_id": alertDetails.ID, "incident_id": incidentId})
 
 	return nil
 }
@@ -101,13 +102,13 @@ func GetIncidentsByPattern(pattern string) ([]schema.IncidentResp, error) {
 
 	resp, statusCode, err := utils.DoReq(url, nil, "GET", headers, config.HTTP_TIMEOUT)
 	if err != nil || statusCode != http.StatusOK {
-		return nil, fmt.Errorf("error while doing request: %v, status: %d, response: %v", err, statusCode, string(resp))
+		return nil, catcher.Error("error while doing request", err, map[string]any{"status": statusCode, "response": string(resp)})
 	}
 
 	var incidents []schema.IncidentResp
 	err = json.Unmarshal(resp, &incidents)
 	if err != nil {
-		return nil, fmt.Errorf("error while unmarshalling response: %v", err)
+		return nil, catcher.Error("error while unmarshalling response", err, nil)
 	}
 
 	return incidents, nil
