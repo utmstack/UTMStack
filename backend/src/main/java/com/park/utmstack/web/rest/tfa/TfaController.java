@@ -1,7 +1,9 @@
 package com.park.utmstack.web.rest.tfa;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
+import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.tfa.TfaMethod;
 import com.park.utmstack.security.jwt.JWTFilter;
@@ -28,10 +30,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.park.utmstack.config.Constants.PROP_TFA_METHOD;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,7 +61,7 @@ public class TfaController {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
 
     }
@@ -73,7 +76,7 @@ public class TfaController {
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 
@@ -88,7 +91,7 @@ public class TfaController {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            return UtilResponse.buildInternalServerErrorResponse(msg);
+            return ResponseUtil.buildInternalServerErrorResponse(msg);
         }
     }
 
